@@ -64,11 +64,16 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
     error.textContent = message ?? "";
   };
 
+  // No labels yet: focus goes to the New label field instead of the panel, so
+  // the first label typed isn't lost (E206).
+  let none0 = false;
+
   async function draw() {
     const records = await store.all();
     const record = records.find((r) => r.id === recordId);
     if (!record) return closePanel();
     const labels = liveLabels(records);
+    none0 = labels.length === 0;
     const shownAs = labelMap(records);
     const had = new Set((record.labels ?? []).map((id) => shownAs.get(id)?.id ?? id));
     const focused = list.contains(document.activeElement) ? document.activeElement.dataset.labelId : null;
@@ -148,7 +153,8 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
     onClose: off,
     extra: { kind: "labels", labelsFor: recordId },
   });
-  panel.focus({ preventScroll: true });
+  if (none0) input.focus({ preventScroll: true });
+  else panel.focus({ preventScroll: true });
   return panel;
 }
 

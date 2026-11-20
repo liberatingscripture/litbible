@@ -51,6 +51,93 @@ export function collectionsSubject(record, reference) {
 }
 
 /**
+ * What a "Collections…" button says: where the record is, by the test the
+ * popover itself uses for a ticked box (`listed`, `holdsItem`), so the two
+ * never disagree. "In Advent small group", "In 2 collections", or
+ * "Collections…" when it is in none.
+ */
+export function collectionsWords(records, recordId) {
+  const held = listed(records, recordId).filter((c) => holdsItem(c, recordId));
+  if (held.length === 0) return "Collections…";
+  if (held.length === 1) return `In ${collectionName(held[0])}`;
+  return `In ${held.length} collections`;
+}
+
+/**
+ * Sets a row's "Collections…" button's visible words and its label now (the
+ * words are "Collections…" until the store has been read) and keeps them
+ * current: it listens for a collection's write itself, since that wakes no
+ * view of marks, and stops once the button has left the document, so a list
+ * drawn again leaves no listener behind. The label begins with the visible
+ * words (WCAG 2.5.3) and names the item: "In Advent, collections for note on
+ * John 3:16".
+ *
+ * @param {HTMLElement} button
+ * @param {{ store: object, recordId: string, subject: string, records?: object[] | null }} options
+ */
+export function keepCollectionsWords(button, { store, recordId, subject, records = null }) {
+  const entry = {
+    button,
+    born: Date.now(),
+    seen: false,
+    show(all) {
+      const words = all ? collectionsWords(all, recordId) : "Collections…";
+      button.textContent = words;
+      button.setAttribute(
+        "aria-label",
+        words === "Collections…" ? `Collections for ${subject}` : `${words}, collections for ${subject}`,
+      );
+    },
+  };
+  // A caller that has just read the notebook hands it over, so the first words cost no second read.
+  entry.show(records);
+  const w = watcher(store);
+  w.entries.add(entry);
+  if (!records) readOnce(store).then((all) => entry.show(all), () => {});
+  return () => w.entries.delete(entry);
+}
+
+// Every button a store's lists draw shares one listener and one read of the
+// notebook per change, since a list of 200 rows is drawn again at every change
+// to the notebook. A button gone from the document is dropped at the next
+// change of any kind, so a list drawn again leaves nothing behind for long.
+const watchers = new WeakMap();
+const reads = new WeakMap();
+
+/** The notebook as one read gives it to every button asking in the same moment. */
+function readOnce(store) {
+  let p = reads.get(store);
+  if (!p) {
+    p = Promise.resolve(store.all()).finally(() => reads.delete(store));
+    reads.set(store, p);
+  }
+  return p;
+}
+
+function watcher(store) {
+  let w = watchers.get(store);
+  if (w) return w;
+  w = { entries: new Set() };
+  watchers.set(store, w);
+  store.subscribe((_ids, _origin, kinds) => {
+    const now = Date.now();
+    const live = [];
+    for (const e of w.entries) {
+      if (e.button.isConnected) {
+        e.seen = true;
+        live.push(e);
+      } else if (e.seen || now - e.born > 10_000) w.entries.delete(e);
+    }
+    // Only a collection's change, or one that names no kinds (an older tab), changes the words.
+    if (!live.length || (Array.isArray(kinds) && !kinds.includes("collection"))) return;
+    readOnce(store).then((all) => {
+      for (const e of live) if (e.button.isConnected) e.show(all);
+    }, () => {});
+  });
+  return w;
+}
+
+/**
  * The quiet "Collections…" button of My Notes' and This verse's rows (the
  * `desk-item__tag` Labels… has there), which opens the popover. `track(id)` is
  * told which record's popover is open, and `track(null)` when it closes, so a
@@ -66,8 +153,7 @@ export function collectionsTag({ store, ctx, record, reference = "", track = () 
   const tag = document.createElement("button");
   tag.type = "button";
   tag.className = "desk-item__tag desk-item__collections";
-  tag.textContent = "Collections…";
-  tag.setAttribute("aria-label", `Collections for ${subject}`);
+  keepCollectionsWords(tag, { store, recordId: record.id, subject });
   tag.addEventListener("click", () => {
     track(record.id);
     openCollectionsPopover({ trigger: tag, store, ctx, recordId: record.id, name: subject }).then(() => {

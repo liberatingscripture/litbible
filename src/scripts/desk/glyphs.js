@@ -38,6 +38,39 @@ export function glyph(marker, cls = "desk-glyph") {
 }
 
 /**
+ * The footnote Pin's thumbtack (E67), drawn as strokes in the text's color: the
+ * stylesheet fills `.desk-pin__head` while a footnote is pinned. Shared by the
+ * Pin button (pins.js) and a pinned footnote's kind line.
+ */
+export const THUMBTACK_INNER = `<path class="desk-pin__head" d="M8 3h8l-1 6 3 4H6l3-4z" /><path d="M12 17v5" />`;
+
+/** A sheet of paper: a page with a folded corner, two full lines of text and a shorter one. */
+export const SHEET_INNER = `<path d="M6 2.5h8l4.5 4.5v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-17.5a1 1 0 0 1 1-1z" /><path d="M13.5 2.5V7h5" /><path d="M8.5 11.5h7M8.5 15h7M8.5 18.5h4" />`;
+
+const KIND_GLYPHS = { thumbtack: THUMBTACK_INNER, sheet: SHEET_INNER };
+
+/**
+ * A kind line's mark for a record kind with one (a pinned footnote's thumbtack,
+ * a sheet's page), as a decorative, aria-hidden svg element in the text's
+ * color. The line's words say the kind, so this is never its only cue.
+ *
+ * @param {"thumbtack" | "sheet"} name
+ * @returns {SVGElement}
+ */
+export function kindGlyph(name) {
+  const wrap = document.createElement("span");
+  wrap.innerHTML = `<svg class="desk-glyph desk-kind-glyph desk-kind-glyph--${name}" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${KIND_GLYPHS[name]}</svg>`;
+  return wrap.firstElementChild;
+}
+
+/** Put a kind's glyph before the words already in a kind line, when the kind has one. */
+export function addKindGlyph(el, kind) {
+  const name = kind === "footnotePin" ? "thumbtack" : kind === "sheet" ? "sheet" : null;
+  if (name) el.prepend(kindGlyph(name));
+}
+
+/**
  * A link's "open on its page in a new tab" icon (E35), drawn in the text colour. Decorative: the link names itself.
  * Its class tells restyle.css's new-tab mark (E71) that the link already shows one (E135).
  */

@@ -172,3 +172,14 @@ test("labelsSubject names the record by kind and reference", () => {
   assert.equal(labelsSubject({ kind: "note" }, "Romans 8:3"), "note on Romans 8:3");
   assert.equal(labelsSubject({ kind: "highlight" }, ""), "highlight");
 });
+
+test("O: with no labels yet, focus goes to the New label field; with labels, to the panel as before", async () => {
+  const rec = note();
+  const empty = await openLabelsPopover({ trigger, store: fakeStore([rec]), ctx, recordId: rec.id });
+  assert.equal(document.activeElement, empty.querySelector(".desk-labels__input"));
+  closePanel({ force: true });
+
+  const withOne = await openLabelsPopover({ trigger, store: fakeStore([label("Grace"), rec]), ctx, recordId: rec.id });
+  assert.equal(withOne.querySelector(".desk-labels__none").hidden, true);
+  assert.equal(document.activeElement, withOne);
+});

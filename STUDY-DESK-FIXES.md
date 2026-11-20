@@ -5321,6 +5321,195 @@ says so; where BVJ was wondering, nothing is decided.)
   a collection's page are white with the field edge. Test:
   `test/desk-audit8-f-css.test.js`. Status: fixed.
 
+E192 to E206 come from one walkthrough: BVJ, 2026-11-20, using /collections
+and /desk's Collections pane as a new reader would. Under D13's decision 25
+(every look is one the site already has), BVJ approved three new ones here:
+one sheet per record (E192), the sheet glyph (E197), and the membership
+wording (E202).
+
+- **E192, preference: a collection's members lay on one sheet.** BVJ,
+  2026-11-20: each record is a sheet of its own, in the look of a part in the
+  sheet editor; members of one kind in a row touch, and a change of kind
+  leaves the 10px gap a sheet's parts have, on the page and in the pane, in
+  all three orders. **Fixed** (`collection-view.js`, `collection-pane.js`,
+  `desk.css`, `v2/collections.css`): the members are a column
+  (`.collection-page__members`) of runs, one `ul.collection-page__run` per
+  stretch of one kind, each row a `.collection-page__member` in the module
+  rule's own look (`.desk-sheet__module, .collection-page__member`: the card
+  edge, a 10px radius, the card fill). Rows in a run overlap their edges by
+  1px so they touch; the column's 10px gap falls between runs, group labels
+  and headings. A pane's cards take its card color by E185's rule.
+  `plainMembers` is gone, since nothing lies on a `.v2-sheet` now. Tests:
+  `test/desk-collections-sheets.test.js`, `test/desk-collections-pane.test.js`,
+  `test/desk-audit8-f-css.test.js`. Status: fixed.
+
+- **E193, preference: in Bible order a record inside a collected passage
+  stood apart from it.** BVJ, 2026-11-20: a record wholly inside a collected
+  passage lies on that passage's sheet; a nested bookmark drops its words
+  (the passage shows them), a highlight keeps its tinted words, a note its
+  text; one that only partly overlaps stands alone; and the rule for a record
+  two passages hold is written down. **Fixed**
+  (`src/lib/desk-collection-nest.mjs`, new; `collection-view.js`,
+  `desk.css`): `nestRows`, in Bible order only. The hosts are the passages
+  not wholly inside another (wider, or the same verses and earlier). A row
+  goes under the first host holding all its verses, in the same book and
+  chapter, one level deep, so a smaller passage nests with its own records
+  beside it rather than under it. **Two passages that partly overlap are both
+  hosts, and a record inside both goes under the first in Bible order.**
+  Sheets and rows on no verse never nest. A nested row is the ordinary row,
+  indented under the passage's words with a hairline above it; a nested
+  passage or bookmark draws no words. By type and My order never nest.
+  Tests: `test/desk-collection-nest.test.js`,
+  `test/desk-collections-sheets.test.js`. Status: fixed.
+
+- **E194, preference: a passage added inside one already collected said
+  nothing of it.** BVJ, 2026-11-20: the message adds “It’s also inside Luke
+  1:46–55.” **Fixed** (`add-passage.js`, `collection-view.js`):
+  `alsoInside(collection, fields)` names the smallest passage the collection
+  held before the add that wholly holds the new verses (a tie goes to the
+  first in Bible order), on the undo bar of every way a passage goes in: the
+  verse menu's and This verse's (`addPassageToCollection`) and the collection
+  page's passage form. An exact duplicate is refused as before, with no extra
+  sentence. Tests: `test/desk-collections-add-passage.test.js`,
+  `test/desk-collections-sheets.test.js`. Status: fixed.
+
+- **E195, preference: a collection's group labels were small capitals.** BVJ,
+  2026-11-20: use My Notebook's group heading (`.desk-np__h3`). **Fixed**
+  (`collection-view.js`, `desk.css`): “Sheets,” “By verse,” and By type's
+  groups are `h2.desk-np__h3` on the page and `h4` in a pane (a level under
+  the view's title) in place of `.v2-label`, lying on the page between the
+  sheets. Test: `test/desk-collections-sheets.test.js`. Status: fixed.
+
+- **E196, preference: in My order a heading could be added only at the
+  end.** BVJ, 2026-11-20: the sheet editor's gap pill, “+ Heading,” shown on
+  hover or focus. **Fixed** (`collection-view.js`, `desk.css`): `gapPills`
+  puts a `.desk-sheet__after` line above the first row and under each, whose
+  pill opens a heading's field right there (“Add a heading after Luke
+  1:46–55,” in the sheet editor's insert card); Add writes the heading before
+  the next row (`addHeading`'s `before`). As in the sheet editor (DK6-1), the
+  pills are one Tab stop (the last one used), the up and down arrows, Home and
+  End move among them, and Escape or × closes the field and puts focus back on
+  its pill. “Add a heading” under the order switch stays. Print hides the
+  pills. Test: `test/desk-collections-sheets.test.js`. Status: fixed.
+
+- **E197, preference: a pinned footnote's and a sheet's kind lines had no
+  mark.** BVJ, 2026-11-20: a thumbtack before “Pinned footnote,” and a sheet
+  glyph before “Sheet” (**the sheet glyph is one of decision 25's three
+  approved looks**). **Fixed** (`glyphs.js`, `record-rows.js`, `desk.css`):
+  `addKindGlyph` draws the Pin's thumbtack (`THUMBTACK_INNER`, shared with
+  the Pin button) or a page with a folded corner (`SHEET_INNER`) in the
+  text's color, `aria-hidden`, since the words still say the kind, wherever
+  a record row is drawn. Test: `test/desk-collections-kind-lines.test.js`.
+  Status: fixed.
+
+- **E198, preference: a highlight's words lost their poetry lines.** BVJ,
+  2026-11-20: show a highlight's words broken where the chapter breaks them.
+  **Fixed** (`src/lib/desk-quote-lines.mjs`, new; `record-words.js`,
+  `record-rows.js`): once a highlight's row nears the view, `keepLines` reads
+  its chapter's lines (`readChapterLines`: a poetry line, a paragraph, or a
+  run between `<br>`s, without verse numbers or footnote letters) and
+  `splitQuoteIntoLines` breaks the tinted words at them, in place, with the
+  same swatch and tint. The flat words stay when the chapter can't be read,
+  the words aren't found, or they fall on one line. Wherever a highlight's
+  row is drawn. Test: `test/desk-collections-kind-lines.test.js`. Status:
+  fixed.
+
+- **E199, preference: a pinned footnote in a collection ran its full
+  length.** BVJ, 2026-11-20: cut it at three lines with the caret, as a
+  passage's words are. **Fixed** (`collection-view.js`): `cutRow`, now shared
+  by a passage's words and the pin, puts the footnote's text in
+  `.desk-item__pin-row` beside the `.desk-item__more` caret (“Show all of the
+  pinned footnote on Luke 1:48”), open for the visit by row key; print shows
+  it whole. Test: `test/desk-collections-sheets.test.js`. Status: fixed.
+
+- **E200, preference: a moved row could leave the view, and the arrows didn't
+  name their keys.** BVJ, 2026-11-20: a moved row scrolls into view, and the
+  tooltips name Alt+↑ and Alt+↓. **Fixed** (`collection-view.js`,
+  `collection-page.js`, `collection-pane.js`): ↑, ↓, Alt with an arrow, and a
+  drop redraw with `reveal`, which scrolls the focused row into view (`block:
+  "nearest"`) on the page and in a pane; a plain redraw leaves the scroll
+  alone. The tips read “Move up (Alt+↑)” and “Move down (Alt+↓).” Tests:
+  `test/desk-collections-scroll.test.js`,
+  `test/desk-collections-sheets.test.js`. Status: fixed.
+
+- **E201, preference: Bring back put a bookmark at the end.** BVJ,
+  2026-11-20: it keeps the item's place. **Fixed** (`desk-collections.mjs`,
+  `desk-collection-format.mjs`, `collection-view.js`): `leftOutPlace` reads
+  where the item sat (its member id and its neighbors) before “Leave it out
+  of this collection”; `bringBack` puts an item back before the member that
+  followed it, else after the one before, else at the end, reusing its
+  member id when that is free. The place was first kept in memory, for the
+  visit only, with the record format unchanged; asked whether to keep it
+  across reloads, which needs a field in the record, BVJ said “yes.” So a
+  bookmark rule has an optional **`exceptAt`**, beside `except`: the place
+  of each left-out bookmark that was held as an item, under its id
+  (`{ memberId, after, before }`). `leaveOut` writes it (a newer place
+  replaces an older one), `bringBack` reads it (`keptPlace`) and takes it
+  away, and the field is left out when it holds none. A place is advice: a
+  neighbor that has gone is passed over, and a bookmark only the rule
+  brought in has none and comes back at the end, as before. No format
+  version bump: an older client keeps the field as one it doesn't know, and
+  the apps write no collection. STUDY-DESK-FORMAT.md, “Collections (kind
+  12),” has the field. Tests: `test/desk-collections-bring-back.test.js`,
+  `test/desk-collection-format.test.js`,
+  `test/desk-collections-sheets.test.js` (a reload between leaving out and
+  bringing back). Status: fixed.
+
+- **E202, preference: “Collections…” didn't say where an item was.** BVJ,
+  2026-11-20: the button reads “In Advent small group,” “In 2 collections,”
+  or “Collections…,” kept up to date (**the membership wording is one of
+  decision 25's three approved looks**). **Fixed** (`collections-popover.js`,
+  `kept-list.js`, `tab-mine.js`, `sheets/my-sheets.js`):
+  `keepCollectionsWords` sets the words, and an accessible name that starts
+  with them (“In Advent small group, collections for note on John 3:16”).
+  Every such button shares one store listener per store and one read per
+  change that touches a collection, and a button that has left the page is
+  dropped at the next change, so a long list or a redrawn My Notes costs one
+  read. My Notes, My Notebook's list, This verse's rows, the Sheets pane and
+  /sheets show it. Test: `test/desk-collections-words.test.js`. Status:
+  fixed.
+
+- **E203, preference: a Collections pane's header didn't name its
+  collection.** BVJ, 2026-11-20. **Fixed** (`collection-pane.js`,
+  `desk-page.js`): the pane tells the desk the name it shows each time it
+  draws (`desk:collection-named`), and the header shows it beside the kind,
+  where My Notes shows its chapter (E69's place): “Collections ▾ Advent small
+  group,” and nothing on the list. Test:
+  `test/desk-collections-scroll.test.js`. Status: fixed.
+
+- **E204, preference: opening a collection kept the list's scroll.** BVJ,
+  2026-11-20: opening a collection or going back to the list starts at the
+  top. **Fixed** (`collection-page.js`, `collection-pane.js`): the page
+  scrolls to the top on every move between its views, Back and Forward
+  included; the pane scrolls its body to the top when it shows another
+  collection or the list, and a redraw of the same view keeps its place.
+  Test: `test/desk-collections-scroll.test.js`. Status: fixed.
+
+- **E205, preference: the undo bar offered “Open the collection” with the
+  collection open, and counted a single item.** BVJ, 2026-11-20. **Fixed**
+  (`add-passage.js`, `add-records.js`, `collection-view.js`):
+  `collectionLink` gives no link while that collection's view is on screen
+  (its title carries `data-collection-shown`), and a single record added is
+  named (“Note on John 3:16 added to Advent series.”; a sheet by its name)
+  where two or more are counted. Test: `test/desk-collections-messages.test.js`.
+  Status: fixed.
+
+- **E206, bug: Labels… with no labels left focus on the popover.** BVJ,
+  2026-11-20: focus goes to the “New label” field. **Fixed** (`labels-ui.js`):
+  with no labels yet, the popover puts focus in New label, so the first
+  keystroke starts one. Test: `test/desk-audit8-dom-labels-ui.test.js`.
+  Status: fixed.
+
+- **E207, preference: a collection's column was My sheets' width, not the
+  sheet editor's.** BVJ, 2026-11-20: “Make the column width in a collection
+  match the column width while editing a sheet on the /sheets page.”
+  **Fixed** (`v2/collections.css`, `pages/collections.css`): one collection's
+  page (`:has([data-collection-shown])`) takes the editor's frame, 90 `--ch`
+  with the page's padding plus the sheet's own 16px, so its members line up
+  with a sheet's parts on /sheets (913px wide at a 1024px window, as there).
+  The list keeps My sheets' width. Checked in the Browser pane. Test:
+  `test/desk-collections-sheets.test.js` (the marker). Status: fixed.
+
 - **E208, preference: “Save as template” belongs to the sheet, not the
   list, and /sheets' rows want an Edit.** BVJ, 2026-11-20: “Would it make
   more sense to have the Save as Template button in the sheets editor or
@@ -5379,6 +5568,100 @@ says so; where BVJ was wondering, nothing is decided.)
   page card for “Print or share” and the help page's “Going back to
   editing” say “Preview.” Test: `test/desk-e208-template.test.js` (the
   header's labels and the button's description). Status: fixed.
+
+- **E210, preference: a collection page's way to the desk didn't match
+  /sheets'.** BVJ, 2026-11-20, of the collection page's actions: “The Open
+  in the Study Desk button doesn't match /sheets. Which one should it be?
+  They should match either way. The wording should be Open in Study Desk
+  with either style.” The page ended its buttons with a quiet button
+  (`.desk-sheet__btn--quiet`, which the restyle draws as an ordinary
+  bordered button) reading “Open in the Study Desk”; a sheet's page on
+  /sheets ends its buttons with “Edit in Study Desk,” a green link set
+  20px apart from them (BVJ, 2026-11-11). Claude chose /sheets' look: the
+  link leaves the page rather than acting on the collection, and the
+  /sheets look already says so. BVJ, of the wider gap: “that's how it
+  should be.” **Built** (`collection-view.js`, `desk.css`): the page's link
+  reads “Open in Study Desk,” as the Scripture pages' button does, and is
+  `.collection-page__desk-link`, measured against /sheets' in the Browser
+  pane: green text at the bar's 0.95rem (15.2px), no border or fill,
+  1.25rem from Delete where the buttons are 8px apart, centered on their
+  line. The pane's “Open on its own page” keeps the quiet button, as a
+  Sheets pane's does. The help page says “Open in Study Desk.” Test:
+  `test/desk-collections-page.test.js`. Status: fixed.
+
+- **E211, preference: a member's grip had a line to itself.** BVJ,
+  2026-11-20, asked what the alternative to the grip's own line at the top
+  of each member's sheet would be. Claude offered the sheet editor's part
+  head, “⠿ Passage” with ↑, ↓ and Remove at its right on one line, then the
+  reference and the words, which saves a line and finishes E192's match
+  with a sheet's parts (the other choice, the grip just before the
+  reference, looks like nothing else on the site). BVJ: “go with your
+  recommendation, matching it to sheets.” **Built** (`collection-view.js`,
+  `desk.css`): each member's sheet, nested rows included, opens with
+  `.desk-sheet__module-head`: the grip, the kind as the part's name
+  (`.desk-sheet__module-name`, “· from Advent” and E197's glyphs kept), and
+  the buttons as the part's tools (`.desk-sheet__module-tools`). The
+  reference and the words lie under it in one column, and the whole head
+  drags, as a part's does (BVJ, 2026-11-08). In a narrow pane the buttons
+  wrap whole to the head's second line, right-aligned, as a part's do
+  (LV3-6), so decision 35's member rules are gone (a heading keeps its own).
+  The grip doesn't print. Checked in the Browser pane on the page and in a
+  261px Collections pane. A collections glyph, asked about in the same
+  message, is not to be made (BVJ: “skip it”). Test:
+  `test/desk-collections-pane.test.js`. Status: fixed.
+
+- **E212, preference: a row moved only in My order.** BVJ, 2026-11-20: “I
+  wonder about the segments being able to be reordered from any sorting
+  setting, but moving it from one of the others automatically changes the
+  sort to ‘my order’ from there. The only conflict would be if they already
+  had a ‘my order’ set. How would we reconcile that?” Claude's answer: until
+  the reader has arranged My order, it starts from the order on screen with
+  the move made; once arranged, the move goes into the reader's order beside
+  the row it passed, the rest staying. Telling the two apart needs a field,
+  since `members` keeps the order things were added in, which looks just
+  like an arrangement. BVJ: “Yes, build the reordering from any order with
+  the ‘arranged’ flag.” **Built** (`desk-collections.mjs`,
+  `desk-collection-format.mjs`, `collection-view.js`): the collection has an
+  optional `arranged`, set by the first move or heading; `isArranged` also
+  counts a heading made before the field. `moveShown` moves a row in the
+  order on screen, counting places in `shownRows` (the rows as drawn, Bible
+  order's nested rows right after their passage): in My order it is
+  `moveRow`; elsewhere, not arranged, My order becomes the screen's order
+  with the move made; arranged, the row goes just above the row it was moved
+  above, or just below the row it was moved below, in My order. Either way
+  the collection switches to My order and is `arranged`. Every order has the
+  head's ↑ and ↓ (E211), the drag, and Alt+↑ and Alt+↓; a move from another
+  order says what happened in the undo bar, with Undo (“Luke 1:46–55 moved.
+  My order now starts from Bible order.” or “Luke 1:55–56 moved in My
+  order.”), and focus follows a rule's bookmark to the item it becomes.
+  STUDY-DESK-FORMAT.md, “Collections (kind 12),” has the field and the rule
+  (no version bump; the apps edit no collection). The help page's “How
+  collections work” says it. Tests:
+  `test/desk-collections-move-any-order.test.js`,
+  `test/desk-collections-sheets.test.js`. Status: fixed.
+
+- **E213, bug: a move from Bible order jumped and scrolled back.** BVJ,
+  2026-11-20: “The reload to the top of the page and scroll back to the
+  location the user was just viewing when moving an item from Bible order is
+  disorienting.” A move from another order switches the collection to My
+  order (E212), so the whole list is drawn again in another order, and
+  E200's reveal then scrolled the row back into view smoothly (the site's
+  `scroll-behavior: smooth`). Measured in headless Chrome on a copy of BVJ's
+  notebook: once My order was arranged, the moved row was drawn 280px above
+  the window and slid back over about a quarter second. **Fixed**
+  (`collection-view.js`, `collection-page.js`, `collection-pane.js`): from
+  another order the moved row keeps its place on screen and the list changes
+  around it. `moveTo` notes the row's top before the write (a drop, the
+  marker's), the host's `refresh` takes `drawn`, run the moment the new rows
+  are in, and `keepAt` scrolls the page or the pane's body at once
+  (`behavior: "instant"`) so the row's top is where it was, holding it there
+  while the passages' words arrive and the store's own redraw lands
+  (`ResizeObserver`, 1.5 seconds or until the reader scrolls, presses or
+  types). A row the page can't scroll to is brought just into view. Moves
+  within My order keep E200's reveal. Checked in headless Chrome, page and
+  /desk pane, ↑ and a drop, arranged and not: the row stays within a pixel
+  of where it was. Test: `test/desk-collections-sheets.test.js`. Status:
+  fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

@@ -38,6 +38,12 @@ import { collectionView, viewHost } from "./collection-view.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 
+/** A view opened or left starts at the top of the page (guarded where a test has no window scroll). */
+const toTop = () => globalThis.scrollTo?.(0, 0);
+
+/** Scroll the focused control's row into view after a move (the row, else the control itself). */
+const revealRow = (el) => (el.closest("[data-row-key]") ?? el).scrollIntoView?.({ block: "nearest" });
+
 /**
  * Draw the page into `root` and keep it drawn. Resolves to `{ refresh, open, toList, destroy }`.
  *
@@ -58,7 +64,7 @@ export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = 
     href,
     // The list's description of the feature, as /sheets has one (E187).
     listIntro: true,
-    // "Open in the Study Desk" (decision 27): /desk shows it in a Collections pane.
+    // "Open in Study Desk" (decision 27, E210): /desk shows it in a Collections pane.
     deskHref: (id) => `${base}desk/?collection=${encodeURIComponent(id)}`,
     // "Add ▾ › From My Notebook" (E177; BVJ: "On /collections it should Go to
     // My Notebook"), in this tab, where a row's "Collections…" and "Add these
@@ -69,8 +75,13 @@ export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = 
     toList: () => go(listHref),
   };
 
-  /** Draw the address's view again. `focus` is the data-focus-key to put focus on, the first that is there. */
-  async function refresh(focus = []) {
+  /**
+   * Draw the address's view again. `focus` is the data-focus-key to put focus
+   * on, the first that is there. `reveal` scrolls the focused row into view
+   * (a move's), where a plain redraw leaves the scroll as it is. `drawn` runs
+   * as soon as the view is in (E213; the pane's needs it before its last read).
+   */
+  async function refresh(focus = [], { reveal = false, drawn = null } = {}) {
     const n = ++seq;
     const id = new URLSearchParams(location.search).get("id");
     const view = id ? await collectionView(host, id) : await collectionList(host);
@@ -86,19 +97,25 @@ export async function mountCollectionsPage(root, { store, ctx = deskCtx, base = 
     if (to) {
       if (!to.matches("a, button, input, textarea")) to.tabIndex = -1;
       to.focus({ preventScroll: true });
+      if (reveal) revealRow(to);
     }
+    drawn?.();
   }
 
-  /** Go to another view of the page, with a history entry of its own. */
-  function go(to) {
+  /** Go to another view of the page, with a history entry of its own, at the top of it. */
+  async function go(to) {
     history.pushState(null, "", to);
-    return refresh(["title"]);
+    await refresh(["title"]);
+    toTop();
   }
 
   // A change to any record can change what a collection shows (a note's words,
   // a sheet's name), so every kind but a reading place draws the view again.
   const stop = store.subscribe(() => refresh(), { except: QUIET_KINDS });
-  const onPop = () => refresh(["title"]);
+  const onPop = async () => {
+    await refresh(["title"]);
+    toTop();
+  };
   addEventListener("popstate", onPop);
   await refresh();
   return {

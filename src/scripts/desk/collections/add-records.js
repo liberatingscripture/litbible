@@ -39,6 +39,7 @@ import {
   planCollectionChange,
   ruleMember,
 } from "../../../lib/desk-collections.mjs";
+import { kindName, recordReference } from "../../../lib/desk-store-core.mjs";
 import { labelIds, liveLabels } from "../../../lib/desk-labels.mjs";
 import { sheetName, sortSheets } from "../../../lib/desk-sheet-passages.mjs";
 import { isOwnTemplate } from "../../../lib/desk-sheets.mjs";
@@ -53,6 +54,18 @@ const openLink = collectionLink;
 
 const pickItems = (list) =>
   list.map((c) => ({ id: c.id, name: c.name, detail: c.modified && dateWords(c.modified) ? `Changed ${dateWords(c.modified)}` : "" }));
+
+/**
+ * What the bar calls one record that was added: a sheet by its name ("Week 1:
+ * The Magnificat"), anything else by its kind and reference ("Note on John
+ * 3:16"). Two or more are counted by the caller instead.
+ */
+function addedName(record) {
+  if (record.kind === "sheet") return sheetName(record);
+  const ref = recordReference(record);
+  const kind = kindName(record.kind);
+  return ref ? `${kind} on ${ref}` : kind;
+}
 
 const GONE = "That collection couldn’t be changed. It may have been deleted. Nothing was added.";
 const FAILED = "They couldn’t be added. Nothing was changed. Try again in a moment.";
@@ -101,7 +114,11 @@ function refusal(plan, shownAs) {
  */
 export async function addRecordsToCollection({ store, ctx, collectionId, recordIds, name = "" }) {
   const wanted = [...new Set(recordIds)];
-  const plan = await write(store, (records) => planAddItems(records, collectionId, wanted, { now: new Date().toISOString(), ...ctx() }));
+  let only = null;
+  const plan = await write(store, (records) => {
+    only = wanted.length === 1 ? records.find((r) => r?.id === wanted[0]) ?? null : null;
+    return planAddItems(records, collectionId, wanted, { now: new Date().toISOString(), ...ctx() });
+  });
   if (refusal(plan, name)) return "failed";
   const where = collectionName(plan.collection);
   if (!plan.changed) {
@@ -110,7 +127,8 @@ export async function addRecordsToCollection({ store, ctx, collectionId, recordI
   }
   const skipped = wanted.length - plan.added.length;
   const entry = store.lastEntry();
-  showUndo(`${plan.added.length} added to ${where}.${skipped > 0 ? ` ${skipped} ${skipped === 1 ? "was" : "were"} there already.` : ""}`, () => undoEntry(entry), {
+  const what = only && plan.added.length === 1 ? addedName(only) : String(plan.added.length);
+  showUndo(`${what} added to ${where}.${skipped > 0 ? ` ${skipped} ${skipped === 1 ? "was" : "were"} there already.` : ""}`, () => undoEntry(entry), {
     link: openLink(collectionId),
   });
   return "added";
@@ -127,10 +145,12 @@ export async function addLabelToCollection({ store, ctx, collectionId, label, ru
   const stamp = () => ({ now: new Date().toISOString(), ...ctx() });
   let count = 0;
   let again = false;
+  let only = null;
   const plan = await write(store, (records) => {
     const bookmarks = labelBookmarks(records, label.id);
     count = bookmarks.length;
     if (!rule) {
+      only = bookmarks.length === 1 ? bookmarks[0] : null;
       const done = planAddItems(records, collectionId, bookmarks.map((b) => b.id), stamp());
       again = !done.changed && !done.gone && !done.refused;
       return done;
@@ -150,7 +170,7 @@ export async function addLabelToCollection({ store, ctx, collectionId, label, ru
   }
   const entry = store.lastEntry();
   showUndo(
-    rule ? `${count} labeled ${label.name} added to ${where}, and new ones will be.` : `${count} added to ${where}.`,
+    rule ? `${count} labeled ${label.name} added to ${where}, and new ones will be.` : `${only ? addedName(only) : count} added to ${where}.`,
     () => undoEntry(entry),
     { link: openLink(collectionId) },
   );
@@ -189,8 +209,10 @@ export async function openAddRecords({ store, ctx, recordIds, near = null, back 
           members: ids.map((id) => itemMember(id)),
           lead: `It will start with ${these}.`,
           back,
-          onCreated: (made, entry) =>
-            showUndo(`${ids.length} added to ${collectionName(made)}.`, () => undoEntry(entry), { link: openLink(made.id) }),
+          onCreated: async (made, entry) => {
+            const only = ids.length === 1 ? (await store.all()).find((r) => r?.id === ids[0]) : null;
+            showUndo(`${only ? addedName(only) : ids.length} added to ${collectionName(made)}.`, () => undoEntry(entry), { link: openLink(made.id) });
+          },
         }),
     },
   });
@@ -238,14 +260,16 @@ export async function openAddLabel({ store, ctx, label, count, near = null, back
             ? `It will hold every bookmark labeled ${label.name}, and any you label ${label.name} from now on.`
             : `It will start with the ${plural(members.length, "bookmark", "bookmarks")} labeled ${label.name}.`,
           back,
-          onCreated: (collection, entry) =>
+          onCreated: async (collection, entry) => {
+            const only = !rule && members.length === 1 ? (await store.all()).find((r) => r?.id === members[0].recordId) : null;
             showUndo(
               rule
                 ? `${count} labeled ${label.name} added to ${collectionName(collection)}, and new ones will be.`
-                : `${members.length} added to ${collectionName(collection)}.`,
+                : `${only ? addedName(only) : members.length} added to ${collectionName(collection)}.`,
               () => undoEntry(entry),
               { link: openLink(collection.id) },
-            ),
+            );
+          },
         });
       },
     },

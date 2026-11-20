@@ -778,6 +778,7 @@ verses of its own, and its `labels` is `[]`):
 | `name` | Plain text, 1 to 200 characters ("Advent series"). Two collections may share a name, so restoring one from the trash never refuses |
 | `description`, optional | Plain text, up to 1,000 characters. Absent or empty means none |
 | `order` | `"bible"` (the default; absent means it), `"type"` or `"mine"`: how the reader has chosen to see it (below). Only `"mine"` shows `members` as they stand; the other two are worked out for display and never rewrite them. An order the client doesn't know is kept, and shown as Bible order |
+| `arranged`, optional | `true` once the reader has arranged My order (moved anything, or added a heading); absent or `false` means not yet. The website reads it when a row is moved in Bible order or by type (below). A collection with a heading and no `arranged` was arranged before the field existed, and counts as arranged (STUDY-DESK-FIXES.md, E212) |
 | `members` | The collection's contents, in the reader's own order (what `"mine"` shows) |
 
 At most **1,000 members** and **512 KB** as JSON, far inside the 1 MB every
@@ -798,6 +799,16 @@ that would pass either, and writes nothing.
   out when it is empty.
 - **My order** (`"mine"`): `members` as they stand, headings included.
   Moving anything, or adding a heading, switches the collection to it.
+
+A row can be moved in any of the three, and the move switches the
+collection to My order and sets `arranged`. While `arranged` is absent (and
+there is no heading), `members` is still in the order things were added, so
+the website makes My order the order on screen, with the move made. Once it
+is arranged, the move is made in `members` beside the row it passed (just
+above the row it was moved above, or just below the row it was moved
+below), and the rest of the reader's order stays. The field came after
+`collectionFormat` 1, with no new version: a client that doesn't know it
+keeps it, and the apps edit no collection.
 
 Headings show in My order only.
 
@@ -841,6 +852,7 @@ already.
 |---|---|
 | `match` | `{ "kind": "bookmark", "label": "<label id>" }`. Any id of the label will do: it matches every live bookmark whose `labels` holds any id of that label, joined as kind 8 joins them, so renaming the label changes nothing here |
 | `except` | Ids of bookmarks the reader left out of this collection ("Leave it out of this collection"); may be empty |
+| `exceptAt`, optional | Where a bookmark in `except` stood as an `item` member before it was left out, so bringing it back returns it there: an object keyed by the bookmark's id, each value `{ "memberId": "<the item's id>", "after": "<id of the member before it>", "before": "<id of the member after it>" }`, each id absent or null at an end. Absent or empty means no places (STUDY-DESK-FIXES.md, E201) |
 
 A `match` naming a kind or a field the client doesn't know is kept and
 matches nothing there. A label deleted for good matches nothing; the
@@ -858,7 +870,16 @@ among themselves, until the reader moves one. Moving one makes it an
 the rule), and so does moving a row below it, since only a member keeps a
 place. "Leave it out of this collection" adds the bookmark's id to
 `except` on every rule that reaches it, and takes out any `item` naming
-it.
+it; the website keeps that item's place in `exceptAt` on the same rules.
+Bringing the bookmark back takes its id off every `except` and its place
+off every `exceptAt`, and puts an `item` back where the place says: before
+the member named `before` if it is still there, else after `after`, else
+at the end, with the item's old `id` when that is free. A place is advice,
+and a bookmark with none (one only the rule brought in) comes back by the
+rule alone. The field came after `collectionFormat` 1 was written, and
+needs no new version: a client that doesn't know it keeps it untouched,
+and an older one that brings a bookmark back leaves a place that a newer
+one reads only while the bookmark is in `except`.
 
 **`heading`**: plain text, up to 200 characters, in `text`. It divides
 the reader's own order into sections ("Week 1"), and is shown only in that

@@ -13,8 +13,7 @@
 // - its id on every id, focus key and radio name (`idSuffix`), and everything
 //   the views look for found inside its own element, so two Collections panes
 //   never answer for each other;
-// - the members on the pane, not on a card (`plainMembers`), and "Open on its
-//   own page" (a new tab) in Print's place (decisions 32 and 36);
+// - "Open on its own page" (a new tab) in Print's place (decisions 32 and 36);
 // - the list's "New collection" beside its title (`listHead`, E186), as a
 //   Sheets pane's "New sheet" is;
 // - references that move the leading LIT pane, as a jump, so its bar offers
@@ -34,6 +33,7 @@ import { noWayLinkLabel, noWayMessage, replacedMessage } from "../../../lib/desk
 import { QUIET_KINDS } from "../../../lib/desk-store-core.mjs";
 import { showNotice, showUndo } from "../undo-bar.js";
 import { make } from "../dom.js";
+import { collectionName } from "../../../lib/desk-collections.mjs";
 import { collectionHref } from "./add-passage.js";
 import { collectionList } from "./collection-list.js";
 import { collectionView, focusKey, viewHost } from "./collection-view.js";
@@ -95,7 +95,6 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
     // "My sheets" and "New sheet" do (E186).
     listHead: true,
     newTabLinks: true,
-    plainMembers: true,
     ownPageHref: collectionHref,
     // "Add ▾ › From My Notes" (E177): a My Notes pane beside this one, which
     // keeps its place; desk-page.js says what it took the place of, if anything.
@@ -116,8 +115,14 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
     toList: () => show(null, [focusKey(host, `open-${shows ?? ""}`), focusKey(host, "title")]),
   };
 
-  /** Draw the pane's view again. `focus` names the focus keys to put focus on, the first that is there. */
-  async function refresh(focus = []) {
+  /**
+   * Draw the pane's view again. `focus` names the focus keys to put focus on,
+   * the first that is there. `reveal` scrolls the focused row into view (a move's);
+   * `drawn` runs as soon as the view is in, before anything is awaited, so a
+   * move from another order can hold its row in place before a frame is
+   * painted (E213).
+   */
+  async function refresh(focus = [], { reveal = false, drawn = null } = {}) {
     const n = ++seq;
     let view;
     try {
@@ -138,16 +143,40 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
     if (to) {
       if (!to.matches("a, button, input, textarea")) to.tabIndex = -1;
       to.focus({ preventScroll: true });
+      if (reveal) (to.closest("[data-row-key]") ?? to).scrollIntoView?.({ block: "nearest" });
     }
+    drawn?.();
+    // The header names the open collection (E69's place): the name, or nothing
+    // on the list or for a collection that isn't there.
+    const named = await nameShown();
+    if (n === seq && !destroyed) document.dispatchEvent(new CustomEvent("desk:collection-named", { detail: { paneId, name: named } }));
+  }
+
+  /** The name of the collection shown, read as collectionView reads it (a live collection, or null). */
+  async function nameShown() {
+    if (!shows) return null;
+    const c = (await store.all()).find((r) => r?.id === shows && r.kind === "collection");
+    return c ? collectionName(c) : null;
   }
 
   const keyedIn = (k) => (k ? el.querySelector(`[data-focus-key="${CSS.escape(k)}"]`) : null);
 
-  /** Show collection `id` (null: the list), keep it in the layout, and draw. */
+  /**
+   * Show collection `id` (null: the list), keep it in the layout, and draw. A
+   * different collection, or the list to a collection or back, starts at the
+   * top of the pane; a redraw of the same view keeps its scroll.
+   */
   function show(id, focus = []) {
-    shows = typeof id === "string" && id ? id : null;
+    const next = typeof id === "string" && id ? id : null;
+    const changed = next !== shows;
+    shows = next;
     setCollection?.(shows);
-    return refresh(focus);
+    const drawn = refresh(focus);
+    if (!changed) return drawn;
+    return drawn.then(() => {
+      const scroller = el.closest(".desk-pane__body") ?? el.parentElement;
+      if (scroller) scroller.scrollTop = 0;
+    });
   }
 
   // "New collection…" in the command row (decision 28), for this pane: the

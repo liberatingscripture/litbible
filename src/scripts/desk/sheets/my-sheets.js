@@ -238,6 +238,12 @@ export function sheetRow(host, s, ul) {
     const collect = button("Collections…", "desk-sheet__btn desk-sheet__btn--quiet");
     collect.setAttribute("aria-label", `Collections for sheet “${sheetName(s)}”`);
     collect.dataset.focusKey = `collections-${s.id}`;
+    // Says where the sheet is, and keeps saying it (E202); loaded with the popover, so the page stays light.
+    import("../collections/collections-popover.js")
+      .then(({ keepCollectionsWords, collectionsSubject }) =>
+        keepCollectionsWords(collect, { store: host.store, recordId: s.id, subject: collectionsSubject(s) }),
+      )
+      .catch(() => {});
     collect.addEventListener("click", async () => {
       const { openCollectionsPopover, collectionsSubject } = await import("../collections/collections-popover.js");
       openCollectionsPopover({ trigger: collect, store: host.store, ctx: host.opCtx, recordId: s.id, name: collectionsSubject(s) });

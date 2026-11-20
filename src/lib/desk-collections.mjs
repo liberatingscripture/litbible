@@ -30,12 +30,25 @@
 //     Moving anything, or adding a heading, switches to My order (D13,
 //     decision 6). Sheets keep the reader's order in the first two, since a
 //     sheet has no verse.
+//   - A row moves in any of the three orders (E212; BVJ, 2026-11-20), and the
+//     move switches to My order. Until the reader has arranged My order
+//     (`arranged`, set by the first move or heading; a heading made before
+//     the field counts), My order starts from the order on screen, with the
+//     move made. Once arranged, the move is made in My order instead: the row
+//     goes just above the row it was moved above, or just below the row it
+//     was moved below, and the rest of My order stays. Members are kept in
+//     the order they were added, which looks just like an arrangement, so
+//     the flag is what tells the two apart.
 //   - A rule's bookmarks: every live bookmark carrying any id of its label
 //     (joined as kind 8 joins them, `labelGroups`), less `except`. In Bible
 //     order they fall among the rest, by type under Bookmarks, and in My order
 //     after every member, in Bible order, until the reader moves one, which
 //     makes it an `item` member at that spot. A bookmark reached by an item
 //     and a rule shows once, at the item's place, still tagged with the rule.
+//   - "Leave it out" keeps the place of the item it takes out in the rule's
+//     `exceptAt`, and "Bring it back" returns the item there and forgets the
+//     place (E201; BVJ, 2026-11-20, "yes" to keeping it across reloads). A
+//     place is advice: a neighbor that has gone is passed over.
 //   - A move in My order lands where the reader put it, exactly. A rule's
 //     bookmark moved, or passed over by a row moved below it, becomes an item
 //     where it stands, since only members keep a place; the rest of the rule's
@@ -59,6 +72,7 @@ import { canEdit, createRecord, editRecord, newId, validateRecord } from "./desk
 import { labelGroups, labelIds, readsAsNothing } from "./desk-labels.mjs";
 import { planSave } from "./desk-store-core.mjs";
 import { fold } from "./desk-notebook.mjs";
+import { nestRows } from "./desk-collection-nest.mjs";
 
 export { collectionOrder, collectionTooBig };
 
@@ -307,14 +321,17 @@ export function removeItem(c, recordId, ctx) {
 /**
  * "Leave it out of this collection" for a bookmark: its id goes in `except`
  * on every rule that reaches it now, and any item naming it is taken out, so
- * it is out of the collection whichever way it came in. The collection itself
- * when nothing changes.
+ * it is out of the collection whichever way it came in. The item's place
+ * (`leftOutPlace`) goes in each such rule's `exceptAt`, under the bookmark's
+ * id, for `bringBack` (E201); with no item there is no place, and any the
+ * rule held for the bookmark goes. The collection itself when nothing changes.
  */
 export function leaveOut(c, bookmarkId, records, ctx) {
   mustEdit(c);
   const live = liveById(records);
   const labels = labelIndex(records);
   const bookmark = live.get(bookmarkId);
+  const place = leftOutPlace(c, bookmarkId);
   let changed = false;
   const members = [];
   for (const m of c.members) {
@@ -324,8 +341,11 @@ export function leaveOut(c, bookmarkId, records, ctx) {
     }
     if (bookmark && isBookmarkRule(m) && matches(m, bookmark, labels)) {
       const except = Array.isArray(m.except) ? m.except : [];
-      if (!except.includes(bookmarkId)) {
-        members.push({ ...m, except: [...except, bookmarkId] });
+      const out = except.includes(bookmarkId);
+      // Already out with no item to take: nothing to do. Out, but held again
+      // as an item since: the new place replaces the old.
+      if (!out || place) {
+        members.push(withPlace({ ...m, except: out ? except : [...except, bookmarkId] }, bookmarkId, place));
         changed = true;
         continue;
       }
@@ -335,16 +355,81 @@ export function leaveOut(c, bookmarkId, records, ctx) {
   return changed ? withMembers(c, members, ctx) : c;
 }
 
-/** A bookmark left out brought back: its id taken off every rule's `except`. */
-export function bringBack(c, bookmarkId, ctx) {
+/**
+ * A rule with `place` kept for the bookmark in its `exceptAt`, or the place
+ * taken away when `place` is null; the field is left out when it holds none.
+ */
+function withPlace(rule, bookmarkId, place) {
+  const { exceptAt, ...rest } = rule;
+  const at = { ...(isObject(exceptAt) ? exceptAt : {}) };
+  if (place) at[bookmarkId] = place;
+  else delete at[bookmarkId];
+  return Object.keys(at).length ? { ...rest, exceptAt: at } : rest;
+}
+
+/**
+ * Where an item naming the bookmark sits in `members`, read before
+ * `leaveOut` takes it out: `{ memberId, after, before }` (the ids of the
+ * members just before and after it, or null at an end), or null when no item
+ * names it (a bookmark only a rule brought in was at the end anyway).
+ * `leaveOut` keeps it in the rule's `exceptAt`.
+ */
+export function leftOutPlace(c, bookmarkId) {
+  if (!Array.isArray(c?.members)) return null;
+  const at = c.members.findIndex((m) => isItem(m) && m.recordId === bookmarkId);
+  if (at < 0) return null;
+  return {
+    memberId: c.members[at].id ?? null,
+    after: c.members[at - 1]?.id ?? null,
+    before: c.members[at + 1]?.id ?? null,
+  };
+}
+
+/**
+ * A bookmark left out brought back: its id taken off every rule's `except`,
+ * and its place off every rule's `exceptAt`. With a place (`place`, else the
+ * one a rule kept, `keptPlace`) and no item for the bookmark held now, an item
+ * goes back where it was: before the member `place.before` if that is still
+ * there, else after `place.after` if it is, else at the end. It reuses
+ * `place.memberId` as its id when that is free. With no place, the bookmark
+ * comes back by its rule alone, at the end of My order. The collection itself
+ * when nothing changes; refuses to pass the member limit.
+ */
+export function bringBack(c, bookmarkId, ctx, place = keptPlace(c, bookmarkId)) {
   mustEdit(c);
   let changed = false;
-  const members = c.members.map((m) => {
+  let members = c.members.map((m) => {
     if (!isBookmarkRule(m) || !Array.isArray(m.except) || !m.except.includes(bookmarkId)) return m;
     changed = true;
-    return { ...m, except: m.except.filter((id) => id !== bookmarkId) };
+    return withPlace({ ...m, except: m.except.filter((id) => id !== bookmarkId) }, bookmarkId, null);
   });
+  if (place && changed && !holdsItem(c, bookmarkId)) {
+    roomFor(c, 1);
+    const free = typeof place.memberId === "string" && !c.members.some((m) => m?.id === place.memberId);
+    const item = itemMember(bookmarkId, free ? { id: place.memberId } : undefined);
+    const before = place.before ? members.findIndex((m) => m?.id === place.before) : -1;
+    const after = place.after ? members.findIndex((m) => m?.id === place.after) : -1;
+    const at = before >= 0 ? before : after >= 0 ? after + 1 : members.length;
+    members = [...members.slice(0, at), item, ...members.slice(at)];
+    changed = true;
+  }
   return changed ? withMembers(c, members, ctx) : c;
+}
+
+/**
+ * The place a rule kept for a bookmark it leaves out (`exceptAt`, written by
+ * `leaveOut`), as `{ memberId, after, before }`, or null. Only a rule that
+ * leaves the bookmark out now is read, and a field that isn't an id is read
+ * as none.
+ */
+export function keptPlace(c, bookmarkId) {
+  const id = (v) => (typeof v === "string" && v ? v : null);
+  for (const m of Array.isArray(c?.members) ? c.members : []) {
+    if (!isBookmarkRule(m) || !Array.isArray(m.except) || !m.except.includes(bookmarkId)) continue;
+    const p = isObject(m.exceptAt) ? m.exceptAt[bookmarkId] : null;
+    if (isObject(p)) return { memberId: id(p.memberId), after: id(p.after), before: id(p.before) };
+  }
+  return null;
 }
 
 /**
@@ -422,7 +507,67 @@ export function moveRow(c, key, before, records, ctx) {
   if (target.every((r, i) => r === list[i])) return c;
   const members = arrange(c, list, target, moving);
   if (members.length > COLLECTION_LIMITS.members) throw new Error(`desk-collections: ${TOO_MANY}`);
-  return withMembers(c, members, ctx, { order: "mine" });
+  return withMembers(c, members, ctx, { order: "mine", arranged: true });
+}
+
+/**
+ * Whether the reader has arranged My order (E212): the collection's
+ * `arranged`, set by the first move or heading, or a heading, which counts for
+ * a collection given one before the field was written.
+ */
+export function isArranged(c) {
+  return c?.arranged === true || (Array.isArray(c?.members) && c.members.some((m) => isObject(m) && m.type === "heading"));
+}
+
+/**
+ * The rows `order` shows, as they are drawn, without the group labels: what a
+ * move in that order counts places in (moveTarget's `rows`). In Bible order a
+ * row lying on a passage's sheet (E193, nestRows) comes right after the
+ * passage, where it is drawn.
+ */
+export function shownRows(c, records, order) {
+  const { rows } = collectionRows(c, records, { order });
+  const drawn = order === "bible" ? nestRows(rows).flatMap((r) => (r.children ? [r, ...r.children] : [r])) : rows;
+  return drawn.filter((r) => r.type !== "group");
+}
+
+/**
+ * A row moved in the order on screen (`order`) to sit before the row `before`
+ * (a row's `key`), or last when `before` is null, and the collection switched
+ * to My order (E212). In My order it is moveRow. In Bible order or By type,
+ * while My order isn't arranged (`isArranged`), My order becomes the order on
+ * screen with the move made; once it is, the move is made in My order: up,
+ * just above the row it now sits above; down, just below the row it now sits
+ * below; the rest of My order, headings included, stays. Either way it is
+ * `arranged` after. A move that changes nothing on screen returns the
+ * collection itself; one already true of My order only switches to it.
+ */
+export function moveShown(c, order, key, before, records, ctx) {
+  if (order === "mine") return moveRow(c, key, before, records, ctx);
+  mustEdit(c);
+  const list = shownRows(c, records, order);
+  const from = list.findIndex((r) => r.key === key);
+  if (from < 0) throw new Error(`desk-collections: the collection shows no row "${key}"`);
+  if (before === key) return c;
+  const moving = list[from];
+  const rest = list.filter((_, i) => i !== from);
+  const at = before == null ? rest.length : rest.findIndex((r) => r.key === before);
+  if (at < 0) throw new Error(`desk-collections: the collection shows no row "${before}"`);
+  if (at === from) return c;
+  if (!isArranged(c)) {
+    const members = arrange(c, list, [...rest.slice(0, at), moving, ...rest.slice(at)], moving);
+    if (members.length > COLLECTION_LIMITS.members) throw new Error(`desk-collections: ${TOO_MANY}`);
+    return withMembers(c, members, ctx, { order: "mine", arranged: true });
+  }
+  let mineBefore = before;
+  if (at > from) {
+    // Moved down: just below the row it passed last, wherever My order has it.
+    const mine = myOrderRows(c, records).filter((r) => r.key !== key);
+    const passed = mine.findIndex((r) => r.key === rest[at - 1].key);
+    mineBefore = mine[passed + 1]?.key ?? null;
+  }
+  const moved = moveRow(c, key, mineBefore, records, ctx);
+  return moved === c ? editRecord(c, { order: "mine", arranged: true }, ctx) : moved;
 }
 
 /**
@@ -462,14 +607,14 @@ export function addHeading(c, text, before, records, ctx) {
   mustEdit(c);
   roomFor(c, 1);
   const heading = headingMember(text);
-  if (before == null) return withMembers(c, [...c.members, heading], ctx, { order: "mine" });
+  if (before == null) return withMembers(c, [...c.members, heading], ctx, { order: "mine", arranged: true });
   const list = myOrderRows(c, records);
   const at = list.findIndex((r) => r.key === before);
   if (at < 0) throw new Error(`desk-collections: the collection shows no row "${before}"`);
   const row = { type: "heading", key: heading.id, member: heading, text: heading.text };
   const members = arrange(c, list, [...list.slice(0, at), row, ...list.slice(at)], row);
   if (members.length > COLLECTION_LIMITS.members) throw new Error(`desk-collections: ${TOO_MANY}`);
-  return withMembers(c, members, ctx, { order: "mine" });
+  return withMembers(c, members, ctx, { order: "mine", arranged: true });
 }
 
 /** A heading's words changed; the collection itself when they are the same. */

@@ -128,6 +128,16 @@ test("a bookmark rule names a label and lists what it leaves out", () => {
   assert.ok(problemsOf(collection({ members: [{ ...rule(), except: [1] }] })).some((p) => /except/.test(p)));
 });
 
+test("a bookmark rule's exceptAt, where a left-out item stood, is a map of places (E201)", () => {
+  const place = { memberId: nextId(), after: nextId(), before: null };
+  assert.deepEqual(problemsOf(collection({ members: [{ ...rule(), exceptAt: { [nextId()]: place } }] })), []);
+  assert.deepEqual(problemsOf(collection({ members: [{ ...rule(), exceptAt: { [nextId()]: {} } }] })), [], "every id may be absent");
+  assert.ok(problemsOf(collection({ members: [{ ...rule(), exceptAt: [] }] })).some((p) => /exceptAt/.test(p)));
+  assert.ok(problemsOf(collection({ members: [{ ...rule(), exceptAt: { x: "after" } }] })).some((p) => /exceptAt/.test(p)));
+  assert.ok(problemsOf(collection({ members: [{ ...rule(), exceptAt: { x: { after: 3 } } }] })).some((p) => /exceptAt/.test(p)));
+  assert.ok(problemsOf(collection({ members: [{ ...rule(), exceptAt: { x: { before: "" } } }] })).some((p) => /exceptAt/.test(p)));
+});
+
 test("what this code doesn't know is kept, not refused (principle 6)", () => {
   const c = collection({
     members: [

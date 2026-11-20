@@ -186,8 +186,10 @@ test("the pane's actions end with Open on its own page in a new tab, in Print's 
   assert.equal(own.getAttribute("href"), `/collections/?id=${encodeURIComponent(c.id)}`);
   assert.equal(own.target, "_blank");
   assert.match(own.textContent, /\(opens in a new tab\)/);
-  const members = p.el.querySelector(".collection-page__sheet");
-  assert.ok(!members.classList.contains("v2-sheet"), "not a card inside a card (decision 26)");
+  // Each member is a sheet of its own, in a pane as on the page (E192).
+  const members = p.el.querySelector(".collection-page__members");
+  assert.ok(!members.classList.contains("v2-sheet"), "no sheet under the members' sheets");
+  assert.equal(p.el.querySelectorAll(".collection-page__member").length, 1);
 });
 
 test("two Collections panes at once keep their own order switch and keys", async () => {
@@ -235,17 +237,21 @@ test("a note's reference moves the LIT pane too (decision 29)", async () => {
   assert.deepEqual(p.asked[0][2], { beside: "p2", asker: "collection" });
 });
 
-test("a member row's buttons follow its kind, before its words, so a keyboard takes it as a narrow pane shows it (decision 35)", async () => {
+test("a member row opens with a sheet part's head: grip, kind, then its buttons, before the reference and the words (E211)", async () => {
   await clearAll();
   const c = await keepCollection("Order", [john316()]);
   const p = pane("p2", { shows: c.id });
   await until(() => p.el.querySelector(".desk-np-row .desk-item__pin-row"));
   const li = p.el.querySelector(".desk-np-row");
   const classes = [...li.children].map((n) => n.className.split(" ")[0]);
-  const at = (cls) => classes.indexOf(cls);
-  assert.ok(at("desk-item__ref") < at("desk-item__kind"));
-  assert.equal(at("desk-np-row__buttons"), at("desk-item__kind") + 1, classes.join(" "));
-  assert.ok(at("desk-item__pin-row") > at("desk-np-row__buttons"), "the words come after the buttons");
+  assert.deepEqual(classes.slice(0, 2), ["desk-sheet__module-head", "desk-item__ref"], classes.join(" "));
+  assert.ok(classes.indexOf("desk-item__pin-row") > 1, "the words come after the reference");
+  const head = li.firstElementChild;
+  assert.ok(head.classList.contains("collection-page__head"));
+  assert.deepEqual([...head.children].map((n) => n.className.split(" ")[0]), ["desk-sheet__grip", "desk-item__kind", "desk-np-row__buttons"]);
+  assert.ok(head.querySelector(".desk-item__kind").classList.contains("desk-sheet__module-name"), "the kind as the part's name");
+  assert.ok(head.lastElementChild.classList.contains("desk-sheet__module-tools"));
+  assert.deepEqual([...head.lastElementChild.children].map((b) => b.textContent), ["↑", "↓", "Remove"], "in Bible order too (E212)");
 });
 
 test("a sheet in the collection shows in a Sheets pane, this pane keeping its place; the bar says what it took the place of", async () => {

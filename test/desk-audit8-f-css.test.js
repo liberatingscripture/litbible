@@ -54,7 +54,8 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
     assert.ok(css.indexOf(`\n${sel} {`) > notebookFields, `${sel} comes after the notebook page's rule`);
   }
   // Cards take the card fill and edge.
-  for (const sel of [".desk-sheet__module", ".desk-sheet__sheet", ".desk-sheet__passage-form", ".desk-sheet__ask"]) {
+  // A collection's members are each a sheet's part, in the same rule (E192).
+  for (const sel of [".desk-sheet__module,\n.collection-page__member", ".desk-sheet__sheet", ".desk-sheet__passage-form", ".desk-sheet__ask"]) {
     const r = rule(sel);
     assert.match(r, /background:\s*var\(--desk-card\)/, sel);
     assert.match(r, /border:\s*1px solid var\(--desk-card-edge\)/, sel);

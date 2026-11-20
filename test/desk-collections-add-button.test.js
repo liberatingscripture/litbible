@@ -197,7 +197,7 @@ test("Sheet… lists the reader's sheets, no templates; a pick adds the sheet, a
   assert.deepEqual(rows.map((r) => r.querySelector(".desk-pick__name").textContent), ["Week 1"], "no template");
   rows[0].click();
   await until(async () => (await collection(c.id)).members.some((m) => m.type === "item" && m.recordId === sheet.id), 3000, "the sheet added");
-  await until(() => barText() === "1 added to Readings.", 3000, "the bar");
+  await until(() => barText() === "Week 1 added to Readings.", 3000, "the bar");
   // Opened again, the window says the collection holds it.
   await until(() => addButton(root), 3000, "the view drawn again");
   addButton(root).click();
