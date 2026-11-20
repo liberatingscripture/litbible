@@ -1,9 +1,10 @@
 // src/scripts/desk/sheets/sheet-page-list.js
 //
 // The rows of /sheets/'s list (STUDY-DESK-FIXES.md E64; BVJ, 2026-11-09):
-// each sheet with Duplicate, Save as template and Delete, and the reader's
-// own templates under "My templates", as a Sheets pane's list has them
-// (my-sheets.js draws both). Until then the page listed its sheets as plain
+// each sheet with Duplicate, Collections… and Delete, and the reader's own
+// templates under "My templates", as a Sheets pane's list has them
+// (my-sheets.js draws both), and Edit, which a pane's rows don't need since
+// their names open the editor (E208). Until then the page listed its sheets as plain
 // links, since it never wrote a record; S12 gave it an editor, and with it
 // the reason for the actions.
 //
@@ -21,9 +22,9 @@ import { make } from "../dom.js";
 
 /**
  * The list's rows for `sheets` and the reader's templates (`mine`), both
- * already sorted. A row's name is a link (`href`); Duplicate opens the copy
- * in the editor (`openEditor(id)`), and Save as template and Delete redraw
- * the list with focus on the row named by its key (`redraw(focusKey)`).
+ * already sorted. A row's name is a link (`href`); Edit opens the sheet in
+ * the editor (`openEditor(id)`) and Duplicate opens the copy there, and Delete
+ * redraws the list with focus on the row named by its key (`redraw(focusKey)`).
  *
  * @returns {{ list: HTMLElement | null, own: HTMLElement | null }}
  */

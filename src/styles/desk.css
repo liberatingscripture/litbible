@@ -7191,8 +7191,9 @@ a.desk-sheet__open {
    a floor so the buttons never squeeze it to nothing. My templates and the
    collections list have only Delete, so their lists have two columns.
    Without subgrid, the rows stay flex.
-   A sheet's row has four buttons (Duplicate, Save as template, Collections…
-   and Delete), so its list has a column for each. A button with no column
+   A sheet's row on /sheets has four buttons (Edit, Duplicate, Collections…
+   and Delete; E208), and three in a Sheets pane, whose rows need no Edit, so
+   its list has a column for each of the four. A button with no column
    left would start a second line in the title's column and stretch to its
    width, as Delete did once Collections… joined the row (D13, step 4). So
    Delete always takes the last column, and a row missing a button (no
@@ -7259,14 +7260,19 @@ a.desk-sheet__open {
     }
   }
 
-  /* A sheet's row, with its four buttons, needs more than 24rem: from 490 to
-     575px across the Display tray's text sizes in the default font and in
-     Atkinson, and up to 700px in OpenDyslexic (measured 2026-11-19; the same
-     in a Sheets pane and on /sheets, since the buttons are one size in both).
-     The two lists' own type differs, so the limits are in rem, not em, each
-     with about 16px to spare. A list of name and Delete alone (My templates,
+  /* A sheet's row, with its buttons, needs more than 24rem. On /sheets, with
+     Edit, Duplicate, Collections… and Delete: from 448 to 526px across the
+     Display tray's text sizes in the default font, 436 to 508px in Atkinson,
+     and 522 to 632px in OpenDyslexic (measured 2026-11-20, E208, the
+     container queries turned off and the list narrowed until a button ran
+     past its row). A Sheets pane's rows, without Edit, need 400 to 470px,
+     380 to 452px and 462 to 558px, but share the limits, so the list stacks
+     at one width in both homes (the buttons are one size in both). It was
+     37rem and 45rem while the rows held Save as template (E184). The two
+     lists' own type differs, so the limits are in rem, not em, each with
+     about 16px to spare. A list of name and Delete alone (My templates,
      collections) keeps the 24rem above. */
-  @container deskSheets (max-width: 37rem) {
+  @container deskSheets (max-width: 34rem) {
     .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet {
       display: flex;
       flex-wrap: wrap;
@@ -7284,7 +7290,7 @@ a.desk-sheet__open {
     }
   }
 
-  @container deskSheets (max-width: 45rem) {
+  @container deskSheets (max-width: 41rem) {
     html[data-font="dyslexic"] .desk-sheet__sheets:has(> li > :nth-child(3)) > .desk-sheet__sheet {
       display: flex;
       flex-wrap: wrap;

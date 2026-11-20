@@ -5500,6 +5500,65 @@ wording (E202).
   The list keeps My sheets' width. Checked in the Browser pane. Test:
   `test/desk-collections-sheets.test.js` (the marker). Status: fixed.
 
+- **E208, preference: “Save as template” belongs to the sheet, not the
+  list, and /sheets' rows want an Edit.** BVJ, 2026-11-20: “Would it make
+  more sense to have the Save as Template button in the sheets editor or
+  sheet viewer rather than in the list of sheets?”, then “If it moved, that
+  would give more space to add an edit button in its place,” and “Yes,
+  build it, except that I'm not certain about placing it at the bottom.
+  That's a great place for it to be overlooked.” Each row of the list
+  (a Sheets pane's and /sheets') had Duplicate, Save as template,
+  Collections… and Delete; on /sheets a row's name opens the sheet's
+  versions, so editing took two presses. Claude's answer: the editor, not
+  the versions view, since a template is the sheet's structure, which is
+  what the editor shows, and the versions view is about this week's copy
+  (the template drops the passages the versions are made of). **Built**
+  (`sheet-editor.js`, `my-sheets.js`, `sheet-page-list.js`, `desk.css`):
+  “Save as template” sits in the editor's header row, with the other
+  actions on the whole sheet, in both hosts: after “Open on its own page”
+  in a pane, after “‹ All sheets” on /sheets, and none on a template. It is
+  `aria-disabled`, with the reason as its title and description, for a
+  sheet of a newer format, the tour's example sheet (which writes nothing,
+  E63), and a sheet of passages alone (DK6-8), and drawn again at every
+  change, so adding a part makes it usable. A press saves waiting typing,
+  makes the template from the sheet as stored, keeps the sheet open, and
+  says so in the undo bar, with Undo (Saved “Lent study” as a template. New
+  sheet now offers it.). The list's rows lose it; /sheets' gain “Edit”
+  first after the name (a button calling the page's `openSheet`, a history
+  entry like Duplicate's), `aria-disabled` with its reason on a newer
+  format. A pane's rows have no Edit: their names open the editor. With
+  Edit in Save as template's column the rows need less room, so they stack
+  below 34rem, and 41rem in OpenDyslexic (E184's 37rem and 45rem), measured
+  again across the four text sizes in the three fonts. In a pane narrower
+  than about 650px the header row's items wrap whole onto one more line
+  than before. The Sheets tour's “My sheets” and “Start from a template”
+  steps and the help page's “Finding your sheets” and “Your own templates”
+  say where each is now. Tests: `test/desk-e208-template.test.js`,
+  `test/desk-audit8-dom-sheets-list.test.js`. Status: fixed. (Opened as
+  E192 in PR #654; renumbered the same day, since PR #655 had taken E192
+  to E207.)
+
+- **E209, wording: the /sheets editor's “Close” didn't say where it goes.**
+  BVJ, 2026-11-20: “Close is correct, but maybe View sheet? or Close and
+  view? or Done? But maybe the user isn't actually done, just wanting to
+  see how it looks.” (A “Save and close” was weighed first and declined:
+  the sheet saves as it is typed, and one exit saying it saves would
+  suggest the others, “‹ All sheets,” Back, closing the tab, and the Sheets
+  pane, don't.) The button on /sheets' editor goes to the sheet's versions,
+  laid out as it prints, where Print, Copy, Save as, Present, and Share
+  are, and whose primary button, Edit, comes back: a round trip. “Close”
+  named only what is left; “Done” (its name until #534) sounds finished;
+  “View sheet” says nothing new while the sheet is already on screen;
+  “Close and view” is two verbs. Claude proposed **“Preview”**, the
+  familiar partner of Edit, true of a view drawn as pages, and BVJ chose
+  it (“Yes, Preview”). **Built** (`sheet-editor.js`): the label, its title
+  (“See this sheet as it prints, to print, copy, present, or share it”)
+  and its description; still the green primary at the right edge, beside
+  the saved line, saving waiting typing before it goes. The Sheets tour's
+  page card for “Print or share” and the help page's “Going back to
+  editing” say “Preview.” Test: `test/desk-e208-template.test.js` (the
+  header's labels and the button's description). Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

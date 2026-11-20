@@ -178,9 +178,12 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   can go on a sheet joins `PICKS` here and `KINDS` on /search together. A new feature of the editor goes in
   `sheet-editor.js`, never in a host. **The other host is
   `sheet-page-edit.js`, the editor on /sheets** (S12, part 1, step 2; rule
-  19): it passes `onList` and `onDone`, so "‹ All sheets" and a Close button
-  go to the page's own list and versions instead of the editor's list and
-  its "Present" and "Print or share", and it uses the exported
+  19): it passes `onList` and `onDone`, so "‹ All sheets" and a "Preview"
+  button go to the page's own list and versions instead of the editor's
+  list and its "Present" and "Print or share" (**Preview pairs with the
+  versions view's Edit**, E209, BVJ 2026-11-20: it was "Done", which
+  sounds finished, then "Close", which names only what is left), and it
+  uses the exported
   `templateChooser` for the list's "New sheet…". While the chooser is open
   that button reads "Cancel" in the ordinary look, not the primary green
   (E121; `showState` is its one state change). **The editor's own list
@@ -350,9 +353,17 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `verseCopy` carries, so the copy is still checked against the wording
   it was made on). It reads the sheet from the store at the click and
   refuses a sheet of a newer format (the button is disabled). **"Save as
-  template" beside it** (Audit 5, D #1; `templateFromSheet`) writes a sheet
-  record with `isTemplate: true` and no passages: listed apart as "My
-  templates", offered in New sheet, and kept off every other list of
+  template" is the sheet's own, in the editor's header row** (Audit 5, D
+  #1; `templateFromSheet`; E208, BVJ 2026-11-20, moved from the list's
+  rows): with Present, Print or share and Open on its own page in a pane,
+  after "‹ All sheets" on /sheets, and none on a template. **Never at the
+  sheet's foot**, which BVJ declined as too easily missed. `drawKeep` sets
+  it `aria-disabled` with its reason at every draw (a newer format, the
+  tour's example sheet, passages alone), so adding a part makes it usable;
+  a press saves waiting typing first, makes the template from the sheet as
+  stored, keeps the sheet open, and says so in the undo bar. It writes a
+  sheet record with `isTemplate: true` and no passages: listed apart as
+  "My templates", offered in New sheet, and kept off every other list of
   sheets (`isOwnTemplate`); a new list of sheets must filter it too.
 - **A sheet's passages come from the live text** (format rule 1):
   `src/lib/desk-sheet-passages.mjs` makes one from a verse menu, a
@@ -555,7 +566,13 @@ my notebook"**. Twelve things to know:
   drawn earlier stops listening for changes (`viewSeq`). A shared sheet
   has no Edit until it is imported.
 - **The list has a Sheets pane's rows** (E64; BVJ, 2026-11-09): Duplicate,
-  Save as template, Collections… (D13) and Delete on each sheet, and "My templates" after the
+  Collections… (D13) and Delete on each sheet, **with Edit first, on this
+  page alone** (E208; BVJ, 2026-11-20): a row's name here opens the
+  sheet's versions, so Edit opens the editor (`openSheet`), where a pane's
+  name already does. Edit is a button, never a link: the grid's
+  `.desk-sheet__btn:last-of-type` rule, which keeps Delete in the last
+  column, would take the row's only button-classed link there too. "My
+  templates" comes after the
   sheets, from `my-sheets.js` through `sheet-page-list.js`, which the page
   reaches **only by `import()`** when it draws the list: the rows bring the
   history (Ctrl+Z, and the undo bar's Undo for a deletion), which a test holds
