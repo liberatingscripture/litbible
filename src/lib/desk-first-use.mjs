@@ -130,7 +130,9 @@ export const TOUR_PARTS = ["Marking the text", "The Notebook", "Finding and keep
  * D13 (decision 22; BVJ, 2026-11-19: no tour of its own for now): "Open the
  * menu" names “Add to collection” beside “Add to sheet”, which Read View
  * lacks too, and "My Notebook, and where it’s kept" names collections. Ids
- * are unchanged, so neither is offered again as new.
+ * are unchanged, so neither is offered again as new. When the Study Desk tour
+ * gained its two collection cards (decision 22's second answer, 2026-11-19),
+ * "This verse" named the collections it lists, again under its own id.
  */
 export const TOUR_STEPS = [
   {
@@ -194,7 +196,7 @@ export const TOUR_STEPS = [
     title: "“This verse”",
     body: {
       default:
-        "Everything on one verse: its footnotes, your notes, and its Greek. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
+        "Everything on one verse: its footnotes, your notes, the collections it’s in, and its Greek. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
     },
   },
   {
@@ -447,6 +449,35 @@ export const DESK_TOUR_STEPS = [
     },
     more: "See one made, printed, and presented: the Sheets tour",
   },
+  // Collections (D13, decision 22's second answer; BVJ, 2026-11-19: "Add to
+  // the desk tour"): what one is, with a Collections pane shown as the Sheets
+  // card shows a Sheets pane, then the way in from the LIT pane, which this
+  // tour shows nowhere else. Both are new ids, so a reader who has taken the
+  // tour is offered the two of them. The rest (orders, headings, a label's
+  // bookmarks) is the help page's, where the first card's link goes.
+  {
+    id: "collections",
+    part: 0,
+    since: "d13",
+    notebook: true,
+    title: "Collections",
+    body: {
+      default:
+        "A collection gathers notes, highlights, bookmarks, sheets, and passages for one purpose, such as a class or a sermon series. Nothing is copied: change a note, and the collection shows the change. Select a reference in one, and the LIT pane goes there; “Add to sheet…” puts it all on a sheet. A Collections pane is shown here only for the tour.",
+    },
+    more: "More on the help page: How collections work",
+  },
+  {
+    id: "collect",
+    part: 0,
+    since: "d13",
+    notebook: true,
+    title: "Adding to a collection",
+    body: {
+      default:
+        "Select a verse number in the LIT pane to open its menu: “Add to collection” puts the verse in one of your collections, or a new one. In My Notes, a row’s “Collections…” does the same for what you’ve kept, and a collection’s own “Add” brings in a sheet or a label’s bookmarks. Nothing is added here.",
+    },
+  },
   // The commands moved out of the title menu into a row under the header
   // (E68, 2026-11-10), so this card is new since then and offered again.
   {
@@ -518,6 +549,10 @@ export const SHEET_TOUR_PARTS = ["Making a sheet", "Using a sheet"];
  * desk's wording, and `page` the Sheets page's where the two differ: the page
  * has no LIT pane, and its versions view stands for the pane's "Print or
  * share…" and "Present…" (stepBody(step, "page")).
+ *
+ * "Your own words, and more" names the whole collection “From my notes…”
+ * offers (E181), added with the Study Desk tour's collection cards
+ * (2026-11-19) under its own id, so it is not offered again as new.
  */
 export const SHEET_TOUR_STEPS = [
   {
@@ -589,7 +624,7 @@ export const SHEET_TOUR_STEPS = [
     title: "Your own words, and more",
     body: {
       default:
-        "The row under the parts adds the rest: your text, a question with lines to write on (and an answer on the leader’s version), space, a page break, and a key terms box filled in from the passages. “From my notes…” brings your notes, highlights, and pinned footnotes on these passages onto the sheet. Point between two parts, and an “Add” pill puts one right there.",
+        "The row under the parts adds the rest: your text, a question with lines to write on (and an answer on the leader’s version), space, a page break, and a key terms box filled in from the passages. “From my notes…” brings your notes, highlights, and pinned footnotes on these passages onto the sheet, or a whole collection at once. Point between two parts, and an “Add” pill puts one right there.",
     },
   },
   {

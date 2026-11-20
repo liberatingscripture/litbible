@@ -5643,8 +5643,9 @@ in the verse menu and the selection panel, "Collections…" on rows, and This
 verse's Collections line. Steps 5 to 8 were merged on 2026-11-19 (#620,
 #622, #621, and #623): labels and the live rule, filters, search, and the
 header, a collection onto a sheet, and the tours naming collections. D13 is
-marked built once BVJ has gone through it and answered decision 22's second
-ask, a tour of its own. **A Collections pane on /desk** was decided on
+marked built once BVJ has gone through it; decision 22's second ask, a tour
+of its own, was answered on 2026-11-19 with two cards in the Study Desk
+tour. **A Collections pane on /desk** was decided on
 2026-11-19 (decisions 26 to 36, "A Collections pane on /desk," below) and
 is built (all five steps of its order of work). The preview once put labels on notes, highlights,
 bookmarks, pinned footnotes and sheets; BVJ wanted them on bookmarks alone (E149) but saw what that was reaching for, a way "to let
@@ -5766,7 +5767,47 @@ From BVJ's review of the plan (2026-11-18):
     D13."** So step 8 names collections in the existing tours (three
     sentences, written by the Opus session building D13 rather than a
     subagent), and BVJ is asked again before this section is marked
-    built.
+    built. The website's reasons then: a collection had three ideas (name
+    it, add to it, arrange it), its main way in sat beside "Add to sheet,"
+    where the notebook tour already points, every tour is upkeep, and help
+    stays in one place.
+    **BVJ's second answer (2026-11-19, once the Collections pane was
+    built): "Add to the desk tour. Is one card really all it needs?" and
+    "Also update any cards in other tours that might be relevant."** The
+    website's answer to the question was two cards, not one, and not a
+    tour of its own; BVJ sees them in the PR. What had changed since the
+    first answer: collections live on /desk (a pane, "New collection…,"
+    references that move the LIT pane), E175 took My Notes' collection
+    filter out, so a collection is the only place to see what it holds,
+    and the Study Desk tour named them only in its command card. One card
+    can say what a collection is and show the pane, as the Sheets card
+    does; the second shows how something gets in, which the desk tour
+    showed nowhere (it never opens the LIT pane's verse menu), and an
+    empty collection does nothing. The two, at the end of "What's on the
+    desk," right after Sheets:
+    - **"Collections"** shows a Collections pane for the step (a column,
+      or the My Notes pane turned to Collections), with the reader's own
+      list or the empty page's words, and says what one gathers, that
+      nothing is copied, that a reference moves the LIT pane, and that
+      "Add to sheet…" puts it all on a sheet. Its link opens the help
+      page's "How collections work" in a new tab, as Sheets' opens the
+      Sheets tour.
+    - **"Adding to a collection"** opens the LIT pane's verse menu as a
+      reader would, its "Add to collection" row marked and not pressed,
+      and names the other ways in: a row's "Collections…" in My Notes and
+      a collection's own "Add." Undoing the step closes the menu.
+    Not given a card: "New collection…" (the command card names it, and
+    its window only asks for a name), and the orders, headings, and a
+    label's live rule, which would need a collection to show and so the
+    in-memory example the Sheets tour needed; the help page has them.
+    Both are new ids, so a reader who has taken the tour is offered the
+    two as "something new in the tour," and the tour is eleven cards. In
+    the other tours, two cards now name collections, under their own ids
+    so neither is offered again: the notebook tour's "This verse" ("the
+    collections it's in," which its tab lists) and the Sheets tour's "Your
+    own words, and more" ("From my notes…" adds "a whole collection at
+    once," E181). The notebook tour's "Open the menu" and "My Notebook,
+    and where it's kept" named them already.
 
 From the mocks (BVJ, 2026-11-18: "Yes, with A and Collections…"; the mocks
 were approved for steps 2 to 4 as drawn):
@@ -6055,7 +6096,8 @@ The steps:
    Sonnet wires it.
 8. **The tours, and closing this section** (decision 22): an Opus subagent
    does the tour work; this section is marked built, and anything left
-   goes to "Version 2: deferred and shelved."
+   goes to "Version 2: deferred and shelved." Decision 22's second answer
+   (2026-11-19) added the Study Desk tour's two collection cards.
 
 Before steps 2 to 4 are built, BVJ sees mocks of the page (as a list and as
 one collection, in all three orders, with a heading and a rule's line), the
@@ -6072,20 +6114,6 @@ step 2.
   BDR to review. The website goes ahead with it meanwhile (BVJ,
   2026-11-18: "We're plowing ahead"); the apps need only keep it, as they
   keep sheets.
-- **The tours: no tour of its own for now, asked again before this section
-  closes** (BVJ, 2026-11-19: "don't build a separate tour for now. Check
-  again before closing D13."). Step 8 did what the website recommended on
-  2026-11-18: the notebook tour's first stop names "Add to collection"
-  beside "Add to sheet," its last stop ("My Notebook, and where it's kept")
-  names collections, and the Study Desk tour's card on the title menu named
-  "My collections" until E180 took it out of that menu. Its My Notes card lists no filters, so it names none.
-  An empty `/collections/` page explains itself and links the help page's
-  "How collections work" (step 2). The website's reasons, for the second
-  ask: a collection has three ideas (name it, add to it, arrange it), and
-  its main way in sits beside "Add to sheet," where the tour already
-  points, while the Sheets got a tour (E63) for the many tools on one page;
-  every tour is upkeep (Audit 7 re-read all three); and it keeps help in
-  one place a reader asks for.
 
 Reaching a sheet beyond the five the flyout lists (E154, the "All sheets…"
 window that "All collections…" will reuse) was built first, on its own
@@ -6170,7 +6198,8 @@ pane in the dropdown menus."). So BVJ chose:
     browser keeping no notebook shows one line, as the Sheets pane does.
     The help page gets a line in "The kinds of pane" and a paragraph in "How
     collections work." No tour is added: decision 22 stands, and Add pane's
-    description is the kind's own line.
+    description is the kind's own line. (Decision 22's second answer later
+    gave the Study Desk tour two collection cards.)
 34. **The Book Intro pane goes** (BVJ's addition), which keeps the menus'
     kinds at eight with Collections in. It reverses E53's pane;
     STUDY-DESK-FIXES.md E173 has what becomes of each way in.
