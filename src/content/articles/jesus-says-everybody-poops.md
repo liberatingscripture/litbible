@@ -42,7 +42,7 @@ Here’s the other thing I’m noticing as I reflect on what I saw as I translat
 
 > LIT: You see, from inside—from people’s hearts—go out harmful deliberations, sexual exploitation, theft, murder, marital infidelity, greed, actions that cause others hardship, fraud, lack of restraint, pursuing oppressive gain, speaking disrespectfully, thinking of oneself as above others, and carelessness.
 >
-> (<a href="/mark-14">Mark 7:21-22 LIT</a>)
+> (<a href="/mark-7">Mark 7:21-22 LIT</a>)
 
 > ESV: For from within, out of the heart of man, come evil thoughts, sexual immorality, theft, murder, adultery, coveting, wickedness, deceit, sensuality, envy, slander, pride, foolishness.
 >
