@@ -163,8 +163,8 @@ const SIZE_OPTIONS = [
         ))}
 
         <li class="site-nav__cta-item">
-          <a href="/read" class="site-header__cta"><span>Read Now</span></a>
-          <!-- Desktop: search and Aa sit below READ NOW -->
+          <a href="/read" class="site-header__cta" aria-label="Read the LIT"><span class="cta-hold">Read</span></a>
+          <!-- Desktop: search and Aa sit after READ -->
           <div class="site-header__nav-tools">
             {headerSearch && (
               <a href="/search" class="site-header__search site-header__search--nav" data-search-toggle aria-label="Search">
@@ -433,7 +433,7 @@ const SIZE_OPTIONS = [
       <a href="/glossary">Glossary</a>
       <a href="/found-in-translation-podcast">Podcast</a>
       <a href="/articles">Articles</a>
-      <a href="/read">Read Now</a>
+      <a href="/read">Read</a>
     </nav>
   </noscript>
 
@@ -609,7 +609,7 @@ const SIZE_OPTIONS = [
         <a href="/read/" class="menu-overlay__continue" data-continue-menu hidden>
           Continue: <span data-continue-label></span>
         </a>
-        <a href="/read" class="menu-overlay__cta">Read Now</a>
+        <a href="/read" class="menu-overlay__cta" aria-label="Read the LIT"><span class="cta-hold">Read</span></a>
       </nav>
     </div>
   </div>

@@ -12,7 +12,7 @@
 // the arrows, Home and End move among the links, and Escape closes it and
 // returns to the button. A menu opens on a press, never on hover (BVJ's call
 // was left to the build: a hover menu opens under a pointer crossing the
-// header on its way to Read Now). One is open at a time, and a press
+// header on its way to Read). One is open at a time, and a press
 // elsewhere, or Tab out of it, closes it.
 
 const groups = [...document.querySelectorAll("[data-nav-group]")];
