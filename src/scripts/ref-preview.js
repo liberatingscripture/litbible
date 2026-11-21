@@ -21,6 +21,7 @@
 // build-verse-index.mjs; drafts have none), fetched once per chapter.
 
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
+import { versesFromLinkText, previewNumbers } from "../lib/ref-text-verses.mjs";
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 
 // The Greek tab's search results are previewed too (they link a verse, with a
@@ -35,24 +36,33 @@ const MAX_VERSES = 6;
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 250;
 
-/** { key, chapter, verse, end } for a scripture link, or null. */
+/** { key, chapter, verse, end } for a scripture link, or null. A link whose
+ *  href is only the chapter but whose words name verses ("Romans 13:6-10 LIT",
+ *  written by hand in an article) also gets `spans` and `cited`, read from
+ *  those words, so its preview shows the verses and not the chapter's start. */
 function parseRef(a) {
   const raw = a.dataset.previewHref || a.getAttribute("href") || "";
   const m = raw.match(HREF_RE);
   if (!m || !(m[1] in BOOKS)) return null;
   const chapter = Number(m[2]);
   if (chapter < 1 || chapter > BOOKS[m[1]]) return null;
-  return {
+  const ref = {
     key: m[1],
     chapter,
     verse: m[3] ? Number(m[3]) : null,
     end: m[4] ? Number(m[4]) : null,
     href: raw.replace(/\?[^#]*/, ""),
   };
+  if (!ref.verse) {
+    const named = versesFromLinkText(a.textContent, chapter);
+    if (named) Object.assign(ref, named);
+  }
+  return ref;
 }
 
-function refLabel({ key, chapter, verse, end }) {
+function refLabel({ key, chapter, verse, end, cited }) {
   let label = `${bookKeyToLabel(key)} ${chapter}`;
+  if (cited) return `${label}:${cited}`;
   if (verse) label += `:${verse}`;
   if (verse && end && end > verse) label += `–${end}`;
   return label;
@@ -128,26 +138,43 @@ function buildPanel(ref, draft) {
   } else {
     loadChapter(ref.key, ref.chapter).then((verses) => {
       if (!Array.isArray(verses)) return setUnavailable();
-      const first = ref.verse ?? 1;
-      const last = Math.min(
-        ref.verse ? ref.end ?? ref.verse : 3,
-        first + MAX_VERSES - 1,
-        verses.length
-      );
+      // Which verses to show, and whether more were asked for than fit. A
+      // link that names verses only in its words (ref.spans) lists exactly
+      // those; one with no verses at all shows the chapter's first three.
+      let numbers = [];
+      let more;
+      if (ref.spans) {
+        ({ numbers, more } = previewNumbers(ref.spans, verses.length, MAX_VERSES));
+      } else {
+        const first = ref.verse ?? 1;
+        const last = Math.min(
+          ref.verse ? ref.end ?? ref.verse : 3,
+          first + MAX_VERSES - 1,
+          verses.length
+        );
+        for (let v = first; v <= last; v++) numbers.push(v);
+        const wanted = ref.verse ? ref.end ?? ref.verse : verses.length;
+        more = last < wanted;
+      }
       text.textContent = "";
       let shown = 0;
-      for (let v = first; v <= last; v++) {
+      let prev = 0;
+      for (const v of numbers) {
         const t = verses[v - 1];
+        // The gap mark is for a jump in what was asked for ("11, 14-17"), never
+        // for a verse the LIT leaves out (Matthew 17:21), so it compares with
+        // the last verse asked for rather than the last one shown.
+        const jump = prev && v !== prev + 1;
+        prev = v;
         if (!t) continue;
-        if (shown) text.append(" ");
+        if (shown) text.append(jump ? " … " : " ");
         const n = document.createElement("sup");
         n.className = "ref-preview__vn";
         n.textContent = String(v);
         text.append(n, " " + t);
         shown++;
       }
-      const wanted = ref.verse ? ref.end ?? ref.verse : verses.length;
-      if (last < wanted) text.append(" …");
+      if (more) text.append(" …");
       if (!shown) setUnavailable();
     });
   }
