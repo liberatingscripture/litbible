@@ -160,9 +160,13 @@
 }
 
 /* The podcast's platform links lay their name and the open-page mark in a
-   row (the link is a grid, which would stack them). */
+   row (the link is a grid, which would stack them). The two auto columns are
+   centered as a pair: left to `normal` they stretch to share the button's
+   spare width, which parked the mark in the right half, a different distance
+   from each name ("Spotify" far shorter than "Apple Podcasts"). */
 :root[data-restyle] .fit-platform {
   grid-auto-flow: column;
+  justify-content: center;
 }
 
 /* ── The primary: solid Deep Green, 8px ───────────────────────── */
