@@ -29,6 +29,8 @@ From the root's project tree.
                      #   lsc-mark.mjs (see The LSC brand mark below),
                      #   scripture-refs.mjs + scripture-refs-data.mjs (the
                      #   render-time reference linker and its fs shell),
+                     #   ref-text-verses.mjs (the verses a hand-written link
+                     #   names in its words, for the reference preview),
                      #   sefaria-refs.mjs (the Hebrew Bible it links out to
                      #   Sefaria, and the English→Hebrew verse map),
                      #   ebible-refs.mjs (the apocrypha it links to eBible.org),
@@ -251,6 +253,20 @@ From the root's project tree.
   writes, and apply to `a.sref`, the glossary's "Where it appears" lists, and
   hand-written scripture links in article bodies, never to navigation. A
   Sefaria or eBible link has no preview; it is an ordinary link to another site.
+  **Where the verses come from**: the href's `#v6-10` when it has one. About
+  fifty hand-written article links are `<a href="/romans-13">Romans 13:6-10
+  LIT</a>` instead, a chapter target on purpose (rule 5 above), and used to
+  preview the chapter's first three verses. For those the preview reads the
+  verses from the link's own words (`versesFromLinkText`,
+  `src/lib/ref-text-verses.mjs`): a range, a list ("11, 14–17", shown with a
+  "…" at the jump), a part letter, a range running into the next chapter. It
+  never guesses: words naming another chapter than the href
+  (`<a href="/mark-14">Mark 7:21-22 LIT</a>`, a typo in
+  `jesus-says-everybody-poops`, still to be fixed by the owner) or no verse at
+  all fall back to the first three. **This changes the preview only**: the
+  link and the preview's "Open" link still go to the chapter's top, since a
+  hand-written link keeps its own target. Anchoring those links (`#v6-10`) so
+  the page lands on the verses too is a content call for the owner.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
   by an outside click or Escape. A click inside the Study Desk's Notebook
