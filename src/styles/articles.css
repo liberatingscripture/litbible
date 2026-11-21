@@ -411,9 +411,15 @@
   justify-content: flex-start;
 }
 
-/* (optional) stop the book select from stretching weirdly */
-.articles-hero .searchbar__book {
-  min-width: 180px;
+/* (optional) stop the book select from stretching weirdly. Only above the
+   phone breakpoint: SearchBar.astro stacks its two filters in equal columns
+   at 640px and under, and a floor here beat the select's own `min-width: 0`,
+   so on a 411px phone the 180px select outgrew its 163px column and its "i"
+   button landed on the Results-type select beside it. */
+@media (min-width: 641px) {
+  .articles-hero .searchbar__book {
+    min-width: 180px;
+  }
 }
 
 /* Hide the book filter when Articles is the active type */
