@@ -741,6 +741,27 @@ body:has(.site-header--green) .skip-link {
   z-index: 1;
 }
 
+/* The Read buttons (this one and the phone menu's) keep the size they had
+   when they said "Read Now" (BVJ, 2026-11-20). The hidden ::before is a
+   block set in the old two words, so the span is as wide as the wider of
+   the two and "Read" centers in it, in every font, at every padding, with no
+   measured number to drift (the old label's width is Inter's, Atkinson's or
+   OpenDyslexic's, whichever is painting). It has no height, so the button
+   stays one line tall, and visibility: hidden keeps it from being read,
+   found or selected. Don't tidy it away as dead markup. */
+.cta-hold {
+  display: inline-block;
+  text-align: center;
+}
+
+.cta-hold::before {
+  content: "Read Now";
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .site-nav__cta-item > a.site-header__cta::before {
@@ -768,7 +789,7 @@ body:has(.site-header--green) .skip-link {
    Accessibility font toggle + tray
    ========================================================= */
 
-/* Desktop: search and Aa sit in the header's row, after READ NOW (E76,
+/* Desktop: search and Aa sit in the header's row, after READ (E76,
    2026-11-10). They floated below it, out of the header's flow, so they hung
    over the top of every page and two pages padded themselves to clear them. */
 .site-nav__cta-item {
@@ -1797,7 +1818,7 @@ html.menu-open body {
   transform: translateY(0);
 }
 
-/* "Continue: Romans 8" sits above Read Now as a quieter second button. Its
+/* "Continue: Romans 8" sits above Read as a quieter second button. Its
    selector outranks the per-font size rules on .menu-overlay__nav a, since a
    book name plus chapter is far longer than any nav label. */
 .menu-overlay .menu-overlay__nav a.menu-overlay__continue {
@@ -1854,7 +1875,7 @@ html:not([data-desk]) .menu-overlay__group--desk {
   }
 }
 
-/* The two buttons read as a pair, so Read Now drops its own lead-in. */
+/* The two buttons read as a pair, so Read drops its own lead-in. */
 .menu-overlay .menu-overlay__continue:not([hidden]) + .menu-overlay__cta {
   margin-top: 0;
 }
