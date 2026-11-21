@@ -5,7 +5,7 @@ import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { IDBFactory, IDBKeyRange } from "fake-indexeddb";
 import { createRecord } from "../src/lib/desk-records.mjs";
-import { createCollection, itemMember } from "../src/lib/desk-collections.mjs";
+import { createCollection, itemMember, removeItem } from "../src/lib/desk-collections.mjs";
 import { planSave } from "../src/lib/desk-store-core.mjs";
 
 globalThis.indexedDB = new IDBFactory();
@@ -76,9 +76,12 @@ test("one, then two, then back to none: the words follow every write, from the s
   await until(() => tag.textContent === "In 2 collections", "the count");
   assert.equal(tag.getAttribute("aria-label"), "In 2 collections, collections for note on John 3:16");
 
+  // `removeItem` is imported at the top on purpose: a dynamic import() in here
+  // yields to the event loop, which ends an IndexedDB transaction, so the
+  // store's write after it threw TransactionInactiveError on Node 22 (CI's
+  // Node 24 resolves a cached module without yielding, which hid it).
   await store.change(async ({ all }) => {
     const records = await all();
-    const { removeItem } = await import("../src/lib/desk-collections.mjs");
     const [mine] = records.filter((r) => r.id === advent.id);
     return planSave(removeItem(mine, note.id, opCtx()));
   });
