@@ -794,7 +794,11 @@ const glossaryTerms = Object.fromEntries(
     }
   }
 
-  @media (max-width: 380px) {
+  /* One filter to a row on a phone. Two selects and their "i" buttons need
+     about 440px of tray; below that the closed select cuts off its own
+     words ("Article matche", "Book introducti"), which is what 380px left
+     for every phone from 381 to 480. */
+  @media (max-width: 480px) {
     .searchbar__filters {
       grid-template-columns: 1fr;
     }
