@@ -18,6 +18,15 @@ To skip a round: add an entry below, in the same commit as the content change.
 
 ---
 
+## 2026-11-21 — a link under a Mark 7 quotation pointed at the wrong chapter
+
+Skipped the article row for `jesus-says-everybody-poops`. The link after the LIT
+quotation of Mark 7:21–22 went to `/mark-14`; it now goes to `/mark-7`. Only the
+link's target changed. The article's words are identical, and nothing in the
+translation moved. The drafter can't tell, and would have listed "Article
+updated". This was Claude's call while merging, not an owner ruling: if the
+owner wants a row for it, add it to `release-notes.json` by hand.
+
 ## 2026-10-16 — a relative reference written out in 1 Corinthians 12 and 14
 
 Skipped the footnote rows for the shared note on the Corinthian languages
