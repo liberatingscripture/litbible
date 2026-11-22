@@ -345,10 +345,14 @@
   border-bottom: 0.75pt solid #1d231c;
 }
 
+/* The paper names no display face: every title on it is the paper's own
+   Crimson Text, as the sheet's headings are (BVJ, 2026-11-22: it shouldn't use
+   Fraunces at all). Bold is set, not inherited, since the restyle gives a
+   heading 600 and the title should print as the other titles do. */
 .sheet-copy__title {
   margin: 0;
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-  font-size: calc(22pt * var(--sheet-text-scale, 1));
+  font-size: calc(24pt * var(--sheet-text-scale, 1));
+  font-weight: 700;
   line-height: 1.15;
 }
 
@@ -388,8 +392,8 @@
    through the sheet could not tell a section from the passage inside it.
    It takes the paper's own face, like every heading in a sheet's text, and
    names no display face (BVJ, 2026-11-22: Site 2.0 removed Fraunces from the
-   site's styles), so it never falls back to Georgia on paper. The title and
-   the answer key's titles still name Fraunces. The answer key's references
+   site's styles), so it never falls back to Georgia on paper. Nor does any
+   other title on the paper. The answer key's references
    (.sheet-copy__key-ref) are h3 too, at the same 13pt. */
 .sheet-copy__ref {
   margin: 0 0 4pt;
@@ -594,8 +598,8 @@
 
 .sheet-copy__terms-title {
   margin: 0 0 4pt;
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-  font-size: calc(13pt * var(--sheet-text-scale, 1));
+  font-size: calc(14pt * var(--sheet-text-scale, 1));
+  font-weight: 700;
 }
 
 .sheet-copy__term-list {
@@ -668,8 +672,8 @@
 
 .sheet-copy__key-title {
   margin: 0 0 2pt;
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
   font-size: calc(16pt * var(--sheet-text-scale, 1));
+  font-weight: 700;
 }
 
 .sheet-copy__key-sheet {
@@ -679,8 +683,8 @@
 
 .sheet-copy__key-ref {
   margin: 12pt 0 4pt;
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
   font-size: calc(13pt * var(--sheet-text-scale, 1));
+  font-weight: 600; /* as a passage's reference (.sheet-copy__ref) */
 }
 
 .sheet-copy__key-list {
@@ -1176,11 +1180,9 @@
     font-family: "Inter", "Inter Fallback", system-ui, sans-serif !important;
   }
 
-  .sheet-copy .desk-rich span[data-font="display"],
-  .sheet-copy .sheet-copy__title,
-  .sheet-copy .sheet-copy__key-title,
-  .sheet-copy .sheet-copy__key-ref,
-  .sheet-copy .sheet-copy__terms-title {
+  /* The one display face left on the paper is a leader's own choice of the
+     Display style (a stored font in the sheet's format), not a title. */
+  .sheet-copy .desk-rich span[data-font="display"] {
     font-family: "Fraunces", "Fraunces Fallback", Georgia, serif !important;
   }
 

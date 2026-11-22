@@ -614,11 +614,17 @@ my notebook"**. Twelve things to know:
   sheet's title is the h1, its own headings (“Opening,” “Reading”) are h2,
   and **a passage's reference is an h3** (`.sheet-copy__ref`, 13pt at weight
   600 in the paper's own Crimson Text, a step down from the h2's 16.2pt and
-  700; the answer key's references are h3 too). **It names no display face**
-  (BVJ, 2026-11-22: Site 2.0 removed Fraunces from the site's styles), and
-  the print block's Fraunces list leaves it out, since a font named there
-  with `!important` would override this rule on paper. The title and the
-  answer key's titles still name Fraunces. Copy and the three saved files take the same
+  700; the answer key's references are h3 too). **No title on the paper
+  names Fraunces** (BVJ, 2026-11-22: “it shouldn't use Fraunces at all,” after
+  Site 2.0 removed it from the site's styles): the sheet's title (24pt), Key
+  terms, the answer key's title and references and the passage's reference
+  are all the paper's own Crimson Text, so none falls back to Georgia. Bold is
+  set on each, since the restyle gives a heading 600. The print block's
+  Fraunces rule is left holding only the leader's own **Display** text style
+  (`data-font="display"`, a stored value of the sheet's format, so it can't be
+  removed; its look is in `desk-sheet-view.css`), because a font named there
+  with `!important` would override a title's rule on paper. Present mode, the
+  editor's sheet title and the slides still name Fraunces. Copy and the three saved files take the same
   levels from `readCopy`, where the passage's `section` block carries
   `level: 3` (a `section` with no level is an h2: “Key terms,” “Answer
   key”), so a new title the copy draws gets its level there once. Don't
