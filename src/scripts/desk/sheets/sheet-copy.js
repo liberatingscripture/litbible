@@ -169,7 +169,10 @@ function passageSection(m, view, { copy, allBlanks, code }) {
   const section = make("section", "sheet-copy__passage");
   section.dataset.module = m.id;
   const head = make("div", "sheet-copy__passage-head");
-  head.append(make("h2", "sheet-copy__ref", passageReference(m)));
+  // An h3: the sheet's title is the h1 and its own headings ("Reading") are h2,
+  // so the passage under one is a step down, as the answer key's references are
+  // (E222). readCopy gives the files and Copy the same level.
+  head.append(make("h3", "sheet-copy__ref", passageReference(m)));
   if (m.leaderOnly) head.append(make("span", "sheet-copy__tag", "Leader only"));
   section.append(head);
   if (code) section.append(code);

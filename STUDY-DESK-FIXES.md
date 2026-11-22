@@ -5821,6 +5821,81 @@ wording (E202).
   `STUDY-DESK-FORMAT.md` decides what is possible), how the Greek is quoted
   in the body (the word as written, with or without its lemma and gloss),
   and whether the control is a button, a menu entry, or both. Status: open.
+- **E222, preference: a passage's reference on a sheet's paper copy is an
+  h3.** BVJ, 2026-11-22, from a photo of a printed leader copy (Matthew
+  25:31–46, “Springwater Community”): under the sheet's own “Reading”
+  heading, the passage's reference looked the same as the section headings
+  above it (“Before you lead,” “Opening,” “Reading”), which made the page
+  hard to follow. The outline is the sheet's title as the h1, the sheet's own
+  headings as h2, and **the reference as an h3**. `passageSection`
+  (`sheet-copy.js`) now draws an `h3.sheet-copy__ref`, 13pt at weight 600
+  in the paper's own Crimson Text (14pt Fraunces at the heading's bold
+  before), picked from renders against the 16.2pt Crimson h2: bold at the
+  same size still read as a section, italic borrowed the subtitle's look,
+  and capitals read as a label. **It names no display face** (BVJ, same day:
+  “Site 2.0 removed Fraunces from the site styles”). A first pass used
+  Fraunces at weight 500; it was dropped for that reason, and the paper's
+  print block, which forces Fraunces on the title and the key's titles with
+  `!important`, no longer lists the reference. **BVJ, same day: “It
+  shouldn't use Fraunces at all.”** So no title on the paper names it now:
+  the sheet's title (24pt, up from 22pt in Fraunces, since Crimson sets
+  smaller), Key terms, “Answer key” and its references are the paper's
+  Crimson Text at bold (600 for a reference), and the print block's Fraunces
+  rule keeps only the leader's own Display text style (`data-font="display"`,
+  a stored value of the format, so it stays). Still naming Fraunces and left
+  for BVJ to decide: the Display text style's look, present mode's titles
+  and references, the editor's sheet title (`desk.css`), and the slides'
+  heading font (`SLIDE_FONTS`, named in the .pptx and .odp).
+  **Copy and the saved files follow**
+  (“a new part of the paper copy is read once”): `readCopy` gives the
+  passage's `section` block `level: 3`, which the `.docx`, `.odt` and `.rtf`
+  writers and Copy's HTML take as Heading 3 and `<h3>`, so a Word file no
+  longer has the same collision (its h2 and the reference were both 15pt).
+  “Key terms” and “Answer key” stay level 2, and the answer key's own
+  references were already h3. Plain text is unchanged (a blank line still
+  precedes the reference). `test/fixtures/sheet-copy-golden.json` moved with
+  it (three intended changes now, noted in its `about`). **Known and
+  accepted:** a sheet with a passage and no heading of its own goes from h1 to
+  h3. Present mode and the slides keep their own screens. Test:
+  `test/desk-e222-passage-heading.test.js`. Status: fixed.
+- **E223, wish: a leader can choose the fonts for a sheet's headings and
+  its system-generated text, as they can for the text they type.** BVJ,
+  2026-11-22, raised while E222 moved every title on the paper off Fraunces.
+  Today the Style menu's Font group (Sans, Serif, Display, Handwriting,
+  Atkinson Hyperlegible; `data-font` on a span in a part's own words) reaches
+  only what the leader types. Everything the Sheets draw themselves is a
+  fixed face the leader can't change: the sheet's title, the passage's
+  reference, “Key terms,” “Answer key,” the “Leader only” tag, a blank's hint,
+  the verse numbers and footnotes, and the credit line. Asked for: a choice
+  of font for the headings and one for the system-generated text, from the
+  same list as the Style menu. **Not for now; noted for later.** Open
+  questions for when it is taken up: where the choice is kept (a field on the
+  sheet record, which is the shared format in `STUDY-DESK-FORMAT.md`, so the
+  apps and `SHEET_FORMAT` are in it, and a stored sheet is valid only while
+  its canonical form never changes), or whether it is the reader's setting
+  for every sheet or each sheet's own; whether it reaches Copy and the saved
+  files (they name fonts and never embed them, `DOC_FONTS`), present mode and
+  the slides; what the “Display” choice means once no title on the paper
+  names Fraunces (E222); and how a font a printer lacks falls back.
+  **To settle with it: what still names Fraunces** after E222, which BVJ
+  said shouldn't use it at all (“it shouldn't use Fraunces at all”) and
+  which was left because that answer was about the paper copy. (1) The
+  leader's own **Display** text style: `data-font="display"` is a stored
+  value of the sheet's format (`desk-sheet-format.mjs`, the Style menu's
+  “Display”), so it can't be removed without breaking sheets already saved;
+  its look is `desk-sheet-view.css`, and the paper's print block repeats it
+  with `!important` (`sheets-page.css`). The choice is to give it another
+  face (as it stands it would match “Serif,” Crimson Text, so the menu would
+  list two alike), or to keep it out of the menu and read an old one as
+  Serif. (2) **Present mode's** titles and references
+  (`.present-screen__title`, `__ref`, `__rich` headings and its Key terms
+  title, `sheets-page.css`). (3) **The editor's sheet title**
+  (`.desk-sheet__title`, `desk.css`). (4) **The slides' heading font**,
+  `SLIDE_FONTS` in `desk-slides.mjs`, which the .pptx (its theme's major
+  font) and .odp name and the slide print and `sheet-slides.js` draw with,
+  so all of them change together (no test or fixture names the font, so
+  nothing pins it today). A deck names its font and never embeds it, so a
+  machine without Fraunces already shows a stand-in. Status: open, deferred.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

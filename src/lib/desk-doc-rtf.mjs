@@ -211,7 +211,7 @@ function body(blocks, quoted = false, width = 0) {
     switch (b.type) {
       case "title": out += para("h1", textRuns(b.text)); break;
       case "subtitle": out += para("subtitle", textRuns(b.text)); break;
-      case "section": out += para("h2", textRuns(b.text), { extra: b.flush ? "\\sb0" : "" }); break;
+      case "section": out += para(`h${b.level ?? 2}`, textRuns(b.text), { extra: b.flush ? "\\sb0" : "" }); break;
       case "tag": out += para("tag", textRuns(b.text)); break;
       case "heading": out += para(`h${b.level}`, docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "para": out += para(quoted ? "quote" : "normal", docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;

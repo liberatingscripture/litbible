@@ -280,7 +280,7 @@ function body(ctx, blocks, quoted = false) {
     switch (b.type) {
       case "title": out += paragraph(ctx, { style: "Heading1", runs: textRuns(b.text) }); break;
       case "subtitle": out += paragraph(ctx, { style: "Subtitle", runs: textRuns(b.text) }); break;
-      case "section": out += paragraph(ctx, { style: "Heading2", runs: textRuns(b.text), flush: b.flush }); break;
+      case "section": out += paragraph(ctx, { style: `Heading${b.level ?? 2}`, runs: textRuns(b.text), flush: b.flush }); break;
       case "tag": out += paragraph(ctx, { style: "PartTag", runs: textRuns(b.text) }); break;
       case "heading":
         out += paragraph(ctx, { style: `Heading${b.level}`, runs: docRuns(b.inlines), align: b.align, indent: b.poetry ? 480 : 0 });
