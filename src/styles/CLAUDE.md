@@ -474,6 +474,27 @@
      page's class (`.search-page .result-link`) lifts the whole list.
   5. **/apps is mirrored with the LSC site**: only its four store buttons
      take the look (BVJ, 2026-11-13), from here, never from `apps.css`.
+  **The header's Read link is the one ink primary, on every page** (BVJ,
+  2026-11-21: "more visual variety"). It is in the primary list, with its
+  fill and edge re-pinned to ink on the link (`--green-deep` and
+  `--desk-primary-edge`, so rest, hover, and press all follow), so a page
+  with a Deep Green primary of its own (Next at a chapter's foot, a form's
+  Send) has two different ones, not two alike. Ink is why: Deep Green is only
+  1.9:1 against the home band's LIT Green, and ink is 4.6:1 there in both
+  themes. A near-black page would swallow an ink fill, so off the green band
+  the dark theme gives it the kind's green edge back (two rules naming both
+  dark selectors). It was briefly stepped down to an ordinary button on pages
+  with a primary of their own; that was undone, so don't re-add an
+  `ownPrimary`. `global.css` still draws the link the old way for the
+  ungated site (an ink block, a green curtain on `::before`, capitals); the
+  rules after the primary block switch that off here, and the `.cta-hold`
+  that keeps its width stays. The phone menu's Read (`.menu-overlay__cta`) is
+  in the same list but stays Deep Green: it sits on the menu's near-black
+  scrim, where ink would vanish. One rule drops its capitals and the 420ms
+  stagger delay (it would hold back every hover). The open menu's X is ink
+  (`var(--ink)`, never `--text`, which the green header pages re-pin) on the
+  ordinary buttons' white tile, in the phone menu and the computer's side tray
+  alike.
   Check a change against the computed styles of every control on each page,
   in both themes and at a phone's width, before trusting a screenshot.
 - **Site 2.0's page layouts live in `src/styles/v2/`, behind the same
