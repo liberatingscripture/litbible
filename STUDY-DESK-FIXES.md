@@ -5821,6 +5821,28 @@ wording (E202).
   `STUDY-DESK-FORMAT.md` decides what is possible), how the Greek is quoted
   in the body (the word as written, with or without its lemma and gloss),
   and whether the control is a button, a menu entry, or both. Status: open.
+- **E222, preference: a passage's reference on a sheet's paper copy is an
+  h3.** BVJ, 2026-11-22, from a photo of a printed leader copy (Matthew
+  25:31–46, “Springwater Community”): under the sheet's own “Reading”
+  heading, the passage's reference looked the same as the section headings
+  above it (“Before you lead,” “Opening,” “Reading”), which made the page
+  hard to follow. The outline is the sheet's title as the h1, the sheet's own
+  headings as h2, and **the reference as an h3**. `passageSection`
+  (`sheet-copy.js`) now draws an `h3.sheet-copy__ref`, 13pt Fraunces at
+  weight 500 (14pt at the heading's bold before), picked from four renders
+  against the 16.2pt Crimson h2: bold at 13pt still read as a section, and
+  italic borrowed the subtitle's look. **Copy and the saved files follow**
+  (“a new part of the paper copy is read once”): `readCopy` gives the
+  passage's `section` block `level: 3`, which the `.docx`, `.odt` and `.rtf`
+  writers and Copy's HTML take as Heading 3 and `<h3>`, so a Word file no
+  longer has the same collision (its h2 and the reference were both 15pt).
+  “Key terms” and “Answer key” stay level 2, and the answer key's own
+  references were already h3. Plain text is unchanged (a blank line still
+  precedes the reference). `test/fixtures/sheet-copy-golden.json` moved with
+  it (three intended changes now, noted in its `about`). **Known and
+  accepted:** a sheet with a passage and no heading of its own goes from h1 to
+  h3. Present mode and the slides keep their own screens. Test:
+  `test/desk-e222-passage-heading.test.js`. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

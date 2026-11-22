@@ -297,7 +297,7 @@ function body(ctx, blocks, quoted = false) {
     switch (b.type) {
       case "title": out += h(ctx, 1, textRuns(b.text)); break;
       case "subtitle": out += p(ctx, "Subtitle", textRuns(b.text)); break;
-      case "section": out += h(ctx, 2, textRuns(b.text), { flush: b.flush }); break;
+      case "section": out += h(ctx, b.level ?? 2, textRuns(b.text), { flush: b.flush }); break;
       case "tag": out += p(ctx, "Tag", textRuns(b.text)); break;
       case "heading": out += h(ctx, b.level, docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;
       case "para": out += p(ctx, quoted ? "Quote" : "Standard", docRuns(b.inlines), { align: b.align, indent: b.poetry }); break;

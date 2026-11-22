@@ -610,6 +610,16 @@ my notebook"**. Twelve things to know:
   about which words a passage, a blank or a footnote covers.
   `passageWords`' `keepNotes` keeps the printing footnotes' letters as
   plain superscripts.
+- **The paper's headings are an outline** (E222; BVJ, 2026-11-22): the
+  sheet's title is the h1, its own headings (“Opening,” “Reading”) are h2,
+  and **a passage's reference is an h3** (`.sheet-copy__ref`, 13pt Fraunces
+  at weight 500, a step down from the h2 in size and weight; the answer key's
+  references are h3 too). Copy and the three saved files take the same
+  levels from `readCopy`, where the passage's `section` block carries
+  `level: 3` (a `section` with no level is an h2: “Key terms,” “Answer
+  key”), so a new title the copy draws gets its level there once. Don't
+  give the reference the section headings' look again: at the same
+  weight it read as one more section.
 - **The answer key is the group's, on the participant's version** (E102;
   BVJ, 2026-11-11, Fable's option B): “Add answer key” shows only on the
   participant's version of the reader's own sheet (never a shared one), is

@@ -164,7 +164,7 @@ export function readCopy(article) {
       blocks.push({ type: "title", text: title });
       if (sub) blocks.push({ type: "subtitle", text: sub });
     } else if (part.matches(".sheet-copy__passage")) {
-      blocks.push({ type: "section", text: part.querySelector(".sheet-copy__ref")?.textContent ?? "" });
+      blocks.push({ type: "section", level: 3, text: part.querySelector(".sheet-copy__ref")?.textContent ?? "" });
       tag(part.querySelector(".sheet-copy__passage-head") ?? part);
       const code = part.querySelector(":scope > .sheet-copy__code");
       if (code) {

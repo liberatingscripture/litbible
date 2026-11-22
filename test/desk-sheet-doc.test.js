@@ -278,8 +278,9 @@ test(".docx: headings, lists, raised verse numbers, footnotes and blanks", () =>
   const paras = W(doc, "p");
   const byStyle = (s) => paras.filter((p) => style(p) === s).map(textOf);
   assert.deepEqual(byStyle("Heading1"), ["Rivers & “Wells” <study>"]);
-  assert.deepEqual(byStyle("Heading2"), ["John 3:16–17", "Mark 99", "Opening", "Key terms"]);
-  assert.deepEqual(byStyle("Heading3"), ["Read <slowly>"]);
+  // A passage's reference is a step under the sheet's own headings (E222).
+  assert.deepEqual(byStyle("Heading2"), ["Opening", "Key terms"]);
+  assert.deepEqual(byStyle("Heading3"), ["John 3:16–17", "Mark 99", "Read <slowly>"]);
   assert.deepEqual(byStyle("PartTag"), ["Leader only", "Leader only"]);
   assert.equal(byStyle("Ruled").length, 3, "two lines under the question, one for the space");
 
@@ -426,7 +427,7 @@ test(".odt: headings, lists, raised verse numbers, footnotes, Greek, Hebrew and 
   const entries = unzip(await odtFile(leaderDoc(), { version: "Leader version", paper: "a4", date: 0 }));
   const content = xmlOf(entries, "content.xml");
   const heads = findAll(content, "text:h").map((h) => [h.attrs["text:outline-level"], textOf(h)]);
-  assert.deepEqual(heads, [["1", "Rivers & “Wells” <study>"], ["2", "John 3:16–17"], ["2", "Mark 99"], ["2", "Opening"], ["3", "Read <slowly>"], ["2", "Key terms"]]);
+  assert.deepEqual(heads, [["1", "Rivers & “Wells” <study>"], ["3", "John 3:16–17"], ["3", "Mark 99"], ["2", "Opening"], ["3", "Read <slowly>"], ["2", "Key terms"]]);
 
   const auto = new Map(findAll(content, "style:style").map((s) => [s.attrs["style:name"], s]));
   const props = (span) => findAll(auto.get(span.attrs["text:style-name"]), "style:text-properties")[0].attrs;
@@ -511,7 +512,8 @@ test(".rtf: seven-bit text, balanced, with Greek and Hebrew as \\uN? and Hebrew 
 test(".rtf: headings, lists, raised verse numbers, footnotes, links, and the credit line last", () => {
   const rtf = rtfText(leaderDoc(), { version: "Leader version", paper: "a4" });
   assert.match(rtf, /\\s1\\keepn[^ ]* \{Rivers & \\u8220\?Wells\\u8221\? <study>\}\\par/);
-  assert.match(rtf, /\\s2[^ ]* \{John 3:16\\u8211\?17\}\\par/);
+  assert.match(rtf, /\\s3[^ ]* \{John 3:16\\u8211\?17\}\\par/, "a passage's reference is a heading 3 (E222)");
+  assert.match(rtf, /\\s2[^ ]* \{Opening\}\\par/);
   assert.match(rtf, / \{Week 2 \\u183\? Leader version\}\\par/, "a plain-text part's spaces as a browser shows them");
   assert.match(rtf, /\\s3[^ ]*\\qc \{Read <slowly>\}\\par/);
   assert.match(rtf, /\{\\b\\super 16\}\{\\~\}/);

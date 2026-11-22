@@ -18,7 +18,10 @@
 // Blocks:
 //   { type: "title", text }      the sheet's name (h1)
 //   { type: "subtitle", text }   its subtitle and version
-//   { type: "section", text, flush? }  a passage's reference, or "Key terms" (h2);
+//   { type: "section", text, level?, flush? }  a title that is not the sheet's own words:
+//                                a passage's reference (level 3, under the
+//                                sheet's own h2 headings, E222), or "Key terms"
+//                                and "Answer key" (level 2, the default);
 //                                flush: no space above it, at the top of a box
 //   { type: "tag", text }        "Leader only"
 //   { type: "heading", level, inlines, align?, poetry? }   a sheet's own h2 or h3
@@ -164,7 +167,7 @@ export function docHtml(doc) {
       case "title": return html.push(`<h1>${esc(b.text)}</h1>`);
       case "subtitle":
       case "tag": return html.push(`<p><i>${esc(b.text)}</i></p>`);
-      case "section": return html.push(`<h2${b.flush ? ' style="margin-top:0"' : ""}>${esc(b.text)}</h2>`);
+      case "section": return html.push(`<h${b.level ?? 2}${b.flush ? ' style="margin-top:0"' : ""}>${esc(b.text)}</h${b.level ?? 2}>`);
       case "heading": return html.push(`<h${b.level}${blockStyle(b)}>${inlineHtml(b.inlines)}</h${b.level}>`);
       case "para": return html.push(`<p${blockStyle(b)}>${inlineHtml(b.inlines)}</p>`);
       case "quote":
