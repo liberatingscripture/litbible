@@ -5701,6 +5701,38 @@ wording (E202).
   versions to PDF. Test: `test/desk-sheet-paper-newtab.test.js`. Status:
   fixed.
 
+- **E216, bug: after Print, the Version and Paper choices lost their
+  dots.** BVJ, 2026-11-21, with a screenshot of a sheet's versions view:
+  “After pressing print, whether I go ahead with the print or cancel, the
+  selection of ‘leader copy’ or ‘participant copy’ disappears. It was on
+  leader copy, and that's still what's displayed below, but the indicator is
+  gone.” All four toolbar radios (Leader and Participant, US Letter and A4)
+  were off; the paper still read “Leader copy” and “Show QR codes” stayed
+  checked. **The page did nothing wrong, and it is Edge's**: about 100 ms after
+  the print dialog closes, Edge clears the `checked` state of every native
+  radio on the page. At `beforeprint`, `afterprint` and the next frame they
+  are right, then all off, with no event behind it, no `checked` set from
+  script (a setter wrapper saw none), and the same elements (the toolbar is
+  never rebuilt by a print). Checkboxes are untouched, and Chrome doesn't do
+  it. Found by driving the real /sheets page in headed Edge and Chrome over
+  the DevTools protocol with a real mouse press and Escape on the print
+  dialog; headless printing, a media flip and dispatched print events never
+  showed it. Setting `defaultChecked` doesn't help (it isn't a form reset),
+  and the same page showed the Display tray's face, theme, size and spacing
+  radios off too, so any page was affected after printing, not only /sheets.
+  **Fixed** (`src/scripts/print-radios.js`, imported by `SiteHeader.astro`, so
+  every page has it): the radios checked at `beforeprint` are held, and set
+  back as `afterprint` comes and every 100 ms for three seconds. A radio goes
+  back only while nothing in its group (name and form) is checked, so a choice
+  the reader makes in that time is never overwritten, and one whose view was
+  redrawn is let go. A programmatic `checked` fires no `change`, so nothing is
+  written or redrawn. A fix in the toolbar alone (`choices()` setting its dots
+  again) was weighed and left, since it would have left the Display tray and
+  every other radio group with the fault. Checked in headed Edge on the real
+  page: all 16 radios right after Escape on the dialog, toolbar screenshots
+  identical before and after. Test: `test/print-radios.test.js`. Status:
+  fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

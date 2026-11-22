@@ -22,7 +22,10 @@ From the root's project tree.
                      #   header-search, the header's search strip;
                      #   header-menus, header C's Learn, Study and About
                      #   menus (a computer with the desk preview on);
-                     #   keyboard-shortcuts; verse-image, which draws and
+                     #   keyboard-shortcuts; print-radios, which sets every
+                     #   radio button back after the print dialog (Edge
+                     #   clears them all; see "Printing and handouts");
+                     #   verse-image, which draws and
                      #   hands on "Share image…"; panel-flyout, the one
                      #   flyout row the panels share; glossary-entry-links, the
                      #   copy-link buttons on /glossary; glossary-selection,
@@ -395,6 +398,17 @@ notice there or nowhere.
      `font-variant-ligatures: none` (`global.css`, screen and print alike):
      Crimson Text and OpenDyslexic both join f+f, so "fff" read as a
      different label.
+- **Edge clears every native radio after the print dialog closes** (E216),
+  about 100 ms after `afterprint`, with no event and no script behind it, so
+  a Print or Ctrl+P left the Sheets toolbar's Version and Paper choices and
+  the Display tray's settings with no dot showing. `print-radios.js`
+  (imported by `SiteHeader.astro`, so on every page) holds the radios checked
+  at `beforeprint` and sets them back for three seconds after `afterprint`,
+  only where nothing in their group is checked. **A new radio group needs
+  nothing**, but a view must not depend on a radio's `checked` surviving a
+  print: draw from its own variable, as `choices()` does. A check of print
+  code that touches the page has to run in headed Edge (headless printing
+  and dispatched print events never showed it).
 - **"Copy with footnotes"** in the verse menu (`getHandoutText` in
   `chapter-tools.js`) copies the verses with each footnote letter kept as
   "[a]", the reference, each cited note in order, then the notice and the
