@@ -4,7 +4,10 @@
 // form, lemma, Strong's number and parsing, in its details, each start a search
 // (tab-greek.js calls `open`). The results then take the text's place (the text
 // is hidden, not rebuilt, so its place and selected word are exactly as they
-// were) with "Back to the text" at the top. There is no typed search in the
+// were). While they show, the tab's head row holds "← Acts 2" (back to the
+// text) and "See results on the search page" (a new tab), and the heading
+// moves down into the results as "ἄνομος in the New Testament", over
+// "Appears 9 times" (E219). There is no typed search in the
 // tab (BVJ, 2026-11-02): typing a Greek search is the search bar's, /search's
 // and /desk's Search pane's job, and the commands window opens from those.
 //
@@ -27,6 +30,7 @@ import { ARTICLE, ARTICLE_EXAMPLE, articleLine, lemmaLine, versesIn } from "../.
 import { countLine, describeGreekQuery, errorMessage } from "../../lib/greek-query.mjs";
 import { formsLine, verseGreek } from "../../lib/greek-commands-ui.mjs";
 import { make } from "./dom.js";
+import { newTabMark } from "./glyphs.js";
 
 const BASE = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const PAGE = 10; // verses at a time
@@ -54,11 +58,21 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   const scroller = root.querySelector(".desk-greek__scroller");
   const pane = root.querySelector(".desk-greek__results");
 
+  // The way back and the search page take the heading's place in the head
+  // row, which doesn't scroll; the heading moves to the top of the results.
+  const top = make("div", "desk-greek__find-top");
+  top.innerHTML = `
+      <button type="button" class="desk-greek__back desk-greek__back--text"><span aria-hidden="true">←</span> <span class="desk-greek__back-label"></span></button>
+      <p class="desk-greek__find-page" hidden><a href="/search/" target="_blank" rel="noopener noreferrer">See results on the search page</a></p>`;
+  root.querySelector(".desk-greek__head").append(top);
+  top.querySelector(".desk-greek__back-label").textContent = here.label;
+  top.querySelector(".desk-greek__back").setAttribute("aria-label", `Back to ${here.label} in Greek`);
+  {
+    const a = top.querySelector(".desk-greek__find-page a");
+    a.append(newTabMark(), make("span", "sr-only", " (opens in a new tab)"));
+  }
   pane.innerHTML = `
-    <div class="desk-greek__find-top">
-      <button type="button" class="desk-greek__back desk-greek__back--text">Back to the text</button>
-      <p class="desk-greek__find-page" hidden><a href="/search/">See results on the search page</a></p>
-    </div>
+    <h3 class="desk-greek__find-title"></h3>
     <p class="desk-greek__find-status" role="status"></p>
     <button type="button" class="desk-greek__retry" hidden>Try again</button>
     <p class="desk-greek__found" hidden></p>
@@ -68,7 +82,8 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     <ul class="desk-greek__hits" hidden></ul>
     <button type="button" class="desk-greek__hits-more" hidden>Show more</button>
     <p class="desk-greek__credit" hidden></p>`;
-  const backBtn = pane.querySelector(".desk-greek__back");
+  const backBtn = top.querySelector(".desk-greek__back");
+  const findTitle = pane.querySelector(".desk-greek__find-title");
   const status = pane.querySelector(".desk-greek__find-status");
   const retry = pane.querySelector(".desk-greek__retry");
   const found = pane.querySelector(".desk-greek__found");
@@ -78,7 +93,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   const exactBox = exactLabel.querySelector("input");
   const list = pane.querySelector(".desk-greek__hits");
   const hitsMore = pane.querySelector(".desk-greek__hits-more");
-  const pageLine = pane.querySelector(".desk-greek__find-page");
+  const pageLine = top.querySelector(".desk-greek__find-page");
   const pageLink = pageLine.querySelector("a");
   // Every group of Greek results carries the credit (rule 14); the tab's own
   // "Sources and licenses" is under the text, which results hide (GK-13).
@@ -149,12 +164,32 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
 
   // Escape closes the results and no more, so the panel (panel.js) doesn't
   // close as well.
-  pane.addEventListener("keydown", (e) => {
+  const onEscape = (e) => {
     if (e.key !== "Escape" || !isOpen()) return;
     e.preventDefault();
     e.stopPropagation();
     close({ focus: "word" });
-  });
+  };
+  pane.addEventListener("keydown", onEscape);
+  top.addEventListener("keydown", onEscape);
+
+  /**
+   * The results' heading names what is being searched, "in the New Testament"
+   * (E219): the form as written with Exact form only on, "Strong’s G435" for
+   * a number, else the dictionary form the hits are for.
+   */
+  function setTitle(term, { greek = true } = {}) {
+    const g = make("span", null, term);
+    if (greek) g.lang = "grc";
+    findTitle.replaceChildren(g, " in the New Testament");
+  }
+
+  function titleFor(res, raw) {
+    if (res.kind === "strong") return setTitle(`Strong’s ${raw.toUpperCase()}`, { greek: false });
+    if (state.exact && res.form) return setTitle(raw);
+    if (res.selected) return setTitle(res.selected.lemma);
+    setTitle(raw);
+  }
 
   /* ── Asking ────────────────────────────────────────────────────── */
 
@@ -209,6 +244,8 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     const my = ++seq;
     if (!raw) return;
     showResults();
+    if (/^G\d+$/i.test(raw)) setTitle(`Strong’s ${raw.toUpperCase()}`, { greek: false });
+    else setTitle(raw);
     if (!status.textContent) status.textContent = "Searching…";
     try {
       const ask = () => searchGreekAuto(BASE, raw, { lemmaId: state.lemmaId, exactForm: state.exact });
@@ -298,6 +335,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
       return;
     }
     const sel = res.selected;
+    titleFor(res, raw);
     if (lemmas.length === 1 && sel) {
       lemmaNodes(found, sel, { count: false });
       found.hidden = false;
@@ -331,7 +369,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
       credit.hidden = false;
       return;
     }
-    status.textContent = `${res.total} time${res.total === 1 ? "" : "s"} in the New Testament${state.exact ? ", in this form" : ""}`;
+    status.textContent = `Appears ${res.total} time${res.total === 1 ? "" : "s"}${state.exact ? ", in this form" : ""}`;
     hits = res.hits;
     hitsShown = 0;
     list.hidden = false;
