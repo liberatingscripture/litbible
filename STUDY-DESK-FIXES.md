@@ -5793,6 +5793,23 @@ wording (E202).
   searched, so it is the form as written with Exact form only on
   (“Ἄνδρες”), “Strong’s G435” for a Strong’s number, and otherwise the
   dictionary form (“ἀνήρ”). Status: fixed.
+- **E220, preference: “Search commands” becomes “Greek Search Builder,” and
+  its button is prominent and always visible.** BVJ, 2026-11-21. Asked for:
+  (1) rename the window (`greek-commands.js`, title “Search commands”) and
+  every button that opens it to “Greek Search Builder”: the one beside the
+  search box (`search.js`), the one in the search bar's group foot
+  (`searchbar.js`), and the “See search commands” and “See all search
+  commands” buttons in the empty-state copy (`search.js`, `search-greek.js`);
+  the privacy page's wording for the `lit-greek-commands` and
+  `lit-greek-commands-pos` keys follows (the keys themselves stay). (2)
+  Restyle the button so it is more prominent than the link it is today, a
+  real button rather than text that reads as a link. (3) Show it whether or
+  not “Greek” is chosen from the dropdown; today it appears only with Greek
+  selected, so a reader on another scope never learns the builder exists.
+  Open questions for the work: what the button does from a non-Greek scope
+  (open the window as is, or also switch the scope to Greek), and whether the
+  window's own copy and the Help page's names (`desk/help.astro`) change with
+  it. Status: open.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
