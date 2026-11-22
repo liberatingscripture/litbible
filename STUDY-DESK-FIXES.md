@@ -5733,6 +5733,39 @@ wording (E202).
   identical before and after. Test: `test/print-radios.test.js`. Status:
   fixed.
 
+- **E217, wish: Greek passages can't be added to a sheet.** BVJ,
+  2026-11-21, who asked for it as a Phase 5 task (not version 2), for sheets
+  and collections. **The collections half moved to version 2 the same day**
+  (BVJ), and is with the Greek notes idea under “Version 2: deferred and
+  shelved,” in STUDY-DESK.md. A sheet's passage part holds the LIT's text,
+  as whole verses. The Greek reaches a sheet only two ways: pasted from the
+  Greek tab, as plain text (E54), and as the verses a Greek search found,
+  which go on as LIT verses (E165, E166). Neither puts the SBLGNT's text of
+  a passage on a sheet. Status: open, for sheets alone. **Questions to
+  settle when it is picked up**, as prompts and not findings:
+  - **What a Greek passage is.** A choice on the passage part (the LIT, the
+    Greek, or both) or a part of its own. Either changes the sheet format
+    (STUDY-DESK-FORMAT.md), so BDR's Claude reviews it first and the apps
+    keep what they don't know (principle 6). It also moves the sanitizer's
+    canonical forms (`npm run build:sheet-golden`; bump `SHEET_FORMAT` if
+    one moves).
+  - **Whole verses, like every passage.** A Greek passage needs no word
+    anchor, which is what keeps it apart from the version 2 idea of notes,
+    bookmarks and highlights on the Greek text.
+  - **Held as a reference or copied as text.** A reference draws the Greek
+    from `public/greek/` when the sheet is shown, so it follows the data;
+    text pasted in (E54's way) is only a copy. Print already sets Greek and
+    Hebrew in Cardo (`desk-sheet-doc.mjs`), so the paper copy has a face for
+    it.
+  - **What travels with the text.** The SBLGNT's credit line on a paper
+    copy and a shared link; the source label for John 7:53–8:11 and Romans
+    16:25–27 (STUDY-DESK.md, “Ready for the Greek text,” and 1g); and
+    whether the text-critical signs (⸀–⸅) show or drop, as the Greek tab's
+    own setting does.
+  - **Where the reader adds it from.** The Greek tab's selection and verse
+    menu, the “Passage…” choice in a sheet's insert menu, and /search's and
+    /desk's Greek rows (E165, E166), which add the LIT's verses today.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

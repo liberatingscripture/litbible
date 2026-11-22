@@ -5341,6 +5341,37 @@ be revisited for version 2.
   rather than copying their parts, since a copy brings leader-only parts,
   minutes and blanks along, can repeat a passage, can pass the 300-part
   limit, and doesn't follow later edits to the original.
+- **Notes, bookmarks, and highlights on the Greek text, and Greek passages
+  in collections**: version 2 (BVJ, 2026-11-21). Today a reader's notes, bookmarks and highlights are made on
+  the LIT's text; the Greek tab and pane show the SBLGNT but take none of
+  them. Claude's reading, for BVJ to change:
+    - It continues 1g's "Notes on the Greek": the Greek pane itself is
+      version 1 (D9), and the reader's own marks on it were left for
+      version 2 there. Those anchors were sketched as {book, chapter, verse,
+      word number, form}, with a span allowed (πίστις Χριστοῦ). The SBLGNT
+      doesn't change, so they never drift and never need a change notice.
+    - Notes are the sketched case; bookmarks and highlights need the same
+      anchor, and the questions are how a highlight is drawn on a word that
+      is a button (the Greek tab's words are), and how the marks show in the
+      LIT pane's margin and in My Notes, since a Greek note has no LIT words
+      to hang on.
+    - It is a change to STUDY-DESK-FORMAT.md, so **BDR's Claude reviews it
+      first**; the apps keep kinds and anchors they don't know (principle
+      6). John 7:53–8:11 and Romans 16:25–27 need the source label that 1g
+      records.
+    - **Greek passages in collections** moved here from E217 (BVJ,
+      2026-11-21: sheets stay in Phase 5, collections are version 2). A
+      collection's “Passage…” member is the LIT's whole verses, so the
+      Greek needs a member type or a flag on it: a change to the collection
+      record (kind 12) in STUDY-DESK-FORMAT.md, which BDR's Claude reviews
+      first. Questions: the rule that two passages on the same verses are
+      never added needs an answer for the LIT and the Greek of one verse;
+      “Make a sheet” from a collection should carry a Greek passage along,
+      which leans on E217's sheet part, so E217 comes first; and where it is
+      added from (the Greek tab's selection and verse menu, and Add ▾'s
+      “Passage…”).
+    - E217, the Phase 5 task that puts Greek passages on sheets, holds
+      whole verses and probably needs none of the word anchors above.
 
 **Still open, for BVJ:**
 - **Which phase takes D10's version 1 part, a link to the Septuagint in
