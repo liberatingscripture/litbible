@@ -41,8 +41,9 @@ const button = buttons("desk-sheet__btn");
 
 /**
  * The list of templates New sheet opens in place (M9). Hidden until asked
- * for; the first choice takes focus when it opens, and Cancel or Escape
- * closes it and puts focus back on New sheet (`opener`). `mine` is the
+ * for; the first choice takes focus when it opens, and the opener (which
+ * reads "Cancel" while it is open) or Escape closes it and puts focus back on
+ * New sheet (`opener`). There is no second Cancel inside the list. `mine` is the
  * reader's own templates, offered after the built-in ones, and `onPick` is
  * handed a built-in template's id or one of those records. /sheets/ shows it
  * too, under its own "New sheet…" (S12, part 1, step 2).
@@ -96,7 +97,6 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
     }
     own.append(h, oul);
   }
-  const cancel = button("Cancel", "desk-sheet__btn desk-sheet__btn--quiet");
   const close = () => {
     box.hidden = true;
     showState(false);
@@ -108,14 +108,15 @@ export function templateChooser({ opener, mine = [], idSuffix, onPick }) {
     showState(false);
     onPick(value);
   };
-  cancel.addEventListener("click", close);
+  // The chooser has no Cancel of its own (E218; BVJ, 2026-11-21): the opener
+  // above it already reads "Cancel" while it is open, and Escape closes it.
   box.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     e.preventDefault();
     e.stopPropagation();
     close();
   });
-  box.append(ul, ...(own ? [own] : []), cancel);
+  box.append(ul, ...(own ? [own] : []));
   box.toggle = () => {
     if (box.hidden) {
       box.hidden = false;
