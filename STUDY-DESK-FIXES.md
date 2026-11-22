@@ -5810,6 +5810,17 @@ wording (E202).
   (open the window as is, or also switch the scope to Greek), and whether the
   window's own copy and the Help page's names (`desk/help.astro`) change with
   it. Status: open.
+- **E221, wish: add a note from the lexical panel, with the selected Greek
+  filled in.** BVJ, 2026-11-21. The lexical panel (what opens on clicking a
+  Greek word) has no way to write a note about that word. Asked for: a menu
+  and button in the panel that adds a note to the word's passage or verse,
+  using the same note dialog as the scripture pages. The note body starts
+  with the Greek the reader selected, and stays one field so the reader can
+  add their own thoughts after it. Open questions for the work: whether the
+  note anchors to the verse or to the word's span (the anchor-text format in
+  `STUDY-DESK-FORMAT.md` decides what is possible), how the Greek is quoted
+  in the body (the word as written, with or without its lemma and gloss),
+  and whether the control is a button, a menu entry, or both. Status: open.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
