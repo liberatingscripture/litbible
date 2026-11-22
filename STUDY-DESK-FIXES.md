@@ -5766,6 +5766,19 @@ wording (E202).
     menu, the “Passage…” choice in a sheet's insert menu, and /search's and
     /desk's Greek rows (E165, E166), which add the LIT's verses today.
 
+- **E218, bug: opening New sheet showed two Cancel buttons.** BVJ,
+  2026-11-21, from a screenshot of the template chooser: the button that
+  opens it reads “Cancel” while it is open (E121), and the list ended in a
+  Cancel of its own. BVJ's lean was the top one, “but I could be persuaded
+  either way.” **Kept: the top one**, since it is where the reader's eye is
+  after pressing New sheet, it is the same control that opened the list (so
+  it keeps focus and its place on every page that draws the chooser), and the
+  foot's copy sat below up to seven rows of templates, out of sight on a
+  short pane. The chooser's inner Cancel (`my-sheets.js`, `templateChooser`)
+  is gone; Escape still closes the list and gives focus back to the button.
+  The same chooser serves the Sheets pane and /sheets, so both are fixed
+  together. Test: `test/desk-new-sheet-button.test.js`. Status: fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21

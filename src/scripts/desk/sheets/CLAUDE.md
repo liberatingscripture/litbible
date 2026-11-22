@@ -186,7 +186,9 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   uses the exported
   `templateChooser` for the list's "New sheet…". While the chooser is open
   that button reads "Cancel" in the ordinary look, not the primary green
-  (E121; `showState` is its one state change). **The editor's own list
+  (E121; `showState` is its one state change). **The chooser holds no Cancel
+  of its own** (E218; BVJ, 2026-11-21: "Pick one"; the top one stayed): that
+  button is the only Cancel, and Escape closes the list too. **The editor's own list
   view is `my-sheets.js`** (Audit 6, LG6-2): "My sheets", "My templates",
   each row's actions and `templateChooser`, handed the editor's pieces as
   `listHost`; the editor keeps only clearing its sheet view first. **/sheets'

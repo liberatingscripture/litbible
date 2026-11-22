@@ -1,8 +1,9 @@
 // The "New sheet" button while the template chooser is open (E121; BVJ,
 // 2026-11-12): it reads "Cancel", takes the ordinary control's look instead of
 // the primary green, and says whether the chooser is open. Every way the
-// chooser opens or closes (the button, Cancel, Escape, a template picked) goes
+// chooser opens or closes (the button, Escape, a template picked) goes
 // through the one toggle, so the label, the class and aria-expanded stay in step.
+// The chooser has no Cancel of its own (E218): the button is the only one.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -62,19 +63,23 @@ test("New sheet reads Cancel, in the ordinary white look, while the chooser is o
   assert.equal(document.activeElement === fresh, true, "Cancel by the button returns focus to it");
 });
 
-test("Cancel inside the chooser and Escape both shut it and restore the button", async () => {
+test("the chooser holds no Cancel of its own: the button is the only one (E218)", async () => {
   const { content } = paneList();
   const fresh = content.querySelector(".desk-sheet__list-head button");
   const chooser = content.querySelector(".desk-sheet__templates");
 
   fresh.click();
   await settle();
-  const cancel = [...chooser.querySelectorAll("button")].find((b) => b.textContent === "Cancel");
-  cancel.click();
-  await settle();
-  assert.equal(chooser.hidden, true);
-  assert.equal(stateOf(fresh).name, "New sheet");
-  assert.equal(stateOf(fresh).primary, true);
+  assert.equal(stateOf(fresh).name, "Cancel");
+  const cancels = [...content.querySelectorAll("button")].filter((b) => b.textContent === "Cancel");
+  assert.deepEqual(cancels, [fresh], "one Cancel on the page, the opener");
+  assert.equal([...chooser.querySelectorAll("button")].some((b) => b.textContent === "Cancel"), false);
+});
+
+test("Escape shuts the chooser and restores the button", async () => {
+  const { content } = paneList();
+  const fresh = content.querySelector(".desk-sheet__list-head button");
+  const chooser = content.querySelector(".desk-sheet__templates");
 
   fresh.click();
   await settle();
