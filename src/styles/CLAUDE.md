@@ -474,6 +474,16 @@
      page's class (`.search-page .result-link`) lifts the whole list.
   5. **/apps is mirrored with the LSC site**: only its four store buttons
      take the look (BVJ, 2026-11-13), from here, never from `apps.css`.
+  **The header's Read link is in the primary list** (BVJ, 2026-11-21), so
+  every page has that one beside whatever primary its own content holds
+  (the "one per pane" rule is the desk's). `global.css` still draws it the
+  old way for the ungated site (an ink block, a green curtain on `::before`,
+  capitals); three rules after the primary block switch that off here, and
+  the `.cta-hold` that keeps its width stays. On the same pass the open
+  menu's X is ink (`var(--ink)`, never `--text`, which the green header
+  pages re-pin) on the ordinary buttons' white tile, in the phone menu and
+  the computer's side tray alike. The phone menu's own Read button is not in
+  the list: it is part of that menu's own look.
   Check a change against the computed styles of every control on each page,
   in both themes and at a phone's width, before trusting a screenshot.
 - **Site 2.0's page layouts live in `src/styles/v2/`, behind the same

@@ -177,7 +177,7 @@
    page's one primary (BVJ, the same day: "There's no primary button at all
    in this version. Shouldn't the Luke 4 button at the bottom be green?").
    Read View's button stays too, until Read View goes. */
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)) {
   border: 1px solid var(--desk-primary-edge);
   border-radius: 8px;
   background: var(--green-deep);
@@ -194,7 +194,7 @@
     filter var(--desk-btn-motion) ease;
 }
 
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):hover:not(:disabled, [aria-disabled="true"], :active) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)):hover:not(:disabled, [aria-disabled="true"], :active) {
   border-color: var(--desk-primary-edge);
   background: var(--green-deep);
   color: #fff;
@@ -203,13 +203,13 @@
   filter: brightness(1.1);
 }
 
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):active:not(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)):active:not(:disabled, [aria-disabled="true"]) {
   box-shadow: var(--desk-primary-press);
   transform: none;
   filter: brightness(0.95);
 }
 
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)):is(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--desk-primary-edge);
   background: var(--desk-primary-off);
   color: var(--green-text);
@@ -217,6 +217,63 @@
   transform: none;
   filter: none;
   opacity: 1;
+}
+
+/* The header's Read link is a primary too (BVJ, 2026-11-21): the same Deep
+   Green, 8px shape, edge, light shadow, lift and press as the rest of the
+   kind (its name is in the list above), and the sentence-case label 2.0 gives
+   every button. What goes is global.css's own drawing of it, which the list
+   cannot take away: the ink block with the green curtain that wiped up on
+   hover (the link's ::before), the capitals with their wide tracking, and the
+   :focus rule that set the words to ink (ink on Deep Green). Its height, its
+   padding, and the .cta-hold that keeps it as wide as "Read Now" are
+   global.css's and stay. The ::before below is the link's; the .cta-hold's
+   own ::before, which holds that width, is a different one. */
+:root[data-restyle] .site-nav__cta-item > a.site-header__cta {
+  font-size: 0.875rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+:root[data-restyle] .site-nav__cta-item > a.site-header__cta::before {
+  display: none;
+}
+
+:root[data-restyle] .site-nav__cta-item > a.site-header__cta:focus {
+  color: #fff;
+}
+
+/* ── The open menu's close button ─────────────────────────────── */
+/* The menu's toggle becomes an X while the menu is open, and the X was drawn
+   white (global.css) for the near-black scrim it sat on. Here the toggle is
+   the white tile of the ordinary buttons (it takes their pressed state, as
+   Aa does when its tray is open), so a white X all but vanished on it (BVJ,
+   2026-11-21: the close button "should be ink"). It is ink on that tile, in
+   the full-screen menu on a phone and the side tray in a narrow window
+   alike. In the dark the tile is the pale tint over the scrim and the X
+   keeps global.css's near-white. The bars name `var(--ink)`, never
+   `--text`: the green header pages re-pin `--text` for their own dark. A
+   Windows contrast theme draws the bars in ButtonText (global.css), so none
+   of this reaches it. */
+@media (forced-colors: none) {
+  :root[data-restyle].menu-open .site-header__menu-toggle .menu-icon::before,
+  :root[data-restyle].menu-open .site-header__menu-toggle .menu-icon::after {
+    background: var(--ink);
+  }
+}
+
+@media (forced-colors: none) and (prefers-color-scheme: dark) {
+  :root[data-restyle]:not([data-theme="light"]).menu-open .site-header__menu-toggle .menu-icon::before,
+  :root[data-restyle]:not([data-theme="light"]).menu-open .site-header__menu-toggle .menu-icon::after {
+    background: var(--white);
+  }
+}
+
+@media (forced-colors: none) {
+  :root[data-restyle][data-theme="dark"].menu-open .site-header__menu-toggle .menu-icon::before,
+  :root[data-restyle][data-theme="dark"].menu-open .site-header__menu-toggle .menu-icon::after {
+    background: var(--white);
+  }
 }
 
 /* ── Toggles and filters: pills, flat at rest ─────────────────── */
@@ -583,7 +640,7 @@
     color: GrayText;
   }
 
-  :root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .not-found__cta:not(.not-found__cta--outline)) {
+  :root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)) {
     border: 2px solid ButtonText;
   }
 
