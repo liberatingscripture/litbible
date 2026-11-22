@@ -5828,10 +5828,18 @@ wording (E202).
   above it (“Before you lead,” “Opening,” “Reading”), which made the page
   hard to follow. The outline is the sheet's title as the h1, the sheet's own
   headings as h2, and **the reference as an h3**. `passageSection`
-  (`sheet-copy.js`) now draws an `h3.sheet-copy__ref`, 13pt Fraunces at
-  weight 500 (14pt at the heading's bold before), picked from four renders
-  against the 16.2pt Crimson h2: bold at 13pt still read as a section, and
-  italic borrowed the subtitle's look. **Copy and the saved files follow**
+  (`sheet-copy.js`) now draws an `h3.sheet-copy__ref`, 13pt at weight 600
+  in the paper's own Crimson Text (14pt Fraunces at the heading's bold
+  before), picked from renders against the 16.2pt Crimson h2: bold at the
+  same size still read as a section, italic borrowed the subtitle's look,
+  and capitals read as a label. **It names no display face** (BVJ, same day:
+  “Site 2.0 removed Fraunces from the site styles”). A first pass used
+  Fraunces at weight 500; it was dropped for that reason, and the paper's
+  print block, which forces Fraunces on the title and the key's titles with
+  `!important`, no longer lists the reference. Those titles still name
+  Fraunces and would fall back to Georgia if the site stops loading it
+  (`global.css` still imports it as of this entry).
+  **Copy and the saved files follow**
   (“a new part of the paper copy is read once”): `readCopy` gives the
   passage's `section` block `level: 3`, which the `.docx`, `.odt` and `.rtf`
   writers and Copy's HTML take as Heading 3 and `<h3>`, so a Word file no

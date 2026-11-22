@@ -386,14 +386,15 @@
    reference steps down from them in size and in weight. At 14pt and the
    heading's bold it read as one more section heading, and a leader paging
    through the sheet could not tell a section from the passage inside it.
-   Fraunces is loaded at 400 and 500, so 500 is a drawn weight, not a
-   synthesized bold. The answer key's references (.sheet-copy__key-ref) are h3
-   too, at the same 13pt, under their own h2. */
+   It takes the paper's own face, like every heading in a sheet's text, and
+   names no display face (BVJ, 2026-11-22: Site 2.0 removed Fraunces from the
+   site's styles), so it never falls back to Georgia on paper. The title and
+   the answer key's titles still name Fraunces. The answer key's references
+   (.sheet-copy__key-ref) are h3 too, at the same 13pt. */
 .sheet-copy__ref {
   margin: 0 0 4pt;
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
   font-size: calc(13pt * var(--sheet-text-scale, 1));
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .sheet-copy__passage-head .sheet-copy__tag {
@@ -1177,7 +1178,6 @@
 
   .sheet-copy .desk-rich span[data-font="display"],
   .sheet-copy .sheet-copy__title,
-  .sheet-copy .sheet-copy__ref,
   .sheet-copy .sheet-copy__key-title,
   .sheet-copy .sheet-copy__key-ref,
   .sheet-copy .sheet-copy__terms-title {

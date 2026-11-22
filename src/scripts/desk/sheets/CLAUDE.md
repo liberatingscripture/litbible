@@ -612,9 +612,13 @@ my notebook"**. Twelve things to know:
   plain superscripts.
 - **The paper's headings are an outline** (E222; BVJ, 2026-11-22): the
   sheet's title is the h1, its own headings (“Opening,” “Reading”) are h2,
-  and **a passage's reference is an h3** (`.sheet-copy__ref`, 13pt Fraunces
-  at weight 500, a step down from the h2 in size and weight; the answer key's
-  references are h3 too). Copy and the three saved files take the same
+  and **a passage's reference is an h3** (`.sheet-copy__ref`, 13pt at weight
+  600 in the paper's own Crimson Text, a step down from the h2's 16.2pt and
+  700; the answer key's references are h3 too). **It names no display face**
+  (BVJ, 2026-11-22: Site 2.0 removed Fraunces from the site's styles), and
+  the print block's Fraunces list leaves it out, since a font named there
+  with `!important` would override this rule on paper. The title and the
+  answer key's titles still name Fraunces. Copy and the three saved files take the same
   levels from `readCopy`, where the passage's `section` block carries
   `level: 3` (a `section` with no level is an h2: “Key terms,” “Answer
   key”), so a new title the copy draws gets its level there once. Don't
