@@ -5786,11 +5786,13 @@ wording (E202).
   up into the head row where the heading was, which doesn't scroll; the
   link opens /search in a new tab and shows the new-tab mark (E71); the
   heading moves down to the top of the results and names the search,
-  “ἄνομος in the New Testament” (the word searched for, its dictionary form
-  once one is chosen); and the count under it reads “Appears 9 times.”
+  “ἄνομος in the New Testament”; and the count under it reads “Appears 9 times.”
   `greek-find.js` builds the row into the tab's head and hides the
   heading while `is-finding` is set; Escape still closes the results from
-  either place. Status: fixed.
+  either place. BVJ, same day: the heading shows what is actually being
+  searched, so it is the form as written with Exact form only on
+  (“Ἄνδρες”), “Strong’s G435” for a Strong’s number, and otherwise the
+  dictionary form (“ἀνήρ”). Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

@@ -173,11 +173,22 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
   pane.addEventListener("keydown", onEscape);
   top.addEventListener("keydown", onEscape);
 
-  /** The results' heading: the Greek searched for, "in the New Testament". */
-  function setTitle(term) {
+  /**
+   * The results' heading names what is being searched, "in the New Testament"
+   * (E219): the form as written with Exact form only on, "Strong’s G435" for
+   * a number, else the dictionary form the hits are for.
+   */
+  function setTitle(term, { greek = true } = {}) {
     const g = make("span", null, term);
-    g.lang = "grc";
+    if (greek) g.lang = "grc";
     findTitle.replaceChildren(g, " in the New Testament");
+  }
+
+  function titleFor(res, raw) {
+    if (res.kind === "strong") return setTitle(`Strong’s ${raw.toUpperCase()}`, { greek: false });
+    if (state.exact && res.form) return setTitle(raw);
+    if (res.selected) return setTitle(res.selected.lemma);
+    setTitle(raw);
   }
 
   /* ── Asking ────────────────────────────────────────────────────── */
@@ -233,7 +244,8 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
     const my = ++seq;
     if (!raw) return;
     showResults();
-    setTitle(raw);
+    if (/^G\d+$/i.test(raw)) setTitle(`Strong’s ${raw.toUpperCase()}`, { greek: false });
+    else setTitle(raw);
     if (!status.textContent) status.textContent = "Searching…";
     try {
       const ask = () => searchGreekAuto(BASE, raw, { lemmaId: state.lemmaId, exactForm: state.exact });
@@ -323,7 +335,7 @@ export function createGreekFind({ root, here, selectWord, focusText, openHit = n
       return;
     }
     const sel = res.selected;
-    if (sel) setTitle(sel.lemma);
+    titleFor(res, raw);
     if (lemmas.length === 1 && sel) {
       lemmaNodes(found, sel, { count: false });
       found.hidden = false;

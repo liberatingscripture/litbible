@@ -1011,7 +1011,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        on the search page" (a new tab) sits beside "← Acts 2" (BVJ,
        2026-11-04). **While results show, those two take the heading's
        place in the tab's head row**, which doesn't scroll, and the heading
-       moves to the top of the results as "ἄνομος in the New Testament" over
+       moves to the top of the results as "ἄνομος in the New Testament" (what is searched: the form with
+       Exact form only on, "Strong’s G435" for a number) over
        "Appears 9 times" (BVJ, 2026-11-21, E219). Its result rows preview their verse on hover like any
        reference (`ref-preview.js`; a row for the chapter on screen is a
        button naming its verse in `data-preview-href`, and a tap on it jumps).
