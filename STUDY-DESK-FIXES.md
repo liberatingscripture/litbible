@@ -5876,8 +5876,26 @@ wording (E202).
   for every sheet or each sheet's own; whether it reaches Copy and the saved
   files (they name fonts and never embed them, `DOC_FONTS`), present mode and
   the slides; what the “Display” choice means once no title on the paper
-  names Fraunces (E222); and how a font a printer lacks falls back. Status:
-  open, deferred.
+  names Fraunces (E222); and how a font a printer lacks falls back.
+  **To settle with it: what still names Fraunces** after E222, which BVJ
+  said shouldn't use it at all (“it shouldn't use Fraunces at all”) and
+  which was left because that answer was about the paper copy. (1) The
+  leader's own **Display** text style: `data-font="display"` is a stored
+  value of the sheet's format (`desk-sheet-format.mjs`, the Style menu's
+  “Display”), so it can't be removed without breaking sheets already saved;
+  its look is `desk-sheet-view.css`, and the paper's print block repeats it
+  with `!important` (`sheets-page.css`). The choice is to give it another
+  face (as it stands it would match “Serif,” Crimson Text, so the menu would
+  list two alike), or to keep it out of the menu and read an old one as
+  Serif. (2) **Present mode's** titles and references
+  (`.present-screen__title`, `__ref`, `__rich` headings and its Key terms
+  title, `sheets-page.css`). (3) **The editor's sheet title**
+  (`.desk-sheet__title`, `desk.css`). (4) **The slides' heading font**,
+  `SLIDE_FONTS` in `desk-slides.mjs`, which the .pptx (its theme's major
+  font) and .odp name and the slide print and `sheet-slides.js` draw with,
+  so all of them change together (no test or fixture names the font, so
+  nothing pins it today). A deck names its font and never embeds it, so a
+  machine without Fraunces already shows a stand-in. Status: open, deferred.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
