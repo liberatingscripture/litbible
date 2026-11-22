@@ -444,6 +444,19 @@
   text-decoration: none;
 }
 
+/* A link to another site (a footnote's Isaiah or Deuteronomy, which the linker
+   sends to Sefaria) gets restyle.css's new-tab mark after it. The paper has no
+   use for it, and it cost the page twice: it is a box filled with the text
+   color, which print.css clears from every ::after, so on paper it drew
+   nothing and still held 1.2em of the line, a gap before the semicolon that
+   follows the reference (E215). Gone on screen too, so the preview breaks its
+   lines and pages as the paper does. The saved files and Copy never had it:
+   they read the elements, and a pseudo-element isn't one. !important, since
+   restyle.css names the link by its target. */
+.sheet-copy a[target="_blank"]::after {
+  display: none !important;
+}
+
 .sheet-copy__notes {
   list-style: none;
   margin: 6pt 0 0;

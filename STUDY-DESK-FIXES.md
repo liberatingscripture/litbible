@@ -5680,6 +5680,27 @@ wording (E202).
   as a member's head does (E211), with the grab cursor. Test:
   `test/desk-collections-sheets.test.js`. Status: fixed.
 
+- **E215, bug: a sheet's footnotes printed a gap before the semicolon after
+  a reference to another site.** BVJ, 2026-11-21, with a print-preview
+  screenshot: “Reference to Isaiah 56:1–8 ; 58:6–14,” the same after
+  Deuteronomy, none after “Matthew 3:12,”. The linker sends Hebrew Bible
+  references to Sefaria, so they are outside links, and `restyle.css` draws
+  its new-tab mark after each (E71): an inline-block box 0.9em wide with a
+  0.3em margin, filled with the text color through a mask. `print.css` clears
+  every `::after`'s background, so on paper the mark drew nothing and still
+  held 1.2em of the line. **Fixed** (`sheets-page.css`): `.sheet-copy
+  a[target="_blank"]::after` is `display: none !important`, outside `@media
+  print`, so the preview shows what prints, with the same line and page
+  breaks (BVJ: “what is shown on the preview is what prints”). Copy and the
+  saved files were never affected: `readCopy` walks the elements, and a
+  pseudo-element isn't one, so a link carries its words and its address and
+  neither the mark nor a gap. Present mode's footnotes (`.present-screen__notes`)
+  keep the mark; a room's screen is dark and never printed. Checked in
+  headless Chrome over the real stylesheets in screen and print media (the gap
+  was 1.2em, now 0, and an in-site link had none), and by printing both
+  versions to PDF. Test: `test/desk-sheet-paper-newtab.test.js`. Status:
+  fixed.
+
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
 website, E3 is fixed.) `desk-page.js` is touched by E14, E15, E16, E17, E21
