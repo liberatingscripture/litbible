@@ -4493,13 +4493,36 @@ html:has(.desk-greek__split--dragging) {
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
-/* "Back to the text" and "See results on the search page", side by side at the top. */
+/* "← Acts 2" and "See results on the search page" take the heading's place
+   in the head row while results show; the heading moves to the top of the
+   results as "ἄνομος in the New Testament" (E219). */
 .desk-greek__find-top {
-  display: flex;
+  display: none;
+  flex: 1;
+  min-width: 0;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 14px;
-  margin: 0 0 8px;
+}
+
+.desk-greek.is-finding .desk-greek__find-top {
+  display: flex;
+}
+
+.desk-greek.is-finding .desk-greek__title {
+  display: none;
+}
+
+.desk-greek__find-title {
+  margin: 0 0 6px;
+  font-family: inherit;
+  font-size: calc(1rem * var(--desk-ui, 1));
+  font-weight: 600;
+}
+
+.desk-greek__find-title [lang="grc"] {
+  font-family: var(--serif);
+  font-size: calc(1.0625rem * var(--desk-ui, 1));
 }
 
 .desk-greek__find-status {

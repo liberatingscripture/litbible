@@ -1003,13 +1003,16 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The Greek tab has word searches but no typed search**
        (`desk/greek-find.js`): in a word's details the form, the lemma, the
        Strong's number and the parsing each start a search (BVJ, 2026-10-13),
-       and the results replace the text until "Back to the text". The
+       and the results replace the text until "← Acts 2" (the chapter's name). The
        header's search button and its field were taken out (BVJ,
        2026-11-02, E7): a typed Greek search is the search bar's, /search's
        and /desk's Search pane's, and the tab has no way into the commands
        window. The word choices and "Exact form only" stay, and "See results
-       on the search page" sits at the top beside "Back to the text" (BVJ,
-       2026-11-04). Its result rows preview their verse on hover like any
+       on the search page" (a new tab) sits beside "← Acts 2" (BVJ,
+       2026-11-04). **While results show, those two take the heading's
+       place in the tab's head row**, which doesn't scroll, and the heading
+       moves to the top of the results as "ἄνομος in the New Testament" over
+       "Appears 9 times" (BVJ, 2026-11-21, E219). Its result rows preview their verse on hover like any
        reference (`ref-preview.js`; a row for the chapter on screen is a
        button naming its verse in `data-preview-href`, and a tap on it jumps).
        **A Greek word searches at any length there too** (ὦ, ἤ; BVJ,

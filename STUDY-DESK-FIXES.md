@@ -5778,6 +5778,19 @@ wording (E202).
   is gone; Escape still closes the list and gives focus back to the button.
   The same chooser serves the Sheets pane and /sheets, so both are fixed
   together. Test: `test/desk-new-sheet-button.test.js`. Status: fixed.
+- **E219, preference: the Greek tab's search results lead with the way
+  back.** BVJ, 2026-11-21, from a screenshot of Acts 2's results: “Back to
+  the text” sat inside the results under a heading that still said “Acts 2
+  in Greek.” Asked for: the button reads “← Acts 2” (the chapter's name, so
+  it says where it goes), and it and “See results on the search page” move
+  up into the head row where the heading was, which doesn't scroll; the
+  link opens /search in a new tab and shows the new-tab mark (E71); the
+  heading moves down to the top of the results and names the search,
+  “ἄνομος in the New Testament” (the word searched for, its dictionary form
+  once one is chosen); and the count under it reads “Appears 9 times.”
+  `greek-find.js` builds the row into the tab's head and hides the
+  heading while `is-finding` is set; Escape still closes the results from
+  either place. Status: fixed.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
