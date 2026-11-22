@@ -177,7 +177,7 @@
    page's one primary (BVJ, the same day: "There's no primary button at all
    in this version. Shouldn't the Luke 4 button at the bottom be green?").
    Read View's button stays too, until Read View goes. */
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .menu-overlay__cta, .not-found__cta:not(.not-found__cta--outline)) {
   border: 1px solid var(--desk-primary-edge);
   border-radius: 8px;
   background: var(--green-deep);
@@ -194,7 +194,7 @@
     filter var(--desk-btn-motion) ease;
 }
 
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)):hover:not(:disabled, [aria-disabled="true"], :active) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .menu-overlay__cta, .not-found__cta:not(.not-found__cta--outline)):hover:not(:disabled, [aria-disabled="true"], :active) {
   border-color: var(--desk-primary-edge);
   background: var(--green-deep);
   color: #fff;
@@ -203,13 +203,13 @@
   filter: brightness(1.1);
 }
 
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)):active:not(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .menu-overlay__cta, .not-found__cta:not(.not-found__cta--outline)):active:not(:disabled, [aria-disabled="true"]) {
   box-shadow: var(--desk-primary-press);
   transform: none;
   filter: brightness(0.95);
 }
 
-:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)):is(:disabled, [aria-disabled="true"]) {
+:root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .menu-overlay__cta, .not-found__cta:not(.not-found__cta--outline)):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--desk-primary-edge);
   background: var(--desk-primary-off);
   color: var(--green-text);
@@ -219,28 +219,64 @@
   opacity: 1;
 }
 
-/* The header's Read link is a primary too (BVJ, 2026-11-21): the same Deep
-   Green, 8px shape, edge, light shadow, lift and press as the rest of the
-   kind (its name is in the list above), and the sentence-case label 2.0 gives
-   every button. What goes is global.css's own drawing of it, which the list
-   cannot take away: the ink block with the green curtain that wiped up on
-   hover (the link's ::before), the capitals with their wide tracking, and the
-   :focus rule that set the words to ink (ink on Deep Green). Its height, its
-   padding, and the .cta-hold that keeps it as wide as "Read Now" are
-   global.css's and stay. The ::before below is the link's; the .cta-hold's
-   own ::before, which holds that width, is a different one. */
+/* The header's Read link is the one ink primary (BVJ, 2026-11-21), on every
+   page and in both themes: the primary kind's 8px shape, edge, light shadow,
+   lift and press (its name is in that list), the sentence-case label 2.0 gives
+   every button, and ink for the fill, so Read stands apart from the Deep Green
+   primary a page may hold below (a Scripture page's Next, a form's Send)
+   rather than repeating it. It is ink because Deep Green on the home page's
+   LIT Green band is only 1.9:1 (ink is 4.6:1, and the band never flips), and
+   the same look then runs through the whole site. What goes is global.css's
+   own drawing of the link, which the list cannot take away: the curtain that
+   wiped up on hover (the link's ::before, "no curtain animation") and the
+   capitals with their wide tracking. Its height, its padding, and the
+   .cta-hold that keeps it as wide as "Read Now" are global.css's and stay.
+   The ::before below is the link's; the .cta-hold's own ::before, which
+   holds that width, is a different one. */
+/* The kind reads its fill and edge from `--green-deep` and
+   `--desk-primary-edge`, so those two are re-pinned on the link (last two
+   lines), which holds in every state (rest, hover, press) without
+   out-weighing the list's own rules. Ink is the same in both themes, but a
+   near-black page (the dark theme's) would swallow an ink fill, so off the
+   green band the dark theme gives it the kind's own green edge back, as every
+   dark primary has (the two rules after the next). */
 :root[data-restyle] .site-nav__cta-item > a.site-header__cta {
   font-size: 0.875rem;
   letter-spacing: normal;
   text-transform: none;
+  font-weight: 600;
+  --green-deep: var(--ink);
+  --desk-primary-edge: var(--ink);
 }
 
 :root[data-restyle] .site-nav__cta-item > a.site-header__cta::before {
   display: none;
 }
 
-:root[data-restyle] .site-nav__cta-item > a.site-header__cta:focus {
-  color: #fff;
+@media (prefers-color-scheme: dark) {
+  :root[data-restyle]:not([data-theme="light"]) body:not(.bg-green) .site-nav__cta-item > a.site-header__cta {
+    --desk-primary-edge: rgba(58, 191, 106, 0.7);
+  }
+}
+
+:root[data-restyle][data-theme="dark"] body:not(.bg-green) .site-nav__cta-item > a.site-header__cta {
+  --desk-primary-edge: rgba(58, 191, 106, 0.7);
+}
+
+/* The phone menu's Read button is a primary of the kind too (BVJ, 2026-11-21:
+   "update the mobile Read button to match SITE 2.0"; `.menu-overlay__cta` is
+   in the list), and Deep Green, not ink: it sits on the menu's near-black
+   scrim, where an ink fill would vanish and Deep Green holds. What goes is
+   global.css's own drawing of it: the capitals with their wide tracking, and
+   the 420ms `transition-delay` the menu gives its links to stagger them in,
+   which would otherwise hold back every hover and press. The slide-in is gone
+   with the list's own `transform` and `opacity`; the panel's float-in and the
+   scrim's fade still bring it in. Its size and padding stay the menu's, a
+   touch target, and so does the .cta-hold that keeps its width. */
+:root[data-restyle] .menu-overlay .menu-overlay__nav a.menu-overlay__cta {
+  text-transform: none;
+  letter-spacing: normal;
+  transition-delay: 0ms;
 }
 
 /* ── The open menu's close button ─────────────────────────────── */
@@ -640,7 +676,7 @@
     color: GrayText;
   }
 
-  :root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .not-found__cta:not(.not-found__cta--outline)) {
+  :root[data-restyle] :is(.chapter-cta--next, .rm-page .rm-fab, .contact-button, .unsub-form__submit, .btn--cta, .signup__button, .button--primary, .site-header__cta, .menu-overlay__cta, .not-found__cta:not(.not-found__cta--outline)) {
     border: 2px solid ButtonText;
   }
 

@@ -29,39 +29,6 @@
   display: none;
 }
 
-/* The header's Read on the green band (BVJ, 2026-11-21: "eye-catching"). Deep
-   Green on LIT Green is 1.9:1, so the primary's own edge, which is the same
-   green as its fill, does not hold the button against the band. It gets a
-   white edge a pixel off its own, the way the white Aa tile beside it reads
-   (3.5:1 on the band in both themes, since the band never flips). The ring is
-   the link's ::after, not a border or a shadow: restyle.css's primary list
-   sets both in every state, and a ring on the element lifts and presses with
-   it. global.css clips the link for its old curtain, so it is let out here.
-   Keyboard focus is the page's ink ring, moved out past this one so the two
-   stay apart. A contrast theme gives the button its own 2px edge. */
-:root[data-restyle] body.bg-green .site-nav__cta-item > a.site-header__cta {
-  overflow: visible;
-}
-
-:root[data-restyle] body.bg-green .site-nav__cta-item > a.site-header__cta::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border: 2px solid #fff;
-  border-radius: 11px;
-  pointer-events: none;
-}
-
-:root[data-restyle] body.bg-green .site-nav__cta-item > a.site-header__cta:focus-visible {
-  outline-offset: 5px;
-}
-
-@media (forced-colors: active) {
-  :root[data-restyle] body.bg-green .site-nav__cta-item > a.site-header__cta::after {
-    display: none;
-  }
-}
-
 /* One wrap for every section: the mock's 1120px and the site's gutter. */
 :root[data-restyle] :is(.hero-wrap, .title-block, .intro, .callout-inner, .chat-block__inner, .questions-block__inner) {
   box-sizing: border-box;
