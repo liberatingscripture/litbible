@@ -479,7 +479,10 @@
   (the "one per pane" rule is the desk's). `global.css` still draws it the
   old way for the ungated site (an ink block, a green curtain on `::before`,
   capitals); three rules after the primary block switch that off here, and
-  the `.cta-hold` that keeps its width stays. On the same pass the open
+  the `.cta-hold` that keeps its width stays. On the home page's green band,
+  where Deep Green is only 1.9:1 against LIT Green, `v2/home.css` gives it a
+  white ring a pixel off its edge (the link's `::after`, so it lifts with the
+  button and keyboard focus moves out past it). On the same pass the open
   menu's X is ink (`var(--ink)`, never `--text`, which the green header
   pages re-pin) on the ordinary buttons' white tile, in the phone menu and
   the computer's side tray alike. The phone menu's own Read button is not in
