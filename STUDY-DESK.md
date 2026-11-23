@@ -421,10 +421,11 @@ are recorded so they aren't re-argued.
   as today) and full A added later only if readers ask; the website's side
   of each plan is sized in that section. **Decided at the Zoom, 2026-11-23:
   plan C, with sync held for February 10 on the website and in both apps**
-  ("Decisions", 2026-11-23). The encryption spec's draft 1 is
-  `STUDY-DESK-ENCRYPTION.md` (PR #680), and BVJ's side now builds the
-  encryption work and the service. **The plan for the phase is "Order of
-  work", 4** (steps 4a to 4l).
+  ("Decisions", 2026-11-23). The encryption spec is
+  `STUDY-DESK-ENCRYPTION.md`: draft 1 was BDR's Claude's (PR #680), and
+  **draft 2 is the website's, written 2026-11-23** (step 4a), since BVJ's
+  side now builds the encryption work and the service. **The plan for the
+  phase is "Order of work", 4** (steps 4a to 4l).
 
 - **Status: phases 1a to 1d and 1f built, behind a preview switch; nothing
   reader-facing yet.** Readers see and download none of it.
@@ -5093,7 +5094,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    About 20 to 29 sessions. Large.
 
    **What a reader gets** (the spec, `STUDY-DESK-ENCRYPTION.md`, says how;
-   its draft 2 is step 4a):
+   its draft 2, written 2026-11-23, is step 4a):
    - **Signing in is never required.** A reader who doesn't sign in keeps
      the notebook in the browser, with export and import, as today.
    - **Sign in with Apple, with Google, or with a passkey.** No passwords
@@ -5161,6 +5162,45 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Firefox, third-party password managers, and signing in by scanning a
      code from another device unverified or uneven). BDR's Claude reviews
      the draft.
+     **Written 2026-11-23** (docs only; `STUDY-DESK-ENCRYPTION.md` is now
+     draft 2, and it replaces draft 1 whole). What to know from it:
+     - **The documentation check corrected the first look.** Apple's own
+       pages confirm it (iOS 18, iPadOS 18, and macOS 15, in apps and in
+       Safari 18, and for password managers' extensions). **Google's pages
+       don't say that Google Password Manager returns the secret**, on
+       Android or in Chrome; the one mention found is a 2024 line in the
+       Jetpack library's release notes. **Microsoft's pages don't say
+       Windows Hello does**; the February 2026 claim rests on a third
+       party's bug report. Firefox has it on computers from 139 and on
+       Android from 149. Signing in by scanning a code works on Android
+       and has been unreliable on Apple's side. The spec's section "Where
+       a passkey can carry a key" has each source and link.
+     - **So no client assumes.** It asks the passkey each time and treats
+       it as holding the key only on what comes back; where nothing does,
+       the recovery code is required and a new device joins by approval.
+     - **The service's interface is a section of the spec**, not a file
+       beside it: what the service checks is half of each step, and the
+       two freeze together.
+     - **Choices Claude made in writing it, which BVJ has not seen** (the
+       spec's "Still open," 7 to 16, has each): a **key proof**, so the
+       service lets a session read or change the notebook only after it
+       shows it holds the key (draft 1 would have taken a change of key
+       from any signed-in session, a stolen one included); **only a synced
+       passkey holds the key**, so a Windows Hello or security-key passkey
+       signs in and no more; the passkey's secret is asked for with a
+       **fixed input**, so signing in and opening take one prompt; the
+       choice of where the key lives is **whether a passkey holds it**,
+       not a setting the service stores; **a notebook always has a way
+       back** (a passkey or a code), which the service enforces; the
+       screen that removes a device under "follows my account" offers
+       **"Replace my passkey"** and **"Switch to this device only"**;
+       adding or removing a way to sign in needs a device that has the
+       key; and the service leaves the format's clock cap to the devices.
+       It also proposes two pieces of wording for BVJ.
+     - **Not yet tried on any real device.** The first thing to try,
+       before the freeze: one passkey must give the same secret on the
+       website and in each app. Asked of BDR's side in
+       `STUDY-DESK-FOR-THE-APPS.md`.
    - **4b. The reference and the vectors** (2). The reference is the code
      the website ships, so it is `src/lib/desk-crypto.mjs`, pure and on
      WebCrypto, not under `scripts/lib/` as draft 1 has it;
@@ -7845,6 +7885,14 @@ twelve steps, 4a to 4l, from the spec's draft 2 to the private beta. It
 waits on BDR's word on the calls above and on his three changed format
 points; the first step, the spec's draft 2, can start without them.
 
+**Draft 2 of the spec is written** (2026-11-23, by BVJ's Claude; step
+4a). It writes in every call above, adds the service's interface, and
+records what each platform's own documentation says about a passkey
+carrying a key. **It also makes design choices that neither BVJ nor BDR
+has seen**; they are Claude's, not decisions, until BVJ says so. Step 4a
+lists them, and the spec's last section, "Still open," numbers them with
+the calls that wait on BDR.
+
 ### 2026-11-10 (N8, the hidden passage, not included)
 
 - **The hidden passage (N8) is not in the Study Desk** (BVJ, 2026-11-10:
@@ -9303,7 +9351,10 @@ own sections cite it by ID.
 - **From the 2026-11-23 call, for BVJ and BDR's follow-up conversation**:
   what happens when a reader loses every device (the worksheet's item D5),
   and with it the nine open items at the end of
-  `STUDY-DESK-ENCRYPTION.md`; sheets and collections in the apps; the
+  `STUDY-DESK-ENCRYPTION.md` (**BVJ answered them the same day, and draft
+  2 of the spec writes the answers in; what is open now is its "Still
+  open" list**, for BDR to confirm and BVJ to check); sheets and
+  collections in the apps; the
   Greek in the apps; short share links (M14); and whether the website keeps
   a short "for the apps" list of its decisions (the worksheet's T4).
 - **From the same day, for BVJ**: the three format points BDR changed (the

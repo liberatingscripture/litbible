@@ -263,8 +263,9 @@ Study Desk), plus what the apps download from the website. Read
   spec (`STUDY-DESK-ENCRYPTION.md`, draft 1, 2026-11-23). **From draft 2 on,
   BVJ's side writes the spec, its reference, and its vectors, and builds the
   service** (BVJ, 2026-11-23), so your part is to review them and to run the
-  vectors in both apps. The vectors go under `test/fixtures/`, the way the
-  anchor text's are.
+  vectors in both apps. **Draft 2 is in the file now** (2026-11-23); its
+  last section, “Still open,” numbers the calls that wait on you. The
+  vectors go under `test/fixtures/`, the way the anchor text's are.
 - The anchor text, the format's executable half: `scripts/lib/anchor-text.mjs`,
   `src/lib/anchor-core.mjs`, `scripts/build-anchor-vectors.mjs`,
   `test/fixtures/anchor-vectors.json` and `test/anchor-text.test.js`.
