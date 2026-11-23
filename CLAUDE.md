@@ -535,7 +535,7 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-AUDIT-1.md` to `STUDY-DESK-AUDIT-8.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md`. Large: grep for an ID, never read whole |
+| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-1.md` to `STUDY-DESK-AUDIT-8.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md`. Large: grep for an ID, never read whole |
 | `API-2-FORMAT.md` | The content API, version 2 (`/api/data/v2/`), beside version 1; opens with the manifest rule that protects installed apps |
 | `IMAGE-CREDITS.md` | Source, creator and terms of every image by others (named from `LICENSE`). A new stock image gets a row when it is added. |
 | `SITE-2.0.md` | Site 2.0: the plan, its ground rules, and every page's decision; styles in `src/styles/v2/` |

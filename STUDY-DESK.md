@@ -419,7 +419,11 @@ are recorded so they aren't re-argued.
   the sizing; a preference, not an insistence or a decision), with "don't
   sign in" as the keep-it-in-your-own-cloud option (iCloud on Apple devices,
   as today) and full A added later only if readers ask; the website's side
-  of each plan is sized in that section. Nothing is decided.
+  of each plan is sized in that section. **Decided at the Zoom, 2026-11-23:
+  plan C, with sync held for February 10 on the website and in both apps**
+  ("Decisions", 2026-11-23). The encryption spec's draft 1 is
+  `STUDY-DESK-ENCRYPTION.md` (PR #680), and BVJ's side now builds the
+  encryption work and the service.
 
 - **Status: phases 1a to 1d and 1f built, behind a preview switch; nothing
   reader-facing yet.** Readers see and download none of it.
@@ -3136,6 +3140,11 @@ Rules a to e as BDR answered them (2026-10-09), each with a test case, and:
 
 ### Who builds what
 
+**Changed 2026-11-23** ("Decisions", 2026-11-23): plan C is chosen; the
+hidden passage is dropped from all three; and the encryption spec's next
+drafts, its reference and vectors, and the service move to BVJ's side. The
+lists below are as they stood on 2026-10-09.
+
 Under plan C with end-to-end encryption:
 - **Website (BVJ):** phases 1c, 1d, 2 and 3 in the website's own order.
   Asked of it on 2026-10-09: pinned footnotes, in phase 1c by November
@@ -3194,8 +3203,11 @@ conversation BDR asked for (the Zoom's item 17, 2026-10-09).
 ### The Zoom: BVJ with BDR
 
 Seventeen items since draft 4c (2026-10-09; thirteen in draft 2), each with
-its options in the proposal. Not yet held. **The proposal's
-recommendations, none decided:**
+its options in the proposal. **Held on 2026-11-23**, from a newer worksheet
+with its own item numbers: what it decided, and what it left for a
+follow-up conversation, is under "Decisions", 2026-11-23. The list below is
+kept as it stood before the call. **The proposal's recommendations, as they
+stood then:**
 1. **Where notes live:** C on the evidence so far. With the spikes paused
    (2026-10-09), the call decides whether plan A is tested at all (on the
    agenda, BVJ, 2026-10-09); if it is, the spikes take about three weeks and
@@ -3340,6 +3352,11 @@ is on the apps' path; website readers wait for it instead. The two biggest
 unknowns are the device-approval step under C, the newest of these pieces
 to all three teams, and whether Core Data accepts website-written records
 under A (spike 1).
+
+**Superseded 2026-11-23**: BVJ has moved to a Max plan, and BVJ's side now
+builds the encryption work and the service ("Decisions", 2026-11-23). The
+paragraph below is kept as the reasoning of its day, and the session counts
+above were sized for it.
 
 **Capacity: the two sides don't have the same amount of Claude** (BVJ,
 2026-10-07). BVJ works on the **Claude Pro** plan; BDR has the **lower of the
@@ -5066,7 +5083,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    follow. **Not in phase 3**: S2 and N9 (2b), M11 and N6's "For
    discussion" section (after phase 3), S11, and short share links (M14,
    phase 4).
-4. **Sync, with BDR.** Starts once plan A or C is chosen and, if the Zoom
+4. **Sync, with BDR.** **Plan C was chosen on 2026-11-23, plan A is not
+   tested, and the website's sync is aimed at February 10 with the apps'**
+   ("Decisions", 2026-11-23); the plan for this phase is still to be
+   written here. As it stood before: Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
    of truth at a time (C5), connection status and "Reconnect", edits queued
@@ -5232,6 +5252,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      and the pass over what has piled up decides what is fixed first.
    - **Phase 4, sync with the apps**, follows on its own schedule; the apps
      announce sync once in their What's New (the Zoom's item 5).
+     **Changed 2026-11-23**: the website's sync is aimed at February 10
+     with the apps', and the three announce together ("Decisions",
+     2026-11-23). How that sits with the stages above is open, for BVJ.
      **Phase 4 is also what ends the beta** (stage 3 above): the label
      comes off when the apps can sync.
 
@@ -5372,6 +5395,12 @@ be revisited for version 2.
       “Passage…”).
     - E217, the Phase 5 task that puts Greek passages on sheets, holds
       whole verses and probably needs none of the word anchors above.
+    - **A smaller form of the notes part may come into version 1** (BVJ,
+      2026-11-23; not yet decided): a note started from the Greek tab or
+      pane is an ordinary note on its verse, with the selected Greek put
+      into its body. It needs no anchor to a Greek word and no change to
+      the format ("Decisions", 2026-11-23). Notes anchored to Greek words,
+      and bookmarks and highlights on the Greek, stay here.
 
 **Still open, for BVJ:**
 - **Which phase takes D10's version 1 part, a link to the Septuagint in
@@ -7415,6 +7444,177 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-11-23 (the call with BDR: plan C, and sync on February 10)
+
+**The Zoom was held** (BVJ with BDR, 2026-11-23). It worked from a call
+worksheet that BDR's Claude prepared on 2026-11-21 in place of the October
+23 agenda, which the call never got to. The worksheet is a Claude page
+(https://claude.ai/code/artifact/d99d8798-b005-40ff-9ae6-82dca94707ad; it
+opens for BVJ, and Claude reads it in the Browser pane). BDR typed its
+answers during the call. What follows is that page as it stood that evening,
+with 29 of its 37 items answered, and then what BVJ told Claude the same
+day, quoted. **The worksheet's item numbers are its own**: its D5 and D6 are
+not this file's D5 (the lock) and D6 (the first-time choice), so they are
+written “item D5” here.
+
+**Decided on the call:**
+- **Plan C** (item D1: “BDR and BVJ agree: Plan C”). A small LIT service on
+  Cloudflare holds each signed-in reader's notebook, encrypted so the LIT
+  can't read it, with sign-in by Apple, Google, or a passkey; iCloud keeps
+  syncing a reader's Apple devices as it does today. This settles the
+  Zoom's item 1 and “To be decided” under “The apps' replies.” Plan A is
+  not tested, and the paused spikes are not resumed.
+- **February 10 is held for sync** (item D2: “BDR and BVJ agree”), over the
+  worksheet's recommendation to make the fallback the plan. The gate is
+  about **December 15**: the plan chosen, a preview service running, and
+  the encryption spec written. If the gate is missed, the fallback ships:
+  the apps bring everything but sync on February 10, and sync follows in
+  the next release.
+- **Bookmarks in the apps: simple** (item D3; “BDR and BVJ agree”). In the
+  first stage a bookmark is reached from the text selection menu and is
+  anchored to the first verse in the selection. Bookmarks sync. They take
+  labels the reader adds, which work as tags do in other software, and the
+  labels sync too. No colors for now: the apps use the website's
+  yellow-gold. **The bookmark picture leaves the apps' note markers**:
+  every note that used it goes back to the neutral gray note, and a quiet
+  notice may tell the reader, in the Study tab or the next time the note is
+  opened. “Save your place” and “continue where you left off” stay a
+  separate feature, developed later and probably not by Ash Wednesday.
+- **The hidden passage is dropped from all three** (item D4; BDR marked it
+  on 2026-11-22). The apps close their rows for it (iOS IOS-79, Android
+  NB6), and kind 3 leaves the format. This settles the Zoom's item 17 and
+  the “open to discussion with BDR” that the 2026-11-10 decision left.
+- **Passkeys at launch, if the schedule holds** (item D6).
+- **The service: as proposed** (item D7; BDR marked it on 2026-11-22): built
+  by BDR's side, deployed to BVJ's Cloudflare, with BVJ reviewing and a
+  one-page runbook. The four names the item asks for are blank: who owns
+  the Cloudflare account, the Apple developer account, and the Google Cloud
+  project, and who answers if the service breaks. **BVJ changed who builds
+  it the same day**, below.
+- **One announcement on Ash Wednesday** (item D8): the website and both
+  apps together, each with whatever it has ready. Before it, “We will do
+  private beta release on all three, including Play testers and Test Flight
+  folk.” The item's field for the website's launch date is blank.
+- **The format freezes on December 24, tentatively** (item D9): “We
+  tentatively say December 24. We will let you know. There's one or two
+  more tricks up BVJ's sleeve. BVJ will check with his Claude about
+  something.” The something is notes from the Greek, below.
+- **The encryption spec starts right after the call** (item A8). BDR's
+  Claude opened it the same day as PR #680, which BVJ had Claude merge:
+  `STUDY-DESK-ENCRYPTION.md`, draft 1. Merging put the draft on `main`; its
+  nine open items are not agreed.
+
+**Where each website tool goes in the apps** (the worksheet's “Feature by
+feature”). Whatever an app doesn't show, it still carries untouched (item
+A3):
+- **Apps, by February 10**: saving and opening a notebook file (D1), and
+  labels on bookmarks (M8, E149).
+- **Apps, later**: printing a chapter with notes, or with room to write
+  (M6, N9); BDR may add it to the Mac app first.
+- **Website only**: notes written out in the margin (N1), commands in the
+  search box and keyboard shortcuts (D3; BDR will build similar ones for
+  the Mac app), the guided tour (D8), and the passphrase lock (D5).
+- **No notes on a footnote, in the apps or on the website** (M11). The
+  website removed them on 2026-11-10 (E79).
+- **Left for later conversation**: sheets (“We will discuss this one
+  later”), collections (“We will discuss this but probably apps by Feb
+  10”), and short share links (M14: “Undecided let's brainstorm”).
+- **The Greek tab and Greek search**: no call. BDR's note: the apps and the
+  website will need to come close to each other in how they use the Greek,
+  and “we don't expect the greek stuff to be needed in the sync at launch.”
+
+**Agreed quickly** (the worksheet's A items):
+- **Reading places don't sync in version 1** (A1), with the note that the
+  apps and the website develop their place marks separately, on groundwork
+  that would allow merging them in time.
+- **No notes on glossary entries or articles in version 1** (A2); the apps
+  carry any they meet.
+- **The apps carry what they don't show** (A3): sheets, collections, and
+  anything newer pass through untouched (the format's principle 6).
+- **The notebook file is for export and import, not for syncing** (A5).
+- **The privacy page, the terms, and the store answers change before the
+  apps do** (A6). Under plan C “No data collected” ends on both stores. The
+  website drafts the privacy page and the terms, with a minimum age; BDR
+  reviews the app parts; and the policy is live before either app ships
+  sync.
+- **A reader with an iPhone and an Android tablet is covered** (A7).
+- **The apps announce the notebook once, in What's New** (A9), as “the LIT
+  website on your computer.” **The apps rename “My Notes” to
+  “Notebook.”**
+- **Short sheet links for signed-in readers only** (A4) was marked
+  “Discuss”: BDR asked what sheet links are, and the item waits with M14.
+
+**Tracking** (the worksheet's T items, all on the apps' side but one). T2,
+T3, T5, and T6 are adopted: one rollout project across both apps with the
+real gates as milestones (December 15, December 24, January 15, about
+February 4 to submit, February 10); decisions as issues of their own, with
+a “Waiting on BDR” label; a Monday sweep by a scheduled Claude task; and
+the old agenda and proposal pages retired in favor of the worksheet. **T1
+and T4 were not reached.** T1 moves Android's open work into Linear and
+asks whether BVJ joins that workspace. T4 is the one that needs BVJ's yes,
+since it is about this repo: a short dated “for the apps” list of each
+website decision that changes what the apps build or carry, added in the
+same pull request as the decision. The website's 2026-11-10 and 2026-11-18
+decisions never reached either app's list, which is what it would fix.
+
+**Not settled on the call** (BVJ, 2026-11-23: “There were a few items we
+didn't get to, and we'll have a follow up conversation about them”):
+- **Item D5, what happens when a reader loses every device.** The note asks
+  for more on the options, and BDR's Claude answered on the page afterward.
+  The spec's draft 1 takes K1 (a recovery code shown once) as its default,
+  marked for BDR and BVJ to confirm.
+- **Item D10, the format points that wait on BDR.** BDR answered most of
+  them on a second page (“Format Points Review,”
+  https://claude.ai/artifact/YMEvpjS26GcTfg5R7JghT8). As that page stood
+  late on 2026-11-22, of 22 points BDR kept BVJ's call on 13, **changed 3,
+  which come back to BVJ** (the verse limit, collections after a highlight
+  merge, and printed sheet hints), and left 6 unmarked (three on bookmarks,
+  which waited on item D3, and those on labels, the trash, and undo).
+- Sheets and collections in the apps, the Greek, short links, and T1 and
+  T4, as above.
+
+**BVJ to Claude, the same day** (2026-11-23):
+- **The website's sync lands with the apps'**: “Yes, the website sync will
+  align with the apps.” Until now Phase 4 followed the launch “on its own
+  schedule.”
+- **The ribbon marker leaves the website's notes too**: “Yes, the awareness
+  ribbon marker goes too.” Kind 2's `ribbon` (once `bookmark`) comes out of
+  the marker list, and a note that carries either name reads as `note`.
+  That is a change to the format, so it is part of the freeze.
+- **BVJ's side does the encryption work**: “We actually decided I'll do the
+  encryption stuff since I upgraded to a Max plan. I can do as much as I
+  can from the web site as is possible without having access to the apps'
+  repos.” So the spec's next drafts, the reference implementation, and the
+  test vectors are built here by BVJ's Claude, not drafted by BDR's, and
+  the 2026-10-07 “Capacity” reasoning no longer holds as written.
+- **BVJ's side builds the service as well**: “I'm the one with Cloudflare
+  access, so I should do the service side, assuming that's where we would
+  do it.” This changes item D7's “BDR's side builds.” Where its code lives
+  is not settled.
+- **Notes from the Greek** are the “something” in item D9. BVJ's plan: a
+  note started from the Greek tab or pane is an ordinary note on its verse,
+  not on particular words, and the Greek the reader had selected is put
+  into the note's body. “The only thing the apps would have to do is render
+  Greek script.” It needs no new kind and no new field, so it doesn't bear
+  on the freeze. BVJ is “open to it being in v1 if it's not too big of a
+  swing”; **not yet decided**. Highlights and bookmarks on the Greek stay
+  in version 2 (2026-11-21).
+
+**What this changes in this file**, each marked where it stands:
+- “The Zoom: BVJ with BDR” and “Still open”: the call is held, plan C is
+  chosen, and the hidden passage is settled.
+- “Order of work,” 4, and “Launching”: sync is aimed at February 10 with
+  the apps, not after the launch on its own schedule. **Open, for BVJ**:
+  whether the “beta” stage still exists once the public opening and sync
+  land on the same day, and the date the website opens.
+- “Who builds what” and “Sizing the website's side”: the encryption spec,
+  its reference and vectors, and the service move to the website's side.
+
+**Next for the website**, before the plan for Phase 4 is written here:
+BVJ's calls on the spec's open items and on the three format points BDR
+changed; then the spec's draft 2, the reference and vectors, and the freeze
+work (kind 3 out, the `ribbon` marker out, bookmark labels as they sync).
+
 ### 2026-11-10 (N8, the hidden passage, not included)
 
 - **The hidden passage (N8) is not in the Study Desk** (BVJ, 2026-11-10:
@@ -7423,7 +7623,9 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   no reader loses anything.
 - **Open to discussion with BDR**, if BDR really wants it in the apps or on
   the website. That conversation is the Zoom's item 17, which stays on the
-  list for that reason only; without it the decision stands.
+  list for that reason only; without it the decision stands. **Closed
+  2026-11-23**: BDR dropped it from both apps too ("Decisions",
+  2026-11-23).
 - **The code stays for now** and is deleted before launch (Phase 6,
   "Before launch"): the two held branches, `claude/desk-1d-hidden` and
   `claude/desk-1d-search`, and the few lines on `main` that name the kind.
@@ -8859,13 +9061,26 @@ own sections cite it by ID.
   deletion that wins over an edit keeps the edited words in the trash),
   with the shared cases in `test/fixtures/merge-vectors.json`. Nothing
   here is open.
-- **The hidden passage, at length** (the Zoom's item 17; BDR, 2026-10-09).
-  BDR's other questions of that day are answered (the website's answers
-  under "One notebook, three homes").
-- **"To be decided"** under "The apps' replies", starting with plan A or
+- ~~**The hidden passage, at length** (the Zoom's item 17; BDR, 2026-10-09).~~
+  **Settled 2026-11-23: dropped from the website and both apps**
+  ("Decisions", 2026-11-23). BDR's other questions of that day are answered
+  (the website's answers under "One notebook, three homes").
+- ~~**"To be decided"** under "The apps' replies", starting with plan A or
   plan C ("One notebook, three homes"; at the Zoom, or by October 31 if the
-  paused spikes resume). The record format is drafted (`STUDY-DESK-FORMAT.md`) and waits on
-  both apps' review.
+  paused spikes resume).~~ **Plan C, decided 2026-11-23** ("Decisions",
+  2026-11-23). The record format is drafted (`STUDY-DESK-FORMAT.md`); BDR
+  has answered most of its points for the apps, and three come back to BVJ.
+- **From the 2026-11-23 call, for BVJ and BDR's follow-up conversation**:
+  what happens when a reader loses every device (the worksheet's item D5),
+  and with it the nine open items at the end of
+  `STUDY-DESK-ENCRYPTION.md`; sheets and collections in the apps; the
+  Greek in the apps; short share links (M14); and whether the website keeps
+  a short "for the apps" list of its decisions (the worksheet's T4).
+- **From the same day, for BVJ**: the three format points BDR changed (the
+  verse limit, collections after a highlight merge, and printed sheet
+  hints); whether notes from the Greek are in version 1; where the
+  service's code lives; the date the website opens, and whether the "beta"
+  stage still exists once the opening and sync land together.
 - **D7, deferred indefinitely (BVJ, 2026-10-11)**; the questions below are kept in case the idea returns: whether API.bible's tracking script is acceptable (BVJ,
   2026-10-08: "probably"; what it does is under D7); which other
   free-to-share translations join the KJV; whether the donation page fits
