@@ -5130,8 +5130,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      requests, and the app parts of the privacy page.
    - **The accounts**: BVJ owns the Cloudflare account, and BDR the Apple
      developer account and the Google Cloud project (the last by BVJ's
-     assignment, 2026-11-23, to change if BDR would rather not). Who
-     answers when the service breaks is not yet said.
+     assignment, 2026-11-23, to change if BDR would rather not). When
+     the service breaks, BVJ answers first and BDR second (BVJ,
+     2026-11-23; BDR's part is for BDR to accept).
 
    **The dates**, from the call:
    - **About December 15**, the gate for sync on February 10: the plan
@@ -5181,8 +5182,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The service's interface is a section of the spec**, not a file
        beside it: what the service checks is half of each step, and the
        two freeze together.
-     - **Choices Claude made in writing it, which BVJ has not seen** (the
-       spec's "Still open," 7 to 16, has each): a **key proof**, so the
+     - **Choices Claude made in writing it** (the spec's "Still open," 7
+       to 16, has each; **BVJ said yes to every one on 2026-11-23**,
+       "Decisions," 2026-11-23, and each still waits on BDR): a **key
+       proof**, so the
        service lets a session read or change the notebook only after it
        shows it holds the key (draft 1 would have taken a change of key
        from any signed-in session, a stolen one included); **only a synced
@@ -5196,7 +5199,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        **"Replace my passkey"** and **"Switch to this device only"**;
        adding or removing a way to sign in needs a device that has the
        key; and the service leaves the format's clock cap to the devices.
-       It also proposes two pieces of wording for BVJ.
+       It also proposed two pieces of wording, which BVJ took, one with
+       a change.
      - **Not yet tried on any real device.** The first thing to try,
        before the freeze: one passkey must give the same secret on the
        website and in each app. Asked of BDR's side in
@@ -5217,6 +5221,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      keyrings, the passkey and recovery holders, and approvals. It has a
      way in for the apps' sessions to build against that exists on the
      preview only. This is the "preview service running" of the gate.
+     The step also gives BDR a way to roll the service back (a member
+     role on the Cloudflare account, or deploys that run from a merged
+     pull request) and writes the steps into `DISASTER-RECOVERY.md`,
+     since BDR answers second when the service breaks (BVJ, 2026-11-23).
    - **4d. The freeze work** (1–2). In `STUDY-DESK-FORMAT.md` and the
      website's code together: kind 3 (`hidden`) leaves; the `ribbon`
      marker leaves kind 2, and `ribbon` and the older `bookmark` read as
@@ -5224,7 +5232,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      store holds the records"; and the three points BDR changed (the verse
      limit, collections after a highlight merge, printed sheet hints),
      once his Claude has written them into `STUDY-DESK-FOR-THE-APPS.md`.
-     The merge vectors take a new version. Bookmark labels need no change:
+     The merge vectors take a new version, with a case BVJ's yes to the
+     clock cap came with (2026-11-23): two devices whose clocks differ
+     still agree on which edit wins. The format's sentence "A sync
+     service's cap is its own clock" changes with it, if BDR agrees,
+     since under encryption each device caps a future time and the
+     service can't. Bookmark labels need no change:
      the format already has labels (kind 8) and `labels` on a bookmark.
    - **4e. Sign-in on the service** (3). Sign in with Apple and with
      Google, passkeys with `litbible.net` as the relying party, sessions,
@@ -7857,7 +7870,8 @@ confirm**, since BDR was not part of this exchange:
   account, and “I think BDR for Google, but we need to confirm.” **Later
   the same day: BDR, by BVJ's assignment**: “Let's actually just assign
   BDR the Google Cloud project. If he balks, we can change it.” Who
-  answers when the service breaks is not yet said.
+  answers when the service breaks is not yet said. (Said later the same
+  day: BVJ first and BDR second, under “BVJ on draft 2's choices” below.)
 - **The website opens the desk on February 10**, with the announcement.
   The “beta” label may stay: “We'll see how polished it is at that point.”
 - **Notes from the Greek are in version 1**, as described above: an
@@ -7892,6 +7906,47 @@ carrying a key. **It also makes design choices that neither BVJ nor BDR
 has seen**; they are Claude's, not decisions, until BVJ says so. Step 4a
 lists them, and the spec's last section, "Still open," numbers them with
 the calls that wait on BDR.
+
+**BVJ on draft 2's choices** (2026-11-23, later the same day). Claude
+walked BVJ through the spec's "Still open," 7 to 17, with a
+recommendation for each, and **BVJ said yes to all eleven**, in two
+messages. Items 7 to 15 change what the apps build, so each is still for
+BDR to confirm:
+- **7**, the key proof: the service gives records, and takes changes,
+  only from a session that has shown it holds the key.
+- **8**: only a synced passkey with a working PRF holds the key. A Windows
+  Hello or security-key passkey signs in and holds nothing, and the
+  recovery code is required there.
+- **9**: the passkey's secret is asked for with a fixed input, so signing
+  in and opening the notebook take one prompt.
+- **10**: the choice of where the key lives is whether a passkey holder
+  exists, not a setting the service stores.
+- **11**: a notebook always has a holder, a passkey or a recovery code,
+  and the service refuses a change that would leave none.
+- **12**: under "follows my account," the screen that removes a device
+  offers "Replace my passkey" and "Switch to this device only."
+- **13**: a device makes its own id, an approval ends with the new device
+  accepting it, and a removed device keeps its keys until signed out.
+- **14**: the service's requests and their checks, and the clock cap left
+  to the devices: "yes, with your merge text added." Claude reads that as
+  the merge test it had proposed, so step 4d adds one showing that two
+  devices whose clocks differ still agree on which edit wins.
+- **15**: once an account has a notebook, adding or removing a way to
+  sign in needs a device that has the key.
+
+And the two that were BVJ's alone:
+- **16, the wording**: "Yes, with your recommended change." The sentence
+  for a reader who takes no recovery code stands as draft 2 proposed it.
+  The removal screen's sentence gains the reader's password manager: "If
+  it's lost or stolen, remove it from your Apple or Google account too, or
+  from the password manager that keeps your passkey."
+- **17, who answers when the service breaks**: BVJ first, and BDR second
+  (BDR's part is for BDR to accept). Only BVJ can deploy or roll back
+  today, so step 4c gives BDR a way to (a member role on the Cloudflare
+  account, or deploys that run from a merged pull request; not yet
+  chosen) and writes the steps into `DISASTER-RECOVERY.md`. A break
+  pauses sync and loses nothing, since each device keeps its own
+  notebook.
 
 ### 2026-11-10 (N8, the hidden passage, not included)
 
@@ -9360,7 +9415,8 @@ own sections cite it by ID.
 - **From the same day, for BVJ**: the three format points BDR changed (the
   verse limit, collections after a highlight merge, and printed sheet
   hints), **which wait on BDR's Claude writing them here**
-  (`STUDY-DESK-FOR-THE-APPS.md`); who answers when the service breaks.
+  (`STUDY-DESK-FOR-THE-APPS.md`); ~~who answers when the service
+  breaks~~ (answered the same day: BVJ first, and BDR second).
   (The Google Cloud project is BDR's, by BVJ's assignment the same day,
   unless BDR would rather not.) The spec's items 4 (the key on an
   iPhone) and 7 (device signatures) were answered the same day. ~~Whether notes from the Greek are in

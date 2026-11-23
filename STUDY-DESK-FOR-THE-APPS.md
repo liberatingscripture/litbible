@@ -52,8 +52,40 @@ because nothing carried them there. This file is what carries them now.
    on Android 9 to 13; what happens when an iPhone scans a code to sign in
    on a computer; and a passkey kept in 1Password or Bitwarden. **The
    first is wanted before the freeze**, since the design leans on it.
+6. **BDR, you are second to answer when the service breaks**, after BVJ
+   (BVJ, 2026-11-23). Say here if that doesn't work, and which you would
+   rather have for rolling the service back: a member role on BVJ's
+   Cloudflare account, or deploys that run from a merged pull request.
 
 ## The list
+
+### 2026-11-23, BVJ on draft 2's choices
+
+BVJ was walked through the choices draft 2 made (the spec's “Still open,”
+7 to 17) and said yes to all of them. Recorded in full in `STUDY-DESK.md`,
+“Decisions,” 2026-11-23, “BVJ on draft 2's choices.”
+
+- **7 to 15 are now BVJ's calls, and each is still for BDR to confirm**:
+  the key proof; only a synced passkey with a working PRF holds the key;
+  the passkey's fixed input; where the key lives is whether a passkey
+  holder exists, not a setting the service stores; a notebook always has
+  a holder; “Replace my passkey” and “Switch to this device only” on the
+  screen that removes a device; a device makes its own id; the service's
+  requests, with the clock cap left to the devices; and changing a way to
+  sign in needs a device that has the key. So the spec's “Still open,” 1
+  to 15, waits on BDR alone.
+- **A merge test comes with the clock cap** (14), in the freeze work
+  (step 4d): two devices whose clocks differ must still agree on which
+  edit wins. It will be a new case in the merge vectors both apps run.
+- **The two sentences are settled** (16), and the apps show the same
+  words: the one for a reader who takes no recovery code, in the spec
+  under “Setting up the first device,” and the removal screen's under
+  “follows my account,” in “What removing a device means,” which now
+  names the reader's password manager beside their Apple or Google
+  account.
+- **When the service breaks, BVJ answers first and BDR second** (17).
+  **BDR's part is for BDR to accept** (ask 6 above). Only BVJ can deploy
+  or roll back today, so the service's first step (4c) gives BDR a way to.
 
 ### 2026-11-23, the encryption spec's draft 2
 
@@ -69,7 +101,8 @@ open,” numbers every call that changes what the apps build.
   key and required elsewhere; a signing key in every device's card,
   checked by nothing yet.
 - **What is new in draft 2 and that neither BDR nor BVJ has seen**, each
-  made while writing it and each for both to check:
+  made while writing it and each for both to check (BVJ has since said
+  yes to all of them: the entry above):
   - **The key proof.** A device shows the service that it holds the
     notebook key (32 bytes derived from the key, whose hash the service
     keeps) before the service gives it records or lets it change
@@ -167,7 +200,8 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
 - **The account owners**: BVJ the Cloudflare account, BDR the Apple
   developer account and, by BVJ's assignment, the Google Cloud project
   (ask 3 above, for BDR to accept). Who answers when the service breaks is
-  not yet said.
+  not yet said. (Said later the same day: BVJ first and BDR second; the
+  entry at the top of this list.)
 
 ### 2026-11-23, on the call
 
