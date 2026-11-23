@@ -9193,11 +9193,12 @@ mark.desk-print-mark {
 .desk-search__group-title {
   margin: 0 0 4px;
   /* The notebook pane's group headings (.desk-mine__heading-text), so a group
-     reads the same in every pane: Inter, 13px, semibold, mixed case (BVJ,
+     reads the same in every pane: Inter, 13px, mixed case (bold in the
+     Search pane since E228; BVJ,
      2026-11-04). It was small caps, which no other pane's headings were. */
   font-family: Inter, "Inter Fallback", system-ui, sans-serif;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
-  font-weight: 600;
+  font-weight: 700;
   color: rgba(var(--ink-rgb), 0.7);
 }
 
