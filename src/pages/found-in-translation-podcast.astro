@@ -5,7 +5,7 @@ import "../styles/v2/podcast.css";
 import PodcastEpisodesFlat from "../components/PodcastEpisodesFlat.astro";
 import { siFacebook } from "simple-icons";
 import { fetchEpisodes } from "../lib/fetchPodcastEpisodes";
-import { latestAppleEmbedUrl } from "../lib/podcast-feed-core";
+import { latestAppleEmbedUrl, latestSpotifyEmbedUrl } from "../lib/podcast-feed-core";
 
 // Apple's show embed no longer lists recent episodes — it renders one card
 // whose only play button is the show's Trailer. So the Apple player here is
@@ -15,7 +15,11 @@ import { latestAppleEmbedUrl } from "../lib/podcast-feed-core";
 // The show embed stays as the fallback for the case where no episode carries
 // an Apple link yet. It is a taller card than the compact episode row, hence
 // the two heights; both are capped at Apple's own 660px in the stylesheet.
-const appleEpisodeEmbed = latestAppleEmbedUrl(await fetchEpisodes());
+const allEpisodes = await fetchEpisodes();
+const appleEpisodeEmbed = latestAppleEmbedUrl(allEpisodes);
+// Spotify the same way: the newest episode with a Spotify link, else the show.
+const spotifyEmbedSrc =  latestSpotifyEmbedUrl(allEpisodes) ??
+  "https://open.spotify.com/embed/show/6S2wWaM5oqknwncPfOEyZ6?utm_source=generator&theme=0";
 const APPLE_SHOW_EMBED =
   "https://embed.podcasts.apple.com/us/podcast/found-in-translation/id1586737797?itsct=podcast_box_player&itscg=30200&ls=1&theme=auto";
 const appleEmbedSrc = appleEpisodeEmbed ?? APPLE_SHOW_EMBED;
@@ -195,7 +199,7 @@ const coverImage = "/images/fit-cover.webp";
 
           <div class="fit-embed fit-embed--spotify" aria-label="Spotify embed">
             <iframe
-              src="https://open.spotify.com/embed/show/6S2wWaM5oqknwncPfOEyZ6?utm_source=generator&theme=0"
+              src={spotifyEmbedSrc}
               frameborder="0"
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
               loading="lazy"

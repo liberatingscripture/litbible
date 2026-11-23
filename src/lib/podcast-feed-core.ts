@@ -275,6 +275,36 @@ export function latestAppleEmbedUrl(episodes: Episode[]): string | null {
   return null;
 }
 
+/**
+ * The Spotify player for an episode: `open.spotify.com/episode/<id>` becomes
+ * its `/embed/episode/<id>` form, which is the card the page frames. Anything
+ * else (a show link, another host, no id) returns null. The page derives the
+ * newest episode's player at build time, as it does Apple's, so the embed
+ * follows the feed instead of waiting for Spotify's show card to refresh.
+ */
+export function toSpotifyEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname !== 'open.spotify.com') return null;
+    const m = u.pathname.match(/\/episode\/([A-Za-z0-9]+)\/?$/);
+    if (!m) return null;
+    return `https://open.spotify.com/embed/episode/${m[1]}?utm_source=generator&theme=0`;
+  } catch {
+    return null;
+  }
+}
+
+/** The newest episode with a usable Spotify link; episodes arrive newest first. */
+export function latestSpotifyEmbedUrl(episodes: Episode[]): string | null {
+  for (const ep of episodes) {
+    const sp = ep.links.find((l) => l.label === 'Listen on Spotify');
+    if (!sp) continue;
+    const embed = toSpotifyEmbedUrl(sp.url);
+    if (embed) return embed;
+  }
+  return null;
+}
+
 export function unescapeHtml(str: string): string {
   return str
     .replace(/&lt;/g, '<')
