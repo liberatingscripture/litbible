@@ -739,7 +739,8 @@ code is shown:
 It says “synced notes” because a device’s own notebook and the reader’s exported file aren’t lost
 with the code (under “When a reader loses every device”).
 
-**For a reader who takes no recovery code**, a sentence to match, **proposed here for BVJ**:
+**For a reader who takes no recovery code**, a sentence to match (BVJ, 2026-11-23, as draft 2
+proposed it):
 
 > Your passkey opens your notebook on a new device. If you lose your passkey and every device you
 > use with LIT, no one can open your synced notes, not even LIT.
@@ -994,11 +995,11 @@ The new key never reaches the removed device’s own key. But the passkey is a h
 is sealed to it, and a device that still has the passkey can sign in again and open the notebook
 with it, as any new device of the reader’s would. LIT can’t take a passkey off a device: Apple,
 Google, or the reader’s password manager decides where it is. So the screen says this plainly
-(**wording proposed here, for BVJ**):
+(BVJ, 2026-11-23: draft 2’s wording, with the password manager added):
 
 > Remove [name]? It won’t be able to open anything added to your notebook from now on, unless it
-> still has your passkey. If it’s lost or stolen, remove it from your Apple or Google account too.
-> Anything already on it stays there.
+> still has your passkey. If it’s lost or stolen, remove it from your Apple or Google account too,
+> or from the password manager that keeps your passkey. Anything already on it stays there.
 
 and offers, for a device the reader no longer trusts, the two things that don’t depend on it:
 
@@ -1265,7 +1266,9 @@ the *same* 32 bytes from one real passkey is a test on real devices (under “St
 4. **The service doesn’t apply the format’s cap on a clock running ahead.** The format says “a sync
    service’s cap is its own clock.” Under encryption the service can’t clamp a sealed time, so each
    receiving device caps against its own clock (under “A record on the service”). The format’s
-   sentence changes with the freeze work, if BDR and BVJ agree.
+   sentence changes with the freeze work, if BDR agrees. BVJ said yes on 2026-11-23, with a merge
+   test added in the same step: two devices whose clocks differ must still agree on which edit
+   wins.
 5. **Passkeys are part of the launch**, where the call had them “if the schedule holds.”
 
 ## Order of work
@@ -1339,8 +1342,8 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
-2026-11-23; the rest were made in writing this draft. **BVJ was walked through them later that
-day, said yes to 8, 10, and 12, and has not answered 7, 9, 11, 13, 14, or 15**:
+2026-11-23; the rest were made in writing this draft. **BVJ was walked through those later that
+day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
 
 1. Passkeys carry the key at launch, and are part of the launch.
 2. The reader’s choice of where the key lives, on every platform, with “follows my account” first.
@@ -1350,26 +1353,30 @@ day, said yes to 8, 10, and 12, and has not answered 7, 9, 11, 13, 14, or 15**:
 6. BVJ’s side builds the service, and the apps review it.
 7. **The key proof**, and that the service gives records only to an open session.
 8. **Only a synced passkey with a working PRF is a holder.** Windows Hello and security-key
-   passkeys sign in and hold nothing. **BVJ: yes** (2026-11-23).
+   passkeys sign in and hold nothing.
 9. **The PRF’s input is fixed**, so signing in and opening take one prompt.
 10. **Holders have cards**, and the choice of where the key lives is whether a passkey holder
-    exists, not a stored setting. **BVJ: yes** (2026-11-23).
+    exists, not a stored setting.
 11. **A notebook always has a holder**: the service refuses a change of key that would leave none.
 12. **“Replace my passkey” and “Switch to this device only”** on the screen that removes a device,
-    under “follows my account.” **BVJ: yes** (2026-11-23). The screen’s own sentence is 16, below,
-    and is not yet agreed.
+    under “follows my account.”
 13. **A device makes its own id**; an approval is accepted by the new device; a removed device
     keeps its keys until signed out.
 14. **The requests** under “The service’s interface,” their checks, and that the clock cap is the
-    devices’ and not the service’s.
+    devices’ and not the service’s. BVJ’s yes came with a merge test, added in step 4d: two devices
+    whose clocks differ must still agree on which edit wins.
 15. **Adding or removing a way to sign in needs a session that has proved the key**, once the
     account has a notebook.
 
-**For BVJ:**
+**Answered by BVJ on 2026-11-23**, and kept here under their numbers:
 
-16. **The two pieces of wording proposed here**: the sentence for a reader who takes no recovery
-    code, and the removal screen under “follows my account.”
-17. **Who answers when the service breaks**, still not said.
+16. **The two pieces of wording.** The sentence for a reader who takes no recovery code stands as
+    proposed (under “Setting up the first device”). The removal screen under “follows my account”
+    stands with the reader’s password manager added (under “What removing a device means”).
+17. **Who answers when the service breaks**: BVJ first, and BDR second. **BDR’s part is for BDR to
+    accept.** Only BVJ can deploy or roll back today, so step 4c gives BDR a way to (a member role
+    on the Cloudflare account, or deploys that run from a merged pull request; not yet chosen) and
+    writes the steps into `DISASTER-RECOVERY.md`.
 
 **To find out, on real devices, before the freeze:**
 
