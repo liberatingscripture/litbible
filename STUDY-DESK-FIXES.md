@@ -5947,6 +5947,11 @@ wording (E202).
   and showing them. Measure at 759, 760, 900, 1100, and 1101px, in the
   default font and OpenDyslexic (which has its own fold at 1400px and is
   exempt from the band), with the desk preview on and off. Status: open.
+- **E227, wish: the Search pane shows five topic results before "Show N more."**
+  BVJ, 2026-11-22: topic results ("chapters by topic") drew a long list before
+  the button. The topic group now shows 5, then pages by 20 as before; keyword,
+  glossary, introduction, article and notebook groups are unchanged
+  (`paged`'s `firstPage` in `desk/search-pane.js`). Status: done.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
