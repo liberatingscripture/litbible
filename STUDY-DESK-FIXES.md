@@ -5952,6 +5952,13 @@ wording (E202).
   the button. The topic group now shows 5, then pages by 20 as before; keyword,
   glossary, introduction, article and notebook groups are unchanged
   (`paged`'s `firstPage` in `desk/search-pane.js`). Status: done.
+- **E228, bug: in the Search pane the new-tab mark fell below a result's name,
+  and the sticky "add to sheet" card covered "Show N more."** BVJ, 2026-11-22.
+  The restyle's mark is an `::after` of the link, and a block-level title pushed
+  it to its own line (introductions, articles, glossary: `desk.css` now makes
+  the title inline in a new-tab link). The strip stuck to the bottom of its whole
+  group, button included; `paged` now puts the strip, what follows it and the
+  list in one `.desk-search__body`, so it stops above the button. Status: done.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

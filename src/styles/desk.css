@@ -9240,6 +9240,12 @@ mark.desk-print-mark {
   display: block;
 }
 
+/* A new-tab result keeps the restyle's mark on the name's line (the mark is
+   an ::after of the link, so a block title pushed it to a line of its own). */
+.desk-search__link[target="_blank"] > .desk-search__title {
+  display: inline;
+}
+
 .desk-search__kind {
   margin-left: 8px;
   color: rgba(var(--ink-rgb), 0.7);

@@ -738,7 +738,19 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   /** Rows `PAGE` at a time with "Show more" after the list. */
   function paged(section, items, draw, firstPage = PAGE) {
     const list = make("ol", "desk-search__list");
-    section.append(list);
+    // A checking strip sticks only while its list is in view, so it stops
+    // above "Show more" instead of covering it: the strip, whatever follows it
+    // and the list share one body, and the button sits after it.
+    const strip = section.querySelector(":scope > .desk-search__pick");
+    if (strip) {
+      const body = make("div", "desk-search__body");
+      const rest = [];
+      for (let n = strip; n; n = n.nextSibling) rest.push(n);
+      strip.before(body);
+      body.append(...rest, list);
+    } else {
+      section.append(list);
+    }
     let shown = 0;
     let more = null;
     const step = () => {

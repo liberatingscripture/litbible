@@ -150,7 +150,7 @@ test("E166: the chapters by topic have a box each and their own strip, as /searc
   type(input, "forgiveness");
   await until(() => strip("subject"));
   const group = $("[data-group='subject']");
-  same(group.querySelector(".desk-search__group-title").nextElementSibling, strip("subject"), "the strip sits under the group's title");
+  same(group.querySelector(".desk-search__group-title").nextElementSibling.firstElementChild, strip("subject"), "the strip sits under the group's title, in the body that ends above Show more");
   const all = strip("subject").querySelector(".desk-search__check-all");
   assert.equal(all.getAttribute("aria-label"), "Check all 3 chapters");
   assert.equal(line("subject"), "Check the chapters you want, or check all 3.");
@@ -288,7 +288,7 @@ test("E166: the Greek's verses have a box per row, one check per verse, and the 
   type(input, "ἐλευθερία");
   await until(() => strip("greek"), 1000);
   const group = $("[data-group='greek']");
-  same(group.querySelector(".desk-search__group-title").nextElementSibling, strip("greek"), "under the title, above the word's line");
+  same(group.querySelector(".desk-search__group-title").nextElementSibling.firstElementChild, strip("greek"), "under the title, above the word's line");
   const rows = $$("[data-group='greek'] .desk-search__row");
   assert.equal(rows.length, 11, "a row per word matched");
   assert.ok(rows.every((r) => r.querySelector(".desk-search__check[data-pick='greek']")), "a box on every row");
