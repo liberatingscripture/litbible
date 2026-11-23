@@ -38,21 +38,21 @@ const plainSearchLink = searchLink && !headerSearch;
 // stamp, so nothing flashes. The phone menu shows them under headings for
 // everyone (BVJ: "Having just the part change on mobile early is ok"), with
 // Study only when the desk is on. `phone: false` keeps a link off the phone
-// menu, which has room for fewer. `desc` is the line under a menu link.
+// menu, which has room for fewer.
 // The Study group launches with the desk (src/scripts/desk/CLAUDE.md,
 // "Launching").
 // v2Label: the label with the data-restyle stamp (Site 2.0, SITE-2.0.md "Labels");
 // without it the link keeps `label`. Both are in the link, one shown at a time.
-type NavLink = { href: string; label: string; v2Label?: string; short?: string; desc?: string; sep?: boolean; phone?: boolean };
+type NavLink = { href: string; label: string; v2Label?: string; short?: string; sep?: boolean; phone?: boolean };
 type NavGroup = { key: string; label: string; desk?: boolean; links: NavLink[] };
 const NAV_GROUPS: NavGroup[] = [
   {
     key: "learn",
     label: "Learn",
     links: [
-      { href: "/glossary", label: "Glossary", desc: "Key words and how the LIT renders them" },
-      { href: "/articles", label: "Articles", desc: "Digging deeper into scripture" },
-      { href: "/found-in-translation-podcast", label: "Podcast", desc: "Found in Translation" },
+      { href: "/glossary", label: "Glossary" },
+      { href: "/articles", label: "Articles" },
+      { href: "/found-in-translation-podcast", label: "Podcast" },
     ],
   },
   {
@@ -60,11 +60,11 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Study",
     desk: true,
     links: [
-      { href: deskHref, label: "Study Desk", desc: "Panes for the text, your notes, the Greek, sheets, and more" },
-      { href: "/sheets/", label: "My sheets", desc: "Handouts for a group: edit, print, present, share" },
-      { href: "/collections/", label: "My collections", desc: "Your own groupings of what you’ve kept" },
-      { href: "/notebook/", label: "My Notebook", desc: "Everything you’ve kept" },
-      { href: "/desk/help/", label: "Help for the Study Desk", sep: true, phone: false },
+      { href: deskHref, label: "Study Desk" },
+      { href: "/sheets/", label: "My sheets" },
+      { href: "/collections/", label: "My collections" },
+      { href: "/notebook/", label: "My Notebook" },
+      { href: "/desk/help/", label: "Help for study tools", sep: true, phone: false },
     ],
   },
   {
@@ -74,7 +74,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/about", label: "About the LIT" },
       { href: "/translation-commitments", label: "Translation commitments", short: "Commitments" },
       { href: "/liberating-scripture-collective", label: "Liberating Scripture Collective", phone: false },
-      { href: "/release-notes", label: "What’s new", v2Label: "Release Notes", desc: "Changes to the text and the site", phone: false },
+      { href: "/release-notes", label: "What’s new", v2Label: "Release Notes", phone: false },
       { href: "/support", label: "Support", sep: true },
       { href: "/contact", label: "Contact" },
     ],
@@ -149,12 +149,7 @@ const SIZE_OPTIONS = [
                 <>
                   {link.sep && <li class="site-nav__menu-sep" role="separator"></li>}
                   <li>
-                    <a
-                      href={link.href}
-                      aria-describedby={link.desc ? `navMenu-${group.key}-${i}` : undefined}
-                    >{link.v2Label ? <><span data-v1>{link.label}</span><span data-v2>{link.v2Label}</span></> : link.label}{link.desc && (
-                      <span class="site-nav__menu-desc" id={`navMenu-${group.key}-${i}`}>{link.desc}</span>
-                    )}</a>
+                    <a href={link.href}>{link.v2Label ? <><span data-v1>{link.label}</span><span data-v2>{link.v2Label}</span></> : link.label}</a>
                   </li>
                 </>
               ))}
