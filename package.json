@@ -53,14 +53,14 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/opendyslexic": "^5.3.0",
-    "astro": "^7.4.11",
+    "astro": "^7.4.13",
     "qrcode-generator": "^2.0.4",
-    "simple-icons": "^16.37.0"
+    "simple-icons": "^16.38.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/markdown-remark": "7.3.8",
-    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/markdown-remark": "7.3.10",
+    "@astrojs/sitemap": "^3.7.6",
     "@fontsource/noto-sans-math": "^5.3.0",
     "fake-indexeddb": "^6.2.8",
     "happy-dom": "^21.0.4",
