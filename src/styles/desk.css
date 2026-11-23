@@ -5283,8 +5283,22 @@ html[data-desk-workspace] .desk-page__notice {
   cursor: pointer;
 }
 
+/* The panes pin a gutter (16px, fitHeight's `gutter`) below the window's top
+   once the header and the command row have scrolled away, so there is a place
+   to stop where they fill the window less a gutter above and below and neither
+   the row nor the license band shows. A sticky box only moves as far as its
+   parent has room after it, so the ::after spacer is that room: it must be
+   taller than the row's last margin plus a little (the row is gone about 11px
+   after the pin starts). The notice follows the spacer. */
+.desk-ws:has(> .desk-ws__panes)::after {
+  content: "";
+  display: block;
+  height: 40px;
+}
+
 .desk-ws__panes {
-  position: relative;
+  position: sticky;
+  top: 16px;
   display: flex;
   min-height: 160px;
   overflow: auto;
