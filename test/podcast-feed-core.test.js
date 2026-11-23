@@ -28,6 +28,8 @@ import {
   unescapeHtml,
   canonicalizeReadUrl,
   toAppleEmbedUrl,
+  toSpotifyEmbedUrl,
+  latestSpotifyEmbedUrl,
   latestAppleEmbedUrl,
 } from "../src/lib/podcast-feed-core.ts";
 
@@ -455,4 +457,27 @@ test("parseEpisodes: preserves feed order across multiple items", () => {
 
 test("parseEpisodes: an empty feed yields no episodes", () => {
   assert.deepEqual(parseEpisodes("", {}), []);
+});
+
+test("toSpotifyEmbedUrl: an episode link becomes its embed player", () => {
+  assert.equal(
+    toSpotifyEmbedUrl("https://open.spotify.com/episode/3pBejqo8QxDTaImbTWEthq?si=U-_5kojCQV6IjbEoIdU35g"),
+    "https://open.spotify.com/embed/episode/3pBejqo8QxDTaImbTWEthq?utm_source=generator&theme=0",
+  );
+});
+
+test("toSpotifyEmbedUrl: a show link or another host is not an episode embed", () => {
+  assert.equal(toSpotifyEmbedUrl("https://open.spotify.com/show/6S2wWaM5oqknwncPfOEyZ6"), null);
+  assert.equal(toSpotifyEmbedUrl("https://example.com/episode/abc"), null);
+  assert.equal(toSpotifyEmbedUrl("not a url"), null);
+});
+
+test("latestSpotifyEmbedUrl: takes the newest episode that has a Spotify link", () => {
+  const eps = [
+    { links: [{ label: "Listen on Apple Podcasts", url: "https://podcasts.apple.com/x?i=1" }] },
+    { links: [{ label: "Listen on Spotify", url: "https://open.spotify.com/episode/AAA111" }] },
+    { links: [{ label: "Listen on Spotify", url: "https://open.spotify.com/episode/BBB222" }] },
+  ];
+  assert.match(latestSpotifyEmbedUrl(eps), /embed\/episode\/AAA111/);
+  assert.equal(latestSpotifyEmbedUrl([]), null);
 });
