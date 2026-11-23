@@ -70,11 +70,12 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
   that can't open the notebook may delete or replace it; setup suggests a
   second way in to a reader who has only a passkey; `deletedAt` stays
   among the plain fields. A reader with a passkey is offered a recovery
-  code and not required to take one. **The key on an iPhone stays on that
-  device** (item 4), with no iCloud Keychain switch: the reader's choice
-  is how they sign in, a passkey that Apple or Google syncs and that
-  carries the key, or Sign in with Apple or Google, where a new device is
-  approved or takes the recovery code. **Device signatures are reserved
+  code and not required to take one. **The reader chooses whether the key
+  follows their Apple or Google account or stays only on their device**
+  (item 4; BVJ), on every platform. How is for draft 2 and not yet agreed;
+  the website's proposal is an explicit setting, separate from how the
+  reader signs in, with “follows my account” carried by a synced passkey
+  and no key in iCloud Keychain itself. **Device signatures are reserved
   now and enforced later** (item 7): each device makes a signing key at
   launch and keeps its public half in its card, and nothing checks it
   until a later version.

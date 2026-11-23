@@ -7624,17 +7624,21 @@ confirm**, since BDR was not part of this exchange:
 - **A reader who signs in only with a passkey**: setup suggests a second
   way in (6).
 - **`deletedAt` stays among the plain fields** (8).
-- **The reader's choice is how they sign in** (4). BVJ asked whether
-  readers could choose between a key kept on the iPhone and one that
-  follows iCloud Keychain, and then: “yes to allowing the use of passkey
-  or cloud login.” Claude's reading, which is what was put to BVJ: a
-  passkey is synced by Apple or Google and carries the key to each of the
-  reader's devices, so signing in with one is the “follows my account”
-  choice; signing in with Apple or Google keeps the key on each device,
-  and a new device is approved from one that has it or with the recovery
-  code. The device's own key stays on the device, and there is no separate
-  iCloud Keychain switch. Draft 2 must say plainly that removing a device
-  doesn't lock out one that still holds the synced passkey.
+- **The reader chooses where the key lives** (4): “I would want users to
+  be able to choose whether it follows their Apple or Google account or
+  stays only on their device.” BVJ had first asked whether readers could
+  be given the choice, and answered “yes to allowing the use of passkey or
+  cloud login”; Claude read that as the choice being made by how a reader
+  signs in, and BVJ corrected it: the choice is the reader's own, and
+  explicit. **How, as Claude proposes it for draft 2 (not yet agreed)**: a
+  setting asked at setup and changeable later, separate from the way the
+  reader signs in. “Follows my account” is carried by a passkey, which
+  Apple or Google syncs and which works on the website and in both apps;
+  a reader who signs in with Apple or Google adds a passkey for it. “This
+  device only” keeps no such copy, and a new device is approved from one
+  that has the key or takes the recovery code. Draft 2 must say plainly
+  that under “follows my account” removing a device doesn't lock out one
+  that still holds the synced passkey.
 - **A recovery code is offered to a reader with a passkey, not required**
   (“Yes to offering an optional recovery code”). It is required only where
   no passkey can carry the key.
