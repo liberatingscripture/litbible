@@ -6083,6 +6083,17 @@ Suggested order: 1, 2 and 7a together; then 3, 4, 5, 6; then 8a and 8b, and
 
 **Fixed**
 
+- **E224, bug: the panes never quite fill the window on /desk.** BVJ,
+  2026-11-22: since the command row went above the panes (E68), no scroll
+  position showed the panes with a gutter above and below and neither the
+  row's foot nor the license band. `fitHeight` grew the panes as the page
+  scrolled, but they scrolled away with it, so they matched the window for one
+  pixel of scroll. Now `.desk-ws__panes` is `position: sticky` at the gutter
+  (16px) and `.desk-ws::after` is 40px of room after it (a sticky box moves
+  only as far as its parent has room after it; padding and a bottom margin
+  don't count, which a first try found out), so they hold there for about
+  36px of scroll with the row gone, then move up to the notice as before.
+  Checked on the live page by injecting the same rules. Status: fixed.
 - **E3, bug: My Notes and Places overwrote each other's list** in the
   Notebook. Fixed in 2dbab04 (2026-10-15).
 
