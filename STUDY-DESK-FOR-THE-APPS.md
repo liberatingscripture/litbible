@@ -33,7 +33,9 @@ because nothing carried them there. This file is what carries them now.
    catch that page raised: a deletion on iOS leaves no synced record of
    when it happened.
 2. **BDR's word on the calls marked “for BDR to confirm”** in the list
-   below, above all that passkeys carry the key at launch.
+   below, above all that passkeys carry the key at launch. **They are now
+   numbered in one place**: `STUDY-DESK-ENCRYPTION.md`, “Still open,” 1 to
+   15 (draft 2, the first entry below). Answer by number here.
 3. **BDR, the Google Cloud project for Sign in with Google is assigned to
    you** (BVJ, 2026-11-23: “Let's actually just assign BDR the Google
    Cloud project. If he balks, we can change it”). Say here if that
@@ -42,8 +44,63 @@ because nothing carried them there. This file is what carries them now.
 4. **Every note marker name either app has ever written**, still asked in
    `STUDY-DESK-FORMAT.md` under kind 2. It matters more now that one marker
    is leaving (below).
+5. **Four things only real devices can show**, asked with the spec's
+   draft 2 (its “Still open,” 18 to 21), since the website's side can't
+   run the apps: whether one passkey gives the same 32-byte secret in the
+   iOS app and in Safari, and in the Android app and in Chrome; whether
+   Google Password Manager returns that secret through Credential Manager
+   on Android 9 to 13; what happens when an iPhone scans a code to sign in
+   on a computer; and a passkey kept in 1Password or Bitwarden. **The
+   first is wanted before the freeze**, since the design leans on it.
 
 ## The list
+
+### 2026-11-23, the encryption spec's draft 2
+
+`STUDY-DESK-ENCRYPTION.md` is now draft 2, written on the website's side
+(the plan's step 4a). It replaces draft 1 whole. Nothing in it is built,
+and the reference and vectors (4b) follow once it is agreed. **For BDR's
+Claude to review, and for BDR to confirm**: its last section, “Still
+open,” numbers every call that changes what the apps build.
+
+- **What draft 2 writes in from BVJ's answers** (the entry below): passkeys
+  carry the key at launch; the reader's choice of “follows my account” or
+  “this device only”; the recovery code offered where a passkey holds the
+  key and required elsewhere; a signing key in every device's card,
+  checked by nothing yet.
+- **What is new in draft 2 and that neither BDR nor BVJ has seen**, each
+  made while writing it and each for both to check:
+  - **The key proof.** A device shows the service that it holds the
+    notebook key (32 bytes derived from the key, whose hash the service
+    keeps) before the service gives it records or lets it change
+    anything. Draft 1 would have let any signed-in session change the key.
+  - **The service's interface**: every request, and what the service
+    checks. The apps build their clients against it, on the preview
+    service (4c). The checks are the spec; the paths are settled when the
+    preview runs.
+  - **Holders.** Draft 1's recovery record is now one shape for the
+    recovery code and for each passkey, with a card as devices have. The
+    keyring no longer names the recovery public key.
+  - **Only a synced passkey with a working PRF holds the key**, and the
+    app finds out by asking, never from a list of platforms. The PRF's
+    input is fixed (`lit-notebook/1 prf`), user verification is always
+    required, and **the app must take `prf.results` out of any passkey
+    response before it goes to the service**, which Android's Credential
+    Manager JSON carries.
+  - **A device makes its own id** and keeps it across sessions; an
+    approval ends with the new device accepting it; the approval's request
+    carries the signing public key under its MAC.
+  - **The service leaves the clock cap to the devices**, which would
+    change one sentence of the format's “Clocks” at the freeze.
+- **Where a passkey can carry a key** is a section of the spec, from each
+  platform's own documentation (2026-11-23). Apple's is clear (iOS 18,
+  macOS 15). Google's pages don't say that Google Password Manager returns
+  the secret, and Microsoft's don't say Windows Hello does. So the four
+  questions under “Waiting to hear from the apps,” 5.
+- **What the apps should tell the website if it is wrong**: the spec's
+  author could not read either app's repository. Its claims about the
+  apps (iOS 26 as the target, Android API 26 and later, the Keychain and
+  Keystore choices) are carried from draft 1.
 
 ### 2026-11-23, after the call
 
@@ -72,7 +129,8 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
   the fallback** where a passkey can't (BVJ). **For BDR to confirm.**
   Draft 1 of the spec has it the other way around (the recovery code now,
   the passkey later), so its sections on setup, adding a device, and
-  sign-in are out of date until draft 2. It makes passkeys part of the
+  sign-in are out of date until draft 2. **Draft 2 is written** (the
+  entry above). It makes passkeys part of the
   launch, where the call had them “if the schedule holds” (iOS IOS-106,
   Android NB13).
 - **The spec's other open items, as BVJ answered them. For BDR to
@@ -87,7 +145,9 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
   is shown first and recommended** (BVJ). For draft 2: an explicit
   setting, separate from how the reader signs in, with “follows my
   account” carried by a synced passkey and no key in iCloud Keychain
-  itself. **Device signatures are reserved
+  itself. (Draft 2 writes it as whether the notebook has a passkey that
+  opens it, which each device reads for itself, and not as a setting the
+  service stores.) **Device signatures are reserved
   now and enforced later** (item 7): each device makes a signing key at
   launch and keeps its public half in its card, and nothing checks it
   until a later version.
