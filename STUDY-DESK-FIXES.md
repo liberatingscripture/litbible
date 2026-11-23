@@ -5896,6 +5896,57 @@ wording (E202).
   so all of them change together (no test or fixture names the font, so
   nothing pins it today). A deck names its font and never embeds it, so a
   machine without Fraunces already shows a stand-in. Status: open, deferred.
+- **E225, wish: the site offers to install itself as an app from the address
+  bar, on a computer only.** BVJ, 2026-11-22. Chrome's menu item “Install page
+  as app” already works on any page, but it installs the page the reader was
+  on: from /desk it made a window scoped to `/desk/`, so every other page
+  opened under Chrome's out-of-scope bar (the origin and the page title), and
+  its start page was whatever URL was open at the time. Asked for: Chrome's
+  own install icon in the address bar, **no added button on the page**, and
+  **never offered on a phone or tablet**, where the real apps are. The
+  installed app is the whole site, starting at the home page (BVJ was unsure
+  between /desk and home, then said people may want other parts of the site
+  too). **The constraint:** `public/site.webmanifest` says
+  `"display": "browser"` on purpose (owner, 2026-09-28; `src/styles/CLAUDE.md`,
+  “The site emblem ships as two SVG variants”): it said `standalone` until the
+  mobile apps launched, which is what made the site installable on a phone,
+  and the note says not to set it back. So it stays as it is. **Plan:** a
+  second manifest, `public/app.webmanifest`, with `display: "standalone"`,
+  `start_url: "/"`, `scope: "/"`, the same icons and colors, and a name such
+  as “LIT Bible”; a small script on every page adds its
+  `<link rel="manifest">` only where the screen is a computer's (a mouse,
+  `(pointer: fine)`, and a width of 768px or more, the desk's own floor), so
+  Chrome on Android never sees an installable manifest. An installed app on
+  desktop Chrome shares the browser profile's storage, so a reader who turned
+  the desk preview on keeps it in the app and the start URL needs no
+  `?desk=on`. Open questions for the work: that Chrome offers the install
+  when the manifest link is added after load (check in desktop Chrome, and
+  that a narrowed window or a tablet-sized one does not get it; the Browser
+  pane can't show the install UI); whether the manifest also lists a
+  `shortcuts` entry so the installed icon's right-click menu offers the Study
+  Desk (not decided); that the script stays out of the pre-paint block in
+  `Layout.astro`; and that `src/styles/CLAUDE.md`'s manifest note is updated
+  in the same change to say there are two and why, and `public/CLAUDE.md` if
+  anything there changes. Status: open.
+- **E226, bug: the site's menu button disappears on /desk between 760px and
+  1100px.** BVJ, 2026-11-22, found while looking at the installed window
+  (about 900px wide): the button that opens the side tray menu is there at
+  full width and gone at narrower ones, leaving no way to the site's pages
+  except the logo. Likely cause, not yet checked in the pane: the desk-only
+  rule at `global.css` (`@media (min-width: 760px) and (max-width: 1100px)`,
+  with `html[data-desk]:not([data-font="dyslexic"]) .site-header__menu-toggle`
+  set to `display: none`) hides the button on the assumption that the row's
+  three menus show in its place. The desk's own header (`.site-header--desk`,
+  `SiteHeader.astro`) has no nav row at any width, and its rule at
+  `global.css` shows the button at every width, so inside that band the page
+  loses the button and gets no nav in return. Below 760px the button returns,
+  and above 1100px it shows by the desk header's own rule. Expected: on /desk,
+  one way to the site's menu at every width. The fix is likely to leave the
+  desk's header out of the band rule (`:not(.site-header--desk)`), but check
+  that the three menus really are missing there before choosing between that
+  and showing them. Measure at 759, 760, 900, 1100, and 1101px, in the
+  default font and OpenDyslexic (which has its own fold at 1400px and is
+  exempt from the band), with the desk preview on and off. Status: open.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
