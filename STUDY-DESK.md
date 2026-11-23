@@ -7600,6 +7600,51 @@ didn't get to, and we'll have a follow up conversation about them”):
   swing”; **not yet decided**. Highlights and bookmarks on the Greek stay
   in version 2 (2026-11-21).
 
+**BVJ's calls on the open items** (2026-11-23, later the same day; the
+numbers are those at the end of `STUDY-DESK-ENCRYPTION.md`, where each is
+also marked). The ones that change what the apps build are **for BDR to
+confirm**, since BDR was not part of this exchange:
+- **Passkeys carry the key at launch, and the recovery code is the
+  fallback** (the worksheet's item D5; the spec's 1): “Let's include
+  passkeys now, and the non-passkey version can be fallback if it's not
+  supported.” This reverses draft 1, which took the recovery code (K1) for
+  launch and left the passkey (K2) for later, and it makes passkeys part
+  of the launch, where item D6 had them “if the schedule holds.” Draft 2
+  has to say what a reader without a passkey that can carry a key gets
+  (the recovery code), and what removing a device means when the passkey
+  that reaches it is synced by Apple or Google.
+- **The setup sentence, as proposed** (2): “Save this code somewhere safe,
+  like a password manager or a note kept at home. If you lose it and every
+  device you use with LIT, no one can open your synced notes, not even
+  LIT.” It is shown wherever a recovery code is.
+- **The reader types two of the code's six groups back at setup** (3), not
+  a box to tick.
+- **Seven days** before a signed-in device that can't open the notebook may
+  delete or replace it (5).
+- **A reader who signs in only with a passkey**: setup suggests a second
+  way in (6).
+- **`deletedAt` stays among the plain fields** (8).
+- **Still open**: whether the key on an iPhone stays on that device or may
+  follow iCloud Keychain (4; BVJ asked whether readers can be given the
+  choice), and whether device signatures wait for a later version (7; BVJ
+  asked why Claude recommends waiting).
+- **The service's code lives in this repo**, under `workers/` beside the
+  contact-form Worker, not in a repository of its own.
+- **Who owns what**: BVJ the Cloudflare account, BDR the Apple developer
+  account, and “I think BDR for Google, but we need to confirm.” Who
+  answers when the service breaks is not yet said.
+- **The website opens the desk on February 10**, with the announcement.
+  The “beta” label may stay: “We'll see how polished it is at that point.”
+- **Notes from the Greek are in version 1**, as described above: an
+  ordinary note on its verse with the selected Greek in its body. Built
+  after the freeze work.
+- **The website keeps a “for the apps” list** (the worksheet's T4):
+  `STUDY-DESK-FOR-THE-APPS.md`, started with this change. BVJ will try
+  joining BDR's Linear workspace “whenever BDR is ready to coordinate it”
+  (T1).
+- **The three format points BDR changed** are asked of BDR's Claude in
+  that file, since the page that holds them isn't shared with BVJ.
+
 **What this changes in this file**, each marked where it stands:
 - “The Zoom: BVJ with BDR” and “Still open”: the call is held, plan C is
   chosen, and the hidden passage is settled.
@@ -7611,9 +7656,10 @@ didn't get to, and we'll have a follow up conversation about them”):
   its reference and vectors, and the service move to the website's side.
 
 **Next for the website**, before the plan for Phase 4 is written here:
-BVJ's calls on the spec's open items and on the three format points BDR
-changed; then the spec's draft 2, the reference and vectors, and the freeze
-work (kind 3 out, the `ribbon` marker out, bookmark labels as they sync).
+BVJ's calls on the spec's items 4 and 7, and BDR's three changed format
+points; then the spec's draft 2 (with passkeys carrying the key), the
+reference and vectors, and the freeze work (kind 3 out, the `ribbon`
+marker out, bookmark labels as they sync).
 
 ### 2026-11-10 (N8, the hidden passage, not included)
 
@@ -9078,9 +9124,14 @@ own sections cite it by ID.
   a short "for the apps" list of its decisions (the worksheet's T4).
 - **From the same day, for BVJ**: the three format points BDR changed (the
   verse limit, collections after a highlight merge, and printed sheet
-  hints); whether notes from the Greek are in version 1; where the
-  service's code lives; the date the website opens, and whether the "beta"
-  stage still exists once the opening and sync land together.
+  hints), **which wait on BDR's Claude writing them here**
+  (`STUDY-DESK-FOR-THE-APPS.md`); the spec's items 4 (the key on an iPhone)
+  and 7 (device signatures); who owns the Google Cloud project, and who
+  answers when the service breaks. ~~Whether notes from the Greek are in
+  version 1; where the service's code lives; the date the website opens,
+  and whether the "beta" stage still exists once the opening and sync land
+  together.~~ **Answered 2026-11-23** ("Decisions", 2026-11-23): yes; this
+  repo, under `workers/`; February 10, with the label perhaps staying.
 - **D7, deferred indefinitely (BVJ, 2026-10-11)**; the questions below are kept in case the idea returns: whether API.bible's tracking script is acceptable (BVJ,
   2026-10-08: "probably"; what it does is under D7); which other
   free-to-share translations join the KJV; whether the donation page fits

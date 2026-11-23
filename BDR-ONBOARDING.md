@@ -255,9 +255,15 @@ Study Desk), plus what the apps download from the website. Read
 - `STUDY-DESK.md`, the planning record, and `STUDY-DESK-FORMAT.md`, the shared
   record format. The website answers you through `STUDY-DESK.md`, and you can
   add to either by pull request.
-- **The encryption spec and its test vectors**, which your Claude Code drafts
-  (BVJ, 2026-10-09). They're new files: put the spec beside
-  `STUDY-DESK-FORMAT.md` and its vectors under `test/fixtures/`, the way the
+- **`STUDY-DESK-FOR-THE-APPS.md`, the short list to read first** (since
+  2026-11-23): one dated line for each website decision that changes what
+  the apps build or carry, and at its top what the website is waiting to
+  hear from the apps. Answer there by pull request.
+- **The encryption spec and its test vectors.** Your Claude Code drafted the
+  spec (`STUDY-DESK-ENCRYPTION.md`, draft 1, 2026-11-23). **From draft 2 on,
+  BVJ's side writes the spec, its reference, and its vectors, and builds the
+  service** (BVJ, 2026-11-23), so your part is to review them and to run the
+  vectors in both apps. The vectors go under `test/fixtures/`, the way the
   anchor text's are.
 - The anchor text, the format's executable half: `scripts/lib/anchor-text.mjs`,
   `src/lib/anchor-core.mjs`, `scripts/build-anchor-vectors.mjs`,
