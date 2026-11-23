@@ -7624,10 +7624,24 @@ confirm**, since BDR was not part of this exchange:
 - **A reader who signs in only with a passkey**: setup suggests a second
   way in (6).
 - **`deletedAt` stays among the plain fields** (8).
-- **Still open**: whether the key on an iPhone stays on that device or may
-  follow iCloud Keychain (4; BVJ asked whether readers can be given the
-  choice), and whether device signatures wait for a later version (7; BVJ
-  asked why Claude recommends waiting).
+- **The reader's choice is how they sign in** (4). BVJ asked whether
+  readers could choose between a key kept on the iPhone and one that
+  follows iCloud Keychain, and then: “yes to allowing the use of passkey
+  or cloud login.” Claude's reading, which is what was put to BVJ: a
+  passkey is synced by Apple or Google and carries the key to each of the
+  reader's devices, so signing in with one is the “follows my account”
+  choice; signing in with Apple or Google keeps the key on each device,
+  and a new device is approved from one that has it or with the recovery
+  code. The device's own key stays on the device, and there is no separate
+  iCloud Keychain switch. Draft 2 must say plainly that removing a device
+  doesn't lock out one that still holds the synced passkey.
+- **A recovery code is offered to a reader with a passkey, not required**
+  (“Yes to offering an optional recovery code”). It is required only where
+  no passkey can carry the key.
+- **Device signatures: reserve now, enforce later** (7; BVJ's words). Each
+  device makes its signing key at launch and keeps the public half in its
+  card; nothing checks it until a later version, so turning signatures on
+  won't make readers enroll their devices again.
 - **The service's code lives in this repo**, under `workers/` beside the
   contact-form Worker, not in a repository of its own.
 - **Who owns what**: BVJ the Cloudflare account, BDR the Apple developer
