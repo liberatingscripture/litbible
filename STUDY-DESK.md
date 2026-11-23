@@ -7630,7 +7630,9 @@ confirm**, since BDR was not part of this exchange:
   be given the choice, and answered “yes to allowing the use of passkey or
   cloud login”; Claude read that as the choice being made by how a reader
   signs in, and BVJ corrected it: the choice is the reader's own, and
-  explicit. **How, as Claude proposes it for draft 2 (not yet agreed)**: a
+  explicit. **At setup, “follows my account” is shown first and
+  recommended** (BVJ: “Yes, recommend it”). **How, as Claude put it to
+  BVJ before that answer, for draft 2 and for BDR to confirm**: a
   setting asked at setup and changeable later, separate from the way the
   reader signs in. “Follows my account” is carried by a passkey, which
   Apple or Google syncs and which works on the website and in both apps;

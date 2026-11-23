@@ -763,9 +763,10 @@ run in the opening direction. Each client also checks that what it seals, it ope
    2026-11-23: two groups.**
 4. **iOS: this device only** (recommended), or iCloud Keychain. **BVJ, 2026-11-23: the reader
    chooses** whether the key follows their Apple or Google account or stays only on their device,
-   on every platform and not on iOS alone. Proposed for draft 2, not yet agreed: an explicit
-   setting, separate from how the reader signs in, with “follows my account” carried by a synced
-   passkey (item 1) and no key in iCloud Keychain itself. For BDR to confirm.
+   on every platform and not on iOS alone. **At setup, “follows my account” is shown first and
+   recommended** (BVJ). For draft 2: an explicit setting, separate from how the reader signs in,
+   with “follows my account” carried by a synced passkey (item 1) and no key in iCloud Keychain
+   itself. For BDR to confirm.
 5. **Seven days** before a device that can’t open the notebook may delete or replace it, or another
    wait, or none. **BVJ, 2026-11-23: seven days.**
 6. **A reader who signs in only with a passkey**: if they lose it, they can’t sign in, and the code
