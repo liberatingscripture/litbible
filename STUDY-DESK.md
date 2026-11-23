@@ -5181,8 +5181,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The service's interface is a section of the spec**, not a file
        beside it: what the service checks is half of each step, and the
        two freeze together.
-     - **Choices Claude made in writing it, which BVJ has not seen** (the
-       spec's "Still open," 7 to 16, has each): a **key proof**, so the
+     - **Choices Claude made in writing it** (the spec's "Still open," 7
+       to 16, has each; **BVJ said yes to 8, 10, and 12 on 2026-11-23 and
+       has not answered the rest**, "Decisions," 2026-11-23): a **key
+       proof**, so the
        service lets a session read or change the notebook only after it
        shows it holds the key (draft 1 would have taken a change of key
        from any signed-in session, a stolen one included); **only a synced
@@ -7892,6 +7894,31 @@ carrying a key. **It also makes design choices that neither BVJ nor BDR
 has seen**; they are Claude's, not decisions, until BVJ says so. Step 4a
 lists them, and the spec's last section, "Still open," numbers them with
 the calls that wait on BDR.
+
+**BVJ on draft 2's choices** (2026-11-23, later the same day). Claude
+walked BVJ through the spec's "Still open," 7 to 17, with a
+recommendation for each. **BVJ said yes to three**, each still for BDR to
+confirm:
+- **8**: only a synced passkey with a working PRF holds the key. A Windows
+  Hello or security-key passkey signs in and holds nothing, and the
+  recovery code is required there.
+- **12**: under "follows my account," the screen that removes a device
+  offers "Replace my passkey" and "Switch to this device only."
+- **10**: the choice of where the key lives is whether a passkey holder
+  exists, not a setting the service stores.
+
+**BVJ has not answered the others**, so they are still Claude's and not
+decisions: 7 (the key proof), 9 (the passkey's fixed input), 11 (a
+notebook always has a holder), 13 (a device makes its own id, an approval
+ends with the new device accepting, a removed device keeps its keys until
+signed out), 14 (the service's requests, and the clock cap left to
+devices), 15 (changing a way to sign in needs a device that has the key),
+16 (the two pieces of wording), and 17 (who answers when the service
+breaks). **What Claude recommended on them**, for whoever takes this up
+next: accept 7, 9, 11, 13, 14, and 15 as written; in 16, take the first
+sentence as written and add the reader's password manager to the removal
+screen's sentence; in 17, BVJ first and BDR second, with a way for BDR to
+roll the service back, written into `DISASTER-RECOVERY.md` in step 4c.
 
 ### 2026-11-10 (N8, the hidden passage, not included)
 

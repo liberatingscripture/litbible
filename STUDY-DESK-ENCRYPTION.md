@@ -1339,7 +1339,8 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
-2026-11-23; the rest were made in writing this draft, and **BVJ has not seen them either**:
+2026-11-23; the rest were made in writing this draft. **BVJ was walked through them later that
+day, said yes to 8, 10, and 12, and has not answered 7, 9, 11, 13, 14, or 15**:
 
 1. Passkeys carry the key at launch, and are part of the launch.
 2. The reader’s choice of where the key lives, on every platform, with “follows my account” first.
@@ -1349,13 +1350,14 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 6. BVJ’s side builds the service, and the apps review it.
 7. **The key proof**, and that the service gives records only to an open session.
 8. **Only a synced passkey with a working PRF is a holder.** Windows Hello and security-key
-   passkeys sign in and hold nothing.
+   passkeys sign in and hold nothing. **BVJ: yes** (2026-11-23).
 9. **The PRF’s input is fixed**, so signing in and opening take one prompt.
 10. **Holders have cards**, and the choice of where the key lives is whether a passkey holder
-    exists, not a stored setting.
+    exists, not a stored setting. **BVJ: yes** (2026-11-23).
 11. **A notebook always has a holder**: the service refuses a change of key that would leave none.
 12. **“Replace my passkey” and “Switch to this device only”** on the screen that removes a device,
-    under “follows my account.”
+    under “follows my account.” **BVJ: yes** (2026-11-23). The screen’s own sentence is 16, below,
+    and is not yet agreed.
 13. **A device makes its own id**; an approval is accepted by the new device; a removed device
     keeps its keys until signed out.
 14. **The requests** under “The service’s interface,” their checks, and that the clock cap is the

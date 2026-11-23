@@ -55,6 +55,23 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-23, BVJ on three of draft 2's choices
+
+BVJ was walked through the choices draft 2 made (the spec's “Still open,”
+7 to 17) and said yes to three. **Each is still for BDR to confirm.**
+
+- **Only a synced passkey with a working PRF holds the key** (8). A
+  Windows Hello or security-key passkey signs in and holds nothing, and
+  the recovery code is required there.
+- **The choice of where the key lives is whether a passkey holder
+  exists**, not a setting the service stores (10).
+- **“Replace my passkey” and “Switch to this device only”** on the screen
+  that removes a device, under “follows my account” (12). The screen's own
+  sentence (16) is not yet agreed.
+
+**Not yet answered by BVJ**: 7, 9, 11, 13, 14, and 15, and the two that
+are BVJ's alone, 16 and 17. Until then they are the draft's proposals.
+
 ### 2026-11-23, the encryption spec's draft 2
 
 `STUDY-DESK-ENCRYPTION.md` is now draft 2, written on the website's side
@@ -69,7 +86,8 @@ open,” numbers every call that changes what the apps build.
   key and required elsewhere; a signing key in every device's card,
   checked by nothing yet.
 - **What is new in draft 2 and that neither BDR nor BVJ has seen**, each
-  made while writing it and each for both to check:
+  made while writing it and each for both to check (BVJ has since said
+  yes to three of them: the entry above):
   - **The key proof.** A device shows the service that it holds the
     notebook key (32 bytes derived from the key, whose hash the service
     keeps) before the service gives it records or lets it change
