@@ -485,9 +485,18 @@
     top: 24px;
     z-index: 2;
     box-sizing: border-box;
-    height: var(--v2-gl-sort-h);
+    /* As tall as the rail (its max-height), so both reach the end of their
+       shared area together and stop together; a shorter sort kept moving
+       after the rail stopped. Its empty lower part must not catch clicks
+       meant for the list. */
+    height: calc(100vh - 48px);
     margin: 0;
     padding: 16px 16px 0 17px;
+    pointer-events: none;
+  }
+
+  :root[data-restyle] .glossary-page .glossary-hero > .wrap > .glossary-sort-toggle > * {
+    pointer-events: auto;
   }
 
   :root[data-restyle] .glossary-page .glossary-sort-toggle .category-toggle {
