@@ -34,8 +34,11 @@ because nothing carried them there. This file is what carries them now.
    when it happened.
 2. **BDR's word on the calls marked “for BDR to confirm”** in the list
    below, above all that passkeys carry the key at launch.
-3. **Who owns the Google Cloud project** for Sign in with Google. BVJ
-   thinks BDR; to confirm.
+3. **BDR, the Google Cloud project for Sign in with Google is assigned to
+   you** (BVJ, 2026-11-23: “Let's actually just assign BDR the Google
+   Cloud project. If he balks, we can change it”). Say here if that
+   doesn't work. The service's sign-in (the plan's step 4e) needs an
+   OAuth client from it.
 4. **Every note marker name either app has ever written**, still asked in
    `STUDY-DESK-FORMAT.md` under kind 2. It matters more now that one marker
    is leaving (below).
@@ -102,8 +105,9 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
   into its body. **All an app has to do is show Greek script in a note's
   body**, accents and breathings included.
 - **The account owners**: BVJ the Cloudflare account, BDR the Apple
-  developer account. Google Cloud is ask 3 above. Who answers when the
-  service breaks is not yet said.
+  developer account and, by BVJ's assignment, the Google Cloud project
+  (ask 3 above, for BDR to accept). Who answers when the service breaks is
+  not yet said.
 
 ### 2026-11-23, on the call
 

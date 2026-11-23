@@ -5127,9 +5127,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      built against the vectors (iOS IOS-106 and IOS-108, Android NB13 and
      NB15); the store forms; reviewing the spec, the service's pull
      requests, and the app parts of the privacy page.
-   - **The accounts**: BVJ owns the Cloudflare account and BDR the Apple
-     developer account; the Google Cloud project is to confirm (BVJ thinks
-     BDR). Who answers when the service breaks is not yet said.
+   - **The accounts**: BVJ owns the Cloudflare account, and BDR the Apple
+     developer account and the Google Cloud project (the last by BVJ's
+     assignment, 2026-11-23, to change if BDR would rather not). Who
+     answers when the service breaks is not yet said.
 
    **The dates**, from the call:
    - **About December 15**, the gate for sync on February 10: the plan
@@ -7813,7 +7814,9 @@ confirm**, since BDR was not part of this exchange:
 - **The service's code lives in this repo**, under `workers/` beside the
   contact-form Worker, not in a repository of its own.
 - **Who owns what**: BVJ the Cloudflare account, BDR the Apple developer
-  account, and “I think BDR for Google, but we need to confirm.” Who
+  account, and “I think BDR for Google, but we need to confirm.” **Later
+  the same day: BDR, by BVJ's assignment**: “Let's actually just assign
+  BDR the Google Cloud project. If he balks, we can change it.” Who
   answers when the service breaks is not yet said.
 - **The website opens the desk on February 10**, with the announcement.
   The “beta” label may stay: “We'll see how polished it is at that point.”
@@ -9306,8 +9309,9 @@ own sections cite it by ID.
 - **From the same day, for BVJ**: the three format points BDR changed (the
   verse limit, collections after a highlight merge, and printed sheet
   hints), **which wait on BDR's Claude writing them here**
-  (`STUDY-DESK-FOR-THE-APPS.md`); who owns the Google Cloud project, and
-  who answers when the service breaks. The spec's items 4 (the key on an
+  (`STUDY-DESK-FOR-THE-APPS.md`); who answers when the service breaks.
+  (The Google Cloud project is BDR's, by BVJ's assignment the same day,
+  unless BDR would rather not.) The spec's items 4 (the key on an
   iPhone) and 7 (device signatures) were answered the same day. ~~Whether notes from the Greek are in
   version 1; where the service's code lives; the date the website opens,
   and whether the "beta" stage still exists once the opening and sync land
