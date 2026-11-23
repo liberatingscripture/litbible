@@ -46,6 +46,14 @@ because nothing carried them there. This file is what carries them now.
 
 Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
 
+- **The website's plan for sync is written**: `STUDY-DESK.md`, “Order of
+  work,” 4, steps 4a to 4l. **What the apps wait on, and when**: the
+  spec's draft 2 (4a), the reference and test vectors (4b), and a preview
+  service to build against (4c), all aimed at about December 15; the
+  format freeze (4d), tentatively December 24; then sign-in on the service
+  (4e), which waits on the Apple and Google credentials from BDR's side.
+  The privacy page and terms (4j) are live before either app ships sync.
+
 - **The website's sync lands with the apps', on February 10**, and the
   website opens the Study Desk to everyone that day, with the
   announcement. Until now the website's sync followed on its own

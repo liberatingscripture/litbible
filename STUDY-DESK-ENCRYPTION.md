@@ -10,7 +10,10 @@
 > out of date until draft 2. Items 4 and 7 are answered too. **From draft 2 on, BVJ’s side writes this
 > spec, its reference, and its vectors, and builds the service**, in this
 > repo under `workers/`; “The test vectors” and “Order of work” still
-> describe the earlier arrangement. Nothing here is built.
+> describe the earlier arrangement. The plan that replaces them is in
+> `STUDY-DESK.md`, “Order of work,” 4: draft 2 is its step 4a, and the
+> reference (`src/lib/desk-crypto.mjs`) and the vectors are 4b. Nothing
+> here is built.
 
 **Status: draft 1, 2026-11-23, for BVJ to review. Docs only: nothing here is built, and no code or
 record changes with it.** Written by BDR’s Claude, as agreed on 2026-10-09 (`STUDY-DESK.md`: BDR’s
