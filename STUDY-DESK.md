@@ -7670,10 +7670,10 @@ confirm**, since BDR was not part of this exchange:
   its reference and vectors, and the service move to the website's side.
 
 **Next for the website**, before the plan for Phase 4 is written here:
-BVJ's calls on the spec's items 4 and 7, and BDR's three changed format
-points; then the spec's draft 2 (with passkeys carrying the key), the
-reference and vectors, and the freeze work (kind 3 out, the `ribbon`
-marker out, bookmark labels as they sync).
+BDR's word on the calls above and his three changed format points; then
+the spec's draft 2 (with passkeys carrying the key), the reference and
+vectors, and the freeze work (kind 3 out, the `ribbon` marker out,
+bookmark labels as they sync).
 
 ### 2026-11-10 (N8, the hidden passage, not included)
 
@@ -9139,9 +9139,9 @@ own sections cite it by ID.
 - **From the same day, for BVJ**: the three format points BDR changed (the
   verse limit, collections after a highlight merge, and printed sheet
   hints), **which wait on BDR's Claude writing them here**
-  (`STUDY-DESK-FOR-THE-APPS.md`); the spec's items 4 (the key on an iPhone)
-  and 7 (device signatures); who owns the Google Cloud project, and who
-  answers when the service breaks. ~~Whether notes from the Greek are in
+  (`STUDY-DESK-FOR-THE-APPS.md`); who owns the Google Cloud project, and
+  who answers when the service breaks. The spec's items 4 (the key on an
+  iPhone) and 7 (device signatures) were answered the same day. ~~Whether notes from the Greek are in
   version 1; where the service's code lives; the date the website opens,
   and whether the "beta" stage still exists once the opening and sync land
   together.~~ **Answered 2026-11-23** ("Decisions", 2026-11-23): yes; this

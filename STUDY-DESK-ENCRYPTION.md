@@ -7,7 +7,7 @@
 > fallback** where a passkey can’t. That reverses this draft’s K1 now and K2
 > later, so “The short version,” “Setting up the first device,” “Adding a
 > device,” “Sign-in,” and “Later: the passkey carries the key (K2)” are
-> out of date until draft 2. **From draft 2 on, BVJ’s side writes this
+> out of date until draft 2. Items 4 and 7 are answered too. **From draft 2 on, BVJ’s side writes this
 > spec, its reference, and its vectors, and builds the service**, in this
 > repo under `workers/`; “The test vectors” and “Order of work” still
 > describe the earlier arrangement. Nothing here is built.
@@ -754,13 +754,17 @@ run in the opening direction. Each client also checks that what it seals, it ope
 
 1. **Item D5: K1 as written**, with K2 later, or something else. **BVJ, 2026-11-23: passkeys carry
    the key at launch (K2), and the recovery code (K1) is the fallback where a passkey can’t.** For
-   BDR to confirm, since both apps build it. Draft 2 writes it.
+   BDR to confirm, since both apps build it. Draft 2 writes it. A reader with a passkey is offered
+   a recovery code and not required to take one; it is required only where no passkey can carry
+   the key.
 2. **The setup sentence**, proposed under “Setting up the first device.” **BVJ, 2026-11-23: as
    proposed.**
 3. **Asking for two groups of the code back at setup**, or a box to tick saying it’s kept. **BVJ,
    2026-11-23: two groups.**
-4. **iOS: this device only** (recommended), or iCloud Keychain. **Open**: BVJ asked on 2026-11-23
-   whether readers can be given the choice.
+4. **iOS: this device only** (recommended), or iCloud Keychain. **BVJ, 2026-11-23: this device
+   only, and the reader’s choice is how they sign in**: a passkey, which Apple or Google syncs and
+   which carries the key, or Sign in with Apple or Google, where a new device is approved or takes
+   the recovery code. No separate iCloud Keychain switch. For BDR to confirm.
 5. **Seven days** before a device that can’t open the notebook may delete or replace it, or another
    wait, or none. **BVJ, 2026-11-23: seven days.**
 6. **A reader who signs in only with a passkey**: if they lose it, they can’t sign in, and the code
@@ -771,7 +775,8 @@ run in the opening direction. Each client also checks that what it seals, it ope
    holder makes (under “What this protects, and what it doesn’t”). Stopping that means each device
    signs the devices it adds and every keyring it makes, with a roster each device keeps. This draft
    leaves it to a later version, as more than launch needs; the alternative is to build it now.
-   **Open**: BVJ asked on 2026-11-23 why waiting is recommended.
+   **BVJ, 2026-11-23: reserve now, enforce later.** Each device makes its signing key at launch
+   and keeps the public half in its card; nothing checks it until a later version.
 8. **`deletedAt` among the plain fields.** The agreed envelope has it, and the service has little use
    for it beyond the cap on times. It shows nothing the service doesn’t see anyway (a deletion is a
    request the service handles), so this draft keeps it; dropping it before the freeze is the

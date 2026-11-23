@@ -69,9 +69,15 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
   recovery code's six groups back; seven days before a signed-in device
   that can't open the notebook may delete or replace it; setup suggests a
   second way in to a reader who has only a passkey; `deletedAt` stays
-  among the plain fields. **Still open**: whether the key on an iPhone
-  stays on that device or may follow iCloud Keychain (item 4), and whether
-  device signatures wait for a later version (item 7).
+  among the plain fields. A reader with a passkey is offered a recovery
+  code and not required to take one. **The key on an iPhone stays on that
+  device** (item 4), with no iCloud Keychain switch: the reader's choice
+  is how they sign in, a passkey that Apple or Google syncs and that
+  carries the key, or Sign in with Apple or Google, where a new device is
+  approved or takes the recovery code. **Device signatures are reserved
+  now and enforced later** (item 7): each device makes a signing key at
+  launch and keeps its public half in its card, and nothing checks it
+  until a later version.
 - **The `ribbon` note marker leaves the website too** (BVJ), matching the
   call's decision that the bookmark picture leaves the apps' note markers.
   By the freeze, kind 2's marker list in `STUDY-DESK-FORMAT.md` will have
