@@ -1029,14 +1029,6 @@ html[data-desk] .site-nav__plain {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
-.site-nav__menu-desc {
-  display: block;
-  margin-top: 2px;
-  font-size: 0.8rem;
-  font-weight: 400;
-  color: rgba(var(--ink-rgb), 0.72);
-}
-
 .site-nav__menu-sep {
   margin: 6px 8px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.14);
