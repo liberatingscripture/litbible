@@ -423,7 +423,8 @@ are recorded so they aren't re-argued.
   plan C, with sync held for February 10 on the website and in both apps**
   ("Decisions", 2026-11-23). The encryption spec's draft 1 is
   `STUDY-DESK-ENCRYPTION.md` (PR #680), and BVJ's side now builds the
-  encryption work and the service.
+  encryption work and the service. **The plan for the phase is "Order of
+  work", 4** (steps 4a to 4l).
 
 - **Status: phases 1a to 1d and 1f built, behind a preview switch; nothing
   reader-facing yet.** Readers see and download none of it.
@@ -5083,10 +5084,171 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    follow. **Not in phase 3**: S2 and N9 (2b), M11 and N6's "For
    discussion" section (after phase 3), S11, and short share links (M14,
    phase 4).
-4. **Sync, with BDR.** **Plan C was chosen on 2026-11-23, plan A is not
-   tested, and the website's sync is aimed at February 10 with the apps'**
-   ("Decisions", 2026-11-23); the plan for this phase is still to be
-   written here. As it stood before: Starts once plan A or C is chosen and, if the Zoom
+4. **Sync, with the apps: plan C** (the plan as of 2026-11-23, written
+   after the call with BDR and BVJ's answers of the same day; "Decisions",
+   2026-11-23). A signed-in reader's notebook is kept by a small LIT
+   service on Cloudflare, sealed so that only the reader's own devices can
+   open it, and the website and both apps sync through it. **It is aimed
+   at February 10, 2027**, with the apps and with the desk's opening.
+   About 20 to 29 sessions. Large.
+
+   **What a reader gets** (the spec, `STUDY-DESK-ENCRYPTION.md`, says how;
+   its draft 2 is step 4a):
+   - **Signing in is never required.** A reader who doesn't sign in keeps
+     the notebook in the browser, with export and import, as today.
+   - **Sign in with Apple, with Google, or with a passkey.** No passwords
+     and no codes by email. Setup suggests a second way in to a reader who
+     has only a passkey.
+   - **The reader chooses where the key lives**, at setup and later: it
+     **follows their Apple or Google account** (a passkey carries it, so a
+     new device on that account opens the notebook with no approval step),
+     or it **stays only on each device** (a new device is approved from
+     one that has the key, or takes the recovery code). "Follows my
+     account" is shown first and recommended.
+   - **A recovery code** is offered to a reader whose passkey carries the
+     key and required where none can. It is shown once, with the sentence
+     BVJ approved, and the reader types two of its six groups back.
+   - **A list of devices**, with removing one, which gives the notebook a
+     new key. Under "follows my account" a removed device that still holds
+     the synced passkey is not locked out, and the page says so.
+   - **Deleting the account** from any device. From a device that can't
+     open the notebook it waits seven days, and any device that can open
+     it may cancel.
+   - **Each device makes a signing key now** and nothing checks it yet, so
+     signatures can be enforced in a later version without readers
+     enrolling their devices again.
+
+   **Who builds what** (BVJ, 2026-11-23):
+   - **BVJ's side, in this repo**: the spec from draft 2 on, its reference
+     and test vectors, the service (`workers/`), the website's connector
+     and pages, the full content security policy, and the privacy page and
+     terms.
+   - **BDR's side**: both apps' sync clients, sign-in, and encryption,
+     built against the vectors (iOS IOS-106 and IOS-108, Android NB13 and
+     NB15); the store forms; reviewing the spec, the service's pull
+     requests, and the app parts of the privacy page.
+   - **The accounts**: BVJ owns the Cloudflare account and BDR the Apple
+     developer account; the Google Cloud project is to confirm (BVJ thinks
+     BDR). Who answers when the service breaks is not yet said.
+
+   **The dates**, from the call:
+   - **About December 15**, the gate for sync on February 10: the plan
+     chosen (done), the spec written, and a preview service running. Steps
+     4a to 4c.
+   - **December 24**, tentatively: the format freezes, and the spec with
+     it. Step 4d.
+   - **January**: both apps build sync against the preview service and the
+     vectors, and the website builds steps 4e to 4k.
+   - **About February 4**: the apps submit. The privacy page and terms are
+     live before either app ships sync, and the full policy is enforced
+     before sign-in is.
+   - **Before February 10**: a private beta on all three (step 4l).
+   - **February 10**: one announcement, and the desk opens.
+
+   **The steps**, each sized in sessions as "Sizing the website's side"
+   defines one:
+   - **4a. The spec's draft 2** (1–2). Passkeys carry the key, with the
+     recovery code as the fallback; the reader's choice of where the key
+     lives; the optional recovery code; the signing key reserved in each
+     device's card; what removing a device means under each choice; and
+     **the service's interface**, which draft 1 left to "the service's own
+     spec": every request, and what the service checks before it accepts
+     one. Before writing: check against Apple's, Google's, and the
+     browsers' own documentation where a passkey can carry a key (a first
+     look on 2026-11-23 found it on iOS 18 and later, on Android with
+     Google Password Manager, and on Windows since February 2026, with
+     Firefox, third-party password managers, and signing in by scanning a
+     code from another device unverified or uneven). BDR's Claude reviews
+     the draft.
+   - **4b. The reference and the vectors** (2). The reference is the code
+     the website ships, so it is `src/lib/desk-crypto.mjs`, pure and on
+     WebCrypto, not under `scripts/lib/` as draft 1 has it;
+     `npm run build:notebook-crypto-vectors` writes
+     `test/fixtures/notebook-crypto-vectors.json`, committed and built on
+     demand like the anchor vectors; `test/desk-crypto.test.js` checks one
+     against the other in `npm test`. The hand-written HPKE is checked
+     against the published RFC 9180 vectors before LIT's own. Both apps
+     run the file.
+   - **4c. The service, on a preview address** (2–3).
+     `workers/notebook-service/`, with its own package, tests, and CI job,
+     as the contact-form Worker has. A Worker with D1: sealed records
+     pushed and pulled by revision, the device list and cards, sealed
+     keyrings, the passkey and recovery holders, and approvals. It has a
+     way in for the apps' sessions to build against that exists on the
+     preview only. This is the "preview service running" of the gate.
+   - **4d. The freeze work** (1–2). In `STUDY-DESK-FORMAT.md` and the
+     website's code together: kind 3 (`hidden`) leaves; the `ribbon`
+     marker leaves kind 2, and `ribbon` and the older `bookmark` read as
+     `note`; the envelope's fields (`v`, `kid`, `nonce`) go into "How each
+     store holds the records"; and the three points BDR changed (the verse
+     limit, collections after a highlight merge, printed sheet hints),
+     once his Claude has written them into `STUDY-DESK-FOR-THE-APPS.md`.
+     The merge vectors take a new version. Bookmark labels need no change:
+     the format already has labels (kind 8) and `labels` on a bookmark.
+   - **4e. Sign-in on the service** (3). Sign in with Apple and with
+     Google, passkeys with `litbible.net` as the relying party, sessions,
+     and several ways in to one account. The link files change with it
+     (`webcredentials` in `apple-app-site-association`, `get_login_creds`
+     in `assetlinks.json`). It needs credentials from the Apple developer
+     account and the Google Cloud project, so it waits on BDR for those.
+   - **4f. The service's account work** (1–2). Deleting an account, with
+     Apple's token revoked; the seven-day wait and its cancel; "Start a
+     new notebook"; limits on requests and bot protection at sign-up; the
+     web page for deletion requests that Google Play asks for; a one-page
+     runbook; `DISASTER-RECOVERY.md`; and the production deploy.
+   - **4g. The website's connector** (3–4). The sync loop on 1a's merge
+     engine: sealing and opening rows, edits queued while offline,
+     connection status and "Reconnect," the first sign-in merging the
+     browser's notebook into the account with one source of truth at a
+     time (C5), taking a new key when the service refuses a push, and
+     resealing after a key change.
+   - **4h. The account pages** (3–4). Sign-in; setup, with the choice of
+     where the key lives, the passkey, and the recovery code; adding a
+     device by approval (a typed code or a QR code) or by recovery code;
+     the device list, renaming, and removing; a new recovery code; another
+     way in; signing out; deleting the account; and the notices (a device
+     was added, a request is waiting). **Account pages work on every
+     device** (audit C1), so what a phone gets, without the desk, is
+     settled here. Every new storage key is named on /privacy.
+   - **4i. Enforcing the full content security policy** (1–2). It is
+     report-only today. Review a week of its reports, then enforce it
+     before sign-in ships, since the page will hold a credential to a
+     reader's notes (review finding 11).
+   - **4j. The privacy page, the terms, and "Ways to keep your notebook"**
+     (1–2, plus BVJ's own writing). The terms are new and carry a minimum
+     age. The privacy page's account section comes from the spec's "What
+     the service holds." BDR reviews the app parts. With it, the wording
+     of the first-time choice (D6).
+   - **4k. Notes from the Greek** (1). A note started from the Greek tab
+     or pane is an ordinary note on its verse, with the selected Greek in
+     its body. No change to the format. After 4d.
+   - **4l. The private beta, and testing on real devices** (1–2). All
+     three, on real Apple and Google accounts, with the apps' testers.
+
+   **Held until after February 10**, none of which changes the format:
+   the passphrase lock for a shared computer (D5; under sync it also has
+   to wrap the device's own key), "Connect your phone," short share links
+   (M14, undecided), and enforcing device signatures. Sheets and
+   collections in the apps are BDR's and BVJ's later conversation.
+
+   **If the December 15 gate is missed**, the apps ship everything but
+   sync on February 10 and sync follows in their next release (the call's
+   fallback). The desk can still open that day without sync, as "Launch"
+   below already allows.
+
+   **What it waits on**:
+   - **From BDR**: his word on the calls marked "for BDR to confirm,"
+     above all passkeys at launch; the three format points; the Apple and
+     Google sign-in credentials.
+   - **From BVJ's own hands**: creating the database on Cloudflare, the
+     deploys, and the secrets.
+   - **Risks**: where a passkey can carry a key is uneven, which is why
+     the recovery code stays; a website serves its own code, which is why
+     4i comes before sign-in; three clients must agree byte for byte,
+     which is what the vectors are for; and the desk's opening shares the
+     date.
+
+   **As it stood before 2026-11-23**: Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
    of truth at a time (C5), connection status and "Reconnect", edits queued
@@ -7600,6 +7762,71 @@ didn't get to, and we'll have a follow up conversation about them”):
   swing”; **not yet decided**. Highlights and bookmarks on the Greek stay
   in version 2 (2026-11-21).
 
+**BVJ's calls on the open items** (2026-11-23, later the same day; the
+numbers are those at the end of `STUDY-DESK-ENCRYPTION.md`, where each is
+also marked). The ones that change what the apps build are **for BDR to
+confirm**, since BDR was not part of this exchange:
+- **Passkeys carry the key at launch, and the recovery code is the
+  fallback** (the worksheet's item D5; the spec's 1): “Let's include
+  passkeys now, and the non-passkey version can be fallback if it's not
+  supported.” This reverses draft 1, which took the recovery code (K1) for
+  launch and left the passkey (K2) for later, and it makes passkeys part
+  of the launch, where item D6 had them “if the schedule holds.” Draft 2
+  has to say what a reader without a passkey that can carry a key gets
+  (the recovery code), and what removing a device means when the passkey
+  that reaches it is synced by Apple or Google.
+- **The setup sentence, as proposed** (2): “Save this code somewhere safe,
+  like a password manager or a note kept at home. If you lose it and every
+  device you use with LIT, no one can open your synced notes, not even
+  LIT.” It is shown wherever a recovery code is.
+- **The reader types two of the code's six groups back at setup** (3), not
+  a box to tick.
+- **Seven days** before a signed-in device that can't open the notebook may
+  delete or replace it (5).
+- **A reader who signs in only with a passkey**: setup suggests a second
+  way in (6).
+- **`deletedAt` stays among the plain fields** (8).
+- **The reader chooses where the key lives** (4): “I would want users to
+  be able to choose whether it follows their Apple or Google account or
+  stays only on their device.” BVJ had first asked whether readers could
+  be given the choice, and answered “yes to allowing the use of passkey or
+  cloud login”; Claude read that as the choice being made by how a reader
+  signs in, and BVJ corrected it: the choice is the reader's own, and
+  explicit. **At setup, “follows my account” is shown first and
+  recommended** (BVJ: “Yes, recommend it”). **How, as Claude put it to
+  BVJ before that answer, for draft 2 and for BDR to confirm**: a
+  setting asked at setup and changeable later, separate from the way the
+  reader signs in. “Follows my account” is carried by a passkey, which
+  Apple or Google syncs and which works on the website and in both apps;
+  a reader who signs in with Apple or Google adds a passkey for it. “This
+  device only” keeps no such copy, and a new device is approved from one
+  that has the key or takes the recovery code. Draft 2 must say plainly
+  that under “follows my account” removing a device doesn't lock out one
+  that still holds the synced passkey.
+- **A recovery code is offered to a reader with a passkey, not required**
+  (“Yes to offering an optional recovery code”). It is required only where
+  no passkey can carry the key.
+- **Device signatures: reserve now, enforce later** (7; BVJ's words). Each
+  device makes its signing key at launch and keeps the public half in its
+  card; nothing checks it until a later version, so turning signatures on
+  won't make readers enroll their devices again.
+- **The service's code lives in this repo**, under `workers/` beside the
+  contact-form Worker, not in a repository of its own.
+- **Who owns what**: BVJ the Cloudflare account, BDR the Apple developer
+  account, and “I think BDR for Google, but we need to confirm.” Who
+  answers when the service breaks is not yet said.
+- **The website opens the desk on February 10**, with the announcement.
+  The “beta” label may stay: “We'll see how polished it is at that point.”
+- **Notes from the Greek are in version 1**, as described above: an
+  ordinary note on its verse with the selected Greek in its body. Built
+  after the freeze work.
+- **The website keeps a “for the apps” list** (the worksheet's T4):
+  `STUDY-DESK-FOR-THE-APPS.md`, started with this change. BVJ will try
+  joining BDR's Linear workspace “whenever BDR is ready to coordinate it”
+  (T1).
+- **The three format points BDR changed** are asked of BDR's Claude in
+  that file, since the page that holds them isn't shared with BVJ.
+
 **What this changes in this file**, each marked where it stands:
 - “The Zoom: BVJ with BDR” and “Still open”: the call is held, plan C is
   chosen, and the hidden passage is settled.
@@ -7610,10 +7837,10 @@ didn't get to, and we'll have a follow up conversation about them”):
 - “Who builds what” and “Sizing the website's side”: the encryption spec,
   its reference and vectors, and the service move to the website's side.
 
-**Next for the website**, before the plan for Phase 4 is written here:
-BVJ's calls on the spec's open items and on the three format points BDR
-changed; then the spec's draft 2, the reference and vectors, and the freeze
-work (kind 3 out, the `ribbon` marker out, bookmark labels as they sync).
+**The plan for Phase 4 is written** ("Order of work", 4; 2026-11-23):
+twelve steps, 4a to 4l, from the spec's draft 2 to the private beta. It
+waits on BDR's word on the calls above and on his three changed format
+points; the first step, the spec's draft 2, can start without them.
 
 ### 2026-11-10 (N8, the hidden passage, not included)
 
@@ -9078,9 +9305,14 @@ own sections cite it by ID.
   a short "for the apps" list of its decisions (the worksheet's T4).
 - **From the same day, for BVJ**: the three format points BDR changed (the
   verse limit, collections after a highlight merge, and printed sheet
-  hints); whether notes from the Greek are in version 1; where the
-  service's code lives; the date the website opens, and whether the "beta"
-  stage still exists once the opening and sync land together.
+  hints), **which wait on BDR's Claude writing them here**
+  (`STUDY-DESK-FOR-THE-APPS.md`); who owns the Google Cloud project, and
+  who answers when the service breaks. The spec's items 4 (the key on an
+  iPhone) and 7 (device signatures) were answered the same day. ~~Whether notes from the Greek are in
+  version 1; where the service's code lives; the date the website opens,
+  and whether the "beta" stage still exists once the opening and sync land
+  together.~~ **Answered 2026-11-23** ("Decisions", 2026-11-23): yes; this
+  repo, under `workers/`; February 10, with the label perhaps staying.
 - **D7, deferred indefinitely (BVJ, 2026-10-11)**; the questions below are kept in case the idea returns: whether API.bible's tracking script is acceptable (BVJ,
   2026-10-08: "probably"; what it does is under D7); which other
   free-to-share translations join the KJV; whether the donation page fits
