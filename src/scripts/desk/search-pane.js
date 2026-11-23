@@ -736,14 +736,14 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
   }
 
   /** Rows `PAGE` at a time with "Show more" after the list. */
-  function paged(section, items, draw) {
+  function paged(section, items, draw, firstPage = PAGE) {
     const list = make("ol", "desk-search__list");
     section.append(list);
     let shown = 0;
     let more = null;
     const step = () => {
       const first = shown;
-      const next = nextPage(shown, items.length);
+      const next = nextPage(shown, items.length, shown === 0 ? firstPage : PAGE);
       for (let i = shown; i < next.shown; i++) list.append(draw(items[i], i));
       shown = next.shown;
       more?.remove();
@@ -824,7 +824,8 @@ export function createSearchPane({ paneId, env, getPlace, sheets = { addTarget, 
       // The chapters by topic can be checked (E166); an introduction among
       // them can't, being no chapter.
       if (kind === "subject" && store && r.picks.subject.length) g.append(pickStrip("subject"));
-      paged(g, items, kind === "subject" ? subjectRow : plainRow);
+      // Topic results show five before "Show N more"; the rest keep a page.
+      paged(g, items, kind === "subject" ? subjectRow : plainRow, kind === "subject" ? 5 : PAGE);
       groupsEl.append(g);
       counts.push(plural(items.length, one, many));
     }
