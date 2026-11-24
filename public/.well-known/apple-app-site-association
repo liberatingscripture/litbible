@@ -125,5 +125,10 @@
         ]
       }
     ]
+  },
+  "webcredentials": {
+    "apps": [
+      "9KL9F7A3CR.com.litbible.app"
+    ]
   }
 }
