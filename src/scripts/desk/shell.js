@@ -91,8 +91,9 @@ async function start({ handOver }) {
     record.kind === "bookmark"
       ? openBookmarkForm({ trigger, store, ctx, record, restoreFocus })
       : openNoteEditor({ trigger, store, ctx, ref: recordReference(record), record, restoreFocus });
-  const addNote = (draft, trigger) =>
-    openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus: trigger });
+  // `body` is a note's opening words: the Greek, for a note from the Greek tab (4k).
+  const addNote = (draft, trigger, { body = null } = {}) =>
+    openNoteEditor({ trigger, store, ctx, ref: recordReference(draft), draft, restoreFocus: trigger, startBody: body });
   let margin = null;
   let readMarks = null;
   let pins = null;

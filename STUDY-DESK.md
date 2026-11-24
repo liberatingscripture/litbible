@@ -5351,6 +5351,28 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **4k. Notes from the Greek** (1). A note started from the Greek tab
      or pane is an ordinary note on its verse, with the selected Greek in
      its body. No change to the format. After 4d.
+     **Built 2026-11-23, ahead of 4d** (which it doesn't touch). Both ways
+     in, as BVJ asked that day: **a chosen word**, whose details gain “Add
+     a note on verse 16 with this word” under its parsing, and **a run of
+     the Greek selected** with the mouse or Shift and the arrows, which
+     the same button names “…on verses 16–17 with the selected Greek”
+     (a selection wins over a chosen word while it lasts). It opens the
+     ordinary note editor on the LIT's whole verses (no `quote`, a
+     `verseCopy` as any whole-verse note has), its body opening with the
+     Greek in curly quotes and the cursor on the next line. Claude's
+     choices, for BVJ to change: one word is quoted without the
+     punctuation after it; a run keeps its inner punctuation and, where it
+     crosses into another verse, that verse's number (“λόγος. 2 οὗτος”);
+     the SBLGNT's text-critical signs are left out, since they need the
+     tab's font and its apparatus to mean anything; a word counts only if
+     a letter of it is selected; closing with nothing added asks nothing,
+     and a note saved with only the Greek drops the blank line after it.
+     It is offered only where the chapter has LIT text and the browser
+     keeps a notebook, so a draft chapter's Greek has no button. The rules
+     are `src/lib/desk-note-from-greek.mjs`; the record is kind 2 with no
+     new field, so nothing in `STUDY-DESK-FORMAT.md` changed. **After 4d**
+     nothing here needs a touch: the note is saved with the editor's own
+     marker (`note` by default) and never names `ribbon` or `bookmark`.
    - **4l. The private beta, and testing on real devices** (1–2). All
      three, on real Apple and Google accounts, with the apps' testers.
 

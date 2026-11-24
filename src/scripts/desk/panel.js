@@ -261,6 +261,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
                 here: greekHere,
                 visible: () => visible() && activeTab === "greek",
                 openVerse: (verse) => showVerse(verse),
+                // A note from the Greek (4k) hangs on the LIT's verses, so a
+                // draft chapter, which has none yet, offers none.
+                onAddNote: here ? onAddNote : null,
               }),
           },
         ]

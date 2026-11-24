@@ -20,6 +20,13 @@
 //
 // The files are public/greek/ (greek-data.js). Nothing here adds to or
 // changes the scripture on the page.
+//
+// A note can start here (4k; BVJ, 2026-11-23): "Add a note on verse N with
+// this word" under a chosen word's parsing, or "…with the selected Greek"
+// while a run of the Greek is selected. Either opens the ordinary note editor
+// for a note on the LIT's whole verse or verses, its body opening with the
+// Greek in quotes (src/lib/desk-note-from-greek.mjs). Only where the chapter
+// has LIT text and the browser keeps a notebook (`onAddNote`).
 
 import { describeParse } from "../../lib/greek-parse.mjs";
 import { plainTextOf } from "../../lib/desk-greek-text.mjs";
@@ -44,6 +51,7 @@ import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
 } from "./greek-data.js";
 import { make } from "./dom.js";
+import { greekNoteLabel, greekVerses, noteFromGreek } from "../../lib/desk-note-from-greek.mjs";
 
 // The editions SBL's notes compare the SBLGNT with.
 const EDITIONS = [
@@ -196,7 +204,7 @@ function readTermData() {
  */
 export function createGreekTab({
   here, visible, openVerse, source = null, startVerse = null, idSuffix = "", openHit = null, onTopVerse = null,
-  slowAfter = SLOW_LOAD_MS,
+  slowAfter = SLOW_LOAD_MS, onAddNote = null,
 }) {
   const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
   const markers = source ? [] : Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
@@ -253,6 +261,13 @@ export function createGreekTab({
   const findNote = make("p", "desk-greek__find-note");
   findNote.setAttribute("role", "status");
   parseLine?.after(findNote);
+  // "Add a note…" (4k), shown only while there is Greek to put in one.
+  const noteButton = onAddNote ? make("button", "desk-greek__note") : null;
+  if (noteButton) {
+    noteButton.type = "button";
+    noteButton.hidden = true;
+    findNote.after(noteButton);
+  }
   const NO_WORD = "Select a word to see its dictionary entry. Left and Right move between words, Up and Down between verses.";
   const more = el.querySelector(".desk-greek__more");
   const lemmaLine = el.querySelector(".desk-greek__lemma");
@@ -477,6 +492,7 @@ export function createGreekTab({
     parseLine.textContent = NO_WORD;
     more.hidden = true;
     closeWord.hidden = true;
+    updateNote();
 
     window.addEventListener("scroll", queueGoto, { passive: true });
     scroller.addEventListener("scroll", queueGoto, { passive: true });
@@ -736,6 +752,7 @@ export function createGreekTab({
     showDetails(i, { pause });
     if (scroll) bringIntoView(buttons[i]);
     queueGoto();
+    updateNote();
   }
 
   /** Let go of the selected word: its tints and its entry go, and the pane is as it was before any word was chosen. */
@@ -759,9 +776,67 @@ export function createGreekTab({
     closeWord.hidden = true;
     if (focus && b) b.focus({ preventScroll: true });
     queueGoto();
+    updateNote();
   }
 
   closeWord.addEventListener("click", () => deselect({ focus: true }));
+
+  // A note from the Greek (4k). The words a selection of the Greek covers,
+  // each counted only if at least one of its letters is selected, so a
+  // selection ending at a word's edge doesn't bring that word in.
+  function selectedWords() {
+    const sel = document.getSelection?.();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+    const range = sel.getRangeAt(0);
+    if (!scroller.contains(range.commonAncestorContainer)) return null;
+    const out = [];
+    const word = document.createRange();
+    buttons.forEach((b, i) => {
+      const t = b.firstChild;
+      if (!t || !range.intersectsNode(b)) return;
+      word.setStart(t, 0);
+      word.setEnd(t, t.textContent.length);
+      // The word ends after the selection starts, and starts before it ends.
+      if (range.compareBoundaryPoints(Range.START_TO_END, word) > 0 && range.compareBoundaryPoints(Range.END_TO_START, word) < 0) {
+        out.push(flat[i]);
+      }
+    });
+    return out.length ? out : null;
+  }
+
+  /** What a note would start with now: the selected Greek, else the chosen word. */
+  function noteChoice() {
+    const words = selectedWords();
+    if (words) return { words, from: "selection" };
+    if (selected != null && flat[selected]) return { words: [flat[selected]], from: "word" };
+    return null;
+  }
+
+  function updateNote() {
+    if (!noteButton) return;
+    const choice = noteChoice();
+    const span = choice && greekVerses(choice.words);
+    noteButton.hidden = !span;
+    if (span) noteButton.textContent = greekNoteLabel(span, choice.from);
+  }
+
+  // Selecting is many events in a drag; the button is worked out once it rests.
+  let noteTimer = 0;
+  const onSelection = () => {
+    window.clearTimeout(noteTimer);
+    noteTimer = window.setTimeout(updateNote, 60);
+  };
+  if (noteButton) {
+    document.addEventListener("selectionchange", onSelection);
+    // A press keeps the selection it acts on.
+    noteButton.addEventListener("mousedown", (e) => e.preventDefault());
+    noteButton.addEventListener("click", () => {
+      const choice = noteChoice();
+      const made = choice && noteFromGreek(here, choice.words);
+      if (!made) return;
+      onAddNote(made.draft, noteButton, { body: made.body });
+    });
+  }
 
   /** Every word of the selected word's lemma gets a lighter green tint; they stay while the reader scrolls. */
   function markSelectedLemma(i) {
@@ -1332,6 +1407,8 @@ export function createGreekTab({
     window.clearTimeout(litTimer);
     window.clearTimeout(lexTimer);
     window.clearTimeout(slowTimer);
+    window.clearTimeout(noteTimer);
+    document.removeEventListener("selectionchange", onSelection);
     cancelAnimationFrame(splitFrame);
   }
 

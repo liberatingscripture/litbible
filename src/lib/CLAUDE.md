@@ -95,7 +95,8 @@ From the root's project tree.
                      #   notebook search and commands
                      #   (desk-search, desk-commands) and first use
                      #   (desk-first-use); the Greek tab's helpers
-                     #   (desk-greek); /desk's panes and their
+                     #   (desk-greek) and a note started from its words
+                     #   (desk-note-from-greek); /desk's panes and their
                      #   layouts (desk-layout), the passages they show
                      #   (desk-passage), the search pane's rules
                      #   (desk-search-pane), and the LIT pane's corpus,

@@ -46,7 +46,7 @@ import { createGreekTab } from "./tab-greek.js";
 import { createMineTab } from "./tab-mine.js";
 import { onDeskChapters } from "./page.js";
 import { createVerseTab } from "./tab-verse.js";
-import { MOVE_KIND, NO_CHAPTER_KINDS, QUIET_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
+import { MOVE_KIND, NO_CHAPTER_KINDS, QUIET_KINDS, forChapter, recordReference } from "../../lib/desk-store-core.mjs";
 import { make } from "./dom.js";
 import { redrawAfterMove } from "./move-redraw.js";
 
@@ -249,10 +249,14 @@ function mountGreek(body, env, pane) {
     // The key terms and footnote letters come from the LIT's page; the Greek
     // shows without them if that page can't be had.
     let source = { textBox: null, termData: null };
+    let page = null;
     try {
-      const page = await loadChapterPage(p.bookKey, p.chapter);
+      page = await loadChapterPage(p.bookKey, p.chapter);
       source = { textBox: page.textBox, termData: page.termData };
     } catch (_) {}
+    // A note from the Greek (4k) is a note on the LIT's verses, so it needs
+    // the chapter's LIT text (a draft has none) and a notebook to keep it.
+    const notes = env.store && page && !page.draft && page.anchorText ? page : null;
     if (n !== seq) return;
     let made = null;
     made = createGreekTab({
@@ -262,6 +266,12 @@ function mountGreek(body, env, pane) {
       source,
       startVerse: p.verse,
       idSuffix: `-${pane.id}`,
+      onAddNote: notes
+        ? (draft, trigger, { body = null } = {}) => openNoteEditor({
+          trigger, store: env.store, ctx: env.ctx, ref: recordReference(draft),
+          draft, restoreFocus: trigger, text: notes.anchorText, startBody: body,
+        })
+        : null,
       openHit: (hit) => {
         word = { verse: hit.verse, t: hit.t };
         // A search result elsewhere: the LIT pane's way back stays (E168).
