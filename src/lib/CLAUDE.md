@@ -3,13 +3,8 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory. This directory is flat and serves several areas: `desk-*.mjs`, `anchor-core.mjs`, `greek-*.mjs` and `qr-svg.mjs` are the Study Desk's (read `src/scripts/desk/CLAUDE.md`), `alignment-gate.mjs` and `term-lens*.mjs` the alignment dataset's (read `src/data/alignment/CLAUDE.md`), and `chapter-html.ts` is the chapter render pipeline (read `src/data/chapters/CLAUDE.md`).
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 ## Module map
-
-From the root's project tree.
 
 ```
   lib/               # Server-side build helpers: chapter-html.ts (the shared
@@ -26,7 +21,8 @@ From the root's project tree.
                      #   and podcast-feed.xml?raw — so the core stays import-free
                      #   and `node --test` can reach it via type stripping. Keep
                      #   the core's TypeScript erasable or the tests go dark),
-                     #   lsc-mark.mjs (see The LSC brand mark below),
+                     #   lsc-mark.mjs (see `src/styles/CLAUDE.md`,
+                     #   "Brand colors, the emblem, and the LSC mark"),
                      #   scripture-refs.mjs + scripture-refs-data.mjs (the
                      #   render-time reference linker and its fs shell),
                      #   ref-text-verses.mjs (the verses a hand-written link
@@ -39,7 +35,7 @@ From the root's project tree.
                      #   or "An"; /glossary's sort and its 2.0 list share
                      #   it), release-note-links.mjs +
                      #   release-note-linker.ts (see "Scripture references link
-                     #   at render" below), release-notes-view.mjs (how
+                     #   at render" in Conventions below), release-notes-view.mjs (how
                      #   /release-notes and its RSS feed present the JSON),
                      #   alignment-gate.mjs (the one display gate for the
                      #   alignment dataset), term-lens.mjs + term-lens-data.mjs
@@ -254,7 +250,7 @@ From the root's project tree.
   twice doubles the time with every nonbreaking space in a run.
   On `/glossary`, `linkGlossaryCrossRefs` also turns `the entry for “X”` into a
   jump to that entry, resolving X through the feed's own `normalizeLabel` so the
-  page and iOS agree; the phrase itself ships verbatim (see The Glossary Feed).
+  page and iOS agree; the phrase itself ships verbatim (`src/content/CLAUDE.md`, "The glossary feed").
   Release-note rows that name an intro, a glossary entry or an article link by
   their fixed wording (`release-note-links.mjs`).
   **Previews** (`src/scripts/ref-preview.js`): hovering a reference with a mouse,
@@ -266,9 +262,8 @@ From the root's project tree.
   Sefaria or eBible link has no preview; it is an ordinary link to another site.
   **Where the verses come from**: the href's `#v6-10` when it has one. About
   fifty hand-written article links are `<a href="/romans-13">Romans 13:6-10
-  LIT</a>` instead, a chapter target on purpose (rule 5 above), and used to
-  preview the chapter's first three verses. For those the preview reads the
-  verses from the link's own words (`versesFromLinkText`,
+  LIT</a>` instead, a chapter target on purpose (rule 5 above). For those the
+  preview reads the verses from the link's own words (`versesFromLinkText`,
   `src/lib/ref-text-verses.mjs`): a range, a list ("11, 14–17", shown with a
   "…" at the jump), a part letter, a range running into the next chapter. It
   never guesses: words naming another chapter than the href
@@ -281,8 +276,9 @@ From the root's project tree.
   `src/scripts/lit-panel.js` is the one panel all reader tools share (verse
   menu, footnote popover, selection panel, preview): one open at a time, closed
   by an outside click or Escape. A click inside the Study Desk's Notebook
-  panel doesn't count as outside, and a panel is placed clear of it (see
-  below).
+  panel doesn't count as outside, and a panel is placed clear of it
+  (`src/scripts/desk/CLAUDE.md`, "The Notebook panel sits in the right
+  margin").
 - **Every link that leaves the site opens in a new tab** (owner, 2026-10-01).
   For rendered bodies that is `openExternalLinks` in `src/lib/external-links.mjs`
   (pure, unit-tested), called from `linkRefs`, the one function footnotes,
@@ -318,10 +314,11 @@ From the root's project tree.
     unless it is a draft.
   - **Two episodes and three articles show**; the rest wait behind an
     "N more" `<details>` (owner: a collapsing space, not a hard limit). It
-    needs no JS and shifts nothing on load. Galatians 3, Hebrews 6 and
-    Matthew 5 were the only chapters with any held back in 2026-09.
+    needs no JS and shifts nothing on load.
   The section is `data-pagefind-ignore`d and hidden in print.
-- **The release notes page and its RSS feed only present that JSON.**
+- **The release notes page and its RSS feed only present that JSON** (the
+  drafter that writes it is in `scripts/CLAUDE.md`, "Release notes are
+  automated").
   `src/lib/release-notes-view.mjs` (pure, unit-tested) turns each change's
   `detail` into old text struck through beside the new, groups entries by
   month, and gives each entry an id; `src/scripts/release-notes.js` runs the
@@ -331,8 +328,8 @@ From the root's project tree.
      `removed "…"`, joined with `; `). A new shape in
      `release-notes-core.mjs` needs a matching rule there. It degrades rather
      than breaks: a detail that doesn't parse shows as written. Quoted text can
-     contain straight quotes (the 2026-08 cleanup logged them), so a quotation
-     ends where the grammar allows, never at the first `"`.
+     contain straight quotes, so a quotation ends where the grammar allows,
+     never at the first `"`.
   2. **Entry ids are permalinks** (`/release-notes/#2026-09-26`, used by the
      feed and /read's "What's new"). A second publish on one day gets `-2`,
      counted from the oldest entry so prepending never renumbers one.

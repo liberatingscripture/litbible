@@ -3,9 +3,6 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 ## Chapter JSON Format
 
@@ -61,7 +58,7 @@ Each file in `src/data/chapters/` follows this structure:
   stray number, and into the search vocabulary as a word), gets no `data-osis`,
   is never namespaced in Read View, and makes the changelog blame the next
   verse. The validator rejects it. To let a reader share just part of a verse,
-  see below.
+  see `src/scripts/CLAUDE.md`, "Sharing part of a verse."
 - **`topics`** are free-text labels (e.g. `"Nicodemus"`), not pre-slugged.
   `build-topics-index.mjs` normalizes them into slugs and groups chapters that
   share a topic. **Choosing them is an editorial judgment with its own rules —
@@ -73,8 +70,8 @@ Each file in `src/data/chapters/` follows this structure:
   `false` marks an in-progress **draft/stub chapter**, `true` a published one
   — never omit it (the release-notes generator emits "chapter added" on the
   explicit false→true transition, and the validator enforces the rules in
-  `chapter_json_invariants.json`). 52 of 260 chapters were drafts in 2026-09;
-  count them rather than trusting that figure.
+  `chapter_json_invariants.json`). Count the drafts rather than trusting a
+  remembered figure.
   `indexed: false` has seven downstream effects, so handle it carefully:
   1. `build-verse-index.mjs` excludes the chapter from the verse search index
      (kept out of search).
@@ -94,8 +91,7 @@ Each file in `src/data/chapters/` follows this structure:
      same-book chapter picks for an in-page scroll; other books navigate to
      `/read/<book>#ch-N`).
   5. The `/read` lede names what isn't finished ("all except Acts
-     and Revelation"; it also named Luke 24 until that chapter was
-     published on 2026-10-04), built from `scanDraftChapters()` at
+     and Revelation"), built from `scanDraftChapters()` at
      build time: whole books first, then partly drafted books with their
      chapter runs (`unfinishedTexts` in `chapter-nav.mjs`). The /about FAQ's
      "What texts are available right now?" prints the same list. Neither
@@ -103,7 +99,7 @@ Each file in `src/data/chapters/` follows this structure:
   6. Previous/Next step over it (`src/lib/chapter-nav.mjs`, the one rule
      behind the top buttons, the bottom buttons and a draft page's links),
      and the bottom buttons say what was stepped over ("Luke 24 is still
-     being translated." until 2026-10-04). The page itself renders `DraftPage.astro` (the
+     being translated."). The page itself renders `DraftPage.astro` (the
      photo, the limerick, the book's computed progress, ways onward) **on the
      website only**: the placeholder paragraphs stay in the JSON because the
      apps show them, and their last line ("part of Luke") went stale, which
@@ -128,16 +124,14 @@ Each file in `src/data/chapters/` follows this structure:
   error** in both `paragraphs` and `footnotes[].html` (attributes are exempt,
   since the check strips tags first). **Entity forms are rejected too**
   (`&quot;`, `&#39;`, …) — they slip past any literal-character scan while
-  still decoding to a straight quote in the page and in `verses.json`, which
-  is how 19 of them survived the first pass of that cleanup. Prime notation
+  still decoding to a straight quote in the page and in `verses.json`. Prime notation
   is not a quote: the chiasm labels in `1corinthians-11` fn-b use U+2032
   (`A B C D D′ C′ B′ A′`). It's an error rather than a warning
-  because the predecessor rule was a footnote-only *warning* about straight
-  doubles, and 439 straight quotes accumulated under it across 96 chapters
-  before the 2026-08 cleanup. Watch the related defect the validator can't
+  because the old footnote-only *warning* let 439 straight quotes accumulate
+  across 96 chapters. Watch the related defect the validator can't
   see: a curly opener paired with a *wrong-direction* curly closer
   (`‘lord”`), which is well-formed to the checker but reads as a mismatched
-  pair. That cleanup fixed 12 of those.
+  pair.
 - **A British form in the owner's text is reported to BVJ, never changed**
   (the root's rule on American conventions, which governs what Claude
   writes; moved here from the root file, 2026-11-23). A 2026-10-13 audit
@@ -196,10 +190,9 @@ class="hbq">` holding one `<p class="hbq-line">` per line. `addHbqAria` adds
 "Formatted as Hebrew and Semitic poetry with indented parallel lines", so the
 markup is a **claim about the text**, not a styling choice, and a screen
 reader repeats it. Both views run that pass and both carry the
-`#hbq-description` target, so keep them in step: it was Study-only and
-class-first-only until 2026-09-06, which left 98 of the 108 rendered blocks
-silent (44 of 54 source blockquotes are written `id`-first, and Read View
-announced none of them). Attribute order must never decide this. Three further
+`#hbq-description` target, so keep them in step (a Chapter View-only,
+class-first-only pass once left 98 of 108 rendered blocks silent). Attribute
+order must never decide this. Three further
 rules:
 
 1. **`hbq` is for quotation.** Lines the author sets apart that are not quoted
@@ -212,33 +205,32 @@ rules:
 2. **One block, one quotation.** A block that stops mid-quotation splits it in
    the rendering, and a block holding two quotations merges them. Romans
    3:10–18 is the worked example: it is a catena of six OT quotations, and a
-   dropped paragraph break had left the Isaiah 59:7–8 half of it across two
-   blocks — p7 opened a quote mark and never closed it, p8 closed one it never
-   opened. Merging them made every block exactly one quotation. **The chapter
+   dropped paragraph break had split the Isaiah 59:7–8 half across two
+   blocks, one opening a quote mark it never closed and the next closing one it
+   never opened. Merging them made every block exactly one quotation. **The chapter
    validator cannot see this**: its balanced-quote rule covers `footnotes[]`
    only, never `paragraphs`, so quote balance per poetry block is checked by
    hand.
 3. **A line follows the sense, not the verse.** Line breaks come from the
    master's own lineation, so a verse number can fall mid-line and a line can
    open lowercase: Luke 1:70–75 reads `God declared 71 liberation…` and
-   `That oath provides us 74 rescue…` (owner, 2026-10-05). Before that ruling
-   the repo had broken both lines at the verse marker, which split each
-   sentence across two lines. Don't "tidy" a mid-line marker back onto its own
+   `That oath provides us 74 rescue…` (owner, 2026-10-05); the repo had
+   broken both lines at the verse marker. Don't "tidy" a mid-line marker back onto its own
    line.
 
 A `<br>` inside a `<p>` is the older way of setting lines and survives only
 where the lines are not a quotation (2 Corinthians 6:2 is the one published
 case). Copy text still shares it as lines: `blockText` in `chapter-tools.js`
 turns each `<br>` into a marker that `cleanForShare` makes a newline, because
-`textContent` alone drops a `<br>` with no separator and welded the two lines
-into one word until 2026-09. The marker is not `\n` itself, so incidental
+`textContent` alone drops a `<br>` with no separator and welds the two lines
+into one word. The marker is not `\n` itself, so incidental
 source whitespace can never turn into a line break. `isSetAsLines` gives such
 a paragraph the same newline boundaries as poetry, and is kept apart from
 `isPoetry` because only `hbq` claims the lines are quoted.
 
 **Merging or removing a block retires its id rather than renumbering the
 blocks after it** (`matthew-20` runs p1 then p8 from an earlier merge). Block
-ids are shareable anchors — see "Sharing part of a verse" above — so
+ids are shareable anchors (`src/scripts/CLAUDE.md`, "Sharing part of a verse") so
 renumbering would silently repoint a link that is already out there, while a
 gap costs nothing.
 
@@ -281,9 +273,8 @@ by a different test (TOPICS.md, "Book intros"). They reach only Pagefind, as
 the intro page's `topics` metadata, and never `topics-index.json`, so they
 add nothing unless they add a word the intro's own prose doesn't use: a
 collection label ("Pastoral Epistles"), a traditional or scholarly name
-("parousia"), or the other half of a translation pair. Until 2026-09 every
-intro carried the same five placeholders, which made all of them a search hit
-for "hospitality".
+("parousia"), or the other half of a translation pair. (Identical placeholder
+topics once made every intro a search hit for "hospitality".)
 
 ## Translation Source Text (SBLGNT)
 
@@ -329,7 +320,7 @@ exists to prevent.
 **Every page that prints the translation ends with the source-text notice**,
 `src/components/SblgntNotice.astro`, which credits the SBLGNT under its CC BY
 4.0 license: Chapter View chapters and intros (through `ScriptureLayout`) and
-Read View. Read View went without it until 2026-09-27, though it prints
+Read View. Read View needs it too, since it prints
 whole books; a new surface that prints scripture needs it too. It is one
 sentence with the rest of the credit in a "Source text and license"
 disclosure (FIXLIST V5), and the wording lives in
@@ -362,12 +353,10 @@ strict and has two halves:
   chapter never sees the opening bracket — so each chapter carries its own
   copy, and those two **must stay byte-identical and be edited together**.
 
-Until 2026-09 every span carried the note at *both* ends. That rule came from
-the one case that needs it (John 7:53–8:11, which spans two pages) and was
-then applied to four spans that sit on a single surface, where it bought
-nothing and cost a duplicate to keep in sync — a hazard
-`check-bracket-twins.mjs` exists because it had already bitten. Restating it as
-one-per-surface keeps the duplication exactly where it was earning its keep.
+The note was once carried at *both* ends of every span; that is needed only
+where a span crosses pages (John 7:53–8:11), and elsewhere it cost a duplicate
+to keep in sync (`check-bracket-twins.mjs` exists because that bit).
+One-per-surface keeps the duplication where it earns its keep.
 The cost is Mark 16, the only span long enough (12 verses) that a reader can
 meet `⟦` and reach the note only at the far end.
 
@@ -419,9 +408,8 @@ that can actually render scripture body text — patch that file in under a
 `unicode-range: U+27E6-27E7` restriction, registered under the SAME
 `font-family` name as the real face, and at the same weight and style:
 Atkinson's rule declares its variable range, `200 800`. A browser joins faces
-of one family only when those descriptors match exactly, and until 2026-10 the
-Atkinson patch had none, so Atkinson readers' brackets drew from a system font
-(Cambria Math on Windows). The browser only fetches the patch file
+of one family only when those descriptors match exactly; without them the
+brackets draw from a system font. The browser only fetches the patch file
 on a page that actually contains one of these two characters (six chapter
 pages today), and only ever uses it for these two characters; every other
 glyph still comes from the real font. Regenerate the source file with
@@ -444,8 +432,8 @@ consumers today:
 | `scripts/lib/release-notes-core.mjs` | `added "⟦"` in the apps' Translation Updates |
 | `src/scripts/chapter-tools.js` | Copy text / Share… handing a reader `…afraid. ⟦` |
 
-The mobile apps consuming raw chapter HTML from `public/api/` (see "Mobile
-apps are first-class consumers" under Key Conventions) have no equivalent
+The mobile apps consuming raw chapter HTML from `public/api/` (see `scripts/CLAUDE.md`,
+"The apps' sync contract") have no equivalent
 strip of their own today, so the same two characters can still reach a shared
 card or a screen reader on those platforms. That is a gap in the apps' own
 text-extraction, to be closed by porting this same rule on their side — not a

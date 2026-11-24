@@ -5,9 +5,8 @@
 > in this directory. It also governs `src/styles/pages/apps.css`,
 > `src/content/{apps-sections,callouts,examples,seasons}/`, `scripts/apps-studio/`
 > and `.claude/skills/apps-studio/`.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
+
+## The mirror with the LSC site
 
 - **The /apps mirror: litbible is upstream for the LSC site.**
   `liberatingscripture.org/apps` is the same page, and these files are kept
@@ -44,12 +43,10 @@
   litbible's CI over it would put a red X on a contributor who did nothing wrong.
   It needs the `LSC_SYNC_TOKEN` secret and skips with a warning if it's absent.
   It diffs each push's **whole range** (`before..sha`), so it checks out full
-  history. It used to fetch two commits deep and fall back to the last commit
-  alone whenever `before` was missing, which is every multi-commit push. For a
-  week (2026-09-23 to 09-30) that silently skipped five pushes touching
-  `/apps` and `/privacy`, with every run green. Don't reintroduce a shallow
-  fetch or a quiet fallback: if the base can't be found the job now fails with
-  an error. To backfill a gap, run it by hand with the `since` input set to
+  history. Don't reintroduce a shallow fetch or a quiet fallback to the last
+  commit: that silently skipped five pushes touching `/apps` and `/privacy`
+  in 2026-09 with every run green, because `before` is missing on every
+  multi-commit push. If the base can't be found the job fails with an error. To backfill a gap, run it by hand with the `since` input set to
   the last commit LSC was notified about; one issue then covers the range.
   That same workflow also watches `/privacy`, which is **not** a mirror: the two
   policies cover two different entities and are written separately (owner
@@ -62,7 +59,7 @@
 
 Every word, picture, link, background and position on /apps lives in content
 files; the components only draw them (BDR's call, 2026-10-26, so the
-Studio below can change any of it without touching code). Since then the
+Apps Page Studio ("The Apps Page Studio," below) can change any of it without touching code). Since then the
 templates hold no copy at all: **never write a word back into a component.**
 
 | What | Where |
@@ -106,17 +103,15 @@ templates hold no copy at all: **never write a word back into a component.**
   `id="join"`. **The hero can't be hidden either** (`RULES.alwaysShown`; BVJ,
   2026-10-28): its title is the page's only `<h1>`. The schema check refuses a
   hidden hero, and the board offers no Hide for it.
-- **Image `width`/`height` give the shape before the picture loads.** The ones
-  the refactor carried over are the original PNGs' sizes (the hero's Android picture says 1187×2513 for
-  a file that ships at 472×1000), which is the same shape; the Studio writes each new
-  picture's real size. The carousel's `frame` (603×1311) is a shade taller
+- **Image `width`/`height` give the shape before the picture loads.** The
+  older ones are the original PNGs' sizes (the hero's Android picture says
+  1187×2513 for a file that ships at 472×1000), the same shape; the Studio
+  writes each new picture's real size. The carousel's `frame` (603×1311) is a shade taller
   than its screenshots (489×1000), as it always was; the Studio fixes it the
   first time a request changes a carousel screenshot (`fitCarouselFrame`).
 - **The site's global `.container` gives every section 80px of bottom
   padding**, which `apps.css`'s own `.container` leaves in place. That spacing
   is part of the page's look, and the board copies it.
-- The refactor rendered pixel-identical to the page before it (1440, 820 and
-  390px, light and dark), checked by building both.
 
 ## The Apps Page Studio
 

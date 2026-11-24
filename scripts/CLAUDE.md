@@ -3,11 +3,79 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
-### Build Pipeline (`npm run build`, in order)
+## The toolchain's pins
+
+- **Node**: `.node-version` (24, the major CI uses) is what Cloudflare Pages
+  builds with; with no pin, Pages falls back to its image's default, and a
+  2026-10 Astro minor that raised its floor to 22.22 failed every Pages
+  build while GitHub CI stayed green. Keep `engines` in `package.json` (and
+  the root `engines` copy in `package-lock.json`) at the higher of Astro's
+  minimum and the test suite's, and leave the dashboard's `NODE_VERSION`
+  unset so it doesn't override the file.
+- **Two Astro 7 defaults are pinned back to their Astro 6 behavior** in
+  `astro.config.mjs`, each with a comment explaining why: `compressHTML:
+  true` (the new `'jsx'` default joins deliberately spaced adjacent inline
+  text, which corrupts accessible names and Pagefind's extracted text) and
+  `markdown: { processor: unified() }` (the new Sätteri Markdown pipeline
+  changes published copy). Don't drop either without re-running a
+  rendered-output diff; adopting Sätteri is a **content** decision for the
+  owner, not an upgrade side effect.
+
+## Commands run by hand
+
+None of these runs in `npm run build`, and each one's output is committed
+(the "Build / Validation Scripts" table below has each script's rules):
+
+```bash
+npm run build:favicons     # favicon/touch/manifest icons from the emblem SVGs
+npm run build:bracket-font # public/fonts/bracket-markers.otf (the ⟦/⟧ glyph patch)
+npm run build:text-critical-font # public/fonts/text-critical-signs.otf (the SBLGNT's ⸀–⸅ signs)
+npm run build:greek        # public/greek/, from clones outside the repo (GREEK_SOURCES_DIR,
+                           #   MORPHGNT_DIR); see public/greek/CLAUDE.md
+npm run build:apps-qr      # public/images/apps-qr.svg, the app announcement's QR code
+npm run build:alignment    # rescan for glossary-term renderings (src/data/alignment/; carries review state)
+npm run review:alignment   # localhost review tool for that dataset (needs the MorphGNT clone)
+npm run review:words       # alignment phase 2: link SBLGNT words to LIT words (port 4501;
+                           #   --chapters-dir=<dir> aligns English not yet in the corpus)
+npm run build:anchor-vectors        # test/fixtures/anchor-vectors.json (the apps fetch it)
+npm run build:api2-vectors          # test/fixtures/api2-vectors.json (likewise)
+npm run build:sheet-golden          # test/fixtures/sheet-text-golden.json (bump SHEET_FORMAT if one moved)
+npm run build:notebook-crypto-vectors # test/fixtures/notebook-crypto-vectors.json (the apps fetch it)
+npm run draft:release-notes -- --since <ref>  # draft a release-notes entry from git diff
+npm run studio:apps -- <seed|apply|check|board-css|board-files>  # src/components/apps/CLAUDE.md
+```
+
+Each build step also runs alone (`build:topics`, `build:verses`,
+`build:glossary`, `build:greek-bridge`, `build:manifest`, `build:api`,
+`build:api2`, `build:og`); their outputs are git-ignored.
+
+## The apps' sync contract
+
+**Mobile apps are first-class consumers** of `public/api/`, so changing a
+chapter, intro or manifest shape can break them; treat the API as a
+contract. Both apps poll `version.json` first and do nothing further unless
+its `version` string differs from what they last stored (a cheap ~80-byte
+check, run at most once every 24 hours on foreground, by a ~6-hour
+background task, and on pull-to-refresh). Only on a change do they fetch
+`manifest.json` and download the files whose SHA-256 hashes moved. **So the
+whole system works only if `version` moves on every content publish**, which
+is why it's content-derived (build step 6), not date-only. The sync-critical
+files (`version.json`, `manifest.json`, `data/*`) are served `no-store` in
+`public/_headers`, so a version bump is never served beside a stale manifest
+or data file.
+
+**An optional top-level file that never resolves is skipped silently.**
+`topLevelFiles` in `build-api-manifest.mjs` throws only for `required: true`
+entries; anything else missing takes the `// optional + missing → skip
+silently` branch. `glossary.json` sat there as optional from 2026-03 to
+2026-08 with a source that never existed, so the API carried no glossary for
+five months, nothing reported it, and the two apps' bundled copies drifted
+apart. It is `required: true` now, and generated (`src/content/CLAUDE.md`,
+"The glossary feed"). **Treat any new optional entry with suspicion**:
+silence is its failure mode.
+
+## Build Pipeline (`npm run build`, in order)
 
 1. `fetch:podcast` — refreshes `src/data/podcast-feed.xml` from RedCircle. The
    committed XML is a snapshot; a fetch failure reuses it and **never fails the
@@ -28,14 +96,14 @@
    apps sync, from the `src/content/glossary/*.md` collection (deterministic:
    entries sorted by id, index keys sorted, no timestamps). Must run *before*
    `build:manifest`, which resolves it as the generated source behind its
-   `glossary.json` declaration. See The Glossary Feed below — its shape is an
-   app contract with several silent failure modes.
+   `glossary.json` declaration. Its shape is an app contract with several
+   silent failure modes (`src/content/CLAUDE.md`, "The glossary feed").
 5. `build:greek-bridge` — generates `public/search/greek-bridge.json`, the
    glossary bridge for searching the Greek by the LIT's own words: each
    gated rendering of a published glossary term, with the term's lemmas and
    the verses so rendered (`scripts/lib/greek-bridge-core.mjs`). LIT content,
-   so never in `public/greek/`; a website asset, never under `public/api/`.
-   See "The Study Desk preview", rule 15.
+   so never in `public/greek/`; a website asset, never under `public/api/`
+   (`public/greek/CLAUDE.md`, rule 15).
 6. `build:manifest` — generates `public/api/manifest.json` + `public/api/version.json`
    and copies content files into `public/api/data/` (chapters, intros, intro
    `images/`, plus `glossary.json`, `topics.json` and
@@ -43,8 +111,8 @@
    download only changed files. **This step owns the content `version`**: it's
    `v<YYYYMMDD>.<8-char hash of all file hashes>`, so it changes on *every*
    content publish (including multiple on the same day) and stays stable when
-   nothing changed. The apps gate all syncing on this string — see the app-sync
-   note below.
+   nothing changed. The apps gate all syncing on this string ("The apps'
+   sync contract" above).
 7. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.
@@ -53,7 +121,7 @@
    verses, blocks, lines, emphasis, footnote letters and ⟦ ⟧ spans as offsets,
    plus `books.json`, `content.json` and its own `version.json`. It then adds
    the `v2` key to `manifest.json`, and **never touches the manifest's `files`
-   map** (see "Version 2 of the content API" below). It fails the build if any
+   map** (see "Conventions" below, the version 2 rule). It fails the build if any
    chapter's text or verse spans differ from `chapterAnchorText`. Runs after
    `build:manifest` and `build:api` because it reads their `version`.
 9. `build:og` — generates `public/og/<slug>.png`, a 1200×630 social share card
@@ -71,12 +139,11 @@
    reword, or widen the subset per that directory's README. The pages
    reference the cards via Layout's `ogImage` prop plus
    `twitter:card=summary_large_image`. A website asset, NOT part of the app
-   contract — it must never move under
-   `public/api/`.
+   contract: it must never move under `public/api/`.
 10. `astro build` — compiles the site to `dist/`.
 11. `pagefind --site dist` — indexes glossary + article + book-intro pages
    into `dist/pagefind/` (scripture chapter pages are deliberately not
-   Pagefind-indexed — see Search below).
+   Pagefind-indexed; see `src/scripts/CLAUDE.md`, "Search").
 
 ## Build / Validation Scripts (`scripts/`)
 
@@ -100,12 +167,12 @@
 | `lib/glossary-feed-core.mjs` | Pure `buildGlossaryFeed()` core of that generator — frontmatter parse, Markdown→plain-prose flattening, the `index` maps, and the cross-reference check. Unit-tested directly (`test/build-glossary-feed.test.js`) since its output shape is an app contract. Its header documents the four silent failure modes. |
 | `build-og-images.mjs` | `public/og/` — per-chapter/intro share cards (fonts in `scripts/og/fonts/`). |
 | `build-favicons.mjs` | Favicon/touch/manifest icons from the emblem SVGs. **Not** in the build — run by hand when the emblem changes. |
-| `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See "Bracketed passages" below. |
+| `build-bracket-marker-font.mjs` | `public/fonts/bracket-markers.otf` — subsets the ⟦/⟧ disputed-passage glyphs out of Noto Sans Math, since the site's own webfonts are Latin-only. **Not** in the build — run by hand if the source glyphs ever change. See `src/data/chapters/CLAUDE.md`, "Bracketed passages." |
 | `build-text-critical-font.mjs` | `public/fonts/text-critical-signs.otf` — the six SBLGNT text-critical signs (⸀ ⸁ ⸂ ⸃ ⸄ ⸅, U+2E00–2E05) subset from full Cardo (Google Fonts' TTF, OFL; Fontsource's Cardo subsets lack them), registered under Crimson Text and Inter in `greek-hebrew-fonts.css`. **Not** in the build. |
-| `build-greek.mjs` | `public/greek/` — the Study Desk's Greek tab data: one file per chapter (SBL's SBLGNT 1.2 text and paragraphs, MorphGNT's lemmas, parsing and word numbers, the apparatus, two borrowed passages) plus lexicon shards (UBS, STEPBible brief, full LSJ), and `search/`, the Greek search index (a lemma list, then occurrences sharded by lemma, each word with its parsing and, where MACULA tags it with another Strong's number than its lemma's, that number (GK8-1), and `parse/`, every word by its parsing, for searches with no word in them). Pure rules in `lib/greek-core.mjs` (unit-tested); the search index's folding comes from `src/lib/greek-search.mjs`, so build and query fold alike. **Not** in the build: CI has no copy of the sources, which live outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`). See "The Study Desk preview", rule 14. |
+| `build-greek.mjs` | `public/greek/` — the Study Desk's Greek tab data: one file per chapter (SBL's SBLGNT 1.2 text and paragraphs, MorphGNT's lemmas, parsing and word numbers, the apparatus, two borrowed passages) plus lexicon shards (UBS, STEPBible brief, full LSJ), and `search/`, the Greek search index (a lemma list, then occurrences sharded by lemma, each word with its parsing and, where MACULA tags it with another Strong's number than its lemma's, that number (GK8-1), and `parse/`, every word by its parsing, for searches with no word in them). Pure rules in `lib/greek-core.mjs` (unit-tested); the search index's folding comes from `src/lib/greek-search.mjs`, so build and query fold alike. **Not** in the build: CI has no copy of the sources, which live outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`). See `public/greek/CLAUDE.md`, rule 14. |
 | `build-apps-qr.mjs` | `public/images/apps-qr.svg` — the QR code the app announcement shows on a computer, pointing at `https://litbible.net/apps/` with no tracking parameter. Draws through `src/lib/qr-svg.mjs`, the one QR drawing, which `/sheets/` also loads for its printed codes, so `qrcode-generator` (MIT, no dependencies) is a runtime dependency. **Not** in the build — run by hand if the address ever changes. |
-| `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review. See The Alignment Dataset below. |
-| `alignment-words/server.mjs` | `npm run review:words` — phase 2's localhost tool (`core.mjs` = pure format and rules, `store.mjs` = fs + corpus, `ui/` = vanilla HTML/CSS/JS, no shared code with the glossary tool's UI). See "Phase 2 tooling" under The Alignment Dataset. |
+| `build-alignment.mjs` | `src/data/alignment/` — scans published chapters for glossary-term renderings, then checks each against MorphGNT. **Not** in the build; its output is committed and merges with prior human review (`src/data/alignment/CLAUDE.md`). |
+| `alignment-words/server.mjs` | `npm run review:words` — phase 2's localhost tool (`core.mjs` = pure format and rules, `store.mjs` = fs + corpus, `ui/` = vanilla HTML/CSS/JS, no shared code with the glossary tool's UI). Rules: `src/data/alignment/CLAUDE.md`, "Phase 2 tooling." |
 | `apps-studio/cli.mjs` | `npm run studio:apps` — the Apps Page Studio's scripts: `seed` (the /apps page as the board's model), `apply` (a request from the board, written back to the content files, pictures converted), `check`, `board-css`, `board-files`. Rules in `core.mjs` (pure, unit-tested, and imported by the board itself); see `src/components/apps/CLAUDE.md`. **Not** in the build. |
 | `alignment-review/server.mjs` | `npm run review:alignment` — the localhost review UI (`store.mjs` = fs + corpus, `review-core.mjs` = pure logic *also served to the browser*, `ui/` = vanilla HTML/CSS/JS). Node builtins only, no deps. |
 | `audit-alignment-words.mjs` | `npm run audit:words` — fs/CLI shell that reports every stale phase 2 record and every link carried across a revision but not yet saved (via `alignment-words/store.mjs`'s `getReport`). Report only; **not** in the build or CI. |
@@ -115,7 +182,7 @@
 | `lib/alignment-merge.mjs` | Record identity, merge, and ordering for `src/data/alignment/` — the contract between the scanner and the review tool. Unit-tested. |
 | `lib/alignment-forms.mjs` | How a glossary rendering is matched against verse text, and how `english[].n` is counted. Shared so both writers number occurrences identically. |
 | `lib/alignment-audit-core.mjs` | Pure staleness check for decided records, no fs of its own. Imports `computeOccurrenceN` from the review tool rather than restating it — agreeing with the writer *is* the check. Unit-tested. |
-| `lib/verse-text.mjs` | **The** chapter HTML → per-verse plain-text splitter (`Map<verse, text>`). Shared by `lib/verse-index-core.mjs`, `build-alignment.mjs`, and the review tool, so search and the alignment dataset can never disagree on where a verse starts and ends. (`release-notes-core.mjs` keeps its own, deliberately — see below.) |
+| `lib/verse-text.mjs` | **The** chapter HTML → per-verse plain-text splitter (`Map<verse, text>`). Shared by `lib/verse-index-core.mjs`, `build-alignment.mjs`, and the review tool, so search and the alignment dataset can never disagree on where a verse starts and ends. (`release-notes-core.mjs` keeps its own, deliberately; see "Release notes are automated" below.) |
 | `lib/anchor-text.mjs` | Reference implementation of the Study Desk's anchor text (`STUDY-DESK-FORMAT.md`): how the website and both apps read a chapter as text to place a reader's mark, and how they find it again after the wording moves. Built on `splitChapterVerses`, so a note, a search hit and an alignment record agree on where a verse is. Its pure half (`normalizeAnchorText`, `makeAnchor`, `resolveAnchor`) lives in `src/lib/anchor-core.mjs` and is re-exported here, because the page-side reader `src/lib/desk-anchor-dom.mjs` needs it too. Unit-tested (`test/anchor-text.test.js`), which also checks the committed vectors against it; `test/desk-anchor-dom.test.js` sweeps every published chapter through both views' render pipelines and fails if the page's text and this one ever disagree. |
 | `build-anchor-vectors.mjs` | Writes `test/fixtures/anchor-vectors.json` from `lib/anchor-text.mjs`, copying every input into the file so the vectors survive corpus changes. **Not** in the build; needs full git history for its before-and-after cases. After a deliberate change to the rule, regenerate, bump `ANCHOR_SPEC_VERSION`, and tell the apps. |
 | `build-notebook-crypto-vectors.mjs` | Writes `test/fixtures/notebook-crypto-vectors.json`, the test vectors for the synced notebook's encryption (`STUDY-DESK-ENCRYPTION.md`), from the reference the website ships, `src/lib/desk-crypto.mjs`. Both apps run the file. Every "random" input is SHA-256 of a label, so two runs give the same bytes, and each value is cross-checked against `node:crypto` as it is made (HKDF, AES-256-GCM, the key agreement, key pairs, signatures). `test/desk-crypto.test.js` fails when the committed file isn't what this builds, and runs the reference against published vectors (`test/fixtures/published-crypto-vectors.json`, each source named) before LIT's own. **Not** in the build. After a deliberate change to a rule: change the spec with it, regenerate, bump `CRYPTO_VECTORS_VERSION`, and tell the apps. |
@@ -159,22 +226,20 @@
   does not do is rewrite files already sitting in a working tree: a long-lived
   checkout keeps whatever line endings a file had when it was written,
   `git status` stays clean (`text=auto` compares normalized), and nothing
-  reports it. Twelve text files had drifted that way by 2026-08: two book
-  intros, four `/apps` mirror examples, three `/apps` mirror components, two
-  other components, and `pagefind.yml`. The two intros alone were enough to
-  move `build-api-manifest.mjs`'s per-file SHA-256s and therefore the
+  reports it. Twelve text files had drifted that way by 2026-08 (book intros, `/apps`
+  mirror files, other components, `pagefind.yml`), and two intros alone moved
+  `build-api-manifest.mjs`'s per-file SHA-256s and therefore the
   content-derived `version`, so a local build and CI disagreed on the API
-  version string while each was internally consistent. Production is unaffected
-  (CI builds from a fresh clone), but **a local `dist/` then does not
-  byte-reproduce the deployed one**, which silently invalidates any byte-level
-  comparison — a rendered-output diff for an Astro upgrade, or an investigation
-  into why `version` moved. **Scan repo-wide and skip binaries.** Match
-  `\r\n` in raw bytes over every tracked file, excluding any containing a
-  NUL byte: ~94 tracked images and fonts legitimately carry `0x0D`, so a bare
-  `Buffer.includes(13)` buries the real hits in false positives; and scoping the
-  scan to `src/data`/`src/content` misses the components and `pagefind.yml`
-  entirely. Both mistakes were made while finding these. `grep -c $'\r'` over
-  `git show` output misreports it in the other direction.
+  version string. Production is unaffected (CI builds from a fresh clone), but
+  **a local `dist/` then does not byte-reproduce the deployed one**, which
+  silently invalidates any byte-level comparison (a rendered-output diff for
+  an Astro upgrade, or an investigation into why `version` moved). **Scan
+  repo-wide and skip binaries.** Match `\r\n` in raw bytes over every tracked
+  file, excluding any containing a NUL byte: ~94 tracked images and fonts
+  legitimately carry `0x0D`, so a bare `Buffer.includes(13)` buries the real
+  hits, and scoping the scan to `src/data`/`src/content` misses the components
+  and `pagefind.yml`. `grep -c $'\r'` over `git show` output misreports it in
+  the other direction.
   Fix by forcing a re-checkout (`rm` the files, then `git checkout --` their
   directories); `git add --renormalize` is a no-op, because the blobs were
   already correct.
@@ -185,8 +250,8 @@
   in the same commit as the content change and log why there: the workflow
   derives its base ref from the last commit touching *either* file, so the
   drafter’s range comes back empty and nothing is written. Use it for mechanical
-  passes whose per-verse detail is noise, never for a wording change — the feed
-  below is what readers open to see those. That file
+  passes whose per-verse detail is noise, never for a wording change — the
+  release notes page is what readers open to see those. That file
   is also synced to the apps (`/api/data/release-notes.json`) as their
   "Translation Updates" feed, so its **change-object shape is a contract**: each
   change carries a self-contained `description` plus additive/optional
@@ -206,11 +271,10 @@
   — an attribute retag, a passage re-set as an `hbq` blockquote, two paragraphs
   merged — is a **formatting** edit and emits *nothing at all*. A **metadata**
   edit (paragraphs and footnotes byte-identical, `title`/`description`/`topics`
-  moved) emits nothing too (owner, 2026-09-27): it used to collapse to a
-  "metadata updated" row, but a topics retag tells a reader nothing about the
-  translation. The feed's two older rows of that type were removed the same
-  day, so none remain; the apps and the release notes page still know the
-  type, which costs nothing and keeps them safe if one ever reappears.
+  moved) emits nothing too (owner, 2026-09-27), since a topics retag tells a
+  reader nothing about the translation. The apps and the release notes page
+  still know the "metadata updated" row type, which keeps them safe if one
+  ever reappears.
   Modified intros/glossary/articles are likewise compared with HTML
   attributes and whitespace normalized away, so a mechanical edit (e.g.
   stripping `target="_blank"` from a link) produces no changelog entry.
@@ -230,11 +294,11 @@
 ## The Importer (`npm run import:chapter`)
 
 How a Word master becomes chapter JSON. The 2026-02 import was done by hand
-and lossy — it shortened notes, dropped a few entirely, added punctuation
-nobody wrote, stripped macrons off transliterated Greek, welded verse markers
-to the preceding sentence, and fragmented every styled phrase at Word's run
-boundaries. Repairing that took six months and the whole of
-`scripts/reconcile/`. This exists so the next book does not need any of it.
+and lossy (it shortened or dropped notes, added punctuation nobody wrote,
+stripped macrons, welded verse markers to the preceding sentence, and
+fragmented every styled phrase at Word's run boundaries), and repairing that
+took six months and the whole of `scripts/reconcile/`. This exists so the next
+book does not need any of it.
 
 ```bash
 npm run import:chapter -- --docx="<path>" --book=philemon --chapter=1 --report
@@ -287,9 +351,8 @@ something the importer got wrong.
   chapter, and a disagreement stops the run rather than picking a side.
   **The refusal is scoped to the chapters being built** (2026-09-21). A book
   is normally part-drafted, and an unformatted chapter says nothing about a
-  finished one: Luke 23 sat mid-sentence with its verse numbers still body
-  text, and a document-wide gate let that refuse Luke 22, which was finished,
-  formatted, and the chapter actually asked for. `--all` still checks every
+  finished one (Luke 23's unformatted verse numbers once refused Luke 22).
+  `--all` still checks every
   chapter, because then every chapter is a target — narrowing changes which
   chapters are examined, never how strictly one is.
 - **The verse-marker separator** has to be in the text (`sup.vn` is
@@ -304,33 +367,29 @@ something the importer got wrong.
 The strongest available check is that it **reproduces an existing chapter
 exactly** — run it against a finished book before trusting it on a new one.
 Titus 2 is the useful negative: it refuses, catching the one master-side defect
-§23's back-port table already lists.
+`FOLLOW-UP-RECONCILIATION.md` §23's back-port table already lists.
 
 **Philemon is that check.** It stands at **7/8 paragraphs and 16/16
-footnotes** as of 2026-09. The one remaining delta is a known **master-vs-repo
-wording** difference queued for back-port — p2 renders *ekklesia* as "the
+footnotes** (2026-09). The one remaining delta is a known **master-vs-repo
+wording** difference queued for back-port: p2 renders *ekklesia* as "the
 community" in the repo and "the assembly" in the master (the corpus says
-community; see `FOLLOW-UP-RECONCILIATION.md`) — so a clean run today is 7/8,
+community; see `FOLLOW-UP-RECONCILIATION.md`), so a clean run today is 7/8,
 not 8/8.
 
-**Luke 22 is the larger check, added 2026-09-21**: 37 paragraphs and 51
-footnotes against Philemon's 8 and 16, and a narrative chapter rather than a
-letter. It stands at **36/37 paragraphs and 50/51 footnotes**, and both deltas
-are known and open rather than importer faults — p34 carries v69, where the
-repo's "at the right hand of the Power of God" stands over the master by owner
-ruling and is queued for back-port, and fn-bb is a note whose quotes `curlify`
-refuses, so the importer leaves the master's characters alone (correctly) while
-the repo carries a hand-curled version. Neither will close until Word changes.
+**Luke 22 is the larger check** (2026-09-21; a narrative chapter, 37
+paragraphs and 51 footnotes). It stands at **36/37 paragraphs and 50/51
+footnotes**, and both deltas are known and open rather than importer faults:
+p34 carries v69, where the repo's "at the right hand of the Power of God"
+stands over the master by owner ruling and is queued for back-port, and fn-bb
+is a note whose quotes `curlify` refuses, so the importer leaves the master's
+characters alone (correctly) while the repo carries a hand-curled version.
+Neither will close until Word changes.
 
 That distinction is the thing to hold onto: **a Philemon delta is a
 master-vs-repo report, not automatically an importer bug**, and the two are
-told apart by asking which side is right rather than by the count moving. It
-briefly read 6/8 and 12/16, and *that* was the importer — a chapter-number
-heading leaking into paragraph 1 and a verse-initial token split across Word
-runs, both since fixed. The four footnote deltas were repo-only normalizations
-the importer now performs (edge-whitespace trimming, comma-lifting out of
-styled runs). Re-baseline these numbers when either side is deliberately
-changed, rather than treating an older figure as the target.
+told apart by asking which side is right rather than by the count moving.
+Re-baseline these numbers when either side is deliberately changed, rather
+than treating an older figure as the target.
 
 The pure layer is `lib/import-core.mjs` and is unit-tested directly
 (`test/import-core.test.js`), following the same shell/core split as

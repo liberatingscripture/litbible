@@ -4,9 +4,6 @@
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory. The Study Desk's own rules are in `desk/CLAUDE.md`,
 > and the Sheets' in `desk/sheets/CLAUDE.md`.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 ## Module map
 
@@ -14,7 +11,7 @@ From the root's project tree.
 
 ```
   scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
-                     #   search-core + searchbar + search — see Search below;
+                     #   search-core + searchbar + search — see "Search" below;
                      #   lit-panel, the one floating panel every reader tool
                      #   shares; ref-preview, scripture reference previews;
                      #   last-read + continue-reading, "Continue reading";
@@ -61,7 +58,7 @@ From the root's project tree.
                      #   desk-gate + desk/, the Study Desk preview (its
                      #   Sheets in desk/sheets/), and
                      #   desk-frame, what every page knows about its panel;
-                     #   see "The Study Desk preview" below)
+                     #   see `desk/CLAUDE.md`, "The Study Desk preview")
 ```
 
 ## Copying, sharing and printing scripture
@@ -97,7 +94,7 @@ nature, and a button per block would bury the whole-range actions.
 
 The general form of the above: select any run of scripture text and a panel
 offers the verse menu's actions under the same names (see "One set of
-actions, two ways in" below), for a half-sentence, a phrase crossing two
+actions, two ways in," below), for a half-sentence, a phrase crossing two
 verses, or part of a poetry quotation. It runs in **both views**, and in
 Read View it is the only such tool: that view's verse numbers stay plain
 text, because the verse menu belongs to the chapter's Chapter View page (owner,
@@ -116,9 +113,8 @@ Four owner decisions (2026-09) shape it:
    selection near the top pushes the bubble down, it goes below the bubble.
    With no room below, it goes above the bubble. The two clearances are
    estimates, because no API reports where the OS draws its menu. **A bar
-   pinned to the bottom edge was tried first and rejected on a real phone**:
-   it was easy to miss, and it covered any selection made near the bottom of
-   the screen.
+   pinned to the bottom edge was rejected on a real phone**: it was easy to
+   miss, and it covered any selection made near the bottom of the screen.
 2. **The reference uses plain verse numbers** ("John 3:16", never "16a"),
    covering every verse the selection touches. The quoted words already show
    it's partial.
@@ -184,13 +180,10 @@ screen-reader route to the same copy (in Chapter View; Read View has none).
 The verse menu and the selection panel offer **the same actions under the
 same names** (owner, 2026-09-29): **Copy text** (the words, the reference and
 the verse link), **Copy link**, **Copy with footnotes** (the handout; see
-"Printing and handouts"), **Share text…** and **Share image…**. Until then the
-verse menu said "Copy verse", which can't name half a verse, and the
-selection panel said "Copy with reference" and had no Copy link. "Share…" and
-"Make an image" became "Share text…" (the share sheet, with the words and the
-link) and "Share image" on 2026-11-06 (E39), and "Share image…" on 2026-11-12
-(E111), since it opens questions. Only the verse menu's extras are
-its own: "Or copy one part" and the range hint, both about whole verses. Both
+"Printing and handouts"), **Share text…** and **Share image…**. ("Copy verse" can't name half a verse, hence
+"Copy text.") "Share text…" is the share sheet, with the words and the link
+(E39, 2026-11-06); "Share image…" has its ellipsis because it opens questions
+(E111, 2026-11-12). Only the verse menu's extras are its own: "Or copy one part" and the range hint, both about whole verses. Both
 panels build from the same pieces (`menuButton`, `shareButton`, `imageStep`,
 `panelRow`, `flyoutRow`; the shared ones are in `src/scripts/panel-pieces.js`
 and `panel-flyout.js`, and `actionRows` in `panel-pieces.js` lays the copy
@@ -258,7 +251,7 @@ definition. It sends `lit:panel-actions` (`view: "glossary"`), so the Study
 Desk adds its "My Notebook" row to it as it does in scripture. The entry's
 copy-link button says what it does twice over: hover text ("Copy link to this
 entry") and a copy icon with a chain on its front sheet (owner, 2026-10-09).
-It was a bare chain until then, which reads as a link that goes somewhere.
+A bare chain reads as a link that goes somewhere.
 Site 2.0 has no such button (BVJ, 2026-11-17; it is `data-v1`): the left
 list's links and the panel's Copy entry link serve there.
 
@@ -279,8 +272,7 @@ type, the labels plus padding, kerning ignored): at 360px "Share text…" and
 fonts, and in the selection panel (154px) in Inter and Atkinson. "Share
 image…" needs 119px (Inter), 111px (Atkinson) and 162px (OpenDyslexic), so
 in OpenDyslexic's selection panel it takes a line of its own, as the rule
-allows (E111; the ellipsis cost 13px). The old "Make an image" needed 125, 118 and 177px, which is why those
-two took a line each below 375px before the rename (2026-09).
+allows (E111; the ellipsis cost 13px).
 
 **The verse menu follows the input, as the selection panel does** (owner,
 2026-09-29), not the screen width, and **the text it covers must always stay
@@ -295,24 +287,23 @@ within reach** (owner). So:
 Every verse menu closes on its ×, Escape, tapping its lone verse number
 again, or a tap or click anywhere else, like every other panel, and none
 closes on a scroll. Tapping another verse number extends the range instead.
-For a day a finger's menu ignored taps elsewhere, so the text under it could
-be tapped; the owner found that annoying in practice (2026-09-29), and the
-sheet's scrolling and the card's drag keep that text within reach anyway.
+A finger's menu does not ignore taps elsewhere so the text under it could
+be tapped: the owner found that annoying (2026-09-29), and the sheet's
+scrolling and the card's drag keep that text within reach anyway.
 Every verse menu has a ×, and every one beside its number drags by its
 header (the grip), because a menu moved off the text needs its own way to
 close. Extending a range reopens the menu where it was put. A mouse never
 gets a sheet, even in a narrow window, and neither does a mouse selection.
 
-The phone sheet was picked from four mocked placements (2026-09-29): the old
-sheet of full-width rows, which covered about 40% of the screen and the
-tapped verse itself whenever that verse sat low; this compact sheet; and two
-that floated beside the verse number, pinned and draggable. The selection
+The phone sheet was picked from four mocked placements (2026-09-29); the
+old sheet of full-width rows covered about 40% of the screen and the tapped
+verse itself whenever that verse sat low. The selection
 panel keeps its own placement (decision 1 above) and closes when the
 selection clears.
 
 ### Verse images
 
-**"Share image…"** ("Make an image" until 2026-11-06, E39; the ellipsis since E111) closes the verse menu and the selection panel, so it
+**"Share image…"** (E39, E111) closes the verse menu and the selection panel, so it
 works in both views (audit X8, owner 2026-09-28). It draws the passage in the
 share-card design, in the reader's browser, and hands it on: the phone's
 share sheet on a phone or tablet, a download on a computer, told apart by the
@@ -453,7 +444,7 @@ notice there or nowhere.
      the fetch. Where a browser won't take that form, it waits for the text and
      writes it then.
 
-## Conventions
+## Search
 
 - **Search is two engines behind three client modules** in `src/scripts/`:
   - *Scripture keyword search* scans `public/search/verses.json` (built by
@@ -559,6 +550,8 @@ notice there or nowhere.
     them at 320px, in every font), so the icon moves into the phone menu as
     "Search". **A new page with its own `SearchBar` must pass `pageSearch`**,
     or it renders two.
+## Continue reading, Read View's landing, and keyboard shortcuts
+
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
   (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
   `src/scripts/last-read.js`. Chapter View writes it on arrival (at a `#vN`
@@ -595,7 +588,7 @@ notice there or nowhere.
   2026-09-28): `/` search (a Search pane on /desk), `g` Go to passage, and
   ← → or `[` `]` for the
   previous and next chapter (Chapter View's top Previous/Next, found by their
-  `rel="prev"` / `rel="next"`, the neighbouring `#ch-N` in Read View, or on
+  `rel="prev"` / `rel="next"`, the neighboring `#ch-N` in Read View, or on
   /desk a `lit:desk-chapter` event that `desk-page.js` answers by pressing the
   passage bar's arrow of the pane holding focus, else the leading LIT pane).
   `h` is the Study Desk's "Hide my marks" and does nothing unless

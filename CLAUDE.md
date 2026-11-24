@@ -3,16 +3,15 @@
 > **Maintain this file.** It is the orientation doc for every future Claude Code
 > session, so keep it accurate to how the repo *actually* works — not a changelog.
 > When you change build steps, directory layout, data formats, conventions, or
-> add/remove a major feature, update the relevant section here in the same change.
-> Describe organizing principles and the "why," not one-off edits. If a section
-> here contradicts the code, the code wins — fix the doc. Prune anything stale.
+> add/remove a major feature, update the relevant section here or in the area
+> file in the same change. Describe organizing principles and the "why," not
+> one-off edits. If a doc contradicts the code, the code wins — fix the doc.
+> Prune anything stale.
 >
 > **Update `README.md` too when appropriate.** It's the human-facing front door
 > (lighter and friendlier; CLAUDE.md is the deep reference). When a change affects
-> what it documents — the overview, getting-started/setup steps, common commands,
-> or the high-level project layout — update `README.md` in the same change.
-> Keep it lighter than this file and avoid hardcoded specifics that drift (exact
-> version numbers, file counts); prefer "run this command to check."
+> its overview, setup steps, common commands, or high-level layout, update it in
+> the same change, avoiding specifics that drift (version numbers, file counts).
 
 ## How these docs are split
 
@@ -21,18 +20,26 @@ is in a `CLAUDE.md` beside its code, which Claude Code loads by itself the first
 time a session reads a file in that directory. That covers most work, not all
 of it: `src/lib/` is one flat directory serving several areas, and a task can
 start from a page or a test. So **before working in an area, read its file
-below unless it is already loaded.** Two rules keep this from decaying:
+below unless it is already loaded.** Rules that keep this from decaying:
 
 - **A new rule goes in its area's file, never here**, unless it applies
   everywhere. A new area file gets a row in the table below.
-- `test/claude-docs.test.js` fails when this file outgrows its size limit, when
-  a file the table names is missing, or when a `CLAUDE.md` on disk has no row.
+- **A cross-reference names its file and section** (`src/content/CLAUDE.md`,
+  "The glossary feed"), never "below" or a bare rule number, since sections
+  move between files.
+- **Rules, owner decisions and their reasons go in the docs; the story of how
+  something was found or built goes in the record** (`STUDY-DESK-FIXES.md`
+  under its E number, the PR, or the commit).
+- `test/claude-docs.test.js` fails when this file or the Study Desk's file
+  outgrows its size limit, when a file the table names is missing, or when a
+  `CLAUDE.md` on disk has no row.
 
 | Read | Before working on |
 |------|-------------------|
 | `src/data/chapters/CLAUDE.md` | Chapter JSON: its format, `indexed` (drafts), curly quotes, en dashes, the validator's rules, poetry blocks (`hbq`), topics, the SBLGNT policy, bracketed passages, verse-number gaps |
 | `src/scripts/CLAUDE.md` | Reader tools in `src/scripts/` (the verse menu, the selection panel, sharing, verse images, printing and handouts, search, Continue reading, Read View's landing, keyboard shortcuts) and the module map of `src/scripts/` |
-| `src/scripts/desk/CLAUDE.md` | Anything to do with the Study Desk, wherever it lives: `src/lib/desk-*.mjs`, the /desk and /notebook pages, `desk.css`, `public/greek/`, Greek search, printing with notes |
+| `src/scripts/desk/CLAUDE.md` | Anything to do with the Study Desk, wherever it lives: `src/lib/desk-*.mjs`, the /desk and /notebook pages, `desk.css`, printing with notes |
+| `public/greek/CLAUDE.md` | The Study Desk's Greek (read the desk file too): the Greek tab, `public/greek/` and `build:greek`, searching the Greek and its commands, `src/lib/greek-*.mjs` |
 | `src/scripts/desk/sheets/CLAUDE.md` | The Sheets (read the desk file too): the Sheets pane and its editor, the /sheets page, paper copies, Copy and Save as, present mode, templates, sharing, the print check, `src/lib/desk-sheet*.mjs` |
 | `src/scripts/desk/collections/CLAUDE.md` | Collections (D13): the record, its model, its page and ways in |
 | `src/scripts/desk/sync/CLAUDE.md` | Syncing the notebook (4g); `src/lib/desk-sync*.mjs` |
@@ -43,13 +50,14 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
 | `src/components/CLAUDE.md` | The header's title swap (an inline script); the announcement popover |
 | `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
-| `src/pages/CLAUDE.md` | The podcast page's embeds; the 404 page's address guessing |
-| `scripts/CLAUDE.md` | The build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
+| `src/pages/CLAUDE.md` | The podcast page's embeds; the 404 page's address guessing; measuring Read View |
+| `scripts/CLAUDE.md` | The toolchain's pins (Node, Astro), commands run by hand, **the apps' sync contract**, the build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
 | `scripts/alignment-review/CLAUDE.md`, `scripts/alignment-words/CLAUDE.md` | Pointers to the alignment file |
-| `public/CLAUDE.md` | `_headers`, the CSP, the agent discovery files, the apps' link files |
+| `public/CLAUDE.md` | `_headers`, the CSP, the agent discovery files, the apps' link files, image optimization |
 | `workers/CLAUDE.md` | The contact and app-support form Worker; the notebook service (the Study Desk's sync Worker with D1), its preview and its tests; the wrangler pin both share |
-| `.github/CLAUDE.md` | Dependabot's configuration |
+| `.github/CLAUDE.md` | Dependabot's configuration; the workflows that touch Cloudflare |
+| `emails/CLAUDE.md` | The campaign archive (not a template source) |
 
 ### Rules that apply everywhere
 
@@ -63,6 +71,10 @@ silent or expensive.
   `npm run validate:chapters` after any chapter edit.
 - **After any change to scripture wording**, run `npm run audit:alignment` and
   `npm run audit:words`, and re-check the chapter's topics.
+- **`public/api/` is a contract with the iOS and Android apps**, and the
+  content `version` must move on every publish (`scripts/CLAUDE.md`, "The
+  apps' sync contract"). Never add an optional manifest entry casually: a
+  missing optional file is skipped silently.
 - **Dark-mode styles need both selectors** (the OS media query guarded by
   `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`). Size text
   columns with `--ch`, never the `ch` unit; focus rings use `--focus-ring`.
@@ -103,217 +115,98 @@ companion iOS/Android apps consume.
 
 ## Tech Stack
 
-- **Framework**: Astro 7 (static site generator; `output` is static). Two Astro 7
-  defaults are **deliberately pinned back to their Astro 6 behavior** in
-  `astro.config.mjs`, each with a comment explaining why — `compressHTML: true`
-  (the new `'jsx'` default joins deliberately-spaced adjacent inline text, which
-  corrupts accessible names and Pagefind's extracted text) and
-  `markdown: { processor: unified() }` (the new Sätteri Markdown pipeline
-  changes published copy). Don't drop either without re-running a
-  rendered-output diff; adopting Sätteri is a **content** decision for the
-  owner, not an upgrade side effect.
-- **Node**: `.node-version` (24, the major CI uses) is what Cloudflare Pages
-  builds with; with no pin, Pages falls back to its image's default, and a
-  2026-10 Astro minor that raised its floor to 22.22 failed every Pages
-  build while GitHub CI stayed green. Keep `engines` in `package.json` (and
-  the root `engines` copy in `package-lock.json`) at the higher of Astro's
-  minimum and the test suite's, and leave the dashboard's `NODE_VERSION`
-  unset so it doesn't override the file.
-- **Language**: TypeScript (strict mode, `astro/tsconfigs/strict`)
-- **Styling**: Vanilla CSS (no utility framework). Global stylesheet + a
-  per-page stylesheet under `src/styles/pages/`
-- **Search**: two engines — scripture keyword search scans a build-generated
-  verse index (`public/search/verses.json`, fetched lazily by the client);
-  Pagefind (static, build-time index over `dist/`) covers glossary + articles
-  + book intros. A third, the Greek (`public/greek/search/`), runs only with
-  the Study Desk preview on until the desk is released ("The Study Desk
-  preview", rule 15)
-- **Fonts**: `@fontsource` faces, Latin only; the reader-selectable ones, the Study Desk's Playpen Sans, and Greek and Hebrew letters by range are in `src/styles/CLAUDE.md`
-- **Icons**: simple-icons
-- **Client JS**: Hand-written vanilla JS in `src/scripts/` (progressive
-  enhancement only — no client framework, no hydration). The site is fully
+- **Astro 7**, static output, with two Astro 7 defaults deliberately pinned
+  back in `astro.config.mjs`; **Node** pinned by `.node-version` for
+  Cloudflare Pages. Read `scripts/CLAUDE.md`, "The toolchain's pins," before
+  changing either.
+- **TypeScript** (strict, `astro/tsconfigs/strict`); **vanilla CSS** (no
+  utility framework): `global.css` plus a per-page stylesheet under
+  `src/styles/pages/`.
+- **No client framework, no hydration.** Hand-written vanilla JS in
+  `src/scripts/` is progressive enhancement only; the site is fully
   functional with JS disabled.
+- **Search**: scripture keyword search scans a build-generated verse index
+  (`public/search/verses.json`, fetched lazily); Pagefind (build-time index
+  over `dist/`) covers glossary, articles and book intros. A third, the Greek
+  (`public/greek/search/`), runs only with the Study Desk preview on
+  (`public/greek/CLAUDE.md`, rule 15).
+- **Fonts**: `@fontsource` faces, Latin only (`src/styles/CLAUDE.md`).
+  **Icons**: simple-icons.
 
 ## Common Commands
 
 ```bash
 npm run dev               # Dev server at localhost:4321
-npm run build             # Full production build (see pipeline below)
+npm run build             # Full production build (pipeline below)
 npm run preview           # Build + astro preview locally
 npm run check             # Type-check .astro/.ts files (astro check)
 npm run validate:chapters # Validate all chapter JSON (structure + references)
 npm run fix:chapters      # Re-serialize chapter JSON to normalize formatting
-npm run import:chapter -- --docx=<path> --book=<key> --chapter=<n> --report
-                          # Build chapter JSON from a Word master (on demand only).
-                          #   --report inspects and writes nothing; that is the normal
-                          #   first run. See The Importer below for what it refuses to
-                          #   touch, and why that is the point
 npm run check:links       # Verify every internal href/#fragment in dist/ resolves
-                          #   (a verse range #v16-18 resolves when both ends exist)
-npm test                  # Run the node:test unit suite — two roots: test/**/*.js
-                          #   and scripts/reconcile/test/**/*.mjs. Both globs are in
-                          #   the script; a new test root is invisible to CI until
-                          #   it is added there (the reconcile files sat unrun once)
-npm run test:desk         # The Study Desk's tests alone (desk-*, greek-*, search-greek-*,
-                          #   anchor-text): a faster loop while working on the desk. Not a
-                          #   substitute for npm test before a PR; CI runs the whole suite
-npm run build:topics      # Regenerate topics indexes only
-npm run build:verses      # Regenerate the verse search index only
-npm run build:api         # Regenerate public/api/content.json only
-npm run build:glossary    # Regenerate the apps' glossary feed (public/glossary.json)
-npm run build:greek-bridge # Regenerate the Greek search's glossary bridge (public/search/greek-bridge.json)
-npm run build:manifest    # Regenerate API manifest + /api/data for the mobile apps
-npm run build:api2        # Regenerate /api/data/v2, the content API version 2
-npm run build:og          # Regenerate the chapter/intro share cards (public/og/)
-npm run build:favicons    # Regenerate the favicon/touch/manifest icons from the emblem SVGs
-                          #   (on demand only — outputs are committed, not built)
-npm run build:bracket-font # Regenerate public/fonts/bracket-markers.otf (the ⟦/⟧ glyph patch)
-                          #   (on demand only — output is committed, not built)
-npm run build:text-critical-font # Regenerate public/fonts/text-critical-signs.otf (the
-                          #   SBLGNT's ⸀–⸅ signs, from full Cardo; on demand only, committed)
-npm run build:greek       # Regenerate public/greek/, the Study Desk's Greek tab data, from
-                          #   SBLGNT, MorphGNT, MACULA, UBS and STEPBible clones outside the
-                          #   repo (GREEK_SOURCES_DIR, MORPHGNT_DIR). On demand only, committed
-npm run build:apps-qr     # Regenerate public/images/apps-qr.svg, the app announcement's QR code
-                          #   (on demand only — output is committed, not built)
-npm run build:alignment   # Rescan the text for glossary-term renderings (src/data/alignment/)
-                          #   (on demand only — output is committed and carries review state)
-npm run review:alignment  # Localhost review tool for that dataset (see below). Needs the
-                          #   MorphGNT clone; writes to src/data/alignment/ as you decide
-npm run review:words      # Localhost tool for alignment PHASE 2: link every SBLGNT word to
-                          #   the LIT words that render it, verse by verse (port 4501).
-                          #   Needs the MorphGNT clone; writes src/data/alignment-words/
-                          #   (see "Phase 2 tooling" below). --chapters-dir=<dir> aligns
-                          #   English not yet in the corpus
-npm run audit:words       # Re-check every stored phase 2 record against today's English and
-                          #   Greek (stale = no longer fits; carried = moved by a revision,
-                          #   not yet saved). Run after revising scripture; repair happens
-                          #   in review:words
-npm run build:anchor-vectors # Regenerate test/fixtures/anchor-vectors.json, the Study Desk
-                          #   anchor-text vectors the apps run (on demand; committed)
-npm run build:api2-vectors # Regenerate test/fixtures/api2-vectors.json (on demand; committed)
-npm run build:sheet-golden # Regenerate test/fixtures/sheet-text-golden.json, the sheet sanitizer's
-                          #   canonical forms (on demand; committed; bump SHEET_FORMAT if one moved)
-npm run build:notebook-crypto-vectors # Regenerate test/fixtures/notebook-crypto-vectors.json,
-                          #   the notebook encryption vectors the apps run (on demand; committed)
-npm run audit:alignment   # Re-check decided alignment records against the current text
-                          #   (--all to list every finding). Run after editing scripture
-npm run draft:release-notes -- --since <ref>  # Draft a release-notes entry from git diff
-npm run studio:apps -- <seed|apply|check|board-css|board-files>  # The Apps Page Studio's
-                          #   scripts; the /apps-studio skill runs them (src/components/apps/CLAUDE.md)
+npm test                  # The node:test suite. Two roots: test/**/*.js and
+                          #   scripts/reconcile/test/**/*.mjs; a new test root is
+                          #   invisible to CI until its glob is added to the script
+npm run test:desk         # The Study Desk's tests alone: a faster loop, not a
+                          #   substitute for npm test before a PR
+npm run audit:alignment   # Re-check decided alignment records (after editing scripture)
+npm run audit:words       # Re-check phase 2 word links (after editing scripture)
+npm run import:chapter -- --docx=<path> --book=<key> --chapter=<n> --report
+                          # Chapter JSON from a Word master; --report writes nothing
+                          #   and is the normal first run (scripts/CLAUDE.md, "The Importer")
 ```
 
-### Build Pipeline, in brief
+Every other script (each build step alone, and the generators whose output is
+committed: fonts, icons, the Greek data, test vectors, the alignment tools) is
+listed in `scripts/CLAUDE.md`, "Commands run by hand."
 
-`fetch:podcast` → `build:topics` → `build:verses` → `build:glossary` →
-`build:greek-bridge` → `build:manifest` → `build:api` → `build:api2` → `build:og` →
-`astro build` → `pagefind --site dist`. The order is load-bearing:
-`build:glossary` must run before `build:manifest`, which owns the content
-`version`, and `build:api` reads that version afterwards. A podcast fetch
-failure never fails the build. What each step writes, and why, is in
-`scripts/CLAUDE.md`.
+**The build pipeline**: `fetch:podcast` → `build:topics` → `build:verses` →
+`build:glossary` → `build:greek-bridge` → `build:manifest` → `build:api` →
+`build:api2` → `build:og` → `astro build` → `pagefind --site dist`. The order
+is load-bearing: `build:glossary` must run before `build:manifest`, which owns
+the content `version`, and `build:api` reads that version afterwards. A
+podcast fetch failure never fails the build. Each step is in `scripts/CLAUDE.md`.
 
 ## Project Structure
 
 ```
 src/
-  assets/            # Bundled assets (SVGs) processed by Astro
-  components/        # Reusable .astro components (SiteHeader, SearchBar, cards, …)
-                     #   apps/ holds the /apps promo page sections
-  content/
-    articles/        # Blog/teaching articles (Markdown, ~13 files)
-    glossary/        # Glossary entries (Markdown w/ frontmatter, ~47 files)
-    apps-sections/   # /apps: each section's copy, pictures, background, order (JSON)
-    callouts/, examples/, seasons/   # /apps promo section content (Markdown)
-  content.config.ts  # Astro content-collection schemas (articles, glossary,
-                     #   + the four /apps ones from components/apps/collections.ts)
+  assets/            # Bundled SVGs processed by Astro
+  components/        # Reusable .astro components; apps/ holds the /apps sections
+  content/           # Markdown collections: articles/, glossary/, and the /apps
+                     #   ones (apps-sections/, callouts/, examples/, seasons/)
+  content.config.ts  # Content-collection schemas
   data/
-    chapters/        # 260 JSON files — one per NT chapter (e.g. john-3.json)
-    alignment/       # Greek↔English alignment records, one file per chapter
-                     #   (see The Alignment Dataset below). COMMITTED, not
-                     #   generated at build time — carries human review state
-    intros/          # Book intro Markdown, one per book (e.g. john-intro.md)
-    books.js         # NT book constants: BOOKS (chapter counts), BOOK_ORDER,
-                     #   bookKeyToLabel(), BOOK_ABBREVIATIONS — the single
-                     #   source for book names
-    verse-counts.js  # VERSE_COUNTS: the last verse number of every NT chapter, for
-                     #   browser code with no chapter files (the desk's note linking)
-    verse-gaps.js    # VERSE_GAPS: the verse numbers the LIT leaves out (Matthew 17:21)
-    podcast-feed.xml # Committed podcast snapshot (refreshed by fetch:podcast)
-    podcastOverrides.json     # Manual episode metadata overrides
-    release-notes.json        # "What's new" entries (auto-appended in CI)
-    release-notes-skip.md     # log of publishes deliberately kept out of that feed;
-                     #   touching it moves the workflow’s base ref (see below)
-    translation-commitments.json
+    chapters/        # 260 JSON files, one per NT chapter (john-3.json)
+    alignment/       # Greek↔English alignment records; COMMITTED (review state)
+    alignment-words/ # Phase 2 word-to-word links; committed
+    intros/          # Book intro Markdown, one per book (john-intro.md)
+    books.js         # BOOKS, BOOK_ORDER, bookKeyToLabel(), BOOK_ABBREVIATIONS:
+                     #   the single source for book names and chapter counts
+    verse-counts.js  # Last verse of every chapter, for browser code
+    verse-gaps.js    # Verse numbers the LIT leaves out (Matthew 17:21)
+    release-notes.json, release-notes-skip.md   # see Key Conventions
+    podcast-feed.xml, podcastOverrides.json, translation-commitments.json
   layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
-  lib/               # Server-side build helpers, mostly pure and unit-tested;
-                     #   module map in src/lib/CLAUDE.md
-  pages/             # File-based routes (see Routing below)
-  scripts/           # CLIENT-side vanilla JS: the reader tools, and desk/, the
-                     #   Study Desk preview; module map in src/scripts/CLAUDE.md
-  styles/            # global.css, read-mode.css, scripture-tools.css, articles.css,
-                     #   greek-hebrew-fonts.css (imported by global.css),
-                     #   pages/<page>.css (per-page stylesheets), desk.css
-                     #   (the desk's own; the shell adds it, never a page),
-                     #   restyle.css (the site in the desk's look, preview only)
-scripts/             # BUILD/validation Node scripts (.mjs) — see below
-                     #   (og/fonts/ holds the committed TTFs the share-card
-                     #   generator renders with — see its README)
-  alignment-review/  # Localhost-only review tool for src/data/alignment/.
-                     #   NOT part of any build and never shipped: its ui/ is
-                     #   served from the Node process by exact-path allowlist,
-                     #   deliberately NOT from public/ (Astro copies public/
-                     #   into dist/ as a filesystem op — .gitignore there
-                     #   prevents committing, not deploying)
-  alignment-words/   # Phase 2's tool (word-to-word alignment), kept apart from the
-                     #   glossary tool above: core.mjs (pure, unit-tested), store.mjs
-                     #   (fs + MorphGNT), server.mjs, ui/. Writes
-                     #   src/data/alignment-words/, never src/data/alignment/
-public/              # Static assets + generated output (api/, og/, search/,
-                     #   topics-index.json, llms.txt, llms-full.txt, _headers,
-                     #   images/, icons). Page-loaded raster images are WebP,
-                     #   resized to ~2x display size — no astro:assets pipeline,
-                     #   so files are optimized ahead of time and referenced by
-                     #   plain URL string (frontmatter/src/JSON).
-                     #   assets/screenshots/ holds the /apps phone+tablet shots,
-                     #   MIRRORED to the LSC site — lowercase-kebab names, no
-                     #   spaces, so the two repos' components stay byte-identical
-                     #   (see The /apps mirror below)
-_source-images/      # Pre-WebP originals for public/images/articles/ and
-                     #   public/assets/screenshots/, archived (not shipped —
-                     #   outside public/) for future re-editing; see its README
-emails/              # Archive of hand-built HTML campaigns (not part of the site
-                     #   build, and NOT a template source). Newsletters are
-                     #   authored in Brevo's editor, which supplies the
-                     #   unsubscribe link + footer; don't build the next one by
-                     #   copying the file here, which predates that and has
-                     #   neither
-workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
-                     #   part of the site build), each with its OWN package.json,
-                     #   lockfile and vitest suite (`npm test` in its dir); root
-                     #   `npm ci`/`npm test` reach neither. contact-form/ backs
-                     #   the /contact/submit and /app-support/submit endpoints;
-                     #   notebook-service/ is the Study Desk's sync service (D1;
-                     #   a preview only so far). See workers/CLAUDE.md
-.githooks/           # pre-commit hook (validates staged chapter JSON)
-.github/workflows/   # ci.yml — `build` job (chapter validation, type-check, unit
-                     #   tests, full build, internal-link check on push/PR) plus a
-                     #   job for each Worker (`worker-tests`,
-                     #   `notebook-service-tests`: own dep trees, own npm ci);
-                     #   notebook-service-deploy.yml (deploys the service's
-                     #   preview on merge; production by hand only, and off;
-                     #   see workers/CLAUDE.md);
-                     #   release-notes.yml (auto-updates release-notes.json on push);
-                     #   apps-mirror-notify.yml (tells the LSC repo when a
-                     #   mirrored /apps file or /privacy changes — see
-                     #   The /apps mirror below)
-.github/dependabot.yml  # Four update streams (npm at `/` and in each of the
-                     #   two Workers, github-actions); see
-                     #   .github/CLAUDE.md before changing it
+  lib/               # Build-time helpers, mostly pure and unit-tested
+  pages/             # File-based routes (below)
+  scripts/           # CLIENT-side vanilla JS; desk/ is the Study Desk preview
+  styles/            # global.css, read-mode.css, pages/<page>.css, desk.css,
+                     #   restyle.css and v2/ (Site 2.0, behind data-restyle)
+scripts/             # BUILD/validation Node scripts (.mjs); reconcile/,
+                     #   alignment-review/, alignment-words/, apps-studio/
+test/                # node:test suite; fixtures/ holds committed vectors the apps run
+public/              # Static assets + generated output (api/, og/, search/, ...)
+_source-images/      # Pre-WebP originals, archived, never shipped (its README)
+emails/              # Campaign archive; not a template source
+workers/             # Cloudflare Workers, deployed separately, each with its own
+                     #   package.json and vitest suite (root npm ci/test reach neither)
+.githooks/           # pre-commit: validates staged chapter JSON
+.github/             # workflows (ci.yml, release-notes.yml, deploys, apps-mirror-notify)
+                     #   and dependabot.yml
 ```
 
-> Note: client-side code lives in `src/scripts/` while build-time Node scripts
-> live in the top-level `scripts/`. Don't confuse the two.
+> Client-side code lives in `src/scripts/`; build-time Node scripts live in
+> the top-level `scripts/`. Don't confuse the two.
 
 ### Routing (`src/pages/`)
 
@@ -326,20 +219,16 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
-| `/notebook`, `/desk`, `/sheets`, `/collections` | `notebook.astro`, `desk.astro`, `sheets.astro`, `collections.astro` | The Study Desk preview's pages (noindex, out of the sitemap and Pagefind, empty without `?desk=on`); their routes in full are in `src/scripts/desk/CLAUDE.md`, "Routes" |
-| `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
-| `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; every section's content is data (`apps-sections`, `callouts`, `examples`, `seasons`), laid out in order by `components/apps/AppsPage.astro` and edited through the Apps Page Studio; scoped styles in `src/styles/pages/apps.css`. Uses `bg="white"` (near-white surface). |
-| `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
-| `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). Its embeds are three deliberately different shapes: read `src/pages/CLAUDE.md` before touching them |
-| `/404` | `404.astro` | Not found; a guessable scripture address lands on its page (`src/pages/CLAUDE.md`) |
+| `/notebook`, `/desk`, `/sheets`, `/collections` | `notebook.astro`, `desk.astro`, `sheets.astro`, `collections.astro` | The Study Desk preview's pages (noindex, out of the sitemap and Pagefind, empty without `?desk=on`; `src/scripts/desk/CLAUDE.md`, "Routes") |
+| `/release-notes` | `release-notes.astro` | The release notes by month, filterable; `/translation-updates.xml` is the same record as RSS |
+| `/apps` | `apps.astro` | Mobile-apps promo page; every section is data (`src/components/apps/CLAUDE.md`) |
+| `/app-support` | `app-support.astro` | App support form (linked from the apps; `/app-support/thanks` is the no-JS success page) |
+| `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here); read `src/pages/CLAUDE.md` before touching its embeds |
+| `/404` | `404.astro` | Not found; a guessable scripture address lands on its page |
 | others | `delete-account` (noindex; `workers/CLAUDE.md`), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
-
-## Build / Validation Scripts
-
-The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 
 ## Key Conventions
 
@@ -353,7 +242,7 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
     point goes inside only when it belongs to what is quoted.
   - **The Oxford comma, always** (BVJ, 2026-10-14): “notes, highlights,
     bookmarks, and the Greek.”
-  - Quotes are curly (“ ” and ‘ ’), as the chapter JSON rule below requires
+  - Quotes are curly (“ ” and ‘ ’), as the chapter JSON rule requires
     for scripture.
   - **No em dashes in prose Claude writes for the site** (BVJ, 2026-10-28),
     alt text included: use a comma, colon or parentheses. Ones already in
@@ -365,76 +254,31 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
   comments and internal docs aren't held to it, though new ones should
   follow it.
 - **Book keys**: lowercase, no spaces, no hyphens — `john`, `1corinthians`,
-  `revelation`. Source of truth is `src/data/books.js` (`BOOKS`, `BOOK_ORDER`).
-- **Chapter file naming**: `{bookKey}-{chapter}.json` (e.g. `1corinthians-1.json`).
-- **Generated files are git-ignored** and regenerated at build time:
-  `public/api/`, `public/og/`, `public/search/topics.json`,
-  `public/search/verses.json`, `public/search/chapters/`,
-  `public/search/greek-bridge.json`, `public/search/greek-offers.json`,
-  `public/topics-index.json`,
-  `public/glossary.json`, `dist/`, `.astro/`.
-  Don't hand-edit them. Ten generators are deliberately **outside** this rule
-  because their output is committed and hand-maintained — `build:favicons`
-  (icons), `build:alignment` (review state), `build:bracket-font`
-  (`public/fonts/bracket-markers.otf`), `build:text-critical-font`
-  (`public/fonts/text-critical-signs.otf`), `build:apps-qr`
-  (`public/images/apps-qr.svg`), `build:anchor-vectors`
-  (`test/fixtures/anchor-vectors.json`, which the apps fetch),
-  `build:api2-vectors` (`test/fixtures/api2-vectors.json`, likewise),
-  `build:sheet-golden` (`test/fixtures/sheet-text-golden.json`, the sheet
-  sanitizer's canonical forms), `build:notebook-crypto-vectors`
-  (`test/fixtures/notebook-crypto-vectors.json`, which the apps fetch), and
-  `build:greek` (`public/greek/`, built from sources CI doesn't have); none
-  of the ten runs in `npm run build`.
-- **No client JS framework**, but `src/scripts/` *does* hold vanilla JS for
-  progressive enhancement (verse highlighting/menus, footnote popovers, reading
-  mode, search). Everything must degrade gracefully without JS.
+  `revelation` (`src/data/books.js`). **Chapter files**:
+  `{bookKey}-{chapter}.json` (`1corinthians-1.json`).
+- **Generated files are git-ignored** and rebuilt by `npm run build`:
+  `public/api/`, `public/og/`, `public/search/` (`topics.json`,
+  `verses.json`, `chapters/`, `greek-bridge.json`, `greek-offers.json`),
+  `public/topics-index.json`, `public/glossary.json`, `dist/`, `.astro/`.
+  Don't hand-edit them. The generators whose output is **committed** (fonts,
+  icons, `public/greek/`, the alignment data, the test vectors the apps
+  fetch) never run in the build; they are listed in `scripts/CLAUDE.md`,
+  "Commands run by hand."
 - **Chapter View and Read View differ in what a page holds, and that decides
   where a new tool goes** (owner, 2026-09-30). Chapter View is one chapter
   with everything the site has for it: footnotes, the verse menu, the term
   lens, reference previews, Go deeper. Read View is a whole book on one page,
   read straight through, with no notes and no page turn between chapters.
-  Since the shared Display tray and the shared copy actions, the two look
-  alike, so the rule is written down rather than re-argued per feature:
   **Read View gets what serves reading a book straight through** (display
   settings, the selection panel and its handouts, keeping and restoring a
   place, print, focus mode), and **a tool about a verse or a word goes in
-  Chapter View only** unless the owner decides otherwise. The 2026-09-28 calls
-  on the term lens and the verse menu were this rule before it had a name.
-  Call them "Chapter View" and "Read View" in anything a reader sees
-  ("Chapter View" was "Study View" until 2026-11-02, so STUDY-DESK.md and
-  FIXLIST.md still say that). With the Study Desk preview on, labels say
-  "Scripture page" or "Scripture pages" instead (E130), the public name
-  from launch. Until
-  2026-09-30 the site also said "Reading View" and "Reading Mode", as
-  FIXLIST.md and older commits still do; the `rm-` classes and `read-mode.js`
-  keep the old initials.
-  **Don't measure Read View with Cloudflare's Visits view.** A visit is a
-  page view whose referrer isn't the site, and Read View is reached almost
-  only from inside it (Chapter View's toolbar, the /read card, the search
-  links), so it barely appears there. Use page views, and remember one Read
-  View page view can hold a whole book where Chapter View logs one per chapter.
-- **Mobile apps are first-class consumers** of `public/api/` output — changing
-  chapter/intro/manifest shape can break them. Treat the API as a contract.
-  The **sync contract**: both apps poll `version.json` first and do nothing
-  further unless its `version` string differs from what they last stored (a
-  cheap ~80-byte check, run at most once/24h on foreground + a ~6h background
-  task + on-demand pull-to-refresh). Only on a change do they fetch
-  `manifest.json` and download the files whose SHA-256 hashes moved. **So the
-  whole system only works if `version` bumps on every content publish** — which
-  is why it's content-derived (see build step 6), not date-only. The sync-
-  critical files (`version.json`, `manifest.json`, `data/*`) are served
-  `no-store` in `public/_headers` so a version bump is never served alongside a
-  stale manifest or data file.
-  **An optional top-level file that never resolves is skipped silently.**
-  `topLevelFiles` in `build-api-manifest.mjs` throws only for `required: true`
-  entries; anything else missing takes the `// optional + missing → skip
-  silently` branch. `glossary.json` sat there as *optional* from 2026-03 to
-  2026-08 with a source, `src/data/glossary.json`, that never existed — so the
-  API carried no glossary data for five months and nothing reported it, while
-  both apps read a copy bundled into the binary and drifted apart from each
-  other. It is `required: true` now, and generated: see The Glossary Feed below.
-  **Treat any new optional entry with suspicion** — silence is its failure mode.
+  Chapter View only** unless the owner decides otherwise.
+  Call them "Chapter View" and "Read View" in anything a reader sees; with
+  the Study Desk preview on, labels say "Scripture page(s)" instead (E130),
+  the public name from launch. Older records use older names: "Study View"
+  (until 2026-11-02, still in STUDY-DESK.md and FIXLIST.md), "Reading View"
+  and "Reading Mode" (until 2026-09-30); the `rm-` classes and
+  `read-mode.js` keep the old initials.
 - **Release notes are automated** from pushes to `main`. To keep a publish
   out of the changelog (a typo fix, a mechanical pass), touch
   `src/data/release-notes-skip.md` in the same commit and log why there. The
@@ -442,103 +286,61 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 
 ## Git Workflow
 
-- **`main` is protected** — direct pushes are rejected; changes land via PR.
-  Session work typically happens in a per-task branch/worktree (e.g.
+- **`main` is protected**: direct pushes are rejected; changes land via PR.
+  Session work happens in a per-task branch and worktree (e.g.
   `.claude/worktrees/<task>/` on branch `claude/<task>`).
 - **A dev server started from a worktree may still serve `main`.** The preview
-  tooling resolves `.claude/launch.json` from the **main checkout**, not from
-  the worktree, so `npm run dev` runs with the repo root as its Astro root and
-  renders `main`'s files. Nothing errors; the page just quietly shows the wrong
-  branch — and a file that exists only on the branch (`src/data/alignment/`,
-  say) renders as absent rather than as a failure. **Confirm which tree is
-  being served before trusting a preview**: request a path that exists only on
-  the branch (`/src/<some-branch-only-file>` — Vite serves `src/` in dev) and
-  check for a 200. To review a branch's pages, build it and serve its own
-  `dist/`, which is the production render anyway.
-- **Squash, merge-commit, and rebase are all enabled — pick one per PR, state
-  it, and proceed.** The choice is yours to make, not one to hand back: the
-  owner performs the merge (see the protection note above) and will say so if
-  they have a preference, but asking which method to use spends their attention
-  on a decision the branch itself answers. What's actually wanted is the
-  reasoning, so reason from *this* branch's shape rather than from habit — don't
-  infer the answer from recent history either, since `main` used merge commits
-  for most of its life and switched to squash only around PR #101, so the last
-  few commits read as a rule when they're really a transition. Note the
-  degenerate case: on a **single-commit** branch squash and rebase produce
-  identical history, so the only real question is linear vs. a merge node — say
-  that instead of dressing it up as a three-way call.
-  - *Squash* — one logical change, or a branch whose commits are WIP noise
-    ("fix typo", "address review"). Nearly every content PR. It also keeps one
-    commit per publish, which suits `draft-release-notes.mjs --since <ref>` and
-    the content-derived API `version`.
-  - *Rebase* — commits that are individually meaningful and each independently
-    valid (extract a helper, then change behavior using it). Squashing those
-    destroys the reviewable sequence.
-  - *Merge commit* — when "these commits landed together as #NNN" is the useful
-    unit, or the branch topology is worth keeping for a later bisect.
-- **After a PR you opened is merged, clean up the branch and worktree** in
-  the same session rather than leaving them for later:
-  1. `git push origin --delete <branch>` — delete the remote branch (GitHub's
-     "delete branch" button does the same thing; the repo does **not**
-     auto-delete on merge, so this step is never optional). Note that
-     `gh pr merge --delete-branch` is unreliable from a worktree: after merging
-     it tries to switch the local checkout to `main`, which fails when `main` is
-     checked out in the primary worktree, and it can abort before deleting the
-     remote branch. The merge itself still succeeds — verify with
-     `git ls-remote --heads origin <branch>` rather than trusting its exit.
-  2. `git worktree remove <path>` from a **different** worktree (a worktree
-     can't remove itself while it's the current directory) — then
-     `git branch -d <branch>` to delete the now-unreachable local branch.
-  3. If `git worktree remove` reports the directory as busy/permission-denied,
-     the *session itself* is still rooted there (its own working directory) —
-     git will still unregister it from `git worktree list`, but the leftover
-     directory can't be deleted until that session ends. Say so plainly rather
-     than retrying; don't touch other worktree directories under
-     `.claude/worktrees/` that aren't the one just merged, since those are
-     other sessions' in-progress work.
-- Skip this cleanup for a branch/worktree still mid-task, or one the user
-  says to keep.
+  tooling resolves `.claude/launch.json` from the main checkout, so `npm run
+  dev` renders `main`'s files, and a file that exists only on the branch
+  renders as absent rather than failing. **Confirm which tree is served before
+  trusting a preview**: request a branch-only path (`/src/<file>`; Vite serves
+  `src/` in dev) and check for a 200. To review a branch's pages, build it and
+  serve its own `dist/`, which is the production render anyway.
+- **Pick the merge method per PR yourself, state it, and proceed**; the owner
+  performs the merge and will say if they prefer otherwise. Reason from the
+  branch's shape, not from recent history (`main` used merge commits for most
+  of its life and switched to squash only around PR #101). On a
+  **single-commit** branch squash and rebase give identical history, so the
+  only question is linear vs. a merge node: say that.
+  - *Squash*: one logical change, or commits that are WIP noise. Nearly every
+    content PR; it keeps one commit per publish, which suits
+    `draft-release-notes.mjs --since <ref>` and the content-derived `version`.
+  - *Rebase*: commits that are individually meaningful and each valid on its
+    own (extract a helper, then change behavior with it).
+  - *Merge commit*: when "these landed together as #NNN" is the useful unit,
+    or the topology is worth keeping for a later bisect.
+- **After a PR you opened is merged, clean up in the same session** (skip a
+  branch still mid-task or one the user says to keep):
+  1. `git push origin --delete <branch>`. The repo does **not** auto-delete on
+     merge. `gh pr merge --delete-branch` is unreliable from a worktree (it
+     tries to switch the checkout to `main`, fails, and can abort before the
+     remote delete); verify with `git ls-remote --heads origin <branch>`.
+  2. From a **different** worktree: `git worktree remove <path>`, then
+     `git branch -d <branch>`.
+  3. If the directory is busy, the session itself is still rooted there: git
+     still unregisters it, but the folder stays until that session ends. Say
+     so rather than retrying, and never touch other worktrees under
+     `.claude/worktrees/`; they are other sessions' work.
 
 ## Important Files
+
+Area files list their own key modules; these are the cross-cutting ones.
 
 | Path | Purpose |
 |------|---------|
 | `src/data/books.js` | Source of truth for NT book list + chapter counts |
-| `src/pages/[slug].astro` | Scripture chapter pages (Chapter View) |
-| `src/pages/read/[book].astro` | Read View (a whole book on one page) |
+| `src/pages/[slug].astro`, `src/pages/read/[book].astro` | Chapter View and Read View |
 | `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Chapter View); the selection bar alone in Read View |
-| `src/lib/scripture-refs.mjs` | The render-time reference linker; read its header before widening what it links |
-| `src/lib/sefaria-refs.mjs` | The Hebrew Bible books the linker sends to Sefaria and the English→Hebrew verse map; change the map only after checking it against Sefaria's text |
-| `src/lib/ebible-refs.mjs` | The apocryphal books the linker sends to the World English Bible on eBible.org, with eBible's verse counts |
-| `src/lib/chapter-nav.mjs` | The one Previous/Next rule (steps over drafts); every chapter and intro nav reads it |
 | `src/styles/global.css` | Main stylesheet |
-| `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic |
-| `content.config.ts` | Content-collection schemas |
-| `src/lib/alignment-gate.mjs` | The one display gate for the alignment dataset, read by /glossary and the term lens |
+| `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic, the pinned Astro defaults |
+| `src/content.config.ts` | Content-collection schemas |
 | `scripts/validate-chapters.mjs` | Chapter validator (pre-commit + CI safety net) |
-| `scripts/build-verse-index.mjs` | Verse search index generator (`public/search/verses.json`) |
-| `scripts/lib/glossary-feed-core.mjs` | The apps' glossary feed contract — read its header before changing anything about `/api/data/glossary.json` |
-| `scripts/build-alignment.mjs` | Alignment-record generator (`src/data/alignment/`, committed output) |
-| `scripts/lib/alignment-merge.mjs` | Merge contract between the alignment scanner and the review tool |
-| `scripts/alignment-review/` | Localhost review tool for the alignment dataset (`npm run review:alignment`) |
-| `scripts/audit-alignment.mjs` | Staleness check for decided alignment records (`npm run audit:alignment`) — run after editing scripture |
-| `scripts/reconcile/lib/block-structure.mjs` | The one block-tag rule the restore pipeline shares — read it before touching how a paragraph's closing markup is handled |
-| `scripts/reconcile/lib/quote-compose.mjs` | Composes a restore when `curlify()` refuses the master's quotes, under two gates |
-| `scripts/reconcile/lib/restore-guards.mjs` | The shapes a machine must not settle (verse-boundary moves, editorial brackets, doubled words, a truncated master) |
-| `scripts/reconcile/lib/verse-span.mjs` | Where a verse begins and ends in `paragraphs[]`, what a restore must hold back from either end of that span, and how a continuation paragraph is recognized |
-| `scripts/reconcile/check-master-hygiene.mjs` | Read-only master scan for defects a diff cannot see |
-| `scripts/reconcile/repair-verse-separators.mjs` | One-off repair for verse markers an earlier restore welded to the preceding sentence |
-| `pagefind.yml` | Pagefind config for glossary/article indexing (excludes footnote refs) |
-| `public/_headers` | Security + caching headers; also RFC 8288 `Link` headers for agent discovery (Cloudflare Pages) |
-| `public/.well-known/api-catalog` | RFC 9727/9264 `linkset+json` catalog of the public API |
-| `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
-| `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
-| `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-1.md` to `STUDY-DESK-AUDIT-8.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md` |
-| `API-2-FORMAT.md` | The content API, version 2 (`/api/data/v2/`), beside version 1; opens with the manifest rule that protects installed apps |
-| `IMAGE-CREDITS.md` | Source, creator and terms of every image by others (named from `LICENSE`). A new stock image gets a row when it is added. |
-| `SITE-2.0.md` | Site 2.0: the plan, its ground rules, and every page's decision; styles in `src/styles/v2/` |
-| `DISASTER-RECOVERY.md` | Continuity doc: every dashboard/secret behind the deploy (names only, no values) + the DNS inventory + from-zero redeploy path. Update it when an integration, secret, or DNS record is added/removed. |
-
-> The top-level `README.md` is the lighter human-facing overview; this file is
-> the deep reference. Keep both in sync per the note at the top.
+| `pagefind.yml` | Pagefind config (excludes footnote refs) |
+| `public/_headers` | Security + caching headers, agent-discovery `Link` headers |
+| `TOPICS.md` | **The authority on chapter and book-intro `topics`.** Read it before adding or revising any topics array |
+| `GLOSSARY-CANDIDATES.md` | Glossary candidates deliberately not included or deferred, and why. Read it before proposing a "next term" |
+| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-*.md` | The Study Desk's planning record, its Phase 5 log (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits. Grep, never read whole |
+| `API-2-FORMAT.md` | The content API, version 2, beside version 1; opens with the manifest rule that protects installed apps |
+| `SITE-2.0.md` | Site 2.0: the plan, its ground rules, every page's decision, the launch steps |
+| `IMAGE-CREDITS.md` | Source, creator and terms of every image by others; a new stock image gets a row |
+| `DISASTER-RECOVERY.md` | Every dashboard and secret behind the deploy (names only), the DNS inventory, the from-zero redeploy. Update it when an integration, secret, or DNS record changes |

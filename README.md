@@ -50,7 +50,7 @@ npm run dev        # start the dev server at http://localhost:4321
 | `npm run check:links` | Verify every internal link in a production build resolves |
 | `npm run build:favicons` | Regenerate the favicon and app-icon set from the emblem SVGs (only needed when the logo changes) |
 | `npm run build:apps-qr` | Regenerate the QR code the app announcement shows on a computer (only needed if its address changes) |
-| `npm run build:greek` | Regenerate the Study Desk's Greek tab data in `public/greek/` from Greek source clones kept outside the repo (see CLAUDE.md) |
+| `npm run build:greek` | Regenerate the Study Desk's Greek tab data in `public/greek/` from Greek source clones kept outside the repo (see `public/greek/CLAUDE.md`) |
 | `npm run build:alignment` | Rescan the text for glossary-term renderings (only needed when the text or the glossary changes) |
 | `npm run review:alignment` | Open the local review tool for that dataset (see below) |
 | `npm run audit:alignment` | Check that reviewed alignment records still match the text (run after editing chapters) |
@@ -132,7 +132,7 @@ The importer's promise is fidelity, not tidying: **no visible character of the
 master reaches the JSON altered**, apart from straight quotes becoming curly
 and numeric ranges taking an en dash. Anything else it notices — a typo, a
 quotation that never closes — it reports and refuses, so the fix happens in
-Word and the two sides stay in step. `CLAUDE.md` explains why that refusal is
+Word and the two sides stay in step. `scripts/CLAUDE.md` explains why that refusal is
 the feature.
 
 ## The alignment dataset

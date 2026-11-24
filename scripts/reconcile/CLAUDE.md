@@ -3,18 +3,14 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 ## The Word masters (`scripts/reconcile/`)
 
 **The chapter JSON is not the origin of the translation.** The author writes in
 Word, one `.docx` per book, kept in OneDrive — those are the masters, and where
 the two disagree about wording the master wins. The JSON was seeded from them by
-a lossy import in 2026-02 which shortened notes, dropped a few entirely, added
-punctuation nobody wrote, and stripped macrons off transliterated Greek.
-`scripts/reconcile/` is the toolchain that measured and repaired that; August
+a lossy import in 2026-02 (shortened and dropped notes, invented punctuation,
+stripped macrons). `scripts/reconcile/` is the toolchain that measured and repaired that; August
 2026 restored 749 footnotes and 165 verses across 153 files.
 
 The masters are **read-only from this repo, always** — never edited to match the
@@ -26,7 +22,7 @@ Teaching/Bible Translation/<Book>/<Book>.docx`) — copy out, unpack the copy.
 The OneDrive connector cannot deliver bytes to this machine and is only good
 for metadata; the README explains why.
 
-Four things about them that are not guessable and cost real time to rediscover:
+Eight things about them that are not guessable and cost real time to rediscover:
 
 1. **A footnote reference is zero-width in Word.** It contributes no characters,
    which is right for comparing wording and wrong for rebuilding HTML: a verse
@@ -56,13 +52,13 @@ Four things about them that are not guessable and cost real time to rediscover:
    takes the repo, everything else takes the master. Two gates then compare the
    result against the repo's current text — it must satisfy the validator's
    curly-quote rule, and must not introduce a wrong-direction pair the repo
-   didn't already have. Before that existed a refusal left `patch.newValue`
-   null, which put the record beyond the review tool as well as the applier.
+   didn't already have. (A refusal otherwise leaves `patch.newValue`
+   null, which puts the record beyond the review tool as well as the applier.)
 5. **A verse that is the LAST in its paragraph owns the string to its end**,
    closing tags included, because they sit after its text and nothing else
    claims them. The master has no markup at all, so rebuilding that span drops
-   the paragraph's `</p>` — which is how 59 paragraphs shipped unbalanced before
-   anyone noticed, a browser closing a dangling `<p>` at the next block element.
+   the paragraph's `</p>` — which shipped 59 paragraphs unbalanced unnoticed, a
+   browser closing a dangling `<p>` at the next block element.
    `lib/block-structure.mjs` is the single source for that rule now:
    `build-ledger.mjs` holds the closing run back, `apply.mjs` refuses a write
    that changes any paragraph's balance, and
@@ -116,16 +112,16 @@ Don't classify a held record from its shape alone.
 that **these go through `npm run review:reconcile -- --buckets=A`, not through
 `apply.mjs`**. Applying the 53 clear records in one pass was tried and thrown
 away: six of them published a defect straight out of Word (`matthew-11:6` read
-"is has reason for gratitude", `matthew-2` fn-g "those group"), and six is a
-floor, since the scan that found them missed `mark-11` fn-h's "'divine'and".
-For scale, the hand review of buckets B/C/D kept the repo's own text in 34 of
-99 records.
+"is has reason for gratitude"), and six is a floor, since the scan missed
+`mark-11` fn-h's "'divine'and". (The hand review of buckets B/C/D kept the
+repo's own text in 34 of 99 records.)
 
 `check-master-hygiene.mjs` covers the other blind spot — a diff can never report
 what is wrong on *both* sides, and only one of the four multi-paragraph
 footnotes in the masters ever surfaced as a difference.
 
-`build-alignment.mjs`'s rule applies here too: **run `npm run audit:alignment`
+The alignment rule applies here too (`src/data/alignment/CLAUDE.md`,
+"Re-auditing decided records"): **run `npm run audit:alignment`
 after any verse restore.** A reviewed alignment record survives a scan whole, so
 an edit to the verse under it leaves it silently stale — delete a stale record
 rather than rejecting it.
@@ -147,8 +143,9 @@ of them hold nearly half the questions, and per-span is unreadable at 92%
 changed. Decisions land in `out/decisions.json` with the
 SHA of the text they were made against; `apply.mjs --decision=approved` writes
 the composed value and refuses any decision whose ground has since moved. Same
-two structural rules as the alignment review tool: exact-path allowlist rather
-than `public/`, and the browser imports the real `review-core.mjs`. It defaults
+two structural rules as the alignment review tool (`src/data/alignment/CLAUDE.md`,
+"The review tool"): exact-path allowlist rather than `public/`, and the browser
+imports the real `review-core.mjs`. It defaults
 to buckets **B,C,D**; the import-era backlog is `-- --buckets=A`.
 
 `FOLLOW-UP-RECONCILIATION.md` carries what the restore deliberately left alone:

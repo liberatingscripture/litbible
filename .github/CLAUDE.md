@@ -3,13 +3,8 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 ## Dependabot
-
-From the root's project tree.
 
 ```
 .github/dependabot.yml  # Four update streams: npm at `/`, npm at
@@ -17,7 +12,7 @@ From the root's project tree.
                      #   `/workers/notebook-service` (separate dep trees), and
                      #   github-actions. Minor/patch are grouped into one weekly
                      #   PR per stream; majors stay ungrouped so each gets the
-                     #   hand-checked treatment (see the Astro 7 pins above).
+                     #   hand-checked treatment (`scripts/CLAUDE.md`, "The toolchain's pins").
                      #   0.x direct deps (@astrojs/check, sharp) are excluded
                      #   from the groups too, since Dependabot grades a 0.x
                      #   bump "minor" although `^0.35` won't admit 0.36; keep

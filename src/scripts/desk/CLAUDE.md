@@ -2,23 +2,21 @@
 
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
-> in this directory. It governs the desk's code wherever it lives, including `src/lib/desk-*.mjs`, the /desk, /notebook and /sheets pages, `desk.css` and `public/greek/`; read it before touching any of them.
-> The Sheets' own rules (the Sheets pane and its editor, /sheets, present
-> mode, templates, sharing) are in `sheets/CLAUDE.md`, beside their code; it keeps this file's
-> rule numbers 18 to 23 in its headings. Syncing the notebook is `sync/CLAUDE.md`.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file.
-
-**`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md` and the
-`STUDY-DESK-AUDIT-*.md` files are too large to read whole.** Grep them for the ID
-(BA42, 3j, N9, SEC-1) and read that section.
+> in this directory. It governs the desk's code wherever it lives, including `src/lib/desk-*.mjs`, the /desk, /notebook and /sheets pages and `desk.css`; read it before touching any of them.
+> Its children keep their own rules beside their code: the Greek (the Greek
+> tab, `public/greek/`, searching the Greek) is `public/greek/CLAUDE.md`, which
+> keeps this file's rule numbers 14, 15 and 17; the Sheets (the Sheets pane
+> and its editor, /sheets, present mode, templates, sharing) are
+> `sheets/CLAUDE.md`, which keeps rule numbers 18 to 23 in its headings;
+> Collections are `collections/CLAUDE.md`; syncing the notebook is
+> `sync/CLAUDE.md`. A rule lives once, in the file whose code it is about.
 
 **This file has a size cap** (`DESK_LIMIT` in `test/claude-docs.test.js`; BVJ,
 2026-11-07), lowered as it is trimmed, never raised; keep 8 KB or more of
-headroom. Rules, owner decisions and their reasons go here; the story of how
-an E number or an audit finding was decided and built goes under its entry in
-`STUDY-DESK-FIXES.md` or the audit file, Sheets material goes in
-`sheets/CLAUDE.md` (no cap), and a "Built on…" line goes nowhere.
+headroom. The story of how an E number or an audit finding was decided and
+built goes under its entry in `STUDY-DESK-FIXES.md` or the audit file, Sheets
+material goes in `sheets/CLAUDE.md` (no cap), and a "Built on…" line goes
+nowhere.
 
 ## The records
 
@@ -42,16 +40,16 @@ an E number or an audit finding was decided and built goes under its entry in
 findings with their own IDs and statuses, never added to `STUDY-DESK.md` or
 `STUDY-DESK-FIXES.md`. A finding is marked fixed in its entry in the audit
 file as it ships; a bug or preference BVJ raises in daily use goes in
-`STUDY-DESK-FIXES.md`. Give a new audit file a row in the table above and a
-mention in the root `CLAUDE.md`'s Important Files row.
+`STUDY-DESK-FIXES.md`. Give a new audit file a row in the table above (the
+root's Important Files row covers it by its `STUDY-DESK-AUDIT-*.md` name).
 
 ## Routes
 
 | Route | File | Purpose |
 |-------|------|---------|
-| `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap (a `notebook/` prefix rule in `astro.config.mjs`) and Pagefind (Layout's default); empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap (a `notebook/` prefix rule in `astro.config.mjs`) and Pagefind (Layout's default); empty for anyone without the preview (`?desk=on`). See "The rules", rule 13 |
 | `/desk/help` | `desk/help.astro` (`desk-help.css`) | **One help page for the whole desk** (the Notebook, /desk, sheets, the Greek; BVJ, 2026-11-07). `/notebook/help/` redirects to it (`redirects` in `astro.config.mjs`; the static redirect page drops a `#fragment`, so link `HELP_HREF`/`WAYS_HREF`, never the old address). A static page that reads without the desk: noindex, out of the sitemap (`desk/help` in the filter) and Pagefind. **A feature that adds a pane, a menu item, or a sheet tool gets its sentence there**; counts come from `MAX_PANES`, `MAX_FOLLOWING`, `TRASH_DAYS`, never typed. Eight parts of topics with a contents list (`parts` in its frontmatter; E125): a new topic gets a row there, an old `id` stays on its topic's heading, and nothing is folded away (`test/desk-help-page.test.js`) |
-| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. `?desk-tour` and `?sheet-tour` start its two tours. See "The Study Desk preview", rule 18 |
+| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. `?desk-tour` and `?sheet-tour` start its two tours. See "The rules", rule 18 |
 | `/sheets` | `sheets.astro` | A sheet's own address (3i): the list of the reader's sheets, one sheet (`?id=`, with `&view=present`, `presenter` or `edit`), a shared one (`#share1.<data>`), and `?sheet-tour`. Same treatment as `/desk`. Routes in full: `sheets/CLAUDE.md`, rules 19 and 21 |
 | `/collections` | `collections.astro` | The reader's collections (D13): the list, and one collection (`?id=`). Same treatment as `/desk`: noindex, out of the sitemap (a `collections` rule in `astro.config.mjs`) and Pagefind, and a short note without the preview. Its rules: `collections/CLAUDE.md` |
 
@@ -456,7 +454,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      footnote HTML that adds visible text will fail there.
   10. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
-     and "Greek" (`desk/tab-greek.js`, rule 14) on Chapter View chapters, and
+     and "Greek" (`desk/tab-greek.js`; `public/greek/CLAUDE.md`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
      the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (No Versions tab, and no API.bible:
@@ -659,7 +657,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
        `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md
-       E9; the longer account of each rule is in its "Bookmarks" appendix).
+       E9; the longer account of each rule is its section "Bookmarks: the
+       long account").
        **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22;
        no reader sees a "ribbon" since 4d). A `bookmark` record is
        a verse, an optional `label` (up to 40 characters, not unique) and an
@@ -732,10 +731,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and
        Edit, Add a bookmark that moves or stays put, and for the resting one "Leave
        it here". A verse with none keeps the one-press "Bookmark", and a
-       finger's chips stay flat. **The flyout is shared code since E39** (BVJ,
-       2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js` also builds
-       every reader's "Copy text ▸" and "Share ▸" rows and this file's "Print
-       ▸" (rule 19). Desk code imports it; shared code never imports desk code.
+       finger's chips stay flat. **The flyout is shared code** (E39):
+       `flyoutRow` (`src/scripts/CLAUDE.md`, "One set of actions, two ways
+       in"), which also builds "Print ▸" (rule 19). Desk code imports it;
+       shared code never imports desk code.
        **"Stop following" and "Start following" are one quiet link**
        (`bookmark-stop.js`, `drawFollowLink`; BVJ, 2026-11-04 and E44) under
        the state line of every bookmark with "Move as I read" on, its label
@@ -750,7 +749,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        restored, and a restored page reports its own last place (`pageshow`).
        **A bookmark found in a notebook search opens like its row**
        (`openAsBookmark`); the Show menu and a search's count name bookmarks by
-       kind (BVJ, 2026-11-04; the appendix has the words), and the group is
+       kind (BVJ, 2026-11-04; E9's long account has the words), and the group is
        always "My notebook" (E32).
        **Known and accepted** (BVJ, 2026-11-04): /notebook and /search clear the
        flag, so Back into the book doesn't resume it; a move overtakes Undo of
@@ -875,161 +874,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        the format and the code (4d): a `hidden` record is an unknown kind,
        carried and never edited. Keep it out of `KINDS`, and don't build on
        its branches (`claude/desk-1d-hidden`, `claude/desk-1d-search`).
-  14. **Phase 1f is the Greek tab** (STUDY-DESK.md,
-     "Order of work", 1f). Before touching it:
-     - **Its data is committed, not built.** `npm run build:greek` reads
-       clones kept outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`: the
-       SBLGNT with its apparatus, MACULA Greek, the UBS dictionary, STEPBible's
-       lexicons) and writes `public/greek/`: `text/` one file per chapter,
-       `ubs/`, `step/` and `lsj/` lexicon shards the tab fetches when a word is
-       opened, and `LICENSE.txt`. SBL's text is the text of record; MorphGNT's
-       lemmas and parsing are checked against it word by word, and its word
-       numbers (`t`) are alignment phase 2's. John 7:53–8:11 takes its parsing
-       from MACULA's SBLGNT, Romans 16:25–27 its Greek from the SBLGNT
-       apparatus and its parsing from MACULA's Nestle 1904. Re-run it when a
-       source changes, never by hand.
-     - **Licenses keep the files apart.** `text/` and `ubs/` are licensed CC BY-SA
-       4.0 (`text/` draws on MorphGNT, CC BY-SA 3.0, which converts one way to 4.0; `ubs/` on UBS); `step/` stays CC BY 4.0, as do the
-       STEPBible brief glosses in `search/` (BA47), with two exceptions that
-       are **CC BY-SA 4.0 because they are Perseus's text, which STEP edited and
-       labels CC BY** (BVJ, 2026-11-03, the cautious route until STEP confirms a
-       separate agreement with Tufts): all of `lsj/`, and each `step/` entry
-       ending "(ML)", Middle Liddell filling a word Abbott-Smith lacks (55
-       entries; Abbott-Smith itself is public domain). `LICENSE.txt` says so,
-       and `SOURCES` credits Perseus. If STEP confirms in writing, `lsj/` and
-       the "(ML)" entries can go back to CC BY 4.0. A `search/` brief gloss that
-       equals its lemma's "(ML)" entry gloss takes the same route (BVJ,
-       2026-11-07; 25 found). The sources and their credits are
-       `src/lib/greek-credits.mjs`: the tab lists `SOURCES`, and every group
-       of Greek search results carries `SEARCH_CREDIT` under it (BA46, GK-13),
-       so a new place that shows Greek results draws it too. **Nothing from
-       the LIT goes into `public/greek/`**: the tab's "rendered here as…" line
-       reads the page's own `#term-lens-data`. A website asset, never under
-       `public/api/`.
-     - **One loader serves a chapter's Greek** (`src/scripts/greek-chapters.js`,
-       GK-20), the tab's `greek-data.js` and the search's `search-greek.js`
-       alike, so a chapter on screen is fetched and parsed once; past 8
-       seconds the tab offers Try again, a `fresh` request beside the stalled
-       one (E133). **Arrowing
-       through words asks for a lexicon only at rest** (150 ms, GK-10).
-     - **A copy from the tab writes its own clipboard** (E54): its words and
-       signs are buttons (`role="button"` spans, never `<button>`, which is a
-       box of its own and broke a selection's highlight at every word; 4k),
-       which a sheet's paste drops with their text, so `tab-greek.js` turns
-       them into plain `lang="grc"` spans and leaves out the "Verse " labels.
-       A new clickable element among the words needs the same.
-     - **The tab never moves the page.** Its text scrolls on its own and
-       opens at the verse being read, with "Go to verse N" to catch up; its
-       words are one roving tab stop. The lexicon choice is
-       `localStorage['lit-desk-lexicon']` (in /privacy). **The line between the Greek and a word's
-       entry is draggable** (BVJ, 2026-10-17), the entry taking a quarter to
-       three quarters of their room (`src/lib/desk-greek-split.mjs`; the handle is
-       in `tab-greek.js`, on `--desk-greek-split`). A click or Enter on it opens
-       its menu (XA8-1), whose "Let the entry size itself" resets it. Shown only
-       while a word is open; kept in `sessionStorage['lit-desk-greek-split']`
-       for the visit, forgotten by "Reset widths" (only its `kept: false` event,
-       `forgetsSplit`, so the line still moves where storage is blocked, BA113),
-       and named in /privacy's paragraph. The parsing is put in words by
-       `src/lib/greek-parse.mjs`, and the
-       SBLGNT's ⸀–⸅ signs draw from `public/fonts/text-critical-signs.otf`.
-       SBL keeps a note on a span of verses under its first verse, so a sign
-       finds its note at the nearest verse at or before its own
-       (`noteVerseFor`, BA111), and a passage naming a verse the Greek lacks
-       (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120)
-       and says so on /desk; This verse shows a gap (`gapNote`, E157).
-     - **A note starts from a chosen word or a selection of the Greek** (4k):
-       its button (and, for a selection, a small menu inside the scroller,
-       never a tab stop) opens the ordinary editor on the LIT's whole
-       verses, the Greek quoted as `startBody` (`desk-note-from-greek.mjs`).
-       Kind 2, no new field; offered only with LIT text and a notebook
-       (`onAddNote`).
-  15. **Phase 1h is searching the Greek** (STUDY-DESK.md,
-     "Order of work", 1h).
-     - **It is ordinary site search, gated until launch.** Only while
-       `greekSearchEnabled()` in `search-core.js` is true, which today is
-       the preview's `data-desk="on"`; without it nothing under `greek/`
-       is fetched and search is exactly as before. **Launch is that one
-       function returning true.**
-     - **The engine is its own download, desk on or off** (`search-greek.js`;
-       LG-6, BVJ 2026-11-04: it loads only when actually needed). The tray,
-       /search and /desk's Search pane reach it through `loadGreekSearch()`
-       when a query is Greek, and the Greek tab's `greek-find.js`, which
-       imports it, loads when a word's search is started. Never import either
-       statically from desk code. What has to run first is in the small
-       `greek-detect.mjs`: `isGreekQuery`'s parts, and the tab's
-       `parsingQuery`. `test/search-greek-lazy.test.js` holds the split.
-     - **One query never gets both English and Greek results** (BVJ,
-       2026-10-13). A query with Greek letters or a Strong's number
-       (`isGreekQuery`) gets the Greek alone, at any length (ὁ, ἐν), save the
-       reader's own notes: under all types, the notebook's matches come ahead
-       of it (BA40, BVJ 2026-10-28) unless the reader unchecks "My notes"
-       (E11: a checkbox shown only with the desk loaded and the type "All
-       types", in the tray, /search and the Search pane). It is remembered as
-       `localStorage['lit-desk-greek-notes']` = "off", absent = on, named in
-       /privacy; the rule is `src/lib/desk-greek-notes.mjs`, the reads are in
-       `notebook-search.js`; English searches are not governed by it. Every
-       other query gets exactly the pre-1h search, unless the reader picks the
-       type menu's "Greek" (injected by script, only with the gate on), which
-       searches Latin text as a transliteration or a gloss. A **single Latin
-       word that is also a glossary term's Greek lemma** ("pistis") gets one
-       line under the status, "“pistis” is also a Greek word (πίστις). Search
-       the Greek", whose link sets the type to Greek (BVJ, 2026-11-04); the
-       offer lists no Greek itself. `greekOfferFor` (search-core.js) reads
-       `public/search/greek-offers.json` (fetched only with the gate on) and
-       loads `greek-search.mjs` by a dynamic import, never at the top; the
-       tray, /search and the Search pane each draw the line.
-     - **A typed Greek word that could be more than one is a question, never
-       a guess** (BVJ, 2026-11-03, decision 9). 58 folded spellings are both a
-       headword and a form of another word (ἡ). A one-word search (`matchGreek`
-       with `offerForms`) offers each such lemma, the commonest first, and the
-       surface shows its choice box. **Marks never decide it** (a breathing
-       rule would leave ὃ/ὁ and εἶ/εἰ colliding and be invisible to readers who
-       type none), and a command query keeps lemma-first (`ὁ, θεός` must stay
-       the article, not ὅς), with one narrow fallback (BVJ, 2026-11-07): a
-       single Greek word with filters whose lemma-first reading finds nothing
-       in the whole text (`ἐξ.prep`) tries the other lemmas of that spelling
-       (`formFallbackTerm`). The Greek tab's form button names its lemma
-       (`prefer`), so it never asks. A test holds the 58.
-     - **One rule set**, `src/lib/greek-search.mjs` (pure, tested): Greek in
-       any form and accent (folded by `foldGreek`, which `build:greek` also
-       uses for the index), a Strong's number (**the words tagged with it,
-       never whole lemmas**: a word carries its lemma's number unless MACULA
-       tags it otherwise, so G1510 finds 105 words of εἰμί and G3596 one of
-       πᾶς; GK8-1, BVJ 2026-11-10), a transliteration compared by key
-       (`greekKey`/`latinKeys`: agreuō = agreuo, Christos = xristos), or an
-       English gloss. Glosses are the lemma's own, STEPBible's brief one
-       (πίστις is "to believe in" in UBS's commonest sense, "faith" there)
-       and, as whole glosses only, every other UBS sense. First of all
-       come **the LIT's own renderings**, through the glossary bridge
-       (`build:greek-bridge`): "self-preservation" reaches σάρξ, but only in
-       the verses the LIT renders it so, and a lemma that never occurs in
-       those verses is dropped. Verse-level until alignment phase 2 covers
-       every word, when the bridge widens.
-     - **A result is the verse link plus `?greek=<verse>.<t>`**
-       (`greekHref`). `desk/greek-link.js` opens the Notebook at that word,
-       even if the reader had closed it, and strips the parameter; a result
-       for the chapter on screen sends `lit:greek-word` instead of loading.
-     - **The Greek tab has word searches but no typed search**
-       (`desk/greek-find.js`): in a word's details the form, the lemma, the
-       Strong's number and the parsing each start a search (BVJ, 2026-10-13),
-       and the results replace the text until "← Acts 2" (the chapter's name). The
-       header's search button and its field were taken out (BVJ,
-       2026-11-02, E7): a typed Greek search is the search bar's, /search's
-       and /desk's Search pane's, and the tab has no way into the commands
-       window. The word choices and "Exact form only" stay, and "See results
-       on the search page" (a new tab) sits beside "← Acts 2" (BVJ,
-       2026-11-04). **While results show, those two take the heading's
-       place in the tab's head row**, which doesn't scroll, and the heading
-       moves to the top of the results as "ἄνομος in the New Testament" (what is searched: the form with
-       Exact form only on, "Strong’s G435" for a number) over
-       "Appears 9 times" (BVJ, 2026-11-21, E219). Its result rows preview their verse on hover like any
-       reference (`ref-preview.js`; a row for the chapter on screen is a
-       button naming its verse in `data-preview-href`, and a tap on it jumps).
-       **A Greek word searches at any length there too** (ὦ, ἤ; BVJ,
-       2026-10-26, BA110): `longEnoughForGreek` in `greek-search.mjs` decides it
-       wherever the tab starts a search. A search that settles on the article
-       (ὁ, not an exact form) answers with a line and a search beside a word
-       (“ὁ, θεός”) instead of its list (BVJ, 2026-11-03).
+  14. **Phase 1f, the Greek tab, and its data (`public/greek/`)**: in `public/greek/CLAUDE.md`.
+  15. **Phase 1h, searching the Greek**: in `public/greek/CLAUDE.md`.
   16. **Phase 2a's small pieces read, never write** (STUDY-DESK.md,
      "Order of work", 2a): B3 and N4 add no kind of record,
      so each can be taken out cleanly (M10 was, the same day: BVJ shelved
@@ -1060,84 +906,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        pinned footnote hears only the footnote changes (BA90). Setting a meta
        value tells the other tabs with a message of its own (`metaMessage`,
        `store.onMeta`), without every tab redrawing its marks (BA96).
-  17. **Phase 2a's Greek search commands** (STUDY-DESK.md,
-     "Order of work", 2a): searching by parsing (`*.aor.impv`, "genitives
-     of πίστις") and by construction (`πίστις.gen > Ἰησοῦς/Χριστός.gen`),
-     behind rule 15's gate. **"," is any order, ">" in order** (E164).
-     Four things to know:
-     - **`src/lib/greek-query.mjs` is the language**, pure and tested:
-       reading a query, looking its words up, `matchConstruction`, the readback,
-       the error sentences, and `COMMANDS` and `EXAMPLES`. A test holds every
-       listed command to the parser and every example to the committed data,
-       so a new command goes in `FILTERS` or `COMMANDS` there and nowhere else. **One bare word is always a
-       word** ("any", "perfect" and "genitive" alone search as glosses) and
-       **quotes always mean the word itself** (BVJ, 2026-10-14). Two filters
-       of one kind joined by "/" mean either (`.gen/dat`, BVJ 2026-10-15), so
-       a term's `filters` can hold several of one axis; `codeFits` and
-       `groupsForFilters` read that as "any of them". A filter with no word
-       before it is any word (".gen" is "*.gen", BA48). **A search joins at
-       most four words** (`MAX_TERMS`, BA44): `matchConstruction` builds each
-       match round its middle word, exact but cubic only because of that
-       cap, so raising it needs a new matcher, not a bigger number. **A query
-       over 300 characters is an error** (`tooLong`, BVJ 2026-11-07), never
-       cut and searched: the surfaces say why and leave the field as typed.
-     - **`searchGreekAuto` in `search-greek.js` is the one Greek search**
-       the tray, /search, /desk's Search pane and the Greek tab's word links call: a command query goes to
-       `searchGreekCommands`, anything else to 1h's `searchGreek`, with
-       two or three plain Latin words that find nothing tried as a
-       construction. **Plain words holding a command word are a gloss when
-       they are one whole** ("present time", "in order to"; `wholeGloss`),
-       and otherwise a command that falls back to the gloss when it fails
-       or finds nothing (BA45, BVJ 2026-10-27). `isGreekQuery` also counts `*`
-       and a dot followed by a parsing word, for the tray (no type menu).
-     - **The commands window is the one place for instructions and
-       examples** (BVJ, 2026-10-14): a page gains only a "Search commands"
-       button, a placeholder under the "Greek" type, the readback, and
-       examples where an empty search's results would be. Before adding a
-       hint or a control to a search page, put it in the window
-       (`src/scripts/greek-commands.js`).
-       **Its top is the search builder** (E5, BVJ 2026-11-02): a card for each
-       word (up to four), whose menus list only what that word takes
-       (`codeCounts`, from the shard the search uses, so nothing is fetched
-       until a word is typed). **The search field is the only record of the
-       search**: the builder reads it with `parseGreekQuery` on every change
-       and writes it with `putSearch` (typed when the field has focus, so undo
-       works after a mouse press); a card waiting for its word is the one
-       thing it holds that the field doesn't. **It accepts what the field
-       accepts** (BVJ, 2026-11-07): a card's word looks up the LIT's
-       renderings through the glossary bridge, and two or three plain Latin
-       words are read as the construction the field falls back to (`plain`).
-       **A card's word box is made once and never
-       replaced** while typed in (`boxes`/`shown`), or a screen reader hears a
-       new control per letter and Ctrl+Z is lost. **It reads as the field
-       does** (E162, `readCardBox`). A search it can't show says
-       so and leaves the field alone, and a press that finds the field changed
-       behind its back reads the field and does nothing else. The rules are
-       `src/lib/greek-builder.mjs` (pure, tested); the drawing is
-       `src/scripts/greek-builder.js`. The old list and examples sit under
-       "Examples and all commands". A builder search is a Greek one, so writing
-       one puts the page's type menu on "Greek". It is a `float-window.js`
-       window, outside `lit-panel.js`'s one slot, so a footnote or preview
-       opening never closes it; it opens from the tray, /search and /desk's
-       Search pane, and closes when its field is gone (BA114). What it announces is meant to be heard: a command by its meaning (“Added: Within 3
-       words.”), the builder's by the query it made (BA117).
-       **What it puts in a field is typed, not set** (BA147): `typeInto`
-       replaces only the changed span with `execCommand("insertText")`, so
-       Ctrl+Z works; setting `value`, which empties undo, is the fallback.
-       Its two keys, `localStorage['lit-greek-commands']` (opened once) and
-       `sessionStorage['lit-greek-commands-pos']` (a dragged place), are in
-       /privacy's paragraph.
-     - **The data is format 3 of `public/greek/search/`** (each lemma's shard
-       entry `[forms, flat, parses, others?]`, plus `parse.json` and
-       `parse/<group>.json`, named by `parseGroup` in `greek-search.mjs`;
-       `lemmas.json`'s `also` counts the words tagged with another Strong's
-       number). Rebuild with `npm run build:greek`, never by hand.
-       **Every search file carries `build`**, a hash of that output (GK6-9),
-       since a lemma's id is its place in `lemmas.json` and the files are
-       cached a day: `search-greek.js` never reads a shard or parse group
-       from another build with the index, but drops what it holds, checks
-       every file with the server and runs the search once more
-       (`freshGreek`). A new loader of these files checks it too (`sameBuild`).
+  17. **Phase 2a's Greek search commands**: in `public/greek/CLAUDE.md`.
   18. **Phases 3c to 3g are /desk** (STUDY-DESK.md, D9
      and "Order of work", 3c to 3g): `src/pages/desk.astro`, which `desk-gate.js`
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
@@ -1343,7 +1112,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        numbers. **The scroller is positioned** for the same reason: a hidden
        number, letter or heading is a 1px absolute box (global.css), so
        without a positioned scroller the location field read verse 1 and a
-       jump landed wrong (styles/CLAUDE.md, the Display tray's rule 6).
+       jump landed wrong (`src/styles/CLAUDE.md`, "The Display tray," the bullet
+       on text size and verse numbers, its rule 4).
        **Its bar has "Open on its page"** (E35; `extra` in `passage-bar.js`):
        the chapter's page at the verse the field names (`showPlace`, which
        every move of the field goes through), in a new tab, as the chapter
@@ -1476,7 +1246,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `var(--desk-leading, 0)` to its line height**, which means a line
        height of 1.4 or more: a title, a one-line label and a control are
        tighter and keep theirs. `test/desk-text-size.test.js` fails on a rule
-       that doesn't, so a new one does the same. Five things to keep:
+       that doesn't, so a new one does the same. Six things to keep:
        1. **A pane sets its size once**, on `.desk-pane`. `.desk-lit__text`
           sets none, or the scale is squared.
        2. **A bar keeps its line** (`.desk-pane__head`, `.desk-passage`,
@@ -1494,9 +1264,6 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
           to that inside every `.lit-panel`, and `--desk-leading` to 0, so the
           rows the desk adds match the rows around them. The Display tray and
           tooltips are the site's too, at their own size.
-       6. **`/desk/help` follows both behind the gate** (E110): its sizes
-          multiply by `--help-scale` and its text adds `--help-leading`
-          (`pages/desk-help.css`), which are 1 and 0 without `html[data-desk]`.
        5. **Larger words must never push a control out of a fixed width.**
           The panel is 280 to 440px whatever the size, so its header's name
           and badge share one clipped row (`.desk-panel__name`): the badge
@@ -1506,6 +1273,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
           (a 286px pane's bar shortens the passage field and the My Notes
           chapter at the largest OpenDyslexic size). Check a new row of controls at Extra large in OpenDyslexic at
           280px.
+       6. **`/desk/help` follows both behind the gate** (E110): its sizes
+          multiply by `--help-scale` and its text adds `--help-leading`
+          (`pages/desk-help.css`), which are 1 and 0 without `html[data-desk]`.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
        LIT's license line), then the site's footer, newsletter and all, as
        on /notebook and /sheets (E143, BVJ 2026-11-17). Each pane scrolls on
@@ -1526,8 +1296,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        **It keeps nothing about a search** (no key, no layout field), so /privacy
        doesn't name it. **It stands alone**: not a follower. **A passage result
        offers both ways to read it** (E34; BVJ, 2026-11-05): a plain click moves
-       the leading LIT pane through `env.showPassage`, or opens one by the rule
-       above, and the note line says which (`passageMoveMessage`); a small link
+       the leading LIT pane through `env.showPassage`, or opens one by E127's
+       rule (above), and the note line says which (`passageMoveMessage`); a small link
        beside the row (`awayLink`) opens its page in a new tab. Rows stay real
        links, so a modified click opens a tab and `ref-preview.js` previews them
        (on /desk the preview's "Open John 3" opens in a new tab, E136). A
@@ -1535,9 +1305,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        or an introduction opens in a new tab, as does a typed “Matthew intro”
        (E173; `introPath` builds that link).
        A Greek result goes through `env.openGreekHit`, and
-       every Greek group carries `creditHtml` (rule 14). Its add buttons
-       (checked verses, E117; topic chapters and Greek verses, E166) are the Sheets' (`addTarget`; `sheets/CLAUDE.md`,
-       rule 18, and its four kinds of button, E126). `/` reaches it as a `lit:desk-search` event from
+       every Greek group carries `creditHtml` (`public/greek/CLAUDE.md`, rule
+       14). Its add buttons (checked verses, E117; topic chapters and Greek
+       verses, E166) are the Sheets' (`addTarget`; `sheets/CLAUDE.md`, rule 18;
+       their looks, E126, are its "How the Sheets look"). `/` reaches it as a `lit:desk-search` event from
        `keyboard-shortcuts.js`, which imports nothing of the desk; ← → and
        `[` `]` come the same way as `lit:desk-chapter`, a press of the passage
        bar's arrow in the pane being read.
@@ -1626,9 +1397,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        keeps none. The look is a background on the scripture container (ruled
        lines and a left rule on the right 35%), in `desk.css` beside M6's
        section, so the rules run unbroken across page breaks.
-  20. **Phase 3j, present mode**: in that file too.
-  21. **Phase 3k, getting started and sharing** (templates, share links): in that file too.
-  22. **Phase 2b, a sheet checked before printing**: in that file too.
+  20. **Phase 3j, present mode**: in `src/scripts/desk/sheets/CLAUDE.md`.
+  21. **Phase 3k, getting started and sharing** (templates, share links): in `src/scripts/desk/sheets/CLAUDE.md`.
+  22. **Phase 2b, a sheet checked before printing**: in `src/scripts/desk/sheets/CLAUDE.md` (N9 is rule 19 here).
   23. **Phase 2c was notes on a footnote and questions for discussion**
      (STUDY-DESK.md, M11, N6 and "Order of work", 2c). **Notes on a footnote
      are gone** (BVJ, 2026-11-10; E79): no "Add a note" beside Pin, and no

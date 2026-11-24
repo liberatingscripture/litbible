@@ -3,9 +3,6 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 ## Content Collections (`src/content.config.ts`)
 
@@ -31,8 +28,8 @@ Six collections, all loaded via Astro's `glob` loader. Two are site-wide:
   alone, the way a merged poetry block retires its id rather than renumbering:
   `blasphemy-disrespectfulness` carries `lit: contemptuous speech`, and
   `glory-praiseworthiness` carries `lit: praise / renown`.
-  **These files also feed the mobile apps** via `build:glossary` (see The
-  Glossary Feed below), so editing one is a publish to both platforms. The two
+  **These files also feed the mobile apps** via `build:glossary` (see "The
+  glossary feed" below), so editing one is a publish to both platforms. The two
   surfaces want different things from a body: the site
   renders it as Markdown (`*kalos*` is italic), the apps need plain prose. The
   generator bridges that by flattening emphasis, so keep using it — but richer
@@ -45,8 +42,8 @@ Six collections, all loaded via Astro's `glob` loader. Two are site-wide:
   files, so **deleting an entry to unpublish it destroys the review behind it**
   — a term the scan no longer produces loses every `glossary-scan` record it
   has, confirmed ones included, with only a warning from
-  `mergeScanWithExisting`. Eight entries were held this way in 2026-08 and 203
-  reviewed records rode on it. The scanner is therefore deliberately blind to
+  `mergeScanWithExisting` (203 reviewed records rode on eight entries held
+  this way in 2026-08). The scanner is therefore deliberately blind to
   the flag; every reader-facing consumer honors it. Drafts are still parsed and
   flattened, so a body that would break the build breaks it now rather than on
   publication day, and an all-draft collection is an error rather than an empty
@@ -111,7 +108,5 @@ collection); they're read directly by the intro pages and the API manifest.
      that would land nowhere, because two of them were dead for months and
      nothing reported it. `/glossary` makes the same phrase a link on the page
      only, at render, through the same `normalizeLabel`.
-  5. **`draft: true` withholds an entry rather than removing it.** See the
-     `glossary` collection above for why the file has to stay on disk: the
-     alignment scanner seeds from it, and an entry deleted to unpublish it
-     takes its reviewed records with it.
+  5. **`draft: true` withholds an entry rather than removing it.** The file
+     has to stay on disk (see the `glossary` collection above).
