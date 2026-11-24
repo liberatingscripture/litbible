@@ -510,6 +510,38 @@ test("a push whose answer is lost: the rows are not sent twice, and nothing is l
   for (const note of notes) assert.equal(a.state.kept.rows.get(note.id).rev, rowsOf(service, a).get(note.id).rev);
 });
 
+test("a device doesn't fetch back what it just sent, unless another device wrote in between", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  const b = await nextDevice(service, a);
+  const pulls = (device) =>
+    service.calls.filter((c) => c.method === "GET" && c.path.startsWith("/rows?since=") && c.token === device.by.token).map((c) => c.path);
+
+  a.note("one");
+  a.note("two");
+  a.note("three");
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.deepEqual(pulls(a), ["/rows?since=0", "/rows?since=3"], "the pull after the push starts past the three rows it stored");
+  assert.equal(a.state.kept.meta.cursor, 3);
+
+  // B's push lands between A's pull and A's push, so A's row is not the very next revision.
+  a.note("four");
+  const fromB = b.note("from B");
+  service.onCall = async (call) => {
+    if (!isPost(call, a)) return;
+    service.onCall = null;
+    await b.sync();
+  };
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.equal(pulls(a).at(-1), "/rows?since=3", "the cursor stayed, so the pull reaches B's row");
+  assert.equal((await a.notebook.get(fromB.id))?.body, "from B", "and A has it after that one pass");
+  assert.equal(a.state.kept.meta.cursor, 5);
+
+  await settleAll(service, [a, b]);
+  assert.deepEqual(a.notebook.snapshot(), b.notebook.snapshot());
+  assert.equal(posts(service).length, 3, "each note went up once: A's three, B's one, A's fourth");
+});
+
 test("a push that half succeeds: the half that was stored is not sent again, and the other half is", async () => {
   const service = createFakeService();
   const a = await firstDevice(service);

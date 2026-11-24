@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 
 import "./helpers/browser-env.mjs";
 import { freshBrowser, moment, note, until } from "./helpers/sync-browser.mjs";
-import { join } from "./helpers/fake-notebook-service.mjs";
+import { changeKey, join } from "./helpers/fake-notebook-service.mjs";
 import { firstDevice, testClock } from "./helpers/sync-rig.mjs";
 import { SERVICES, SLOT_EVENT } from "../src/lib/desk-sync-link.mjs";
 import { STOPPED_WORDS, TELL_AGAIN_MS } from "../src/lib/desk-sync-status.mjs";
@@ -209,6 +209,45 @@ test("“Reconnect” on the notice is answered, whatever comes of it, and signi
   const db = await openSyncDb();
   await until(async () => (await db.get("told")) === undefined, "what was told forgotten");
   db.close();
+});
+
+test("one stop that becomes another: the notice still up changes its words", async () => {
+  const { service, bar, other, mine, connector, slots } = await linkedPage();
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => bar.shown.length === 1, "the notice");
+  assert.match(bar.shown[0].message, /^You’ve been signed out\./);
+
+  // Meanwhile this computer was removed from the notebook. The reader signs in again, the notice
+  // still on the screen, and finds that out.
+  await changeKey(service, other.by, { kept: [other.by], removed: [mine] });
+  await connector.setSession(service.signIn("reader"));
+  await until(() => state(connector) === "removed", "removed");
+  await until(() => bar.shown.length === 2, "the notice for the new stop");
+  assert.match(bar.shown[1].message, /^This computer was removed from your notebook’s devices/);
+  assert.equal(bar.up, true);
+  assert.match(text(slots.settings, ".desk-sync__line"), /^This computer was removed/);
+  assert.equal(html().getAttribute(STOPPED_ATTR), "stopped");
+  const db = await openSyncDb();
+  assert.equal((await db.get("told")).state, "removed");
+  db.close();
+});
+
+test("a stop another tab has said: a notice still up here from the stop before comes down", async () => {
+  const { service, bar, clock, other, mine, connector } = await linkedPage();
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => bar.shown.length === 1, "the notice");
+
+  // Another tab of this browser has said the new stop already.
+  const db = await openSyncDb();
+  await db.set({ told: { state: "removed", at: clock.at } });
+  db.close();
+  await changeKey(service, other.by, { kept: [other.by], removed: [mine] });
+  await connector.setSession(service.signIn("reader"));
+  await until(() => state(connector) === "removed", "removed");
+  await until(() => bar.up === false, "the old notice down");
+  assert.equal(bar.shown.length, 1, "and it isn't said twice");
 });
 
 test("a press on the notice that mends it says so", async () => {

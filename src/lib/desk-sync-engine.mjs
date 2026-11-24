@@ -445,10 +445,16 @@ export function createSyncEngine({
     // Each row stored takes a new revision past everything this device has pulled. A last revision
     // short of that means the service went back (restored from an older copy): everything is
     // fetched again, and what it lost is owed to it.
-    const stored = results.filter((r) => r.did === "stored").length;
-    if (Number.isSafeInteger(answer.rev) && answer.rev < meta.cursor + stored && !audited) {
+    const stored = results.filter((r) => r.did === "stored").map((r) => r.rev).sort((a, b) => a - b);
+    if (Number.isSafeInteger(answer.rev) && answer.rev < meta.cursor + stored.length && !audited) {
       startAudit();
       cursor = 0;
+    } else if (cursor === meta.cursor && stored.length && stored.every((rev, i) => rev === meta.cursor + 1 + i)) {
+      // The rows stored took exactly the next revisions after everything this device has pulled, and
+      // a revision is one row's alone, so nothing else was written between: the next pull starts after
+      // them, and a first sync doesn't fetch back the whole notebook it just sent. One revision out of
+      // place (another device wrote meanwhile) and the cursor stays where it is.
+      cursor = meta.cursor + stored.length;
     }
     await save({ entries, forget, patch: cursor !== meta.cursor ? { cursor } : null });
     if (standing.length) await takeRows(standing);

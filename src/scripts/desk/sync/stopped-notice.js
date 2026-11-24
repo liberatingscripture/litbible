@@ -80,6 +80,7 @@ export function mountStoppedNotice(connector, env) {
   let off = false;
   let ui = null; // undo-bar.js, once it was needed
   let number = null; // our notice's number while it may be the one showing
+  let said = null; // the state that notice is about
   let handled = null; // the state this tab has dealt with: said, or found said already
   let asked = false; // the reader pressed "Reconnect" on the bar: say what came of it
   let working = false;
@@ -122,6 +123,7 @@ export function mountStoppedNotice(connector, env) {
 
   function show(status) {
     const words = statusWords(status);
+    said = status.state;
     number = ui.showChoices(
       [words.line, ...words.detail].join(" "),
       [
@@ -161,6 +163,13 @@ export function mountStoppedNotice(connector, env) {
         if (told) await db.set({ told: undefined });
       }
       return;
+    }
+    // One stop became another while ours was up (signed out, and after signing in again this computer
+    // turns out to be removed): ours says what is no longer so, and comes down whatever is said next.
+    // hideUndo does nothing when another notice has taken ours's place.
+    if (number !== null && said !== state) {
+      ui?.hideUndo(number);
+      number = null;
     }
     if (handled === state && !asked) return;
     if (!asked) {
