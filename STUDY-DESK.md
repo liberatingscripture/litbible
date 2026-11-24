@@ -5263,6 +5263,34 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      role on the Cloudflare account, or deploys that run from a merged
      pull request) and writes the steps into `DISASTER-RECOVERY.md`,
      since BDR answers second when the service breaks (BVJ, 2026-11-23).
+     **Built 2026-11-23, and not yet deployed.** What exists:
+     - **The Worker and its schema**, every request of the spec's “The
+       service's interface” but sign-in (4e) and the seven-day requests
+       (4f), with a test for each check in the interface's tables, the
+       vectors' walkthrough run end to end through it with the website's
+       reference as the client, and races forced at an exact point. It
+       has its own CI job and Dependabot stream.
+     - **The spec's interface section holds the final shapes**: every
+       request and answer, every size, and the word of every refusal.
+       What moved is the spec's “Changed in step 4c”; the nine places
+       that were a choice are its “Still open,” 32 to 40, for BDR to
+       confirm and BVJ to check. Item 31 (a trash record's times) is
+       built as the spec states it and is still open.
+     - **The preview's way in** (`POST /preview/session`), off unless
+       the environment's own configuration turns it on, names itself
+       the preview, and holds a secret. Production is given none of the
+       three.
+     - **A deploy workflow, ready and off**, for the second way to roll
+       back, and the preview's entry in `DISASTER-RECOVERY.md`.
+     **Left for BVJ, since Cloudflare is BVJ's account**: to confirm
+     the preview's address (`notebook-preview.litbible.net` is
+     proposed), to create its D1 database and its one secret and deploy
+     it or say that a session may (the steps are in
+     `workers/notebook-service/README.md`), and to choose how BDR rolls
+     back (the same file, “Who can deploy and roll back”; the workflow
+     is recommended). **Until the preview is deployed, the gate's
+     “preview service running” is not met**, and the apps build against
+     the service run locally.
    - **4d. The freeze work** (1–2). In `STUDY-DESK-FORMAT.md` and the
      website's code together: kind 3 (`hidden`) leaves; the `ribbon`
      marker leaves kind 2, and `ribbon` and the older `bookmark` read as

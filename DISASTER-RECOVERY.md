@@ -119,6 +119,38 @@ Losing this account is the worst case — it holds five distinct things:
    new **Managed**-mode widgets for hostname `litbible.net`, paste the new
    site keys into those two pages, and re-set the two secrets.
 
+### The notebook service's preview (built 2026-11-23, not yet deployed)
+
+The Study Desk's sync service (`workers/notebook-service/`; the plan's step
+4c in `STUDY-DESK.md`). **Nothing below exists on the account until BVJ
+deploys the preview**; this entry is here so that it is accurate the day
+that happens. Production is step 4f, which finishes this section.
+
+- **What it adds to the account**: a Worker, `litbible-notebook-preview`;
+  a D1 database of the same name; one Worker secret, `PREVIEW_SECRET`; and
+  a Custom Domain, `notebook-preview.litbible.net`, which puts one record
+  in the zone that the Worker manages (add it to the inventory below when
+  it exists). Code, bindings, and the address are all in
+  `workers/notebook-service/wrangler.jsonc`.
+- **Losing it loses nothing.** Everything on the preview is test data. No
+  reader's notebook is there, and nothing is restored: recreate it from
+  the service's README, "One-time setup," and tell the apps' sessions in
+  `STUDY-DESK-FOR-THE-APPS.md` that the test accounts are gone.
+- **Roll back** (code only, never the database), from
+  `workers/notebook-service/`:
+  `npx wrangler deployments list --env preview`, then
+  `npx wrangler rollback --env preview` (or with a version ID). The
+  README's "Roll back" has the detail, and "Wipe" clears the test data.
+- **Who answers when it breaks**: BVJ first, BDR second (BVJ, 2026-11-23;
+  BDR's part is BDR's to accept). **Today only BVJ can deploy or roll
+  back.** BDR's way is not chosen yet: a member role on this account, or
+  the workflow `.github/workflows/notebook-service-deploy.yml`, which is
+  built and off and rolls back from GitHub with no access to Cloudflare.
+  The README's "Who can deploy and roll back" lays out both. Update this
+  bullet when BVJ chooses.
+- **A break pauses sync and loses nothing**, on the preview and later in
+  production: every device keeps its own notebook.
+
 ## DNS record inventory (litbible.net zone, 2026-07-18)
 
 Captured from live DNS + the Cloudflare dashboard. All values here are
@@ -232,6 +264,20 @@ section worth keeping accurate. If the owning account is ever compromised,
 pull `RELEASE_NOTES_PAT` first: it can write to `main` past the branch
 ruleset, where `LSC_SYNC_TOKEN` can only open issues on a public repo.
 
+**The notebook service's preview** (none of these exists until BVJ deploys
+it; see "The notebook service's preview" above):
+
+| Name | Where | What it is |
+|------|-------|------------|
+| `PREVIEW_SECRET` | Worker secret, the `preview` environment only | What the preview's own way in asks for, so the apps' sessions can get a test session before sign-in exists. Set from `workers/notebook-service/` with `npx wrangler secret put PREVIEW_SECRET --env preview`. If it leaks or is lost, set a new value (32 or more random characters) and give it to BDR privately; sessions already made keep working, and all it ever reaches is test data. Production is never given it. |
+| `CLOUDFLARE_API_TOKEN` | GitHub environment `notebook-preview` (limited to `main`), only if the deploy workflow is turned on | A Cloudflare API token that can deploy and roll back Workers and run D1 migrations on this account, and nothing else. Never expires, like the two tokens above and for the same reason. Kill switch: Cloudflare dashboard, Account API tokens, "Roll" (then update this secret) or "Delete." Losing it stops the workflow and nothing else; deploys by hand still work. |
+| `CLOUDFLARE_ACCOUNT_ID` | the same environment | The account's ID. Not a secret in itself; kept beside the token. |
+| `NOTEBOOK_PREVIEW_SECRET` | the same environment, optional | The same value as `PREVIEW_SECRET`, so that a deploy can run its own check against the preview. Change the two together. |
+
+The workflow is switched by two repository **variables** (not secrets):
+`NOTEBOOK_PREVIEW_DEPLOYS` (`on` to enable it; absent, both of its jobs are
+skipped) and `NOTEBOOK_PREVIEW_URL` (the preview's address).
+
 There are **no other secrets**. The site build needs none (the podcast fetch
 is an unauthenticated public feed; Brevo/GiveLively integrations are
 public-key/embed-only).
@@ -269,6 +315,11 @@ npm run deploy       # attaches both routes from wrangler.toml
 
 Full step-by-step (Email Routing verification, Turnstile widget creation,
 smoke tests) is in `workers/contact-form/README.md`.
+
+**The notebook service's preview** (independent of the site and of the
+forms' Worker, and holding only test data): `workers/notebook-service/README.md`,
+"One-time setup." Its last step runs a scripted check against the deployed
+service.
 
 **Verify after redeploy:**
 

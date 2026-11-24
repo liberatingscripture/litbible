@@ -14,6 +14,16 @@
 //
 // So it uses nothing but what it is handed: `call` (one request), `ref` (the
 // reference), `vectors`, the preview's `secret`, and a test account's name.
+//
+// One step goes beyond the vectors: the last pushes a row of the largest size
+// the format allows and reads it back. The suite proves the check on a row's
+// size; this proves that the database behind a deployed service really holds
+// such a row, which only a deploy can show.
+
+/** How long a `ct` is as base64url, for a padded record of this many bytes and its 16-byte tag. */
+const ctChars = (padded) => Math.ceil(((padded + 16) * 4) / 3);
+/** The largest padded record the format allows (its MAX_RECORD_BYTES). */
+const LARGEST = 1_048_576;
 
 /** Returns the steps in order: [{ name, run }]. They share state and must run in order. */
 export function walkthroughSteps({ call, ref, vectors, secret, account }) {
@@ -362,6 +372,24 @@ export function walkthroughSteps({ call, ref, vectors, secret, account }) {
     const lists = ok(await call("GET", "/devices", as("D")), "D reads the lists");
     same(lists.devices.map((d) => [d.id, d.how, d.by]).at(-1), [D, "recovery", from.id], "D's entry");
     same(lists.devices.length, 3, "devices listed at the end (B, C, and D)");
+  });
+
+  step("Beyond the vectors: a row of the largest size the format allows is kept and given back", async () => {
+    // The service opens nothing, so filler stands in for a megabyte of sealed record.
+    const ct = "A".repeat(ctChars(LARGEST));
+    const since = ok(await call("GET", "/rows?since=0", as("D")), "D pulls").next;
+    const row = { v: 1, id: "walkthrough largest row", rev: 0, modified: "2026-11-23T18:35:09.978Z", kid: 3, nonce: "A".repeat(16), ct };
+    const [stored] = ok(await call("POST", "/rows", { ...as("D"), body: { put: [row] } }), "D pushes the largest row").put;
+    if (!stored.rev) throw new Error(`the largest row was not stored: ${JSON.stringify(stored)}`);
+    const page = ok(await call("GET", `/rows?since=${since}`, as("D")), "D pulls it back");
+    same([page.rows.length, page.rows[0]?.id, page.rows[0]?.ct === ct], [1, row.id, true], "the row as the service gives it back");
+    const tooLarge = ok(
+      await call("POST", "/rows", { ...as("D"), body: { put: [{ ...row, id: "one block more", ct: "A".repeat(ctChars(LARGEST + 256)) }] } }),
+      "D pushes a row one block larger",
+    ).put[0];
+    same(tooLarge.refused, "too_large", "a row one block larger");
+    const removed = ok(await call("POST", "/rows", { ...as("D"), body: { remove: [{ id: row.id, rev: stored.rev }] } }), "D removes it");
+    same(removed.remove, [{ id: row.id, removed: true }], "the removal");
   });
 
   return out;

@@ -15,7 +15,8 @@
 #     branch, holding the secrets CLOUDFLARE_API_TOKEN and
 #     CLOUDFLARE_ACCOUNT_ID, and optionally NOTEBOOK_PREVIEW_SECRET (the
 #     preview's own secret, which lets a deploy check itself);
-#   - the repository variable NOTEBOOK_PREVIEW_DEPLOYS = on.
+#   - the repository variable NOTEBOOK_PREVIEW_DEPLOYS = on, and, with that
+#     optional secret, NOTEBOOK_PREVIEW_URL (the preview's address).
 # The environment's branch limit is what keeps the token out of a workflow
 # pushed on any other branch: don't store these as plain repository secrets.
 #
@@ -66,9 +67,6 @@ jobs:
     defaults:
       run:
         working-directory: workers/notebook-service
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v7
 
@@ -87,19 +85,29 @@ jobs:
 
       # Migrations first: a migration must work with the code already deployed
       # (README, "Migrations"), so the gap between these two steps is safe.
+      # The Cloudflare token is given to the steps that call Cloudflare and to
+      # no other: `npm ci` and the tests above never see it.
       - name: Apply D1 migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler d1 migrations apply DB --env preview --remote
 
       - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deploy --env preview
 
-      # The same walkthrough the tests run, against the deployed service. Run
-      # only when the preview's secret has been stored for it.
+      # The same walkthrough the tests run, against the deployed service. It
+      # runs when the variable NOTEBOOK_PREVIEW_URL is set, and then it needs
+      # the preview's own secret stored as NOTEBOOK_PREVIEW_SECRET: set the two
+      # together. With neither, a deploy doesn't check itself.
       - name: Check the deployed service
+        if: ${{ vars.NOTEBOOK_PREVIEW_URL != '' }}
         env:
           PREVIEW_SECRET: ${{ secrets.NOTEBOOK_PREVIEW_SECRET }}
           NOTEBOOK_URL: ${{ vars.NOTEBOOK_PREVIEW_URL }}
-        if: ${{ env.PREVIEW_SECRET != '' && env.NOTEBOOK_URL != '' }}
         run: npm run walkthrough
 
   rollback:
@@ -113,9 +121,6 @@ jobs:
     defaults:
       run:
         working-directory: workers/notebook-service
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v7
 
@@ -129,6 +134,9 @@ jobs:
         run: npm ci
 
       - name: Versions before
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deployments list --env preview
 
       # Code only: a rollback never undoes a D1 migration, which is why every
@@ -137,6 +145,8 @@ jobs:
       # pasted into the command.
       - name: Roll back
         env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           VERSION: ${{ inputs.version }}
           REASON: ${{ inputs.reason }}
         run: |
@@ -147,4 +157,7 @@ jobs:
           fi
 
       - name: Versions after
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deployments list --env preview

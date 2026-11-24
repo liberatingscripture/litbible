@@ -1,8 +1,9 @@
 # End-to-end encryption for the notebook (draft 2)
 
 **Status: draft 2, 2026-11-23, for BDR to review and BVJ to check. The reference and the test
-vectors are built (step 4b, the same day); the service, sign-in, and every client’s use of this are
-not, and no record changes with it.** Written by BVJ’s Claude, on the website’s side, which
+vectors are built (step 4b, the same day), and so is the service, to run on a preview address
+(step 4c, the same day); sign-in and every client’s use of this are not, and no record changes
+with it.** Written by BVJ’s Claude, on the website’s side, which
 writes this spec, its reference, and its vectors and builds the service from here on (BVJ,
 2026-11-23). Draft 1 was written the same day by BDR’s Claude (PR #680) and BVJ answered its open
 items that evening (`STUDY-DESK.md`, “Decisions,” 2026-11-23). This draft writes those answers in,
@@ -15,6 +16,12 @@ needs.** Each such place now says what the reference does, in its own section; �
 question it turned up (31). **BVJ said yes to all nine choices on 2026-11-23, so they wait on BDR
 alone**, and the question is put to the apps. No decision of draft 2 was changed, and none
 of its open items was settled.
+
+**Building the service did the same for “The service’s interface.”** That section now holds the
+final shape of every request and answer, every size, and the word of every refusal, as the
+service in `workers/notebook-service/` uses them. “Changed in step 4c” lists what moved, and the
+ones that were a choice are under “Still open,” 32 to 40. No path changed, and no decision of
+draft 2.
 
 Plan C was chosen on BDR and BVJ’s call of 2026-11-23: a small LIT service on Cloudflare holds each
 signed-in reader’s notebook, and only the reader’s own devices can read it. This file says exactly
@@ -1234,37 +1241,131 @@ it**, for three reasons. What the service checks is half of every step above, an
 what the device checks; a reader of one needs the other on the same page. The two freeze together,
 under one version. And a second file would be one more thing for both apps’ sessions to find and
 for this repo’s `CLAUDE.md` to name. What is *not* here is everything that has nothing to do with
-keys: the sign-in ceremonies, how a session is carried, rate limits, and the shape of an error’s
-body. Those belong to the service’s own README in `workers/notebook-service/` (steps 4c and 4e).
+keys: the sign-in ceremonies (step 4e), the requests that wait seven days (step 4f, sketched below),
+and limits on how often a client may ask. How to run, deploy, and wipe the service is in its own
+README, `workers/notebook-service/README.md`.
 
-**The checks below are the spec. The paths are names to build against**, and they are settled when
-the preview service runs (step 4c), in a pull request that corrects this section if one moves. All
-of it is JSON over HTTPS, and every answer carries the service’s time. **For BDR to confirm**, since
-both apps call these.
+**The service is built (step 4c, 2026-11-23), and this section is what it does.** The paths, the
+shape of every request and answer, the sizes, and the words of every refusal below are the ones the
+code in `workers/notebook-service/` uses, and each check in the tables has a test that sends the
+request a real client would and reads the refusal (`workers/notebook-service/test/`). Where
+building it meant reading a sentence of draft 2 more exactly, or adding what draft 2 left out, the
+change is listed under “Changed in step 4c,” and the ones that were a choice are under “Still
+open,” 32 to 41. **For BDR to confirm**, since both apps call these.
+
+### How a request is carried
+
+- **The address.** The preview’s is `https://notebook-preview.litbible.net` (proposed; it is live
+  once BVJ deploys it, and `STUDY-DESK-FOR-THE-APPS.md` says when). Production’s is step 4f’s. Every
+  path below is under it. `GET /` needs no session and answers
+  `{ "time": "…", "service": "lit-notebook", "interface": 1, "preview": true }`; `preview` says
+  whether the preview’s own way in (below) is there.
+- **JSON over HTTPS.** A request that has a body sends `Content-Type: application/json` and one
+  JSON object of at most 4,194,304 bytes. A member the interface doesn’t name is ignored. A trailing
+  slash on a path is ignored.
+- **The session** travels as `Authorization: Bearer <token>`, where the token is the 43 characters
+  sign-in gave (32 random bytes, base64url). It is never a cookie. A session lasts 30 days. The
+  service keeps only the token’s SHA-256.
+- **Every answer is a JSON object whose first member is `time`**, the service’s clock in the
+  format’s form (`2026-11-23T18:35:09.978Z`), a refusal as much as a success. Nothing is cached
+  (`Cache-Control: no-store`).
+- **A refusal** has an HTTP status that isn’t 200 and the body
+  `{ "time": "…", "error": "<word>", "message": "<a sentence for a log>", … }`. A client acts on
+  `error` alone, by the table under “What the service answers when it refuses”; `message` may
+  change.
+- **From a browser**, the service answers cross-origin requests from the website’s own origins and
+  no others, and never with credentials. The apps aren’t browsers and need nothing for this.
+
+### How values are spelled
+
+| A value | In a request and in an answer |
+|---|---|
+| A byte string (a nonce, a ciphertext, a key proof, a MAC, a public key, a credential id) | base64url, read strictly as under “Fixed choices”: no padding, no `+` or `/`, no leftover bits |
+| A notebook’s, a device’s, or a holder’s id | a UUID in lower case with its hyphens; the form is all that is checked |
+| An approval’s id | 32 lower-case hex characters |
+| A record’s id | 1 to 64 printable ASCII characters (U+0020 to U+007E) |
+| A time | the format’s form: `YYYY-MM-DDTHH:MM:SS`, an optional fraction of any length, then `Z`; at most 64 characters. The same pattern the reference’s “same instant” rule reads |
+| `kid`, `lists` (the lists’ version), `rev` | whole numbers, as JSON numbers |
+| A sealed card, a sealed holder record | `{ "nonce": <12 bytes>, "ct": <17 to 4,096 bytes> }` |
+| A sealed keyring (HPKE) | `{ "enc": <65 bytes>, "ct": <17 to 65,536 bytes> }` |
+| A device’s entry, and a kept holder’s, in a request | `{ "id", "card", "keyring" }` |
+| A holder in full, in a request | `{ "id", "kind": "recovery" or "passkey", "credential": <1 to 1,023 bytes, a passkey holder’s only>, "record", "card", "keyring" }` |
+
+A card or a keyring in a request carries no `kid` of its own: it is sealed under the request’s
+`kid` (in a change of key, the next one). In an answer each carries the `kid` it was sealed under,
+as `{ "kid", "nonce", "ct" }` and `{ "kid", "enc", "ct" }`. A holder’s record has none, since it is
+sealed under the holder’s own secret.
+
+**Limits.** A notebook has at most 100 devices and 20 holders, and at most 3 approvals in progress.
+One `POST /rows` carries at most 500 rows, to put and to remove together. One page of `GET /rows`
+is at most 500 rows and 4,194,304 characters of ciphertext as text, and always at least one row.
 
 ### Three kinds of session
 
 - **Signed in**: the service knows which account the session belongs to (step 4e).
 - **Open**: signed in, attached to an entry in the device list, and proved for the account’s
   current `kid` (under “The key proof”). A change of key closes every session but the one that made
-  it.
-- **Neither** gets nothing.
+  it. “Open” is worked out on each request and never stored, so removing a device’s entry closes
+  its sessions at once.
+- **Neither** gets nothing: every request but `GET /` answers `sign_in`.
 
 The service checks every request against the session’s account and never takes an account, a `sub`,
 or a credential id from a request’s body as proof of who is asking.
+
+**The session is checked before the body is read.** A request that needs an open session answers
+`not_open` to one that isn’t, whatever it sent; one that needs a notebook answers `no_notebook`;
+and a second setup answers `already_set_up`. A device that has fallen behind is always told so,
+and never “too large” or “bad request” for a body it would only send again.
 
 ### The account
 
 | Request | From | The service checks | Then |
 |---|---|---|---|
 | `GET /account` | signed in | nothing more | Answers with the notebook’s id (or none), the current `kid`, the lists’ version, whether this session is open and to which device, the ways in (each one’s kind, id, and dates, and whether a passkey syncs), and any request that is waiting |
-| `POST /session/proof` with the device’s id, `kid`, and the key proof | signed in | `kid` is current; the proof’s SHA-256 equals the stored hash; the device id is in the device list | The session is open and attached to that device. Wrong proofs are counted and limited |
+| `POST /session/proof` with the device’s id, `kid`, and the key proof | signed in | the account has a notebook; `kid` is current; the proof’s SHA-256 equals the stored hash; the device id is in the device list | The session is open and attached to that device. Wrong proofs are counted and limited |
+
+```text
+GET /account
+  → { "notebook": "<uuid>" or null, "kid": 2, "lists": 7,
+      "session": { "open": true, "device": "<uuid>" or null, "expires": "<time>" },
+      "ways": [ { "id": "<uuid>", "kind": "passkey", "added": "<time>",
+                  "credential": "<bytes>", "syncs": true } ],
+      "waiting": null }
+
+POST /session/proof   { "device": "<uuid>", "kid": 2, "proof": "<32 bytes>" }
+  → { "open": true, "device": "<uuid>", "kid": 2 }
+```
+
+- **`kid` is 0, and `notebook` is null, on an account with no notebook.**
+- **A way in’s `kind`** is `apple`, `google`, or `passkey` (step 4e); on the preview, `preview`.
+  `credential` and `syncs` are a passkey’s only. No account id from Apple or Google is ever
+  answered.
+- **`waiting`** is always `null` until step 4f builds the seven-day requests.
+- **The proof’s checks run in the table’s order.** A `kid` that isn’t current is `old_key` whatever
+  the proof, and is not counted. The comparison is of SHA-256 digests in constant time. A wrong
+  proof is `wrong_proof` with `left`, the tries the session has left; the fifth in a row ends the
+  session (`sign_in`, with `"reason": "wrong_proofs"`), and a right one starts the count again.
+  **Wrong proofs are counted for the session, not the account**, so that someone with a stolen
+  sign-in can’t lock the reader’s own devices out by guessing. A device id with no entry is `gone`,
+  checked after the proof.
 
 ### Setting up
 
 | Request | From | The service checks | Then |
 |---|---|---|---|
-| `POST /notebook` with the notebook’s id, the proof’s hash, the device’s entry, and one or more holders | signed in | the account has no notebook (checked and written as one step); at least one holder, at most one of kind `recovery`; a passkey holder’s credential is one of this account’s passkeys and is marked as syncing; every id is a UUID and no two are the same; sizes | `kid` is 1. The device is listed as added by setup. The session is open |
+| `POST /notebook` with the notebook’s id, the proof’s hash, the device’s entry, and one or more holders | signed in | the account has no notebook (checked and written as one step); at least one holder, at most one of kind `recovery`; a passkey holder’s credential is one of this account’s passkeys and is marked as syncing; at most one holder for a passkey; every id is a UUID and no two are the same; sizes | `kid` is 1. The device is listed as added by setup. The session is open |
+
+```text
+POST /notebook
+  { "notebook": "<uuid>", "proofHash": "<32 bytes>",
+    "device": { "id", "card", "keyring" },
+    "holders": [ <a holder in full>, … ] }
+  → { "notebook": "<uuid>", "kid": 1, "lists": 1,
+      "session": { "open": true, "device": "<uuid>" } }
+```
+
+Everything in it is sealed under `kid` 1. Of two devices setting up at once, one is answered and the
+other is told `already_set_up`, and nothing of the second is kept.
 
 ### Devices and holders
 
@@ -1272,19 +1373,78 @@ or a credential id from a request’s body as proof of who is asking.
 |---|---|---|---|
 | `GET /holders` | signed in | nothing more | Each holder’s id, kind, credential id, sealed record, and sealed keyring with its `kid`. No cards |
 | `GET /keyring?device=<id>` | signed in | nothing more | That device’s sealed keyring and its `kid`, or “not found” |
-| `POST /devices` with the device’s id, card, sealed keyring, `kid`, the key proof, and the holder’s id it came in through | signed in | `kid` is current; the proof; the holder exists; no entry has that id | The device is listed as added by that holder’s kind. The lists’ version moves. The session is open |
+| `POST /devices` with the device’s id, card, sealed keyring, `kid`, the key proof, and the holder’s id it came in through | signed in | the account has a notebook; `kid` is current; the proof; the holder exists; no entry has that id | The device is listed as added by that holder’s kind. The lists’ version moves. The session is open |
 | `GET /devices` | open | nothing more | The lists’ version, the current `kid`, each device (its id, its sealed card with the card’s `kid`, when and how it was added, and when it was last seen), and each holder (its id, kind, credential id, its sealed card with the card’s `kid`, and when and from which device it was added) |
 | `PUT /devices/<id>` with a new card, perhaps a new sealed keyring, and the lists’ version | open, and only for its own device | the version is current; the card’s `kid` is current | The card is replaced (a rename), and the sealed keyring if one was sent (a new device key, for the lock). The version moves |
-| `DELETE /devices/<id>` | a session attached to that device | nothing more | Signing out: the entry, its sealed keyring, and the session are removed. The version moves. The key doesn’t change |
-| `POST /holders` with a holder’s id, kind, credential id, record, card, sealed keyring, and the lists’ version | open | the version is current; the card’s and the keyring’s `kid` are current; for `recovery`, none exists; for `passkey`, the credential is this account’s, is marked as syncing, and has no holder yet | The holder is stored. The version moves |
+| `DELETE /devices/<id>` | a session attached to that device | nothing more | Signing out: the entry, its sealed keyring, and every session attached to the device are removed. The version moves. The key doesn’t change |
+| `POST /holders` with a holder’s id, kind, credential id, record, card, sealed keyring, and the lists’ version | open | the version is current; the card’s and the keyring’s `kid` are current; no holder has that id; for `recovery`, none exists; for `passkey`, the credential is this account’s, is marked as syncing, and has no holder yet | The holder is stored. The version moves |
 
 A holder is removed only by a change of key.
+
+```text
+GET /holders
+  → { "holders": [ { "id", "kind", "credential": "<a passkey holder's only>",
+                     "record": { "nonce", "ct" }, "keyring": { "kid", "enc", "ct" } } ] }
+
+GET /keyring?device=<uuid>
+  → { "device": "<uuid>", "keyring": { "kid", "enc", "ct" } }
+
+POST /devices
+  { "kid": 2, "proof": "<32 bytes>", "holder": "<uuid>", "device": { "id", "card", "keyring" } }
+  → { "kid": 2, "lists": 8, "session": { "open": true, "device": "<uuid>" } }
+
+GET /devices
+  → { "kid": 2, "lists": 8,
+      "devices": [ { "id", "card": { "kid", "nonce", "ct" }, "added": "<time>",
+                     "how": "setup" or "approval" or "passkey" or "recovery",
+                     "by": "<uuid>" or null, "seen": "<time>" } ],
+      "holders": [ { "id", "kind", "credential": "<a passkey holder's only>",
+                     "card": { "kid", "nonce", "ct" }, "added": "<time>", "by": "<uuid>" } ] }
+
+PUT /devices/<uuid>   { "lists": 8, "kid": 2, "card": { "nonce", "ct" }, "keyring": { "enc", "ct" } }
+  → { "lists": 9 }
+
+DELETE /devices/<uuid>
+  → { "lists": 10 }
+
+POST /holders         { "lists": 10, "kid": 2, "holder": <a holder in full> }
+  → { "lists": 11 }
+```
+
+- **A device’s `how` and `by`**: `setup` (and `by` is null); `approval` (`by` is the device that
+  granted it); `passkey` or `recovery` (`by` is the holder it came in through). A holder’s `by` is
+  the device it was added from. Both lists are answered oldest first.
+- **`seen`** is when a session open on that device last made a request, written at most once an
+  hour.
+- **`PUT`’s `keyring` may be left out** (a rename). A session attached to another device, or to
+  none, is refused by the rule `own_device`.
+- **`DELETE` needs no open session**, so a device that never caught up with a change of key can
+  still sign out. If its entry is already gone (another device removed it), its sessions are ended
+  and the version doesn’t move.
+- **The answer’s `lists` is the new version**, so a device that just changed a list need not fetch
+  it again.
 
 ### Changing the key
 
 | Request | From | The service checks | Then |
 |---|---|---|---|
 | `POST /notebook/key` with the `kid` and the lists’ version it started from, the new proof’s hash, each kept device (id, card, sealed keyring), each kept holder (id, card, sealed keyring), any new holder in full, and the ids of the devices and holders to remove | open | the `kid` and the version are both still current; **every** device on the service is in exactly one of “kept” and “removed,” and so is every holder; the caller’s own device is kept; at least one holder remains; at most one `recovery` holder remains; a new passkey holder as under `POST /holders` | All at once: `kid` goes up by one; the version moves; the proof’s hash is replaced; the new cards and keyrings are stored; removed devices lose their entries, sealed keyrings, and sessions; removed holders are deleted; approvals in progress are dropped; every session but the caller’s is no longer open |
+
+```text
+POST /notebook/key
+  { "kid": 2, "lists": 11, "proofHash": "<32 bytes, the new key's proof, hashed>",
+    "devices":       [ { "id", "card", "keyring" }, … ],     kept, sealed under kid 3
+    "holders":       [ { "id", "card", "keyring" }, … ],     kept, sealed under kid 3
+    "newHolders":    [ <a holder in full>, … ],              sealed under kid 3
+    "removeDevices": [ "<uuid>", … ],
+    "removeHolders": [ "<uuid>", … ] }
+  → { "kid": 3, "lists": 12 }
+```
+
+Any of the five lists may be left out when it is empty. An id named twice, in one list or across
+“kept” and “removed,” is a malformed request. The whole change is applied or none of it is: a
+refusal leaves `kid`, the version, and both lists exactly as they were. Of two devices changing
+the key at once, one is answered, and the other finds its session no longer open.
 
 ### Records
 
@@ -1293,6 +1453,52 @@ A holder is removed only by a change of key.
 | `GET /rows?since=<rev>` | open | nothing more | Rows with a later `rev`, in order, a cursor for the next call, and whether there are more. With `old=1`, the rows still under an older `kid`, for resealing |
 | `POST /rows` with rows to put, each with the `rev` the device last saw for that id (0 for a new one), and ids to remove, each with its `rev` | open | every row’s `kid` is the current one, or the whole request is refused as “old key”; then, row by row: `v` is 1; `id` is 1 to 64 printable ASCII characters; the two times are in the format’s form; the nonce is 12 bytes; the ciphertext is a multiple of 256 bytes plus 16, and at most 1,048,592; the `rev` given is the row’s current one, or that row is answered with “conflict” and the row as it stands | Each accepted row gets the next `rev`. A removed row is gone. A device that gets “conflict” opens the row it was sent, merges as the format says, and pushes again |
 
+```text
+GET /rows?since=4180            (and &old=1 for the rows still under an older kid)
+  → { "kid": 2, "rows": [ <a row, as under “A record on the service”>, … ],
+      "next": 4182, "more": false }
+
+POST /rows
+  { "put":    [ { "v": 1, "id", "rev": <the rev last seen, 0 for a new row>, "modified",
+                  "deletedAt": "<a trash record's only>", "kid", "nonce", "ct" }, … ],
+    "remove": [ { "id", "rev": <the rev last seen> }, … ] }
+  → { "kid": 2, "rev": 4185,
+      "put":    [ { "id", "rev": 4184 }                        stored, with its new rev
+                  { "id", "refused": "<a check, below>" }      not stored
+                  { "id", "conflict": "changed", "row": <the row as it stands> }
+                  { "id", "conflict": "gone" } ],
+      "remove": [ { "id", "removed": true }
+                  { "id", "conflict": "changed", "row": <the row as it stands> } ] }
+```
+
+- **Reading.** `since` is the `next` of the last page, or 0 (or left out) for everything. A page’s
+  rows are in `rev` order; `next` is the last one’s `rev`, and `more` says whether to ask again.
+  When no row is later, `rows` is empty and `next` is `since`. A row is answered exactly as it was
+  pushed, with its `rev`; **`deletedAt` is left out of a row that has none**, never sent as null.
+- **Writing, the whole request.** Refused as a whole: a row whose `kid` isn’t the current one
+  (`old_key`, and no row of the request is stored); a `kid` that isn’t a whole number of 1 or more,
+  a `put` or `remove` that isn’t a list, an item that isn’t an object, a `remove` item whose `id`
+  or `rev` isn’t in form, or one id named twice in the request (`bad_request`); more than 500 items
+  (`too_large`).
+- **Writing, row by row.** Every other check is answered for that row alone, in the answer’s `put`
+  and `remove`, in the request’s order, and a row that fails never holds back the rows beside it.
+  `refused` names the first check that failed, in this order: `v`, `id`, `modified`, `deletedAt`,
+  `nonce`, `ct` (not base64url, or not a multiple of 256 bytes plus 16), `too_large` (more than
+  1,048,592 bytes), `rev` (not a whole number of 0 or more).
+- **Conflicts.** A row is stored when its `rev` is the one the service holds (0 for an id it
+  doesn’t have). Otherwise it is `"conflict": "changed"` with the row as it stands, or
+  `"conflict": "gone"` when the service has no such row any more (it was removed). A conflict
+  changes nothing. When a request’s conflicts would carry more than a page of ciphertext, the rows
+  past that are answered without `row`, and the device pulls.
+- **Removing.** A row is removed when the `rev` given is its current one. One already gone is
+  answered `"removed": true`, since that is what was asked. A removal takes a revision too, though
+  no row carries it, so `rev` numbers may skip.
+- **Revisions** go up by one for each stored row, in the request’s order, and the answer’s `rev`
+  is the account’s last. Two pushes at once never share one.
+- **`deletedAt` in a request** may be left out or null for a record that isn’t trash; the service
+  stores none and answers none. The service doesn’t check that a row with a `deletedAt` is a trash
+  record’s: it can’t see a record’s kind. The device that opens the row does (“Opening”).
+
 ### Approvals
 
 | Request | From | The service checks | Then |
@@ -1300,11 +1506,44 @@ A holder is removed only by a change of key.
 | `POST /approvals` with the approval’s id, the device’s id, platform, model, both public keys, and the MAC | signed in, not open | the account has a notebook; the id is 32 hex characters and unused; the device id has no entry; a small limit on approvals in progress | Kept for ten minutes |
 | `GET /approvals/<id>` | signed in | nothing more | The request, and the grant if there is one |
 | `POST /approvals/<id>/grant` with `kid`, the card, `enc`, the ciphertext, and the MAC | open | the approval exists, is in time, and has no grant; `kid` is current | The grant is kept, with the device it came from |
-| `POST /approvals/<id>/accept` with `kid` and the key proof | the session that made the request | a grant exists; `kid` is current and is the grant’s; the proof | The device is listed, with the grant’s card and keyring, as added by the granting device. The version moves. The session is open. The approval is deleted |
+| `POST /approvals/<id>/accept` with `kid` and the key proof | the session that made the request | a grant exists; `kid` is current and is the grant’s; the proof; the device id has no entry | The device is listed, with the grant’s card and keyring, as added by the granting device. The version moves. The session is open. The approval is deleted |
 
 The service can’t check either MAC. It keeps them for the two devices, which can.
 
+```text
+POST /approvals
+  { "id": "<32 hex>", "device": "<uuid>", "platform": "ios", "model": "iPhone 15",
+    "public": "<65 bytes>", "sign": "<65 bytes>", "mac": "<32 bytes>" }
+  → { "id": "<32 hex>", "expires": "<time, ten minutes on>" }
+
+GET /approvals/<32 hex>
+  → { "approval": { "id", "device", "platform", "model", "public", "sign", "mac", "expires",
+                    "grant": null
+                          or { "kid", "card": { "nonce", "ct" }, "keyring": { "enc", "ct" },
+                               "mac", "by": "<the granting device's id>" } } }
+
+POST /approvals/<32 hex>/grant
+  { "kid": 2, "card": { "nonce", "ct" }, "keyring": { "enc", "ct" }, "mac": "<32 bytes>" }
+  → { "id": "<32 hex>" }
+
+POST /approvals/<32 hex>/accept     { "kid": 2, "proof": "<32 bytes>" }
+  → { "kid": 2, "lists": 13, "session": { "open": true, "device": "<uuid>" } }
+```
+
+- **`platform`** is 1 to 16 characters and **`model`** 1 to 64, with no control character in
+  either (a model is one of the request’s “lines”). Their values are the device’s to choose, as
+  under “Device keys and device cards.”
+- **The limit is 3 in progress for one account.** A fourth is `too_many` until one runs out, is
+  accepted, or is dropped by a change of key.
+- **An approval belongs to its account.** A session of another account is told `gone` for the same
+  id, as it is for one that ran out or never was.
+- **A second grant is `exists`.** Of two devices granting at once, one is answered.
+- **Accept is for the session that asked**, by its token and nothing in the request. Any other is
+  refused by the rule `requester`; one sent before there is a grant, by the rule `no_grant`.
+
 ### Waiting seven days
+
+Not built yet: step 4f.
 
 | Request | From | The service checks | Then |
 |---|---|---|---|
@@ -1315,18 +1554,69 @@ The service can’t check either MAC. It keeps them for the two devices, which c
 
 ### Ways to sign in
 
-The requests are step 4e’s. This file’s checks on them: on an account with a notebook, adding or
-removing a way in needs an open session; the last way in can’t be removed; a passkey that has a
-holder can’t be removed as a way in while the holder exists; and a passkey response that carries
-`prf` results is refused.
+Not built yet: the requests are step 4e’s. This file’s checks on them: on an account with a
+notebook, adding or removing a way in needs an open session; the last way in can’t be removed; a
+passkey that has a holder can’t be removed as a way in while the holder exists; and a passkey
+response that carries `prf` results is refused. Step 4e’s sign-in ends in the same session token
+every request above already reads, so nothing above changes when it arrives.
+
+### The preview’s way in
+
+**On the preview only, and never part of the interface.** Until step 4e there is no sign-in, so
+the preview service hands a session for a named test account to whoever holds the preview’s
+secret. Both requests answer `not_found`, exactly as a path that was never written does, unless
+the deployment’s own configuration turns them on, names itself the preview, and has the secret.
+Production is given none of the three.
+
+```text
+POST /preview/session    { "secret": "<the preview's secret>", "account": "<a made-up name>" }
+  → { "token": "<43 characters>", "expires": "<time>" }
+
+POST /preview/passkeys   { "credential": "<1 to 1,023 bytes>", "syncs": true }
+  → { "id": "<uuid>", "credential": "<bytes>", "syncs": true }
+```
+
+- **An account’s name** is 1 to 64 of `A`–`Z`, `a`–`z`, `0`–`9`, `.`, `_`, and `-`: a label for a
+  test, never a person’s name or address. The same name is always the same account, so several
+  devices under test share one by sharing a name, and a new name is a new, empty account.
+- **`/preview/passkeys`** lists a passkey as one of the account’s ways in with no ceremony, so a
+  client can run the passkey holder’s checks before a real passkey can be registered. It follows
+  the rule the real request will: once the account has a notebook, it needs an open session.
+- **Everything on the preview is test data and may be wiped at any time.**
 
 ### What the service answers when it refuses
 
-A client has to tell these apart, whatever their final spelling: **sign in again**; **not open**
-(fetch the keyring, check it, prove); **old key** (the same); **the lists changed** (fetch them and
-start the step again); **already set up** (join instead); **conflict** (merge and push again);
-**waiting** (a request to delete or replace is pending); **gone** (an approval ran out, or a device
-has no entry); and **too large**.
+Each refusal is one word in `error`, with the HTTP status beside it. What else the body carries is
+there to save the client a request.
+
+| `error` | Status | Also carries | What it means, and what a client does |
+|---|---|---|---|
+| `sign_in` | 401 | `reason: "wrong_proofs"` after a fifth wrong proof | No session, or one that ran out or was ended. **Sign in again** |
+| `not_open` | 403 | `kid`, the current one | The session hasn’t proved the current key. **Fetch the keyring, check it, prove** |
+| `old_key` | 409 | `kid`, the current one | The request named or was sealed under a key that is no longer current. **The same** |
+| `wrong_proof` | 403 | `left`, the tries left | The proof isn’t the current key’s. The device’s keyring is wrong or behind |
+| `lists_changed` | 409 | `lists`, the current version | **The lists changed.** Fetch them and start the step again |
+| `already_set_up` | 409 | `notebook`, its id | The account has a notebook. **Join it instead** |
+| `no_notebook` | 409 | | The account has none yet. Set one up |
+| `exists` | 409 | `what`: `device`, `holder`, `recovery`, `passkey`, `approval`, or `grant` | That id, or the one thing of that kind, is already there |
+| `gone` | 410 | `what`: `device`, `holder`, or `approval` | **Gone**: an approval ran out, a device has no entry, or the holder a device came in through was removed |
+| `not_found` | 404 | `what: "keyring"` from `GET /keyring` | No such path, or no sealed keyring for that device |
+| `bad_request` | 400 | `field`, the member at fault (`device.card.nonce`, `holders[0].kind`, `put[2].kid`, `Content-Type`, `body`) | The request isn’t in the form above. A fault in the client |
+| `not_allowed` | 422 | `rule`, below | The request is well formed and breaks a rule of the interface |
+| `too_large` | 413 | `limit` | **Too large**: a body over 4,194,304 bytes, or more than 500 rows in one request |
+| `too_many` | 429 | `what`: `devices`, `holders`, or `approvals`; `limit` | A list is full, or three approvals are in progress |
+| `busy` | 503 | | The notebook changed three times while the request was being checked. Send it again |
+| `error` | 500 | | The service failed. Send it again later |
+
+The rules a `not_allowed` names: `holder_needed` (a notebook always has a holder), `one_recovery`,
+`one_holder_per_passkey`, `passkey_unknown` (the credential isn’t one of this account’s passkeys),
+`passkey_not_synced`, `distinct_ids`, `own_device`, `every_device` and `every_holder` (a change of
+key must name each one the service has, once), `keep_own_device`, `already_open` (a device that
+has the key has no approval to ask for), `requester`, and `no_grant`.
+
+**“Conflict” is not a refusal**: it is one row’s answer inside a `POST /rows` that was answered
+200 (above). **“Waiting”** (a request to delete or replace is pending) arrives with step 4f. The
+preview’s way in adds one word of its own, `preview_secret` (401).
 
 ## Later
 
@@ -1470,7 +1760,9 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 2. **4b, the reference and the vectors** (under “The test vectors”), by BVJ’s side. **Built
    2026-11-23**, with what it changed here under “Changed in step 4b.”
 3. **4c, the service on a preview address**: `workers/notebook-service/`, built to “The service’s
-   interface.” With 4a and 4b it is the gate of about December 15.
+   interface.” With 4a and 4b it is the gate of about December 15. **Built 2026-11-23**, with what
+   it changed here under “Changed in step 4c.” Deploying it to the preview address is BVJ’s to do
+   or to ask for (the service’s README has the steps).
 4. **4d, the freeze**, tentatively December 24: this file freezes with the format. A change after
    that is a new version (`/2` labels, `v` 2), never a quiet edit.
 5. **4e and 4f, sign-in and the account work on the service**: the ceremonies this file leaves to
@@ -1602,6 +1894,71 @@ said yes to all nine on 2026-11-23; each still waits on BDR.
 31): the format lets a trash record carry times that merely parse, and the service’s check on a
 row asks for the format’s form, so a trash record with an old, looser time could never be pushed.
 
+## Changed in step 4c
+
+Step 4c built the service (`workers/notebook-service/`) against “The service’s interface” as step
+4b left it. A service can’t leave a check half-read any more than a reference can, so wherever the
+section was silent, loose, or wrong, the text was changed here in the same pull request, and the
+service does what the text now says. **None of these changes a decision of draft 2, and no path
+moved.** The ones marked **(a choice)** could reasonably have gone another way and are under
+“Still open,” 32 to 40, for BDR to confirm and BVJ to check.
+
+1. **Every request’s and answer’s shape is written out**, under each table. Draft 2 named what a
+   request carries and left its spelling to this step.
+2. **“How a request is carried” and “How values are spelled” are new**: the bearer token, one JSON
+   object of at most 4,194,304 bytes, `time` first in every answer, strict base64url, and a number
+   for every “sizes” the tables asked for. **(a choice)**: the numbers, and the limits of 100
+   devices, 20 holders, 500 rows a request, and a page of 500 rows.
+3. **The refusals have their final spelling here**, not in the service’s README as the section’s
+   opening once said, since both apps switch on these words: one word in `error`, a status, and
+   what else the body carries. Two words are new: `busy` (the notebook changed three times under
+   one request; send it again) and `no_notebook`. `bad_request` names the member at fault and
+   `not_allowed` names the rule. **(a choice)**
+4. **The session and the account are checked before the body is read** (“Three kinds of session”),
+   so a device that has fallen behind is told `not_open` whatever it sent. **(a choice)**
+5. **`POST /session/proof`**: “the account has a notebook” is written into the checks, and so is
+   their order, which a client can see (an old `kid` is never counted as a wrong proof; a device
+   with no entry is told `gone` only after a right proof). **Wrong proofs are counted for the
+   session, and the fifth in a row ends it.** Draft 2 said “counted and limited.” **(a choice)**
+6. **`POST /notebook` allows one holder for a passkey.** Draft 2 gave that rule to `POST /holders`
+   alone, so a setup naming one credential twice would have passed.
+7. **`POST /devices` and `POST /approvals/<id>/accept`** have “the account has a notebook” written
+   in, and accept checks again that the device’s id has no entry: one can appear between the
+   request and the accept, when the same device also comes in through a holder.
+8. **`DELETE /devices/<id>` ends every session attached to that device**, where draft 2 said “the
+   session”: a device may hold more than one (two tabs). It needs no open session, and it succeeds
+   when the entry is already gone.
+9. **`POST /holders` refuses an id a holder already has.**
+10. **Every request that changes a list answers the new version**, and `POST /notebook/key` the
+    new `kid`, so a device need not fetch what it just changed.
+11. **`POST /notebook/key`**: an id named twice is a malformed request; an empty list may be left
+    out; “one holder for a passkey” holds across the kept holders and the new ones.
+12. **`POST /rows` answers each row for itself.** Draft 2’s one sentence made “conflict” a row’s own
+    answer and didn’t say whether a row that fails a check of form refuses the request. It doesn’t:
+    that row is answered `refused` with the check’s name, and the rows beside it are stored. The
+    whole request is refused only for an old `kid`, a request that isn’t in form, an id named
+    twice, or more than 500 rows. **(a choice)**
+13. **`POST /rows`, the rest**: a `rev` given for a row the service no longer has is
+    `"conflict": "gone"`; removing a row that is already gone succeeds; a removal takes a revision.
+    **(a choice)**
+14. **`GET /rows` pages**, by `next` and `more`, and the service leaves `deletedAt` out of a row
+    that has none (item 24 left the service’s spelling of “none” to this step).
+15. **The times’ check is built as the tables state it** (item 31): both in the format’s form, by
+    the reference’s own pattern. Being row by row, a trash record with a looser `deletedAt` is
+    answered `refused: "deletedAt"` and holds nothing else back. Item 31 is still open.
+16. **Approvals**: the “small limit” is 3 in progress for an account **(a choice)**; `platform` is
+    at most 16 characters and `model` 64, with no control characters; another account’s session is
+    told `gone`; “the session that made the request” is known by its token.
+17. **“The preview’s way in” is new**, and outside the interface: how a client gets a session
+    before step 4e exists, and why production can’t have it. **(a choice)**: the proposed address.
+18. **A session’s token and its 30 days** are written down (“How a request is carried”). Draft 2
+    left “how a session is carried” to the README; a client can’t call anything without it.
+    **(a choice)**: the 30 days, which step 4e may revisit with real sign-in.
+19. **“Open” is worked out on each request, never stored** (“Three kinds of session”), which is
+    how removing an entry closes its sessions at once.
+20. **“Waiting seven days” and “Ways to sign in” say they are not built yet**, and each names its
+    step.
+
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
@@ -1639,7 +1996,11 @@ day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
 17. **Who answers when the service breaks**: BVJ first, and BDR second. **BDR’s part is for BDR to
     accept.** Only BVJ can deploy or roll back today, so step 4c gives BDR a way to (a member role
     on the Cloudflare account, or deploys that run from a merged pull request; not yet chosen) and
-    writes the steps into `DISASTER-RECOVERY.md`.
+    writes the steps into `DISASTER-RECOVERY.md`. **Step 4c built the second and left it off**: a
+    workflow that deploys the preview from `main` and rolls it back from GitHub, with no access to
+    Cloudflare, waits for BVJ to turn it on. Both options, what each asks of BVJ, and which the
+    service’s side recommends are in `workers/notebook-service/README.md`, “Who can deploy and
+    roll back.” **The choice is still BVJ’s to make.**
 
 **To find out, on real devices, before the freeze:**
 
@@ -1670,7 +2031,8 @@ is cheap before the freeze. The numbers go on from 21 so that nothing above is r
     “Let’s go ahead and loosen it,”** after weighing who pastes a code and when. The reference and
     the vectors changed with it (`CRYPTO_VECTORS_VERSION` 2). Still for BDR to confirm.
 24. **A row’s `deletedAt` is left out unless the record is trash**, and a `null` reads the same
-    (“A record on the service”). The service’s own spelling of “none” is step 4c’s.
+    (“A record on the service”). The service’s own spelling of “none” is step 4c’s: **it leaves
+    the member out**, and takes a missing one and a null alike in a request.
 25. **A client checks the ciphertext’s length itself** and doesn’t open a row that isn’t a padded
     record’s, even one whose seal would hold (“Opening”).
 26. **“The same instant,”** exactly: the same bytes, or both in the format’s form, alike through
@@ -1678,7 +2040,7 @@ is cheap before the freeze. The numbers go on from 21 so that nothing above is r
     the format’s form matches only itself.
 27. **A sealed card and a sealed holder record travel as a 12-byte nonce and a ciphertext**,
     unpadded, and the interface settles their spelling in step 4c (“Device keys and device cards,”
-    “Holders”). Padding a card would hide the length of a device’s name; draft 2 padded records
+    “Holders”): **`{ "nonce", "ct" }`, base64url** (“How values are spelled”). Padding a card would hide the length of a device’s name; draft 2 padded records
     only, and so does the reference.
 28. **`platform` is `ios`, `android`, or `web`**, in a card and in an approval’s request, and
     nothing checks it (“Device keys and device cards”).
@@ -1697,4 +2059,42 @@ is cheap before the freeze. The numbers go on from 21 so that nothing above is r
     2026-11-23; `STUDY-DESK-FOR-THE-APPS.md`, “Waiting to hear from the apps,” 8): has either ever
     written a trash record’s time in any form but the `Z` one? If neither has, the simplest answer
     is for the format to ask the `Z` form of trash records too; if one has, the service relaxes its
-    check for a trash record’s row. Settled in step 4c or 4d, once they answer.
+    check for a trash record’s row. Settled in step 4c or 4d, once they answer. **As built in step
+    4c, with no answer yet**: the service makes the check as the interface states it, row by row,
+    so such a row is answered `refused: "deletedAt"` and the rows beside it are stored. Relaxing
+    it is one line of the service (`refusedRow`, `workers/notebook-service/src/rows.js`). Settled
+    in step 4d.
+
+**From step 4c, for BDR to confirm and BVJ to check.** Building the service forced a choice in each
+of these, where the interface made none. Each is written into “The service’s interface,” is what
+the service does today, and has a test. Changing one before the freeze is cheap. The numbers go on
+from 31:
+
+32. **The sizes and limits** (“How values are spelled”): a body of at most 4,194,304 bytes; a
+    sealed card or holder record of at most 4,096 bytes, and a sealed keyring of 65,536 (about a
+    thousand keys); 100 devices and 20 holders in a notebook; 500 rows in one request; a page of
+    500 rows or 4,194,304 characters of ciphertext. Each is a ceiling well above what a client
+    sends today. Say if an app would send more.
+33. **The refusals’ words and statuses** (“What the service answers when it refuses”), and that a
+    client acts on `error` and never on `message`.
+34. **Wrong proofs are counted for the session, and the fifth in a row ends it.** Counting them for
+    the account would let someone with a stolen sign-in lock the reader’s own devices out by
+    guessing, and guessing 32 bytes is out of reach at any count.
+35. **`POST /rows` answers each row for itself**, and refuses the whole request only for an old
+    `kid`, a request not in form, an id named twice, or more than 500 rows. The other reading
+    refuses everything for one bad row, which lets a single record a device can’t fix block its
+    whole queue.
+36. **Removing**: a removal takes a revision; removing a row already gone succeeds; and a `rev`
+    given for a row the service no longer has is `"conflict": "gone"`, which a device answers by
+    pushing the row as new (`rev` 0) if its own merge says the record should live.
+37. **Three approvals in progress for an account.** Someone with a stolen sign-in can hold all
+    three, ten minutes at a time, and so keep a new device from asking. Counting by session
+    wouldn’t stop that, since a sign-in makes sessions freely; the reader’s passkey and recovery
+    code don’t pass through approvals, and a change of key clears them.
+38. **The session is checked before the body**, so `not_open`, `no_notebook`, and `already_set_up`
+    come first whatever was sent.
+39. **The preview**: its address, `https://notebook-preview.litbible.net` (proposed, and BVJ’s to
+    confirm on deploying it); test accounts by a made-up name; one secret, which BVJ gives BDR
+    directly and which is never written into a repository.
+40. **A session is a bearer token and lasts 30 days.** Step 4e, which builds real sign-in, may
+    change how long.

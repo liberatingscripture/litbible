@@ -90,7 +90,8 @@ src/
   styles/          # CSS
 scripts/           # Build & validation scripts (Node.js)
 public/            # Static assets + generated output (API, search index)
-workers/           # Cloudflare Worker for the contact + app-support forms (deployed separately)
+workers/           # Cloudflare Workers, each deployed separately: the contact + app-support
+                   #   forms, and the Study Desk's notebook sync service (a preview so far)
 ```
 
 ## Editing the scripture text

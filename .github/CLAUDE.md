@@ -12,8 +12,9 @@
 From the root's project tree.
 
 ```
-.github/dependabot.yml  # Three update streams: npm at `/`, npm at
-                     #   `/workers/contact-form` (separate dep tree), and
+.github/dependabot.yml  # Four update streams: npm at `/`, npm at
+                     #   `/workers/contact-form` and at
+                     #   `/workers/notebook-service` (separate dep trees), and
                      #   github-actions. Minor/patch are grouped into one weekly
                      #   PR per stream; majors stay ungrouped so each gets the
                      #   hand-checked treatment (see the Astro 7 pins above).
@@ -23,9 +24,12 @@ From the root's project tree.
                      #   those lists in step with package.json. A group PR can
                      #   still carry a transitive major (see the file's
                      #   header comment).
-                     #   The worker stream has a second group, `worker-runtime`,
-                     #   so @cloudflare/vitest-plugin and wrangler always bump
-                     #   together (bumped apart, they split the worker's tree).
+                     #   Each Worker's stream has a second group
+                     #   (`worker-runtime`, `notebook-runtime`), so
+                     #   @cloudflare/vitest-plugin and wrangler always bump
+                     #   together (bumped apart, they split that Worker's tree).
+                     #   The two Workers' lockfiles are independent, so their
+                     #   runtime PRs arrive separately: verify both the same way.
                      #   Dependabot can't follow a package rename: the plugin
                      #   was @cloudflare/vitest-pool-workers until 2026-08, and
                      #   the frozen old name drew no PRs for six weeks while the
@@ -37,3 +41,16 @@ From the root's project tree.
                      #   security updates" setting, and they can carry a major
                      #   (see the file's header comment)
 ```
+
+## Workflows that touch Cloudflare
+
+`workflows/notebook-service-deploy.yml` deploys the notebook service's
+preview from `main` and rolls it back. **It is built and off**: both jobs are
+skipped unless the repository variable `NOTEBOOK_PREVIEW_DEPLOYS` is `on`,
+which is BVJ's call (`workers/CLAUDE.md`). Its secrets belong in a GitHub
+environment limited to `main` (`notebook-preview`), never in plain repository
+secrets, so that a workflow pushed on another branch can't read the
+Cloudflare token. It deploys with the wrangler in the package's own lockfile,
+not with an action that brings its own. The other workflows (`ci.yml`,
+`release-notes.yml`, `apps-mirror-notify.yml`) never touch Cloudflare: the
+site deploys through the Pages project's own git connection.

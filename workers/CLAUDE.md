@@ -26,3 +26,76 @@
   can't pass the check) 303-redirect to the matching `…/thanks/` page.
   **Adding a route means redeploying the Worker before the site deploy that
   publishes the new form**, or the POST hits the Pages 404.
+
+## What the two Workers share
+
+From the root's project tree. Each Worker is a package of its own: its own
+`package.json`, lockfile, and vitest suite (`npm test` in its directory), and
+its own CI job and Dependabot stream. The root `npm ci` and `npm test` reach
+neither, and nothing in the site imports either.
+
+- **`wrangler`'s version is set by `@cloudflare/vitest-plugin`, not by our
+  range.** Both suites run in workerd through that plugin, which pins wrangler
+  EXACTLY. Our wrangler range must only admit that pin, or the tree splits
+  into a second, nested wrangler/miniflare/workerd that no bump of ours can
+  reach. `workers/contact-form/README.md`, "Development notes," has the whole
+  story; Dependabot bumps the pair together in each stream
+  (`.github/CLAUDE.md`).
+- **Deploys are the owner's.** Cloudflare is BVJ's account: a session never
+  runs `wrangler deploy`, `wrangler d1 create`, `wrangler secret put`, a
+  remote migration, or anything else that creates or changes a resource there
+  unless BVJ says so in that session. Local runs and tests need no account
+  and are a session's to run.
+- **No secret's value goes into a file, a commit, a pull request, or a
+  message.** `DISASTER-RECOVERY.md` records names only.
+
+## The notebook service (`workers/notebook-service/`)
+
+The Study Desk's sync service: a Worker with a D1 database that holds each
+signed-in reader's notebook sealed, so the service can open nothing (the
+plan's step 4c in `STUDY-DESK.md`, "Order of work," 4; built 2026-11-23).
+**It is a preview only**: no production deployment, no real sign-in (step
+4e), no account deletion (step 4f), and the website's connector to it is step
+4g. Its README is the working reference (run, test, deploy, roll back, wipe,
+and what each later step plugs in and where).
+
+- **Its specification is `STUDY-DESK-ENCRYPTION.md`, "The service's
+  interface," and the two change together.** That section holds the exact
+  shape of every request and answer, every size, and the word of every
+  refusal; both apps build clients from it. A change to a check, a shape, a
+  size, or a word is a change to the spec in the same pull request, with a
+  dated entry in `STUDY-DESK-FOR-THE-APPS.md`. After the freeze (step 4d) it
+  is a new interface version.
+- **"Checked and written as one step" is `guard()` and `commit()` in
+  `src/db.js`.** D1 has no transaction across a read and a later write, so
+  every write that depends on a read is one batch whose first statement fails
+  unless the account's `kid`, lists' version, or last revision is still what
+  was read. A new write path that skips the guard is a race, whatever its
+  tests say; `test/races.test.js` shows how to force one at an exact point,
+  and each guard there was checked by weakening it and watching a test fail.
+- **Nothing personal is stored or logged, and no body, key proof, or session
+  token reaches a log.** One line a request, with the route's own pattern and
+  never the address asked for; Cloudflare's per-request log is off in
+  `wrangler.jsonc`. `test/http.test.js` holds the service to it.
+- **The preview's way in (`src/preview.js`) must stay unreachable in
+  production**: routed only when the environment's own config says
+  `PREVIEW_SIGN_IN` is `on`, names itself exactly `preview` (an allow-list),
+  and holds a `PREVIEW_SECRET` of 32 characters or more. `test/preview.test.js`
+  proves "not found" when any of the three is missing. Don't loosen any of
+  the three, and don't give production's config any of them.
+- **The tests are a real client.** They import the website's reference by
+  relative path (`src/lib/desk-crypto.mjs`) and replay the vectors'
+  walkthrough (`test/fixtures/notebook-crypto-vectors.json`) through the
+  Worker in workerd on a real local D1. `scripts/walkthrough.mjs` runs the
+  same steps over HTTP, which is how a deploy is verified. A change to the
+  reference or the vectors can therefore fail this package's CI job, not the
+  root's.
+- **Migrations are applied before the code that needs them, and a rollback
+  never undoes one**, so each must work with the code already deployed. Never
+  edit one that has been applied; add the next numbered file.
+- **`.github/workflows/notebook-service-deploy.yml` is built and OFF.** It
+  deploys the preview from `main` and rolls it back from GitHub, and both
+  jobs are skipped until BVJ sets a repository variable. Which way BDR rolls
+  back (that workflow, or a member role on the Cloudflare account) is BVJ's
+  choice and was not made on 2026-11-23: the README's "Who can deploy and
+  roll back" lays out both.

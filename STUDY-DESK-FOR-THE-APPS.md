@@ -56,6 +56,13 @@ because nothing carried them there. This file is what carries them now.
    (BVJ, 2026-11-23). Say here if that doesn't work, and which you would
    rather have for rolling the service back: a member role on BVJ's
    Cloudflare account, or deploys that run from a merged pull request.
+   **The second is built and off** (step 4c, 2026-11-23): once BVJ turns
+   it on, a merge to `main` deploys, and you roll back from this
+   repository's Actions tab with no access to Cloudflare. The service's
+   side recommends it, since the only member role that could do the
+   same reaches the whole account. Both are laid out in
+   `workers/notebook-service/README.md`, “Who can deploy and roll back.”
+   The choice is BVJ's and isn't made; your preference still counts.
 7. **The nine readings the reference had to choose**, and one question
    (asked 2026-11-23 with the vectors, the first entry below):
    `STUDY-DESK-ENCRYPTION.md`, “Still open,” 22 to 31. Each is what the
@@ -75,8 +82,83 @@ because nothing carried them there. This file is what carries them now.
    such a record could never be pushed. If neither app has, the format
    will ask the `Z` form of trash records too; if one has, the service
    relaxes its check for a trash record's row instead.
+9. **The nine choices the service had to make** (asked 2026-11-23 with
+   the service, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
+   “Still open,” 32 to 40. Each is what the service does today and has
+   a test, and each is cheap to change before the freeze. Answer by
+   number here. **35 most of all**: `POST /rows` answers each row for
+   itself, so one row a device can't fix never blocks the rest of its
+   queue. **32 next**: say if either app would ever send a body over
+   4 MiB or more than 500 rows in one request.
 
 ## The list
+
+### 2026-11-23, the notebook service is built (step 4c)
+
+**The service exists, and the interface has its final spelling.** It is
+`workers/notebook-service/` on `main`: a Cloudflare Worker with D1 that
+answers every request in `STUDY-DESK-ENCRYPTION.md`, “The service's
+interface,” but sign-in (step 4e) and the seven-day requests (step 4f).
+**It is not deployed yet**: the preview's address is proposed, and an
+entry here will say when it is live. Until then it runs on your own
+machine, which is enough to build against.
+
+- **Read “The service's interface” again**: it is no longer a sketch.
+  Under each table is the exact body of every request and every answer.
+  “How a request is carried” has the session (`Authorization: Bearer
+  <token>`), the JSON rules, and `time` first in every answer. “How
+  values are spelled” has base64url, ids, times, and every size. “What
+  the service answers when it refuses” is the table to switch on: one
+  word in `error`, a status, and what else the body carries. No path
+  moved, and no check of draft 2 was taken away.
+- **Run it locally**, with no Cloudflare account and no secret from
+  anyone. In a clone of this repository:
+  `cd workers/notebook-service`, `npm ci`, copy `.dev.vars.example` to
+  `.dev.vars` and put 32 or more characters of your own after
+  `PREVIEW_SECRET=`, `npm run migrate:local`, `npm run dev`. It answers at
+  `http://localhost:8787` (from an Android emulator,
+  `http://10.0.2.2:8787`). `npm run walkthrough` runs the vectors'
+  walkthrough against it.
+- **How an app gets a session before sign-in exists**: the preview's own
+  way in (the spec's “The preview's way in”). `POST /preview/session`
+  with `{ "secret", "account" }` answers a token. `account` is any
+  made-up label (`bdr-ios-1`); the same label is the same account, so two
+  devices under test share a notebook by sharing one. `POST
+  /preview/passkeys` lists a passkey as a way in with no ceremony, so the
+  passkey holder's checks can be tried. Locally the secret is the one in
+  your own `.dev.vars`. **For the deployed preview, BVJ gives BDR the
+  secret privately. It never goes into a repository, an issue, a pull
+  request, or a conversation with an assistant**: a session reads it from
+  the environment.
+- **The quickest way to see every call in order** is
+  `workers/notebook-service/test/walkthrough.js`: the vectors' walkthrough
+  as the requests a client sends, with what comes back, in about 400
+  lines. `test/notebook.js` is the same client with freshly made keys.
+- **Nine choices the service had to make**, where the interface made
+  none, are the spec's “Still open,” 32 to 40, each **for BDR to
+  confirm** (ask 9 above). The ones a client feels most:
+  - **`POST /rows` answers each row for itself** (35). A row that fails a
+    check is answered `refused` and the rows beside it are stored; only
+    an old `kid`, a malformed request, a repeated id, or more than 500
+    rows refuses the whole request. A stale `rev` is that row's
+    `conflict`, with the row as it stands.
+  - **The session is checked before the body** (38), so a device that
+    missed a change of key always hears `not_open`.
+  - **Five wrong key proofs in a row end the session** (34), counted for
+    the session and not the account.
+  - **The limits** (32): a 4 MiB body, 500 rows a request, 100 devices,
+    20 holders, three approvals in progress.
+  - **A session lasts 30 days** (40), which sign-in may change.
+- **A trash record's times** (ask 8, the spec's 31) are checked as the
+  interface states, since neither app has answered: a row whose
+  `deletedAt` isn't in the `Z` form is answered `refused: "deletedAt"`,
+  alone. Say if either app has ever written another form.
+- **Everything on the preview will be test data, wiped at any time.**
+- **Still to come**: the preview's address going live (BVJ); sign-in
+  (4e), after which the token comes from Apple, Google, or a passkey and
+  nothing else in a request changes; deleting an account and the
+  seven-day requests (4f), until which `GET /account` answers `waiting`
+  as null; and production's address (4f).
 
 ### 2026-11-23, a pasted code is read more kindly (vectors version 2)
 

@@ -3,12 +3,13 @@
 // `npm run dev` works. The steps are the ones the test suite runs in workerd
 // (test/walkthrough.js); only the way a request is sent differs.
 //
-//   NOTEBOOK_URL     the service's address (default http://localhost:8787)
-//   PREVIEW_SECRET   the preview's secret. Read from the environment only:
-//                    never pass it as an argument, and it is never printed.
-//                    For a local run it is the value in .dev.vars.
+//   npm run walkthrough                           the local `npm run dev`
+//   npm run walkthrough -- https://<the address>  a deployed preview
 //
-//   npm run walkthrough
+// The address is the first argument, or NOTEBOOK_URL, or http://localhost:8787.
+// The preview's secret is read from PREVIEW_SECRET in the environment: never
+// pass it as an argument, and it is never printed. For a local address alone,
+// it is read from this package's own .dev.vars when the environment has none.
 //
 // Each run makes its own test account (walkthrough-<time>-<random>), so runs
 // never meet, and what it leaves behind is test data in a preview database.
@@ -18,11 +19,22 @@ import { fileURLToPath } from "node:url";
 import * as ref from "../../../src/lib/desk-crypto.mjs";
 import { walkthroughSteps } from "../test/walkthrough.js";
 
-const base = (process.env.NOTEBOOK_URL ?? "http://localhost:8787").replace(/\/+$/, "");
-const secret = process.env.PREVIEW_SECRET;
+const base = (process.argv[2] ?? process.env.NOTEBOOK_URL ?? "http://localhost:8787").replace(/\/+$/, "");
+const local = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(base);
+const secret = process.env.PREVIEW_SECRET || (local ? await localSecret() : undefined);
 if (!secret) {
-  console.error("PREVIEW_SECRET is not set. Set it in the environment for this run; it is never written down here.");
+  console.error(
+    local
+      ? "No PREVIEW_SECRET in the environment or in .dev.vars. Copy .dev.vars.example to .dev.vars and fill it in."
+      : "PREVIEW_SECRET is not set. Set it in the environment for this run; it is never written down here.",
+  );
   process.exit(2);
+}
+
+/** The local-only secret from this package's .dev.vars, which git ignores. Never used for a deployed address. */
+async function localSecret() {
+  const text = await readFile(fileURLToPath(new URL("../.dev.vars", import.meta.url)), "utf8").catch(() => "");
+  return /^PREVIEW_SECRET=(.+)$/m.exec(text)?.[1].trim();
 }
 
 const vectors = JSON.parse(
@@ -49,30 +61,36 @@ async function call(method, path, { token, body } = {}) {
   return { status: response.status, headers: response.headers, body: parsed };
 }
 
-const hello = await call("GET", "/").catch((error) => ({ status: 0, body: { error: error.message } }));
-if (hello.status !== 200 || hello.body?.service !== "lit-notebook") {
-  console.error(`No notebook service answered at ${base} (${hello.status}).`);
-  process.exit(1);
-}
-if (!hello.body.preview) {
-  console.error(`The service at ${base} has no preview way in, so the walkthrough can't sign in.`);
-  process.exit(1);
-}
-console.log(`${base}  interface ${hello.body.interface}  service time ${hello.body.time}`);
+// The exit code is set and the script left to end by itself: process.exit()
+// straight after a fetch trips an assertion in Node on Windows.
+process.exitCode = await main();
 
-const account = `walkthrough-${Date.now().toString(36)}-${ref.toBase64url(ref.randomBytes(6))}`;
-const steps = walkthroughSteps({ call, ref, vectors, secret, account });
-let passed = 0;
-for (const { name, run } of steps) {
-  try {
-    await run();
-    passed += 1;
-    console.log(`  ok    ${name}`);
-  } catch (error) {
-    // A step's message quotes the service's answer, never what was sent, so no secret or token is in it.
-    console.log(`  FAIL  ${name}\n        ${error.message}`);
-    break;
+async function main() {
+  const hello = await call("GET", "/").catch((error) => ({ status: 0, body: { error: error.message } }));
+  if (hello.status !== 200 || hello.body?.service !== "lit-notebook") {
+    console.error(`No notebook service answered at ${base} (${hello.status}).`);
+    return 1;
   }
+  if (!hello.body.preview) {
+    console.error(`The service at ${base} has no preview way in, so the walkthrough can't sign in.`);
+    return 1;
+  }
+  console.log(`${base}  interface ${hello.body.interface}  service time ${hello.body.time}`);
+
+  const account = `walkthrough-${Date.now().toString(36)}-${ref.toBase64url(ref.randomBytes(6))}`;
+  const steps = walkthroughSteps({ call, ref, vectors, secret, account });
+  let passed = 0;
+  for (const { name, run } of steps) {
+    try {
+      await run();
+      passed += 1;
+      console.log(`  ok    ${name}`);
+    } catch (error) {
+      // A step's message quotes the service's answer, never what was sent, so no secret or token is in it.
+      console.log(`  FAIL  ${name}\n        ${error.message}`);
+      break;
+    }
+  }
+  console.log(`${passed} of ${steps.length} steps passed (test account ${account}).`);
+  return passed === steps.length ? 0 : 1;
 }
-console.log(`${passed} of ${steps.length} steps passed (test account ${account}).`);
-process.exit(passed === steps.length ? 0 : 1);
