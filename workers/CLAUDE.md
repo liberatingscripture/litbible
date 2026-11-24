@@ -94,10 +94,12 @@ deploy, roll back, wipe, and what each later step plugs in and where).
 - **Migrations are applied before the code that needs them, and a rollback
   never undoes one**, so each must work with the code already deployed. Never
   edit one that has been applied; add the next numbered file.
-- **`.github/workflows/notebook-service-deploy.yml` is built and OFF.** It
-  deploys the preview from `main` and rolls it back from GitHub, and both
-  jobs are skipped until BVJ sets a repository variable. It is the way BDR
-  rolls back (BVJ's choice, 2026-11-23, over a member role on the Cloudflare
-  account), and it stays off until its Cloudflare token and its GitHub
-  environment exist: the README's "Who can deploy and roll back" has the
-  steps. Until it is on, the preview is deployed by hand.
+- **`.github/workflows/notebook-service-deploy.yml` is ON (since
+  2026-11-23). A merge to `main` that touches this package deploys the
+  preview**: tests, migrations, deploy, then the walkthrough against it. So
+  a change here is live minutes after it merges, and a migration in it is
+  applied for good. The workflow is also the way BDR rolls back, from the
+  Actions tab (BVJ's choice over a member role on the Cloudflare account); a
+  deploy, a rollback, and a second deploy were each run from it that day.
+  The repository variable `NOTEBOOK_PREVIEW_DEPLOYS` is its switch, and the
+  README's "Who can deploy and roll back" has how it is set up.

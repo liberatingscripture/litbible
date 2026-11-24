@@ -60,8 +60,10 @@ because nothing carried them there. This file is what carries them now.
    workflow” on `main`, action `rollback`) with no access to Cloudflare.
    The other way, a member role on BVJ's Cloudflare account, was set
    aside because the only role that could do the same reaches the whole
-   account. **The workflow is built and still off**: an entry in the list
-   below will say when it is on and has been tried. It is laid out in
+   account. **The workflow is on and has been tried** (2026-11-23: a
+   deploy, a rollback, and a second deploy, each run from the Actions tab
+   and each passing). A rollback returns the service's code in seconds
+   and never touches the database. It is laid out in
    `workers/notebook-service/README.md`, “Who can deploy and roll back.”
    Say here if a rollback from GitHub doesn't work for you.
 7. **The nine readings the reference had to choose**, and one question
@@ -91,6 +93,33 @@ because nothing carried them there. This file is what carries them now.
    itself, so one row a device can't fix never blocks the rest of its
    queue. **32 next**: say if either app would ever send a body over
    4 MiB or more than 500 rows in one request.
+10. **BDR, please try one rollback of the preview, and say here how it
+    went** (asked by BVJ, 2026-11-23). It has only been run from BVJ's
+    account, and you are the one who will need it. It needs no
+    coordination with BVJ, no merge, and nothing on Cloudflare, and the
+    preview holds test data only, so nothing can be lost.
+    1. On github.com, open this repository's **Actions** tab. In the
+       left list, choose **Notebook service (preview)**.
+    2. Click **Run workflow** (right side). Leave the branch on `main`.
+       Set **action** to `rollback`. Leave **version** empty, which
+       means "the version before the current one." In **reason**, write
+       a few words (`BDR's first rollback test`). Click the green
+       **Run workflow**.
+    3. Open the run that appears. It takes about a minute. Its
+       **Versions before** and **Versions after** steps list what was
+       deployed and what is now. A green check means the Worker is back
+       on the earlier version.
+    4. **Put it back**: **Run workflow** again on `main`, with
+       **action** `deploy`. That redeploys what is on `main`, runs the
+       service's tests first, and finishes by running the walkthrough
+       against the deployed service (about two minutes). A green check
+       means the preview is where it started.
+    To return to one particular version instead, copy its Version ID
+    from a **Versions before** step into **version**. A rollback
+    returns the service's code in seconds and never touches the
+    database. In a real break: roll back first, tell BVJ second. A fix
+    still goes through a pull request that BVJ merges, and the merge
+    deploys it.
 
 ## The list
 
@@ -160,9 +189,12 @@ from anyone.
   interface states, since neither app has answered: a row whose
   `deletedAt` isn't in the `Z` form is answered `refused: "deletedAt"`,
   alone. Say if either app has ever written another form.
-- **Rolling back** (ask 6 above): BVJ chose the GitHub workflow, which
-  is built and not yet turned on. Until it is, only BVJ can deploy or
-  roll back.
+- **Rolling back** (ask 6 above): BVJ chose the GitHub workflow, and it
+  is on (2026-11-23). A merge to `main` that touches
+  `workers/notebook-service/` now deploys the preview by itself, after
+  the service's tests, and then runs the walkthrough against it. Anyone
+  with write access to this repository can roll back from the Actions
+  tab.
 - **Everything on the preview is test data, wiped at any time.** Use
   made-up account labels of your own (`bdr-ios-1`), and expect a wipe to
   be announced here.
