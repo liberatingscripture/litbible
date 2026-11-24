@@ -52,7 +52,11 @@ because nothing carried them there. This file is what carries them now.
    on Android 9 to 13; what happens when an iPhone scans a code to sign in
    on a computer; and a passkey kept in 1Password or Bitwarden. **The
    first is wanted before the freeze**, since the design leans on it.
-6. **The nine readings the reference had to choose**, and one question
+6. **BDR, you are second to answer when the service breaks**, after BVJ
+   (BVJ, 2026-11-23). Say here if that doesn't work, and which you would
+   rather have for rolling the service back: a member role on BVJ's
+   Cloudflare account, or deploys that run from a merged pull request.
+7. **The nine readings the reference had to choose**, and one question
    (asked 2026-11-23 with the vectors, the first entry below):
    `STUDY-DESK-ENCRYPTION.md`, “Still open,” 22 to 31. Each is what the
    vectors test today, and each is cheap to change before the freeze.
@@ -165,20 +169,50 @@ IOS-108 and NB15.
 - **The spec changed with it**, in the same pull request: its “Changed in
   step 4b” lists 21 places where the text now says exactly what the
   reference does. No decision of draft 2 moved. Nine were choices and
-  are for BDR and BVJ to confirm (“Waiting to hear from the apps,” 6).
+  are for BDR and BVJ to confirm (“Waiting to hear from the apps,” 7).
+  BVJ's yes to draft 2's own choices (the entry below) was given before
+  these nine existed, and doesn't cover them.
 - **If the reference is wrong, say so here.** A change to a rule changes
   the spec, the reference, and the file together, and `vectorsVersion`
   goes up, so a client can tell which file it ran.
+
+### 2026-11-23, BVJ on draft 2's choices
+
+BVJ was walked through the choices draft 2 made (the spec's “Still open,”
+7 to 17) and said yes to all of them. Recorded in full in `STUDY-DESK.md`,
+“Decisions,” 2026-11-23, “BVJ on draft 2's choices.”
+
+- **7 to 15 are now BVJ's calls, and each is still for BDR to confirm**:
+  the key proof; only a synced passkey with a working PRF holds the key;
+  the passkey's fixed input; where the key lives is whether a passkey
+  holder exists, not a setting the service stores; a notebook always has
+  a holder; “Replace my passkey” and “Switch to this device only” on the
+  screen that removes a device; a device makes its own id; the service's
+  requests, with the clock cap left to the devices; and changing a way to
+  sign in needs a device that has the key. So the spec's “Still open,” 1
+  to 15, waits on BDR alone.
+- **A merge test comes with the clock cap** (14), in the freeze work
+  (step 4d): two devices whose clocks differ must still agree on which
+  edit wins. It will be a new case in the merge vectors both apps run.
+- **The two sentences are settled** (16), and the apps show the same
+  words: the one for a reader who takes no recovery code, in the spec
+  under “Setting up the first device,” and the removal screen's under
+  “follows my account,” in “What removing a device means,” which now
+  names the reader's password manager beside their Apple or Google
+  account.
+- **When the service breaks, BVJ answers first and BDR second** (17).
+  **BDR's part is for BDR to accept** (ask 6 above). Only BVJ can deploy
+  or roll back today, so the service's first step (4c) gives BDR a way to.
 
 ### 2026-11-23, the encryption spec's draft 2
 
 `STUDY-DESK-ENCRYPTION.md` is now draft 2, written on the website's side
 (the plan's step 4a). It replaces draft 1 whole. Nothing in it is built,
 and the reference and vectors (4b) follow once it is agreed. (**Overtaken
-the same day**: 4b was built against draft 2 as written; the entry
-above.) **For BDR's
-Claude to review, and for BDR to confirm**: its last section, “Still
-open,” numbers every call that changes what the apps build.
+the same day**: 4b was built against draft 2 as written; the entry “the
+encryption reference and its test vectors,” above.) **For BDR's Claude to
+review, and for BDR to confirm**: its last section, “Still open,” numbers
+every call that changes what the apps build.
 
 - **What draft 2 writes in from BVJ's answers** (the entry below): passkeys
   carry the key at launch; the reader's choice of “follows my account” or
@@ -186,7 +220,8 @@ open,” numbers every call that changes what the apps build.
   key and required elsewhere; a signing key in every device's card,
   checked by nothing yet.
 - **What is new in draft 2 and that neither BDR nor BVJ has seen**, each
-  made while writing it and each for both to check:
+  made while writing it and each for both to check (BVJ has since said
+  yes to all of them: the entry above):
   - **The key proof.** A device shows the service that it holds the
     notebook key (32 bytes derived from the key, whose hash the service
     keeps) before the service gives it records or lets it change
@@ -284,7 +319,8 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
 - **The account owners**: BVJ the Cloudflare account, BDR the Apple
   developer account and, by BVJ's assignment, the Google Cloud project
   (ask 3 above, for BDR to accept). Who answers when the service breaks is
-  not yet said.
+  not yet said. (Said later the same day: BVJ first and BDR second; the
+  entry “BVJ on draft 2's choices,” above.)
 
 ### 2026-11-23, on the call
 

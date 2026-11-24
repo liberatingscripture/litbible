@@ -855,7 +855,8 @@ code is shown:
 It says “synced notes” because a device’s own notebook and the reader’s exported file aren’t lost
 with the code (under “When a reader loses every device”).
 
-**For a reader who takes no recovery code**, a sentence to match, **proposed here for BVJ**:
+**For a reader who takes no recovery code**, a sentence to match (BVJ, 2026-11-23, as draft 2
+proposed it):
 
 > Your passkey opens your notebook on a new device. If you lose your passkey and every device you
 > use with LIT, no one can open your synced notes, not even LIT.
@@ -1122,11 +1123,11 @@ The new key never reaches the removed device’s own key. But the passkey is a h
 is sealed to it, and a device that still has the passkey can sign in again and open the notebook
 with it, as any new device of the reader’s would. LIT can’t take a passkey off a device: Apple,
 Google, or the reader’s password manager decides where it is. So the screen says this plainly
-(**wording proposed here, for BVJ**):
+(BVJ, 2026-11-23: draft 2’s wording, with the password manager added):
 
 > Remove [name]? It won’t be able to open anything added to your notebook from now on, unless it
-> still has your passkey. If it’s lost or stolen, remove it from your Apple or Google account too.
-> Anything already on it stays there.
+> still has your passkey. If it’s lost or stolen, remove it from your Apple or Google account too,
+> or from the password manager that keeps your passkey. Anything already on it stays there.
 
 and offers, for a device the reader no longer trusts, the two things that don’t depend on it:
 
@@ -1438,7 +1439,9 @@ signs, it verifies.
 4. **The service doesn’t apply the format’s cap on a clock running ahead.** The format says “a sync
    service’s cap is its own clock.” Under encryption the service can’t clamp a sealed time, so each
    receiving device caps against its own clock (under “A record on the service”). The format’s
-   sentence changes with the freeze work, if BDR and BVJ agree.
+   sentence changes with the freeze work, if BDR agrees. BVJ said yes on 2026-11-23, with a merge
+   test added in the same step: two devices whose clocks differ must still agree on which edit
+   wins.
 5. **Passkeys are part of the launch**, where the call had them “if the schedule holds.”
 
 ## Order of work
@@ -1584,7 +1587,8 @@ row asks for the format’s form, so a trash record with an old, looser time cou
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
-2026-11-23; the rest were made in writing this draft, and **BVJ has not seen them either**:
+2026-11-23; the rest were made in writing this draft. **BVJ was walked through those later that
+day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
 
 1. Passkeys carry the key at launch, and are part of the launch.
 2. The reader’s choice of where the key lives, on every platform, with “follows my account” first.
@@ -1604,15 +1608,20 @@ row asks for the format’s form, so a trash record with an old, looser time cou
 13. **A device makes its own id**; an approval is accepted by the new device; a removed device
     keeps its keys until signed out.
 14. **The requests** under “The service’s interface,” their checks, and that the clock cap is the
-    devices’ and not the service’s.
+    devices’ and not the service’s. BVJ’s yes came with a merge test, added in step 4d: two devices
+    whose clocks differ must still agree on which edit wins.
 15. **Adding or removing a way to sign in needs a session that has proved the key**, once the
     account has a notebook.
 
-**For BVJ:**
+**Answered by BVJ on 2026-11-23**, and kept here under their numbers:
 
-16. **The two pieces of wording proposed here**: the sentence for a reader who takes no recovery
-    code, and the removal screen under “follows my account.”
-17. **Who answers when the service breaks**, still not said.
+16. **The two pieces of wording.** The sentence for a reader who takes no recovery code stands as
+    proposed (under “Setting up the first device”). The removal screen under “follows my account”
+    stands with the reader’s password manager added (under “What removing a device means”).
+17. **Who answers when the service breaks**: BVJ first, and BDR second. **BDR’s part is for BDR to
+    accept.** Only BVJ can deploy or roll back today, so step 4c gives BDR a way to (a member role
+    on the Cloudflare account, or deploys that run from a merged pull request; not yet chosen) and
+    writes the steps into `DISASTER-RECOVERY.md`.
 
 **To find out, on real devices, before the freeze:**
 
@@ -1628,7 +1637,8 @@ row asks for the format’s form, so a trash record with an old, looser time cou
 21. **A passkey kept in 1Password or Bitwarden**, on each platform.
 
 **From step 4b, for BVJ and BDR to confirm.** Writing the reference forced a choice in each of
-these, where draft 2 made none. Each took the smallest reading, is written into its section, and
+these, where draft 2 made none. BVJ’s yes of 2026-11-23 was to 7 to 17 and came before these
+existed, so each waits on both. Each took the smallest reading, is written into its section, and
 is what the vectors test. Changing one means changing the reference and the vectors with it, which
 is cheap before the freeze. The numbers go on from 21 so that nothing above is renumbered:
 
