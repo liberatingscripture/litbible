@@ -13,24 +13,36 @@
 // moving one number, and removing a device closes its sessions by deleting
 // its entry.
 //
-// HOW A SESSION BEGINS is not this file's business. Step 4c has one way in,
-// for the preview only (src/preview.js). Step 4e adds the real ones (Apple,
-// Google, passkeys); each ends by calling createSession() and changes nothing
+// HOW A SESSION BEGINS is not this file's business. Sign-in is src/signin.js
+// (a passkey, Apple, Google), and the preview has a way in of its own
+// (src/preview.js). Each ends by calling createSession() and changes nothing
 // here or in any request that reads a session.
+//
+// HOW LONG A SESSION LASTS. Thirty days from sign-in. A session that is OPEN
+// is kept alive by use: each day it is used, it is given thirty days more,
+// up to a year from the sign-in that made it, and then the reader signs in
+// again. A session that is signed in and no more is never extended, so a
+// sign-in that can't open the notebook (a stolen one, say) runs out on its
+// own. Nothing a client sends renews a session; the token never changes.
 //
 // A session token is 32 random bytes, sent as `Authorization: Bearer <token>`.
 // It is made from no key and stands in for none, and only its SHA-256 is
 // stored, so a copy of the database holds no usable session.
 
-import { after, now, readJson, refuse } from "./http.js";
+import { after, answer, now, readJson, refuse } from "./http.js";
 import { fromBase64url, toBase64url } from "./check.js";
 import { transact } from "./db.js";
 
+const DAY_MS = 24 * 60 * 60 * 1000;
 export const SESSION_DAYS = 30;
+/** However often it is used, a session ends this long after the sign-in that made it. */
+export const SESSION_MAX_DAYS = 365;
 /** A session that sends this many wrong key proofs is ended. */
 export const MAX_WRONG_PROOFS = 5;
 /** A device's "last seen" is written at most this often. */
 const SEEN_EVERY_MS = 60 * 60 * 1000;
+/** An open session's end is moved at most this often. */
+const EXTEND_EVERY_MS = DAY_MS;
 
 // The scheme's name is matched in any case, as HTTP says it is (RFC 9110, 11.1).
 const BEARER = /^Bearer ([A-Za-z0-9_-]{43})$/i;
@@ -46,22 +58,28 @@ export const hashText = async (text) => toBase64url(await digestText(text));
 /** Compares two SHA-256 digests without leaking where they differ. */
 export const sameDigest = (a, b) => a.byteLength === b.byteLength && crypto.subtle.timingSafeEqual(a, b);
 
-/** Starts a session for an account. Returns the token, which is shown this once. */
+/**
+ * Starts a session for an account, through one of its ways in. Returns the
+ * token, which is shown this once.
+ *
+ * The session is written only if that way in still stands, in the same
+ * statement: a way removed while its sign-in was being checked gets no
+ * session that would outlive its removal. Then the client is told to try
+ * again ("busy"), and the second try finds the way gone.
+ */
 export async function createSession(env, { account, way }) {
   const token = toBase64url(crypto.getRandomValues(new Uint8Array(32)));
   const created = now();
-  const expires = after(created, SESSION_DAYS * 24 * 60 * 60 * 1000);
-  await env.DB.batch([
+  const expires = after(created, SESSION_DAYS * DAY_MS);
+  const [, made] = await env.DB.batch([
     // The account's sessions that ran out are swept here, where the next one is made.
     env.DB.prepare("DELETE FROM sessions WHERE account = ? AND expires <= ?").bind(account, created),
-    env.DB.prepare("INSERT INTO sessions (token_hash, account, way, created, expires) VALUES (?, ?, ?, ?, ?)").bind(
-      await hashText(token),
-      account,
-      way,
-      created,
-      expires,
-    ),
+    env.DB.prepare(
+      `INSERT INTO sessions (token_hash, account, way, created, expires)
+       SELECT ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM ways WHERE id = ? AND account = ?)`,
+    ).bind(await hashText(token), account, way, created, expires, way, account),
   ]);
+  if (made.meta.changes !== 1) refuse(503, "busy");
   return { token, expires };
 }
 
@@ -75,7 +93,7 @@ export async function authenticate(request, env) {
   if (!match) refuse(401, "sign_in");
   const tokenHash = await hashText(match[1]);
   const row = await env.DB.prepare(
-    `SELECT s.account, s.way, s.device, s.open_kid, s.expires,
+    `SELECT s.account, s.way, s.device, s.open_kid, s.created, s.expires,
             a.notebook, a.kid, a.proof_hash, a.lists, a.rev,
             d.id AS entry, d.seen
        FROM sessions s
@@ -95,11 +113,22 @@ export async function authenticate(request, env) {
       .bind(time, row.account, row.device)
       .run();
   }
+  // An open session is kept alive by use: thirty days from now, and never past a year from its sign-in.
+  let expires = row.expires;
+  if (open) {
+    const last = after(row.created, SESSION_MAX_DAYS * DAY_MS);
+    const next = after(time, SESSION_DAYS * DAY_MS);
+    const wanted = next < last ? next : last;
+    if (Date.parse(wanted) - Date.parse(expires) >= EXTEND_EVERY_MS) {
+      await env.DB.prepare("UPDATE sessions SET expires = ? WHERE token_hash = ?").bind(wanted, tokenHash).run();
+      expires = wanted;
+    }
+  }
   return {
     tokenHash,
     account: row.account,
     way: row.way,
-    expires: row.expires,
+    expires,
     /** The device this session is attached to, or null. Null too once that device's entry is gone. */
     device: attached ? row.device : null,
     /** The device id the session last attached to, whether or not its entry still stands. */
@@ -168,6 +197,17 @@ export function openSession(env, auth, device, kid) {
     kid,
     auth.tokenHash,
   );
+}
+
+/**
+ * DELETE /session, from a signed-in session: ends this session and no other.
+ * It is how a device that never joined the notebook signs out; one that has
+ * joined signs out with DELETE /devices/<id>, which removes its entry too.
+ */
+export async function deleteSession({ request, env }) {
+  const auth = await authenticate(request, env);
+  await env.DB.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(auth.tokenHash).run();
+  return answer({});
 }
 
 /**

@@ -52,21 +52,55 @@ const NEEDS_A_SESSION = [
   ["POST", `/approvals/${approvalId()}/grant`],
   ["POST", `/approvals/${approvalId()}/accept`],
   ["POST", "/preview/passkeys"],
+  ["DELETE", "/session"],
+  ["DELETE", `/ways/${uuid()}`],
+  ["POST", "/ways/passkey/options"],
+  ["POST", "/ways/passkey"],
+  ["POST", "/ways/apple"],
+  ["POST", "/ways/google"],
 ];
+
+/** The routes anyone may call, with no session: GET /, the preview's way in, and sign-in itself. */
+const NEEDS_NO_SESSION = [
+  "GET /",
+  "POST /preview/session",
+  "GET /sign-in",
+  "POST /sign-in/challenge",
+  "POST /sign-in/passkey/options",
+  "POST /sign-in/passkey",
+  "POST /sign-in/new-passkey/options",
+  "POST /sign-in/new-passkey",
+  "POST /sign-in/apple",
+  "POST /sign-in/google",
+];
+
+// Apple's and Google's requests are routed only where the deployment configures them. These are
+// made-up values, enough to route them: every test here is answered before one is read.
+const ON = {
+  GOOGLE_CLIENT_IDS: "test-google-client.example",
+  APPLE_CLIENT_IDS: "test.example.app",
+  APPLE_TEAM_ID: "TESTTEAM01",
+  APPLE_KEY_ID: "TESTKEY001",
+  APPLE_PRIVATE_KEY: "set, and never read by these tests",
+};
 
 const pattern = (path) =>
   path
     .split("?")[0]
     .replace(/^\/devices\/[^/]+$/, "/devices/:id")
+    .replace(/^\/ways\/[0-9a-f]{8}-[^/]+$/, "/ways/:id")
     .replace(/^\/approvals\/[0-9a-f]{32}/, "/approvals/:id");
 
 describe("the route table here covers every route in src/index.js", () => {
-  it("has a row for each route that is not GET / or POST /preview/session", () => {
+  it("has a row for each route that needs a session, and a name for each that needs none", () => {
     const routed = [...indexSource.matchAll(/\["(GET|POST|PUT|DELETE)", "([^"]+)", \w+\]/g)].map((m) => `${m[1]} ${m[2]}`);
     expect(routed.length).toBeGreaterThan(15);
     const mine = new Set(NEEDS_A_SESSION.map(([method, path]) => `${method} ${pattern(path)}`));
-    const missing = routed.filter((r) => r !== "GET /" && r !== "POST /preview/session" && !mine.has(r));
+    const missing = routed.filter((r) => !NEEDS_NO_SESSION.includes(r) && !mine.has(r));
     expect(missing).toEqual([]);
+    // And no route is in both lists, or in either without being routed.
+    expect(NEEDS_NO_SESSION.filter((r) => mine.has(r))).toEqual([]);
+    expect([...NEEDS_NO_SESSION, ...mine].filter((r) => !routed.includes(r))).toEqual([]);
   });
 });
 
@@ -92,7 +126,7 @@ describe("neither: a request with no usable session gets nothing", () => {
         it(`answers sign_in to ${name}`, async () => {
           const value = header();
           const headers = value === undefined ? {} : { authorization: value };
-          const res = await call(method, path, { headers, body: method === "GET" || method === "DELETE" ? undefined : {} });
+          const res = await call(method, path, { headers, env: ON, body: method === "GET" || method === "DELETE" ? undefined : {} });
           expect(res.status).toBe(401);
           expect(res.body.error).toBe("sign_in");
         });
@@ -149,6 +183,13 @@ async function closedSession() {
       `/approvals/${approvalId()}/grant`,
       { kid: 1, card: await cardFor(grantee, held), keyring: await keyringFor(grantee.key.public, held), mac: random32() },
     ],
+    // Ways to sign in: once the account has a notebook, each needs an open session, and says so
+    // before it reads a body.
+    ["POST /ways/passkey/options", "POST", "/ways/passkey/options", undefined],
+    ["POST /ways/passkey", "POST", "/ways/passkey", {}],
+    ["POST /ways/apple", "POST", "/ways/apple", {}],
+    ["POST /ways/google", "POST", "/ways/google", {}],
+    ["DELETE /ways/:id", "DELETE", `/ways/${uuid()}`, undefined],
   ];
   const signedIn = [
     ["GET /account", "GET", "/account", undefined, 200, undefined],
@@ -168,6 +209,8 @@ async function closedSession() {
     ["POST /approvals", "POST", "/approvals", asking.body, 200, undefined],
     ["DELETE /devices/:id", "DELETE", `/devices/${device.id}`, undefined, 422, "not_allowed"],
     ["POST /approvals/:id/accept", "POST", `/approvals/${approvalId()}/accept`, { kid: 1, proof: random32() }, 410, "gone"],
+    // Last, since it ends the session the rows above were sent from.
+    ["DELETE /session", "DELETE", "/session", undefined, 200, undefined],
   ];
   return { ...made, closed, open, signedIn };
 }
@@ -184,10 +227,15 @@ describe("signed in and not open", () => {
         "GET /rows",
         "POST /rows",
         "POST /approvals/:id/grant",
+        "POST /ways/passkey/options",
+        "POST /ways/passkey",
+        "POST /ways/apple",
+        "POST /ways/google",
+        "DELETE /ways/:id",
       ].sort(),
     );
     for (const [name, method, path, body] of open) {
-      const res = await call(method, path, { token: closed, body });
+      const res = await call(method, path, { token: closed, body, env: ON });
       expect(res.status, name).toBe(403);
       expect(res.body.error, name).toBe("not_open");
       expect(res.body.kid, name).toBe(1);
@@ -197,7 +245,7 @@ describe("signed in and not open", () => {
   it("does not change anything when it is refused for not being open", async () => {
     const { closed, open, device } = await closedSession();
     const before = await must("GET", "/devices", { token: device.token });
-    for (const [, method, path, body] of open) await call(method, path, { token: closed, body });
+    for (const [, method, path, body] of open) await call(method, path, { token: closed, body, env: ON });
     const after = await must("GET", "/devices", { token: device.token });
     expect(after.lists).toBe(before.lists);
     expect(after.kid).toBe(before.kid);
@@ -238,7 +286,7 @@ describe("an expired session", () => {
     it(`answers sign_in at ${method} ${pattern(path)}`, async () => {
       const token = await signIn(freshAccount());
       await expire(token);
-      const res = await call(method, path, { token, body: method === "GET" || method === "DELETE" ? undefined : {} });
+      const res = await call(method, path, { token, env: ON, body: method === "GET" || method === "DELETE" ? undefined : {} });
       expect(res.status).toBe(401);
       expect(res.body.error).toBe("sign_in");
     });

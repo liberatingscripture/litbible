@@ -7,14 +7,7 @@ import { LIMITS, needArray, needBytes, needCount, needDeviceEntry, needHolder, n
 import { commit, guard } from "./db.js";
 import { authenticate, changing, needCurrentKid, needNotebook, needProof, openSession } from "./session.js";
 import { insertDevice, insertHolder, needRoomForHolders, needSyncedPasskeys } from "./lists.js";
-
-/** A way in as `GET /account` answers it. A provider's own account id is never sent back. */
-const wayOut = (way) => ({
-  id: way.id,
-  kind: way.kind,
-  added: way.created,
-  ...(way.kind === "passkey" ? { credential: way.subject, syncs: way.syncs === 1 } : {}),
-});
+import { wayOut } from "./signin.js";
 
 /** GET /account, from a signed-in session. */
 export async function getAccount({ request, env }) {
@@ -101,7 +94,9 @@ export function postNotebook({ request, env }) {
       const time = now();
       const kid = 1;
       await commit(env.DB, [
-        guard(env.DB, auth.account, { kid: 0 }),
+        // The lists too: a passkey read a moment ago as one of the account's ways in must still
+        // be one when its holder is stored, and removing a way in moves the lists (src/ways.js).
+        guard(env.DB, auth.account, { kid: 0, lists: auth.lists }),
         env.DB.prepare("UPDATE accounts SET notebook = ?, kid = ?, proof_hash = ?, lists = lists + 1 WHERE id = ?").bind(
           notebook,
           kid,
