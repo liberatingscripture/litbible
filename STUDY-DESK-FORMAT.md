@@ -304,7 +304,7 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 8. **`label`** (M8): a name, up to 200 characters (the website's
    `LABEL_NAME_MAX`, audit 3 SEC3-4; its form stops at 60). Records list
    the labels on them. The website
-   calls them **"Labels"** (recommended, for BVJ to confirm), and keeps names
+   calls them **"Labels"** (confirmed by BVJ, 2026-11-24), and keeps names
    unique ignoring case and accents: a new label matching an old one reuses
    it. **Two label records with one name are one label** (BVJ, 2026-11-10,
    Audit 8 decision 3, for BDR): two devices that each made "Sermon prep"

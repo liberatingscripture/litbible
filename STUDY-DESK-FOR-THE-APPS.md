@@ -170,17 +170,20 @@ because nothing carried them there. This file is what carries them now.
 13. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
     first entry below): `STUDY-DESK-ENCRYPTION.md`, “Still open,” 41 to
     58. Every one was the website's Claude's. **BVJ has said yes to
-    three** (2026-11-24), so those are BVJ's calls and wait on BDR
-    alone: 50 (every passkey is named “LIT Bible notebook,” under “LIT
-    Bible”), 52 (how long a session lasts), and 55 (accounts are not
-    joined in version 1). The other fifteen BVJ has not decided. Each
-    is what the service does today and has a test, and each is cheap
-    to change before the freeze. Answer by number here.
-    **Most of all**: 45 (a passkey's options and response travel in the
-    standard's JSON forms, which an iOS app builds by hand), 48 (each
-    SDK must send the service's challenge to Apple or Google unchanged,
-    as the nonce), 42 (a passkey used from the iOS app answers from
-    `https://litbible.net`), and 52 (how long a session lasts).
+    eleven** (2026-11-24), so those are BVJ's calls and wait on BDR
+    alone: 42, 43, 44, 46, 47, 49, 50 (every passkey is named “LIT
+    Bible notebook,” under “LIT Bible”), 52 (how long a session lasts),
+    55 (accounts are not joined in version 1), 56, and 57. **Four BVJ
+    left to you to answer** (2026-11-24: “ask BDR”): 41 (ask 12 above),
+    45 (a passkey's options and response travel in the standard's JSON
+    forms, which an iOS app builds by hand), 48 (each SDK must send the
+    service's challenge to Apple or Google unchanged, as the nonce),
+    and 53 (the words of the new refusals). Three BVJ has not decided:
+    51, 54, and 58. Each is what the service does today and has a
+    test, and each is cheap to change before the freeze. Answer by
+    number here. **Most of all**: 45 and 48; in 42, that a passkey
+    used from the iOS app answers from `https://litbible.net`; and 52
+    (how long a session lasts).
 
 ## The list
 

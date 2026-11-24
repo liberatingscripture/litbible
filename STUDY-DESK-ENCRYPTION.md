@@ -2487,8 +2487,9 @@ from 31:
     it, for an open session only: item 52**, which BVJ checked on 2026-11-24.
 
 **From step 4e, for BDR to confirm and BVJ to check.** Building sign-in forced a choice in each of
-these. **Every one was made by me (BVJ’s Claude, 2026-11-24). BVJ has since said yes to three,
-50, 52, and 55 (2026-11-24), which now wait on BDR alone; the other fifteen BVJ has not decided.**
+these. **Every one was made by me (BVJ’s Claude, 2026-11-24). BVJ has since said yes to eleven
+(2026-11-24): 42, 43, 44, 46, 47, 49, 50, 52, 55, 56, and 57, which now wait on BDR alone. BVJ
+left four to BDR to answer: 41, 45, 48, and 53. Three BVJ has not decided: 51, 54, and 58.**
 Each is written into “Signing in” or “Ways to sign in,” is what the service does today, and has a
 test. Changing one before the freeze is cheap. The numbers go on from 40:
 
@@ -2500,36 +2501,39 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     never written anywhere; and the redirect address a web flow would use. For Google: each OAuth
     client id a token will be issued to (the one the Android app asks Credential Manager for, the
     iOS app’s, the website’s). **Until then both are off, and nothing here has met either
-    provider.**
+    provider.** **BVJ, 2026-11-24: “I’ll let BDR answer.”**
 42. **The origins a passkey may answer from.** `https://litbible.net`; the Android app by the two
     certificates in `assetlinks.json`; and, on the preview alone, `http://localhost:4321` with the
     relying party `localhost`. For BDR: which of the two certificates is the Play signing key and
     which the upload key, whether a debug build needs a third (it would have to be added to
     `assetlinks.json` too, or Android won’t offer the passkey), and that a passkey used from the
     iOS app does answer with `https://litbible.net`, which is Apple’s documented behavior and
-    untested here.
+    untested here. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 43. **The link files changed** (`webcredentials`; `get_login_creds`), with only the identifiers
     already in them. The apps’ half is BDR’s: the `webcredentials:litbible.net` associated
-    domain on iOS, and Credential Manager on Android.
+    domain on iOS, and Credential Manager on Android. **BVJ checked, 2026-11-24: “yes.”** BDR still
+    confirms.
 44. **Passkey checking is written here and reads two algorithms**: ES256 and RS256, which is what
     the options ask for. A passkey that could only make an Ed25519 key is not offered one. No
-    attestation is asked for or read.
+    attestation is asked for or read. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 45. **Options and responses travel in the standard’s JSON forms**, and a client adds
     `extensions.prf` itself. A browser and Android have these forms ready-made; an iOS app builds
     the response’s JSON from the parts AuthenticationServices gives it. Say if that is a burden.
+    **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
 46. **A response that still carries `prf.results` is refused whole, by the rule `prf_results`,
     before the challenge is used.** That it is refused is draft 2’s; that it is refused first,
-    and how it is spelled, is this step’s.
+    and how it is spelled, is this step’s. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 47. **A challenge lasts five minutes and is spent by the first request that reaches it**, whatever
-    that request’s outcome.
+    that request’s outcome. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 48. **The challenge is the provider token’s nonce, compared character for character.** Each SDK
     must hand the provider the challenge string unchanged and get it back as the `nonce` claim:
     Apple’s on iOS and its web script, Google’s through Credential Manager on Android, its iOS
     SDK, and its web script. **Untested against any of them.** If one hashes what it is given, the
-    service’s check for that provider changes, which is one line.
+    service’s check for that provider changes, which is one line. **BVJ, 2026-11-24: “ask BDR,” so
+    this is BDR’s to answer.**
 49. **Apple’s authorization code is sent with every Apple sign-in**, traded once for each client
     id, and the refresh token is kept for revoking and nothing else. `redirect` is sent only when
-    the client’s own flow used one.
+    the client’s own flow used one. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 50. **One user handle for an account, and one name for every passkey: “LIT Bible notebook,”** with
     the relying party shown as “LIT Bible.” These are words a reader sees in their password
     manager, so they are BVJ’s to approve. The service holds no name or address to show in their
@@ -2548,7 +2552,8 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
 53. **The new words**: `passkey_refused`, `token_refused`, and `provider`; `challenge` and `way`
     under `gone`, `way` under `exists`, `ways` under `too_many`; the rules `prf_results`,
     `last_way`, and `passkey_holds_key`; and that a way to sign in that is off answers
-    `not_found`, with `GET /sign-in` to say which are on.
+    `not_found`, with `GET /sign-in` to say which are on. **BVJ, 2026-11-24: “ask BDR,” so this is
+    BDR’s to answer.**
 54. **A change to the ways in moves the lists’ version**, and those requests carry no `lists` of
     their own. A device may therefore be told `lists_changed` when neither list changed.
 55. **No joining of accounts, and no separate sign-up for Apple or Google.** A provider account
@@ -2558,8 +2563,8 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     enough for launch is BVJ’s call. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 56. **Removing a way in ends the other sessions that came in through it** and leaves their
     devices listed. **And an Apple way in can’t be removed while Apple can’t be reached**, since
-    its refresh token is revoked first.
+    its refresh token is revoked first. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 57. **The limits**: 20 ways in for an account, and the sizes of a passkey’s response and of a
-    token under “How values are spelled.”
+    token under “How values are spelled.” **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 58. **`DELETE /session`**, for a device that signed in and never joined; and **a client ignores a
     member of an answer that it doesn’t know**, so that a later step can add one.

@@ -1670,7 +1670,7 @@ plan as a whole was accepted; nothing was declined except where stated).
   **Decided: yes, name open**: if the site's topics are renamed tags (see
   "Topics and tags"), the reader's own could be called labels. Small.
   **Built on the preview 2026-10-12 under the name "Labels"
-  (recommended, for BVJ to confirm)**, applied from the notebook page.
+  (confirmed by BVJ, 2026-11-24)**, applied from the notebook page.
   **Bookmarks only** (BVJ, 2026-11-17; STUDY-DESK-FIXES.md, E149): “Labels
   are for bookmarks.” Notes, highlights and sheets take none, and a label
   already stored on one is kept but not shown.
@@ -5433,10 +5433,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The spec's interface holds the final shapes** (“Signing in,”
        “Ways to sign in”). What moved is its “Changed in step 4e”; the
        eighteen places that were a choice are its “Still open,” 41 to 58,
-       for BDR to confirm and BVJ to check. **BVJ said yes to three on
-       2026-11-24**: 50 (every passkey is named “LIT Bible notebook”),
-       52 (how long a session lasts), and 55 (accounts are not joined
-       in version 1).
+       for BDR to confirm and BVJ to check. **BVJ said yes to eleven on
+       2026-11-24**: 42, 43, 44, 46, 47, 49, 50 (every passkey is named
+       “LIT Bible notebook”), 52 (how long a session lasts), 55
+       (accounts are not joined in version 1), 56, and 57. **BVJ left
+       four to BDR to answer**: 41, 45, 48, and 53. Three BVJ has not
+       decided: 51, 54, and 58.
      **What waits on BDR**: Apple's client ids, team id, key id, and
      key, and Google's client ids (`STUDY-DESK-FOR-THE-APPS.md`,
      “Waiting to hear from the apps”); then a first sign-in with each
