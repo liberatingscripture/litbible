@@ -120,7 +120,7 @@ because nothing carried them there. This file is what carries them now.
     database. In a real break: roll back first, tell BVJ second. A fix
     still goes through a pull request that BVJ merges, and the merge
     deploys it.
-11. **BDR, what the service needs from your Apple and Google accounts
+12. **BDR, what the service needs from your Apple and Google accounts
     before either sign-in can be turned on** (asked 2026-11-24 with
     sign-in, the first entry below; the spec's “Still open,” 41). Both
     are built and off, and nothing was guessed. Please write the
@@ -146,7 +146,7 @@ because nothing carried them there. This file is what carries them now.
       upload key? And does any other build need to use a passkey (a
       debug or internal build)? Its certificate would have to go into
       `assetlinks.json` and into the service's list together.
-12. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
+13. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
     first entry below): `STUDY-DESK-ENCRYPTION.md`, “Still open,” 41 to
     58. Every one is the website's Claude's, and BVJ has not decided
     them yet. Each is what the service does today and has a test, and
@@ -178,7 +178,7 @@ Manager on Android.
 
 **Sign-in exists on the service.** A passkey with `litbible.net` as the
 relying party signs in on the preview once this merges. Sign in with
-Apple and with Google are built and **off**, waiting on ask 11 above.
+Apple and with Google are built and **off**, waiting on ask 12 above.
 The full text is `STUDY-DESK-ENCRYPTION.md`, “The service's interface,”
 “Signing in” and “Ways to sign in,” with what moved under “Changed in
 step 4e.”
@@ -248,7 +248,7 @@ step 4e.”
   passkey** in your password manager. After a wipe it signs in to
   nothing; delete it there.
 - **Eighteen choices are yours to confirm**: the spec's “Still open,” 41
-  to 58 (asks 11 and 12 above).
+  to 58 (asks 12 and 13 above).
 
 ### 2026-11-23, notes from the Greek are built on the website (step 4k)
 
