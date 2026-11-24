@@ -127,8 +127,8 @@ function parses(t) {
 
 /* ── Comparing records ───────────────────────────────────────────────── */
 
-/** JSON with every object's keys sorted: equal records give equal text. */
-function canonical(value) {
+/** JSON with every object's keys sorted: equal records give equal text. (The sync's digests read it too, desk-sync.mjs.) */
+export function canonical(value) {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
   if (value && typeof value === "object") {
     return `{${Object.keys(value)

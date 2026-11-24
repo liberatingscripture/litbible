@@ -726,6 +726,62 @@ function cleanIncoming(r) {
 }
 
 /**
+ * One arriving record as this client reads it, before the merge judges it:
+ * the door every record from outside passes, a backup's (planImport) and a
+ * synced row's (src/lib/desk-sync.mjs) alike. Nothing here reads a clock.
+ *
+ * @param {unknown} r the record as it arrived
+ * @returns {{ record?: object, skipped?: { record: unknown, reason: string, detail?: string },
+ *   warning?: { record: unknown, reason: string, detail: string } }}
+ *   `record` is what goes on to the merge (brought up to date, a sheet's
+ *   formatted text sanitized, a deletion whose held copy can't be read kept
+ *   as its tombstone, with a `warning`); `skipped` says why it can't be kept.
+ */
+export function readIncoming(r) {
+  if (nestedTooDeep(r)) return { skipped: { record: r, reason: "It is nested too deeply to be kept." } };
+  let warning;
+  // Brought up to date first, so a note with a renamed marker reads by its new name (E10), and a
+  // sheet's formatted text sanitized before anything judges it, the held copy in a trash record's
+  // too (DI6-1): a sheet saved in an older canonical form is rewritten, as editing rewrites it
+  // (DI3-6), never refused or, in the trash, kept without its words. The checks below still refuse
+  // what sanitizing can't mend.
+  let m = r && typeof r === "object" ? cleanIncoming(migrateRecord(r)) : r;
+  // A trash record's held record is checked too, for the fields every record carries and, of a kind
+  // this code knows, its own (DI-10, RC-1; a record it can't edit is judged by the common fields only).
+  const held = m?.kind === "trash" && m.record != null && typeof m.record === "object" ? validateRecord(migrateRecord(m.record)) : [];
+  if (held.length) {
+    // The deletion itself is well formed (the merge's problemWith judges that); only the copy it
+    // holds isn't. Keeping the deletion as its tombstone keeps what the tombstone is for (A-F10):
+    // an older backup can't bring the record back. The copy is dropped, so RC-1's rule holds too:
+    // an unchecked copy never reaches the live set (DI3-4; BVJ's decision 8).
+    const { record: _dropped, ...tombstone } = m;
+    m = tombstone;
+    warning = {
+      record: r,
+      reason: "A deletion in this file was kept, but its words couldn’t be read, so it can’t be restored.",
+      detail: `${held.map((p) => `its held record: ${p}`).join("; ")}.`.replace(/^./, (c) => c.toUpperCase()),
+    };
+  }
+  // A trash record is judged by the merge, not by the common fields (the format asks only that its
+  // times parse), but the size ceiling holds for every record (SEC3-1).
+  const bad =
+    m && typeof m === "object"
+      ? m.kind !== "trash"
+        ? validateRecord(m)
+        : recordBytes(m) > MAX_RECORD_BYTES
+          ? [`the record is too large to keep (over ${MAX_RECORD_BYTES / 1024 / 1024} MB as JSON)`]
+          : []
+      : [];
+  if (bad.length) {
+    return {
+      warning,
+      skipped: { record: r, reason: plainReason(bad), detail: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) },
+    };
+  }
+  return { record: m, warning };
+}
+
+/**
  * What merging a backup would do, before anything is written. Merged with the
  * merge engine (desk-merge.mjs), so the newer writing wins for every kind,
  * a deletion and an edit settle by the later action, and a copy that is
@@ -757,44 +813,10 @@ export function planImport(local, incoming, ctx = {}) {
   const warnings = [];
   const usable = [];
   for (const r of incoming ?? []) {
-    if (nestedTooDeep(r)) {
-      skipped.push({ record: r, reason: "It is nested too deeply to be kept." });
-      continue;
-    }
-    // Brought up to date first, so a note with a renamed marker reads by its new name (E10), and a
-    // sheet's formatted text sanitized before anything judges it, the held copy in a trash record's
-    // too (DI6-1): a sheet saved in an older canonical form is rewritten, as editing rewrites it
-    // (DI3-6), never refused or, in the trash, kept without its words. The checks below still refuse
-    // what sanitizing can't mend.
-    let m = r && typeof r === "object" ? cleanIncoming(migrateRecord(r)) : r;
-    // A trash record's held record is checked too, for the fields every record carries and, of a kind
-    // this code knows, its own (DI-10, RC-1; a record it can't edit is judged by the common fields only).
-    const held = m?.kind === "trash" && m.record != null && typeof m.record === "object" ? validateRecord(migrateRecord(m.record)) : [];
-    if (held.length) {
-      // The deletion itself is well formed (the merge's problemWith judges that); only the copy it
-      // holds isn't. Keeping the deletion as its tombstone keeps what the tombstone is for (A-F10):
-      // an older backup can't bring the record back. The copy is dropped, so RC-1's rule holds too:
-      // an unchecked copy never reaches the live set (DI3-4; BVJ's decision 8).
-      const { record: _dropped, ...tombstone } = m;
-      m = tombstone;
-      warnings.push({
-        record: r,
-        reason: "A deletion in this file was kept, but its words couldn’t be read, so it can’t be restored.",
-        detail: `${held.map((p) => `its held record: ${p}`).join("; ")}.`.replace(/^./, (c) => c.toUpperCase()),
-      });
-    }
-    // A trash record is judged by the merge, not by the common fields (the format asks only that its
-    // times parse), but the size ceiling holds for every record (SEC3-1).
-    const bad =
-      m && typeof m === "object"
-        ? m.kind !== "trash"
-          ? validateRecord(m)
-          : recordBytes(m) > MAX_RECORD_BYTES
-            ? [`the record is too large to keep (over ${MAX_RECORD_BYTES / 1024 / 1024} MB as JSON)`]
-            : []
-        : [];
-    if (bad.length) skipped.push({ record: r, reason: plainReason(bad), detail: `${bad.join("; ")}.`.replace(/^./, (c) => c.toUpperCase()) });
-    else usable.push(m);
+    const read = readIncoming(r);
+    if (read.warning) warnings.push(read.warning);
+    if (read.skipped) skipped.push(read.skipped);
+    else usable.push(read.record);
   }
   const merged = mergeRecords(local, usable, { now: ctx.now, exported: ctx.exported, tiebreak: ctx.tiebreak });
   skipped.push(...merged.skipped);
