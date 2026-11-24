@@ -13,10 +13,10 @@ and each check has a test. Read that section before changing anything in
 `src/`; change the two together.
 
 This is step 4c of the plan in `STUDY-DESK.md` ("Order of work," 4). **What it
-is today: the whole interface but sign-in and the seven-day requests, running
-locally and under test, and ready to deploy to a preview address.** It has no
-production deployment, and nothing in the website imports it (the website's
-connector is step 4g).
+is today: the whole interface but sign-in and the seven-day requests, under
+test, and deployed as a preview at `https://notebook-preview.litbible.net`
+(since 2026-11-23, test data only).** It has no production deployment, and
+nothing in the website imports it (the website's connector is step 4g).
 
 ## What is here
 
@@ -124,36 +124,45 @@ database can prove.
 **Everything on the preview is test data and may be wiped at any time.** No
 real notebook belongs there, and nothing there is backed up on purpose.
 
+It was first deployed on 2026-11-23, and the walkthrough (step 6 below) run
+against it over HTTPS passed 8 of 8 steps that day. Each run of the
+walkthrough leaves one test account named `walkthrough-…` behind; "Wipe"
+clears them.
+
 ### One-time setup (BVJ)
 
-Cloudflare is BVJ's account, and each of these creates or changes something on
-it. They are written to be run by BVJ, or by an assistant only when BVJ says
+**Done on 2026-11-23**, by a session at BVJ's word, with BVJ typing the
+secret. The steps stay here as the way to make the preview again from
+nothing. Cloudflare is BVJ's account, and each of these creates or changes
+something on it: they are for BVJ to run, or an assistant only when BVJ says
 so in that session.
 
-1. Sign in: `npx wrangler login` (once on a machine).
+1. Sign in: `npx wrangler login` (once on a machine). The browser page it
+   opens waits about two minutes for "Authorize."
 2. Make the database:
    `npx wrangler d1 create litbible-notebook-preview`
    It prints a `database_id`. Put it in `wrangler.jsonc`, in
-   `env.preview.d1_databases`, in place of the zeros, and commit that. An id
-   is not a secret.
+   `env.preview.d1_databases`, in place of the id there, and commit that. An
+   id is not a secret.
 3. Make its tables: `npm run migrate:preview`
 4. Set the preview's secret: `npx wrangler secret put PREVIEW_SECRET --env preview`
-   Wrangler asks for the value; type or paste at least 32 random characters
-   (a password manager's generator will do). The Worker doesn't exist yet, so
-   wrangler offers to create it and add the secret: say yes. Keep the value in
-   the password manager, since Cloudflare never shows it again.
+   Wrangler asks for the value and shows asterisks; type or paste at least 32
+   random characters (a password manager's generator will do; letters and
+   digits are the least trouble for every tool that will carry it). The
+   Worker doesn't exist yet, so wrangler offers to create it and add the
+   secret: say yes. Keep the value in the password manager, since Cloudflare
+   never shows it again.
 5. Deploy: `npm run deploy:preview`
    The first deploy also makes the Custom Domain, `notebook-preview.litbible.net`,
    with its DNS record and certificate (see "The address" below).
-6. Check it. Put the secret from step 4 into the shell's environment
-   without writing it into a command (in PowerShell,
-   `$env:PREVIEW_SECRET = Read-Host "Preview secret"` and paste it at the
-   prompt), then:
+6. Check it, at a terminal:
    `npm run walkthrough -- https://notebook-preview.litbible.net`
-   Eight lines of `ok` mean the deployed service does everything the suite
-   does, on the real database, down to keeping a row of the largest size.
-   For a deployed address the script takes the secret from the environment
-   alone, never from a file or an argument.
+   The script asks for the secret from step 4 and draws it as asterisks as
+   it is typed or pasted. Eight lines of `ok` mean the deployed service does
+   everything the suite does, on the real database, down to keeping a row of
+   the largest size. Where there is no terminal to ask at (a workflow), the
+   script reads the secret from `PREVIEW_SECRET` in the environment. For a
+   deployed address it never takes the secret from a file or an argument.
 7. Give BDR the secret, directly and privately (see "How an app gets a
    session").
 
@@ -165,8 +174,8 @@ either. Production (step 4f) should be on Paid.
 ### The address
 
 `notebook-preview.litbible.net`, as a Custom Domain on the `litbible.net` zone
-(`routes` in `env.preview`). Proposed, and BVJ's to confirm before step 5
-above. Why this and not a `workers.dev` name: it doesn't put the account's
+(`routes` in `env.preview`). BVJ's choice, and live since 2026-11-23. Why
+this and not a `workers.dev` name: it doesn't put the account's
 `workers.dev` subdomain into two apps and a spec; it stays the same if the
 Worker is ever renamed or moved; the zone's own protections apply to it; and
 production can take the same shape (`notebook.litbible.net`, settled in step

@@ -7,9 +7,10 @@
 //   npm run walkthrough -- https://<the address>  a deployed preview
 //
 // The address is the first argument, or NOTEBOOK_URL, or http://localhost:8787.
-// The preview's secret is read from PREVIEW_SECRET in the environment: never
-// pass it as an argument, and it is never printed. For a local address alone,
-// it is read from this package's own .dev.vars when the environment has none.
+// The preview's secret is never an argument and is never printed. It is read
+// from PREVIEW_SECRET in the environment; failing that, for a local address
+// from this package's own .dev.vars, and for any other address by asking at
+// the terminal, where it is drawn as asterisks as it is typed or pasted.
 //
 // Each run makes its own test account (walkthrough-<time>-<random>), so runs
 // never meet, and what it leaves behind is test data in a preview database.
@@ -18,15 +19,19 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import * as ref from "../../../src/lib/desk-crypto.mjs";
 import { walkthroughSteps } from "../test/walkthrough.js";
+import { askHidden } from "./ask-hidden.mjs";
 
 const base = (process.argv[2] ?? process.env.NOTEBOOK_URL ?? "http://localhost:8787").replace(/\/+$/, "");
 const local = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(base);
-const secret = process.env.PREVIEW_SECRET || (local ? await localSecret() : undefined);
+let secret = process.env.PREVIEW_SECRET || (local ? await localSecret() : undefined);
+if (!secret && !local && process.stdin.isTTY) {
+  secret = await askHidden("The preview's secret (shown as asterisks; paste it, then press Enter): ").catch(() => undefined);
+}
 if (!secret) {
   console.error(
     local
       ? "No PREVIEW_SECRET in the environment or in .dev.vars. Copy .dev.vars.example to .dev.vars and fill it in."
-      : "PREVIEW_SECRET is not set. Set it in the environment for this run; it is never written down here.",
+      : "No secret given. Set PREVIEW_SECRET in the environment, or run this at a terminal to be asked for it.",
   );
   process.exit(2);
 }

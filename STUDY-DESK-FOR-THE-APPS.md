@@ -99,9 +99,12 @@ because nothing carried them there. This file is what carries them now.
 `workers/notebook-service/` on `main`: a Cloudflare Worker with D1 that
 answers every request in `STUDY-DESK-ENCRYPTION.md`, “The service's
 interface,” but sign-in (step 4e) and the seven-day requests (step 4f).
-**It is not deployed yet**: the preview's address is proposed, and an
-entry here will say when it is live. Until then it runs on your own
-machine, which is enough to build against.
+**The preview is live** at `https://notebook-preview.litbible.net`
+(deployed 2026-11-23; `GET /` there answers with no session). The
+vectors' walkthrough was run against it over HTTPS the same day and
+passed, 8 of 8 steps, the last of them a row of the largest size the
+format allows. It also runs on your own machine, which needs nothing
+from anyone.
 
 - **Read “The service's interface” again**: it is no longer a sketch.
   Under each table is the exact body of every request and every answer.
@@ -129,7 +132,10 @@ machine, which is enough to build against.
   your own `.dev.vars`. **For the deployed preview, BVJ gives BDR the
   secret privately. It never goes into a repository, an issue, a pull
   request, or a conversation with an assistant**: a session reads it from
-  the environment.
+  the environment. To check the deployed preview from a clone,
+  `node scripts/walkthrough.mjs https://notebook-preview.litbible.net`
+  in `workers/notebook-service` asks for the secret at the terminal and
+  draws it as asterisks.
 - **The quickest way to see every call in order** is
   `workers/notebook-service/test/walkthrough.js`: the vectors' walkthrough
   as the requests a client sends, with what comes back, in about 400
@@ -153,8 +159,10 @@ machine, which is enough to build against.
   interface states, since neither app has answered: a row whose
   `deletedAt` isn't in the `Z` form is answered `refused: "deletedAt"`,
   alone. Say if either app has ever written another form.
-- **Everything on the preview will be test data, wiped at any time.**
-- **Still to come**: the preview's address going live (BVJ); sign-in
+- **Everything on the preview is test data, wiped at any time.** Use
+  made-up account labels of your own (`bdr-ios-1`), and expect a wipe to
+  be announced here.
+- **Still to come**: sign-in
   (4e), after which the token comes from Apple, Google, or a passkey and
   nothing else in a request changes; deleting an account and the
   seven-day requests (4f), until which `GET /account` answers `waiting`

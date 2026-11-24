@@ -45,10 +45,10 @@
         {
           "binding": "DB",
           "database_name": "litbible-notebook-preview",
-          // Replace with the id `wrangler d1 create litbible-notebook-preview`
-          // prints (README, "One-time setup"). An id is not a secret. Local
-          // development and the tests never read it.
-          "database_id": "00000000-0000-0000-0000-000000000000",
+          // The id `wrangler d1 create litbible-notebook-preview` printed
+          // on 2026-11-23 (README, "One-time setup"). An id is not a secret.
+          // Local development and the tests never read it.
+          "database_id": "39ae93c2-7585-4442-bfa7-71d18267af69",
           "migrations_dir": "migrations"
         }
       ],

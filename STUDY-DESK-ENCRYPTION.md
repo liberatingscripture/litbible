@@ -1251,12 +1251,12 @@ code in `workers/notebook-service/` uses, and each check in the tables has a tes
 request a real client would and reads the refusal (`workers/notebook-service/test/`). Where
 building it meant reading a sentence of draft 2 more exactly, or adding what draft 2 left out, the
 change is listed under “Changed in step 4c,” and the ones that were a choice are under “Still
-open,” 32 to 41. **For BDR to confirm**, since both apps call these.
+open,” 32 to 40. **For BDR to confirm**, since both apps call these.
 
 ### How a request is carried
 
-- **The address.** The preview’s is `https://notebook-preview.litbible.net` (proposed; it is live
-  once BVJ deploys it, and `STUDY-DESK-FOR-THE-APPS.md` says when). Production’s is step 4f’s. Every
+- **The address.** The preview’s is `https://notebook-preview.litbible.net` (BVJ’s choice, and
+  live since 2026-11-23; it holds test data only). Production’s is step 4f’s. Every
   path below is under it. `GET /` needs no session and answers
   `{ "time": "…", "service": "lit-notebook", "interface": 1, "preview": true }`; `preview` says
   whether the preview’s own way in (below) is there.
@@ -2093,8 +2093,8 @@ from 31:
     code don’t pass through approvals, and a change of key clears them.
 38. **The session is checked before the body**, so `not_open`, `no_notebook`, and `already_set_up`
     come first whatever was sent.
-39. **The preview**: its address, `https://notebook-preview.litbible.net` (proposed, and BVJ’s to
-    confirm on deploying it); test accounts by a made-up name; one secret, which BVJ gives BDR
+39. **The preview**: its address, `https://notebook-preview.litbible.net` (settled: BVJ had it
+    deployed there on 2026-11-23); test accounts by a made-up name; one secret, which BVJ gives BDR
     directly and which is never written into a repository.
 40. **A session is a bearer token and lasts 30 days.** Step 4e, which builds real sign-in, may
     change how long.

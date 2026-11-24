@@ -54,10 +54,11 @@ neither, and nothing in the site imports either.
 The Study Desk's sync service: a Worker with a D1 database that holds each
 signed-in reader's notebook sealed, so the service can open nothing (the
 plan's step 4c in `STUDY-DESK.md`, "Order of work," 4; built 2026-11-23).
-**It is a preview only**: no production deployment, no real sign-in (step
-4e), no account deletion (step 4f), and the website's connector to it is step
-4g. Its README is the working reference (run, test, deploy, roll back, wipe,
-and what each later step plugs in and where).
+**It is a preview only**, live at `https://notebook-preview.litbible.net`
+since 2026-11-23 and holding test data alone: no production deployment, no
+real sign-in (step 4e), no account deletion (step 4f), and the website's
+connector to it is step 4g. Its README is the working reference (run, test,
+deploy, roll back, wipe, and what each later step plugs in and where).
 
 - **Its specification is `STUDY-DESK-ENCRYPTION.md`, "The service's
   interface," and the two change together.** That section holds the exact

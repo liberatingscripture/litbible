@@ -119,18 +119,19 @@ Losing this account is the worst case — it holds five distinct things:
    new **Managed**-mode widgets for hostname `litbible.net`, paste the new
    site keys into those two pages, and re-set the two secrets.
 
-### The notebook service's preview (built 2026-11-23, not yet deployed)
+### The notebook service's preview (deployed 2026-11-23)
 
 The Study Desk's sync service (`workers/notebook-service/`; the plan's step
-4c in `STUDY-DESK.md`). **Nothing below exists on the account until BVJ
-deploys the preview**; this entry is here so that it is accurate the day
-that happens. Production is step 4f, which finishes this section.
+4c in `STUDY-DESK.md`). The preview was created and deployed on 2026-11-23
+by a session at BVJ's word, with BVJ typing the secret. Production is step
+4f, which finishes this section.
 
 - **What it adds to the account**: a Worker, `litbible-notebook-preview`;
-  a D1 database of the same name; one Worker secret, `PREVIEW_SECRET`; and
-  a Custom Domain, `notebook-preview.litbible.net`, which puts one record
-  in the zone that the Worker manages (add it to the inventory below when
-  it exists). Code, bindings, and the address are all in
+  a D1 database of the same name (western North America); one Worker
+  secret, `PREVIEW_SECRET`, whose value is in BVJ's password manager and
+  nowhere else; and a Custom Domain, `notebook-preview.litbible.net`, which
+  puts one record in the zone that the Worker manages (in the inventory
+  below). Code, bindings, the database's id, and the address are all in
   `workers/notebook-service/wrangler.jsonc`.
 - **Losing it loses nothing.** Everything on the preview is test data. No
   reader's notebook is there, and nothing is restored: recreate it from
@@ -164,6 +165,16 @@ dashboard if this list ever drifts. Unless noted: TTL Auto, DNS only
 ```
 litbible.net       CNAME  litbible.pages.dev
 www.litbible.net   CNAME  litbible.pages.dev
+```
+
+**The notebook service's preview (a Worker Custom Domain)**, added
+2026-11-23 and **Proxied**. The Worker manages it (the dashboard lists it
+as a record of type "Worker"), so it is never rebuilt by hand:
+`npm run deploy:preview` in `workers/notebook-service/` makes the record
+and its certificate again.
+
+```
+notebook-preview.litbible.net  Worker  litbible-notebook-preview
 ```
 
 **Mail: Google Workspace** (re-obtainable from the Google Admin console):
@@ -264,8 +275,9 @@ section worth keeping accurate. If the owning account is ever compromised,
 pull `RELEASE_NOTES_PAT` first: it can write to `main` past the branch
 ruleset, where `LSC_SYNC_TOKEN` can only open issues on a public repo.
 
-**The notebook service's preview** (none of these exists until BVJ deploys
-it; see "The notebook service's preview" above):
+**The notebook service's preview** (see "The notebook service's preview"
+above). `PREVIEW_SECRET` has been set since 2026-11-23; the other three
+exist only if BVJ turns the deploy workflow on:
 
 | Name | Where | What it is |
 |------|-------|------------|
