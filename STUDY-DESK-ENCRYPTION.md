@@ -32,6 +32,12 @@ lasts. Their requests are in “The service’s interface” under “Signing in
 “Changed in step 4e” lists what moved, and each place that was a choice is under “Still open,” 41
 to 58, for BDR to confirm and BVJ to check. No request that step 4c built changed its shape.
 
+**Step 4g built the website’s connector** (2026-11-24): the first client of “Records,” the keyring,
+and the key proof. **No request, answer, or word changed, and the service was not touched.** What a
+client does between the requests was mostly unwritten, and the connector had to decide it. “Changed
+in step 4g” says what it does, and each place that another client must match, or may want to, is
+under “Still open,” 74 to 83, for BDR to confirm and BVJ to check.
+
 Plan C was chosen on BDR and BVJ’s call of 2026-11-23: a small LIT service on Cloudflare holds each
 signed-in reader’s notebook, and only the reader’s own devices can read it. This file says exactly
 how, the same way on the website, iOS, and Android. It gates encryption in both apps (iOS IOS-108,
@@ -1074,6 +1080,16 @@ the sealed copy on the service is untouched.
   statically by shared reader code (the root `CLAUDE.md`). Account pages that work on a phone are
   step 4h’s to settle. Every new storage key or store is named on /privacy
   (`test/desk-storage-keys.test.js`).
+- **As built in step 4g (2026-11-24).** A browser that syncs holds two things. One value in the
+  notebook’s own database says it is linked: the notebook’s id, the service’s origin, and a random
+  id for the link. A second IndexedDB database, `lit-desk-sync`, holds the device’s key pairs (as
+  above), the session, the sealed keyring, and one small entry for each row: its id, the revision
+  last seen, and a digest of the record. It holds no record in the clear: a row the device is
+  keeping until it can read it, or until its time comes (“Opening,” and the format’s “Clocks”),
+  waits there sealed, exactly as the service sent it. **The session is kept there too**, never in
+  a cookie and never in local storage. The connector takes
+  the key pairs from the account pages (step 4h makes them) and refuses a device key whose private
+  half can be read out. A browser with no link downloads none of this code.
 
 ## Sign-in
 
@@ -1581,6 +1597,13 @@ POST /rows
   no row carries it, so `rev` numbers may skip.
 - **Revisions** go up by one for each stored row, in the request’s order, and the answer’s `rev`
   is the account’s last. Two pushes at once never share one.
+- **A device’s cursor after its own push** (step 4g, 2026-11-24; what the website does, and nothing
+  the service asks). A row a device stored comes back in its next pull, since its `rev` is past the
+  cursor. A device may step its cursor over the rows it just stored **only when their revisions
+  are exactly the next ones after its cursor**: a revision is one row’s alone, so nothing else was
+  written between. If even one is out of place (another device’s row or removal took a revision
+  meanwhile), it leaves the cursor where it was and pulls. It never takes the answer’s `rev` as its
+  cursor, which would pass over another device’s rows.
 - **`deletedAt` in a request** may be left out or null for a record that isn’t trash; the service
   stores none and answers none. The service doesn’t check that a row with a `deletedAt` is a trash
   record’s: it can’t see a record’s kind. The device that opens the row does (“Opening”).
@@ -2526,6 +2549,74 @@ One sentence of “How often a client may ask” was corrected: it said both num
 congregation on one network, and the 60 is not. What the check found is under “Still open,” 68, 70,
 and 72, each marked with the date.
 
+## Changed in step 4g
+
+Step 4g built the website’s connector (2026-11-24): `src/lib/desk-sync.mjs` (the rules, whose
+header states each one), `src/lib/desk-sync-engine.mjs` (the loop), and `src/scripts/desk/sync/`
+(the browser’s half). **No request, answer, size, or word of the interface changed, and nothing
+under `workers/notebook-service/` was touched.** One bullet was added under “Records” (a device’s
+cursor after its own push) and one under “The website” (what a linked browser keeps). The rest of
+this section says what a client does between the requests, which this file had left to the client.
+Each item is what the website does today and has a test in `test/desk-sync*.test.js`. The ones
+marked **(a choice)** could reasonably have gone another way, are mine (BVJ’s Claude), and are
+under “Still open,” 74 to 83, for BDR to confirm and BVJ to check. **BVJ has not been walked
+through them.**
+
+1. **A pass, in order**: `GET /account`; `GET /keyring` and `POST /session/proof` when the session
+   isn’t open on the current key; `GET /rows?since=` until `more` is false; merge; `POST /rows`;
+   and, after a change of key, `GET /rows?old=1` and the resealed rows. **Pull always comes before
+   push**, so a device never pushes over a row it hasn’t read.
+2. **Every row that arrives goes through “Opening” and then the format’s merge**, against this
+   device’s clock, with the service’s row as the winner of an exact tie (the format’s proposal of
+   step 4d, still unconfirmed; one constant on the website).
+3. **`old_key` and `not_open`** each mean the session is behind: the device fetches its keyring,
+   checks it against the one it holds (the same notebook, never backward, no held key changed),
+   proves the new key, and starts the pass again, at most three times in a pass. A `kid` in an
+   answer that is past the keyring’s means the same.
+4. **What ends a pass, and what the device does then.** `sign_in`: the reader is told; nothing is
+   removed. `slow_down`: it waits the `retry` given. `busy`: the request is sent again, twice at
+   most. `not_found` for its own keyring, or `gone` to its proof: the device was removed; it keeps
+   its keys, its notebook, and what it owes. A `notebook` in `GET /account` that isn’t the one it
+   was linked to, or `no_notebook`: it stops, and never joins the other notebook by itself. A
+   keyring that fails its check, or `wrong_proof` (sent once, never in a loop): it can’t open the
+   notebook, and says so. **None of these deletes a key, a session, or a record.**
+5. **`POST /rows`, row by row.** Stored: the device notes the new `rev`. `refused`: item 80.
+   `conflict: changed` with the row: opened and merged like a pulled row, and the device pushes
+   again only if, after the merge, its copy still differs from that row. `changed` without the
+   row: it pulls from before that row. `conflict: gone`: its record is owed again as a new row
+   (item 36). `removed`: done.
+6. **A device keeps a row it can’t use yet, and goes on** (items 74 and 75): one whose `v` or
+   `kid` it doesn’t know (“aside”), and one whose times are past its clock (“ahead”). Each is
+   judged again every pass. **(a choice)**
+7. **A device that pushed a copy doesn’t push it again over another device’s replacement** (item
+   76). **(a choice)**
+8. **A row is removed only on evidence** (item 77), **and a record that outlives an arriving
+   deletion is pushed again** (item 78). **(a choice)**, both.
+9. **A row a device can’t read is left exactly as it is** (item 79). **(a choice)**
+10. **Requests are sized to the limits**: at most 500 rows, and a body the website holds to
+    4,000,000 bytes of the 4,194,304 allowed. A record too large to seal stays on the device and
+    is reported.
+11. **A change of key from another device** needs nothing of the reader: the next pass meets
+    `old_key` or `not_open`, takes the new keyring, and goes on. **Resealing** is “Removing a
+    device, and changing the key,” step 5, as written: any device with the new keyring asks for
+    the rows still under an older key and finishes them.
+12. **The first sign-in is an ordinary pass** from cursor 0 with nothing noted as sent: the
+    account’s rows are merged into the notebook in the browser, and what the browser holds that
+    the account lacks, or holds newer, goes up. No request is special to it.
+13. **A service whose revisions went backward** is noticed, and the device reads everything again
+    and gives back what it still holds (item 82). **(a choice)**
+14. **Two copies of one trash record** tie toward the service’s row (item 81; the format’s
+    “Clocks”). **(a choice)**, in the merge, not in any request.
+15. **One thing the run against the real service showed, and no decision**: removing a device ends
+    its sessions, so a removed device is told `sign_in` first, and learns that it was removed only
+    when its reader signs in again (item 83).
+
+**Run against a local copy of the service on 2026-11-24** (`wrangler dev`, the Study Desk in a real
+browser, a second device in Node): the first sign-in merge, offline edits through a reload, a
+change of key and the reseal, deletions each way, a session ended by the service, and a removed
+device joining again by approval. **The deployed preview was not called.** What that run did not
+reach is listed under step 4g in `STUDY-DESK.md`.
+
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
@@ -2905,3 +2996,91 @@ numbers go on from 58:
     the service should then remove that way in, or the account, is a decision (it would be a
     deletion nobody with the key asked for), and it belongs with turning Sign in with Apple on.
     For BDR and BVJ. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
+
+**From step 4g, for BDR to confirm and BVJ to check.** Building the website’s connector forced a
+choice in each of these, where this file and the format made none. **Every one was made by me
+(BVJ’s Claude, 2026-11-24), and BVJ has not been walked through them.** None changes a request or
+an answer. What they decide is whether the website and an app, each following the interface, end
+with the same notebook: 74 to 79 and 81 are rules a second client has to share, or at least not
+work against; 80, 82, and 83 are questions. Each is what the website does today and has a test.
+Changing one before the freeze is cheap. The numbers go on from 73:
+
+74. **A row from a clock running ahead is kept and judged again, and the cursor moves on.** The
+    format’s “Clocks” says a sync that drops a record as ahead “must not advance its cursor past
+    it.” The website does what that sentence is for, another way: it keeps the row itself, sealed
+    as it came, with the time it falls due; moves its cursor on; and merges the row once its own
+    clock is within the format’s five minutes of the row’s latest time. Holding the cursor back
+    would hold back every later row with it, for as long as one device’s clock is wrong. Where
+    the device had no copy of the record, the merge writes one capped at the device’s own time,
+    as the format’s clamp says, and that capped copy is never pushed. **For BDR**: is the
+    format’s sentence the rule the apps will build to, or its purpose? The format now says, as a
+    proposal, that either way serves.
+75. **While a device keeps a row aside or ahead, it pushes nothing for that record**, not even an
+    edit its reader makes meanwhile, since it hasn’t read what the push would replace. The edit
+    stays in the notebook, is counted for the reader (“1 change made here is waiting behind an
+    entry this computer hasn’t been able to take in yet”), and is settled by the merge once the
+    row can be read. For a row that is ahead, the format’s “Two devices whose clocks differ”
+    already names the cost: the edit made in between gives way. **For BDR**: the same in the
+    apps?
+76. **A copy is not pushed twice over another device’s answer (the damper).** When a device has
+    pushed a copy of a record, another device replaces that row, and the first device’s merge
+    still prefers its own copy, it does not push that copy again until the record next changes
+    there. Two clients whose merges disagree about one record (a fault in one, a newer schema, a
+    field one of them drops) would otherwise trade pushes without end, each a new revision that
+    every other device pulls. With the damper each keeps its own copy until the record changes,
+    which is the smaller harm. If merges never disagree, it never acts. **For BDR**: the apps
+    need this or a bound of their own; say which.
+77. **A row is removed from the service only on evidence.** A record that is gone from a device
+    is never reason to remove its row. The row goes only once the device holds what replaced the
+    record, already stored on the service: for a deleted record, its trash record; for a trash
+    record, the record it deleted, live again, or the other trash record it collapsed into (the
+    format’s collapse rule). So the trash record is pushed first and the row removed after. A
+    record that is simply missing (storage cleared in part, a fault) is fetched again, so a
+    damaged device can’t delete a notebook for every other device. **For BDR**: the same order
+    in the apps?
+78. **A record that outlives an arriving deletion is pushed again.** When a trash record arrives
+    and loses to a record that is live on the device (the format’s rule b: the edit is the later
+    action), the device pushes that record as a new row, and then removes the trash record’s
+    row. The device that deleted the record removed its row (77), and nothing else would put it
+    back for the others. **For BDR**: the same in the apps?
+79. **A row a device can’t read is left exactly as it is.** “Opening” says to skip such a row,
+    keep the device’s own copy, and report it. It doesn’t say whether the device’s copy should
+    then go up over the row. The website’s doesn’t: the fault may be this client’s, so the copy
+    it happens to hold is no evidence against the row. Only a later change to that record on
+    this device pushes over it. The reader is told how many entries couldn’t be read. **For
+    BDR**: the same in the apps?
+80. **A row the service refuses stays on the device, and the reader is told.** `refused` names a
+    check the row failed, which sending it again can’t mend, so the device doesn’t until the
+    record changes. Its status line says “1 entry couldn’t be sent to your account. It is still
+    in your notebook on this computer.” The same is done for a record too large to seal. The one
+    case known to be reachable is item 31’s, a trash record whose times aren’t in the `Z` form,
+    so 31 is now something a reader could see. **For BVJ**: is telling the reader right? **For
+    BDR**: item 31’s answer.
+81. **Two copies of one trash record tie toward the service’s row.** The format merges two copies
+    of one trash record field by field and gave every tie to the local copy. Under sync two
+    devices can hold one trash record, the same id, with different held copies of equal
+    `modified`, and each kept its own for good. The website now gives those ties to the arriving
+    row when the store’s tiebreak favors it: the exact-tie proposal of step 4d, applied to the
+    one place it didn’t reach. With no tiebreak the merge is as it was, so the merge vectors
+    don’t move. **For BDR**, with the tie rule itself (`STUDY-DESK-FOR-THE-APPS.md`, ask 11).
+82. **A service whose revisions went backward.** If the database is ever restored from an older
+    copy (the runbook’s Time Travel), its revision counter goes back, and rows written since are
+    gone from it while devices still hold them. The website notices at its next push, when the
+    answer’s `rev` is lower than its cursor plus the rows just stored. It then pulls once from
+    0, merges what the service has, and pushes as new rows what it still holds and the service
+    no longer has. It deletes nothing. A device with nothing to push doesn’t notice until it has
+    something. **For BDR**: what will the apps do after a restore? **For BVJ and the runbook
+    (step 4l)**: only the website does this today, and it infers the restore. A member of
+    `GET /account` that names it (a number the service raises when it is restored) would let
+    every client know instead, and would be a change to the interface. Not built.
+83. **A removed device hears it in two steps.** Removing a device deletes its sessions (“Removing
+    a device, and changing the key,” step 4), and the same section says that a device which
+    finds no sealed keyring for itself has been removed and says so. The two don’t meet: with no
+    session, the removed device’s next request is answered `sign_in`, so it tells its reader
+    they were signed out; only after they sign in again does `GET /keyring` answer `not_found`,
+    and only then can it say that the device was removed. Seen in the run against the local
+    service. Nothing is lost either way, since the device keeps its notebook and its keys, but
+    the first message is not the true reason. One way to make it one step, as an example and not
+    a decision: `sign_in` already carries a `reason` after a fifth wrong proof, and could carry
+    one for a session ended by a removal, which needs the service to remember why a session
+    ended. **For BVJ and BDR**: are two steps acceptable?

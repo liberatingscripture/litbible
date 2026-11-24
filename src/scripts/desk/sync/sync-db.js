@@ -2,8 +2,9 @@
 //
 // The sync's own storage: a second IndexedDB database beside the notebook's,
 // made only when a browser is linked to an account (the plan's step 4g;
-// src/lib/desk-sync-link.mjs says what links one). It holds no record and
-// none of a record's words. What it holds:
+// src/lib/desk-sync-link.mjs says what links one). It holds no record in the
+// clear: the only record bytes in it are the rows in `held`, sealed exactly
+// as the service sent them. What it holds:
 //
 //   kv    "link"    the link's id, so a state made for another copy of the
 //                   notebook is never used

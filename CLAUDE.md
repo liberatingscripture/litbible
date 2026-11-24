@@ -35,6 +35,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `src/scripts/desk/CLAUDE.md` | Anything to do with the Study Desk, wherever it lives: `src/lib/desk-*.mjs`, the /desk and /notebook pages, `desk.css`, `public/greek/`, Greek search, printing with notes |
 | `src/scripts/desk/sheets/CLAUDE.md` | The Sheets (read the desk file too): the Sheets pane and its editor, the /sheets page, paper copies, Copy and Save as, present mode, templates, sharing, the print check, `src/lib/desk-sheet*.mjs` |
 | `src/scripts/desk/collections/CLAUDE.md` | Collections (D13): the record, its model, its page and ways in |
+| `src/scripts/desk/sync/CLAUDE.md` | Syncing the notebook (4g); `src/lib/desk-sync*.mjs` |
 | `src/lib/CLAUDE.md` | The module map of `src/lib/`; scripture reference linking (Sefaria, eBible), external links, Go deeper, the release notes page and feed |
 | `src/styles/CLAUDE.md` | CSS anywhere, including component `<style>` blocks: theming, the Display tray's settings, `--ch`, Greek and Hebrew fonts, the brand greens, the emblem, the LSC mark, focus rings |
 | `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |
@@ -329,7 +330,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/release-notes` | `release-notes.astro` | "What's new": the release notes by month, filterable by book and kind of change. `/translation-updates.xml` (`translation-updates.xml.js`) is the same record as RSS. See "Release notes are automated" below |
 | `/apps` | `apps.astro` | Mobile-apps promo page (footer-linked). Body design ported from `BDRhodes/LIT-app-Promo`; every section's content is data (`apps-sections`, `callouts`, `examples`, `seasons`), laid out in order by `components/apps/AppsPage.astro` and edited through the Apps Page Studio; scoped styles in `src/styles/pages/apps.css`. Uses `bg="white"` (near-white surface). |
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
-| `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). Its embeds are three deliberately different shapes, and only the Apple one is derived at build: read `src/pages/CLAUDE.md` before touching them |
+| `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). Its embeds are three deliberately different shapes: read `src/pages/CLAUDE.md` before touching them |
 | `/404` | `404.astro` | Not found; a guessable scripture address lands on its page (`src/pages/CLAUDE.md`) |
 | others | `delete-account` (noindex; `workers/CLAUDE.md`), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
@@ -533,7 +534,7 @@ The table of every script in `scripts/` and its role is in `scripts/CLAUDE.md`.
 | `public/llms.txt`, `llms-full.txt` | LLM-readable site description + AI-usage policy |
 | `GLOSSARY-CANDIDATES.md` | Register of glossary candidates deliberately not included or deferred, and the payload criterion behind those calls. Read it before proposing a "next term." |
 | `TOPICS.md` | **The authority on chapter and book-intro `topics`** — the significance filter, the alternative-translation pair table, the prefix-search rule, casing, and the hand-run checks. Read it before adding or revising any topics array. |
-| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-1.md` to `STUDY-DESK-AUDIT-8.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md`. Large: grep for an ID, never read whole |
+| `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-1.md` to `STUDY-DESK-AUDIT-8.md` | The Study Desk's planning record, its Phase 5 log of bugs and preferences (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits; see `src/scripts/desk/CLAUDE.md` |
 | `API-2-FORMAT.md` | The content API, version 2 (`/api/data/v2/`), beside version 1; opens with the manifest rule that protects installed apps |
 | `IMAGE-CREDITS.md` | Source, creator and terms of every image by others (named from `LICENSE`). A new stock image gets a row when it is added. |
 | `SITE-2.0.md` | Site 2.0: the plan, its ground rules, and every page's decision; styles in `src/styles/v2/` |

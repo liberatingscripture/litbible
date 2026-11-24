@@ -24,9 +24,9 @@
   report-only decision stops holding at that point. **That point is the
   Study Desk's account pages (plan step 4h)**: since step 4g the allowlist
   names the notebook service's two origins in `connect-src`, and a linked
-  browser holds a session and device keys in IndexedDB, so the decision to
-  enforce is BVJ's to make before accounts open to readers (it is listed
-  with step 4g in `STUDY-DESK.md`).
+  browser holds a session and device keys in IndexedDB. **Enforcing the
+  full policy before sign-in ships is the plan's step 4i** (`STUDY-DESK.md`,
+  "Order of work," 4): review a week of reports first.
 - **Agent/AI discovery surface** lives in static files, all served as-is from
   `public/`. They only take effect on a deployed Cloudflare Pages site — `dev`
   and `astro preview` do **not** apply `_headers`:

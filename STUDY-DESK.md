@@ -5506,6 +5506,173 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      browser's notebook into the account with one source of truth at a
      time (C5), taking a new key when the service refuses a push, and
      resealing after a key change.
+     **Built 2026-11-24, and switched on for nobody.** A browser syncs
+     only once it is linked to an account, and nothing links one until
+     step 4h's pages exist. Nothing under `workers/notebook-service/`
+     changed, so the merge redeploys nothing. **Every choice below is
+     Claude's** unless it names BVJ, the format, or the spec; the ones
+     that change what the apps build are the spec's "Still open," 74 to
+     83, for BDR to confirm. What exists:
+     - **The rules and the loop** (`src/lib/desk-sync.mjs`,
+       `desk-sync-engine.mjs`; pure, with storage, the network, and the
+       clock handed in). One pass opens the session (the keyring fetched
+       and checked, the key proved), pulls rows by revision and merges
+       them with the format's own engine against this device's clock,
+       pushes what this device owes inside the service's 500 rows and
+       4 MiB a request, and reseals after a change of key. It handles
+       every answer the service gives for a row: stored, refused,
+       changed, gone, and removed. **Step 4d's notes for this step were
+       followed, with one difference**: the cursor is not held behind a
+       row whose times are ahead of this clock. The row itself is kept
+       and judged again, so one device's wrong clock doesn't hold back
+       every later row (the spec's "Still open," 74).
+     - **The queue is a difference, not a list.** For each record the
+       device keeps one small entry: the service's revision it last saw,
+       and a digest of the copy for which nothing is owed. What has to
+       go up is whatever in the notebook no longer matches. So an edit
+       made offline is queued by being saved, it survives a reload
+       because the notebook does, and a push that half succeeded leaves
+       exactly the other half owed.
+     - **Keys.** Rows are sealed and opened with the reference
+       (`src/lib/desk-crypto.mjs`). The device's private keys are
+       `CryptoKey`s that page script can't read out, kept in IndexedDB,
+       and `linkNotebook` refuses one that can be read out. At rest the
+       browser keeps only the sealed keyring.
+     - **A new key.** When the service answers `old_key` or `not_open`,
+       the loop fetches the keyring, checks it against the one it holds
+       (the same notebook, never backward, no held key changed), proves
+       the new key, and starts the pass again. After any change of key
+       it seals again every row still under an older one
+       (`GET /rows?old=1`).
+     - **Status, and "Reconnect."** One sentence for each state
+       (`src/lib/desk-sync-status.mjs`): getting ready, syncing, in
+       sync, offline, signed out, slowed by the limiter, this computer
+       removed, the account's notebook replaced, and can't open the
+       notebook, each saying where the notebook is and what happens to
+       the changes that wait. The line sits in the Notebook's Settings
+       tab and on /notebook, with "Reconnect" wherever trying again can
+       help.
+     - **Never a silent stop, never lost work** (BVJ's standing
+       requirements). No pass deletes a key, a session, or a record
+       because of any state. A stop only the reader can settle puts a
+       dot on the Notebook's tab and buttons and, once for each stop and
+       again a day later, a notice with "Reconnect" on whatever page the
+       reader is on (not over a tour, a print, or a sheet's page). A
+       record is removed for everyone only on evidence (the trash record
+       that deleted it, already on the service); one that is merely
+       missing here is fetched again.
+     - **The first sign-in, and one notebook at a time (C5).**
+       `linkNotebook` keeps the session and keys, writes the link, and
+       starts the loop; the first pass merges this browser's notebook
+       into the account's and the account's into it, by the format's
+       merge. A browser already linked to another notebook is refused
+       unless the caller passes the reader's own yes (`replace: true`).
+     - **One tab syncs for the browser** (a Web Lock); the others show
+       its status and pass it requests. A pass runs when that tab
+       starts, 2 seconds after the notebook last changed (10 at most),
+       once a minute while a tab is visible, when the browser comes back
+       online or a tab is looked at again, and on "Reconnect." After a
+       pass that couldn't reach the service it tries again by itself,
+       from 5 seconds up to 5 minutes. A stop that needs the reader is
+       never retried on a timer.
+     - **Storage.** The link is one value in the notebook's own meta
+       store (`sync`), so a notebook that is deleted or made anew is not
+       linked. The sync's state is a second database, `lit-desk-sync`:
+       the keys, the session, the sealed keyring, and the entries. It
+       holds no record in the clear: a row from another device that
+       can't be read or shown yet waits there sealed, as the service
+       sent it. /privacy names it and says so; the account section is
+       still step 4j's to write.
+     - **Nothing reaches a reader.** The store and the first stage read
+       the link, and only with one do they import the connector
+       (`src/scripts/desk/sync/start.js`). `test/desk-sync-gate.test.js`
+       holds that in the source, and in the built site no page reaches
+       the sync's one chunk statically (about 49 KB before compression).
+     - **The content security policy** names the service's two origins
+       in `connect-src`. It is still report-only; enforcing it is 4i.
+     **What 4h must supply.** The connector takes its session and keys
+     from whoever calls it, and `start.js` is the whole surface:
+     - `linkNotebook({ store, service, token, notebook, device, keyring,
+       replace })`, after sign-in and after this device has set the
+       notebook up or joined it. It throws `LinkRefused` with `why`:
+       `service`, `session`, `device`, `keyring`, or `otherNotebook`.
+     - `currentSync()`, the running connector: `status()`,
+       `subscribe(fn)`, `syncNow()`, `setSession(token)` after signing
+       in again, `call(method, path, body)` for the account pages' own
+       requests, `device()`, `keyring()`, and `adopt(keyring)` after a
+       change of key made in this browser.
+     - `unlink({ store })` when the reader signs this browser out, after
+       the pages have removed the device on the service.
+     - **What is not there, and is 4h's**: sign-in itself, with
+       Turnstile; making the device's keys; setup and joining; and the
+       step behind the button when the sync is signed out, removed, on
+       another notebook, or can't open it. Today "Reconnect" only asks
+       again, which settles none of those by itself. The reader's yes
+       for `replace: true` is 4h's to ask. /desk has no place for the
+       status line (the dot and the notice only), and /sheets shows
+       nothing of a stop.
+     - **Sentences that become false in a linked browser**, for 4h and
+       4j: "Your notebook is kept in this browser" on the first-use
+       card and in the nudge after a first record (`first-use.js`,
+       `panel.js`); the tour's "nothing is sent anywhere"
+       (`desk-first-use.mjs`); "Kept in this browser. Not backed up
+       yet." in the Settings tab, which today sits right above "Your
+       notebook is in sync."; /notebook's "It never leaves this
+       computer unless you back it up"; the help page's account of
+       where the notebook is kept; and /privacy's notebook paragraph.
+     **What was verified.** The root suite holds every state and every
+     answer of the service against a stand-in service in memory
+     (`test/desk-sync*.test.js`), with seeded property tests where order
+     matters: several devices writing, deleting, and restoring at
+     random, going offline, reloading, losing an answer, and changing
+     the key partway must all end with one notebook, which the service's
+     rows open to, and with no record vanished.
+     **End to end, 2026-11-24**: the Study Desk in a real browser
+     against `wrangler dev` of the service, with a second device in
+     Node. Seen: the first sign-in merge, both ways; an edit pushed
+     about 2 seconds after Save; a reload starting the sync from the
+     stored link; the service stopped, three changes waiting through a
+     reload and going up in the order written when it came back; another
+     device's change of key, taken in the next pass, with no row left
+     under an older key; deletions each way; two tabs under real Web
+     Locks, the second taking over when the first closed; a session
+     ended behind the browser's back (the dot, the notice, every record
+     kept, and a new session resuming); a removed device, joined again
+     by approval; the private key not extractable after a reload; and
+     the production build, served from `dist/`, starting the sync from
+     the link and pushing a note the other device received. The run
+     found two faults, both fixed with tests: a device fetched back the
+     rows it had just sent, and a notice still up kept the first stop's
+     words when one stop became another.
+     **What was not verified.** In unit tests only: the limiter's
+     state, a push that half succeeds, `old_key` met in the middle of a
+     push, another notebook, keys that don't open, rows held as ahead,
+     unreadable, or refused, and a service restored from an older copy.
+     **The deployed preview was not exercised at all.** Mac Safari and
+     Firefox were not tried, nor a browser without Web Locks.
+     **For BVJ to settle**:
+     - The wording of every status sentence and of the notice, the dot,
+       "once, then daily," and the timings above.
+     - **A removed device hears it in two steps.** Removing a device
+       ends its sessions, so it is first told it was signed out, and
+       learns it was removed only after signing in again. Whether that
+       should be one step is a change to the service (the spec's "Still
+       open," 83).
+     - **This computer's clock is said, not enforced**: the status line
+       says when it is 5 minutes or more from the service's. The
+       question of which device wins is still with BDR (4d).
+     **What is left**: the account pages (4h); enforcing the policy
+     (4i); the privacy page's account section and the sentences above
+     (4j); and real devices and browsers (4l). Known limits, none of
+     them a loss of work: the first sync reads the whole notebook once
+     for each page of rows; after resealing, a device pulls back the
+     rows it resealed; a notice's count of waiting changes is not
+     refreshed while it is up; and an `unlink` in one tab while the tab
+     that syncs is mid-pass can leave that pass's last entries in the
+     sync's database, which the next link clears before anything reads
+     them. The reading stage of a linked browser starts the notebook's store
+     and the connector on every reading page, so re-measure the two
+     stages at launch.
    - **4h. The account pages** (3–4). Sign-in; setup, with the choice of
      where the key lives, the passkey, and the recovery code; adding a
      device by approval (a typed code or a QR code) or by recovery code;

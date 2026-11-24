@@ -29,7 +29,9 @@
 // The sync's own state is a second IndexedDB database, SYNC_DB, made only
 // when a browser is linked: the device's keys (CryptoKeys that can't be read
 // out), the session, the sealed keyring, and one small entry for each row
-// (src/lib/desk-sync.mjs). It holds no record and none of a record's words.
+// (src/lib/desk-sync.mjs). It holds no record in the clear: the only record
+// bytes in it are rows this device is keeping until it can read them or their
+// time comes, sealed exactly as the service sent them.
 
 /** The key of the link in the notebook's meta store. */
 export const SYNC_META = "sync";

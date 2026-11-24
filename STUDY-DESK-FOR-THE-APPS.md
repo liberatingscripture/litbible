@@ -267,8 +267,74 @@ because nothing carried them there. This file is what carries them now.
     ‘Account,’ and then choose ‘Delete account’” for both apps. Write
     here where each app will put it, and anything Play's form needs
     that the page lacks.
+16. **The ten choices the website's connector had to make** (asked
+    2026-11-24, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
+    “Still open,” 74 to 83. Every one was the website's Claude's, and
+    **BVJ has not been walked through them yet**, so none is BVJ's call.
+    None changes a request or an answer. They are what a client does
+    between the requests, and two clients that choose differently can
+    each follow the interface and still not end with the same notebook.
+    Each is what the website does today and has a test. Answer by
+    number here. **Most of all**:
+    - **74**: the format says a sync that drops a record as ahead must
+      not move its cursor past it. The website keeps the row and moves
+      its cursor on, then judges the row again once its clock arrives.
+      Is the format's sentence the rule you will build to, or its
+      purpose?
+    - **76**: when two clients' merges disagree about one record, what
+      stops them from pushing it back and forth without end? The
+      website never pushes a copy again over another device's
+      replacement until the record changes. Do the apps need the same,
+      or have a bound of their own?
+    - **77**: a row is removed only after the trash record that
+      replaced it is stored, and a record merely missing on a device is
+      fetched again, never removed for everyone. The same in the apps?
+    - **82**: what will each app do if the service is ever restored
+      from an older copy, so that its revisions go back? The website
+      reads everything again and gives back what it still holds.
+    - **83**: a removed device is told “signed out” first and “removed”
+      only after signing in again, because removal deletes its
+      sessions. Is that acceptable in the apps, or should the service
+      say why a session ended?
+    **And 81 goes with ask 11's proposal**: if the service's row wins an
+    exact tie, it wins the ties inside two copies of one trash record
+    too.
 
 ## The list
+
+### 2026-11-24, the website's connector is built (step 4g)
+
+**Nothing you call changed, and the service was not touched**: no
+request, answer, size, or word. The website can now sync a notebook with
+the service, and no reader can reach it, since nothing signs a browser in
+until the account pages (step 4h). What it means for the apps:
+
+- **The website is now a second client of the rows**, so where the
+  interface leaves a client to choose, there is a choice on record to
+  match or to argue with. They are the spec's “Changed in step 4g” (what
+  the website does, in order) and “Still open,” 74 to 83 (ask 16 above).
+  **None is BVJ's decision yet.**
+- **Pull before push, always**, and the service's row wins an exact tie.
+  The second is still the proposal of ask 11; the website is built on it
+  behind one constant, so changing it is cheap.
+- **A device's cursor after its own push** (the spec's “Records”): a
+  device may step over the rows it just stored only when their revisions
+  are exactly the next ones after its cursor. It must never take the
+  answer's `rev` as its cursor, which would pass over another device's
+  rows written in between.
+- **A removal takes a revision**, as the spec already said, so the
+  revisions of the rows a device sees are not always consecutive. The
+  run against the real service showed it; nothing changed.
+- **One merge rule moved, on the website only** (`STUDY-DESK-FORMAT.md`,
+  “Clocks,” “One trash id, two copies”): two copies of one trash record
+  tie toward the store's tiebreak, which under sync is the service's
+  row. With no tiebreak the result is as before, so the merge vectors
+  are unchanged. **For BDR to confirm**, with ask 11.
+- **Run against a local copy of the service, not the preview**: the
+  first sign-in merge, offline edits through a reload, a change of key
+  with the reseal, deletions each way, a session ended by the service,
+  and a removed device joining again by approval. The preview was not
+  called, and no test account was made on it.
 
 ### 2026-11-24, a check after step 4f merged
 

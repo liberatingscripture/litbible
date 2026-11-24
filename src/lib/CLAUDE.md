@@ -84,8 +84,12 @@ From the root's project tree.
                      #   reference for STUDY-DESK-ENCRYPTION.md and the
                      #   code its test vectors are made from; WebCrypto
                      #   alone, no imports, every random input an
-                     #   argument; nothing imports it yet but its vector
-                     #   builder and its test); the scrub a fetched
+                     #   argument) and its sync with the notebook
+                     #   service (desk-sync, the rules; desk-sync-engine,
+                     #   the loop; desk-sync-link, what says a browser
+                     #   is linked, which imports nothing;
+                     #   desk-sync-status, the status line's words; see
+                     #   src/scripts/desk/sync/CLAUDE.md); the scrub a fetched
                      #   page's parts get before a pane imports them
                      #   (desk-inert); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page

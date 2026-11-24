@@ -1271,7 +1271,13 @@ deletion made in between, every time (BA4). So:
   confirm): against "now", a time up to **five minutes** ahead still counts as
   now, so an edit from a phone whose clock is seconds fast isn't dropped as
   "from the future". A file's own `exported` time stays exact. A sync that
-  drops a record as ahead must not advance its cursor past it. And an edit
+  drops a record as ahead must not advance its cursor past it. (**Proposed
+  by the website, step 4g, 2026-11-24; Claude's, not decided by BVJ, and
+  for BDR to confirm**: what the sentence protects is that the record is
+  judged again once the clock reaches it, so a client may instead keep the
+  row it set aside and move its cursor on. The website's connector does
+  that, since a cursor held back holds back every later row with it; the
+  encryption spec's "Still open," 74.) And an edit
   stamps `max(now, the version it replaces + 1 ms)`, so it always outranks
   that version, even on a clock running behind.
   **Every stamp steps past what it replaces, not edits alone** (audit 3
@@ -1303,7 +1309,13 @@ deletion made in between, every time (BA4). So:
 - **One trash id, two copies** (DI-3): merged field-wise, as the collapse
   rule does across ids: the later `deletedAt`, the later `modified`, and the
   held record with the later `modified`. A trash record whose held record has
-  another id than `deletedId` is skipped and reported.
+  another id than `deletedId` is skipped and reported. **A tie in any of
+  the three goes to the local copy, or to the store's tiebreak, as rule
+  a's tie does** (step 4g, 2026-11-24; Claude's, **for BDR to confirm**
+  with the exact-tie proposal under "Two devices whose clocks differ"):
+  under sync two devices can hold one trash record with different held
+  copies of equal `modified`, and with every tie local, each kept its own
+  for good. With no tiebreak the result is as before, so no vector moves.
 - **What is clamped**: `modified`, a trash record's `deletedAt`, the
   `modified` of the copy a trash record holds (BA12; a held copy from the
   future would outrank every later one, and an undo would bring back its
@@ -1374,9 +1386,10 @@ deletion made in between, every time (BA4). So:
     Until then the slower device drops the faster one's edit as ahead and
     keeps its own, the faster device keeps its own as the later, and the two
     hold different words. A sync that drops a record as ahead doesn't
-    advance its cursor past it (above), so the slower device judges the
-    record again, and takes it once its clock is within five minutes of the
-    stamp. From then on both hold the faster clock's edit, **even over an
+    advance its cursor past it, or keeps the row to judge again (above),
+    so the slower device judges the record again, and takes it once its
+    clock is within five minutes of the stamp. From then on both hold the
+    faster clock's edit, **even over an
     edit the slower device made to that record in between**. That is the
     cost of leaving the cap to devices, and the reason the service sends its
     own time with every answer: a client can tell a reader whose clock is
@@ -1533,7 +1546,17 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   that what the apps want, or should something else happen?
 - **An exact tie under sync** (the same place): the website proposes that
   the row the service holds wins. **Not decided by BVJ, and for BDR to
-  confirm** (the same ask); no vector carries it yet.
+  confirm** (the same ask); no vector carries it yet. **Step 4g built the
+  website's connector on it** (2026-11-24; one constant,
+  `SERVICE_WINS_TIE` in `src/lib/desk-sync.mjs`), and carried it to two
+  copies of one trash record ("Clocks," "One trash id, two copies").
+- **From the connector (step 4g, 2026-11-24), for BDR to confirm**, both
+  Claude's and neither decided by BVJ: that a client may keep a row that
+  is ahead and move its cursor on, where "Clocks" says the cursor must not
+  pass it; and the trash record's tie above. The rest of what the
+  connector had to choose is in the encryption spec's "Still open," 74 to
+  83, and `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps,"
+  16.
 - **Every note marker name either app has ever written** (kind 2;
   `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps," 4): not
   answered as of 2026-11-24, so the reading rule covers `ribbon`,
