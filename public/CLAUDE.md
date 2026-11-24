@@ -36,3 +36,17 @@
     `search=yes`, `ai-input=yes` (RAG/inference welcome). The site has no auth,
     MCP server, or write API, so OAuth/MCP/WebMCP discovery files are intentionally
     absent — don't add them without a real backing service.
+- **The apps' link files are live, and the released apps read them**:
+  `public/.well-known/apple-app-site-association` (iOS universal links, and
+  since Study Desk step 4e `webcredentials`, which lets the app use the
+  site's passkeys) and `assetlinks.json` (Android app links, and
+  `get_login_creds` for the same). A mistake in either breaks links for
+  installed apps and shows on no page. The app ids, package name, and
+  signing certificates in them are BDR's (the apps' developer): never add or
+  change one without BDR. Edit them by inserting text, never by
+  re-serializing, and flag the change at the top of the pull request.
+  `test/link-files.test.js` holds their shape, and fails if the notebook
+  service's accepted Android origins (`workers/notebook-service/wrangler.jsonc`)
+  and the certificates in `assetlinks.json` ever differ. Apple fetches its
+  file through its own CDN, so a change can take a day or more to reach a
+  phone.

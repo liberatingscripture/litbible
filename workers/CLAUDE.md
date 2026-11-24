@@ -56,9 +56,12 @@ signed-in reader's notebook sealed, so the service can open nothing (the
 plan's step 4c in `STUDY-DESK.md`, "Order of work," 4; built 2026-11-23).
 **It is a preview only**, live at `https://notebook-preview.litbible.net`
 since 2026-11-23 and holding test data alone: no production deployment, no
-real sign-in (step 4e), no account deletion (step 4f), and the website's
-connector to it is step 4g. Its README is the working reference (run, test,
-deploy, roll back, wipe, and what each later step plugs in and where).
+account deletion (step 4f), and the website's connector to it is step 4g.
+**Sign-in is built (step 4e, 2026-11-24)**: a passkey with `litbible.net` as
+the relying party works; Sign in with Apple and with Google are built, off,
+and have never met either provider. Its README is the working reference (run,
+test, deploy, roll back, wipe, "Passkeys," "Apple and Google," and what each
+later step plugs in and where).
 
 - **Its specification is `STUDY-DESK-ENCRYPTION.md`, "The service's
   interface," and the two change together.** That section holds the exact
@@ -84,6 +87,30 @@ deploy, roll back, wipe, and what each later step plugs in and where).
   and holds a `PREVIEW_SECRET` of 32 characters or more. `test/preview.test.js`
   proves "not found" when any of the three is missing. Don't loosen any of
   the three, and don't give production's config any of them.
+- **Sign-in gives out sessions, so its rules are the ones a wrong edit
+  makes unsafe** (`src/signin.js`, `src/ways.js`, `src/webauthn.js`,
+  `src/providers.js`):
+  - **The PRF's output never reaches the service.** A passkey's response
+    that still carries `clientExtensionResults.prf.results` is refused
+    whole, before anything else is read (`src/passkey-form.js`).
+  - **Every sign-in answers a challenge the service made**, used up as it
+    is read (`useChallenge`). Don't read one without deleting it.
+  - **A change to an account's ways in moves the lists' version, in a
+    guarded batch**, and once an account has a notebook it needs an open
+    session. A session is written only while its way in still stands
+    (`createSession`).
+  - **A passkey's answer is checked by code written here**, on WebCrypto,
+    with no dependency; the header of `src/webauthn.js` says why, and
+    `test/webauthn.test.js` holds it to the W3C's published examples.
+    Don't add a switch that skips a check to make a test pass.
+  - **No identifier of Apple's or Google's is in the repo, and none is
+    guessed**: both stay off until BDR's are configured. The tests use
+    made-up ones (`test/idp.js`).
+  - **The Android origins in `wrangler.jsonc` and the certificates in
+    `public/.well-known/assetlinks.json` change together**; the root's
+    `test/link-files.test.js` fails when they differ. Those two link
+    files are live and read by the released apps: change them only by
+    inserting, and say so at the top of the pull request.
 - **The tests are a real client.** They import the website's reference by
   relative path (`src/lib/desk-crypto.mjs`) and replay the vectors'
   walkthrough (`test/fixtures/notebook-crypto-vectors.json`) through the

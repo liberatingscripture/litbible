@@ -5320,6 +5320,45 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      (`webcredentials` in `apple-app-site-association`, `get_login_creds`
      in `assetlinks.json`). It needs credentials from the Apple developer
      account and the Google Cloud project, so it waits on BDR for those.
+     **Built on 2026-11-24, as far as it goes without those credentials.**
+     What exists:
+     - **A passkey signs in**, with `litbible.net` as the relying party:
+       an account is made with one, signed in to with one, and given
+       another, each ceremony checked by the service against a challenge
+       it made. It is on in the preview's configuration, so it is live
+       there once this step's pull request merges. The service's own
+       suite makes and uses a passkey end to end with a software
+       authenticator, and holds the checking code to the examples the
+       WebAuthn standard publishes. The PRF's output never reaches the
+       service: a response that still carries it is refused.
+     - **Sign in with Apple and with Google are built and off.** No
+       client id, bundle id, or team id is written anywhere, and none was
+       guessed. Each turns on when its ids are configured. **Neither has
+       met its provider**: the token check ran against keys made inside
+       the tests, and the two calls to Apple against a stand-in.
+     - **Several ways in to one account**: adding a passkey, Apple, or
+       Google, and removing one, under the spec's rule that an account
+       with a notebook needs a session that has proved the key. The last
+       way in stays, and so does a passkey that holds the key.
+     - **Sessions** begin with 30 days, as before. An open one is now
+       kept alive by use for up to a year, and one that is signed in and
+       no more never is. That is a choice of this step's, not yet BVJ's
+       (the spec's “Still open,” 52). `DELETE /session` is new.
+     - **The preview's way in is unchanged** and stays beside real
+       sign-in, so the apps' sessions keep working as they are.
+     - **The link files have their passkey sections**, with only the
+       app each already named, and a test holds both files' shape.
+     - **The spec's interface holds the final shapes** (“Signing in,”
+       “Ways to sign in”). What moved is its “Changed in step 4e”; the
+       eighteen places that were a choice are its “Still open,” 41 to 58,
+       for BDR to confirm and BVJ to check.
+     **What waits on BDR**: Apple's client ids, team id, key id, and
+     key, and Google's client ids (`STUDY-DESK-FOR-THE-APPS.md`,
+     “Waiting to hear from the apps”); then a first sign-in with each
+     against the preview, which is the test this step could not run.
+     **What waits on real devices**: every passkey behavior under the
+     spec's “Still open,” 18 to 21, and that an iOS app's passkey
+     answers from the website's origin.
    - **4f. The service's account work** (1–2). Deleting an account, with
      Apple's token revoked; the seven-day wait and its cancel; "Start a
      new notebook"; limits on requests and bot protection at sign-up; the
