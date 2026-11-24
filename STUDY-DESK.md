@@ -5464,10 +5464,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      production's entry in `DISASTER-RECOVERY.md`; and production's
      configuration and workflow jobs, off. The spec's “Waiting seven
      days” is final, with what moved under “Changed in step 4f.”
-     **What BVJ decides**: the fifteen choices this step made (the
-     spec's “Still open,” 59 to 73), the limits' numbers and
-     production's address among them; and whether and when production
-     is deployed (the service's README, “Production”). **What was not
+     **BVJ on the fifteen choices this step made** (the spec's “Still
+     open,” 59 to 73; 2026-11-24): yes to 59, 60, 63, 64, 66, 69
+     (production's address, `notebook.litbible.net`), and 71; yes to
+     Turnstile on the website's sign-in page (68), which step 4h
+     builds; “ask BDR” on 61, 65, 67, 70, 73, and the rest of 68; no
+     answer yet on 62. **Still BVJ's**: whether and when production is
+     deployed (the service's README, “Production”). **What was not
      built**: bot protection at sign-up, which needs the sign-in page of
      4h (“Still open,” 68); and handling Apple's server-to-server
      notifications (73). **What waits on the preview**: the hourly run

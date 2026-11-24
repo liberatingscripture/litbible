@@ -647,8 +647,10 @@ page. **Nothing is built, and here is why.**
     stops nobody, and it would leave a real reader who made a passkey and
     never set up with a passkey that signs in to nothing. Not built; it is
     there if empty accounts ever pile up.
-- **So**: the limits are what there is, and the question goes to step 4h
-  with the sign-in page (the spec's "Still open," 68).
+- **So**: the limits are what there is until step 4h. **BVJ said yes to
+  Turnstile on the website's sign-in page (2026-11-24)**, so step 4h shows
+  the widget and adds the token's check here; whether the apps attest is
+  asked of BDR (the spec's "Still open," 68).
 
 ### What was checked against the vendors' own pages, and what was not
 

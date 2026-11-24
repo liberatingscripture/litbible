@@ -2765,49 +2765,51 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     2026-11-24: “yes.”** BDR still confirms.
 
 **From step 4f, for BDR to confirm and BVJ to check.** Building the account work forced a choice in
-each of these. **Every one was made by me (BVJ’s Claude, 2026-11-24), and BVJ has not yet been
-walked through them.** Each is written into “Waiting seven days” or “How often a client may ask,”
+each of these. **Every one was made by me (BVJ’s Claude, 2026-11-24). BVJ was walked through them
+the same day and said yes to seven: 59, 60, 63, 64, 66, 69, and 71, which now wait on BDR alone;
+and yes to Turnstile on the website’s sign-in page, in 68. BVJ left five to BDR to answer: 61,
+65, 67, 70, and 73, and the rest of 68. BVJ gave no answer on 62, which waits on both.** Each is written into “Waiting seven days” or “How often a client may ask,”
 is what the service does today, and has a test. Changing one before the freeze is cheap. The
 numbers go on from 58:
 
 59. **An account with no notebook is deleted at once**, from any signed-in session. Draft 2’s
     sketch would have made it wait seven days, with no device able to cancel, since canceling
     needs the key and there is none. Before there is a notebook a signed-in session may already
-    add and remove ways in, for the same reason: there is nothing to protect.
+    add and remove ways in, for the same reason: there is nothing to protect. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 60. **The session that asked may cancel its own request**, though it has no key. Draft 2 said any
     device that can open the notebook. Without this, a reader who asked by mistake from a new
     phone, and has no other device at hand, could only watch it happen. It gives a thief
-    nothing: a stolen sign-in is a different session, and can’t cancel the reader’s request.
+    nothing: a stolen sign-in is a different session, and can’t cancel the reader’s request. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 61. **`DELETE /account` carries `platform` in its address** (`?platform=ios`), and
     `POST /notebook/replace` in its body. Some HTTP clients and proxies drop a body sent with
-    `DELETE`. For BDR: say if either app’s client would rather have one form for both.
+    `DELETE`. For BDR: say if either app’s client would rather have one form for both. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
 62. **What a waiting request says**: `what`, `asked`, `due`, `platform`, `through`, and `mine`.
     `platform` is the asking device’s own word, so a thief can write anything there; `through`
     is the service’s own. **And every session of the account is answered it**, not only open
     ones: the device that asked has to see its own request, and a thief who learns that a
     request is waiting learns nothing they can use. For the apps: the notice a device shows
     (“a request to delete this account was made on … from …, and will be carried out on …”) is
-    built from these six.
+    built from these six. **Not yet answered by BVJ** (2026-11-24); BDR’s view is asked too.
 63. **`replaced`, in `GET /account`**: when the notebook was last replaced, and the `platform` and
     `through` of the request. It is how a device that held the old notebook tells its reader
-    “when, and from what kind of device.” It is kept until the notebook is replaced again.
+    “when, and from what kind of device.” It is kept until the notebook is replaced again. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 64. **Seven days exactly, then within about an hour.** The service’s own run is hourly.
     Cloudflare may start a run late, and says so; nothing here depends on the minute. **A request
     can be canceled until it is carried out**, so past `due` by up to that hour. The other
     reading stops canceling at `due`, which would refuse a cancel for a deletion that hasn’t
-    happened yet.
+    happened yet. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 65. **While Apple can’t be reached, an account is not deleted**: at once, the device is told
     `provider` and tries again; when due, the service tries again every hour, without end. The
     reader asked to be deleted and the service is holding their sealed notebook because of a
     third party’s outage, so **BVJ may want a point (some days past due) at which it deletes
     anyway and leaves a token unrevoked.** As built there is none, and the hourly log line
-    counts what is held, so it is seen (the service’s `RUNBOOK.md`).
+    counts what is held, so it is seen (the service’s `RUNBOOK.md`). **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
 66. **A replacement closes every session, keeps every way in, revokes nothing with Apple, and
     does not reset the revision counter.** A device of the old notebook sees `notebook` null and
-    then a new id.
+    then a new id. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 67. **The new words**: `slow_down` (429, with `retry` and `Retry-After`); `waiting` under `exists`
     and `gone`; `already_open` reused for a replacement asked from an open session; and the
-    members `deleted`, `waiting`, `canceled`, and `replaced`.
+    members `deleted`, `waiting`, `canceled`, and `replaced`. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
 68. **Limits: by address, 60 a minute to begin a sign-in and 1,200 a minute for everything else;
     and nothing yet that tells a person from a program.** The numbers are BVJ’s to approve. For
     BDR: neither app should come near them; say if a first sync or a background task could.
@@ -2822,24 +2824,24 @@ numbers go on from 58:
     a new member of that request. **So nothing is built, and the question goes to step 4h**:
     does the website’s sign-in page carry Turnstile, and do the apps attest? Until an answer,
     the request is unchanged, and a later answer adds a member a client must send, which is a
-    change to the interface.
+    change to the interface. **BVJ, 2026-11-24: “yes to Turnstile,” so the website’s sign-in page (step 4h) carries it and the service checks its token; and “ask BDR about the rest,” so the numbers and whether the apps attest are BDR’s to answer.**
 69. **Production’s address, `https://notebook.litbible.net`**, beside the preview’s. Prepared in
     the service’s configuration and **not deployed**: BVJ decides whether and when, and makes
     the database. The apps should take the address from a build setting, as they do the
-    preview’s.
+    preview’s. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 70. **The page for deleting an account, `https://litbible.net/delete-account/`**: what Google Play
     asks for as the “delete account URL” in an app’s Data safety form, and where Apple’s reviewers
     can be pointed. **For BDR to review**, as the one who files both forms: that it says what Play
     asks (the app and developer by name, the steps, what is deleted, what is kept and for how
     long), and that its in-app steps match where each app puts “Delete account.” It is out of
     search and the sitemap and linked from nowhere, and says that accounts are not open yet. The
-    page can’t delete anything until the website has sign-in (step 4h), which adds the button.
+    page can’t delete anything until the website has sign-in (step 4h), which adds the button. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
 71. **A device whose account was deleted elsewhere is told `sign_in`, and no more.** The service
     keeps nothing of a deleted account, so it can’t say “this account was deleted” to a session
     that outlived it. A device that had seen the request waiting can say so itself; one that
     hadn’t finds out when its reader signs in again. The other reading keeps a marker for each
     deleted account for a while, which is keeping something about a reader who asked to be
-    forgotten. Say if either app needs the marker.
+    forgotten. Say if either app needs the marker. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 72. **What the tests could not show**, so that nobody takes it as shown: the hourly run started by
     Cloudflare’s own clock; a deletion on the real database, above all of a large notebook (the
     largest tried was 20,000 rows, locally, in 138 milliseconds); the real limiter’s counting; and
@@ -2857,4 +2859,4 @@ numbers go on from 58:
     reader’s LIT account simply stays, with a refresh token Apple has already ended. Whether
     the service should then remove that way in, or the account, is a decision (it would be a
     deletion nobody with the key asked for), and it belongs with turning Sign in with Apple on.
-    For BDR and BVJ.
+    For BDR and BVJ. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**

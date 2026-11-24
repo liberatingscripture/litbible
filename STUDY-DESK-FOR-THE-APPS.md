@@ -200,17 +200,41 @@ because nothing carried them there. This file is what carries them now.
     count went backward?** The service refuses until this is decided.
 14. **The fifteen choices the account work had to make** (asked
     2026-11-24, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
-    “Still open,” 59 to 73. Every one was the website's Claude's, and
-    **BVJ has not yet been walked through them**. Each is what the
-    service does today and has a test. Answer by number here. **Most
-    of all**: 60 (the session that asked may cancel its own request),
-    61 (`platform` travels in the address on `DELETE /account`), 62
-    (what a waiting request says, which is what your notice is built
-    from), 68 (the limits, and whether the apps would attest at
-    sign-up with App Attest and Play Integrity), 71 (a deleted
-    account's other devices are told `sign_in` and no more), and 73
-    (Apple's server-to-server notifications, which the service doesn't
-    take yet).
+    “Still open,” 59 to 73. Every one was the website's Claude's.
+    **BVJ has said yes to seven** (2026-11-24), so those are BVJ's
+    calls and wait on BDR alone: 59 (an account with no notebook is
+    deleted at once), 60 (the session that asked may cancel its own
+    request), 63 (`replaced`), 64 (seven days exactly, then within
+    about an hour), 66 (what a replacement does), 69 (production's
+    address, `notebook.litbible.net`), and 71 (a deleted account's
+    other devices are told `sign_in` and no more). **Five BVJ left to
+    you to answer** (2026-11-24: “ask BDR”):
+    - **61**: `platform` travels in the address on `DELETE /account`
+      (`?platform=ios`) and in the body on `POST /notebook/replace`.
+      Would either app's client rather have one form for both?
+    - **65**: while Apple can't be reached, an account is never
+      deleted; a request that is due is tried every hour without end.
+      Should there be a point, some days past due, at which the
+      service deletes anyway and leaves a token unrevoked? The
+      website's Claude leans toward about seven days.
+    - **67**: the new words (`slow_down`; `waiting` under `exists` and
+      `gone`; `already_open` for a replacement asked from an open
+      session; the members `deleted`, `waiting`, `canceled`, and
+      `replaced`).
+    - **70**: the deletion page (ask 15).
+    - **73**: Apple's server-to-server notifications, which the
+      service doesn't take. When a reader ends the connection from
+      their Apple Account's settings, should the service do nothing,
+      remove that way in, or delete the account? What do the apps'
+      Apple setup and App Review expect?
+    **In 68, BVJ said yes to Turnstile on the website's sign-in page,
+    and asks you about the rest**: are the limits' numbers right for
+    the apps (60 requests a minute from one address to begin a
+    sign-in, 1,200 for everything else), and would the apps attest at
+    sign-up with App Attest and Play Integrity, now or later? **62 is
+    not yet answered by BVJ** (what a waiting request says, which is
+    what your notice is built from); your view is asked too. Each is
+    what the service does today and has a test. Answer by number here.
 15. **The page for deleting an account** (asked 2026-11-24):
     `src/pages/delete-account.astro`, live at
     `https://litbible.net/delete-account/` once this merges. You file
