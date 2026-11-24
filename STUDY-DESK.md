@@ -5290,11 +5290,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        and nowhere else. The vectors' walkthrough, run against the
        deployed service over HTTPS, passed 8 of 8 steps. **The gate's
        “preview service running” is met.**
+     - **How BDR rolls back is chosen** (BVJ, 2026-11-23: "Let's go
+       with the GitHub workflow"): the deploy workflow, and not a member
+       role on the Cloudflare account. It stays off until its token and
+       its GitHub environment exist
+       (`workers/notebook-service/README.md`, “Who can deploy and roll
+       back”); until then only BVJ can deploy or roll back.
      **Left for BVJ**: to give BDR the preview's secret privately, and
-     to choose how BDR rolls back
-     (`workers/notebook-service/README.md`, “Who can deploy and roll
-     back”; the workflow is recommended, and until the choice is made
-     only BVJ can deploy or roll back).
+     to make the workflow's Cloudflare token so it can be turned on.
    - **4d. The freeze work** (1–2). In `STUDY-DESK-FORMAT.md` and the
      website's code together: kind 3 (`hidden`) leaves; the `ribbon`
      marker leaves kind 2, and `ribbon` and the older `bookmark` read as
@@ -8014,7 +8017,8 @@ And the two that were BVJ's alone:
   (BDR's part is for BDR to accept). Only BVJ can deploy or roll back
   today, so step 4c gives BDR a way to (a member role on the Cloudflare
   account, or deploys that run from a merged pull request; not yet
-  chosen) and writes the steps into `DISASTER-RECOVERY.md`. A break
+  chosen when this was written, and chosen later the same day: the
+  second, see step 4c) and writes the steps into `DISASTER-RECOVERY.md`. A break
   pauses sync and loses nothing, since each device keeps its own
   notebook.
 

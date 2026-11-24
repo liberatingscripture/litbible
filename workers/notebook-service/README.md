@@ -280,7 +280,9 @@ that.
 When the service breaks, BVJ answers first and BDR second (BVJ, 2026-11-23;
 BDR's part is BDR's to accept). Today only BVJ can reach the Cloudflare
 account, so BDR needs a way to roll the service back. There are two, and
-**the choice is BVJ's and is not made yet.**
+**BVJ chose B, the workflow, on 2026-11-23** ("Let's go with the GitHub
+workflow"). It is built and not yet on: "What BVJ does" under B is what turns
+it on. A is kept below as the road not taken, and why.
 
 **A. A member role for BDR on BVJ's Cloudflare account.**
 - *What BVJ does*: in the dashboard, Manage Account, Members, invite BDR with
@@ -323,7 +325,8 @@ and off: `.github/workflows/notebook-service-deploy.yml`.
      environment secret `NOTEBOOK_PREVIEW_SECRET` (the preview's own secret)
      and the variable `NOTEBOOK_PREVIEW_URL` (the preview's address). Set
      the two together; with neither, a deploy doesn't check itself.
-  5. Make sure BDR has write access to the repository.
+  5. Make sure BDR has write access to the repository (BDR did when this
+     was checked, 2026-11-23).
 - *For it*: BDR needs nothing on Cloudflare; every deploy is a commit on
   `main` that passed its tests; the token can do far less than a member
   could, and only a workflow on `main` can read it.
@@ -336,12 +339,16 @@ and off: `.github/workflows/notebook-service-deploy.yml`.
   Domain) is best done by hand, as in the setup above, so the token only
   ever redeploys.
 
-**Recommended: B**, for the preview now and for production in step 4f. It
-gives BDR exactly the one power the role calls for, and it leaves BVJ's
-account with one more narrow token instead of one more administrator.
+**Chosen: B** (BVJ, 2026-11-23), for the preview now; production's own job
+and environment are step 4f's. It gives BDR exactly the one power the role
+calls for, and it leaves BVJ's account with one more narrow token instead of
+one more administrator.
 
-Whichever is chosen, `DISASTER-RECOVERY.md` has the preview's entry, and step
-4f finishes it for production.
+**Until B is turned on, only BVJ can deploy or roll back**, by hand, as
+"Deploy again" and "Roll back" above describe. When it is on, try a rollback
+once from the Actions tab before relying on it, and say so in
+`DISASTER-RECOVERY.md`, which has the preview's entry; step 4f finishes it
+for production.
 
 ## What is logged
 

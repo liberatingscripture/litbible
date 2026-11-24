@@ -53,16 +53,17 @@ because nothing carried them there. This file is what carries them now.
    on a computer; and a passkey kept in 1Password or Bitwarden. **The
    first is wanted before the freeze**, since the design leans on it.
 6. **BDR, you are second to answer when the service breaks**, after BVJ
-   (BVJ, 2026-11-23). Say here if that doesn't work, and which you would
-   rather have for rolling the service back: a member role on BVJ's
-   Cloudflare account, or deploys that run from a merged pull request.
-   **The second is built and off** (step 4c, 2026-11-23): once BVJ turns
-   it on, a merge to `main` deploys, and you roll back from this
-   repository's Actions tab with no access to Cloudflare. The service's
-   side recommends it, since the only member role that could do the
-   same reaches the whole account. Both are laid out in
+   (BVJ, 2026-11-23). Say here if that doesn't work. **How you roll the
+   service back is chosen** (BVJ, 2026-11-23: “Let's go with the GitHub
+   workflow”): deploys run from a merged pull request, and you roll back
+   from this repository's Actions tab (“Notebook service (preview),” “Run
+   workflow” on `main`, action `rollback`) with no access to Cloudflare.
+   The other way, a member role on BVJ's Cloudflare account, was set
+   aside because the only role that could do the same reaches the whole
+   account. **The workflow is built and still off**: an entry in the list
+   below will say when it is on and has been tried. It is laid out in
    `workers/notebook-service/README.md`, “Who can deploy and roll back.”
-   The choice is BVJ's and isn't made; your preference still counts.
+   Say here if a rollback from GitHub doesn't work for you.
 7. **The nine readings the reference had to choose**, and one question
    (asked 2026-11-23 with the vectors, the first entry below):
    `STUDY-DESK-ENCRYPTION.md`, “Still open,” 22 to 31. Each is what the
@@ -159,6 +160,9 @@ from anyone.
   interface states, since neither app has answered: a row whose
   `deletedAt` isn't in the `Z` form is answered `refused: "deletedAt"`,
   alone. Say if either app has ever written another form.
+- **Rolling back** (ask 6 above): BVJ chose the GitHub workflow, which
+  is built and not yet turned on. Until it is, only BVJ can deploy or
+  roll back.
 - **Everything on the preview is test data, wiped at any time.** Use
   made-up account labels of your own (`bdr-ios-1`), and expect a wipe to
   be announced here.

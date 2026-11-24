@@ -96,7 +96,8 @@ deploy, roll back, wipe, and what each later step plugs in and where).
   edit one that has been applied; add the next numbered file.
 - **`.github/workflows/notebook-service-deploy.yml` is built and OFF.** It
   deploys the preview from `main` and rolls it back from GitHub, and both
-  jobs are skipped until BVJ sets a repository variable. Which way BDR rolls
-  back (that workflow, or a member role on the Cloudflare account) is BVJ's
-  choice and was not made on 2026-11-23: the README's "Who can deploy and
-  roll back" lays out both.
+  jobs are skipped until BVJ sets a repository variable. It is the way BDR
+  rolls back (BVJ's choice, 2026-11-23, over a member role on the Cloudflare
+  account), and it stays off until its Cloudflare token and its GitHub
+  environment exist: the README's "Who can deploy and roll back" has the
+  steps. Until it is on, the preview is deployed by hand.

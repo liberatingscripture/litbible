@@ -144,11 +144,13 @@ by a session at BVJ's word, with BVJ typing the secret. Production is step
   README's "Roll back" has the detail, and "Wipe" clears the test data.
 - **Who answers when it breaks**: BVJ first, BDR second (BVJ, 2026-11-23;
   BDR's part is BDR's to accept). **Today only BVJ can deploy or roll
-  back.** BDR's way is not chosen yet: a member role on this account, or
-  the workflow `.github/workflows/notebook-service-deploy.yml`, which is
-  built and off and rolls back from GitHub with no access to Cloudflare.
-  The README's "Who can deploy and roll back" lays out both. Update this
-  bullet when BVJ chooses.
+  back.** BDR's way is chosen (BVJ, 2026-11-23): the workflow
+  `.github/workflows/notebook-service-deploy.yml`, which rolls back from
+  GitHub with no access to Cloudflare, and not a member role on this
+  account. **It is built and still off**: it needs the token and the
+  GitHub environment in the secrets table below, and the README's "Who
+  can deploy and roll back" has the steps. Update this bullet when it is
+  on and a rollback has been tried.
 - **A break pauses sync and loses nothing**, on the preview and later in
   production: every device keeps its own notebook.
 

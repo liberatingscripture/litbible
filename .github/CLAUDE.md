@@ -45,9 +45,10 @@ From the root's project tree.
 ## Workflows that touch Cloudflare
 
 `workflows/notebook-service-deploy.yml` deploys the notebook service's
-preview from `main` and rolls it back. **It is built and off**: both jobs are
-skipped unless the repository variable `NOTEBOOK_PREVIEW_DEPLOYS` is `on`,
-which is BVJ's call (`workers/CLAUDE.md`). Its secrets belong in a GitHub
+preview from `main` and rolls it back. BVJ chose it on 2026-11-23 as the way
+BDR rolls the service back. **It is built and off**: both jobs are skipped
+unless the repository variable `NOTEBOOK_PREVIEW_DEPLOYS` is `on`, which BVJ
+sets once its token exists (`workers/CLAUDE.md`). Its secrets belong in a GitHub
 environment limited to `main` (`notebook-preview`), never in plain repository
 secrets, so that a workflow pushed on another branch can't read the
 Cloudflare token. It deploys with the wrangler in the package's own lockfile,

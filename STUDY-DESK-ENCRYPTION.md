@@ -1995,12 +1995,13 @@ day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
     stands with the reader’s password manager added (under “What removing a device means”).
 17. **Who answers when the service breaks**: BVJ first, and BDR second. **BDR’s part is for BDR to
     accept.** Only BVJ can deploy or roll back today, so step 4c gives BDR a way to (a member role
-    on the Cloudflare account, or deploys that run from a merged pull request; not yet chosen) and
-    writes the steps into `DISASTER-RECOVERY.md`. **Step 4c built the second and left it off**: a
-    workflow that deploys the preview from `main` and rolls it back from GitHub, with no access to
-    Cloudflare, waits for BVJ to turn it on. Both options, what each asks of BVJ, and which the
-    service’s side recommends are in `workers/notebook-service/README.md`, “Who can deploy and
-    roll back.” **The choice is still BVJ’s to make.**
+    on the Cloudflare account, or deploys that run from a merged pull request) and
+    writes the steps into `DISASTER-RECOVERY.md`. **BVJ chose the second** (2026-11-23: “Let’s go
+    with the GitHub workflow”): a workflow that deploys the preview from `main` and rolls it back
+    from GitHub, with no access to Cloudflare. Step 4c built it, and it stays off until its token
+    and its GitHub environment exist; until then only BVJ can deploy or roll back. Both options
+    and what turning it on takes are in `workers/notebook-service/README.md`, “Who can deploy and
+    roll back.”
 
 **To find out, on real devices, before the freeze:**
 
