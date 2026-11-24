@@ -27,7 +27,7 @@ import { LIMITS, fromBase64url, needBytes, toBase64url } from "./check.js";
 import { raced } from "./db.js";
 import { createSession } from "./session.js";
 import { ProviderDown, TokenRefused } from "./jwt.js";
-import { appleExchange, appleOn, checkIdToken, googleOn } from "./providers.js";
+import { appleExchange, appleOn, appleRevoke, checkIdToken, googleOn } from "./providers.js";
 import { checkAssertion, checkRegistration } from "./webauthn.js";
 import {
   CHALLENGE_MS,
@@ -149,7 +149,12 @@ export async function postPasskeySignIn({ request, env }) {
   )
     .bind(count, way.id)
     .first();
-  if (!moved) refusePasskey("counter");
+  if (!moved) {
+    // Nothing was written either because the counter didn't go forward, or because the passkey was
+    // removed as a way in while its answer was being checked. Say which.
+    const still = await env.DB.prepare("SELECT 1 FROM ways WHERE id = ?").bind(way.id).first();
+    refusePasskey(still ? "counter" : "unknown");
+  }
   return signedIn(env, way, false);
 }
 
@@ -255,9 +260,18 @@ export async function hasAppleToken(env, way, client) {
   return (await env.DB.prepare("SELECT 1 FROM apple_tokens WHERE way = ? AND client = ?").bind(way, client).first()) !== null;
 }
 
-/** The statement that keeps Apple's refresh token for a way in. */
+/**
+ * The statement that keeps Apple's refresh token for a way in. It writes
+ * nothing if that way in is gone, so it never fails on a way removed a moment
+ * before; the caller reads `meta.changes` where that can happen.
+ */
 export const keepAppleToken = (db, { way, client, token, time }) =>
-  db.prepare("INSERT OR REPLACE INTO apple_tokens (way, client, token, created) VALUES (?, ?, ?, ?)").bind(way, client, token, time);
+  db
+    .prepare(
+      `INSERT OR REPLACE INTO apple_tokens (way, client, token, created)
+       SELECT ?1, ?2, ?3, ?4 WHERE EXISTS (SELECT 1 FROM ways WHERE id = ?1)`,
+    )
+    .bind(way, client, token, time);
 
 /**
  * POST /sign-in/apple and POST /sign-in/google, from anyone.
@@ -304,7 +318,15 @@ function providerSignIn(provider) {
       way = await findWay(env, provider, subject);
       if (!way) refuse(503, "busy");
     }
-    if (refresh) await keepAppleToken(env.DB, { way: way.id, client, token: refresh, time: now() }).run();
+    if (refresh) {
+      const kept = await keepAppleToken(env.DB, { way: way.id, client, token: refresh, time: now() }).run();
+      if (kept.meta.changes !== 1) {
+        // The way in was removed while Apple was being asked. The token just obtained has nowhere
+        // to be kept, so it is handed back to Apple (as well as can be), and the client tries again.
+        await appleRevoke(env, { client, token: refresh }).catch(() => {});
+        refuse(503, "busy");
+      }
+    }
     return signedIn(env, way, created);
   };
 }

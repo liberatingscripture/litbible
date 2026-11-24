@@ -6,6 +6,8 @@ import worker from "../src/index.js";
 import { MAX_BODY_BYTES } from "../src/http.js";
 import { BASE, SECRET, call, freshAccount } from "./call.js";
 import { must, note, proofOf, push, ref, rowFor, setUp, setupRequest, signIn } from "./notebook.js";
+import { addPasskeyRequest, assert, attest, newPasskey } from "./authenticator.js";
+import { freshSubject, providerRequest, providersOn, standDown, standIns } from "./idp.js";
 
 const TIME = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/;
 
@@ -513,5 +515,109 @@ describe("what the service logs", () => {
     for (const text of [...error.mock.calls, ...log.mock.calls].map((a) => a.join(" "))) expect(text).not.toContain(token);
     const line = JSON.parse(log.mock.calls[0][0]);
     expect(line).toMatchObject({ route: "GET /account", status: 500, refused: "error" });
+  });
+
+  describe("of a sign-in", () => {
+    afterEach(standDown);
+
+    const SIGN_IN_ROUTES = [
+      "GET /sign-in", "POST /sign-in/challenge", "POST /sign-in/passkey/options", "POST /sign-in/passkey",
+      "POST /sign-in/new-passkey/options", "POST /sign-in/new-passkey", "POST /sign-in/apple", "POST /sign-in/google",
+      "POST /ways/passkey/options", "POST /ways/passkey", "POST /ways/apple", "POST /ways/google", "DELETE /ways/:id",
+      "DELETE /session", "GET /account",
+    ];
+
+    /** Every sign-in request once, accepted and refused, with everything a line must never hold. */
+    async function signInFlow() {
+      const { env: on } = await providersOn();
+      const world = await standIns();
+      const log = vi.spyOn(console, "log").mockImplementation(() => {});
+      const error = vi.spyOn(console, "error").mockImplementation(() => {});
+      const sent = [];
+      const send = async (method, path, options = {}) => {
+        const res = await call(method, path, { ...options, env: on });
+        sent.push(options.body, res.body);
+        return res;
+      };
+
+      await send("GET", "/sign-in");
+      // An account made with a passkey, which then signs in, once well and once with a bad signature.
+      const passkey = await newPasskey();
+      const forNew = (await send("POST", "/sign-in/new-passkey/options")).body;
+      const made = (await send("POST", "/sign-in/new-passkey", { body: { credential: await attest(passkey, forNew.publicKey) } })).body;
+      const ask = async () => (await send("POST", "/sign-in/passkey/options")).body.publicKey;
+      const again = (await send("POST", "/sign-in/passkey", { body: { credential: await assert(passkey, await ask()) } })).body;
+      await send("POST", "/sign-in/passkey", { body: { credential: await assert(passkey, await ask(), { signWith: await newPasskey() }) } });
+      const leaking = await assert(passkey, await ask(), { clientExtensionResults: { prf: { results: { first: ref.toBase64url(passkey.prf) } } } });
+      await send("POST", "/sign-in/passkey", { body: { credential: leaking } });
+
+      // Google and Apple: a first sign-in each, and a token that is refused.
+      const challenge = async () => (await send("POST", "/sign-in/challenge")).body.challenge;
+      await challenge();
+      const subjects = { google: freshSubject("logged-google"), apple: freshSubject("logged-apple") };
+      const google = await send("POST", "/sign-in/google", { body: await providerRequest("google", on, { token: { subject: subjects.google } }) });
+      const apple = await send("POST", "/sign-in/apple", { body: await providerRequest("apple", on, { token: { subject: subjects.apple }, code: "a-code-only-apple-should-see" }) });
+      await send("POST", "/sign-in/google", { body: await providerRequest("google", on, { token: { claims: { aud: "another-audience.example" } } }) });
+      world.down.add("https://appleid.apple.com/auth/token");
+      await send("POST", "/sign-in/apple", { body: await providerRequest("apple", on) });
+      world.down.clear();
+
+      // Ways in: add one of each, remove two, and sign out.
+      const forMore = (await send("POST", "/ways/passkey/options", { token: made.token })).body;
+      const second = await newPasskey();
+      const way = (await send("POST", "/ways/passkey", { token: made.token, body: { credential: await attest(second, forMore.publicKey) } })).body;
+      const linked = { google: freshSubject("linked-google"), apple: freshSubject("linked-apple") };
+      await send("POST", "/ways/google", { token: made.token, body: await providerRequest("google", on, { token: { subject: linked.google } }) });
+      const appleWay = (await send("POST", "/ways/apple", { token: made.token, body: await providerRequest("apple", on, { token: { subject: linked.apple }, code: "a-second-code-for-apple" }) })).body;
+      await send("DELETE", `/ways/${way.way.id}`, { token: made.token });
+      await send("DELETE", `/ways/${appleWay.way.id}`, { token: made.token });
+      await send("DELETE", `/ways/${crypto.randomUUID()}`, { token: made.token });
+      await send("GET", "/account", { token: made.token });
+      await send("DELETE", "/session", { token: again.token });
+      for (const res of [google, apple]) expect(res.status).toBe(200);
+
+      const lines = [...log.mock.calls, ...error.mock.calls].map((args) => args.join(" "));
+      const secrets = [
+        ...leaves(sent), ...Object.values(subjects), ...Object.values(linked), passkey.id, second.id, passkey.handle,
+        ref.toBase64url(passkey.prf), on.APPLE_TEAM_ID, on.APPLE_KEY_ID, ...on.APPLE_CLIENT_IDS.split(","), ...on.GOOGLE_CLIENT_IDS.split(", "),
+        ...world.calls.flatMap((c) => Object.values(c.form ?? {})).filter((v) => v.length >= 16),
+        "refresh-for-a-code-only-apple-should-see", "refresh-for-a-second-code-for-apple", "reader@example.com", "A Reader",
+      ];
+      return { lines, error, secrets, parsed: lines.map((l) => JSON.parse(l)) };
+    }
+
+    it("holds no token, challenge, credential, signature, code, provider's id for anyone, or configured identifier in any line", async () => {
+      const { lines, secrets } = await signInFlow();
+      expect(lines.length).toBeGreaterThan(25);
+      expect(secrets.length).toBeGreaterThan(80);
+      for (const line of lines) {
+        for (const secret of secrets) expect(line.includes(secret), `${line} holds ${secret.slice(0, 12)}...`).toBe(false);
+      }
+    });
+
+    it("writes each line with only at, route, status, ms, and perhaps refused, and nothing to console.error", async () => {
+      const { parsed, error } = await signInFlow();
+      for (const line of parsed) {
+        expect(Object.keys(line).sort()).toEqual("refused" in line ? ["at", "ms", "refused", "route", "status"] : ["at", "ms", "route", "status"]);
+      }
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it("names each route by its own pattern, and writes the word of a refusal and never its reason", async () => {
+      const { parsed, lines } = await signInFlow();
+      const routes = parsed.map((l) => l.route);
+      for (const route of routes) expect(SIGN_IN_ROUTES, route).toContain(route);
+      for (const route of SIGN_IN_ROUTES) expect(routes, route).toContain(route);
+      for (const line of lines) expect(line).not.toMatch(/\/ways\/[0-9a-f]{8}/);
+
+      const refused = (route, status) => parsed.filter((l) => l.route === route && l.status === status).map((l) => l.refused);
+      expect(refused("POST /sign-in/passkey", 403)).toEqual(["passkey_refused"]);
+      expect(refused("POST /sign-in/passkey", 422)).toEqual(["not_allowed"]);
+      expect(refused("POST /sign-in/google", 403)).toEqual(["token_refused"]);
+      expect(refused("POST /sign-in/apple", 502)).toEqual(["provider"]);
+      expect(refused("DELETE /ways/:id", 410)).toEqual(["gone"]);
+      // The reason a passkey or a token was refused is the client's to read, and is not logged.
+      for (const line of lines) expect(line).not.toMatch(/"signature"|"audience"|prf_results|reason/);
+    });
   });
 });
