@@ -65,7 +65,15 @@ because nothing carried them there. This file is what carries them now.
    or an en dash in it is refused. **BVJ said to keep it strict**
    (2026-11-23), so it is BVJ's call and **for BDR to confirm**. If the
    apps would rather every client remove those, say so and the vectors
-   change. The other eight BVJ has not answered.
+   change. **BVJ then said yes to the other eight as built** (22, and 24
+   to 30; 2026-11-23), so all nine are BVJ's calls and wait on BDR alone.
+8. **Has either app ever written a trash record's time in any form but
+   the `Z` one** (`2026-11-23T18:35:09.978Z`)? Asked 2026-11-23; the
+   spec's “Still open,” 31. The format lets a trash record carry any time
+   that parses, and the service will take only the `Z` form on a row, so
+   such a record could never be pushed. If neither app has, the format
+   will ask the `Z` form of trash records too; if one has, the service
+   relaxes its check for a trash record's row instead.
 
 ## The list
 
@@ -170,10 +178,10 @@ IOS-108 and NB15.
      sealed opens on the others.
 - **The spec changed with it**, in the same pull request: its “Changed in
   step 4b” lists 21 places where the text now says exactly what the
-  reference does. No decision of draft 2 moved. Nine were choices and
-  are for BDR and BVJ to confirm (“Waiting to hear from the apps,” 7).
-  BVJ's yes to draft 2's own choices (the entry below) was given before
-  these nine existed, and doesn't cover them.
+  reference does. No decision of draft 2 moved. Nine were choices
+  (“Waiting to hear from the apps,” 7). **BVJ said yes to all nine as
+  built** later the same day, so each is for BDR to confirm. The one
+  question it turned up, about a trash record's times, is ask 8.
 - **If the reference is wrong, say so here.** A change to a rule changes
   the spec, the reference, and the file together, and `vectorsVersion`
   goes up, so a client can tell which file it ran.

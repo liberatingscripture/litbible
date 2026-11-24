@@ -5235,10 +5235,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        read to the letter, so a pasted code that brings a line break or an
        en dash with it is refused (22 to 30 has the alternative). **BVJ,
        2026-11-23: "Keep the recovery code pasting strict,"** so 23 stands
-       as built and waits on BDR alone; the other eight wait on both.
+       as built. **BVJ then said yes to the other eight** (22, and 24 to
+       30) after a walk through each, so all nine wait on BDR alone.
      - **One question it turned up** (the spec's "Still open," 31): the
        format lets a trash record carry times that merely parse, and the
        service's check on a row asks for the format's form. For 4c or 4d.
+       BVJ had it put to the apps (2026-11-23): has either ever written
+       such a time? If neither has, the format asks the `Z` form of trash
+       records too; if one has, the service relaxes its check.
      - **What the vectors can't reach**: a real passkey's secret, where
        each client keeps its keys, the service's own checks, and each
        client's randomness.

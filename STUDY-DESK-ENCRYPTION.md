@@ -11,8 +11,9 @@ the plan in `STUDY-DESK.md`, “Order of work,” 4.
 
 **Writing the reference meant reading every sentence here as code, and some said less than code
 needs.** Each such place now says what the reference does, in its own section; “Changed in step
-4b” lists them all, and the ones that were a choice are under “Still open,” 22 to 30, **for BVJ and
-BDR to confirm**, with one question it turned up (31). No decision of draft 2 was changed, and none
+4b” lists them all, and the ones that were a choice are under “Still open,” 22 to 30, with one
+question it turned up (31). **BVJ said yes to all nine choices on 2026-11-23, so they wait on BDR
+alone**, and the question is put to the apps. No decision of draft 2 was changed, and none
 of its open items was settled.
 
 Plan C was chosen on BDR and BVJ’s call of 2026-11-23: a small LIT service on Cloudflare holds each
@@ -50,8 +51,8 @@ so each is **for BDR to confirm**, and is marked so where it is written in below
   suggests a second way in to a reader who has only a passkey; `deletedAt` stays a plain field.
 - **BVJ’s side builds the service**, in this repo under `workers/`, with BDR’s side reviewing.
 
-**Decided in writing this draft, and seen by neither BVJ nor BDR yet.** They are listed at the end,
-under “Still open,” so both can check them. The largest: a device proves to the service that it
+**Decided in writing this draft, and since agreed to by BVJ** (2026-11-23, later the same day);
+**each is still for BDR to confirm.** They are listed at the end, under “Still open.” The largest: a device proves to the service that it
 holds the key before the service lets it change anything (“The key proof”), and only a synced
 passkey holds the key.
 
@@ -1523,7 +1524,8 @@ Step 4b built the reference (`src/lib/desk-crypto.mjs`) and the vectors against 
 stood. Code can’t leave a sentence half-read, so wherever draft 2 was silent, loose, or wrong, the
 text was changed here in the same pull request, and the reference does what the text now says.
 **None of these changes a decision of draft 2.** The ones marked **(a choice)** could reasonably
-have gone another way: each took the smallest reading, and is under “Still open,” 22 to 30.
+have gone another way: each took the smallest reading, and is under “Still open,” 22 to 30. BVJ
+said yes to all nine on 2026-11-23; each still waits on BDR.
 
 1. **HPKE’s published vectors** (“Fixed choices,” “The test vectors”). Draft 2 said the hand-written
    HPKE is checked against “the CFRG’s published RFC 9180 test vectors for this suite.” RFC 9180’s
@@ -1637,9 +1639,10 @@ day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
     unreliable. The design falls back to approval; the question is how often a reader will meet it.
 21. **A passkey kept in 1Password or Bitwarden**, on each platform.
 
-**From step 4b, for BVJ and BDR to confirm.** Writing the reference forced a choice in each of
-these, where draft 2 made none. BVJ’s yes of 2026-11-23 was to 7 to 17 and came before these
-existed, so each waits on both. Each took the smallest reading, is written into its section, and
+**From step 4b, for BDR to confirm.** Writing the reference forced a choice in each of these,
+where draft 2 made none. **BVJ said yes to all nine on 2026-11-23** (23 first, “Keep the recovery
+code pasting strict,” then 22 and 24 to 30 after a walk through each), so 22 to 30 now wait on BDR
+alone. Each took the smallest reading, is written into its section, and
 is what the vectors test. Changing one means changing the reference and the vectors with it, which
 is cheap before the freeze. The numbers go on from 21 so that nothing above is renumbered:
 
@@ -1676,5 +1679,8 @@ is cheap before the freeze. The numbers go on from 21 so that nothing above is r
     trash record carry times that merely parse (“write them with `Z` too”); the service’s check on
     a row asks for the format’s form (“The service’s interface,” “Records”). Not changed here, since
     the answer is the format’s or the service’s: either the service takes any time on a row with a
-    `deletedAt`, or a client rewrites such a record before it seals it. Whether any client ever
-    wrote such a time is for each to say.
+    `deletedAt`, or a client rewrites such a record before it seals it. **Put to the apps** (BVJ,
+    2026-11-23; `STUDY-DESK-FOR-THE-APPS.md`, “Waiting to hear from the apps,” 8): has either ever
+    written a trash record’s time in any form but the `Z` one? If neither has, the simplest answer
+    is for the format to ask the `Z` form of trash records too; if one has, the service relaxes its
+    check for a trash record’s row. Settled in step 4c or 4d, once they answer.
