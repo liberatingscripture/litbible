@@ -553,7 +553,8 @@ another alphabet that looks like one of these are each “any other character,�
 Lowercase means `a` to `z`. Characters are checked before the length, so a code with both faults is
 reported as a wrong character. **The two groups a reader types back** (under “Setting up the first
 device”) are read by the same rules, each as four characters. A wider reading (any white space, the
-dashes a notes app swaps in) may be kinder to a reader who pastes a code; it is under “Still open.”
+dashes a notes app swaps in) was weighed for a reader who pastes a code, and BVJ kept the strict
+one (2026-11-23; “Still open,” 23, for BDR to confirm).
 
 **The code key** is `HKDF(the 15 bytes, info "lit-notebook/1 recovery", 32 bytes)`. No slow password
 hash is needed: the code is 120 random bits, not something a person chose, so guessing it is out of
@@ -1649,7 +1650,8 @@ is cheap before the freeze. The numbers go on from 21 so that nothing above is r
     code”). A reader who pastes a code from a note may bring a line break with it. A client can
     trim what it likes before it reads, but then three clients trim three ways; the alternative is
     to say here that all white space and the common dashes are removed, and change the vectors.
-    **This one is worth a real answer**, since it is the one a reader could meet.
+    **BVJ, 2026-11-23: keep it strict**, as written and as the vectors test. Still for BDR to
+    confirm.
 24. **A row’s `deletedAt` is left out unless the record is trash**, and a `null` reads the same
     (“A record on the service”). The service’s own spelling of “none” is step 4c’s.
 25. **A client checks the ciphertext’s length itself** and doesn’t open a row that isn’t a padded

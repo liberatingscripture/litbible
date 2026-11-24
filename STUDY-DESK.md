@@ -5233,7 +5233,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        smallest reading, and are in its "Still open," 22 to 30, **for BVJ
        and BDR to confirm**. The one a reader could meet: a typed code is
        read to the letter, so a pasted code that brings a line break or an
-       en dash with it is refused (22 to 30 has the alternative).
+       en dash with it is refused (22 to 30 has the alternative). **BVJ,
+       2026-11-23: "Keep the recovery code pasting strict,"** so 23 stands
+       as built and waits on BDR alone; the other eight wait on both.
      - **One question it turned up** (the spec's "Still open," 31): the
        format lets a trash record carry times that merely parse, and the
        service's check on a row asks for the format's form. For 4c or 4d.

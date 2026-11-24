@@ -62,8 +62,10 @@ because nothing carried them there. This file is what carries them now.
    vectors test today, and each is cheap to change before the freeze.
    Answer by number here. **23 most of all**: a typed recovery or approval
    code is read to the letter, so a tab, a line break, a no-break space,
-   or an en dash in it is refused. If the apps would rather every client
-   remove those, say so and the vectors change.
+   or an en dash in it is refused. **BVJ said to keep it strict**
+   (2026-11-23), so it is BVJ's call and **for BDR to confirm**. If the
+   apps would rather every client remove those, say so and the vectors
+   change. The other eight BVJ has not answered.
 
 ## The list
 
