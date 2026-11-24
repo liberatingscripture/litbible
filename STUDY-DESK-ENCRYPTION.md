@@ -2075,7 +2075,8 @@ from 31:
     sealed card or holder record of at most 4,096 bytes, and a sealed keyring of 65,536 (about a
     thousand keys); 100 devices and 20 holders in a notebook; 500 rows in one request; a page of
     500 rows or 4,194,304 characters of ciphertext. Each is a ceiling well above what a client
-    sends today. Say if an app would send more.
+    sends today. Say if an app would send more. **BVJ checked the 100 devices, 2026-11-23:
+    “Yes.”** BDR still confirms the rest.
 33. **The refusals’ words and statuses** (“What the service answers when it refuses”), and that a
     client acts on `error` and never on `message`.
 34. **Wrong proofs are counted for the session, and the fifth in a row ends it.** Counting them for
@@ -2091,11 +2092,12 @@ from 31:
 37. **Three approvals in progress for an account.** Someone with a stolen sign-in can hold all
     three, ten minutes at a time, and so keep a new device from asking. Counting by session
     wouldn’t stop that, since a sign-in makes sessions freely; the reader’s passkey and recovery
-    code don’t pass through approvals, and a change of key clears them.
+    code don’t pass through approvals, and a change of key clears them. **BVJ checked,
+    2026-11-23: “yes.”** BDR still confirms.
 38. **The session is checked before the body**, so `not_open`, `no_notebook`, and `already_set_up`
     come first whatever was sent.
 39. **The preview**: its address, `https://notebook-preview.litbible.net` (settled: BVJ had it
     deployed there on 2026-11-23); test accounts by a made-up name; one secret, which BVJ gives BDR
     directly and which is never written into a repository.
 40. **A session is a bearer token and lasts 30 days.** Step 4e, which builds real sign-in, may
-    change how long.
+    change how long. **BVJ checked, 2026-11-23: “yes.”** BDR still confirms.
