@@ -5473,9 +5473,33 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      deployed (the service's README, “Production”). **What was not
      built**: bot protection at sign-up, which needs the sign-in page of
      4h (“Still open,” 68); and handling Apple's server-to-server
-     notifications (73). **What waits on the preview**: the hourly run
-     started by Cloudflare's own clock, the real limiter, and a large
-     notebook's deletion on the real database.
+     notifications (73). **What waited on the preview as it merged**:
+     the hourly run started by Cloudflare's own clock, the real limiter,
+     and a large notebook's deletion on the real database.
+     **Merged and deployed to the preview on 2026-11-24** (pull request
+     696), and checked afterward by Claude the same day. **Seen**: the
+     deploy's walkthrough deleted an account on the real database; the
+     real limiter refused the 62nd of 65 sign-in starts; and Cloudflare's
+     and Google Play's pages, which the step could not reach, were read.
+     What the step wrote from memory of Cloudflare's holds. **Still
+     waiting on the preview**: the hourly run started by Cloudflare's own
+     clock, and a large notebook's deletion. **Found by the check, none
+     of it decided** (the spec's “Still open,” 68 and 70):
+     - **The sign-in limit is 30 sign-ins a minute from one address**,
+       which a room of people signing in together passes, and Cloudflare
+       advises against counting by address. Claude recommends 300 once
+       production is on Workers Paid. BVJ left the numbers to BDR.
+     - **Production needs Workers Paid for a reason the step didn't
+       name**: on Free a database refuses every query for the rest of
+       the day once 100,000 rows are written, which one address
+       beginning sign-ins at the limit would reach within about seven
+       hours.
+     - **Google Play requires that a reader can ask for deletion on the
+       web page itself**, without the app. `/delete-account/` describes
+       the steps and takes no request, which is true while no account
+       exists. So step 4h's sign-in and “Delete account” on that page
+       must be live before an Android build that makes accounts goes to
+       review.
    - **4g. The website's connector** (3–4). The sync loop on 1a's merge
      engine: sealing and opening rows, edits queued while offline,
      connection status and "Reconnect," the first sign-in merging the
@@ -5486,8 +5510,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      where the key lives, the passkey, and the recovery code; adding a
      device by approval (a typed code or a QR code) or by recovery code;
      the device list, renaming, and removing; a new recovery code; another
-     way in; signing out; deleting the account; and the notices (a device
-     was added, a request is waiting). **Account pages work on every
+     way in; signing out; deleting the account, on `/delete-account/`
+     too (Google Play's rule makes that part due before an Android build
+     that makes accounts goes to review: 4f, above); and the notices (a
+     device was added, a request is waiting). **Account pages work on every
      device** (audit C1), so what a phone gets, without the desk, is
      settled here. Every new storage key is named on /privacy.
    - **4i. Enforcing the full content security policy** (1–2). It is

@@ -597,7 +597,8 @@ table and three columns), a cron trigger, and two rate limit bindings, none
 of which the preview had.
 
 1. **The walkthrough's nine steps pass** (the deploy runs it). The ninth is
-   the first deletion of an account on a real D1.
+   the first deletion of an account on a real D1. **Seen 2026-11-24**: the
+   deploy that carried step 4f ran it against the preview, and it passed.
 2. **The hourly run starts by Cloudflare's clock.** In the dashboard:
    Workers & Pages, `litbible-notebook-preview`, Settings, Trigger Events
    shows the cron; Logs shows a line with `"job":"scheduled"` at seventeen
@@ -610,14 +611,16 @@ of which the preview had.
    ```
 
    About 60 answers of `200` and then `429`. "About," because the real
-   limiter says it is approximate.
+   limiter says it is approximate. **Seen 2026-11-24**: of 65 sent in seven
+   seconds, 61 were answered, the 62nd was `slow_down` with `retry: 60` and
+   `Retry-After: 60`, and two of the next three were answered again. A
+   request of the other count (`GET /sign-in`) was answered right after.
 4. **A large notebook deletes.** The largest tried is 20,000 rows on a local
-   database, in 138 milliseconds. D1's limit on one statement is 30 seconds
-   as its limits page was last read (not re-read for this step: the page
-   could not be reached from the session that wrote this), so there should
-   be room, but it is owed a try: push a few tens of thousands of rows to a
-   test account on the preview from an app's debug build or a script, and
-   delete the account. If it ever fails, the statement fails whole, the
+   database, in 138 milliseconds. D1's limit on one statement is 30 seconds,
+   and the same for a whole batch (its limits page, read 2026-11-24), so
+   there should be room, but it is owed a try: push a few tens of thousands
+   of rows to a test account on the preview from an app's debug build or a
+   script, and delete the account. If it ever fails, the statement fails whole, the
    account stays, and `RUNBOOK.md` ("An account won't delete") has the way
    through.
 
@@ -666,18 +669,43 @@ Said plainly, since this step leans on three vendors' rules (2026-11-24):
   **That is not built**: the service has no address for Apple to call. It
   belongs with turning Sign in with Apple on, and is the spec's "Still
   open," 73.
-- **Cloudflare, not re-read**: `developers.cloudflare.com` could not be
-  reached from the session that built this. The rate limit binding's config
-  is the one the pinned wrangler's own schema defines, and it ran locally.
-  That its counters are kept for each location and are approximate, D1's 30
-  seconds for one statement, and Time Travel's 30 and 7 days are from
-  memory of those pages.
-- **Google Play, not re-read**: `support.google.com` could not be reached
-  either. The deletion page is written to what Play's account deletion
-  requirement asked for when last read: a web address, named in the Data
-  safety form, that names the app or developer, gives the steps, and says
-  what is deleted, what is kept, and for how long. **BDR, who files that
-  form, should read the page against Play's current text.**
+- **Cloudflare, read after the merge** (2026-11-24; the session that built
+  this could not reach `developers.cloudflare.com`, and wrote from memory).
+  What was written holds:
+  - *The rate limiting binding*: `ratelimits`, each with a `name`, a
+    `namespace_id` (a number of our own choosing, unique on the account),
+    and `simple` with a `limit` and a `period` of 10 or 60 seconds. Its
+    counts are approximate, eventually consistent, and kept apart in each
+    Cloudflare location.
+  - *D1's limits*: 30 seconds for one statement, and for a whole batch; and
+    Time Travel reaches back 30 days on Workers Paid and 7 on Free.
+  - *Two things the step did not write*, both from the same pages. **The
+    limiter's page advises against an address as the key**, since many
+    people can share one; the service has nothing else to count a sign-in's
+    first requests by, so what follows is about the number (the spec's
+    "Still open," 68). And **D1 allows a Worker 50 queries in one run on
+    Free and 1,000 on Paid** (a batch counts as one), which bears on the
+    hourly run ("Production," step 1).
+  - *D1's pricing page*, read the same day for the limits' cost: Free
+    includes 100,000 rows written a day and refuses every query once that
+    is spent, until midnight UTC; Paid includes 50 million a month, then
+    one dollar a million.
+- **Google Play, read after the merge** (2026-11-24;
+  `support.google.com/googleplay/android-developer/answer/13327111`). The
+  page was written to this summary of Play's rule, from memory: a web
+  address that names the app or developer, gives the steps, and says what
+  is deleted, what is kept, and for how long. **Play's own text asks for
+  something else at one point**: the web address must be one where a reader
+  can *ask* for deletion, without installing or opening the app (a link
+  that starts it, a support email address, or a form). It must also load,
+  show that way to ask plainly, and name the app or developer as the store
+  listing does, and readers must be told how long data is kept. It does
+  not ask the page to list what is deleted. The page names "LIT Bible" and
+  "Liberating Scripture Collective," as the Play listing does. **It takes
+  no request yet, so it meets Play's rule only once step 4h adds sign-in
+  and "Delete account" to it, and that must be live before an Android build
+  that makes accounts goes to review** (the spec's "Still open," 70). BDR,
+  who files the form, still reads the page against Play's text.
 
 ## Production
 
@@ -713,7 +741,17 @@ something on Cloudflare or GitHub.
 1. **Decide the plan.** Production should be on Workers Paid: Free gives a
    request 10 ms of CPU, which may cut off a large push, and keeps Time
    Travel's history for 7 days instead of 30. The deletion page tells
-   readers 30 days.
+   readers 30 days. Two more reasons, from Cloudflare's pages as read on
+   2026-11-24. **On Free a database gets 100,000 rows written a day, and
+   then every query fails until midnight UTC**: one address beginning
+   sign-ins at the limit (60 a minute, each a challenge written and later
+   deleted, which D1 counts as at least four rows) would spend that within
+   about seven hours, and nobody could sync for the rest of the day. And
+   **a run of the Worker gets 50 D1 queries on Free** (1,000 on Paid): a
+   due deletion takes at least two, so an hourly run with more than about
+   two dozen due would stop short and skip that hour's sweep. The same
+   holds for the preview on whichever plan the account has today; there
+   it would cost a day of testing.
 2. **Make the database**: `npx wrangler d1 create litbible-notebook`. Choose
    the location when asked (the preview's is western North America). Put
    the `database_id` it prints into `env.production.d1_databases` in

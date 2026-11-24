@@ -30,7 +30,10 @@ curl -s https://notebook-preview.litbible.net/     # or production's address
   means a binding is missing (the service refuses to run without its two
   rate limiters, on purpose). Roll back (2).
 - **`d1` in a `failure` line**: the database. If it began with a deploy,
-  roll back (2). If not, see (4).
+  roll back (2). If not, see (4). If every route fails at once with no
+  deploy, and the account is on Workers Free, D1's day of writes may be
+  spent (100,000 rows): it comes back at midnight UTC, or within minutes
+  of moving the account to Workers Paid (BVJ).
 - **Readers are told `slow_down` (429)**: the limits. See (6).
 - **Only Apple sign-ins fail (`provider`, 502)**: Apple is unreachable or
   its key is wrong. Nothing else is affected. See (5).

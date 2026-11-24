@@ -56,13 +56,17 @@ because nothing carried them there. This file is what carries them now.
    (BVJ, 2026-11-23). Say here if that doesn't work. **How you roll the
    service back is chosen** (BVJ, 2026-11-23: “Let's go with the GitHub
    workflow”): deploys run from a merged pull request, and you roll back
-   from this repository's Actions tab (“Notebook service (preview),” “Run
-   workflow” on `main`, action `rollback`) with no access to Cloudflare.
-   The other way, a member role on BVJ's Cloudflare account, was set
-   aside because the only role that could do the same reaches the whole
-   account. **The workflow is on and has been tried** (2026-11-23: a
-   deploy, a rollback, and a second deploy, each run from the Actions tab
-   and each passing). A rollback returns the service's code in seconds
+   from this repository's Actions tab (“Notebook service,” “Run
+   workflow” on `main`, environment `preview`, action `rollback`) with
+   no access to Cloudflare. (**Since step 4f, 2026-11-24, that is two
+   choices**: the workflow, which was titled “Notebook service
+   (preview)” until then, and inside it which deployment. The preview
+   is the one that exists and is the form's default; production's half
+   is prepared and off.) The other way, a member role on BVJ's
+   Cloudflare account, was set aside because the only role that could
+   do the same reaches the whole account. **The workflow is on and has
+   been tried** (2026-11-23: a deploy, a rollback, and a second deploy,
+   each run from the Actions tab and each passing). A rollback returns the service's code in seconds
    and never touches the database. It is laid out in
    `workers/notebook-service/README.md`, “Who can deploy and roll back.”
    Say here if a rollback from GitHub doesn't work for you.
@@ -99,8 +103,12 @@ because nothing carried them there. This file is what carries them now.
     coordination with BVJ, no merge, and nothing on Cloudflare, and the
     preview holds test data only, so nothing can be lost.
     1. On github.com, open this repository's **Actions** tab. In the
-       left list, choose **Notebook service (preview)**.
-    2. Click **Run workflow** (right side). Leave the branch on `main`.
+       left list, choose **Notebook service** (titled “Notebook service
+       (preview)” until step 4f, 2026-11-24; it is the same workflow).
+    2. Click **Run workflow** (right side). Leave the branch on `main`,
+       and leave **environment** on `preview`, which is how the one
+       workflow is told which deployment to act on (new with step 4f;
+       the preview is the default, and production's half is off).
        Set **action** to `rollback`. Leave **version** empty, which
        means "the version before the current one." In **reason**, write
        a few words (`BDR's first rollback test`). Click the green
@@ -110,10 +118,11 @@ because nothing carried them there. This file is what carries them now.
        deployed and what is now. A green check means the Worker is back
        on the earlier version.
     4. **Put it back**: **Run workflow** again on `main`, with
-       **action** `deploy`. That redeploys what is on `main`, runs the
-       service's tests first, and finishes by running the walkthrough
-       against the deployed service (about two minutes). A green check
-       means the preview is where it started.
+       **environment** `preview` and **action** `deploy`. That redeploys
+       what is on `main`, runs the service's tests first, and finishes
+       by running the walkthrough against the deployed service (about
+       two minutes). A green check means the preview is where it
+       started.
     To return to one particular version instead, copy its Version ID
     from a **Versions before** step into **version**. A rollback
     returns the service's code in seconds and never touches the
@@ -231,23 +240,83 @@ because nothing carried them there. This file is what carries them now.
     and asks you about the rest**: are the limits' numbers right for
     the apps (60 requests a minute from one address to begin a
     sign-in, 1,200 for everything else), and would the apps attest at
-    sign-up with App Attest and Play Integrity, now or later? **62 is
-    not yet answered by BVJ** (what a waiting request says, which is
-    what your notice is built from); your view is asked too. Each is
-    what the service does today and has a test. Answer by number here.
+    sign-up with App Attest and Play Integrity, now or later?
+    **Added 2026-11-24, from the check after the merge** (the first
+    entry below), two facts for the numbers: a sign-in is two requests,
+    so 60 a minute is 30 sign-ins a minute from one address; and
+    Cloudflare's own page advises against counting by address, because
+    many people can share one. Could a room of people signing in
+    together (a class, a congregation on one Wi-Fi) meet that in
+    either app, and what will an app show when it is told `slow_down`?
+    **62 is not yet answered by BVJ** (what a waiting request says,
+    which is what your notice is built from); your view is asked too.
+    Each is what the service does today and has a test. Answer by
+    number here.
 15. **The page for deleting an account** (asked 2026-11-24):
     `src/pages/delete-account.astro`, live at
-    `https://litbible.net/delete-account/` once this merges. You file
-    the stores' forms, so please read it against Google Play's current
-    account deletion requirement, which the session that wrote it
-    could not reach, and against Apple's. **Its in-app steps are a
-    guess**: it says “open Settings, choose ‘Account,’ and then choose
-    ‘Delete account’” for both apps. Write here where each app will
-    put it, and anything Play's form needs that the page lacks.
+    `https://litbible.net/delete-account/` since 2026-11-24. You
+    file the stores' forms, so please read it against Google Play's
+    current account deletion requirement and against Apple's. **Play's
+    page has since been read** (2026-11-24, the first entry below), and
+    it asks for more than the page does today: a reader must be able to
+    ask for deletion from the web page itself, without the app. The
+    page can do that only once the website has sign-in (step 4h).
+    **Say here when the Android build that makes accounts is due to go
+    to review**, since the page has to take requests by then. **Its
+    in-app steps are a guess**: it says “open Settings, choose
+    ‘Account,’ and then choose ‘Delete account’” for both apps. Write
+    here where each app will put it, and anything Play's form needs
+    that the page lacks.
 
 ## The list
 
+### 2026-11-24, a check after step 4f merged
+
+**Nothing you call changed.** Step 4f merged and deployed to the preview
+that day. Afterward the website's Claude checked the deployed service
+and read the two vendors' pages that step's session could not reach.
+None of what follows is a decision of BVJ's. Four things for the apps:
+
+- **Rolling back is two choices now.** The workflow is titled “Notebook
+  service” in the Actions tab (it was “Notebook service (preview)”),
+  and its form asks which deployment, with `preview` as the default.
+  Asks 6 and 10 above say so now. The preview is the deployment that
+  exists; production's half of the workflow is prepared and off.
+- **The limits are real on the preview, and approximate.** 65 sign-in
+  starts in seven seconds from one machine: 61 were answered, the 62nd
+  was `slow_down` with `retry: 60` and `Retry-After: 60`, and two of
+  the next three were answered again. A request of the other count was
+  answered right after. So a client should expect `slow_down` a few
+  requests past the number, and should not take one answered request
+  after a refusal to mean the minute is over. **`POST /preview/session`
+  is counted with the sign-in starts**: a test run that asks for more
+  than 60 sessions a minute from one address will be slowed.
+- **The sign-in number may be low for a room of people** (ask 14, under
+  68). A sign-in is two requests, so 60 a minute is 30 sign-ins a
+  minute from one address, and Cloudflare's page for its limiter
+  advises against counting by address at all, since many people can
+  share one. Before a sign-in the service has nothing else to count by.
+  The numbers are still BVJ's to approve and yours to weigh.
+- **Google Play's account deletion page was read**
+  (`support.google.com/googleplay/android-developer/answer/13327111`).
+  In short: an app that lets people make an account needs a way to
+  delete it inside the app, easy to find, and a web address where a
+  reader can ask for deletion without installing or opening the app.
+  The web page has to load, has to show the way to ask plainly, and has
+  to name the app or the developer as the store listing does. Play
+  accepts a link that starts the deletion, a support email address, or
+  a form. It also wants readers told how long data is kept, for example
+  in the privacy policy. **What that means here** (ask 15): the live
+  page names “LIT Bible” and “Liberating Scripture Collective,” which
+  is what the Play listing shows; it describes the steps and takes no
+  request yet, which is true while no account exists; and an email or
+  a form can't serve, because the service keeps no name or address to
+  find an account by. So the page's own sign-in and “Delete account”
+  (step 4h) must be live before an Android build that makes accounts
+  goes to review.
+
 ### 2026-11-24, the account work is built on the service (step 4f)
+
 
 **Nothing you call today changed its path or its body.** One answer
 grew: `GET /account` now fills in `waiting`, which was always null, and

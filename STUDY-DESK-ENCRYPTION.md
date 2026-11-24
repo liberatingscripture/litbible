@@ -1712,8 +1712,10 @@ many seconds before it sends anything of that kind again**, and never retries in
 are counted apart, so an address that may not begin a sign-in still syncs.
 
 - **The numbers are far above what a reader’s devices send.** A sign-in is two requests; a first
-  sync of 50,000 records is about a hundred. They are sized so that people behind one address (a
-  household, a congregation on one network) don’t meet them.
+  sync of 50,000 records is about a hundred. The 1,200 is sized so that people behind one address
+  (a household, a congregation on one network) don’t meet it. **The 60 is 30 sign-ins in a minute
+  from one address**: a household never meets it, and a room of people asked to sign in together
+  can, each refused device waiting its minute. Whether it should be higher is “Still open,” 68.
 - **They are approximate.** The counting is Cloudflare’s, kept for each of its locations and not
   exact across them. A limit slows a client down; nothing’s safety rests on it. What must be
   exact is counted in the database: a session’s wrong proofs, an account’s approvals in progress.
@@ -2518,6 +2520,12 @@ could reasonably have gone another way, are mine (BVJ’s Claude), and are under
     of search and the sitemap and linked from nowhere until accounts open. It says what this
     section says, in a reader’s words (“Still open,” 70).
 
+**After the merge, the same day**, the deployed preview was checked and the two vendors’ pages the
+step could not reach were read (BVJ’s Claude, 2026-11-24). **No request, answer, or word changed.**
+One sentence of “How often a client may ask” was corrected: it said both numbers were sized for a
+congregation on one network, and the 60 is not. What the check found is under “Still open,” 68, 70,
+and 72, each marked with the date.
+
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
@@ -2825,6 +2833,21 @@ numbers go on from 58:
     does the website’s sign-in page carry Turnstile, and do the apps attest? Until an answer,
     the request is unchanged, and a later answer adds a member a client must send, which is a
     change to the interface. **BVJ, 2026-11-24: “yes to Turnstile,” so the website’s sign-in page (step 4h) carries it and the service checks its token; and “ask BDR about the rest,” so the numbers and whether the apps attest are BDR’s to answer.**
+    **Found by the check after the merge (BVJ’s Claude, 2026-11-24; nothing here is decided).**
+    Three facts for the numbers. (a) Cloudflare’s page for the limiter advises against counting by
+    address, because many people can share one. Before a sign-in there is nothing else to count
+    by, so what the advice bears on is the number. (b) A sign-in is two requests, so 60 a minute
+    is 30 sign-ins a minute from one address, at each Cloudflare location: a class or a
+    congregation on one network, asked to sign in together, passes it. (c) Counting by address
+    bounds what one address costs, not what a flood from many does. Each start of a sign-in writes
+    a challenge that is deleted five minutes on, which D1 counts as at least four rows written. On
+    Workers Free a database gets 100,000 rows written a day and then refuses every query until
+    midnight UTC, so one address asking at the limit would stop all sync on such a database within
+    about seven hours. On Workers Paid the first 50 million a month are included, and one address
+    at the limit all month is about 10 million. **My recommendation**: keep counting by address;
+    put production on Workers Paid before any reader’s notebook is there (the service’s README
+    says so for other reasons too); and raise the 60 to 300 then, since a refused sign-in costs a
+    reader more than those writes cost LIT.
 69. **Production’s address, `https://notebook.litbible.net`**, beside the preview’s. Prepared in
     the service’s configuration and **not deployed**: BVJ decides whether and when, and makes
     the database. The apps should take the address from a build setting, as they do the
@@ -2836,6 +2859,19 @@ numbers go on from 58:
     long), and that its in-app steps match where each app puts “Delete account.” It is out of
     search and the sitemap and linked from nowhere, and says that accounts are not open yet. The
     page can’t delete anything until the website has sign-in (step 4h), which adds the button. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
+    **Play’s page was read on 2026-11-24** (the check after the merge, BVJ’s Claude;
+    `support.google.com/googleplay/android-developer/answer/13327111`), and the summary above is
+    not quite its rule. As it reads now: the web address must load, must show the way to ask for
+    deletion plainly, and must name the app or the developer as the store listing does; **a reader
+    must be able to ask for deletion there, without installing or opening the app**; a link that
+    starts the deletion, a support email address, or a form each serves; and readers must be told
+    how long data is kept, for example in the privacy policy. It does not ask the page to list
+    what is deleted. Against that: the page names “LIT Bible” and “Liberating Scripture
+    Collective,” as the Play listing does; it takes no request yet, which is true while no account
+    exists; and an email or a form can’t serve here, since the service keeps no name or address to
+    find an account by. **So the page’s own sign-in and “Delete account” (step 4h) must be live
+    before an Android build that makes accounts goes to review.** That is a dependency for the
+    plan, not a choice.
 71. **A device whose account was deleted elsewhere is told `sign_in`, and no more.** The service
     keeps nothing of a deleted account, so it can’t say “this account was deleted” to a session
     that outlived it. A device that had seen the request waiting can say so itself; one that
@@ -2852,6 +2888,15 @@ numbers go on from 58:
     Play’s help: what this file says of the limiter’s counting, and what the deletion page is
     built to, are from those pages as last read, not as re-read (the service’s README, “What was
     checked against the vendors’ own pages”).
+    **Seen since (2026-11-24, after the merge; BVJ’s Claude).** The deploy’s walkthrough deleted
+    an account on the real database (a small one). The real limiter counts: of 65 sign-in starts
+    sent in seven seconds from one machine, 61 were answered, the 62nd was `slow_down` with
+    `retry: 60` and `Retry-After: 60`, two of the next three were answered again, and a request of
+    the other count was answered right after. Both vendors’ pages were read. What this file says
+    of the limiter (kept for each location, approximate) is what Cloudflare’s page says, and so
+    are the README’s 30 seconds for one D1 statement and Time Travel’s 30 and 7 days; what Play’s
+    page says is under 70. **Still unseen**: the hourly run started by Cloudflare’s own clock, a
+    large notebook’s deletion on the real database, and Apple’s answer to a revoke.
 73. **Apple’s server-to-server notifications are not handled.** Apple’s page on account deletion,
     which was read for this step, asks an app with Sign in with Apple to take them: Apple calls
     an address of the service’s when a reader ends the connection from their Apple Account’s

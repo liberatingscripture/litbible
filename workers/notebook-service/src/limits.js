@@ -23,9 +23,14 @@
 // WHAT IT IS NOT. As Cloudflare documents the binding, the counters are kept
 // for each Cloudflare location and are not exact: a burst may get a few
 // requests past the number, and a client that reaches several locations has
-// a count in each. (Written from what its documentation said when last read;
-// the page could not be reached from the session that wrote this, 2026-11-24.
-// The local copy the tests run against counts exactly.) It slows a client down. It is not a wall, and nothing's
+// a count in each. (Its page was read on 2026-11-24, after this was written,
+// and says so; and the deployed preview showed it that day: the 62nd request
+// of a burst was refused and two of the next three were not. The local copy
+// the tests run against counts exactly.) The same page advises against an
+// address as the key, since many people can share one. A sign-in's first
+// requests have nothing else to be counted by, so the numbers must leave
+// room for people behind one address; whether they do is the spec's "Still
+// open," 68. It slows a client down. It is not a wall, and nothing's
 // safety rests on it: a session's wrong proofs are counted exactly, in the
 // database (src/session.js), and so are an account's approvals in progress.
 //
