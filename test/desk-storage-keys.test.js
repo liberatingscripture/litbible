@@ -109,9 +109,14 @@ test("every storage key the code writes or reads is named on /privacy, or allowl
   assert.ok(found.size > 15, "the scan found the keys");
   // BroadcastChannel names, not storage; /privacy describes them in a sentence of their own.
   const channels = new Set(["lit-desk-follow-tab"]);
+  // Not storage either: two of the encryption spec's labels (an HKDF `info` and an HPKE `info`), found
+  // because they sit under property names that hold "key" (LABELS.passkey, LABELS.keyring). That module
+  // has no storage at all, and test/desk-crypto.test.js holds it to that. A store the synced notebook
+  // adds later (step 4g) is a real key, and is named on /privacy like any other.
+  const cryptoLabels = new Set(["lit-notebook/1 passkey", "lit-notebook/1 keyring"]);
   const named = new Set(privacyCodeKeys());
   const missing = [...found]
-    .filter(([k]) => !channels.has(k) && !named.has(k) && !ALLOWLIST.has(k))
+    .filter(([k]) => !channels.has(k) && !cryptoLabels.has(k) && !named.has(k) && !ALLOWLIST.has(k))
     .map(([k, file]) => `${k} (in ${file})`);
   assert.deepEqual(missing, [], `storage keys not on /privacy and not allowlisted:\n  ${missing.join("\n  ")}`);
 });

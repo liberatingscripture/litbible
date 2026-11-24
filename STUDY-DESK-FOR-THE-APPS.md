@@ -56,8 +56,135 @@ because nothing carried them there. This file is what carries them now.
    (BVJ, 2026-11-23). Say here if that doesn't work, and which you would
    rather have for rolling the service back: a member role on BVJ's
    Cloudflare account, or deploys that run from a merged pull request.
+7. **The nine readings the reference had to choose**, and one question
+   (asked 2026-11-23 with the vectors, the first entry below):
+   `STUDY-DESK-ENCRYPTION.md`, “Still open,” 22 to 31. Each is what the
+   vectors test today, and each is cheap to change before the freeze.
+   Answer by number here. **23 most of all**: a typed recovery or approval
+   code is read to the letter, so a tab, a line break, a no-break space,
+   or an en dash in it is refused. **BVJ said to keep it strict**
+   (2026-11-23), so it is BVJ's call and **for BDR to confirm**. If the
+   apps would rather every client remove those, say so and the vectors
+   change. **BVJ then said yes to the other eight as built** (22, and 24
+   to 30; 2026-11-23), so all nine are BVJ's calls and wait on BDR alone.
+8. **Has either app ever written a trash record's time in any form but
+   the `Z` one** (`2026-11-23T18:35:09.978Z`)? Asked 2026-11-23; the
+   spec's “Still open,” 31. The format lets a trash record carry any time
+   that parses, and the service will take only the `Z` form on a row, so
+   such a record could never be pushed. If neither app has, the format
+   will ask the `Z` form of trash records too; if one has, the service
+   relaxes its check for a trash record's row instead.
 
 ## The list
+
+### 2026-11-23, the encryption reference and its test vectors
+
+**The vectors exist** (the plan's step 4b). The file both apps run is
+`test/fixtures/notebook-crypto-vectors.json` on `main`, fetched the way
+each app already fetches `test/fixtures/anchor-vectors.json`. It is made
+by `npm run build:notebook-crypto-vectors` from the code the website will
+ship, `src/lib/desk-crypto.mjs`, which is the reference to read beside
+the spec. `test/desk-crypto.test.js` holds the two together. This gates
+IOS-108 and NB15.
+
+- **How to read the file.** Its top has `vectorsVersion` (it moves when
+  any value does; 1 today), `conventions`, and `refusals`. Each case has a
+  `why`, a `given`, and an `expected`. Every byte string is lowercase
+  hex, a row's `nonce` and `ct` included, though the service carries
+  those in base64url. The exceptions are the JSON a client seals
+  (`plaintext`) and a MAC's input (`macInput`), which hold base64url as
+  on a device. **To reproduce a ciphertext, seal the `plaintext` given,
+  byte for byte**: your own JSON writer orders keys its own way, which is
+  fine, and what it writes you check by opening it again.
+- **A case that must be refused** has `expected.refused` with one of the
+  words under `refusals`. You need not use the words. You must refuse
+  every such case, and tell apart the two kinds the spec treats
+  differently: a row to keep **aside** while the device fetches its
+  keyring (`aside: true`: an unknown `v`, or a `kid` not held) from one to
+  **skip and report**, and which of a holder's four checks stopped
+  (`check`). No refusal ever deletes anything.
+- **What each group proves:**
+  - `hkdf`, `keyProof`: every derived key, the proof a device sends, and
+    the hash the service stores.
+  - `recoveryCode`, `approvalCode`: the text of a code, a typed code back
+    to its bytes (lowercase, spaces, `O`, `I`, `L`), each refusal, and
+    whether a group typed back matches.
+  - `base64url`: byte strings written one way, and every other spelling
+    refused. (Added to the spec's table with this step.)
+  - `padding`, `seal`, `open`, `openRefused`: a record to a row and back:
+    the padded length, the AAD (a row with no `deletedAt` has an AAD that
+    ends with a line feed), the exact ciphertext, and thirty rows that
+    must not be accepted, among them a wrong tag, each AAD field changed,
+    bad padding, the wrong key, and a record that disagrees with its
+    plain fields.
+  - `keyring`: its own checks (a gap in the `kid`s, a repeat, a short
+    key), and what a device accepts from the service (never another
+    notebook, a lower `current`, or other bytes for a key it holds).
+  - `hpkeOpen`: a keyring sealed to a public key, opened with the private
+    key, with the shared secret, key, and nonce along the way for an HPKE
+    written by hand, and refusals (a changed byte, an `enc` off the curve,
+    another recipient).
+  - `card`, `holderCard`: a card sealed and opened, refused under another
+    id, `kid`, or notebook and as the other kind of card; a card with a
+    field version 1 doesn't know, sealed again with the field kept; cards
+    a client won't write.
+  - `prf`: the fixed PRF input in each form (its bytes, the base64url
+    Android's request JSON carries, the hashed form the passkey sees),
+    and a passkey response before and after `prf.results` is removed.
+  - `passkeyHolder`, `recoveryHolder`: coming in through a holder, from
+    the PRF's 32 bytes or from the typed code, and a refusal at each of
+    the four checks, a forged keyring among them.
+  - `approval`: the approval's id, both MACs with their inputs as text,
+    the grant, and what each device refuses (a changed key, model, id,
+    `kid`, or ciphertext, a keyring of the service's own, a card for
+    another device).
+  - `signingKey`: the reserved key: signatures as `r ‖ s` and in DER, in
+    each shape DER takes, verified, and changed ones refused.
+  - `point`: public keys on and off the curve, compressed, and too short.
+  - `walkthrough`: one notebook through eight steps, every value: a first
+    device under “follows my account,” its rows, a second device by
+    passkey, a third by approval, the first removed, a switch to “this
+    device only” with a recovery code, a recovery by code on a fourth,
+    and forged keyrings refused. Follow it in the opening direction if
+    you can't fix a sender's key.
+- **HPKE and ECDSA cases run in one direction.** A platform's HPKE makes
+  its own sender key and ECDSA its own number, so the file gives a sealed
+  keyring to open and a signature to verify. The sender's key and the
+  signing number are there too, for a client that can fix them.
+- **What a client must run beyond the file** (IOS-108, NB15):
+  1. **What it seals, it opens**, with its own randomness: a record, a
+     keyring sealed with the platform's HPKE, a card, a holder record,
+     and an approval end to end. And what it signs, it verifies.
+  2. **Its own random inputs.** The file fixes every nonce, key, and
+     code. That yours come from the platform's random source, fresh each
+     time, is for your own tests and review.
+  3. **Published vectors, for anything written by hand.** If Android
+     writes HKDF or HPKE on the platform's primitives, run them against
+     their published cases first. `test/fixtures/published-crypto-vectors.json`
+     has the ones the reference passes, with each source named: RFC 5869,
+     RFC 4231, Wycheproof's AES-256-GCM, and the CFRG's HPKE vectors.
+     **RFC 9180's printed appendix has no case for the notebook's suite**
+     (P-256, HKDF-SHA256, AES-256-GCM); the CFRG's full file does, and it
+     is in that fixture.
+  4. **Where the keys are kept**: the Keychain or Keystore choices in the
+     spec, and that no backup or transfer copies them.
+  5. **The real passkey**: that one passkey gives the same 32 bytes in
+     the app and in the browser (“Waiting to hear from the apps,” 5), and
+     that `prf.results` is gone from the real response the platform hands
+     you. The file starts from the 32 bytes.
+  6. **The format's own checks on an opened record** (the merge and
+     anchor vectors), which come after everything here.
+  7. **Against the service**, once the preview runs (4c): a row one client
+     sealed opens on the others.
+- **The spec changed with it**, in the same pull request: its “Changed in
+  step 4b” lists 21 places where the text now says exactly what the
+  reference does. No decision of draft 2 moved. Nine were choices
+  (“Waiting to hear from the apps,” 7). **BVJ said yes to all nine as
+  built** later the same day, so each is for BDR to confirm. The one
+  question it turned up, about a trash record's times, is ask 8.
+- **If the reference is wrong, say so here.** A change to a rule changes
+  the spec, the reference, and the file together, and `vectorsVersion`
+  goes up, so a client can tell which file it ran.
 
 ### 2026-11-23, BVJ on draft 2's choices
 
@@ -91,9 +218,11 @@ BVJ was walked through the choices draft 2 made (the spec's “Still open,”
 
 `STUDY-DESK-ENCRYPTION.md` is now draft 2, written on the website's side
 (the plan's step 4a). It replaces draft 1 whole. Nothing in it is built,
-and the reference and vectors (4b) follow once it is agreed. **For BDR's
-Claude to review, and for BDR to confirm**: its last section, “Still
-open,” numbers every call that changes what the apps build.
+and the reference and vectors (4b) follow once it is agreed. (**Overtaken
+the same day**: 4b was built against draft 2 as written; the entry “the
+encryption reference and its test vectors,” above.) **For BDR's Claude to
+review, and for BDR to confirm**: its last section, “Still open,” numbers
+every call that changes what the apps build.
 
 - **What draft 2 writes in from BVJ's answers** (the entry below): passkeys
   carry the key at launch; the reader's choice of “follows my account” or
@@ -201,7 +330,7 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
   developer account and, by BVJ's assignment, the Google Cloud project
   (ask 3 above, for BDR to accept). Who answers when the service breaks is
   not yet said. (Said later the same day: BVJ first and BDR second; the
-  entry at the top of this list.)
+  entry “BVJ on draft 2's choices,” above.)
 
 ### 2026-11-23, on the call
 

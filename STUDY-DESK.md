@@ -5214,6 +5214,41 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      against the other in `npm test`. The hand-written HPKE is checked
      against the published RFC 9180 vectors before LIT's own. Both apps
      run the file.
+     **Built 2026-11-23**, every group of the spec's table, none left
+     out. Nothing imports `desk-crypto.mjs` yet but the builder and the
+     test; the website's connector (4g) is its first user. What to know
+     from it:
+     - **The vectors are not only the reference agreeing with itself.**
+       Before LIT's own, the reference passes published cases, committed
+       with their sources in `test/fixtures/published-crypto-vectors.json`:
+       RFC 5869 (HKDF), RFC 4231 (HMAC), Project Wycheproof (AES-256-GCM),
+       and HPKE. **RFC 9180's printed appendix has no case for the
+       notebook's suite** (its P-256 case uses AES-128-GCM); the CFRG's
+       full vector file does, and the reference passes that case and the
+       RFC's printed one through the same code. The builder and the test
+       also check LIT's own values against `node:crypto`.
+     - **The spec changed where code needed more than it said**, in the
+       same pull request: its "Changed in step 4b" lists 21 places, and no
+       decision of draft 2 moved. Nine of them were choices, each the
+       smallest reading, and are in its "Still open," 22 to 30, **for BVJ
+       and BDR to confirm**. The one a reader could meet: a typed code is
+       read to the letter, so a pasted code that brings a line break or an
+       en dash with it is refused (22 to 30 has the alternative). **BVJ,
+       2026-11-23: "Keep the recovery code pasting strict,"** so 23 stands
+       as built. **BVJ then said yes to the other eight** (22, and 24 to
+       30) after a walk through each, so all nine wait on BDR alone.
+     - **One question it turned up** (the spec's "Still open," 31): the
+       format lets a trash record carry times that merely parse, and the
+       service's check on a row asks for the format's form. For 4c or 4d.
+       BVJ had it put to the apps (2026-11-23): has either ever written
+       such a time? If neither has, the format asks the `Z` form of trash
+       records too; if one has, the service relaxes its check.
+     - **What the vectors can't reach**: a real passkey's secret, where
+       each client keeps its keys, the service's own checks, and each
+       client's randomness.
+     - **After a deliberate change to the rule**: change the spec and the
+       reference together, run `npm run build:notebook-crypto-vectors`,
+       bump `CRYPTO_VECTORS_VERSION`, and tell the apps.
    - **4c. The service, on a preview address** (2–3).
      `workers/notebook-service/`, with its own package, tests, and CI job,
      as the contact-form Worker has. A Worker with D1: sealed records

@@ -1,0 +1,350 @@
+{
+ "about": "Published test cases that test/desk-crypto.test.js runs through src/lib/desk-crypto.mjs before the notebook's own vectors (test/fixtures/notebook-crypto-vectors.json), so the reference is checked against other people's numbers and not only against itself. Copied by script from the sources named in each group on 2026-11-23, and every value was recomputed with node:crypto as it was copied. All byte strings are lowercase hex. The apps don't fetch this file: each platform's own library has been through these sources already, and a hand-written HKDF or HPKE in an app should be run against the same sources there.",
+ "hkdf": {
+  "source": "RFC 5869, Appendix A, test cases 1 to 3 (the SHA-256 cases)",
+  "url": "https://www.rfc-editor.org/rfc/rfc5869.txt",
+  "covers": "HKDF-Extract and HKDF-Expand with SHA-256, with a salt, with a long salt and info, and with an empty salt and info (A.3: the empty salt is what the notebook's 32 zero bytes stand for).",
+  "cases": [
+   {
+    "name": "RFC 5869 A.1",
+    "ikm": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+    "salt": "000102030405060708090a0b0c",
+    "info": "f0f1f2f3f4f5f6f7f8f9",
+    "length": 42,
+    "prk": "077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5",
+    "okm": "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865"
+   },
+   {
+    "name": "RFC 5869 A.2",
+    "ikm": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f",
+    "salt": "606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf",
+    "info": "b0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+    "length": 82,
+    "prk": "06a6b88c5853361a06104c9ceb35b45cef760014904671014a193f40c15fc244",
+    "okm": "b11e398dc80327a1c8e7f78c596a49344f012eda2d4efad8a050cc4c19afa97c59045a99cac7827271cb41c65e590e09da3275600c2f09b8367793a9aca3db71cc30c58179ec3e87c14c01d5c1f3434f1d87"
+   },
+   {
+    "name": "RFC 5869 A.3",
+    "ikm": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+    "salt": "",
+    "info": "",
+    "length": 42,
+    "prk": "19ef24a32c717b167f33a91d6f648bdf96596776afdb6377ac434c1c293ccb04",
+    "okm": "8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d9d201395faa4b61a96c8"
+   }
+  ]
+ },
+ "hmac": {
+  "source": "RFC 4231, section 4, test cases 1 to 7 (the HMAC-SHA-256 values)",
+  "url": "https://www.rfc-editor.org/rfc/rfc4231.txt",
+  "covers": "HMAC-SHA-256 with short keys, keys longer than a block, and long data. Test case 5 prints the first 16 bytes only.",
+  "cases": [
+   {
+    "name": "RFC 4231 test case 1",
+    "key": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+    "data": "4869205468657265",
+    "mac": "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
+   },
+   {
+    "name": "RFC 4231 test case 2",
+    "key": "4a656665",
+    "data": "7768617420646f2079612077616e7420666f72206e6f7468696e673f",
+    "mac": "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+   },
+   {
+    "name": "RFC 4231 test case 3",
+    "key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "data": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "mac": "773ea91e36800e46854db8ebd09181a72959098b3ef8c122d9635514ced565fe"
+   },
+   {
+    "name": "RFC 4231 test case 4",
+    "key": "0102030405060708090a0b0c0d0e0f10111213141516171819",
+    "data": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+    "mac": "82558a389a443c0ea4cc819899f2083a85f0faa3e578f8077a2e3ff46729665b"
+   },
+   {
+    "name": "RFC 4231 test case 5",
+    "key": "0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+    "data": "546573742057697468205472756e636174696f6e",
+    "mac": "a3b6167473100ee06e0c796c2955552b",
+    "truncated": 16
+   },
+   {
+    "name": "RFC 4231 test case 6",
+    "key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "data": "54657374205573696e67204c6172676572205468616e20426c6f636b2d53697a65204b6579202d2048617368204b6579204669727374",
+    "mac": "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54"
+   },
+   {
+    "name": "RFC 4231 test case 7",
+    "key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "data": "5468697320697320612074657374207573696e672061206c6172676572207468616e20626c6f636b2d73697a65206b657920616e642061206c6172676572207468616e20626c6f636b2d73697a6520646174612e20546865206b6579206e6565647320746f20626520686173686564206265666f7265206265696e6720757365642062792074686520484d414320616c676f726974686d2e",
+    "mac": "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2"
+   }
+  ]
+ },
+ "aesGcm": {
+  "source": "Wycheproof (C2SP/wycheproof), testvectors_v1/aes_gcm_test.json, the group with a 256-bit key, a 96-bit IV, and a 128-bit tag; Apache License 2.0",
+  "url": "https://github.com/C2SP/wycheproof/blob/e0df04e0c033f2d25c5051dd06230336c7822358/testvectors_v1/aes_gcm_test.json",
+  "covers": "AES-256-GCM with a 12-byte nonce and a 16-byte tag: with and without associated data, an empty message, a 256-byte message, and tags and ciphertexts with a bit changed, which must not open.",
+  "cases": [
+   {
+    "tcId": 91,
+    "comment": "",
+    "result": "valid",
+    "key": "92ace3e348cd821092cd921aa3546374299ab46209691bc28b8752d17f123c20",
+    "iv": "00112233445566778899aabb",
+    "aad": "00000000ffffffff",
+    "msg": "00010203040506070809",
+    "ct": "e27abdd2d2a53d2f136b",
+    "tag": "9a4a2579529301bcfb71c78d4060f52c"
+   },
+   {
+    "tcId": 92,
+    "comment": "",
+    "result": "valid",
+    "key": "29d3a44f8723dc640239100c365423a312934ac80239212ac3df3421a2098123",
+    "iv": "00112233445566778899aabb",
+    "aad": "aabbccddeeff",
+    "msg": "",
+    "ct": "",
+    "tag": "2a7d77fa526b8250cb296078926b5020"
+   },
+   {
+    "tcId": 93,
+    "comment": "",
+    "result": "valid",
+    "key": "80ba3192c803ce965ea371d5ff073cf0f43b6a2ab576b208426e11409c09b9b0",
+    "iv": "4da5bf8dfd5852c1ea12379d",
+    "aad": "",
+    "msg": "",
+    "ct": "",
+    "tag": "4771a7c404a472966cea8f73c8bfe17a"
+   },
+   {
+    "tcId": 101,
+    "comment": "",
+    "result": "valid",
+    "key": "cdccfe3f46d782ef47df4e72f0c02d9c7f774def970d23486f11a57f54247f17",
+    "iv": "376187894605a8d45e30de51",
+    "aad": "956846a209e087ed",
+    "msg": "e28e0e9f9d22463ac0e42639b530f42102fded75",
+    "ct": "feca44952447015b5df1f456df8ca4bb4eee2ce2",
+    "tag": "082e91924deeb77880e1b1c84f9b8d30"
+   },
+   {
+    "tcId": 111,
+    "comment": "",
+    "result": "valid",
+    "key": "dc4dbf811f9509e33a45a8a0743e9391de333f69c56ee4f0fe90ce21c238ee59",
+    "iv": "1859d3ba4710cdd300baa029",
+    "aad": "",
+    "msg": "df91c48591f4cae8c4d659d024dfd0a3535981487764bf19b012713e6ac6d578aa0b3a51d7ac97cd503fdc8682cabdb6a5256e9890458356f39b9749f6ab158112fbe4f91acd333477998b9f0d7cc0be2d40acfa5103adc1b0d0a5cc94733d703e0d8c26e09e9d079fa6a65cf35240a16280826ab7c0d8ac5882c89e58444233c2f60aaae0cbd1a7ed850065242a9378c340232fd86f1fd52a92c960a9a86f529f431acf3aa94133785803f4ac1a22378332daa22dea3d34d2fdb7c308fa44ab93b3fb02f428be22fad6c0b10c138af97b92a199296dd947c93fbc40674c34c5623d26d9c90dc6b3357018b9f9250fb4dd5c11518191a236745a2bd42f863766",
+    "ct": "9c511d08f244cb6971a39b70639c4a53ae48254fcb3d2eea4796ecc996f1fe26a8e30932258a48fe4237e5bfb0e1320dc591256dc83cd56dbf5d9b377b7805b7fac0497b2f99e3310e9e2cc8009141a82f26f8a02299d64138bb1fe8a1243df3e9fb37b52bd3c2cc19f543b3f4928e5a73730a7a6e6d75919d117d3dfe10e863a9846b2ca260de5dddba7ceac37019e615b89a2ab94df8d1a790749998cb8531fef1ef5f8a28a8ad60e813f7e78412ca4d95b9604a24a16e4a3ca8ee33bfbb7809048014943e5fd7966a7db214e052d1cc546a6da72ec89d1c3398aefdcb881dfc3d800b7323abcd7583e9c8a31f03b6995d4aeac17c5a56d8af492a2b108fe3",
+    "tag": "17090ce50e35244a59bafc80eba5dae5"
+   },
+   {
+    "tcId": 123,
+    "comment": "",
+    "result": "valid",
+    "key": "7ec20e38aa1b1f018d79903fc1cf6e260cec3733a19ad9e30f60b54e2ea6ebcc",
+    "iv": "5ccd9cdcf97ac61364687bbb",
+    "aad": "d9d2ee145b5c31a17dce932538c7e45da1c82abb80b0553251e442dbc5af9c126d3a76a24767c39b229bec8976a0df89fa70ea9ad872aa36d6b8b09aaa54698e7f29c2c2d12efb0b301cfb97076473dfa7ec030350e26839fbb7e1612dad93ff08e1119168c5fca56816c62b042f06d89e5a95da6a615e13ba4cad9f942534c539520d00509d0d4ac6d80c59e769d7e1aa7e12987ee05fb6a19b383c3348df6cbdcff604ef218338910a8e275d9a62b802cb07ec9249c9635e2437f8339dff3e21f79e9eb2acc2bbbadd520a84c58f0ddaaf8c32496d173b6b8c0c274352d40d47bfbd93069abdcc3d21c2cd330a8c16847f0e5299beb6a2d33be746de5c71f2",
+    "msg": "bab28e0987509b1d6f9cf3aa90030795f125ee44",
+    "ct": "ce4c58d3c7354d2d27e3bb41a62e5941fb1e39f3",
+    "tag": "e177391d5e2cefa2f7d35e33a76566aa"
+   },
+   {
+    "tcId": 128,
+    "comment": "special case",
+    "result": "valid",
+    "key": "00112233445566778899aabbccddeeff102132435465768798a9bacbdcedfe0f",
+    "iv": "000000000000000000000000",
+    "aad": "",
+    "msg": "561008fa07a68f5c61285cd013464eaf",
+    "ct": "23293e9b07ca7d1b0cae7cc489a973b3",
+    "tag": "ffffffffffffffffffffffffffffffff"
+   },
+   {
+    "tcId": 130,
+    "comment": "Flipped bit 0 in tag",
+    "result": "invalid",
+    "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "iv": "505152535455565758595a5b",
+    "aad": "",
+    "msg": "202122232425262728292a2b2c2d2e2f",
+    "ct": "b2061457c0759fc1749f174ee1ccadfa",
+    "tag": "9de8fef6d8ab1bf1bf887232eab590dd"
+   },
+   {
+    "tcId": 131,
+    "comment": "Flipped bit 1 in tag",
+    "result": "invalid",
+    "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "iv": "505152535455565758595a5b",
+    "aad": "",
+    "msg": "202122232425262728292a2b2c2d2e2f",
+    "ct": "b2061457c0759fc1749f174ee1ccadfa",
+    "tag": "9ee8fef6d8ab1bf1bf887232eab590dd"
+   },
+   {
+    "tcId": 137,
+    "comment": "Flipped bit 63 in tag",
+    "result": "invalid",
+    "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "iv": "505152535455565758595a5b",
+    "aad": "",
+    "msg": "202122232425262728292a2b2c2d2e2f",
+    "ct": "b2061457c0759fc1749f174ee1ccadfa",
+    "tag": "9ce8fef6d8ab1b71bf887232eab590dd"
+   },
+   {
+    "tcId": 138,
+    "comment": "Flipped bit 64 in tag",
+    "result": "invalid",
+    "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "iv": "505152535455565758595a5b",
+    "aad": "",
+    "msg": "202122232425262728292a2b2c2d2e2f",
+    "ct": "b2061457c0759fc1749f174ee1ccadfa",
+    "tag": "9ce8fef6d8ab1bf1be887232eab590dd"
+   }
+  ]
+ },
+ "hpke": {
+  "source": "The CFRG's full HPKE test vectors, test-vectors.json, at the commit RFC 9180's Appendix A names",
+  "url": "https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/5f503c564da00b0687b3de75f1dfbdfc4079ad31/test-vectors.json",
+  "covers": "HPKE base mode (mode 0) with DHKEM(P-256, HKDF-SHA256) and HKDF-SHA256: the key agreement, the key schedule, and sealing and opening at sequence numbers 0, 1, 2, 4, 255, and 256. The first case is the notebook's exact suite. The second is RFC 9180's own A.3.1, and its values were compared with the RFC's printed text when this file was made. Not covered: the PSK and Auth modes, the export interface, and DeriveKeyPair, none of which the notebook uses.",
+  "cases": [
+   {
+    "name": "DHKEM(P-256, HKDF-SHA256), HKDF-SHA256, AES-256-GCM, base mode",
+    "note": "The notebook's own suite (0x0010, 0x0001, 0x0002). RFC 9180's Appendix A does not print this suite; the CFRG's full file does.",
+    "mode": 0,
+    "kem_id": 16,
+    "kdf_id": 1,
+    "aead_id": 2,
+    "info": "4f6465206f6e2061204772656369616e2055726e",
+    "skRm": "317f915db7bc629c48fe765587897e01e282d3e8445f79f27f65d031a88082b2",
+    "pkRm": "04abc7e49a4c6b3566d77d0304addc6ed0e98512ffccf505e6a8e3eb25c685136f853148544876de76c0f2ef99cdc3a05ccf5ded7860c7c021238f9e2073d2356c",
+    "skEm": "90345e3a1d116c1dd39ae76d95ab858c142223a63e44f8f85318cfa91a84858e",
+    "pkEm": "04c06b4f6bebc7bb495cb797ab753f911aff80aefb86fd8b6fcc35525f3ab5f03e0b21bd31a86c6048af3cb2d98e0d3bf01da5cc4c39ff5370d331a4f1f7d5a4e0",
+    "enc": "04c06b4f6bebc7bb495cb797ab753f911aff80aefb86fd8b6fcc35525f3ab5f03e0b21bd31a86c6048af3cb2d98e0d3bf01da5cc4c39ff5370d331a4f1f7d5a4e0",
+    "shared_secret": "48893fecd82f7c3456af6a42d8f56325d21e08c10fa81299986aaff54cde7b49",
+    "key_schedule_context": "008fc3aeb832490a4b5ab3e42023287db29a1f4bc7c222c0df228727b70a4021127f1ff3fd1aa97af7e5d473e1cb01ba74831133d9659b6c26b03a038a49a84074",
+    "secret": "520da82c752ee6e0be7aafbad57a62535d266b6333513d3eb94cb497dceaf94e",
+    "key": "ee16802a936d5f544771131900ee6973d0551de9e852ece2ef34bf0d5f9e1d1d",
+    "base_nonce": "9bc50980832a7b4b58c40161",
+    "exporter_secret": "a8e9a7e62621879fdc89cea7da8e6153458f463e2851baaf009a7461d699cfb6",
+    "encryptions": [
+     {
+      "seq": 0,
+      "aad": "436f756e742d30",
+      "ct": "58c61a45059d0c5704560e9d88b564a8b63f1364b8d1fcb3c4c6ddc1d291742465e902cd216f8908da49f8f96f",
+      "nonce": "9bc50980832a7b4b58c40161",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 1,
+      "aad": "436f756e742d31",
+      "ct": "b4e7c90d1dd62cb563694956eb517ab55d5e7d1f6366a0066c04ababaa444dbaf60a30d7bb7d3e91b969762dee",
+      "nonce": "9bc50980832a7b4b58c40160",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 2,
+      "aad": "436f756e742d32",
+      "ct": "65463cc0e5fd16e1650a55fb37d5b6fe6e5ac5b6f6e8c2640cfb0fcd528dc37bc0963b5c53d6238c42d447ddf4",
+      "nonce": "9bc50980832a7b4b58c40163",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 4,
+      "aad": "436f756e742d34",
+      "ct": "8537ff19240d613badd398dbeedf0338ca9f549bad6775ae8c3a672666057f6709e0931155cd1cae7071c6fd27",
+      "nonce": "9bc50980832a7b4b58c40165",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 255,
+      "aad": "436f756e742d323535",
+      "ct": "2bcdb6aa31cf9b85855aa22c18ee7feb783b26d5f8fae4554a409845810bdac0fc06bdce6c60a37efb45a106eb",
+      "nonce": "9bc50980832a7b4b58c4019e",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 256,
+      "aad": "436f756e742d323536",
+      "ct": "fcc4c798b73d45d4a241f4d05886befed63b8bdf0252454072c9f6170f6e262f2738cf2ea290053b2181ad46d6",
+      "nonce": "9bc50980832a7b4b58c40061",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     }
+    ]
+   },
+   {
+    "name": "RFC 9180 A.3.1: DHKEM(P-256, HKDF-SHA256), HKDF-SHA256, AES-128-GCM, base mode",
+    "note": "The nearest suite RFC 9180 itself prints. It differs from the notebook's only in the AEAD's key length, and runs through the same code.",
+    "mode": 0,
+    "kem_id": 16,
+    "kdf_id": 1,
+    "aead_id": 1,
+    "info": "4f6465206f6e2061204772656369616e2055726e",
+    "skRm": "f3ce7fdae57e1a310d87f1ebbde6f328be0a99cdbcadf4d6589cf29de4b8ffd2",
+    "pkRm": "04fe8c19ce0905191ebc298a9245792531f26f0cece2460639e8bc39cb7f706a826a779b4cf969b8a0e539c7f62fb3d30ad6aa8f80e30f1d128aafd68a2ce72ea0",
+    "skEm": "4995788ef4b9d6132b249ce59a77281493eb39af373d236a1fe415cb0c2d7beb",
+    "pkEm": "04a92719c6195d5085104f469a8b9814d5838ff72b60501e2c4466e5e67b325ac98536d7b61a1af4b78e5b7f951c0900be863c403ce65c9bfcb9382657222d18c4",
+    "enc": "04a92719c6195d5085104f469a8b9814d5838ff72b60501e2c4466e5e67b325ac98536d7b61a1af4b78e5b7f951c0900be863c403ce65c9bfcb9382657222d18c4",
+    "shared_secret": "c0d26aeab536609a572b07695d933b589dcf363ff9d93c93adea537aeabb8cb8",
+    "key_schedule_context": "00b88d4e6d91759e65e87c470e8b9141113e9ad5f0c8ceefc1e088c82e6980500798e486f9c9c09c9b5c753ac72d6005de254c607d1b534ed11d493ae1c1d9ac85",
+    "secret": "2eb7b6bf138f6b5aff857414a058a3f1750054a9ba1f72c2cf0684a6f20b10e1",
+    "key": "868c066ef58aae6dc589b6cfdd18f97e",
+    "base_nonce": "4e0bc5018beba4bf004cca59",
+    "exporter_secret": "14ad94af484a7ad3ef40e9f3be99ecc6fa9036df9d4920548424df127ee0d99f",
+    "encryptions": [
+     {
+      "seq": 0,
+      "aad": "436f756e742d30",
+      "ct": "5ad590bb8baa577f8619db35a36311226a896e7342a6d836d8b7bcd2f20b6c7f9076ac232e3ab2523f39513434",
+      "nonce": "4e0bc5018beba4bf004cca59",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 1,
+      "aad": "436f756e742d31",
+      "ct": "fa6f037b47fc21826b610172ca9637e82d6e5801eb31cbd3748271affd4ecb06646e0329cbdf3c3cd655b28e82",
+      "nonce": "4e0bc5018beba4bf004cca58",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 2,
+      "aad": "436f756e742d32",
+      "ct": "895cabfac50ce6c6eb02ffe6c048bf53b7f7be9a91fc559402cbc5b8dcaeb52b2ccc93e466c28fb55fed7a7fec",
+      "nonce": "4e0bc5018beba4bf004cca5b",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 4,
+      "aad": "436f756e742d34",
+      "ct": "8787491ee8df99bc99a246c4b3216d3d57ab5076e18fa27133f520703bc70ec999dd36ce042e44f0c3169a6a8f",
+      "nonce": "4e0bc5018beba4bf004cca5d",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 255,
+      "aad": "436f756e742d323535",
+      "ct": "2ad71c85bf3f45c6eca301426289854b31448bcf8a8ccb1deef3ebd87f60848aa53c538c30a4dac71d619ee2cd",
+      "nonce": "4e0bc5018beba4bf004ccaa6",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     },
+     {
+      "seq": 256,
+      "aad": "436f756e742d323536",
+      "ct": "10f179686aa2caec1758c8e554513f16472bd0a11e2a907dde0b212cbe87d74f367f8ffe5e41cd3e9962a6afb2",
+      "nonce": "4e0bc5018beba4bf004ccb59",
+      "pt": "4265617574792069732074727574682c20747275746820626561757479"
+     }
+    ]
+   }
+  ]
+ }
+}
