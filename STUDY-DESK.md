@@ -5351,6 +5351,40 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
    - **4k. Notes from the Greek** (1). A note started from the Greek tab
      or pane is an ordinary note on its verse, with the selected Greek in
      its body. No change to the format. After 4d.
+     **Built 2026-11-23, ahead of 4d** (which it doesn't touch). Both ways
+     in, as BVJ asked that day: **a chosen word**, and **a run of the
+     Greek selected** with the mouse or Shift and the arrows (a selection
+     wins over a chosen word while it lasts). **The button is the note
+     glyph alone in a square like the details' ×, just left of it** (BVJ,
+     the same day), in the ×'s place when only a selection is open; its
+     name and tooltip say “Add a note on verse 16 with this word” or
+     “…on verses 16–17 with the selected Greek.” **A selection also gets a
+     small menu beside it with that one choice**, “Add a note on verses
+     16–17” (BVJ, the same day: a second way in, the button staying). It
+     shows once the mouse button comes up, above the selection (below it
+     where the top has no room), scrolls with the words, never takes focus
+     or a tab stop (the button is the keyboard's way, as the verse menu is
+     beside the scripture's selection panel), and closes with the
+     selection or on Escape. Either opens the
+     ordinary note editor on the LIT's whole verses (no `quote`, a
+     `verseCopy` as any whole-verse note has), its body opening with the
+     Greek in curly quotes and the cursor on the next line. Claude's
+     choices, for BVJ to change: **the quote holds only the punctuation
+     the selection holds** (BVJ, the same day): a mark between selected
+     words stays, and one touching the first or last word comes in only if
+     the selection reaches over it, so a chosen word alone is the bare
+     word; a run that crosses into another verse carries that verse's
+     number (“λόγος. 2 οὗτος”);
+     the SBLGNT's text-critical signs are left out, since they need the
+     tab's font and its apparatus to mean anything; a word counts only if
+     a letter of it is selected; closing with nothing added asks nothing,
+     and a note saved with only the Greek drops the blank line after it.
+     It is offered only where the chapter has LIT text and the browser
+     keeps a notebook, so a draft chapter's Greek has no button. The rules
+     are `src/lib/desk-note-from-greek.mjs`; the record is kind 2 with no
+     new field, so nothing in `STUDY-DESK-FORMAT.md` changed. **After 4d**
+     nothing here needs a touch: the note is saved with the editor's own
+     marker (`note` by default) and never names `ribbon` or `bookmark`.
    - **4l. The private beta, and testing on real devices** (1–2). All
      three, on real Apple and Google accounts, with the apps' testers.
 

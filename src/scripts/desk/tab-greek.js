@@ -20,6 +20,15 @@
 //
 // The files are public/greek/ (greek-data.js). Nothing here adds to or
 // changes the scripture on the page.
+//
+// A note can start here (4k; BVJ, 2026-11-23): a square button with the note
+// glyph, left of the details' ×, whose name and tooltip say "Add a note on
+// verse N with this word" for a chosen word, or "…with the selected Greek"
+// while a run of the Greek is selected; a selection also gets a small menu
+// beside it with that one choice. Each opens the ordinary note editor
+// for a note on the LIT's whole verse or verses, its body opening with the
+// Greek in quotes (src/lib/desk-note-from-greek.mjs). Only where the chapter
+// has LIT text and the browser keeps a notebook (`onAddNote`).
 
 import { describeParse } from "../../lib/greek-parse.mjs";
 import { plainTextOf } from "../../lib/desk-greek-text.mjs";
@@ -44,6 +53,9 @@ import {
   getLexicon, loadChapterGreek, loadLsjEntries, loadStepEntries, loadUbsEntry, setLexicon,
 } from "./greek-data.js";
 import { make } from "./dom.js";
+import { glyph } from "./glyphs.js";
+import { setTip } from "../tip.js";
+import { greekNoteLabel, greekVerses, noteFromGreek } from "../../lib/desk-note-from-greek.mjs";
 
 // The editions SBL's notes compare the SBLGNT with.
 const EDITIONS = [
@@ -196,7 +208,7 @@ function readTermData() {
  */
 export function createGreekTab({
   here, visible, openVerse, source = null, startVerse = null, idSuffix = "", openHit = null, onTopVerse = null,
-  slowAfter = SLOW_LOAD_MS,
+  slowAfter = SLOW_LOAD_MS, onAddNote = null,
 }) {
   const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
   const markers = source ? [] : Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
@@ -253,6 +265,16 @@ export function createGreekTab({
   const findNote = make("p", "desk-greek__find-note");
   findNote.setAttribute("role", "status");
   parseLine?.after(findNote);
+  // "Add a note…" (4k), shown only while there is Greek to put in one: the
+  // note glyph alone, in a square like the × beside it (BVJ, 2026-11-23),
+  // its words in its name and tooltip.
+  const noteButton = onAddNote ? make("button", "desk-greek__note") : null;
+  if (noteButton) {
+    noteButton.type = "button";
+    noteButton.hidden = true;
+    noteButton.innerHTML = glyph("note", "desk-greek__note-glyph");
+    closeWord.before(noteButton);
+  }
   const NO_WORD = "Select a word to see its dictionary entry. Left and Right move between words, Up and Down between verses.";
   const more = el.querySelector(".desk-greek__more");
   const lemmaLine = el.querySelector(".desk-greek__lemma");
@@ -404,8 +426,9 @@ export function createGreekTab({
         p.append(document.createTextNode(piece.text));
         continue;
       }
-      const b = make("button", "desk-greek__sign", piece.text);
-      b.type = "button";
+      // A span acting as a button, as the words are (see build).
+      const b = make("span", "desk-greek__sign", piece.text);
+      b.setAttribute("role", "button");
       b.tabIndex = -1;
       b.dataset.verse = String(verse);
       b.setAttribute("aria-label", `Apparatus note on verse ${verse}`);
@@ -451,12 +474,20 @@ export function createGreekTab({
           vn.dataset.vn = String(verse);
           vn.append(make("span", "sr-only", "Verse "), String(verse));
           verseMarks.set(verse, vn);
-          p.append(vn);
+          // A narrow no-break space after the number rather than a margin: a
+          // selection's highlight covers a character but not a margin, which
+          // left a seam beside every verse number, and the number never ends
+          // a line apart from its first word.
+          p.append(vn, "\u202F");
         }
         appendWithSigns(p, w[W.pre], verse);
-        const b = make("button", "desk-greek__w", w[W.text]);
+        // A span acting as a button, never a <button>: a browser lays every
+        // <button> out as a box of its own, which left a seam in a selection's
+        // highlight between each word (BVJ, 2026-11-23). Enter and Space are
+        // the scroller's keydown's to give it.
+        const b = make("span", "desk-greek__w", w[W.text]);
         b.lang = "grc";
-        b.type = "button";
+        b.setAttribute("role", "button");
         b.tabIndex = -1;
         b.dataset.i = String(i);
         b.setAttribute("aria-pressed", "false");
@@ -477,6 +508,7 @@ export function createGreekTab({
     parseLine.textContent = NO_WORD;
     more.hidden = true;
     closeWord.hidden = true;
+    updateNote();
 
     window.addEventListener("scroll", queueGoto, { passive: true });
     scroller.addEventListener("scroll", queueGoto, { passive: true });
@@ -736,6 +768,7 @@ export function createGreekTab({
     showDetails(i, { pause });
     if (scroll) bringIntoView(buttons[i]);
     queueGoto();
+    updateNote();
   }
 
   /** Let go of the selected word: its tints and its entry go, and the pane is as it was before any word was chosen. */
@@ -759,9 +792,196 @@ export function createGreekTab({
     closeWord.hidden = true;
     if (focus && b) b.focus({ preventScroll: true });
     queueGoto();
+    updateNote();
   }
 
   closeWord.addEventListener("click", () => deselect({ focus: true }));
+
+  // A note from the Greek (4k). The words a selection of the Greek covers,
+  // each counted only if at least one of its letters is selected, so a
+  // selection ending at a word's edge doesn't bring that word in.
+  function selectedWords() {
+    const sel = document.getSelection?.();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+    const range = sel.getRangeAt(0);
+    if (!scroller.contains(range.commonAncestorContainer)) return null;
+    const out = [];
+    const word = document.createRange();
+    buttons.forEach((b, i) => {
+      const t = b.firstChild;
+      if (!t || !range.intersectsNode(b)) return;
+      word.setStart(t, 0);
+      word.setEnd(t, t.textContent.length);
+      // The word ends after the selection starts, and starts before it ends.
+      if (range.compareBoundaryPoints(Range.START_TO_END, word) > 0 && range.compareBoundaryPoints(Range.END_TO_START, word) < 0) {
+        out.push(flat[i]);
+      }
+    });
+    return out.length ? out : null;
+  }
+
+  /**
+   * What a selection holds beyond its words: the text it covers before the
+   * first word and after the last, out to the next word or verse number, so
+   * a comma comes into the quote only if the reader selected it too.
+   */
+  function selectionEdges(words) {
+    const sel = document.getSelection?.();
+    if (!words || !sel?.rangeCount) return {};
+    const range = sel.getRangeAt(0);
+    const stop = (n) => n?.nodeType === 1 && (n.classList.contains("desk-greek__w") || n.classList.contains("desk-greek__vn"));
+    // The part of the nodes from `from` to `to` the selection holds, as text.
+    const covered = (from, to) => {
+      const part = document.createRange();
+      part.setStartBefore(from);
+      part.setEndAfter(to);
+      if (range.compareBoundaryPoints(Range.START_TO_START, part) > 0) part.setStart(range.startContainer, range.startOffset);
+      if (range.compareBoundaryPoints(Range.END_TO_END, part) < 0) part.setEnd(range.endContainer, range.endOffset);
+      return part.collapsed ? "" : part.toString();
+    };
+    const edge = (button, step) => {
+      let near = null;
+      let far = null;
+      for (let n = button[step]; n && !stop(n); n = n[step]) {
+        near ??= n;
+        far = n;
+      }
+      if (!near) return "";
+      return step === "nextSibling" ? covered(near, far) : covered(far, near);
+    };
+    const firstButton = buttons[flat.indexOf(words[0])];
+    const lastButton = buttons[flat.indexOf(words[words.length - 1])];
+    return {
+      lead: firstButton ? edge(firstButton, "previousSibling") : "",
+      trail: lastButton ? edge(lastButton, "nextSibling") : "",
+    };
+  }
+
+  /** What a note would start with now: the selected Greek, else the chosen word. */
+  function noteChoice() {
+    const words = selectedWords();
+    if (words) return { words, from: "selection", edges: selectionEdges(words) };
+    if (selected != null && flat[selected]) return { words: [flat[selected]], from: "word" };
+    return null;
+  }
+
+  function updateNote() {
+    if (!noteButton) return;
+    const choice = noteChoice();
+    const span = choice && greekVerses(choice.words);
+    noteButton.hidden = !span;
+    updateMenu(choice?.from === "selection" ? span : null);
+    if (!span) return;
+    const label = greekNoteLabel(span, choice.from);
+    noteButton.setAttribute("aria-label", label);
+    setTip(noteButton, label);
+  }
+
+  // A selection of the Greek also gets a small menu beside it, with that one
+  // choice (BVJ, 2026-11-23). It is the mouse's way; the button beside the ×
+  // stays the keyboard's, so the menu never takes focus or a tab stop. It sits
+  // inside the scroller, so it scrolls with the words, and waits for the
+  // mouse button to come up, as the scripture's selection panel does.
+  const menu = noteButton ? make("div", "desk-greek__selmenu") : null;
+  const menuButton = menu ? make("button", "desk-greek__selmenu-btn") : null;
+  let pointerHeld = false;
+  let menuKey = null; // the selection the menu is showing for
+  let dismissedKey = null; // one Escape closed it for; it stays closed until the selection changes
+  if (menu) {
+    menu.setAttribute("role", "group");
+    menu.setAttribute("aria-label", "Selected Greek");
+    menuButton.type = "button";
+    menuButton.tabIndex = -1;
+    menu.append(menuButton);
+  }
+
+  function hideMenu() {
+    if (!menu) return;
+    menu.remove();
+    menuKey = null;
+  }
+
+  function updateMenu(span) {
+    if (!menu) return;
+    const range = span && !pointerHeld ? document.getSelection().getRangeAt(0) : null;
+    const key = range ? `${span.verse}-${span.endVerse}|${document.getSelection().toString()}` : null;
+    if (!key || key === dismissedKey) {
+      if (!key) dismissedKey = null;
+      hideMenu();
+      return;
+    }
+    if (key === menuKey && menu.isConnected) return;
+    menuButton.innerHTML = glyph("note", "desk-greek__selmenu-glyph");
+    menuButton.append(span.endVerse > span.verse ? `Add a note on verses ${span.verse}–${span.endVerse}` : `Add a note on verse ${span.verse}`);
+    scroller.append(menu);
+    menuKey = key;
+    placeMenu(range);
+  }
+
+  /** Above the selection's first line, or below its last where the top has no room. */
+  function placeMenu(range) {
+    const rects = Array.from(range.getClientRects()).filter((r) => r.width > 0);
+    const s = scroller.getBoundingClientRect();
+    const first = rects[0] ?? range.getBoundingClientRect();
+    const last = rects[rects.length - 1] ?? first;
+    const w = menu.offsetWidth;
+    const h = menu.offsetHeight;
+    const gap = 6;
+    const above = first.top - s.top - h - gap;
+    const below = above < 0;
+    const top = below ? last.bottom - s.top + gap : above;
+    const x = below ? last.right - s.left - w : first.left - s.left;
+    const left = Math.max(4, Math.min(x, scroller.clientWidth - w - 4));
+    menu.style.top = `${top + scroller.scrollTop}px`;
+    menu.style.left = `${left}px`;
+  }
+
+  // Selecting is many events in a drag; the button is worked out once it rests.
+  let noteTimer = 0;
+  const onSelection = () => {
+    window.clearTimeout(noteTimer);
+    noteTimer = window.setTimeout(updateNote, 60);
+  };
+  if (noteButton) {
+    document.addEventListener("selectionchange", onSelection);
+    // A press keeps the selection it acts on.
+    noteButton.addEventListener("mousedown", (e) => e.preventDefault());
+    noteButton.addEventListener("click", () => {
+      const choice = noteChoice();
+      const made = choice && noteFromGreek(here, choice.words, choice.edges);
+      if (!made) return;
+      onAddNote(made.draft, noteButton, { body: made.body });
+    });
+    menu.addEventListener("mousedown", (e) => e.preventDefault());
+    menuButton.addEventListener("click", () => {
+      const words = selectedWords();
+      const made = words && noteFromGreek(here, words, selectionEdges(words));
+      if (!made) return;
+      // Focus comes back to the first selected word, since the menu goes
+      // with the selection.
+      const back = buttons[flat.indexOf(words[0])] ?? noteButton;
+      // The menu goes once the editor takes focus (the selection ends).
+      onAddNote(made.draft, menuButton, { body: made.body, restoreFocus: back });
+    });
+    scroller.addEventListener("pointerdown", (e) => {
+      if (e.button === 0 && !menu.contains(e.target)) pointerHeld = true;
+    });
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("pointercancel", onPointerUp);
+    document.addEventListener("keydown", onMenuKey);
+  }
+
+  function onPointerUp() {
+    if (!pointerHeld) return;
+    pointerHeld = false;
+    onSelection();
+  }
+
+  function onMenuKey(e) {
+    if (e.key !== "Escape" || !menu?.isConnected) return;
+    dismissedKey = menuKey;
+    hideMenu();
+  }
 
   /** Every word of the selected word's lemma gets a lighter green tint; they stay while the reader scrolls. */
   function markSelectedLemma(i) {
@@ -777,12 +997,13 @@ export function createGreekTab({
     });
   }
 
-  // Copying the Greek (BVJ, 2026-11-06): each word and sign is a button, and a
-  // sheet's paste drops buttons with what they hold (as it should for a web
-  // page's controls), so a copy reached a sheet as spaces, commas and verse
-  // numbers. The clipboard gets the words as Greek text instead: buttons become
-  // spans keeping their lang, the screen reader's "Verse " goes, and the plain
-  // text puts a space after each verse number and a blank line between paragraphs.
+  // Copying the Greek (BVJ, 2026-11-06): each word and sign is a button (a span
+  // with role="button" since 4k), and a sheet's paste drops buttons with what
+  // they hold (as it should for a web page's controls), so a copy reached a
+  // sheet as spaces, commas and verse numbers. The clipboard gets the words as
+  // Greek text instead: buttons become plain spans keeping their lang, the
+  // screen reader's "Verse " goes, and the plain text puts a space after each
+  // verse number and a blank line between paragraphs.
   el.addEventListener("copy", (e) => {
     const sel = document.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount || !e.clipboardData) return;
@@ -791,7 +1012,7 @@ export function createGreekTab({
     const box = document.createElement("div");
     box.append(range.cloneContents());
     for (const n of box.querySelectorAll(".sr-only")) n.remove();
-    for (const b of box.querySelectorAll("button")) {
+    for (const b of box.querySelectorAll('button, [role="button"]')) {
       const s = document.createElement("span");
       if (b.lang) s.lang = b.lang;
       s.textContent = b.textContent;
@@ -841,6 +1062,16 @@ export function createGreekTab({
     });
   });
   scroller.addEventListener("pointerleave", clearKin);
+
+  // Enter and Space press a word or a sign, as they would a <button>.
+  scroller.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    const control = e.target.closest?.(".desk-greek__w, .desk-greek__sign");
+    if (!control) return;
+    e.preventDefault();
+    control.click();
+  });
 
   scroller.addEventListener("keydown", (e) => {
     const word = e.target.closest?.(".desk-greek__w");
@@ -1332,6 +1563,11 @@ export function createGreekTab({
     window.clearTimeout(litTimer);
     window.clearTimeout(lexTimer);
     window.clearTimeout(slowTimer);
+    window.clearTimeout(noteTimer);
+    document.removeEventListener("selectionchange", onSelection);
+    document.removeEventListener("pointerup", onPointerUp);
+    document.removeEventListener("pointercancel", onPointerUp);
+    document.removeEventListener("keydown", onMenuKey);
     cancelAnimationFrame(splitFrame);
   }
 

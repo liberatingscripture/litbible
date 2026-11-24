@@ -69,8 +69,14 @@ export function editorHolds(message) {
  * @param {() => object} [options.text] the draft's chapter as anchor text, for
  *   a whole-verse note's copy of its wording; the page's own by default. On
  *   /desk the chapter comes from its fetched page (chapter-page.js).
+ * @param {string} [options.startBody] a new note's opening words, with the
+ *   cursor after them: the Greek a note from the Greek tab starts with (4k).
+ *   They count as the starting point, so closing with nothing added asks
+ *   nothing, and a save drops the blank line left after them.
  */
-export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft = null, restoreFocus = null, text = chapterText }) {
+export function openNoteEditor({
+  trigger, store, ctx, ref, record = null, draft = null, restoreFocus = null, text = chapterText, startBody = null,
+}) {
   const n = ++seq;
   const editing = Boolean(record);
   const place = record ?? draft;
@@ -122,7 +128,9 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   // The limit a note is kept under, so the browser stops a paste at it rather
   // than the save failing with words the reader can't mend by retrying (NB8-7).
   body.maxLength = MAX_NOTE_BODY;
-  body.value = record?.body ?? "";
+  // What the editor opens with, and what "nothing changed" means.
+  const opening = record ? (record.body ?? "") : (startBody ?? "");
+  body.value = opening;
   const example = !editing && preview !== null;
   if (example) {
     body.value = preview;
@@ -215,7 +223,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
           verse: draft.verse,
           endVerse: draft.endVerse ?? draft.verse,
           ...(draft.quote ? { quote: draft.quote } : {}),
-          body: body.value,
+          body: startBody ? body.value.trimEnd() : body.value,
           marker,
           ...(verseCopy ? { verseCopy, verseCopyAsOf: now } : {}),
         },
@@ -285,7 +293,7 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     }
   });
 
-  const changed = () => !example && (body.value !== (record?.body ?? "") || marker !== currentMarker(record?.marker ?? "note"));
+  const changed = () => !example && (body.value !== opening || marker !== currentMarker(record?.marker ?? "note"));
 
   // A reload, a closed tab or a followed link would lose the words too (DI-6):
   // the browser is asked to confirm while the editor holds some, and a draft is
@@ -314,7 +322,10 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
   body.addEventListener("input", typed);
   panel.addEventListener("change", typed);
 
-  const back = draftKey ? readDraft(draftKey) : null;
+  // A draft kept on this verse comes back, unless the editor was opened with
+  // other opening words (another word of the Greek): those are what was asked for.
+  const kept = draftKey ? readDraft(draftKey) : null;
+  const back = kept && (!startBody || kept.body.startsWith(startBody.trimEnd())) ? kept : null;
   if (back) {
     body.value = back.body;
     marker = currentMarker(back.marker);
@@ -351,6 +362,8 @@ export function openNoteEditor({ trigger, store, ctx, ref, record = null, draft 
     error.textContent = "Your unsaved words from earlier are back. Choose Save to keep them.";
   }
   body.focus({ preventScroll: true });
+  // Opening words are followed by the cursor, ready for the reader's own.
+  if (startBody && !example) body.setSelectionRange(body.value.length, body.value.length);
   return panel;
 }
 

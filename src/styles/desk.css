@@ -3969,23 +3969,21 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 /* Verse numbers, small like Chapter View's. */
+/* No margin: the space before the number and the narrow no-break space after
+   it (tab-greek.js) are text, which a selection's highlight covers. */
 .desk-greek__vn {
-  margin: 0 0.25em 0 0.2em;
+  margin: 0;
   color: var(--green-text);
   font-family: Inter, "Inter Fallback", system-ui, sans-serif;
   font-size: 0.6em;
   font-weight: 600;
 }
 
-/* A word is a button that looks like text. */
+/* A word is a button that looks like text: an inline span with
+   role="button", with no padding or margin, so a selection's highlight runs
+   unbroken from word to word. */
 .desk-greek__w {
-  margin: 0;
-  padding: 0 1px;
-  border: 0;
   border-radius: 3px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
   cursor: pointer;
 }
 
@@ -4011,12 +4009,7 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 .desk-greek__sign {
-  margin: 0;
-  padding: 0 1px;
-  border: 0;
-  background: transparent;
   color: var(--green-text);
-  font: inherit;
   font-size: 0.85em;
   cursor: pointer;
 }
@@ -4243,7 +4236,8 @@ html:has(.desk-greek__split--dragging) {
   position: relative;
 }
 
-.desk-greek__close {
+.desk-greek__close,
+.desk-greek__note {
   position: absolute;
   top: 0;
   right: 0;
@@ -4263,17 +4257,89 @@ html:has(.desk-greek__split--dragging) {
   cursor: pointer;
 }
 
-.desk-greek__close[hidden] {
+.desk-greek__close[hidden],
+.desk-greek__note[hidden] {
   display: none;
 }
 
-.desk-greek__close:hover {
+.desk-greek__close:hover,
+.desk-greek__note:hover {
   background: rgba(var(--ink-rgb), 0.07);
 }
 
-.desk-greek__close:focus-visible {
+.desk-greek__close:focus-visible,
+.desk-greek__note:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+/* A note from the Greek (4k; BVJ, 2026-11-23): the note glyph alone, in a
+   square like the ×, 8px to its left; in the ×'s place when no word is open
+   (a selection alone), with the line under it kept clear. */
+.desk-greek__note {
+  right: 36px;
+}
+
+.desk-greek__note-glyph {
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+}
+
+/* A selection of the Greek's small menu (4k): one choice, beside the
+   selection, inside the scroller so it scrolls with the words. A menu's look,
+   as the scripture's selection panel has. */
+.desk-greek__selmenu {
+  position: absolute;
+  z-index: 2;
+  padding: 4px;
+  border: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.desk-greek__selmenu-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: calc(0.85rem * var(--desk-ui, 1));
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.desk-greek__selmenu-btn:hover {
+  background: rgba(32, 157, 80, 0.12);
+  color: var(--green-text);
+}
+
+.desk-greek__selmenu-glyph {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: currentColor;
+}
+
+.desk-greek__live:has(> .desk-greek__close[hidden]) .desk-greek__note {
+  right: 0;
+}
+
+.desk-greek__live:has(> .desk-greek__note:not([hidden])) .desk-greek__word {
+  padding-right: 72px;
+}
+
+.desk-greek__live:has(> .desk-greek__note:not([hidden])):has(> .desk-greek__close[hidden]) .desk-greek__parse {
+  padding-right: 36px;
 }
 
 .desk-greek__word {

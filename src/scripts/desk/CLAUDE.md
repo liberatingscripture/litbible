@@ -914,9 +914,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        one (E133). **Arrowing
        through words asks for a lexicon only at rest** (150 ms, GK-10).
      - **A copy from the tab writes its own clipboard** (E54): its words and
-       signs are buttons, which a sheet's paste drops with their text, so
-       `tab-greek.js` turns them into `lang="grc"` spans and leaves out the
-       "Verse " labels. A new clickable element among the words needs the same.
+       signs are buttons (`role="button"` spans, never `<button>`, which is a
+       box of its own and broke a selection's highlight at every word; 4k),
+       which a sheet's paste drops with their text, so `tab-greek.js` turns
+       them into plain `lang="grc"` spans and leaves out the "Verse " labels.
+       A new clickable element among the words needs the same.
      - **The tab never moves the page.** Its text scrolls on its own and
        opens at the verse being read, with "Go to verse N" to catch up; its
        words are one roving tab stop. The lexicon choice is
@@ -936,6 +938,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (`noteVerseFor`, BA111), and a passage naming a verse the Greek lacks
        (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120)
        and says so on /desk; This verse shows a gap (`gapNote`, E157).
+     - **A note starts from a chosen word or a selection of the Greek** (4k):
+       its button (and, for a selection, a small menu inside the scroller,
+       never a tab stop) opens the ordinary editor on the LIT's whole
+       verses, the Greek quoted as `startBody` (`desk-note-from-greek.mjs`).
+       Kind 2, no new field; offered only with LIT text and a notebook
+       (`onAddNote`).
   15. **Phase 1h is searching the Greek** (STUDY-DESK.md,
      "Order of work", 1h).
      - **It is ordinary site search, gated until launch.** Only while

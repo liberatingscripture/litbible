@@ -123,6 +123,20 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-23, notes from the Greek are built on the website (step 4k)
+
+**Nothing new to build, one thing to expect.** A note started from the
+website's Greek tab or pane is kind 2 with no new field, on the LIT's
+whole verse or verses (no `quote`), exactly as the entry “after the call”
+below says. What you will see arrive is its `body`: it opens with the
+Greek the reader chose in curly quotes (“ ”), then a line break and the
+reader's own words, for example `“ἠγάπησεν”` then `Loved: an aorist.` A
+run that crosses into another verse carries that verse's number inside
+the quotes (`“λόγος. 2 οὗτος ἦν”`). The SBLGNT's text-critical signs
+(⸀ to ⸅) are left out, so a font with polytonic Greek is all a note needs
+(accents, breathings, and iota subscripts). The full text is
+`STUDY-DESK.md`, “Order of work,” 4k.
+
 ### 2026-11-23, the notebook service is built (step 4c)
 
 **The service exists, and the interface has its final spelling.** It is
