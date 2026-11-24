@@ -1,0 +1,272 @@
+// test/desk-sync-status-line.test.js
+//
+// What a reader of a linked browser sees of the sync (the plan's step 4g):
+// the status line with "Reconnect" in the slots the desk's pages leave for
+// it (sync/status-line.js), and the notice that a stop only they can settle
+// is never silent (sync/stopped-notice.js). Driven through the real
+// connector over the fake service, as desk-sync-connector.test.js is.
+
+import { test } from "node:test";
+import assert from "node:assert/strict";
+
+import "./helpers/browser-env.mjs";
+import { freshBrowser, moment, note, until } from "./helpers/sync-browser.mjs";
+import { join } from "./helpers/fake-notebook-service.mjs";
+import { firstDevice, testClock } from "./helpers/sync-rig.mjs";
+import { SERVICES, SLOT_EVENT } from "../src/lib/desk-sync-link.mjs";
+import { STOPPED_WORDS, TELL_AGAIN_MS } from "../src/lib/desk-sync-status.mjs";
+
+const { openStore } = await import("../src/scripts/desk/store.js");
+const sync = await import("../src/scripts/desk/sync/start.js");
+const { openSyncDb } = await import("../src/scripts/desk/sync/sync-db.js");
+const { STOPPED_ATTR } = await import("../src/scripts/desk/sync/stopped-notice.js");
+
+const ctx = () => ({ client: "test-web", contentVersion: "2026.11.24" });
+const state = (connector) => connector.status().state;
+const html = () => document.documentElement;
+const text = (el, sel) => el.querySelector(sel)?.textContent ?? null;
+
+/** A page with the two slots the desk leaves, and the places the dot goes. */
+function page() {
+  document.body.innerHTML = `
+    <button class="desk-tab" type="button">Notebook</button>
+    <div class="desk-panel__tabs"><button data-tab="settings" type="button">Settings</button></div>
+    <div id="settings"><div data-desk-sync-slot hidden></div></div>
+    <div id="notebook-page" class="desk-np"><div data-desk-sync-slot hidden></div></div>`;
+  return { settings: document.querySelector("#settings [data-desk-sync-slot]"), notebook: document.querySelector("#notebook-page [data-desk-sync-slot]") };
+}
+
+async function linkedPage() {
+  const browser = freshBrowser();
+  await sync.setSyncEnv(browser.env);
+  const slots = page();
+  const other = await firstDevice(browser.service, "reader", { clock: testClock(new Date(Date.now() - 60_000).toISOString()) });
+  const store = await openStore({ ctx });
+  const mine = await join(browser.service, other.by);
+  const connector = await sync.linkNotebook({
+    store,
+    service: SERVICES.local,
+    token: mine.token,
+    notebook: mine.keyring.notebook,
+    device: { id: mine.id, key: mine.key },
+    keyring: mine.keyring,
+  });
+  await until(() => state(connector) === "upToDate", "the notebook in step");
+  return { ...browser, slots, other, mine, store, connector };
+}
+
+/** The page closes and opens again: a new connector, started by the store, over the same storage. */
+async function reopen(env) {
+  await sync.setSyncEnv(env);
+  const slots = page();
+  const store = await openStore({ ctx });
+  await until(async () => (await sync.currentSync()) != null, "the connector starting");
+  return { slots, store, connector: await sync.currentSync() };
+}
+
+test("an unlinked browser's slots stay empty and hidden, and nothing is styled", async () => {
+  const browser = freshBrowser();
+  await sync.setSyncEnv(browser.env);
+  const slots = page();
+  await openStore({ ctx });
+  document.dispatchEvent(new CustomEvent(SLOT_EVENT));
+  await moment();
+  assert.equal(slots.settings.hidden, true);
+  assert.equal(slots.settings.childElementCount, 0);
+  assert.equal(document.querySelector("style[data-desk-sync-style]"), null);
+  assert.equal(html().hasAttribute(STOPPED_ATTR), false);
+});
+
+test("in step, every slot says so, with no button", async () => {
+  const { slots } = await linkedPage();
+  for (const slot of [slots.settings, slots.notebook]) {
+    assert.equal(slot.hidden, false);
+    assert.equal(text(slot, ".desk-sync__label"), "Sync");
+    assert.equal(text(slot, ".desk-sync__line"), "Your notebook is in sync.");
+    assert.match(text(slot, ".desk-sync__detail li"), /^Last synced at /);
+    assert.equal(slot.querySelector(".desk-sync__again").hidden, true);
+    assert.equal(slot.querySelector(".desk-sync").dataset.state, "ok");
+    const group = slot.querySelector('[role="group"]');
+    assert.equal(document.getElementById(group.getAttribute("aria-labelledby")).textContent, "Sync");
+  }
+  assert.equal(document.querySelectorAll("style[data-desk-sync-style]").length, 1);
+  assert.equal(html().hasAttribute(STOPPED_ATTR), false);
+});
+
+test("offline shows what waits and “Reconnect,” which tries again and says how it went", async () => {
+  const { service, timers, store, slots, connector } = await linkedPage();
+  const slot = slots.settings;
+  const button = slot.querySelector(".desk-sync__again");
+  service.offline();
+  await store.save(note("written offline"));
+  await moment();
+  await timers.fire((ms) => ms === 2000);
+  await until(() => state(connector) === "offline", "offline");
+  assert.equal(text(slot, ".desk-sync__line"), "You’re offline. Your notebook is on this computer, and 1 change will sync when you’re back online.");
+  assert.equal(button.hidden, false);
+  assert.equal(button.textContent, "Reconnect");
+  assert.equal(slot.querySelector(".desk-sync").dataset.state, "stopped");
+  assert.equal(text(slot, '[role="status"]'), text(slot, ".desk-sync__line"), "the change of state is said in the line's place");
+  assert.equal(html().hasAttribute(STOPPED_ATTR), false, "offline mends itself: no dot, no notice");
+
+  // Still offline: the press is taken, the pass runs, and the button comes back.
+  const calls = service.calls.length;
+  button.focus();
+  button.click();
+  assert.equal(button.getAttribute("aria-disabled"), "true", "busy, never disabled: it keeps focus");
+  await until(() => service.calls.length > calls, "a request after the press");
+  await connector.idle();
+  await until(() => !button.hasAttribute("aria-disabled"), "the button free again");
+  assert.equal(button.hidden, false);
+
+  // Back online: the press syncs, the button goes, and focus moves to the line that says so.
+  service.online();
+  button.click();
+  await until(() => state(connector) === "upToDate", "in step");
+  assert.equal(button.hidden, true);
+  assert.equal(text(slot, ".desk-sync__line"), "Your notebook is in sync.");
+  assert.equal(document.activeElement.className, "desk-sync__line");
+  assert.equal(service.account("reader").rows.size, 1);
+});
+
+test("a slot made later is drawn when the page says so, and all are emptied when the browser is unlinked", async () => {
+  const { slots, store } = await linkedPage();
+  const late = document.createElement("div");
+  late.setAttribute("data-desk-sync-slot", "");
+  late.hidden = true;
+  document.body.append(late);
+  document.dispatchEvent(new CustomEvent(SLOT_EVENT));
+  assert.equal(late.hidden, false);
+  assert.equal(text(late, ".desk-sync__line"), "Your notebook is in sync.");
+
+  await sync.unlink({ store });
+  for (const slot of [slots.settings, slots.notebook, late]) {
+    assert.equal(slot.hidden, true);
+    assert.equal(slot.childElementCount, 0);
+  }
+});
+
+test("a sign-out is never silent: a dot, and a notice with the line's own words, once", async () => {
+  const { service, bar, env, mine, connector } = await linkedPage();
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => bar.shown.length === 1, "the notice");
+  assert.equal(html().getAttribute(STOPPED_ATTR), "stopped");
+  assert.equal(document.querySelector(".desk-tab").getAttribute("aria-description"), STOPPED_WORDS);
+  assert.equal(document.querySelector('[data-tab="settings"]').getAttribute("aria-description"), STOPPED_WORDS);
+  assert.match(bar.shown[0].message, /^You’ve been signed out\. Your notebook is still on this computer/);
+  assert.deepEqual(bar.shown[0].choices.map((c) => c.label), ["Reconnect"]);
+  const db = await openSyncDb();
+  assert.equal((await db.get("told")).state, "signedOut");
+
+  // The next page says it with the dot and the line, and doesn't put the notice up again.
+  const next = await reopen(env);
+  await until(() => state(next.connector) === "signedOut", "signed out, on the next page");
+  await moment();
+  assert.equal(html().getAttribute(STOPPED_ATTR), "stopped");
+  assert.match(text(next.slots.settings, ".desk-sync__line"), /^You’ve been signed out\./);
+  assert.equal(next.slots.settings.querySelector(".desk-sync__again").hidden, false);
+  assert.equal(bar.shown.length, 1);
+  db.close();
+});
+
+test("a stop that still stands a day later is said again", async () => {
+  const { service, bar, clock, env, mine, connector } = await linkedPage();
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => bar.shown.length === 1, "the notice");
+  bar.up = false; // the reader closed it
+
+  clock.at += TELL_AGAIN_MS - 60_000;
+  let next = await reopen(env);
+  await until(() => state(next.connector) === "signedOut", "signed out");
+  await moment();
+  assert.equal(bar.shown.length, 1, "not within the day");
+
+  clock.at += 2 * 60_000;
+  next = await reopen(env);
+  await until(() => bar.shown.length === 2, "the notice, a day on");
+});
+
+test("“Reconnect” on the notice is answered, whatever comes of it, and signing in again clears the stop", async () => {
+  const { service, bar, mine, connector, slots } = await linkedPage();
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => bar.shown.length === 1, "the notice");
+
+  // Pressed while still signed out: the same answer, said again rather than a bar that just closes.
+  await bar.press();
+  await until(() => bar.shown.length === 2, "the notice again, as the answer");
+  assert.match(bar.shown[1].message, /^You’ve been signed out\./);
+
+  // Signed in again (what the account pages will do): the stop is over everywhere it was said.
+  await connector.setSession(service.signIn("reader"));
+  await until(() => state(connector) === "upToDate", "in step");
+  await until(() => !html().hasAttribute(STOPPED_ATTR), "the dot gone");
+  assert.equal(document.querySelector(".desk-tab").hasAttribute("aria-description"), false);
+  assert.equal(bar.up, false, "the notice came down");
+  assert.equal(text(slots.settings, ".desk-sync__line"), "Your notebook is in sync.");
+  const db = await openSyncDb();
+  await until(async () => (await db.get("told")) === undefined, "what was told forgotten");
+  db.close();
+});
+
+test("a press on the notice that mends it says so", async () => {
+  const { service, bar, connector } = await linkedPage();
+  // The account's notebook is replaced: a stop, said; then (for the test) the service is as it was.
+  const account = service.account("reader");
+  const kept = { notebook: account.notebook };
+  account.notebook = "00000000-0000-4000-8000-000000000000";
+  await connector.syncNow();
+  await until(() => bar.shown.length === 1, "the notice");
+  assert.equal(state(connector), "otherNotebook");
+  assert.match(bar.shown[0].message, /^Your account’s notebook was replaced/);
+  assert.match(bar.shown[0].message, /nothing in it was changed\./);
+
+  account.notebook = kept.notebook;
+  await bar.press();
+  await until(() => bar.notices.length === 1, "the answer to the press");
+  assert.equal(bar.notices[0], "Your notebook is in sync.");
+});
+
+test("the notice waits its turn: never over a tour, another notice, or a sheet's page", async () => {
+  const { service, timers, bar, mine, connector } = await linkedPage();
+  html().setAttribute("data-desk-tour", "");
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => timers.waiting().includes(5000), "the notice waiting");
+  assert.equal(bar.shown.length, 0);
+  assert.equal(html().getAttribute(STOPPED_ATTR), "stopped", "the dot doesn't wait");
+
+  // Still in the tour, and then another notice is up: it keeps waiting.
+  await timers.fire((ms) => ms === 5000);
+  await until(() => timers.waiting().includes(5000), "still waiting");
+  html().removeAttribute("data-desk-tour");
+  bar.up = true;
+  await timers.fire((ms) => ms === 5000);
+  await until(() => timers.waiting().includes(5000), "waiting for the other notice");
+  assert.equal(bar.shown.length, 0);
+
+  bar.up = false;
+  await timers.fire((ms) => ms === 5000);
+  await until(() => bar.shown.length === 1, "the notice, in its turn");
+});
+
+test("on a sheet's own page the notice never comes up, and the next page says it", async () => {
+  const { service, timers, bar, env, mine, connector } = await linkedPage();
+  const sheet = document.createElement("div");
+  sheet.setAttribute("data-sheet-page", "");
+  document.body.append(sheet);
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => timers.waiting().includes(5000), "the notice waiting");
+  for (let i = 0; i < 30; i++) await timers.fire((ms) => ms === 5000);
+  await moment();
+  assert.equal(bar.shown.length, 0, "present mode is never interrupted");
+  const db = await openSyncDb();
+  assert.equal(await db.get("told"), undefined, "and it isn't counted as said");
+  db.close();
+
+  await reopen(env);
+  await until(() => bar.shown.length === 1, "the notice, on the next page");
+});

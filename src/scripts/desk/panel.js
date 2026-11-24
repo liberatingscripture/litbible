@@ -57,6 +57,7 @@ import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 import { deskPlaceHref } from "../../lib/desk-passage.mjs";
 import { DESK_STAGE } from "../../lib/desk-first-use.mjs";
+import { SLOT_EVENT } from "../../lib/desk-sync-link.mjs";
 import { escapeHtml } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
 import { setTip } from "../tip.js";
@@ -182,6 +183,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       <p class="desk-panel__page"><a href="/notebook/">My Notebook</a> · <a href="/sheets/">My sheets</a> · <a href="/collections/">My collections</a></p>
       <p class="desk-panel__kept"></p>
       <p class="desk-panel__persist" hidden></p>
+      <div data-desk-sync-slot hidden></div>
     </section>
     <section class="desk-panel__group desk-panel__group--help" aria-labelledby="deskSettingsHelp">
       <h3 class="desk-panel__group-title" id="deskSettingsHelp">Help</h3>
@@ -536,7 +538,13 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       if (on && focus) b.focus();
     }
     for (const [tid, t] of tabs) t.body.hidden = tid !== id;
-    if (id === "settings") renderPersistence();
+    if (id === "settings") {
+      renderPersistence();
+      // The synced notebook's status line lives here in a browser linked to an
+      // account (sync/status-line.js, which no other browser loads); everywhere
+      // else the slot stays empty and hidden, and nothing hears this.
+      document.dispatchEvent(new CustomEvent(SLOT_EVENT));
+    }
     if (remember) {
       try { localStorage.setItem(TAB_KEY, id); } catch (_) {}
     }

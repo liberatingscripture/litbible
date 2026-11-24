@@ -30,8 +30,11 @@
   #    concluding it is missing (a 2026-07-16 audit and a 2026-07-27 recheck
   #    both drew the wrong conclusion this way). The GiveLively payment step (Stripe/PayPal
   #    card fields) was never exercised with a console open, so its origins
-  #    may be missing here — harmless in report-only.
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://sibforms.com https://*.sibforms.com https://cloudflareinsights.com https://secure.givelively.org; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'
+  #    may be missing here — harmless in report-only. The two notebook.*
+  #    origins are the Study Desk's sync service and its preview (step 4g):
+  #    a fetch target only, and only from a browser linked to an account,
+  #    which no reader can be until the account pages exist.
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://sibforms.com https://*.sibforms.com https://cloudflareinsights.com https://secure.givelively.org https://notebook.litbible.net https://notebook-preview.litbible.net; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'
   # Agent discovery (RFC 8288) — advertise the API catalog and machine-readable docs.
   Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"
   Link: </llms-full.txt>; rel="service-doc"; type="text/plain"

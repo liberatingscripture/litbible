@@ -42,6 +42,7 @@ import { createTrashList } from "./trash-list.js";
 import { mountWhatsNew } from "./whats-new.js";
 import { planWrite, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { TRASH_DAYS } from "../../lib/desk-records.mjs";
+import { SLOT_EVENT } from "../../lib/desk-sync-link.mjs";
 import { el } from "./dom.js";
 import { plural } from "./desk-text.js";
 
@@ -104,6 +105,7 @@ async function start() {
 
   root.innerHTML = `
     <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you back it up.</p>
+    <div data-desk-sync-slot hidden></div>
     <nav class="desk-np__jump" aria-label="On this page">
       <a href="#continue">Continue reading</a>
       <a href="#kept">My Notes</a>
@@ -170,6 +172,9 @@ async function start() {
       </div>
     </section>
     <p class="sr-only" role="status" data-np-status></p>`;
+  // The synced notebook's status line takes its slot, in a browser linked to an
+  // account (sync/status-line.js); nothing hears this anywhere else.
+  document.dispatchEvent(new CustomEvent(SLOT_EVENT));
 
   const q = (sel) => root.querySelector(sel);
   const kept = createKeptList({ store, ctx });

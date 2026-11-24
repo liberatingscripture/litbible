@@ -218,6 +218,28 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       for (const s of sessions.values()) if (s.account === name) Object.assign(s, { device: null, openKid: 0 });
     },
 
+    /** Every request that came through `fetch` below, as { url, init }: what the browser's carrier sent. */
+    fetched: [],
+    /**
+     * A `fetch` for the connector's own carrier (src/scripts/desk/sync/service.js):
+     * the same service, reached as HTTP. No connection is a TypeError, as a
+     * browser's is.
+     */
+    async fetch(url, init = {}) {
+      service.fetched.push({ url, init });
+      const { pathname, search } = new URL(url);
+      const token = /^Bearer (.+)$/.exec(init.headers?.Authorization ?? "")?.[1] ?? null;
+      let answered;
+      try {
+        answered = await service.api(token).call(init.method ?? "GET", pathname + search, init.body === undefined ? undefined : JSON.parse(init.body));
+      } catch (err) {
+        if (err instanceof Offline) throw new TypeError("Failed to fetch");
+        throw err;
+      }
+      const text = JSON.stringify(answered.body);
+      return { status: answered.status, ok: answered.status < 300, text: async () => text };
+    },
+
     /** An `api` for the engine: call(method, path, body) → { status, body }. */
     api(getToken) {
       return {

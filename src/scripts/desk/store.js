@@ -53,6 +53,7 @@ import {
 } from "../../lib/desk-store-core.mjs";
 import { isNoop, makeEntry } from "../../lib/desk-history.mjs";
 import { migrateRecord } from "../../lib/desk-records.mjs";
+import { SYNC_META, readLink } from "../../lib/desk-sync-link.mjs";
 
 export const DB_NAME = "lit-desk";
 const DB_VERSION = 1;
@@ -533,6 +534,28 @@ export async function openStore({ ctx }) {
   // Read and written together, so a restore in another tab meanwhile isn't
   // answered with an emptied trash record beside the record it brought back.
   await apply(async ({ all }) => planPurge(await all(), new Date().toISOString()), { record: false });
+
+  // The synced notebook (the plan's step 4g). A browser linked to an account
+  // holds one meta value saying so (src/lib/desk-sync-link.mjs), and only
+  // then is the connector downloaded: the loop, the encryption and the status
+  // line are in no other reader's page. Not waited for, so a notebook opens
+  // as fast linked as not, and a connector that fails to start costs the
+  // reader nothing but the sync, which says so in the console.
+  let syncLoaded = false;
+  const followLink = async () => {
+    const linked = readLink(await getMeta(SYNC_META)) != null;
+    // With no link there is nothing to load, unless a connector is running here and has to stop.
+    if (!linked && !syncLoaded) return;
+    const { startSync } = await import("./sync/start.js");
+    syncLoaded = true;
+    await startSync({ store });
+  };
+  const followLinkSafely = () => followLink().catch((err) => console.error("Study Desk: syncing didn’t start", err));
+  // Linked or unlinked from here on, in this tab (the account pages) or another.
+  metaListeners.add((key) => {
+    if (key === SYNC_META) followLinkSafely();
+  });
+  followLinkSafely();
 
   return store;
 }
