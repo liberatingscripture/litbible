@@ -46,7 +46,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `scripts/CLAUDE.md` | The build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
 | `scripts/alignment-review/CLAUDE.md`, `scripts/alignment-words/CLAUDE.md` | Pointers to the alignment file |
-| `public/CLAUDE.md` | `_headers`, the CSP, the agent discovery files |
+| `public/CLAUDE.md` | `_headers`, the CSP, the agent discovery files, the apps' link files |
 | `workers/CLAUDE.md` | The contact and app-support form Worker; the notebook service (the Study Desk's sync Worker with D1), its preview and its tests; the wrangler pin both share |
 | `.github/CLAUDE.md` | Dependabot's configuration |
 

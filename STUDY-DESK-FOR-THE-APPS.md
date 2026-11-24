@@ -141,8 +141,157 @@ because nothing carried them there. This file is what carries them now.
     3. **The proposal**: under sync, the row the service holds wins an
        exact tie in `modified` against a device's own copy. Say here if
        the apps settle such a tie another way, or would rather.
+12. **BDR, what the service needs from your Apple and Google accounts
+    before either sign-in can be turned on** (asked 2026-11-24 with
+    sign-in, the first entry below; the spec's “Still open,” 41). Both
+    are built and off, and nothing was guessed. Please write the
+    identifiers here. **The one secret, Apple's key, never goes into
+    this file, a pull request, or a conversation with an assistant**:
+    send the `.p8` file to BVJ privately, and BVJ types it at Wrangler's
+    own prompt.
+    - **Apple.** (a) Each client id an identity token will be issued
+      to: the iOS app's bundle id, and a Services ID if the website or
+      the Android app will offer Sign in with Apple. (b) The team id.
+      (c) The key id of a key with Sign in with Apple enabled. (d) If a
+      web flow is planned, the return address registered for the
+      Services ID. The site's `apple-app-site-association` names
+      `9KL9F7A3CR.com.litbible.app`, which suggests answers to (a) and
+      (b); they were not assumed, so please confirm them.
+    - **Google** (the project is yours, ask 3). Each OAuth client id a
+      token will be issued to: the one the Android app gives Credential
+      Manager as its server client id, the iOS app's, and the
+      website's.
+    - **Passkeys on Android.** `assetlinks.json` lists two signing
+      certificates, and the service accepts a passkey from the Android
+      app signed by either. Which is the Play signing key and which the
+      upload key? And does any other build need to use a passkey (a
+      debug or internal build)? Its certificate would have to go into
+      `assetlinks.json` and into the service's list together.
+13. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
+    first entry below): `STUDY-DESK-ENCRYPTION.md`, “Still open,” 41 to
+    58. Every one was the website's Claude's. **BVJ has said yes to
+    thirteen** (2026-11-24), so those are BVJ's calls and wait on BDR
+    alone: 42, 43, 44, 46, 47, 49, 50 (every passkey is named “LIT
+    Bible notebook,” under “LIT Bible”), 52 (how long a session lasts),
+    54, 55 (accounts are not joined in version 1), 56, 57, and 58.
+    **Four BVJ left to you to answer** (2026-11-24: “ask BDR”): 41 (ask
+    12 above), 45 (a passkey's options and response travel in the
+    standard's JSON forms, which an iOS app builds by hand), 48 (each
+    SDK must send the service's challenge to Apple or Google unchanged,
+    as the nonce), and 53 (the words of the new refusals). Each is
+    what the service does today and has a test, and each is cheap to
+    change before the freeze. Answer by number here. **Most of all**:
+    45 and 48; in 42, that a passkey used from the iOS app answers
+    from `https://litbible.net`; and 52 (how long a session lasts).
+    **And one BVJ asks your view on before deciding: 51.** Some
+    passkeys count their uses (security keys, and passkeys kept on one
+    device, like Windows Hello), and as built the service refuses a
+    sign-in whose count didn't go up, since that is what a copied
+    security key looks like. BVJ leans toward letting it through
+    instead (2026-11-24: “I think no”). The case for that: a false
+    alarm, such as a count rolled back when a device is restored,
+    shuts a reader out of that passkey until its count passes the one
+    the service holds; they can mend it only by signing in another way
+    and adding the passkey again; and a passkey that counts doesn't
+    sync, as far as the vendors' pages say, so it never holds the key,
+    and a copy that signs in still can't open the notebook. The case
+    for refusing: it is the only sign of a copied key the service ever
+    gets. **What do you think, and has either app met a passkey whose
+    count went backward?** The service refuses until this is decided.
 
 ## The list
+
+### 2026-11-24, sign-in is built on the service (step 4e)
+
+**First, two live files changed: the link files the released apps
+read.** `public/.well-known/apple-app-site-association` has a new
+`webcredentials` section naming `9KL9F7A3CR.com.litbible.app`, the one
+app its `applinks` section already named. `assetlinks.json` has
+`delegate_permission/common.get_login_creds` beside
+`delegate_permission/common.handle_all_urls` in its one statement.
+Nothing else in either file moved: every path, the package name, and
+both certificates are as they were, and a test now holds both files'
+shape (`test/link-files.test.js`). Both forms are the ones Apple's and
+Android's own pages show. **BDR, please look at both files once this
+merges**, and say at once if a universal link or an app link stops
+opening the app. The apps' half is yours: the
+`webcredentials:litbible.net` associated domain on iOS, and Credential
+Manager on Android.
+
+**Sign-in exists on the service.** A passkey with `litbible.net` as the
+relying party signs in on the preview once this merges. Sign in with
+Apple and with Google are built and **off**, waiting on ask 12 above.
+The full text is `STUDY-DESK-ENCRYPTION.md`, “The service's interface,”
+“Signing in” and “Ways to sign in,” with what moved under “Changed in
+step 4e.”
+
+- **Nothing you call today changed.** The preview's way in
+  (`POST /preview/session`, `POST /preview/passkeys`) works exactly as
+  before and stays, and no request that step 4c built changed its path,
+  its body, or its answer. Two things behave differently: an open
+  session is now kept alive by use (below), and a way to sign in can be
+  added to or removed from an account, which moves the lists' version.
+- **`GET /sign-in`** says which ways to sign in a deployment has on. The
+  preview answers `{ "ways": ["passkey"] }`. A way that is off answers
+  `not_found` on its own paths.
+- **A passkey, in four calls.** `POST /sign-in/new-passkey/options`
+  answers the options for making one; the client adds the `prf`
+  extension with the fixed input, makes the passkey, **takes
+  `clientExtensionResults.prf.results` out**, and sends the rest to
+  `POST /sign-in/new-passkey`, which makes the account and answers a
+  session token. Signing in later is `POST /sign-in/passkey/options`
+  and `POST /sign-in/passkey`. From there everything is as it was: the
+  token goes in `Authorization: Bearer`, and the notebook is opened by
+  the key proof or by joining.
+- **Options and responses are the standard's JSON forms** (what a
+  browser's `toJSON()` makes, and what Credential Manager hands an
+  Android app as text). An iOS app builds the response's JSON from the
+  parts AuthenticationServices gives it: `id`, `type`, and in
+  `response` the `clientDataJSON`, `authenticatorData`, `signature`,
+  and `userHandle` (or `clientDataJSON` and `attestationObject` for a
+  new passkey), each base64url.
+- **A response that still carries the PRF's output is refused**
+  (`not_allowed`, rule `prf_results`), before anything else is read.
+  That is the spec's rule since draft 2, now enforced.
+- **Where a passkey's answer may come from.** The website's origin,
+  which is also what a passkey used from an iOS app answers with; and
+  the Android app, by the two certificates in `assetlinks.json`. Any
+  other origin is `passkey_refused` with `reason: "origin"`.
+- **Apple and Google, when they are on.** `POST /sign-in/challenge`
+  answers a challenge; the client gives it to the provider's SDK **as
+  the nonce, unchanged**; the identity token that comes back goes to
+  `POST /sign-in/apple` (with Apple's authorization code) or
+  `POST /sign-in/google`. The service keeps the provider's id for the
+  account and nothing else: no name, no email address.
+- **Several ways in**: `POST /ways/passkey/options`,
+  `POST /ways/passkey`, `POST /ways/apple`, `POST /ways/google`, and
+  `DELETE /ways/<id>`. Once an account has a notebook each needs an
+  open session. The last way in can't be removed, and a passkey that
+  holds the key is removed as a holder first.
+- **Sessions.** Thirty days from a sign-in, as before. **An open
+  session is now kept alive by use**, up to a year from its sign-in, so
+  a device that syncs is not signed out monthly; one that is signed in
+  and no more is never extended. `DELETE /session` signs out a device
+  that never joined. This was the website's Claude's choice, and **BVJ
+  said yes to it on 2026-11-24** (the spec's 52). It is for BDR to
+  confirm.
+- **Three new refusals** to switch on: `passkey_refused` and
+  `token_refused` (403, each with a `reason` for your log), and
+  `provider` (502: Apple or Google couldn't be reached; try again
+  later). `gone` may now say `what: "challenge"`: ask for new options
+  and start the sign-in again.
+- **Not tested, and said plainly.** No identity token from Apple or
+  Google has met this code, and no call has reached Apple: both were
+  tested against stand-ins written from the providers' documentation.
+  No real device's passkey has met it either: the tests use a software
+  authenticator and the examples the WebAuthn standard publishes. The
+  first real sign-in of each kind, against the preview, is the test
+  that is still owed, and it needs the apps.
+- **A passkey you make against the preview is a real `litbible.net`
+  passkey** in your password manager. After a wipe it signs in to
+  nothing; delete it there.
+- **Eighteen choices are yours to confirm**: the spec's “Still open,” 41
+  to 58 (asks 12 and 13 above).
 
 ### 2026-11-24, the freeze work on the website's side (step 4d)
 

@@ -34,11 +34,15 @@ export async function signIn(account) {
   return (await must("POST", "/preview/session", { body: { secret: SECRET, account } })).token;
 }
 
-/** A device that has joined nothing yet: a session, an id, and its two key pairs. */
-export async function newDevice(account, { name = "Test device", platform = "web" } = {}) {
+/**
+ * A device that has joined nothing yet: a session, an id, and its two key
+ * pairs. The session is the preview's for the test account of that name, or
+ * `token` when the test signed in some real way (a passkey, Apple, Google).
+ */
+export async function newDevice(account, { name = "Test device", platform = "web", token } = {}) {
   return {
     account,
-    token: await signIn(account),
+    token: token ?? (await signIn(account)),
     id: ref.newId(),
     key: await ref.generateKeyPair(),
     sign: (await ref.generateSigningKey()).public,
@@ -85,9 +89,11 @@ export const entryFor = async (device, held) => ({
  * A holder, made as a device makes one: a key pair, its record sealed under
  * the secret, its card, and the keyring sealed to it. `kind` is "recovery"
  * (the secret is a recovery code) or "passkey" (a PRF output, with a made-up
- * credential id). `wire` is the holder as a request carries it.
+ * credential id, or a real `passkey` from test/authenticator.js, whose
+ * credential id and PRF secret are then the holder's). `wire` is the holder
+ * as a request carries it.
  */
-export async function makeHolder(held, kind) {
+export async function makeHolder(held, kind, passkey) {
   const id = ref.newId();
   const key = await ref.generateKeyPair();
   const kid = held.current;
@@ -97,8 +103,8 @@ export async function makeHolder(held, kind) {
     made.code = ref.randomBytes(15);
     made.secretKey = await ref.codeKey(made.code);
   } else {
-    made.prf = ref.randomBytes(32);
-    credential = ref.randomBytes(20);
+    made.prf = passkey ? passkey.prf : ref.randomBytes(32);
+    credential = passkey ? passkey.credentialId : ref.randomBytes(20);
     made.credentialBytes = credential;
     made.credential = b64(credential);
     made.secretKey = await ref.passkeyKey(made.prf);

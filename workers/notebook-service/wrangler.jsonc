@@ -39,7 +39,29 @@
         // The preview's way in (src/preview.js). Production never sets this.
         "PREVIEW_SIGN_IN": "on",
         // Origins the website's connector may call from: the site, and `npm run dev`.
-        "ALLOWED_ORIGINS": "https://litbible.net,http://localhost:4321"
+        "ALLOWED_ORIGINS": "https://litbible.net,http://localhost:4321",
+
+        // Passkeys (src/passkey-form.js). The relying party is the site itself,
+        // so one passkey works on the website and in both apps.
+        "PASSKEY_RP_ID": "litbible.net",
+        // Where a passkey's answer may come from. The website's origin, which
+        // is also what an iOS app answers with; then the Android app, as
+        // Android names it: android:apk-key-hash: and the base64url of a
+        // signing certificate's SHA-256. The two here are the two fingerprints
+        // public/.well-known/assetlinks.json already lists for
+        // com.litbible.app, re-spelled (README, "Passkeys"). Not secrets.
+        "PASSKEY_ORIGINS": "https://litbible.net,android:apk-key-hash:i0jYJmPpHB9l29QmwXak-oP4_MisDdoXizByqeH510k,android:apk-key-hash:1fwRSSnQjSYWhPzTsioZe2Wjm838nZnc6GVT8PMwlEU",
+        // The preview only: the website's dev server, where a browser makes
+        // the RP ID "localhost". Production never sets this, and the service
+        // reads it only where ENVIRONMENT is "preview".
+        "PASSKEY_LOCAL_ORIGINS": "http://localhost:4321"
+
+        // Sign in with Apple and with Google are OFF: no client id is set
+        // here, and none is guessed. They come from BDR's Apple developer
+        // account and Google Cloud project (README, "Apple and Google").
+        //   APPLE_CLIENT_IDS, APPLE_TEAM_ID, APPLE_KEY_ID   variables
+        //   APPLE_PRIVATE_KEY                               a Wrangler secret
+        //   GOOGLE_CLIENT_IDS                               a variable
       },
       "d1_databases": [
         {

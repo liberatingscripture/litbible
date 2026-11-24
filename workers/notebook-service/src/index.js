@@ -18,15 +18,31 @@ import { postNotebookKey } from "./key.js";
 import { getRows, postRows } from "./rows.js";
 import { getApproval, postAccept, postApprovals, postGrant } from "./approvals.js";
 import { previewOn, previewPasskey, previewSession } from "./preview.js";
+import { deleteSession } from "./session.js";
+import { appleOn, googleOn } from "./providers.js";
+import { passkeysOn } from "./passkey-form.js";
+import {
+  getSignIn,
+  postAppleSignIn,
+  postChallenge,
+  postGoogleSignIn,
+  postNewPasskey,
+  postNewPasskeyOptions,
+  postPasskeyOptions,
+  postPasskeySignIn,
+} from "./signin.js";
+import { deleteWay, postWayApple, postWayGoogle, postWayPasskey, postWayPasskeyOptions } from "./ways.js";
 
 /** The interface's version: the `/1` of the spec's labels. */
 const INTERFACE = 1;
 
-// Step 4e adds sign-in here ("Ways to sign in"); step 4f adds DELETE /account,
-// POST /notebook/replace, and DELETE /waiting ("Waiting seven days"). Neither
-// changes a line below.
+// Step 4f adds DELETE /account, POST /notebook/replace, and DELETE /waiting
+// ("Waiting seven days"). It changes no line below.
 const ROUTES = [
   ["GET", "/", root],
+  ["GET", "/sign-in", getSignIn],
+  ["DELETE", "/session", deleteSession],
+  ["DELETE", "/ways/:id", deleteWay],
   ["GET", "/account", getAccount],
   ["POST", "/session/proof", postProof],
   ["POST", "/notebook", postNotebook],
@@ -51,6 +67,43 @@ const PREVIEW_ROUTES = [
   ["POST", "/preview/session", previewSession],
   ["POST", "/preview/passkeys", previewPasskey],
 ];
+
+// Sign-in, one way at a time. Each group is routed only where the deployment
+// configures that way (src/passkey-form.js, src/providers.js); where it
+// doesn't, its paths answer "not_found" as a path never written does.
+// GET /sign-in says which are on.
+const PASSKEY_ROUTES = [
+  ["POST", "/sign-in/passkey/options", postPasskeyOptions],
+  ["POST", "/sign-in/passkey", postPasskeySignIn],
+  ["POST", "/sign-in/new-passkey/options", postNewPasskeyOptions],
+  ["POST", "/sign-in/new-passkey", postNewPasskey],
+  ["POST", "/ways/passkey/options", postWayPasskeyOptions],
+  ["POST", "/ways/passkey", postWayPasskey],
+];
+const APPLE_ROUTES = [
+  ["POST", "/sign-in/apple", postAppleSignIn],
+  ["POST", "/ways/apple", postWayApple],
+];
+const GOOGLE_ROUTES = [
+  ["POST", "/sign-in/google", postGoogleSignIn],
+  ["POST", "/ways/google", postWayGoogle],
+];
+/** Apple and Google both answer a challenge, so it is routed where either is on. */
+const CHALLENGE_ROUTES = [["POST", "/sign-in/challenge", postChallenge]];
+
+/** Every route this deployment answers. */
+function routesFor(env) {
+  const apple = appleOn(env);
+  const google = googleOn(env);
+  return [
+    ...ROUTES,
+    ...(previewOn(env) ? PREVIEW_ROUTES : []),
+    ...(passkeysOn(env) ? PASSKEY_ROUTES : []),
+    ...(apple || google ? CHALLENGE_ROUTES : []),
+    ...(apple ? APPLE_ROUTES : []),
+    ...(google ? GOOGLE_ROUTES : []),
+  ];
+}
 
 function root({ env }) {
   return answer({ service: "lit-notebook", interface: INTERFACE, preview: previewOn(env) });
@@ -114,8 +167,7 @@ export default {
     }
 
     const path = url.pathname.length > 1 && url.pathname.endsWith("/") ? url.pathname.slice(0, -1) : url.pathname;
-    const routes = previewOn(env) ? [...ROUTES, ...PREVIEW_ROUTES] : ROUTES;
-    const route = match(routes, request.method, path);
+    const route = match(routesFor(env), request.method, path);
     let response;
     let word;
     try {

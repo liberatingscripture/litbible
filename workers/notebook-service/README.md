@@ -12,11 +12,14 @@ answer, every size, and the word of every refusal is a row of that section,
 and each check has a test. Read that section before changing anything in
 `src/`; change the two together.
 
-This is step 4c of the plan in `STUDY-DESK.md` ("Order of work," 4). **What it
-is today: the whole interface but sign-in and the seven-day requests, under
+This is steps 4c and 4e of the plan in `STUDY-DESK.md` ("Order of work," 4).
+**What it is today: the whole interface but the seven-day requests, under
 test, and deployed as a preview at `https://notebook-preview.litbible.net`
-(since 2026-11-23, test data only).** It has no production deployment, and
-nothing in the website imports it (the website's connector is step 4g).
+(since 2026-11-23, test data only).** A passkey signs in (step 4e,
+2026-11-24). Sign in with Apple and with Google are built and off, and have
+never met either provider ("Apple and Google" below). It has no production
+deployment, and nothing in the website imports it (the website's connector
+is step 4g).
 
 ## What is here
 
@@ -25,7 +28,14 @@ src/index.js       routes, CORS, and the one log line a request leaves
 src/http.js        answers, refusals and their words, reading a body
 src/check.js       the form and size of every value, and the limits (LIMITS)
 src/db.js          "checked and written as one step" on D1 (guard, commit, transact)
-src/session.js     the three kinds of session, the key proof, createSession()
+src/session.js     the three kinds of session, how long one lasts, the key proof, createSession()
+src/signin.js      signing in: challenges, a passkey, Apple, Google
+src/ways.js        several ways in to one account: adding one, removing one
+src/passkey-form.js  a passkey's options and response as JSON, the accepted origins, the PRF rule
+src/webauthn.js    checking a passkey's answer (WebAuthn 7.1 and 7.2), bytes in and a verdict out
+src/cbor.js        the small CBOR reader webauthn.js needs
+src/providers.js   Apple's and Google's identity tokens, and the two calls to Apple
+src/jwt.js         RS256 tokens against a provider's published keys; the token Apple asks us to sign
 src/account.js     GET /account, POST /session/proof, POST /notebook
 src/devices.js     the device and holder lists
 src/key.js         POST /notebook/key, the change of key
@@ -56,9 +66,19 @@ deliberately empty of bindings until step 4f; `env.preview` is the preview.
 | `PREVIEW_SIGN_IN` | variable | `on` on the preview, and set nowhere else |
 | `ALLOWED_ORIGINS` | variable | The origins a browser may call from, comma separated (the website, and its dev server) |
 | `PREVIEW_SECRET` | Wrangler secret | What `POST /preview/session` asks for. At least 32 characters. The preview only, never production |
+| `PASSKEY_RP_ID` | variable | The relying party passkeys are made for: `litbible.net`. Passkeys are on where this and the next are set |
+| `PASSKEY_ORIGINS` | variable | Where a passkey's answer may come from, comma separated: the website's origin, and each Android signing certificate as `android:apk-key-hash:…` ("Passkeys" below) |
+| `PASSKEY_LOCAL_ORIGINS` | variable | The preview only: the website's dev server (`http://localhost:4321`), with the relying party `localhost`. Read only where `ENVIRONMENT` is `preview`; production never sets it |
+| `GOOGLE_CLIENT_IDS` | variable, **not set** | The OAuth client ids a Google identity token may be issued to, comma separated. Sign in with Google is off until it is set |
+| `APPLE_CLIENT_IDS` | variable, **not set** | The client ids an Apple identity token may be issued to (a bundle id, a Services ID), comma separated |
+| `APPLE_TEAM_ID`, `APPLE_KEY_ID` | variables, **not set** | The Apple developer team, and the id of its Sign in with Apple key |
+| `APPLE_PRIVATE_KEY` | Wrangler secret, **not set** | That key, the text of the `.p8` file. Sign in with Apple is off until all four of Apple's are set |
 
 No value of a secret is written in this repository, in a pull request, or in a
 conversation with an assistant. `DISASTER-RECOVERY.md` records names only.
+**No identifier of Apple's or Google's is written here either**: they come
+from BDR's Apple developer account and Google Cloud project, and none was
+guessed.
 
 ## Run it locally
 
@@ -106,8 +126,23 @@ against a local D1 made from the real migrations.
 - `sessions`, `account`, `setup`, `devices`, `key`, `rows`, `approvals`: one
   test for each check in the interface's tables, each built from a request
   that would be accepted with one thing changed.
+- `sign-in.test.js`: sign-in as a reader lives it. An account made with a
+  passkey, the same passkey opening the notebook on a second device, a
+  second way in, Apple, and Google, each a whole flow.
+- `passkeys.test.js`, `providers.test.js`, `ways.test.js`: one test for each
+  check of the sign-in and ways-in requests. The passkeys are made and used
+  by a software authenticator (`test/authenticator.js`); Apple and Google
+  are stood in for by a provider with real keys that signs real tokens
+  (`test/idp.js`), and `fetch` is replaced for the length of a test.
+- `webauthn.test.js`: the passkey-checking code against the examples the
+  WebAuthn standard itself publishes (`test/fixtures/w3c-webauthn-vectors.json`,
+  copied from Level 3, section 16), so it is not only checked against an
+  authenticator written beside it.
+- `sign-in-races.test.js`: sign-in and ways in where two requests meet, and
+  how long a session lasts.
 - `http.test.js`: the time on every answer, bodies, CORS, and that no token,
-  proof, id, or body reaches a log.
+  proof, id, body, challenge, credential, identity token, or code reaches a
+  log.
 - `preview.test.js`: the preview's way in answers "not found" unless the
   environment turns it on.
 - `races.test.js`: "checked and written as one step." Each test pauses one
@@ -117,7 +152,14 @@ against a local D1 made from the real migrations.
 **What the tests can't show**: anything about the real D1 over a network. That
 is what the walkthrough is for, after a deploy. Its last step pushes a row of
 the largest size the format allows and reads it back, which only a deployed
-database can prove.
+database can prove. **Nor anything about a real passkey, a real Apple or
+Google token, or Apple's real answers**: see "Passkeys" and "Apple and
+Google" for what is owed there.
+
+One test outside this package belongs to it: the root's
+`test/link-files.test.js` holds the shape of the site's two link files and
+fails if `PASSKEY_ORIGINS` in `wrangler.jsonc` and the certificates in
+`public/.well-known/assetlinks.json` ever differ.
 
 ## The preview
 
@@ -249,9 +291,11 @@ when the preview is wiped: every test account and session goes with it.
 
 ### How an app gets a session
 
-Real sign-in is step 4e. Until then the preview hands a session for a named
-test account to whoever holds the preview's secret (`src/preview.js`;
-`STUDY-DESK-ENCRYPTION.md`, "The preview's way in").
+A passkey signs in on the preview ("Passkeys" below). The preview's own way
+in stays beside it, unchanged by step 4e, because a client under test needs
+accounts without a ceremony and Apple and Google are off: the preview hands a
+session for a named test account to whoever holds the preview's secret
+(`src/preview.js`; `STUDY-DESK-ENCRYPTION.md`, "The preview's way in").
 
 1. BVJ gives BDR the secret privately (a password manager's share, say). It
    goes into an ignored local file or a build setting on BDR's machine, the
@@ -265,9 +309,10 @@ test account to whoever holds the preview's secret (`src/preview.js`;
    test share a notebook by sharing a name, and a new name is a new, empty
    account.
 3. Every other request sends `Authorization: Bearer <token>`.
-4. To try a passkey holder before a real passkey can be registered,
+4. To try a passkey holder without a real passkey,
    `POST /preview/passkeys` with `{ "credential": "<base64url>", "syncs": true }`
-   lists one as a way in, with no ceremony.
+   lists one as a way in, with no ceremony. A passkey listed this way has no
+   public key and can sign no one in.
 
 An app's session can also run the whole service on its own machine, with no
 account and no secret from anyone ("Run it locally"). An Android emulator
@@ -281,6 +326,90 @@ allow-list, so an environment nobody named is off); and only with a
 When any of the three is missing, both paths answer "not found" exactly as a
 path that was never written does, and `test/preview.test.js` holds it to
 that.
+
+## Passkeys
+
+The relying party is `litbible.net`, so one passkey works on the website and
+in both apps. The requests are in `STUDY-DESK-ENCRYPTION.md`, "Signing in" and
+"Ways to sign in"; this is what is particular to running them.
+
+- **The checking is written here** (`src/webauthn.js`, `src/cbor.js`), on
+  WebCrypto, with no dependency. The header of `src/webauthn.js` says why.
+  It reads ES256 and RS256, asks for no attestation, and reads no attestation
+  statement.
+- **An Android origin** is `android:apk-key-hash:` followed by the base64url,
+  with no padding, of the SHA-256 of the app's signing certificate. To spell
+  one from the colon-separated fingerprint in `assetlinks.json`:
+
+  ```bash
+  node -e "console.log('android:apk-key-hash:' + Buffer.from(process.argv[1].replaceAll(':',''),'hex').toString('base64url'))" "8B:48:…:D7:49"
+  ```
+
+  The two in `wrangler.jsonc` are the two certificates
+  `public/.well-known/assetlinks.json` lists for `com.litbible.app`, and the
+  root's `test/link-files.test.js` fails if the two files ever differ. Android
+  lets an app use a site's passkeys only if the site's `assetlinks.json` names
+  the app's certificate, so a certificate goes into both files or neither.
+- **An iOS app answers with the website's origin**, `https://litbible.net`, so
+  it needs no entry of its own. That is Apple's documented behavior and has
+  not been seen here.
+- **The site's half** is in `public/.well-known/`: `webcredentials` in
+  `apple-app-site-association` and `get_login_creds` in `assetlinks.json`,
+  added with step 4e. The apps' half (the `webcredentials:litbible.net`
+  associated domain, Credential Manager) is BDR's.
+- **From the website's dev server**, `http://localhost:4321`, a passkey works
+  against a local service or the preview with the relying party `localhost`
+  (`PASSKEY_LOCAL_ORIGINS`). It is a `localhost` passkey and signs in from
+  nowhere else.
+- **A passkey made against the preview from the site or an app is a real
+  `litbible.net` passkey** in the tester's password manager. After a wipe it
+  signs in to nothing; delete it there.
+- **Not yet seen**: any real device's passkey. The tests use a software
+  authenticator and the standard's published examples. The first passkey made
+  on a phone, a Mac, and Windows against the preview is the test still owed
+  (the spec's "Still open," 18 to 21, with the PRF's own questions).
+
+## Apple and Google
+
+**Both are built, off, and have never met their provider.** Each is routed
+only when its configuration is present, and answers "not found" until then,
+exactly as the preview's way in does where it is off. The identifiers come
+from BDR's Apple developer account and Google Cloud project
+(`STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps").
+
+**To turn one on** (BVJ's to do, since it changes the deployed service):
+
+1. Add the variables to `env.preview.vars` in `wrangler.jsonc`:
+   `GOOGLE_CLIENT_IDS` for Google; `APPLE_CLIENT_IDS`, `APPLE_TEAM_ID`, and
+   `APPLE_KEY_ID` for Apple. They are identifiers, not secrets, and go
+   through a pull request like any change.
+2. For Apple, BVJ sets the key once, typing it at Wrangler's own prompt:
+   `npx wrangler secret put APPLE_PRIVATE_KEY --env preview`, then pastes the
+   whole text of the `.p8` file, `-----BEGIN PRIVATE KEY-----` line and all.
+   Add `APPLE_PRIVATE_KEY` to `secrets.required` in `wrangler.jsonc` in the
+   same pull request, so a deploy without it fails loudly, and record its
+   name in `DISASTER-RECOVERY.md`.
+3. Merge. The workflow deploys, and `GET /sign-in` then lists the provider.
+
+**What to check the day the ids arrive**, since none of this has run against
+the real thing. Each is one sign-in against the preview from a real client:
+
+- **The token's claims**: that `iss` and `aud` are what `src/providers.js`
+  expects, and that `nonce` comes back as the exact challenge string the
+  client gave the SDK. A refusal names the claim (`token_refused`, `reason`).
+  If an SDK hashes the nonce it is given, the check for that provider changes
+  in `checkIdToken`.
+- **Apple's code**: that `POST /sign-in/apple` trades it (a first sign-in
+  answers 200 and leaves a row in `apple_tokens`), from the app and, if the
+  website will offer Apple, from a web flow with its `redirect`.
+- **Apple's revoke**: remove the Apple way in from an account that has
+  another (`DELETE /ways/<id>`), and see in the Apple ID's settings that the
+  app is gone from "Sign in with Apple."
+- **The keys**: `GET /sign-in` lists the provider, and a first sign-in
+  succeeds, which shows the provider's key set was fetched and read.
+
+What is kept from a token is `sub` and nothing else. No name and no email
+address is read, stored, or logged.
 
 ## Who can deploy and roll back
 
@@ -380,23 +509,12 @@ record each address) is turned off in `wrangler.jsonc`
 
 Nothing below changes a request that exists; each adds beside it.
 
-**Step 4e, sign-in** (Apple, Google, passkeys; "Ways to sign in"):
-- New rows in `ROUTES` (`src/index.js`). Each ceremony ends by calling
-  `createSession(env, { account, way })` (`src/session.js`), which returns
-  the same token every request already reads.
-- `ways` grows by a new migration: what each provider needs (Apple's refresh
-  token, a passkey's public key). `kind` gains `apple` and `google`. The
-  index `ways_sign_in` already keeps one such way to one account. Passkeys
-  need the same index of their own; the preview's made-up passkeys are left
-  out of it today, so that migration deals with them first.
-- **A change to an account's ways in must move the lists' version, or be made
-  in a batch guarded on it** (`src/db.js`). `POST /notebook`, `POST /holders`,
-  and `POST /notebook/key` read the account's passkeys outside their guard,
-  which is safe only because nothing can remove one today.
-- The rule that changing a way in needs an open session once there is a
-  notebook: `previewPasskey` (`src/preview.js`) shows its shape.
-- The preview's way in can stay for the apps' automated tests, or go. Either
-  way it stays off in production.
+**Step 4e, sign-in, is built** (2026-11-24). What it left:
+- **Apple and Google are off** until BDR's identifiers are configured
+  ("Apple and Google" above), and the first real sign-in with each is owed.
+- **No real passkey has met the service** ("Passkeys" above).
+- The preview's way in stays for the apps' sessions and automated tests. It
+  stays off in production.
 
 **Step 4f, the account work and production**:
 - `DELETE /account`, `POST /notebook/replace`, `DELETE /waiting` ("Waiting
@@ -408,7 +526,17 @@ Nothing below changes a request that exists; each adds beside it.
   account that never returns leaves a few rows behind.
 - Deleting an account is one statement (every table hangs from `accounts`
   and is deleted with it). Try it on a large notebook before relying on it.
-- Limits on how often a client may ask, and bot protection on sign-in.
+- Limits on how often a client may ask, and bot protection on sign-in. **The
+  sign-in requests need them most**: the three `options` requests and
+  `POST /sign-in/challenge` take no session and each writes a row to
+  `challenges`. A row lasts five minutes and is swept when the next is made,
+  so the table can't grow without bound, but nothing yet slows a client that
+  asks without end.
+- **Deleting an account must revoke Apple's tokens first**: every row of
+  `apple_tokens` for the account's ways, with `appleRevoke`
+  (`src/providers.js`), as `DELETE /ways/<id>` does for one way
+  (`src/ways.js`).
+- The scheduled handler should sweep `challenges` too.
 - Production: its own D1 database, `ENVIRONMENT` set to `production`, its
   address and `ALLOWED_ORIGINS` at the top level of `wrangler.jsonc`, and no
   `PREVIEW_` anything. A production job in the deploy workflow, with its own

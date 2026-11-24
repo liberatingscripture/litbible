@@ -156,6 +156,20 @@ by a session at BVJ's word, with BVJ typing the secret. Production is step
   above.
 - **A break pauses sync and loses nothing**, on the preview and later in
   production: every device keeps its own notebook.
+- **Sign-in (the plan's step 4e, 2026-11-24) added no resource and no
+  secret.** A passkey signs in with `litbible.net` as the relying party,
+  set by three variables in `wrangler.jsonc` (`PASSKEY_RP_ID`,
+  `PASSKEY_ORIGINS`, `PASSKEY_LOCAL_ORIGINS`), none of them a secret. It
+  leans on two files the **site** serves, `apple-app-site-association` and
+  `assetlinks.json` in `public/.well-known/`: if either stops being served
+  as it is, the apps lose their passkeys for the site along with their
+  links. **Sign in with Apple and with Google are built and off.** Turning
+  them on will add the variables `GOOGLE_CLIENT_IDS`, `APPLE_CLIENT_IDS`,
+  `APPLE_TEAM_ID`, and `APPLE_KEY_ID`, and one Worker secret,
+  `APPLE_PRIVATE_KEY` (in the secrets table below as not yet set). All of
+  those come from BDR's Apple developer account and Google Cloud project,
+  which are two more dashboards this service will then depend on: record
+  them here when they are in use.
 
 ## DNS record inventory (litbible.net zone, 2026-07-18)
 
@@ -281,8 +295,8 @@ pull `RELEASE_NOTES_PAT` first: it can write to `main` past the branch
 ruleset, where `LSC_SYNC_TOKEN` can only open issues on a public repo.
 
 **The notebook service's preview** (see "The notebook service's preview"
-above). All four have been set since 2026-11-23, when BVJ turned the
-deploy workflow on:
+above). The first four have been set since 2026-11-23, when BVJ turned the
+deploy workflow on; the fifth is not set yet:
 
 | Name | Where | What it is |
 |------|-------|------------|
@@ -290,6 +304,7 @@ deploy workflow on:
 | `CLOUDFLARE_API_TOKEN` | GitHub environment `notebook-preview` (limited to `main`) | A Cloudflare API token, named `litbible-notebook-preview-deploys` on the account's API tokens page, that can deploy and roll back Workers and run D1 migrations on this account, and nothing else (Workers Scripts, Workers Tail read, and D1 on the account; Workers Routes on the `litbible.net` zone). Never expires, like the two tokens above and for the same reason. Kill switch: Cloudflare dashboard, Account API tokens, "Roll" (then update this secret) or "Delete." Losing it stops the workflow and nothing else; deploys by hand still work. |
 | `CLOUDFLARE_ACCOUNT_ID` | the same environment | The account's ID. Not a secret in itself; kept beside the token. |
 | `NOTEBOOK_PREVIEW_SECRET` | the same environment, optional | The same value as `PREVIEW_SECRET`, so that a deploy can run its own check against the preview. Change the two together. |
+| `APPLE_PRIVATE_KEY` | Worker secret, **not yet set** (2026-11-24) | The Sign in with Apple key from BDR's Apple developer account: the whole text of its `.p8` file. Sign in with Apple stays off until it and its three variables are set (the service's README, "Apple and Google"). When it is: BVJ types it at Wrangler's own prompt, `npx wrangler secret put APPLE_PRIVATE_KEY --env preview`. The service uses it to sign the short-lived token Apple asks for when it trades a sign-in's code or revokes a refresh token, and for nothing else. If it leaks: revoke the key in the Apple developer account (Certificates, Identifiers & Profiles, Keys), make a new one, and set the new key and its `APPLE_KEY_ID`. Apple lets a key be downloaded once, so a lost file means a new key. |
 
 The workflow is switched by two repository **variables** (not secrets):
 `NOTEBOOK_PREVIEW_DEPLOYS` (`on` to enable it; absent, both of its jobs are

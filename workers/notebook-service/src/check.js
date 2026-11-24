@@ -29,6 +29,18 @@ export const LIMITS = Object.freeze({
   rowsPerRequest: 500,
   pageRows: 500,
   pageChars: 4 * 1024 * 1024, // ciphertext in one page of rows, as text
+  // Sign-in (step 4e). Each is a ceiling well above what a platform sends.
+  ways: 20, // ways in to one account
+  challengeBytes: 32,
+  userHandleBytes: 64, // WebAuthn's ceiling for a user handle; the service makes 32
+  clientDataBytes: 4096, // a passkey response's clientDataJSON
+  attestationBytes: 16384, // its attestationObject
+  authenticatorDataBytes: 1024, // its authenticatorData, when signing in
+  signatureBytes: 1024, // its signature
+  idTokenChars: 8192, // an identity token from Apple or Google
+  codeChars: 1024, // Apple's authorization code
+  redirectChars: 2048, // the redirect address a web sign-in with Apple used
+  subjectChars: 255, // a provider's id for an account
 });
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
