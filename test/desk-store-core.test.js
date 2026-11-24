@@ -231,7 +231,7 @@ test("references and links use the site's address form", () => {
 
 test("kindName names every kind but trash, and an unknown kind plainly", () => {
   assert.equal(kindName("note"), "Note");
-  assert.equal(kindName("hidden"), "Hidden passage");
+  assert.equal(kindName("hidden"), "Item", "kind 3 left the format on 2026-11-23 (4d)");
   assert.equal(kindName("footnotePin"), "Pinned footnote");
   assert.equal(kindName("collection"), "Collection");
   assert.deepEqual(takeOff("collection"), ["Delete", "deleted"]);

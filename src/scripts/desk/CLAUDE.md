@@ -27,7 +27,7 @@ an E number or an audit finding was decided and built goes under its entry in
 | `STUDY-DESK.md` | **The planning and decision record for the Study Desk**: every idea, owner decision, open question and BDR item with its ID, and what is shelved ("Version 2: deferred and shelved"). Phases 1 to 3 are built behind the preview switch (`?desk=on`); nothing reader-facing is released. Read it before proposing or building any part of the desk, and update it when a decision changes. **BDR's Claude reads this repo** (since 2026-10-07), so the website answers by updating `STUDY-DESK.md` on `main` ("One notebook, three homes" holds BDR's sync proposal and the answers); no hand-sent reply documents. |
 | `STUDY-DESK-FOR-THE-APPS.md` | **The short list the apps' sessions read first** (BVJ, 2026-11-23). **A decision that changes what the apps build, carry, or wait on gets a dated entry here in the same pull request**, newest first, pointing at the full text; a call BVJ made without BDR is marked "for BDR to confirm". Its top holds what the website is waiting to hear from the apps. The 2026-11-10 and 2026-11-18 decisions never reached either app, which is why it exists. |
 | `STUDY-DESK-FIXES.md` | **The Phase 5 log: the desk's bugs, rough spots, wording and wishes** (IDs **E1** onward), kept by BVJ's use of the preview, with the rules for adding an entry and the work-session grouping. Every "E9" or "E28" in this repo means an entry there. **A new bug or preference BVJ reports goes here as the next E number**, never into `STUDY-DESK.md`; where an entry settles a decision, say so in the entry. |
-| `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too. Change each pair together. |
+| `STUDY-DESK-FORMAT.md` | **Draft record format for the Study Desk**, shared with both apps: the kinds of record, the anchor text, and how a mark is found again after the wording moves. Its executable form is `scripts/lib/anchor-text.mjs` (pure half in `src/lib/anchor-core.mjs`) with `test/fixtures/anchor-vectors.json`; its merge rules are `src/lib/desk-merge.mjs` with `test/fixtures/merge-vectors.json`, hand-written cases the apps run too (no builder: edit by hand, raise `version`). Change each pair together. |
 | `STUDY-DESK-ENCRYPTION.md` | **The end-to-end encryption spec for the synced notebook (plan C), draft 2** (2026-11-23): the keys, how a record is sealed for the service, the holders (a passkey, the recovery code), the reader's choice of where the key lives, adding and removing a device, **the service's interface** (every request and what the service checks before accepting it; build `workers/notebook-service/` to it), and the test vectors. **Its executable form is `src/lib/desk-crypto.mjs`** (the reference, and the code the website's connector will ship; pure, WebCrypto only, no imports, every random input an argument) with `test/fixtures/notebook-crypto-vectors.json`, which both apps run; `npm run build:notebook-crypto-vectors` writes the file and `test/desk-crypto.test.js` holds the two together, after running the reference against published vectors (`test/fixtures/published-crypto-vectors.json`). **Change the spec, the reference, and the vectors together**: regenerate, bump `CRYPTO_VECTORS_VERSION`, and tell the apps. Where code forces a reading the spec doesn't make, write it into the spec and its "Still open," never only into the code. Nothing imports the reference yet but the builder and the test, and the service, sign-in, and the connector are not built. "Still open" numbers what BDR has to confirm and what BVJ has not yet seen; the spec, its reference, and its vectors are built on the website's side (BVJ, 2026-11-23). It freezes with the format. |
 | `STUDY-DESK-AUDIT-1.md` | **Full Audit 1** (2026-10-20): findings `BA1` to `BA153`, in phases FA1-a onward. Read its "How to work a phase on a Pro account" before starting one. |
 | `STUDY-DESK-AUDIT-2.md` | **Audit 2** (2026-11-03): 111 findings (`SEC`, `DI`, `NB`, `DK`, `GK`, `LG`, `LV`, `CP`), a "Status on main" table, tasks FA2-a to FA2-z. |
@@ -351,8 +351,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      **Every record read comes through `migrateRecord`** (`desk-records.mjs`):
      the store's reads (`current` in `desk/store.js`, the history's "before"
      included), `desk/readonly-notebook.js`, `planImport` and the merge. It
-     renames an old note marker in memory (`bookmark` reads as `ribbon`, E10;
-     `RENAMED_MARKERS`) and reads an old ribbon (a `place` with `ribbon: true`)
+     renames an old note marker in memory (`ribbon` and `bookmark` read as
+     `note`, 4d; `RENAMED_MARKERS`) and reads an old ribbon (a `place` with `ribbon: true`)
      as a bookmark that follows (E9), and never writes back for a read. A new
      way of reading records needs it too.
   6. **Phase 1c's notes reach the reader code through one event.**
@@ -660,8 +660,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
        `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md
        E9; the longer account of each rule is in its "Bookmarks" appendix).
-       **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22; the
-       word "ribbon" is for the note marker alone, E10). A `bookmark` record is
+       **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22;
+       no reader sees a "ribbon" since 4d). A `bookmark` record is
        a verse, an optional `label` (up to 40 characters, not unique) and an
        optional `follow: true` ("Move as I read"), **with two stamps beside
        `modified`, `placedAt` for its place and `editedAt` for everything else**
@@ -871,11 +871,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
          and is stripped from the address; `?sheet-tour` does the same.
        - **Privacy**: `lit-desk-page-tour` and `lit-desk-sheet-tour` are named
          in /privacy's paragraph beside `lit-desk-tour`.
-     - **N8, the hidden passage, is not included** (BVJ, 2026-11-10; open
-       to discussion if BDR really wants it). Its branches
-       (`claude/desk-1d-hidden`, `claude/desk-1d-search`) go in Phase 6
-       (STUDY-DESK.md, "Before launch"); don't revive or build on them. No
-       `hidden` record was ever written.
+     - **N8, the hidden passage, is dropped** (2026-11-23), and kind 3 left
+       the format and the code (4d): a `hidden` record is an unknown kind,
+       carried and never edited. Keep it out of `KINDS`, and don't build on
+       its branches (`claude/desk-1d-hidden`, `claude/desk-1d-search`).
   14. **Phase 1f is the Greek tab** (STUDY-DESK.md,
      "Order of work", 1f). Before touching it:
      - **Its data is committed, not built.** `npm run build:greek` reads

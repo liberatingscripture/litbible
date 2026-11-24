@@ -37,7 +37,7 @@ test("results come in Bible order, then glossary notes, then article notes", () 
   assert.equal(onEntry.href, "/glossary/#grace");
 });
 
-test("each kind is found by its own words, and a hidden or trashed record never is", () => {
+test("each kind is found by its own words, and a trashed record or one of a kind this code doesn't know (a hidden record, 4d) never is", () => {
   const records = [
     { ...base, id: "h", kind: "highlight", bookKey: "john", chapter: 3, verse: 16, color: "yellow", quote: { exact: "loved the world", prefix: "", suffix: "" } },
     { ...base, id: "b", kind: "bookmark", bookKey: "john", chapter: 3, verse: 17, label: "Sunday world sermon" },

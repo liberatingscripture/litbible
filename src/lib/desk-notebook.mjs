@@ -157,8 +157,8 @@ export function filterRecords(records, { query = "", kind = null, color = null, 
  *   pins       pinned footnotes, in Bible order
  *   other      records of a kind this code doesn't list in the groups above
  *              (a mark rule, a sheet, a kind from a newer version, and a
- *              hidden passage, which the owner is holding back from this
- *              release: one arriving from a file shows as a plain row)
+ *              `hidden` record, kind 3, which left the format on 2026-11-23:
+ *              one arriving from a file shows as a plain row, "Item")
  */
 export function groupRecords(records) {
   const books = new Map();

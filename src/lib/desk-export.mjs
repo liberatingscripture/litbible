@@ -31,10 +31,9 @@
 //   note         commenting, or questioning when its marker is `question`
 //   bookmark     bookmarking
 //   footnotePin  bookmarking, with a TextQuoteSelector of the footnote's text
-//   hidden       commenting, since the Web Annotation vocabulary has nothing
-//                for hiding; `lit.kind` says what it really is
 // Places, labels, sheets, mark rules, the reader's collections (kind 12),
-// unknown kinds and trash records are not marks on the text, so they travel in
+// unknown kinds (a `hidden` record among them, since kind 3 left the format
+// on 2026-11-23) and trash records are not marks on the text, so they travel in
 // the file's AnnotationCollection under its own `lit.records` (the W3C
 // "collection" is the file itself, not one of the reader's; trash only in the
 // full backup; a deleted note's words stay out of a file meant for other tools).
@@ -75,7 +74,7 @@ const isoNow = () => new Date().toISOString();
 const dateOf = (iso) => String(iso ?? "").slice(0, 10);
 
 /** Marks on the text that become annotations. */
-const ANNOTATED = new Set(["highlight", "note", "bookmark", "footnotePin", "hidden"]);
+const ANNOTATED = new Set(["highlight", "note", "bookmark", "footnotePin"]);
 
 /* ── Where a record is ───────────────────────────────────────────────── */
 
@@ -161,7 +160,7 @@ function targetOf(r) {
 /** One record as an annotation, carrying the whole record under `lit.record`. */
 export function toAnnotation(r, labels = new Map()) {
   const body = [];
-  const words = r.kind === "bookmark" ? r.label : r.kind === "hidden" ? (r.body ?? r.note) : r.body;
+  const words = r.kind === "bookmark" ? r.label : r.body;
   if (typeof words === "string" && words) body.push(textual(words, r.kind === "bookmark" ? "describing" : motivationOf(r)));
   for (const l of labelsOf(r, labels)) body.push(textual(l.name, "tagging"));
   const osis = r.bookKey ? osisRef(r.bookKey, r.chapter, r.verse, r.endVerse) : "";
@@ -242,8 +241,11 @@ function kindLine(r) {
   switch (r.kind) {
     case "highlight":
       return r.color ? `Highlight (${r.color})` : "Highlight";
-    case "note":
-      return r.marker && r.marker !== "note" ? `Note (${currentMarker(r.marker)})` : "Note";
+    case "note": {
+      // By its current name, so a note still carrying `ribbon` is a plain "Note".
+      const marker = currentMarker(r.marker);
+      return marker && marker !== "note" ? `Note (${marker})` : "Note";
+    }
     default:
       return kindName(r.kind);
   }
@@ -259,7 +261,7 @@ function entryMarkdown(r, labels) {
   if (quoted) {
     lines.push("", ...String(quoted).replace(/\r\n?/g, "\n").split("\n").map((l) => `> ${l}`.trimEnd()));
   }
-  const words = r.kind === "bookmark" ? r.label : r.kind === "hidden" ? (r.body ?? r.note) : r.body;
+  const words = r.kind === "bookmark" ? r.label : r.body;
   if (typeof words === "string" && words.trim()) lines.push("", escapeBody(words.trim()));
   return lines.join("\n");
 }
@@ -377,7 +379,7 @@ export function parseReference(text) {
 // "Note on a footnote" is what a copy saved before 2026-11-10 (E79) wrote for
 // a note on a footnote. It is still read, so such an entry is refused as a kind
 // Markdown can't add, rather than taken for a note on its verse.
-const KIND_WORD = /^(Highlight|Note on a footnote|Note|Bookmark|Pinned footnote|Hidden passage)\b(?:\s*\(([^)]*)\))?/;
+const KIND_WORD = /^(Highlight|Note on a footnote|Note|Bookmark|Pinned footnote)\b(?:\s*\(([^)]*)\))?/;
 
 /** The `##` sections toMarkdown writes for people and never reads back. */
 const LISTS = new Set(["Places", "Labels", "Collections"]);
@@ -542,7 +544,8 @@ function parseMarkdown(text, { local = [], ctx = {}, now = isoNow() } = {}) {
       problems.push(fail(e.line, `“${e.heading}” has no note under it, so it was left out.`));
       continue;
     }
-    // A copy saved before a marker was renamed names the old one ("Note (bookmark)").
+    // A copy saved before a marker was renamed or left the list names the old
+    // one ("Note (bookmark)", "Note (ribbon)"), and reads as what it maps to.
     const marker = MARKERS.includes(currentMarker(qualifier)) ? currentMarker(qualifier) : "note";
     const place = placeOf(e);
     if (!place) {

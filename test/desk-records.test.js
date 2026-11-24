@@ -65,12 +65,13 @@ function highlight(extra = {}) {
 
 test("the constants are the format's lists", () => {
   assert.equal(SCHEMA_VERSION, 1);
-  assert.equal(KINDS.length, 11);
+  assert.equal(KINDS.length, 10);
   assert.ok(KINDS.includes("footnotePin"), "draft 2's tenth kind (BDR, 2026-10-09)");
   assert.ok(KINDS.includes("collection"), "kind 12, collections (D13, 2026-11-18)");
   assert.ok(!KINDS.includes("legend"), "colour meanings were dropped 2026-10-07");
+  assert.ok(!KINDS.includes("hidden"), "kind 3, the hidden passage, was dropped from all three on 2026-11-23");
   assert.deepEqual(COLORS, ["yellow", "green", "blue", "pink"]);
-  assert.equal(MARKERS.length, 7);
+  assert.equal(MARKERS.length, 6);
 });
 
 test("createRecord fills in the fields every record carries", () => {
@@ -323,26 +324,54 @@ test("migrateRecord gives a phase 1b trash record the kind of the record it hold
   assert.equal(migrateRecord(current), current);
 });
 
-/* ── E10: the `bookmark` note marker is `ribbon` ─────────────────────── */
+/* ── Step 4d: kind 3 (`hidden`) left the format ──────────────────────── */
+
+test("4d: a `hidden` record is a kind this code doesn't know: valid, never edited, never made, carried whole", () => {
+  // No client ever wrote one. One met anyway (a hand-made file) is kept as it
+  // arrived, like any unknown kind (principle 6), and hides nothing.
+  const hidden = {
+    id: "00000000-0000-4000-8000-0000000000f3", kind: "hidden", schema: 1,
+    created: ctx.now, modified: ctx.now, client: "ios/3.2.0", contentVersion: ctx.contentVersion, labels: [],
+    bookKey: "mark", chapter: 9, verse: 44, endVerse: 48, body: "Skip for now",
+  };
+  assert.equal(canEdit(hidden), false);
+  assert.deepEqual(validateRecord(hidden), [], "only the fields every record carries are checked");
+  assert.deepEqual(validateRecord({ ...hidden, chapter: 99, verse: "x" }), [], "its own fields aren't this code's to judge");
+  assert.throws(() => editRecord(hidden, { body: "changed" }, ctx), /can't be edited/);
+  assert.throws(() => createRecord("hidden", { bookKey: "mark", chapter: 9, verse: 44 }, ctx), /unknown kind/);
+  assert.equal(migrateRecord(hidden), hidden, "read as it arrived");
+  // Deleting and restoring keep every field; only `modified` and `client` are restamped (DI8-2).
+  const trash = trashRecord(hidden, trashCtx);
+  assert.equal(trash.deletedKind, "hidden");
+  assert.deepEqual(trash.record, hidden);
+  const back = restoreFromTrash(trash, { now: "2026-10-07T00:00:00.000Z", client: "web/2026.11" });
+  assert.deepEqual({ ...back, modified: hidden.modified, client: hidden.client }, hidden);
+});
+
+/* ── Note markers: `ribbon` left the list (4d), and `bookmark` before it (E10) ─ */
 
 const ribbonNote = (marker, extra = {}) =>
   createRecord("note", { bookKey: "john", chapter: 3, verse: 16, body: "Come back to this.", marker, ...extra }, ctx);
 
-test("E10: MARKERS lists ribbon where bookmark stood, and no longer bookmark", () => {
-  assert.deepEqual(MARKERS, ["note", "emphasis", "question", "heart", "ribbon", "lightbulb", "flame"]);
-  assert.deepEqual(RENAMED_MARKERS, { bookmark: "ribbon", star: "emphasis" });
-  assert.equal(currentMarker("bookmark"), "ribbon");
+test("4d: MARKERS has six names, and ribbon, bookmark and star each read as a name in it", () => {
+  assert.deepEqual(MARKERS, ["note", "emphasis", "question", "heart", "lightbulb", "flame"]);
+  assert.deepEqual(RENAMED_MARKERS, { bookmark: "note", ribbon: "note", star: "emphasis" });
+  assert.equal(currentMarker("ribbon"), "note", "the ribbon marker left on 2026-11-23");
+  assert.equal(currentMarker("bookmark"), "note", "its name until E10");
   assert.equal(currentMarker("star"), "emphasis", "iOS's old name (DI3-5)");
   for (const m of MARKERS) assert.equal(currentMarker(m), m);
+  for (const to of Object.values(RENAMED_MARKERS)) assert.ok(MARKERS.includes(to), `${to} is a marker a client writes`);
+  for (const from of Object.keys(RENAMED_MARKERS)) assert.ok(!MARKERS.includes(from), `${from} is never written`);
   assert.equal(currentMarker("spark"), "spark");
   assert.equal(currentMarker(undefined), undefined);
+  assert.equal(currentMarker("constructor"), "constructor", "an own entry only, never something off the prototype");
 });
 
-test("E10: a note marked ribbon validates, an old bookmark still does, an unknown marker doesn't", () => {
-  assert.deepEqual(validateRecord(ribbonNote("ribbon")), []);
+test("4d: a note still marked ribbon or bookmark validates, and an unknown marker doesn't", () => {
+  assert.deepEqual(validateRecord(ribbonNote("ribbon")), [], "nothing stored is rewritten, so the old name stays valid");
   assert.deepEqual(validateRecord(ribbonNote("bookmark")), [], "every client reads the old name as the new one");
   const problems = validateRecord(ribbonNote("spark"));
-  assert.deepEqual(problems, ['marker "spark" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame']);
+  assert.deepEqual(problems, ['marker "spark" is not one of note, emphasis, question, heart, lightbulb, flame']);
   assert.ok(validateRecord(ribbonNote(undefined)).some((p) => p.startsWith("marker")));
 });
 
@@ -356,31 +385,39 @@ test("DI3-5: an iOS note still carrying `star` validates, reads as emphasis, and
   assert.equal(migrateRecord(newer), newer, "a note this code can't edit is left as it arrived");
 });
 
-test("E10: migrateRecord reads a bookmark marker as ribbon and changes nothing else", () => {
-  const old = ribbonNote("bookmark");
-  const read = migrateRecord(old);
-  assert.notEqual(read, old, "a new object: the record passed in isn't changed");
-  assert.equal(old.marker, "bookmark");
-  assert.deepEqual(read, { ...old, marker: "ribbon" });
-  assert.equal(read.modified, old.modified, "reading isn't an edit");
-  const now = ribbonNote("ribbon");
+for (const old of ["ribbon", "bookmark"]) {
+  test(`4d: migrateRecord reads a ${old} marker as note and changes nothing else`, () => {
+    const was = ribbonNote(old);
+    const read = migrateRecord(was);
+    assert.notEqual(read, was, "a new object: the record passed in isn't changed");
+    assert.equal(was.marker, old);
+    assert.deepEqual(read, { ...was, marker: "note" });
+    assert.equal(read.modified, was.modified, "reading isn't an edit");
+    assert.equal(migrateRecord(read), read, "idempotent");
+    // The next write of that note carries the current name.
+    const edited = editRecord(read, { body: "Came back to it." }, { now: "2026-11-24T09:00:00.000Z" });
+    assert.equal(edited.marker, "note");
+  });
+
+  test(`4d: a deleted note marked ${old}, held in the trash, comes back as note`, () => {
+    const trash = trashRecord(ribbonNote(old), trashCtx);
+    const read = migrateRecord(trash);
+    assert.equal(read.record.marker, "note");
+    assert.equal(trash.record.marker, old);
+    assert.equal(restoreFromTrash(read, trashCtx).marker, "note");
+  });
+
+  test(`4d: a note marked ${old} from a newer schema, or a record of another kind, is carried as it arrived`, () => {
+    const newer = { ...ribbonNote(old), schema: SCHEMA_VERSION + 1 };
+    assert.equal(migrateRecord(newer), newer);
+    const other = { ...createRecord("place", { bookKey: "john", chapter: 3, verse: 16, name: "" }, ctx), marker: old };
+    assert.equal(migrateRecord(other), other);
+  });
+}
+
+test("4d: a note already marked note is returned as it is", () => {
+  const now = ribbonNote("note");
   assert.equal(migrateRecord(now), now);
-  assert.equal(migrateRecord(read), read, "idempotent");
-});
-
-test("E10: a deleted note held in the trash comes back as ribbon", () => {
-  const trash = trashRecord(ribbonNote("bookmark"), trashCtx);
-  const read = migrateRecord(trash);
-  assert.equal(read.record.marker, "ribbon");
-  assert.equal(trash.record.marker, "bookmark");
-  assert.equal(restoreFromTrash(read, trashCtx).marker, "ribbon");
-});
-
-test("E10: a note from a newer schema, or of another kind, is carried as it arrived", () => {
-  const newer = { ...ribbonNote("bookmark"), schema: SCHEMA_VERSION + 1 };
-  assert.equal(migrateRecord(newer), newer);
-  const other = { ...createRecord("place", { bookKey: "john", chapter: 3, verse: 16, name: "" }, ctx), marker: "bookmark" };
-  assert.equal(migrateRecord(other), other);
 });
 
 test("a footnotePin needs its verse and the footnote's text, never its letter", () => {

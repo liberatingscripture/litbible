@@ -42,6 +42,12 @@ const note = (where, body = "x", extra = {}) => make("note", { ...where, body, m
 const hl = (where, color = "yellow", exact = "patient") =>
   make("highlight", { ...where, color, quote: { exact, prefix: "", suffix: "" } });
 const mark = (where, extra = {}) => make("bookmark", { ...where, ...extra });
+// Kind 3 left the format on 2026-11-23 (step 4d): createRecord no longer makes
+// one, and one met anyway is a kind this code doesn't know.
+const hiddenRecord = (where) => ({
+  id: nextId(), kind: "hidden", schema: 1, created: "2026-10-01T00:00:00.000Z", modified: "2026-10-01T00:00:00.000Z",
+  client: "ios/3.2.0", contentVersion: ctx.contentVersion, labels: [], ...where,
+});
 
 test("fold ignores case, accents and spacing", () => {
   assert.equal(fold("  Ágape   LOVE "), "agape love");
@@ -79,9 +85,9 @@ test("filterRecords narrows by kind, colour and label", () => {
   assert.deepEqual(filterRecords([a, b, c], { kind: "highlight", color: "pink", query: "patient" }), [b]);
 });
 
-test("kindsPresent offers only kinds in the list, and never hidden passages", () => {
+test("kindsPresent offers only kinds in the list, and never a kind it doesn't know (a hidden record, 4d)", () => {
   const a = note({ bookKey: "romans", chapter: 8, verse: 3 });
-  const h = make("hidden", { bookKey: "romans", chapter: 8, verse: 4 });
+  const h = hiddenRecord({ bookKey: "romans", chapter: 8, verse: 4 });
   assert.deepEqual(kindsPresent([a, h]).map((k) => k.value), ["note"]);
   assert.deepEqual(colorsPresent([hl({ bookKey: "john", chapter: 3, verse: 1 }, "blue")], COLORS), ["blue"]);
 });
@@ -97,12 +103,12 @@ test("groupRecords puts text records in Bible order under book and chapter", () 
   assert.deepEqual(g.books[1].chapters[0].records.map((r) => r.verse), [3, 28]);
 });
 
-test("groupRecords sets apart prose notes and pins, leaves places to their own section, and shows a hidden passage as a plain row", () => {
+test("groupRecords sets apart prose notes and pins, leaves places to their own section, and shows a hidden record as a plain row", () => {
   const gl = note({ glossaryEntry: "flesh-body", targetTitle: "Flesh" });
   const ar = note({ article: "some-article" });
   const pin = make("footnotePin", { bookKey: "romans", chapter: 8, verse: 3, footnote: "A note" });
   const place = make("place", { bookKey: "luke", chapter: 15, verse: 11, name: "Group" });
-  const hidden = make("hidden", { bookKey: "luke", chapter: 15, verse: 12 });
+  const hidden = hiddenRecord({ bookKey: "luke", chapter: 15, verse: 12 });
   const label = make("label", { name: "L" });
   const sheet = make("sheet", { title: "S" });
   const g = groupRecords([gl, ar, pin, place, hidden, label, sheet]);

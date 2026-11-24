@@ -1332,8 +1332,8 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
 }
 
 /* A bookmark's mark: its glyph in red, not in a circle, in the gutter beside
-   the verse (a trial, BVJ 2026-10-07). The note marker `ribbon` (named
-   `bookmark` until E10) is drawn as an awareness ribbon (E42) and is green. */
+   the verse (a trial, BVJ 2026-10-07). No note marker shares the shape: the
+   `ribbon` marker (named `bookmark` until E10) left the format on 2026-11-23. */
 .desk-bookmark-mark {
   position: absolute;
   width: 14px;

@@ -430,7 +430,6 @@ export function recordReadHref(r) {
 const KIND_NAMES = {
   highlight: "Highlight",
   note: "Note",
-  hidden: "Hidden passage",
   bookmark: "Bookmark",
   place: "Place",
   markRule: "Mark rule",
