@@ -2,8 +2,9 @@
 
 **Status: draft 2, 2026-11-23, for BDR to review and BVJ to check. The reference and the test
 vectors are built (step 4b, the same day), and so is the service, to run on a preview address
-(step 4c, the same day); sign-in and every client’s use of this are not, and no record changes
-with it.** Written by BVJ’s Claude, on the website’s side, which
+(step 4c, the same day), and so is the service’s sign-in (step 4e, 2026-11-24: a passkey works on
+the preview; Apple and Google are built and off, waiting on client ids). Every client’s use of this
+is not, and no record changes with it.** Written by BVJ’s Claude, on the website’s side, which
 writes this spec, its reference, and its vectors and builds the service from here on (BVJ,
 2026-11-23). Draft 1 was written the same day by BDR’s Claude (PR #680) and BVJ answered its open
 items that evening (`STUDY-DESK.md`, “Decisions,” 2026-11-23). This draft writes those answers in,
@@ -22,6 +23,12 @@ final shape of every request and answer, every size, and the word of every refus
 service in `workers/notebook-service/` uses them. “Changed in step 4c” lists what moved, and the
 ones that were a choice are under “Still open,” 32 to 40. No path changed, and no decision of
 draft 2.
+
+**Step 4e built sign-in on the service** (2026-11-24): a passkey with `litbible.net` as the relying
+party, Sign in with Apple and with Google, several ways in to one account, and how long a session
+lasts. Their requests are in “The service’s interface” under “Signing in” and “Ways to sign in.”
+“Changed in step 4e” lists what moved, and each place that was a choice is under “Still open,” 41
+to 58, for BDR to confirm and BVJ to check. No request that step 4c built changed its shape.
 
 Plan C was chosen on BDR and BVJ’s call of 2026-11-23: a small LIT service on Cloudflare holds each
 signed-in reader’s notebook, and only the reader’s own devices can read it. This file says exactly
@@ -724,9 +731,10 @@ not rely on.**
 
 | What | Kept as | Can LIT read it? |
 |---|---|---|
-| The account: the notebook’s id, each sign-in method’s account id from Apple or Google (`sub`), each passkey’s public key, id, and flags (whether it syncs), when each was made | plain | Yes. No email address and no name is kept, even when a provider sends one |
-| Apple’s refresh token, for an account that signs in with Apple, kept so deleting the account can revoke it | plain to LIT, encrypted at rest | Yes. It opens nothing in the notebook |
-| Sessions, and for each whether it has proved the current key | plain | Yes |
+| The account: the notebook’s id, each sign-in method’s account id from Apple or Google (`sub`), each passkey’s public key, id, signature counter, and flags (whether it syncs), when each was made, and a random handle that the account’s passkeys are made under | plain | Yes. No email address and no name is kept, even when a provider sends one |
+| Apple’s refresh token, for an account that signs in with Apple, one for each client (the app, the website) the reader signed in through, kept so removing that way in or deleting the account can revoke it | plain to LIT, encrypted at rest | Yes. It opens nothing in the notebook |
+| Sessions: for each, which way in it came through, when, and whether it has proved the current key | plain | Yes |
+| A sign-in challenge, for at most five minutes | plain | Yes. It is 32 random bytes; it names no one, but the account a passkey is being added to |
 | The account’s current `kid`, the hash of that key’s proof, and a version of the lists below that every change to them moves | plain | Yes. The hash opens nothing |
 | The device list: for each device its id, its card and the `kid` the card was sealed under, when it was added and how, when it was last seen | the card sealed, the rest plain | Only the dates and how each was added. Names and public keys are inside the cards |
 | The holder list: for each holder its id, its kind, a passkey holder’s credential id, its record, its card, when it was added and from which device | the record and the card sealed, the rest plain | Only that a recovery code or a given passkey can open the notebook |
@@ -1074,16 +1082,19 @@ the key.
 - **Sign in with Apple and Sign in with Google.** Which of them each app offers is the apps’ call
   (IOS-106, NB13). The service keeps only the provider’s account id (`sub`), and Apple’s refresh
   token so it can revoke it, and stores no email address or name, even when the provider sends one.
+  **Built on the service in step 4e and off**: each turns on when its client ids are configured,
+  and those are BDR’s to give (“Still open,” 41).
 - **Passkeys, at launch** (BVJ, 2026-11-23; the call had them “if the schedule holds”; **for BDR to
   confirm**). One passkey for the website and both apps: WebAuthn with the relying party
   `litbible.net`, which needs `webcredentials:litbible.net` in the site’s
   `apple-app-site-association` and `get_login_creds` in its `assetlinks.json` (`STUDY-DESK.md`, “One
-  passkey everywhere”). Those are website changes made with the service’s sign-in, in step 4e.
+  passkey everywhere”). **Both were added in step 4e (2026-11-24)**, naming only the app each file
+  already named; the apps’ own half (the associated domain, Credential Manager) is theirs.
 - **What this file asks of every passkey request**, whoever makes it: a discoverable passkey; user
   verification required; the `prf` extension with the fixed input, at creation and at each use; and
   `results` taken out of anything sent to the service (under “The passkey”). The rest of the
   ceremony (the challenge, what the passkey is called in the reader’s password manager) is the
-  service’s sign-in, step 4e.
+  service’s sign-in, under “The service’s interface,” “Signing in.”
 - **A passkey signs in under both choices.** Whether it also opens the notebook is the reader’s
   choice (under “Where the key lives”).
 - **Several ways in, one account**: “Add another way to sign in” (`STUDY-DESK.md`). Once an account
@@ -1096,9 +1107,10 @@ the key.
   and sealed copy on the service. The device’s own notebook stays. Signing back in means joining
   again: by passkey under “follows my account,” otherwise by approval or the code. Signing out is
   the reader’s own act on a device they hold, so the key doesn’t change.
-- **How sessions are kept and renewed is the service’s sign-in, step 4e.** This file asks only that
-  no session token is made from, or stands in for, any key here, and that a session is open only as
-  “The key proof” says.
+- **How sessions are kept** is under “The service’s interface,” “How a request is carried”: 30
+  days from a sign-in, and an open session kept alive by use for up to a year. This file asks only
+  that no session token is made from, or stands in for, any key here, and that a session is open
+  only as “The key proof” says.
 
 ## Removing a device, and changing the key
 
@@ -1240,10 +1252,9 @@ Draft 1 left this to “the service’s own spec.” **It is a section of this f
 it**, for three reasons. What the service checks is half of every step above, and the other half is
 what the device checks; a reader of one needs the other on the same page. The two freeze together,
 under one version. And a second file would be one more thing for both apps’ sessions to find and
-for this repo’s `CLAUDE.md` to name. What is *not* here is everything that has nothing to do with
-keys: the sign-in ceremonies (step 4e), the requests that wait seven days (step 4f, sketched below),
-and limits on how often a client may ask. How to run, deploy, and wipe the service is in its own
-README, `workers/notebook-service/README.md`.
+for this repo’s `CLAUDE.md` to name. What is *not* here yet is step 4f’s: the requests that wait
+seven days (sketched below), and limits on how often a client may ask. How to run, deploy, and wipe
+the service is in its own README, `workers/notebook-service/README.md`.
 
 **The service is built (step 4c, 2026-11-23), and this section is what it does.** The paths, the
 shape of every request and answer, the sizes, and the words of every refusal below are the ones the
@@ -1252,6 +1263,15 @@ request a real client would and reads the refusal (`workers/notebook-service/tes
 building it meant reading a sentence of draft 2 more exactly, or adding what draft 2 left out, the
 change is listed under “Changed in step 4c,” and the ones that were a choice are under “Still
 open,” 32 to 40. **For BDR to confirm**, since both apps call these.
+
+**Sign-in is built too (step 4e, 2026-11-24)**, under “Signing in” and “Ways to sign in” below, to
+the same standard: each check in their tables has a test, and a passkey is made and used end to
+end by a software authenticator in the service’s own suite. Two things about it are *not* proved,
+and are said where they matter: **Sign in with Apple and with Google have been run against
+stand-ins only, never against either provider** (they are off until BDR’s client ids are
+configured), and **no real device’s passkey has met the service yet** (“Still open,” 18 to 21).
+What moved is under “Changed in step 4e,” and every choice is under “Still open,” 41 to 58. **For
+BDR to confirm.**
 
 ### How a request is carried
 
@@ -1264,11 +1284,19 @@ open,” 32 to 40. **For BDR to confirm**, since both apps call these.
   JSON object of at most 4,194,304 bytes. A member the interface doesn’t name is ignored. A trailing
   slash on a path is ignored.
 - **The session** travels as `Authorization: Bearer <token>`, where the token is the 43 characters
-  sign-in gave (32 random bytes, base64url). It is never a cookie. A session lasts 30 days. The
-  service keeps only the token’s SHA-256.
+  sign-in gave (32 random bytes, base64url). It is never a cookie. The service keeps only the
+  token’s SHA-256.
+- **How long a session lasts.** Thirty days from the sign-in that made it. **An open session is
+  kept alive by use**: on any request it makes, once its end is a day or more short of it, the end
+  moves to 30 days from that moment, and never past 365 days from its sign-in, when the reader
+  signs in again. **A session that is signed in and no more is never made longer**, so a sign-in
+  that can’t open the notebook (a stolen one, say) runs out by itself. The token never changes and
+  nothing a client sends renews it; `GET /account` answers the session’s end as `session.expires`.
+  A session that has run out answers `sign_in` and is not brought back by use.
 - **Every answer is a JSON object whose first member is `time`**, the service’s clock in the
   format’s form (`2026-11-23T18:35:09.978Z`), a refusal as much as a success. Nothing is cached
-  (`Cache-Control: no-store`).
+  (`Cache-Control: no-store`). **A client ignores a member of an answer that it doesn’t know**, so
+  a later step can add one without breaking a client already built.
 - **A refusal** has an HTTP status that isn’t 200 and the body
   `{ "time": "…", "error": "<word>", "message": "<a sentence for a log>", … }`. A client acts on
   `error` alone, by the table under “What the service answers when it refuses”; `message` may
@@ -1281,7 +1309,10 @@ open,” 32 to 40. **For BDR to confirm**, since both apps call these.
 | A value | In a request and in an answer |
 |---|---|
 | A byte string (a nonce, a ciphertext, a key proof, a MAC, a public key, a credential id) | base64url, read strictly as under “Fixed choices”: no padding, no `+` or `/`, no leftover bits |
-| A notebook’s, a device’s, or a holder’s id | a UUID in lower case with its hyphens; the form is all that is checked |
+| A notebook’s, a device’s, or a holder’s id, and a way in’s | a UUID in lower case with its hyphens; the form is all that is checked |
+| A sign-in challenge, and an account’s user handle for passkeys | 32 bytes, base64url (43 characters) |
+| A passkey’s response, and the options the service gives for one | the standard’s own JSON forms (under “Signing in”), every byte string in them base64url |
+| An identity token from Apple or Google | the provider’s JWT as text: three base64url parts joined by periods, at most 8,192 characters |
 | An approval’s id | 32 lower-case hex characters |
 | A record’s id | 1 to 64 printable ASCII characters (U+0020 to U+007E) |
 | A time | the format’s form: `YYYY-MM-DDTHH:MM:SS`, an optional fraction of any length, then `Z`; at most 64 characters. The same pattern the reference’s “same instant” rule reads |
@@ -1299,15 +1330,20 @@ sealed under the holder’s own secret.
 **Limits.** A notebook has at most 100 devices and 20 holders, and at most 3 approvals in progress.
 One `POST /rows` carries at most 500 rows, to put and to remove together. One page of `GET /rows`
 is at most 500 rows and 4,194,304 characters of ciphertext as text, and always at least one row.
+An account has at most 20 ways in. In a passkey’s response, `clientDataJSON` is at most 4,096
+bytes, `attestationObject` 16,384, `authenticatorData` 37 to 1,024, `signature` 1,024, and
+`userHandle` 64; Apple’s authorization code is at most 1,024 characters and a redirect address
+2,048.
 
 ### Three kinds of session
 
-- **Signed in**: the service knows which account the session belongs to (step 4e).
+- **Signed in**: the service knows which account the session belongs to (under “Signing in”).
 - **Open**: signed in, attached to an entry in the device list, and proved for the account’s
   current `kid` (under “The key proof”). A change of key closes every session but the one that made
   it. “Open” is worked out on each request and never stored, so removing a device’s entry closes
   its sessions at once.
-- **Neither** gets nothing: every request but `GET /` answers `sign_in`.
+- **Neither** gets nothing: every request answers `sign_in`, but `GET /`, `GET /sign-in`, and the
+  requests under “Signing in,” which are how a session begins.
 
 The service checks every request against the session’s account and never takes an account, a `sub`,
 or a credential id from a request’s body as proof of who is asking.
@@ -1323,6 +1359,7 @@ and never “too large” or “bad request” for a body it would only send aga
 |---|---|---|---|
 | `GET /account` | signed in | nothing more | Answers with the notebook’s id (or none), the current `kid`, the lists’ version, whether this session is open and to which device, the ways in (each one’s kind, id, and dates, and whether a passkey syncs), and any request that is waiting |
 | `POST /session/proof` with the device’s id, `kid`, and the key proof | signed in | the account has a notebook; `kid` is current; the proof’s SHA-256 equals the stored hash; the device id is in the device list | The session is open and attached to that device. Wrong proofs are counted and limited |
+| `DELETE /session` | signed in | nothing more | This session is ended, and no other |
 
 ```text
 GET /account
@@ -1334,12 +1371,19 @@ GET /account
 
 POST /session/proof   { "device": "<uuid>", "kid": 2, "proof": "<32 bytes>" }
   → { "open": true, "device": "<uuid>", "kid": 2 }
+
+DELETE /session
+  → { }
 ```
 
 - **`kid` is 0, and `notebook` is null, on an account with no notebook.**
-- **A way in’s `kind`** is `apple`, `google`, or `passkey` (step 4e); on the preview, `preview`.
+- **A way in’s `kind`** is `apple`, `google`, or `passkey`; on the preview, also `preview`.
   `credential` and `syncs` are a passkey’s only. No account id from Apple or Google is ever
-  answered.
+  answered. A way in’s `id` is what `DELETE /ways/<id>` names (under “Ways to sign in”). They are
+  listed oldest first.
+- **`DELETE /session`** is how a device that never joined the notebook signs out: a reader who
+  signed in and went no further. A device that has joined signs out with `DELETE /devices/<id>`,
+  which removes its entry and sealed keyring too (under “Devices and holders”).
 - **`waiting`** is always `null` until step 4f builds the seven-day requests.
 - **The proof’s checks run in the table’s order.** A `kid` that isn’t current is `old_key` whatever
   the proof, and is not counted. The comparison is of SHA-256 digests in constant time. A wrong
@@ -1552,18 +1596,261 @@ Not built yet: step 4f.
 | `POST /notebook/replace` | signed in, not open | the account has a notebook; none is already waiting | A request to replace is recorded the same way. When it falls due the service deletes the notebook’s records, keys, lists, and approvals, keeps the account and its ways in, and `POST /notebook` works again |
 | `DELETE /waiting` | open | a request is waiting | It is canceled |
 
+### Signing in
+
+Built in step 4e (2026-11-24). **Signing in tells the service which account a device belongs to,
+and opens nothing.** Every request here ends in a session that is signed in, which becomes open
+only by the key proof (under “The account”) or by joining. Nothing here carries a key, a keyring,
+or a record.
+
+**Three ways in, each on only where the deployment configures it.** A way that is off answers
+`not_found` on every path of its own, exactly as a path that was never written does. `GET /sign-in`
+says which are on, in the order a client might show them:
+
+```text
+GET /sign-in
+  → { "ways": ["passkey", "apple", "google"] }
+```
+
+On the preview today it answers `["passkey"]`. **Sign in with Apple and with Google are built and
+off**: their client ids come from BDR’s Apple developer account and Google Cloud project, none is
+configured, and none is guessed (“Still open,” 41). They have been tested against stand-ins for
+the two providers and against neither provider itself.
+
+**Every sign-in answers a challenge the service made**: 32 random bytes, good once and for five
+minutes. A passkey signs it. Apple and Google carry it back as the identity token’s `nonce`. So
+nothing captured from one sign-in can be played again.
+
+| Request | From | The service checks | Then |
+|---|---|---|---|
+| `GET /sign-in` | anyone | nothing | Answers which ways to sign in are on |
+| `POST /sign-in/passkey/options` | anyone | nothing | A challenge, inside the options a client passes to its platform to use a passkey |
+| `POST /sign-in/passkey` with the passkey’s response | anyone | its form, and that it carries no PRF result; the client data’s type, and that it wasn’t made in another site’s frame; the challenge; the origin; that the passkey is one the service knows; the user handle, if one came; the authenticator data (the relying party, presence, verification, the backup flags); the signature; that the counter went forward | A session for the passkey’s account |
+| `POST /sign-in/new-passkey/options` | anyone | nothing | A challenge and a new user handle, inside the options for making a passkey |
+| `POST /sign-in/new-passkey` with the new passkey’s response | anyone | the same as far as the origin; then the attestation object’s form; the authenticator data; that the credential id named is the one made; the public key’s algorithm and form; that no account has the passkey | A new account with the passkey as its one way in, and a session |
+| `POST /sign-in/challenge` | anyone | nothing | A challenge for Apple or Google to carry back |
+| `POST /sign-in/apple` with the challenge, the identity token, and Apple’s authorization code | anyone | the form; the challenge; the token’s signature under Apple’s published keys, then its issuer, audience, times, nonce, and subject; then, the first time through each client, that Apple trades the code for a refresh token | A session for the account that Apple account signs in to, or for a new account if there is none |
+| `POST /sign-in/google` with the challenge and the identity token | anyone | the form; the challenge; the token, as for Apple, under Google’s keys | The same |
+
+```text
+POST /sign-in/passkey/options
+  → { "publicKey": { "challenge": "<32 bytes>", "rpId": "litbible.net",
+                     "timeout": 300000, "userVerification": "required" },
+      "expires": "<time>" }
+
+POST /sign-in/new-passkey/options
+  → { "publicKey": {
+        "rp": { "id": "litbible.net", "name": "LIT Bible" },
+        "user": { "id": "<32 bytes>", "name": "LIT Bible notebook",
+                  "displayName": "LIT Bible notebook" },
+        "challenge": "<32 bytes>",
+        "pubKeyCredParams": [ { "type": "public-key", "alg": -7 },
+                              { "type": "public-key", "alg": -257 } ],
+        "timeout": 300000,
+        "excludeCredentials": [],
+        "authenticatorSelection": { "residentKey": "required", "requireResidentKey": true,
+                                    "userVerification": "required" },
+        "attestation": "none" },
+      "expires": "<time>" }
+
+POST /sign-in/challenge
+  → { "challenge": "<32 bytes>", "expires": "<time>" }
+
+POST /sign-in/passkey       { "credential": <an authentication response> }
+POST /sign-in/new-passkey   { "credential": <a registration response> }
+POST /sign-in/apple         { "challenge": "<32 bytes>", "idToken": "<the token>",
+                              "code": "<Apple's authorization code>",
+                              "redirect": "<an https address>" (only if the client's flow used one) }
+POST /sign-in/google        { "challenge": "<32 bytes>", "idToken": "<the token>" }
+  → { "token": "<43 characters>", "expires": "<time>", "created": false,
+      "way": { "id": "<uuid>", "kind": "passkey", "added": "<time>",
+               "credential": "<bytes>", "syncs": true } }
+```
+
+- **Every sign-in answers the same four members**: `token`, the session, shown this once;
+  `expires`; `created`, true when this request made the account; and `way`, the way in that was
+  used, as `GET /account` lists it. The session is signed in. On an account with a notebook the
+  client goes on to open it: `POST /session/proof` from a device that has an entry and the key,
+  and otherwise by joining (a passkey holder, approval, or the recovery code).
+- **A challenge is used up by the first request that reaches it, whatever follows**, so a client
+  that is refused asks for a new one. A request refused for its form, for a PRF result, or for
+  what its client data says of itself (`client_data`, `type`, `cross_origin`) never reaches the
+  challenge and leaves it unused. A challenge that ran out,
+  was used, was made by another of the three `options` requests or by `POST /sign-in/challenge`
+  for a different kind of sign-in, or never was is `gone` with `what: "challenge"`.
+- **The options are in the standard’s JSON form** (WebAuthn Level 3,
+  `PublicKeyCredentialRequestOptionsJSON` and `PublicKeyCredentialCreationOptionsJSON`). A browser
+  passes `publicKey` to `PublicKeyCredential.parseRequestOptionsFromJSON` or
+  `parseCreationOptionsFromJSON`; Android passes it to Credential Manager as text; an iOS app reads
+  the members AuthenticationServices asks for. **A client adds one thing itself:
+  `extensions.prf`, with the fixed input** (under “The passkey”). The service never sends a PRF
+  input, and a client never takes one from it. The sign-in options name no passkey
+  (`allowCredentials` is left out), so the platform offers the reader the passkeys it has for
+  `litbible.net`.
+- **The response is in the standard’s JSON form too**, what `PublicKeyCredential.toJSON()` makes
+  (`AuthenticationResponseJSON`, `RegistrationResponseJSON`):
+  `{ "id", "rawId", "type": "public-key", "response": { … }, "clientExtensionResults": { … } }`,
+  where `response` is `{ "clientDataJSON", "authenticatorData", "signature", "userHandle" }` for a
+  passkey that signs in and `{ "clientDataJSON", "attestationObject" }` for a new one, every byte
+  string base64url. The service reads `id`, `type`, those members of `response`, and
+  `clientExtensionResults.prf`. `rawId`, if it is sent, must equal `id`; `userHandle` may be left
+  out, null, or empty; every other member is ignored.
+- **A response that still carries a PRF result is refused, whole and first.** If
+  `clientExtensionResults.prf` has a `results` member at all, the request is `not_allowed` by the
+  rule `prf_results`, before the challenge is used or anything else is read. The standard’s
+  `toJSON()` includes the PRF’s output unless the client takes it out, and that output is the
+  secret a passkey holder is sealed under (under “The passkey”). A client removes `results`, and
+  only `results`, before a response leaves the device, on every platform.
+- **The origin.** The client data’s `origin` must be one the deployment accepts. The preview
+  accepts `https://litbible.net`, which is the website’s origin and also what a passkey used from
+  an iOS app answers with, and the Android app as Android names it: `android:apk-key-hash:`
+  followed by the base64url, unpadded, of the SHA-256 of the app’s signing certificate, for each
+  of the two certificates the site’s `assetlinks.json` lists for `com.litbible.app`. A response
+  made inside another site’s frame (`crossOrigin: true`) is refused.
+- **On the preview only, a page on the developer’s own machine may use a passkey**:
+  `http://localhost:4321`, the website’s dev server, with the relying party `localhost` (a browser
+  allows no other there). The service answers options with `"rpId": "localhost"` to a request
+  whose `Origin` header is that address. A passkey made there is a `localhost` passkey and signs
+  in from nowhere else. Production is never given this, and the service reads the setting only
+  where the deployment names itself the preview.
+- **A passkey made on the preview from the website or an app is a real `litbible.net` passkey**
+  in the tester’s password manager. After the preview is wiped it signs in to nothing, and the
+  tester deletes it there.
+- **What a passkey is asked for**: discoverable (`residentKey: "required"`); user verification
+  required when it is made and each time it is used, and a response without it is refused; a key
+  for ES256 (P-256) or RS256 (RSA of 2,048 bits or more), and no other; no attestation. The
+  attestation statement is not read, whatever format it comes in: the service never judges the
+  make of a reader’s passkey.
+- **What the service keeps of a passkey**: its credential id, its public key, its signature
+  counter, and whether it is the kind that syncs. That last is the authenticator’s “backup
+  eligible” flag, read when the passkey is made and fixed from then on, and it is the `syncs`
+  every other request reads: only a passkey that has it can hold the notebook’s key (under
+  “Holders”). A sign-in whose flag differs from the stored one is refused.
+- **The user handle** is 32 random bytes the service makes for the account and uses for nothing
+  else. **An account has one**, and every passkey of the account is made under it. The standard
+  has an authenticator keep one passkey for a relying party and a user handle, so a second made in
+  the same password manager may replace the first there; that is why adding one names the
+  account’s passkeys in `excludeCredentials` (under “Ways to sign in”), so the platform says the
+  reader already has one. **The name a passkey shows in the reader’s password manager is “LIT
+  Bible notebook,” the same for every account**, since the service holds no name or address to
+  show.
+- **The counter.** A passkey that keeps none sends 0 every time, as synced passkeys do, and that
+  is accepted. One that counts must send a number higher than the last, checked and written as one
+  step; one that doesn’t is refused (`counter`), which is what a copied authenticator looks like.
+- **`passkey_refused` (403) carries `reason`**, the check that failed: `client_data`, `type`,
+  `cross_origin`, `origin`, `unknown` (no account has this passkey), `user` (the user handle isn’t
+  the account’s), `attestation`, `authenticator_data`, `rp`, `presence`, `verification`, `backup`,
+  `credential` (the id named isn’t the one made), `algorithm`, `key`, `signature`, and `counter`.
+  A client treats them alike but for `unknown`, where it can offer to make an account; the word is
+  for a developer’s log.
+- **Apple and Google: the token.** `idToken` is the identity token the provider gave the client,
+  asked for with the service’s challenge as its nonce. The service checks its RS256 signature
+  under the provider’s published keys, then `iss` (Apple’s `https://appleid.apple.com`; Google’s
+  `https://accounts.google.com` or `accounts.google.com`), `aud` (one of the client ids the
+  deployment lists, and the only audience), `exp` and `iat` (a minute’s grace each way), `nonce`
+  (**equal to the challenge, character for character**), and `sub`. **`token_refused` (403)
+  carries `reason`**: `form`, `algorithm`, `key`, `signature`, `issuer`, `audience`, `expired`,
+  `issued`, `nonce`, `subject`, and for Apple `code`.
+- **Apple: the code.** `code` is the authorization code Apple gave with the token. The first time
+  an Apple account signs in through each client id (the iOS app’s, the website’s), the service
+  trades the code with Apple for a refresh token **before it writes anything**, so an account is
+  never made with an Apple way in that the service couldn’t later revoke. It keeps that token for
+  one purpose, to revoke it when the way in is removed or the account is deleted, and never uses
+  it otherwise. Every Apple sign-in sends a code, and the service spends it only when it holds no
+  token for that client. `redirect` is the redirect address the client’s own flow used, if it used
+  one (a web page’s does; an app’s has none), since Apple asks for the same one back. A code Apple
+  won’t take is `token_refused` with `reason: "code"`.
+- **`provider` (502), with `which`**, means Apple or Google couldn’t be reached or answered
+  wrongly: their keys couldn’t be fetched, or Apple didn’t answer for the code. Nothing was
+  written, the challenge is spent, and the client starts the sign-in again later.
+- **No name and no email address** is read from a token, kept, or logged, even when the provider
+  sends one. The service keeps `sub` and nothing else from it.
+- **A provider account or a passkey that is no account’s way in.** For Apple and Google the
+  sign-in makes a new account (`created: true`), with no notebook: there is no separate “sign up.”
+  That includes a provider account that was once a way in and was removed. A passkey the service
+  doesn’t know is refused (`unknown`); an account is made with a passkey only by the two
+  `new-passkey` requests. **A client reads `created`**, and tells a reader who expected their
+  notebook that this is a new, empty account.
+- **Signing in never joins two accounts.** A reader who made one account with Apple on a phone and
+  another with a passkey on a computer has two, and adding either way in to the other account is
+  refused (`exists`) while both stand. Joining accounts is not in version 1 (“Still open,” 55).
+- **Two devices signing in at once with a provider account that is new** make one account: the
+  second finds the first’s. **A sign-in that meets the removal of its own way in** gets no session:
+  it is told `unknown` (a passkey) or `busy`, and the next try finds the way gone.
+
 ### Ways to sign in
 
-Not built yet: the requests are step 4e’s. This file’s checks on them: on an account with a
-notebook, adding or removing a way in needs an open session; the last way in can’t be removed; a
-passkey that has a holder can’t be removed as a way in while the holder exists; and a passkey
-response that carries `prf` results is refused. Step 4e’s sign-in ends in the same session token
-every request above already reads, so nothing above changes when it arrives.
+Built in step 4e (2026-11-24): several ways in to one account (“Add another way to sign in”).
+
+**The rule every request here keeps: once an account has a notebook, adding or removing a way in
+needs an open session**, one that has proved the notebook’s key. A sign-in alone is not enough, so
+someone who steals a reader’s Apple or Google sign-in can’t add a way in of their own and stay, or
+take the reader’s away. Before there is a notebook there is nothing to protect, and a signed-in
+session may. As everywhere, the session is checked before the body is read: a signed-in session on
+an account with a notebook is told `not_open` whatever it sent.
+
+| Request | From | The service checks | Then |
+|---|---|---|---|
+| `POST /ways/passkey/options` | open; or signed in, on an account with no notebook | nothing more | A challenge good for this account alone, inside the options for making a passkey: the account’s own user handle, and its passkeys in `excludeCredentials` |
+| `POST /ways/passkey` with the new passkey’s response | the same | everything `POST /sign-in/new-passkey` checks, against a challenge made for this account; that no account has the passkey; that the account has fewer than 20 ways in | The passkey is a way in. The lists’ version moves |
+| `POST /ways/apple` and `POST /ways/google`, with what the sign-in request carries | the same | everything the sign-in request checks; that the provider account isn’t a way in to any account; fewer than 20 ways in; for Apple, that the code is traded | The provider account is a way in. The lists’ version moves |
+| `DELETE /ways/<id>` | the same | the way is one of this account’s; it isn’t the last that can sign the reader in; it isn’t a passkey that has a holder; for Apple, that Apple revokes the refresh tokens kept for it | The way is removed, and every session that came in through it is ended but this one. The lists’ version moves |
+
+```text
+POST /ways/passkey/options
+  → { "publicKey": { … as POST /sign-in/new-passkey/options answers, with the account's own
+                     "user": { "id": … } and
+                     "excludeCredentials": [ { "type": "public-key", "id": "<bytes>" }, … ] },
+      "expires": "<time>" }
+
+POST /ways/passkey   { "credential": <a registration response> }
+POST /ways/apple     { "challenge", "idToken", "code", "redirect" (only if used) }
+POST /ways/google    { "challenge", "idToken" }
+  → { "way": { "id": "<uuid>", "kind": "passkey", "added": "<time>",
+               "credential": "<bytes>", "syncs": true },
+      "lists": 8 }
+
+DELETE /ways/<id>
+  → { "lists": 9 }
+```
+
+- **A change to the ways in moves the lists’ version**, and is checked and written as one step
+  against it. These requests carry no `lists` of their own, so a client need not fetch the lists
+  to add a way in, and each answers the new version. Moving it is what keeps the requests that
+  read an account’s passkeys (`POST /notebook`, `POST /holders`, `POST /notebook/key`) from giving
+  the key to a passkey that was removed a moment before: such a request is run again and refused
+  (`passkey_unknown` or `lists_changed`). **So the lists’ version can move when neither list
+  changed**, and a client that is told `lists_changed` fetches and starts again, as always.
+- **A challenge from `POST /ways/passkey/options` is good for the account that asked**, and for
+  that request alone. Answered from another account’s session, or sent to
+  `POST /sign-in/new-passkey`, it is `gone`, and spent.
+- **A new passkey is a way in, and holds nothing.** It becomes a holder only when a device that
+  has the key adds one for it (`POST /holders`), which the same screen may do next, and only if
+  `syncs` is true.
+- **`exists`**: `what: "passkey"` for a passkey that is a way in already, to this account or
+  another; `what: "way"` for an Apple or Google account that is. Which account has it is never
+  said. For Apple, nothing is asked of Apple for a way in that can’t be added.
+- **The last way in.** Removing the only way that can sign the reader in is refused by the rule
+  `last_way`. Of two removals sent at once on an account with two ways, one is refused.
+- **A passkey that holds the key** is refused by the rule `passkey_holds_key`. The client removes
+  it as a holder first, which is a change of key (`POST /notebook/key` with the holder in
+  `removeHolders`), and then removes the way in.
+- **Removing a way in ends the sessions that came in through it**, open or not, all but the one
+  asking. Their devices keep their entries and their keys, since removing a way in is not removing
+  a device: each signs in again by a way that remains and proves the key.
+- **Apple.** Before an Apple way in goes, the service revokes with Apple each refresh token it
+  holds for it. If Apple can’t be told, the request is `provider` (502), nothing is removed, and
+  the client tries again later. A Google way in has nothing to revoke.
+- **A way in that isn’t this account’s** (another account’s, one already removed, an id in the
+  wrong form) is `gone` with `what: "way"`. A twentieth way in is the last: the next is
+  `too_many` with `what: "ways"`.
 
 ### The preview’s way in
 
-**On the preview only, and never part of the interface.** Until step 4e there is no sign-in, so
-the preview service hands a session for a named test account to whoever holds the preview’s
+**On the preview only, and never part of the interface.** It was built before sign-in (step 4c)
+and stays beside it (step 4e changed neither request), because a client under test needs accounts
+without a ceremony and Sign in with Apple and with Google are off until their client ids arrive.
+The preview service hands a session for a named test account to whoever holds the preview’s
 secret. Both requests answer `not_found`, exactly as a path that was never written does, unless
 the deployment’s own configuration turns them on, names itself the preview, and has the secret.
 Production is given none of the three.
@@ -1580,8 +1867,15 @@ POST /preview/passkeys   { "credential": "<1 to 1,023 bytes>", "syncs": true }
   test, never a person’s name or address. The same name is always the same account, so several
   devices under test share one by sharing a name, and a new name is a new, empty account.
 - **`/preview/passkeys`** lists a passkey as one of the account’s ways in with no ceremony, so a
-  client can run the passkey holder’s checks before a real passkey can be registered. It follows
-  the rule the real request will: once the account has a notebook, it needs an open session.
+  client can run the passkey holder’s checks without a real passkey. It follows the rule the real
+  request does: once the account has a notebook, it needs an open session. **A passkey listed this
+  way has no public key**: it can hold the key if `syncs` is true, it can sign no one in, it
+  doesn’t count as a way that can when the last way in is being removed, and listing it doesn’t
+  move the lists’ version, as it didn’t before step 4e. A real passkey with the same credential id
+  can’t then be added to that account (`exists`).
+- **A way in of the kind `preview`** is what `/preview/session` makes, one for each test account.
+  An account made this way can add a real passkey (`POST /ways/passkey`) and then be signed in to
+  by it.
 - **Everything on the preview is test data and may be wiped at any time.**
 
 ### What the service answers when it refuses
@@ -1598,21 +1892,26 @@ there to save the client a request.
 | `lists_changed` | 409 | `lists`, the current version | **The lists changed.** Fetch them and start the step again |
 | `already_set_up` | 409 | `notebook`, its id | The account has a notebook. **Join it instead** |
 | `no_notebook` | 409 | | The account has none yet. Set one up |
-| `exists` | 409 | `what`: `device`, `holder`, `recovery`, `passkey`, `approval`, or `grant` | That id, or the one thing of that kind, is already there |
-| `gone` | 410 | `what`: `device`, `holder`, or `approval` | **Gone**: an approval ran out, a device has no entry, or the holder a device came in through was removed |
-| `not_found` | 404 | `what: "keyring"` from `GET /keyring` | No such path, or no sealed keyring for that device |
-| `bad_request` | 400 | `field`, the member at fault (`device.card.nonce`, `holders[0].kind`, `put[2].kid`, `Content-Type`, `body`) | The request isn’t in the form above. A fault in the client |
+| `exists` | 409 | `what`: `device`, `holder`, `recovery`, `passkey`, `approval`, `grant`, or `way` | That id, or the one thing of that kind, is already there. For `passkey` and `way` under “Signing in” and “Ways to sign in”: it is some account’s way in already |
+| `gone` | 410 | `what`: `device`, `holder`, `approval`, `challenge`, or `way` | **Gone**: an approval ran out, a device has no entry, the holder a device came in through was removed, a sign-in challenge ran out or was used, or a way in isn’t this account’s |
+| `not_found` | 404 | `what: "keyring"` from `GET /keyring` | No such path, a way to sign in that is off here, or no sealed keyring for that device |
+| `bad_request` | 400 | `field`, the member at fault (`device.card.nonce`, `holders[0].kind`, `put[2].kid`, `credential.response.signature`, `idToken`, `Content-Type`, `body`) | The request isn’t in the form above. A fault in the client |
 | `not_allowed` | 422 | `rule`, below | The request is well formed and breaks a rule of the interface |
+| `passkey_refused` | 403 | `reason`, the check that failed (under “Signing in”) | A passkey’s answer didn’t pass. **Start the sign-in again** from new options; for `unknown`, the service has no such passkey |
+| `token_refused` | 403 | `reason`, the check that failed (under “Signing in”) | An identity token from Apple or Google, or Apple’s code, didn’t pass. **Start the sign-in again** |
+| `provider` | 502 | `which`: `apple` or `google` | Apple or Google couldn’t be reached, or answered wrongly. Nothing was written. Try again later |
 | `too_large` | 413 | `limit` | **Too large**: a body over 4,194,304 bytes, or more than 500 rows in one request |
-| `too_many` | 429 | `what`: `devices`, `holders`, or `approvals`; `limit` | A list is full, or three approvals are in progress |
-| `busy` | 503 | | The notebook changed three times while the request was being checked. Send it again |
+| `too_many` | 429 | `what`: `devices`, `holders`, `approvals`, or `ways`; `limit` | A list is full, or three approvals are in progress |
+| `busy` | 503 | | The notebook changed three times while the request was being checked, or a way in was removed while a sign-in through it was being checked. Send it again (a sign-in: start it again) |
 | `error` | 500 | | The service failed. Send it again later |
 
 The rules a `not_allowed` names: `holder_needed` (a notebook always has a holder), `one_recovery`,
 `one_holder_per_passkey`, `passkey_unknown` (the credential isn’t one of this account’s passkeys),
 `passkey_not_synced`, `distinct_ids`, `own_device`, `every_device` and `every_holder` (a change of
 key must name each one the service has, once), `keep_own_device`, `already_open` (a device that
-has the key has no approval to ask for), `requester`, and `no_grant`.
+has the key has no approval to ask for), `requester`, `no_grant`, and from step 4e `prf_results`
+(a passkey’s response still carries the PRF’s output), `last_way` (the last way that can sign the
+reader in can’t be removed), and `passkey_holds_key` (remove the passkey as a holder first).
 
 **“Conflict” is not a refusal**: it is one row’s answer inside a `POST /rows` that was answered
 200 (above). **“Waiting”** (a request to delete or replace is pending) arrives with step 4f. The
@@ -1766,7 +2065,8 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 4. **4d, the freeze**, tentatively December 24: this file freezes with the format. A change after
    that is a new version (`/2` labels, `v` 2), never a quiet edit.
 5. **4e and 4f, sign-in and the account work on the service**: the ceremonies this file leaves to
-   them, the seven-day wait, and deleting an account.
+   them, the seven-day wait, and deleting an account. **4e is built (2026-11-24)**: a passkey signs
+   in on the preview, and Apple and Google wait on client ids from BDR (“Changed in step 4e”).
 6. **4g and 4h, the website’s connector and account pages**, on `src/lib/desk-crypto.mjs`, with the
    full Content Security Policy enforced first (4i).
 7. **Both apps build against the vectors and the preview service** (IOS-108, NB15) with sign-in
@@ -1959,6 +2259,74 @@ moved.** The ones marked **(a choice)** could reasonably have gone another way a
 20. **“Waiting seven days” and “Ways to sign in” say they are not built yet**, and each names its
     step.
 
+## Changed in step 4e
+
+Step 4e built sign-in on the service (2026-11-24): `src/signin.js`, `src/ways.js`,
+`src/webauthn.js`, `src/providers.js`, and their neighbors in `workers/notebook-service/`, with
+the database’s second migration. This file left “the rest of the ceremony” to this step, so most
+of what follows is new text and not a change to old text. **No decision of draft 2 changed, and no
+request that step 4c built changed its path, its body, or its answer**, so a client built against
+the preview keeps working. The ones marked **(a choice)** could reasonably have gone another way,
+are mine (BVJ’s Claude), and are under “Still open,” 41 to 58, for BDR to confirm and BVJ to
+check.
+
+1. **“Signing in” is new** in “The service’s interface”: eight requests, their shapes, and the
+   order of their checks. A passkey signs in on the preview today. **(a choice)**: nearly all of
+   it, item by item below.
+2. **“Ways to sign in” has its requests**, where step 4c left four sentences: adding a passkey,
+   Apple, or Google to an account, and removing a way in. The four checks those sentences named
+   are kept as written: an open session once there is a notebook, the last way in stays, a passkey
+   with a holder stays, and a response with PRF results is refused.
+3. **Sign in with Apple and with Google are built, off, and untested against either provider.**
+   No client id, bundle id, or team id is written anywhere in this repository. The token check was
+   tested with keys made inside the tests, and the two calls to Apple (trading the code, revoking
+   a token) against a stand-in for Apple’s addresses. What a real token and a real answer look
+   like is taken from each provider’s documentation, and the service’s README lists what to check
+   the day the ids arrive.
+4. **A passkey’s answer is checked by code written here, on the platform’s own cryptography**,
+   and not by a library. The service asks for no attestation, so what it must check is small and
+   fixed, and a library would bring a dozen attestation formats it never reads into the one place
+   that hands out sessions, without knowing the two rules that are LIT’s own (a PRF result is
+   refused; an Android app’s origin is checked against a list). The service’s tests hold the code
+   to the examples the standard itself publishes (WebAuthn Level 3, section 16) as well as to a
+   software authenticator written beside it. **(a choice)**
+5. **The origins a passkey may answer from are written down**: the website’s, which an iOS app
+   answers with too; the Android app by its two signing certificates, taken from the site’s
+   `assetlinks.json`; and on the preview only, the website’s dev server. **(a choice)**
+6. **The two link files have their passkey sections**: `webcredentials` in
+   `public/.well-known/apple-app-site-association`, naming the one app the file already named,
+   and `delegate_permission/common.get_login_creds` beside the relation the one statement in
+   `assetlinks.json` already had. Nothing else in either file changed, and a test now holds both
+   files’ shape and keeps the service’s Android origins equal to the certificates listed
+   (`test/link-files.test.js`).
+7. **How long a session lasts changed for an open session.** Step 4c wrote a flat 30 days and
+   said this step might revisit it. A session still starts with 30 days. An open one is now kept
+   alive by use, up to 365 days from its sign-in; one that is signed in and no more never is.
+   **(a choice)**, and a change to what BVJ said yes to under item 40.
+8. **`DELETE /session` is new** (“The account”): a device that signed in and never joined had no
+   way to sign out.
+9. **`GET /sign-in` is new**, and says which ways to sign in are on. `GET /` is unchanged.
+   **(a choice)**: a way that is off answers `not_found`, as the preview’s way in does.
+10. **Three refusals are new**: `passkey_refused` and `token_refused` (403, each with the
+    `reason`), and `provider` (502, with `which`). `gone` may now carry `what: "challenge"` or
+    `"way"`, `exists` `what: "way"`, and `too_many` `what: "ways"`; `not_allowed` has three new
+    rules, `prf_results`, `last_way`, and `passkey_holds_key`; `busy` has a second cause.
+    **(a choice)**: the words.
+11. **A change to the ways in moves the lists’ version**, so that a passkey read as one of the
+    account’s can’t be removed between that read and the write that makes it a holder.
+    `POST /notebook` now holds the lists’ version too as it writes, for the same reason; its
+    request and answer are unchanged. **(a choice)**
+12. **A session is made only while its way in still stands**, in the same statement. A way in
+    removed while a sign-in through it was being checked gets no session that would outlive the
+    removal.
+13. **“What the service holds”** now lists a passkey’s counter, the account’s user handle, the
+    sign-in challenge, which way in a session came through, and that Apple’s refresh token is
+    kept for each client and revoked when its way in is removed as well as when the account is
+    deleted.
+14. **“The preview’s way in” says how it sits beside real sign-in.** Neither of its requests
+    changed. A passkey it lists has no public key and can’t sign anyone in.
+15. **`GET /account`’s answer is unchanged**, and now says its ways in are listed oldest first.
+
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
@@ -2103,4 +2471,80 @@ from 31:
     deployed there on 2026-11-23); test accounts by a made-up name; one secret, which BVJ gives BDR
     directly and which is never written into a repository.
 40. **A session is a bearer token and lasts 30 days.** Step 4e, which builds real sign-in, may
-    change how long. **BVJ checked, 2026-11-23: “yes.”** BDR still confirms.
+    change how long. **BVJ checked, 2026-11-23: “yes.”** BDR still confirms. **Step 4e did change
+    it, for an open session only: item 52**, which BVJ has not seen.
+
+**From step 4e, for BDR to confirm and BVJ to check.** Building sign-in forced a choice in each of
+these. **Every one is mine (BVJ’s Claude, 2026-11-24), and BVJ has decided none of them yet.**
+Each is written into “Signing in” or “Ways to sign in,” is what the service does today, and has a
+test. Changing one before the freeze is cheap. The numbers go on from 40:
+
+41. **What the service needs from BDR before Apple or Google can be turned on**, since both come
+    from accounts that are BDR’s (`STUDY-DESK-FOR-THE-APPS.md`, “Waiting to hear from the apps”).
+    For Apple: each client id an identity token will be issued to (the iOS app’s bundle id; the
+    Services ID, if the website or the Android app signs in with Apple); the team id; a Sign in
+    with Apple key’s id, and the key itself, which BVJ types at Wrangler’s own prompt and which is
+    never written anywhere; and the redirect address a web flow would use. For Google: each OAuth
+    client id a token will be issued to (the one the Android app asks Credential Manager for, the
+    iOS app’s, the website’s). **Until then both are off, and nothing here has met either
+    provider.**
+42. **The origins a passkey may answer from.** `https://litbible.net`; the Android app by the two
+    certificates in `assetlinks.json`; and, on the preview alone, `http://localhost:4321` with the
+    relying party `localhost`. For BDR: which of the two certificates is the Play signing key and
+    which the upload key, whether a debug build needs a third (it would have to be added to
+    `assetlinks.json` too, or Android won’t offer the passkey), and that a passkey used from the
+    iOS app does answer with `https://litbible.net`, which is Apple’s documented behavior and
+    untested here.
+43. **The link files changed** (`webcredentials`; `get_login_creds`), with only the identifiers
+    already in them. The apps’ half is BDR’s: the `webcredentials:litbible.net` associated
+    domain on iOS, and Credential Manager on Android.
+44. **Passkey checking is written here and reads two algorithms**: ES256 and RS256, which is what
+    the options ask for. A passkey that could only make an Ed25519 key is not offered one. No
+    attestation is asked for or read.
+45. **Options and responses travel in the standard’s JSON forms**, and a client adds
+    `extensions.prf` itself. A browser and Android have these forms ready-made; an iOS app builds
+    the response’s JSON from the parts AuthenticationServices gives it. Say if that is a burden.
+46. **A response that still carries `prf.results` is refused whole, by the rule `prf_results`,
+    before the challenge is used.** That it is refused is draft 2’s; that it is refused first,
+    and how it is spelled, is this step’s.
+47. **A challenge lasts five minutes and is spent by the first request that reaches it**, whatever
+    that request’s outcome.
+48. **The challenge is the provider token’s nonce, compared character for character.** Each SDK
+    must hand the provider the challenge string unchanged and get it back as the `nonce` claim:
+    Apple’s on iOS and its web script, Google’s through Credential Manager on Android, its iOS
+    SDK, and its web script. **Untested against any of them.** If one hashes what it is given, the
+    service’s check for that provider changes, which is one line.
+49. **Apple’s authorization code is sent with every Apple sign-in**, traded once for each client
+    id, and the refresh token is kept for revoking and nothing else. `redirect` is sent only when
+    the client’s own flow used one.
+50. **One user handle for an account, and one name for every passkey: “LIT Bible notebook,”** with
+    the relying party shown as “LIT Bible.” These are words a reader sees in their password
+    manager, so they are BVJ’s to approve. The service holds no name or address to show in their
+    place; a client can’t change them, since the options come from the service.
+51. **A counter that doesn’t go forward is refused.** A passkey that keeps no counter sends 0 and
+    is always accepted, which covers every synced passkey. The other reading only notes a counter
+    that went backward and lets the sign-in through.
+52. **How long a session lasts: 30 days from a sign-in, and an open session kept alive by use for
+    up to 365 days.** Item 40’s flat 30 days would sign every device out monthly, and a phone that
+    syncs in the background would stop until its reader noticed. Only an open session is
+    extended, so a sign-in that can’t open the notebook still runs out in 30 days; a removed
+    device’s sessions end at once, and a change of key closes the rest, as before. Going back to
+    a flat 30 days is one number in `src/session.js`.
+53. **The new words**: `passkey_refused`, `token_refused`, and `provider`; `challenge` and `way`
+    under `gone`, `way` under `exists`, `ways` under `too_many`; the rules `prf_results`,
+    `last_way`, and `passkey_holds_key`; and that a way to sign in that is off answers
+    `not_found`, with `GET /sign-in` to say which are on.
+54. **A change to the ways in moves the lists’ version**, and those requests carry no `lists` of
+    their own. A device may therefore be told `lists_changed` when neither list changed.
+55. **No joining of accounts, and no separate sign-up for Apple or Google.** A provider account
+    that is no account’s way in makes a new, empty account when it signs in, and the answer says
+    so (`created`). A reader who ends up with two accounts can’t fold one into the other in
+    version 1: they delete one (step 4f) and add its way in to the other. Whether that is good
+    enough for launch is BVJ’s call.
+56. **Removing a way in ends the other sessions that came in through it** and leaves their
+    devices listed. **And an Apple way in can’t be removed while Apple can’t be reached**, since
+    its refresh token is revoked first.
+57. **The limits**: 20 ways in for an account, and the sizes of a passkey’s response and of a
+    token under “How values are spelled.”
+58. **`DELETE /session`**, for a device that signed in and never joined; and **a client ignores a
+    member of an answer that it doesn’t know**, so that a later step can add one.
