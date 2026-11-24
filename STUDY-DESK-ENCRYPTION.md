@@ -2040,13 +2040,18 @@ signs, it verifies.
    service drop it. Under encryption the service can’t open a trash record, so the first device to
    drop the copy pushes the tombstone (under “Opening”).
 3. **The row gains `v`, `kid`, and `nonce`** beside the agreed plain fields. Additions, not changes.
-   They go into the format’s “How each store holds the records” with the freeze work (step 4d).
+   They are in the format’s “How each store holds the records” since the freeze work (step 4d,
+   2026-11-24), which lists the row’s fields and points here for the rest.
 4. **The service doesn’t apply the format’s cap on a clock running ahead.** The format says “a sync
    service’s cap is its own clock.” Under encryption the service can’t clamp a sealed time, so each
    receiving device caps against its own clock (under “A record on the service”). The format’s
    sentence changes with the freeze work, if BDR agrees. BVJ said yes on 2026-11-23, with a merge
    test added in the same step: two devices whose clocks differ must still agree on which edit
-   wins.
+   wins. **Step 4d changed the sentence and added the test** (2026-11-24; for BDR to confirm):
+   merge vectors version 9, and the format’s “Clocks,” “Two devices whose clocks differ,” which
+   says what the agreement comes to. Within the format’s five minutes of skew the two agree at
+   once; further apart, once the slower clock reaches the stamp, the faster clock’s edit winning;
+   and an exact tie in `modified`, which differing clocks make likely, is settled only by `rev`.
 5. **Passkeys are part of the launch**, where the call had them “if the schedule holds.”
 
 ## Order of work
@@ -2353,7 +2358,12 @@ day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
     keeps its keys until signed out.
 14. **The requests** under “The service’s interface,” their checks, and that the clock cap is the
     devices’ and not the service’s. BVJ’s yes came with a merge test, added in step 4d: two devices
-    whose clocks differ must still agree on which edit wins.
+    whose clocks differ must still agree on which edit wins. **Added 2026-11-24** (merge vectors
+    version 9; the format’s “Clocks,” “Two devices whose clocks differ”). It found one thing the
+    interface has to carry: when clocks differ, two devices can stamp the same `modified` on
+    different edits, and only `rev` can settle that. The format proposes that the row the service
+    holds wins such a tie, **which BVJ has not decided**; a client would apply it to a row from
+    `GET /rows` and to the row a `conflict` answers with.
 15. **Adding or removing a way to sign in needs a session that has proved the key**, once the
     account has a notebook.
 
@@ -2432,8 +2442,9 @@ is cheap before the freeze. The numbers go on from 21 so that nothing above is r
     check for a trash record’s row. Settled in step 4c or 4d, once they answer. **As built in step
     4c, with no answer yet**: the service makes the check as the interface states it, row by row,
     so such a row is answered `refused: "deletedAt"` and the rows beside it are stored. Relaxing
-    it is one line of the service (`refusedRow`, `workers/notebook-service/src/rows.js`). Settled
-    in step 4d.
+    it is one line of the service (`refusedRow`, `workers/notebook-service/src/rows.js`). **Not
+    settled in step 4d** (2026-11-24): neither app had answered, so the format and the service
+    are as they were, and this stays open until one does.
 
 **From step 4c, for BDR to confirm and BVJ to check.** Building the service forced a choice in each
 of these, where the interface made none. Each is written into “The service’s interface,” is what

@@ -11,6 +11,7 @@ import {
   layoutCircles,
   layoutFull,
   marginMode,
+  markerName,
   noteOpening,
   noteWidth,
   popoverPlace,
@@ -179,8 +180,12 @@ test("a note left on a footnote (withdrawn by E79) opens as a note on whole vers
   assert.equal(noteOpening(left, "Romans 8:3"), "My note on Romans 8:3: ");
 });
 
-test("every note marker has the name a reader sees, and the ribbon is called Ribbon (E10)", () => {
+test("every note marker has the name a reader sees, and the retired ribbon has none (4d)", () => {
   assert.deepEqual(Object.keys(MARKER_NAMES), [...MARKERS]);
-  assert.equal(MARKER_NAMES.ribbon, "Ribbon");
+  assert.equal(MARKER_NAMES.ribbon, undefined);
   assert.equal(MARKER_NAMES.bookmark, undefined);
+  // A note this code can't rename (a newer schema's) still carrying one reads as the plain note.
+  assert.equal(markerName("ribbon"), "Note");
+  assert.equal(markerName("bookmark"), "Note");
+  assert.equal(markerName("question"), "Question");
 });

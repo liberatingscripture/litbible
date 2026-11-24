@@ -2,8 +2,10 @@
 //
 // Writing or editing a note, in the shared floating panel (lit-panel.js), in
 // place of the menu it was asked for from: the words it hangs on and their
-// reference, the seven markers (the apps' set; STUDY-DESK-FORMAT.md
-// `note.marker`), and the reader's own words. Ctrl+Enter (⌘+Enter) saves.
+// reference, the six markers (STUDY-DESK-FORMAT.md `note.marker`; a note
+// that carries the retired `ribbon` or `bookmark` opens on the plain note's,
+// and is rewritten only if the reader saves a change), and the reader's own
+// words. Ctrl+Enter (⌘+Enter) saves.
 // The panel ignores clicks outside it, so a stray click can't lose what was
 // typed; Cancel, × and Escape close it, asking once first while it holds
 // unsaved words, with Discard changes, Cancel (keep writing) and Save.
@@ -80,7 +82,8 @@ export function openNoteEditor({
   const n = ++seq;
   const editing = Boolean(record);
   const place = record ?? draft;
-  // A renamed marker opens under its new name, and saving writes that (E10).
+  // An old marker name opens under the name it reads as now (`star` as
+  // Emphasis; `ribbon` and `bookmark` as the plain note's), and saving writes that.
   let marker = currentMarker(record?.marker ?? "note");
 
   const panel = document.createElement("div");

@@ -1,12 +1,17 @@
 // src/lib/desk-records.mjs
 //
-// The Study Desk's records, as STUDY-DESK-FORMAT.md defines them: the eleven
-// kinds (draft 1's ten less `legend`, dropped 2026-10-07, plus draft 2's
-// `footnotePin`, BDR's request of 2026-10-09, and `collection`, D13, BVJ's
-// 2026-11-18, for BDR to review), the
+// The Study Desk's records, as STUDY-DESK-FORMAT.md defines them: the ten
+// kinds (draft 1's ten less `legend`, dropped 2026-10-07, and `hidden`,
+// dropped from the website and both apps on the 2026-11-23 call, plus draft
+// 2's `footnotePin`, BDR's request of 2026-10-09, and `collection`, D13,
+// BVJ's 2026-11-18, for BDR to review), the
 // fields every record carries, and the few rules every client keeps when it
 // makes or changes one. Pure: no storage, no DOM, no
 // clock or randomness of its own unless the caller leaves them out.
+//
+// `hidden` (kind 3, the hidden passage) is not in KINDS, so a record of that
+// kind is one this code doesn't know: carried as it arrived, never edited,
+// never drawn as a hidden passage (principle 6, and the format's kind 3).
 //
 // Three of the format's principles are enforced here rather than left to each
 // caller:
@@ -47,7 +52,6 @@ export const SCHEMA_VERSION = 1;
 export const KINDS = Object.freeze([
   "highlight",
   "note",
-  "hidden",
   "bookmark",
   "place",
   "markRule",
@@ -65,24 +69,26 @@ export const MARKERS = Object.freeze([
   "emphasis",
   "question",
   "heart",
-  "ribbon",
   "lightbulb",
   "flame",
 ]);
 
 /**
- * Note markers renamed since a client may have written them, each with the
- * name it reads as now. `bookmark` became `ribbon` (STUDY-DESK-FIXES.md E10; BDR,
- * 2026-10-23), so the marker no longer shares a name with Bookmarks; its
- * picture and color stayed. `star` became `emphasis` on iOS before the format
- * existed, and a note written then still carries `star` on disk, since
+ * Note marker names a client may have written that are no longer in the
+ * list, each with the name it reads as now. **`ribbon` left the list on
+ * 2026-11-23** (the call with BDR dropped the bookmark picture from the
+ * apps' note markers, and BVJ the website's ribbon the same day): a note
+ * that carries it, or the name it had until 2026-10-23, `bookmark` (E10),
+ * reads as the plain `note`. `star` became `emphasis` on iOS before the
+ * format existed, and a note written then still carries `star` on disk, since
  * nothing stored is rewritten (audit 3 DI3-5). Every client reads an old name
- * as the new one and writes the new one. A record still holding an old name
- * is valid, and nothing stored is rewritten just because it was read:
+ * as the one it maps to and writes that one. A record still holding an old
+ * name is valid, and nothing stored is rewritten just because it was read:
  * migrateRecord renames it on the way in, so the next write of that note
- * carries the new name.
+ * carries the current name. The apps have not yet listed every name they
+ * ever wrote (STUDY-DESK-FOR-THE-APPS.md, ask 4); one not here is refused.
  */
-export const RENAMED_MARKERS = Object.freeze({ bookmark: "ribbon", star: "emphasis" });
+export const RENAMED_MARKERS = Object.freeze({ bookmark: "note", ribbon: "note", star: "emphasis" });
 
 /** A note marker by its current name: the new name for a renamed one. */
 export function currentMarker(marker) {
@@ -90,7 +96,7 @@ export function currentMarker(marker) {
 }
 
 /** Kinds that sit on the text, and so carry `bookKey`, `chapter` and verses. */
-const ON_THE_TEXT = new Set(["highlight", "note", "hidden", "bookmark", "place", "footnotePin"]);
+const ON_THE_TEXT = new Set(["highlight", "note", "bookmark", "place", "footnotePin"]);
 
 /**
  * A note's targets other than verses (STUDY-DESK.md N11; BVJ, 2026-10-06),
@@ -360,7 +366,8 @@ export function emptyTrashRecord(trash, now = new Date().toISOString()) {
  *   provisional fields) takes the kind from the record it holds. A tombstone
  *   already emptied can't recover it and stays as it is; nothing reads the
  *   kind of a deletion past its 30 days;
- * - a note with a renamed marker (RENAMED_MARKERS) takes the current name,
+ * - a note with an old marker name (RENAMED_MARKERS: `ribbon` and `bookmark`
+ *   read as `note`, `star` as `emphasis`) takes the current name,
  *   and so does a note a trash record holds, so undoing its deletion brings
  *   it back renamed. A note this code can't edit (a newer schema) is left as
  *   it arrived;
@@ -479,7 +486,7 @@ export function validateRecord(r) {
   if (k === "note") {
     need(typeof r.body === "string", "body is not text");
     need(typeof r.body !== "string" || r.body.length <= MAX_NOTE_BODY, `body is too long to keep (over ${MAX_NOTE_BODY} characters)`);
-    // A renamed marker's old name is still valid: every client reads it as the new one.
+    // An old marker name is still valid: every client reads it as the name it maps to.
     need(MARKERS.includes(currentMarker(r.marker)), `marker "${r.marker}" is not one of ${MARKERS.join(", ")}`);
     // A note's `footnote` and `n` named the footnote it was on until notes on a
     // footnote were withdrawn (BVJ, 2026-11-10; E79). They are not checked:

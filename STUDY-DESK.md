@@ -5314,6 +5314,87 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      since under encryption each device caps a future time and the
      service can't. Bookmark labels need no change:
      the format already has labels (kind 8) and `labels` on a bookmark.
+     **Built on 2026-11-24, as far as it goes without BDR.** The format is
+     not declared frozen by this step. What exists:
+     - **Kind 3 is out of the format and the website's code.** The format
+       keeps the number, struck through (as `legend` keeps 6), and says
+       what a client does with a `hidden` record it still meets: it is a
+       kind the client doesn't know, so it is kept and carried as it
+       arrived, never edited, and nothing is hidden because of it
+       (principle 6). That sentence is Claude's, **for BDR to confirm**.
+       On the website `hidden` left `KINDS`, so one can't be made or
+       edited; it is a plain "Item" row on the notebook page, never a
+       search result, whole in a backup, and absent from the Markdown
+       file. That was the code half of Phase 6's item on the hidden
+       passage, which now reads "Delete the hidden passage's branches":
+       the two branches are still on origin.
+     - **The `ribbon` marker is out of kind 2**, which has six names.
+       `ribbon` and the older `bookmark` read as `note`, and `star` still
+       as `emphasis` (`RENAMED_MARKERS`); nothing stored is rewritten, and
+       a note is written with the name it reads as when the reader next
+       changes it. The note editor offers six markers. The website tells
+       the reader nothing about a marker that changed (Claude's choice
+       not to build a notice: the preview's one reader is BVJ, who made
+       the call). **The apps
+       haven't listed the names they ever wrote** (ask 4 in
+       `STUDY-DESK-FOR-THE-APPS.md`), so the rule covers the three names
+       known, and any other is still refused.
+     - **The service row's fields are in the format**: a table under "How
+       each store holds the records" (`v`, `id`, `rev`, `modified`,
+       `deletedAt` on a trash record only, `kid`, `nonce`, `ct`), agreeing
+       with the spec's "A record on the service" and `sealRecord` in
+       `src/lib/desk-crypto.mjs`, and pointing to the spec for the rest.
+     - **The format's clock sentence is changed**, for BDR to confirm:
+       under sync the receiving side is the device, and the service caps
+       nothing.
+     - **The merge vectors are version 9**, 91 cases, ten of them new:
+       five for two devices whose clocks differ, four for the marker
+       names, one for a `hidden` record. **The file has no builder.** It
+       is written by hand, so it was edited by hand in its own layout, and
+       `test/desk-merge.test.js` runs every case; nothing regenerates it.
+     - **What the test BVJ's yes came with found. For BVJ to read**, since
+       the yes was to devices that "still agree on which edit wins":
+       1. **Clocks within five minutes of each other agree at once.** Both
+          keep the edit with the later stamp, which can be the edit made
+          first: noon on a phone three minutes fast is stamped 12:03 and
+          wins over 12:02 on a clock that is right.
+       2. **Clocks further apart agree later, and the fast clock wins.**
+          Until the slower clock is within five minutes of the stamp, the
+          slower device keeps its own edit and the faster one its own.
+          After that both hold the faster clock's edit, even over an edit
+          made on the slower device in between, which is lost. **BVJ had
+          this put to BDR** (2026-11-24; ask 11 in
+          `STUDY-DESK-FOR-THE-APPS.md`): is that what the apps want?
+       3. **An exact tie is no longer rare, and needs the service to settle
+          it.** An edit stamps 1 ms past the version it replaces, so two
+          devices that are both behind a third's stamp, and each edit that
+          version, stamp the same time. With nothing to break the tie each
+          keeps its own for good: three devices with differing clocks do
+          not all end alike in the test without a tiebreak they share (the
+          first random history already differs), and do with one (thousands
+          of random histories, with clocks minutes apart and hours apart).
+          The format already names the store's revision as
+          the tiebreaker; it never said how. **Claude proposes that the row
+          the service holds wins an exact tie**, written into the format's
+          "Clocks" as a proposal. **BVJ has not decided it, and it is for
+          BDR to confirm**; a vector for it needs the vectors to carry a
+          tiebreak, which they don't yet.
+     - **For step 4g, the connector** (Claude's notes; the first comes
+       from the tests, the rest are worked out and untested, since the
+       tests model devices trading copies and not a service):
+       pass the service's row as the winner of an exact tie (`tiebreak`);
+       keep the cursor behind a row that was dropped as ahead, or written
+       clamped, and judge it again later; while the service's row for a
+       record is ahead of the device's clock, don't push the device's copy
+       of it, and never push a copy that was only clamped; after a pull,
+       push a device's copy that outranks the service's row; and the
+       service's `time` in every answer is there to tell a reader whose
+       clock is far off.
+     - **Left alone, because the apps hadn't answered** (`main`'s
+       `STUDY-DESK-FOR-THE-APPS.md`, read on 2026-11-24): the three points
+       BDR changed (ask 1), every marker name (ask 4), and a trash
+       record's times (ask 8, the spec's "Still open," 31, which stays
+       open; the service is unchanged).
    - **4e. Sign-in on the service** (3). Sign in with Apple and with
      Google, passkeys with `litbible.net` as the relying party, sessions,
      and several ways in to one account. The link files change with it
@@ -5570,16 +5651,19 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      version 1 (S12, Part 4), and GF8c-1's ceiling of 200 on a verse
      number. They bear on Phase 4's sync more than on the launch, but
      settle them before the format is frozen for syncing.
-   - **Delete the hidden passage's code** (N8; BVJ decided 2026-11-10 not
-     to include it, unless BDR makes the case for it before then). Delete
-     the branches `claude/desk-1d-hidden` and `claude/desk-1d-search`, local
-     and on `origin`; on `main`, drop the `hidden` name from `kindName`
-     (`desk-store-core.mjs`), "Hidden passage" from `KIND_WORD`
-     (`desk-export.mjs`), the hidden-passage handling in `desk-notebook.mjs`
-     and the tests that name it, and the pointers in this file and the desk's
-     `CLAUDE.md`, and the `hidden` kind in `STUDY-DESK-FORMAT.md`. No
-     `hidden` record was ever written (the feature was never switched on),
-     so there is nothing to migrate or keep.
+   - **Delete the hidden passage's branches** (N8; BVJ decided 2026-11-10
+     not to include it, and the 2026-11-23 call dropped it from the website
+     and both apps). **The code half of this item is done** (Phase 4's
+     step 4d, 2026-11-24): `hidden` is out of `KINDS` and of `kindName`
+     (`desk-store-core.mjs`), "Hidden passage" is out of `KIND_WORD`
+     (`desk-export.mjs`), the tests treat a `hidden` record as a kind the
+     website doesn't know, the desk's `CLAUDE.md` says so, and kind 3 is
+     struck through in `STUDY-DESK-FORMAT.md`, which says what a client
+     does with one it still meets. **What is left**: delete the branches
+     `claude/desk-1d-hidden` and `claude/desk-1d-search`, local and on
+     `origin` (both were still there on 2026-11-24). No `hidden` record
+     was ever written (the feature was never switched on), so there is
+     nothing to migrate or keep.
    - **The announcement.** M12 decided on a line in the release notes and
      the newsletter at launch (the newsletter is written in Brevo). Decide
      whether the site's one announcement popover, now the apps' launch,
