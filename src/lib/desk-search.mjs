@@ -12,9 +12,9 @@
 //   place         its name (a reading place another client kept)
 //   footnotePin   the pinned footnote's text
 //   anything      the names of the labels it carries
-// A `hidden` record is never a result: its note is the reader's preparation
-// for a hard passage, and a search box on a shared screen shouldn't read it
-// out. A trash record is never a result either.
+// A record of any other kind is never a result (a sheet has its own search;
+// a kind this code doesn't know, the dropped `hidden` among them, isn't
+// read). A trash record is never a result either.
 //
 // Matching is by word beginning, with case and accents ignored (the same
 // folding the verse search uses, and a final ς read as σ): "lib" finds

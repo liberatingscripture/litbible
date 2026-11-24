@@ -13,9 +13,11 @@ decisions; this file holds only the format.
 
 **It doesn't depend on where notes are kept.** Whether they live in the
 reader's iCloud and Google Drive (plan A) or in a LIT service (plan C since
-2026-10-07, end-to-end encrypted; formerly plan B) is still open. This file describes the records themselves: what a note *is* and
-which fields it has. A short section at the end maps them into each store.
-Agreeing this now is safe under either plan.
+2026-10-07, end-to-end encrypted; formerly plan B) was open when this was
+written; **plan C was chosen on 2026-11-23** (`STUDY-DESK.md`, "Decisions",
+2026-11-23). This file describes the records themselves: what a note *is* and
+which fields it has. A short section at the end maps them into each store,
+and `STUDY-DESK-ENCRYPTION.md` is the spec for the service's.
 
 Three files go together:
 - this one, the spec;
@@ -132,21 +134,36 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      original wording, so it says when its copy was taken.
 2. **`note`**
    - `body`: plain text, always displayed as text;
-   - `marker`: `note`, `emphasis`, `question`, `heart`, `ribbon`,
-     `lightbulb` or `flame`. N6's question is the `question` marker.
-     **`ribbon` was `bookmark` until 2026-10-23** (E10; BDR's decision):
-     every client reads `bookmark` as `ribbon` and writes `ribbon`, as iOS
-     already reads an old `star` as `emphasis`; nothing stored is rewritten.
-     The marker's picture and color do not change. **Every client reads
-     every old name** (audit 3 DI3-5, 2026-11-07): since nothing stored is
-     rewritten, an iOS note from before the rename still carries `star` on
-     disk and reaches the website in a backup or a sync, where it was
-     refused. The website's `RENAMED_MARKERS` now holds both `bookmark →
-     ribbon` and `star → emphasis` (merge vector
-     `migrate-an-old-star-marker-reads-as-emphasis`). **BDR, please list
-     every marker name either app has ever written**, so the website reads
-     them all. **`marker` is required** (audit 8 DI8-6): a note without one
-     is refused, so a client that shows a note with no icon writes `note`;
+   - `marker`: `note`, `emphasis`, `question`, `heart`, `lightbulb` or
+     `flame`. N6's question is the `question` marker.
+     **The `ribbon` marker left the format on 2026-11-23** (the call's
+     decision that the bookmark picture leaves the apps' note markers, and
+     BVJ the same day: “Yes, the awareness ribbon marker goes too”; written
+     here in step 4d, 2026-11-24). It was `bookmark` until 2026-10-23 (E10).
+     **Every client reads `ribbon` and the older `bookmark` as `note`**, as
+     iOS already reads an old `star` as `emphasis`, and writes neither name.
+     Nothing stored is rewritten: a note keeps the name it has on disk until
+     the reader next changes it, when it is written with the name it reads
+     as. A note a trash record holds is read the same way. **Every client
+     reads every old name** (audit 3 DI3-5, 2026-11-07): an iOS note from
+     before a rename still carries the old name on disk and reaches the
+     website in a backup or a sync, where a name it doesn't know is refused.
+     The website's `RENAMED_MARKERS` holds `ribbon → note`, `bookmark →
+     note`, and `star → emphasis` (merge vectors
+     `migrate-a-ribbon-marker-reads-as-note`,
+     `migrate-an-old-bookmark-marker-reads-as-note`,
+     `migrate-a-ribbon-marker-held-in-the-trash-reads-as-note`,
+     `migrate-a-ribbon-marker-and-the-note-it-reads-as-are-one-record`, and
+     `migrate-an-old-star-marker-reads-as-emphasis`; version 9, **for BDR to
+     confirm**). **Still open: BDR, please list every marker name either app
+     has ever written** (`STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from
+     the apps," 4), so the rule covers them all; until then it covers the
+     three names known. Whether a reader is told that a note's marker
+     changed is each client's own (the call's decision lets the apps show
+     a quiet notice; the website shows none). **`marker` is required**
+     (audit 8 DI8-6): a note
+     without one is refused, so a client that shows a note with no icon
+     writes `note`;
    - `quote`, optional: a note on a whole verse has none;
    - `verseCopy`, `verseCopyAsOf`.
 
@@ -180,15 +197,22 @@ generated from `src/data/books.js` (A-F9). It's never stored.
      article's words (see "Anchor text for prose" below) and `targetTitle`,
      a copy of its title for lists. Website only unless BDR changes the
      apps, which carry such a note untouched (principle 6).
-3. **`hidden`** (N8): a verse range the reader has hidden until they choose
-   to show it, with an optional note to self. While the record exists, every
-   client keeps those verses hidden everywhere they appear, screen readers
-   included. **The note to self is `body`**, as a note's words are (the
-   website's proposal, 2026-10-26, for BDR to confirm). **The website won't
-   include the hidden passage** (BVJ, 2026-11-10, open to discussion with
-   BDR). It was never switched on, so no record of this kind exists, and the
-   kind leaves the format before launch (STUDY-DESK.md, Phase 6) unless that
-   discussion brings it back.
+3. ~~**`hidden`**~~ (N8): **dropped 2026-11-23** (BVJ and BDR on the call:
+   the hidden passage is dropped from the website and both apps; taken out
+   of this file and the website's code in step 4d, 2026-11-24). The number
+   is kept so the kinds after it don't move. It was a verse range the reader
+   had hidden until they chose to show it, with an optional note to self in
+   `body`. It was never switched on, on the website or in either app, so no
+   record of this kind should exist. **A client that still meets one treats
+   it as any kind it doesn't know** (principle 6; this sentence is Claude's,
+   step 4d, **for BDR to confirm**): it keeps the record, carries it through
+   a merge, a backup, and a sync as it arrived, never edits it, and **hides
+   nothing because of it**. On the website it is a plain "Item" row on the
+   notebook page, where the reader can delete it; it is never a search
+   result and never drawn on the text; a backup carries it whole (in the
+   Web Annotation file under `lit.records`, never as an annotation), and
+   the Markdown file leaves it out. Merge vector
+   `keep-a-hidden-record-arrives-as-it-is` (version 9).
 4. **`bookmark`** (B2; E9)
    - a verse;
    - an optional `label`: the bookmark's name, up to 40 characters. Names
@@ -255,6 +279,10 @@ generated from `src/data/books.js` (A-F9). It's never stored.
    glyph is never called a ribbon. Every client reads an old `bookmark` as
    `ribbon` and writes `ribbon`, as iOS reads an old `star` as `emphasis`.
    (The other option, retiring it, was not taken.)
+   **Retired after all, 2026-11-23** (kind 2's `marker` says how): the note
+   marker `ribbon` left the format, and `ribbon` and `bookmark` on a note
+   both read as `note`. The word "ribbon" now names nothing in the format
+   but the old `place` this section folds into a bookmark.
 5. **`place`** (B1): `name` (empty for a book's own "Continue reading"
    place), and a verse. Places are stored as verses, never scroll positions
    (A-F13). **Reading places don't sync in version 1** (BVJ, 2026-10-29;
@@ -366,8 +394,8 @@ generated from `src/data/books.js` (A-F9). It's never stored.
     deletion instead. Rule b, answered since, makes that wrong: an edit made
     after the first deletion and before the second would bring back a
     record the reader deleted after editing it.
-11. **`footnotePin`** (draft 2; BDR, 2026-10-09; the tenth kind in use,
-    numbered 11 because `legend` keeps its number). A footnote the reader
+11. **`footnotePin`** (draft 2; BDR, 2026-10-09; numbered 11 because
+    `legend` keeps its number, as `hidden` now does). A footnote the reader
     pinned to come back to. Readers see "Pin", "Unpin" and "Pinned
     footnotes" on all three.
     - a verse: the verse whose text holds the footnote's letter (a letter
@@ -400,7 +428,9 @@ generated from `src/data/books.js` (A-F9). It's never stored.
 unused for now (A-F12). Under plan C, BDR's proposal (2026-10-07) makes the
 envelope the standard wrapper for draft 2: id, revision, edit time and
 deletion time in the clear, everything else encrypted (`STUDY-DESK.md`, "One
-notebook, three homes").
+notebook, three homes"). **That envelope is the service's row, not a field
+of a record** (2026-11-23): no record carries `encryptedBody`, and the row's
+fields are under "How each store holds the records" below.
 
 ## Sheets (kind 9)
 
@@ -1227,7 +1257,15 @@ the same export file opened again a day later would beat the edit or the
 deletion made in between, every time (BA4). So:
 - **The cap** is the receiving side's "now", or, for an export file, the
   file's own `exported` time when that is earlier, since nothing in a file can
-  be newer than the file. A sync service's cap is its own clock. The cap is
+  be newer than the file. **Under sync the receiving side is the device, and
+  the service caps nothing**: a record's seal covers its times, so the
+  service can't change one, and refusing a record from a clock running
+  ahead would strand it on its device. Each device caps what it receives
+  against its own clock, as it does for a file
+  (`STUDY-DESK-ENCRYPTION.md`, "A record on the service"). This sentence
+  read "A sync service's cap is its own clock" until step 4d (2026-11-24);
+  BVJ said yes to the change on 2026-11-23, with the test under "Two devices
+  whose clocks differ" below; **for BDR to confirm**. The cap is
   written as UTC with a `Z`, whatever form the file's time had (DI-12).
 - **Room for skew** (audit 2 DI-8; merge vectors version 4; for BDR to
   confirm): against "now", a time up to **five minutes** ahead still counts as
@@ -1320,6 +1358,48 @@ deletion made in between, every time (BA4). So:
   from another copy of its id, on the receiving side or in the same input,
   is skipped and reported, so a trash record can never replace the note it
   shares an id with. So is a trash record whose `deletedId` is its own `id`.
+- **Two devices whose clocks differ** (step 4d, 2026-11-24; merge vectors
+  version 9; the test BVJ's yes to the cap above came with; **for BDR to
+  confirm**). No rule here is new: these are rule a and the clamp, with each
+  device judging by its own clock. What they add up to:
+  - **Within the five minutes of skew, both devices agree at once.** Each
+    keeps the edit with the later `modified`, whichever made it. The later
+    stamp can be the earlier edit: one made at noon on a phone three minutes
+    fast is stamped 12:03, and wins over one made at 12:02 on a clock that
+    is right. Cases
+    `a-clocks-three-minutes-apart-the-slower-device-takes-the-later-stamp`
+    and `a-clocks-three-minutes-apart-the-faster-device-keeps-the-later-stamp`
+    are one pair of edits, merged on each device at its own `now`.
+  - **Further apart, they agree once the slower clock reaches the stamp.**
+    Until then the slower device drops the faster one's edit as ahead and
+    keeps its own, the faster device keeps its own as the later, and the two
+    hold different words. A sync that drops a record as ahead doesn't
+    advance its cursor past it (above), so the slower device judges the
+    record again, and takes it once its clock is within five minutes of the
+    stamp. From then on both hold the faster clock's edit, **even over an
+    edit the slower device made to that record in between**. That is the
+    cost of leaving the cap to devices, and the reason the service sends its
+    own time with every answer: a client can tell a reader whose clock is
+    far off (whether it does is each client's own). Cases
+    `clamp-clocks-two-hours-apart-the-slower-device-waits`,
+    `a-clocks-two-hours-apart-the-faster-device-keeps-its-own`, and
+    `a-clocks-two-hours-apart-the-slower-device-takes-it-once-its-clock-arrives`.
+  - **An exact tie stops being rare, and only the store's revision settles
+    it.** An edit stamps 1 ms past the version it replaces, so two devices
+    that are both behind a third device's stamp, and each edit the version
+    it stamped, write the same `modified`. With no store revision each
+    keeps its own copy (the second detail above), and they never agree; the
+    website's test of three devices with differing clocks fails without a
+    tiebreak they share and passes with one
+    (`test/desk-merge.test.js`, "4d"). So under sync every client must
+    settle an exact tie by the service's revision, the same way. **Proposed
+    by the website (Claude, step 4d; BVJ has not decided it; for BDR to
+    confirm): the row the service holds wins an exact tie against a
+    device's own copy**, whether it arrives in a pull or in the answer to a
+    push that met a conflict. The service takes one push for a row's `rev`
+    and answers the next with a conflict (the spec's "Records"), so the copy
+    it took first stands, and every device ends with it. The vectors carry
+    no tiebreak, so no case shows this yet; one comes with the rule.
 
 ## Addresses
 
@@ -1332,8 +1412,8 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
 ## How each store holds the records (sketch)
 
 - **iCloud (plan A).**
-  - The kinds the iOS app shows (highlight, note, bookmark, place, trash,
-    hidden) map onto the app's own Core Data records (`CD_` types in the
+  - The kinds the iOS app shows (highlight, note, bookmark, place, trash)
+    map onto the app's own Core Data records (`CD_` types in the
     app's zone). Fields are added once, by BDR, and are permanent.
   - Highlights are sliced per paragraph with a shared `groupId`, the app's
     current shape.
@@ -1347,9 +1427,38 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
     never needs another field.
 - **Google Drive app folder (plan A).** One JSON file per record, named by
   `id` (A-F2), holding the logical record as written here.
-- **A LIT service (plan C).** One row per record: the reader, `id`, a
-  revision, `modified` and the deletion time in the clear, and the record's
-  JSON encrypted.
+- **A LIT service (plan C, chosen 2026-11-23).** One row per record, kept by
+  account, with the record's JSON sealed on the device, so the service can
+  read nothing of a record but the plain fields its row carries. A row's
+  fields (written here in step 4d, 2026-11-24):
+
+  | Field | Meaning |
+  |---|---|
+  | `v` | The row's own version, 1. A client that meets a `v` it doesn't know keeps the row aside, and deletes or overwrites nothing because of it |
+  | `id` | The record's `id`, exactly as the record writes it |
+  | `rev` | The service's revision: the cursor for "what changed since," and what settles an exact tie ("Clocks"). The service sets it, and it is the one field the seal doesn't cover |
+  | `modified` | The record's `modified`, copied byte for byte |
+  | `deletedAt` | On a trash record's row only: its `deletedAt`, copied byte for byte. Any other record's row has none, and a client reads a missing one and a `null` alike |
+  | `kid` | Which of the notebook's keys sealed the row: a whole number, 1 or more |
+  | `nonce` | 12 bytes, base64url |
+  | `ct` | The sealed record with its tag, base64url |
+
+  `id`, `rev`, `modified`, and a trash record's `deletedAt` are the plain
+  fields BDR proposed on 2026-10-07 (the envelope under "Reserved," above);
+  `v`, `kid`, and `nonce` are the encryption spec's additions (its
+  "Departures," 3; **for BDR to confirm**, with the rest of its "Still
+  open"). **`STUDY-DESK-ENCRYPTION.md`, "A record on the service," is the
+  spec for all of it** (how a record is sealed and opened, the padding, what
+  a client does with a row it can't open, and the requests that carry rows),
+  with `src/lib/desk-crypto.mjs` as its reference and
+  `test/fixtures/notebook-crypto-vectors.json` as its vectors; none of that
+  is repeated here. The service merges nothing and caps no time ("Clocks"):
+  merging happens on devices, as principle 2 says. **Still open: a trash
+  record whose times aren't in the `Z` form can't be pushed** (the spec's
+  "Still open," 31; `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the
+  apps," 8), since this file lets a trash record carry times that merely
+  parse and the service asks for the format's form. It waits on the apps'
+  answer.
 - **The export file.** For marks on the text: JSON in the W3C Web Annotation
   shape, where `TextQuoteSelector` is `quote`, `FragmentSelector` is
   `v3-4` (the fragment without its `#`, as W3C's selector has it, with
@@ -1367,14 +1476,14 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   - **Web Annotation** (`.annotations.json`): an `AnnotationCollection`. Each
     mark on the text is an annotation whose `motivation` is highlighting for
     a highlight, commenting for a note (questioning for the `question`
-    marker), bookmarking for a bookmark or pinned footnote (a pin's target
-    is a `TextQuoteSelector` of its text), and commenting for `hidden`
-    (the vocabulary has nothing for hiding). **Every annotation carries the
-    whole record as `lit.record`**, so the file re-imports losslessly. The
+    marker), and bookmarking for a bookmark or pinned footnote (a pin's
+    target is a `TextQuoteSelector` of its text). **Every annotation carries
+    the whole record as `lit.record`**, so the file re-imports losslessly. The
     AnnotationCollection's own `lit.records` holds what isn't a mark on the
     text: places, labels, sheets, the reader's collections (kind 12), mark
-    rules and kinds the website doesn't know. Files other tools made are
-    reported and skipped on import.
+    rules and kinds the website doesn't know (a `hidden` record among them
+    since step 4d; until then it was an annotation, "commenting"). Files
+    other tools made are reported and skipped on import.
   - **Markdown** (`.md`): for people, each entry headed by its reference and
     carrying `<!-- lit:id=… modified=… -->` (its record's `modified`), the
     header `<!-- lit-notebook 1 · saved YYYY-MM-DD HH:MM · <ISO time> -->`,
@@ -1407,7 +1516,29 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   the marker is renamed `ribbon` (E10, BDR); bookmarks stay their own kind,
   with ribbons folded in (E9, accepted by BDR). **E9 is built on the website
   (2026-11-02)**: kind 4 gained `label` and `follow`, kind 5 lost
-  `ribbon: true`, and the merge vectors are version 3.
+  `ribbon: true`, and the merge vectors are version 3. **The marker itself
+  left on 2026-11-23** (kind 2): `ribbon` and `bookmark` read as `note`.
+- **From the freeze work (step 4d, 2026-11-24), for BDR to confirm**, each
+  written where it applies and listed in `STUDY-DESK-FOR-THE-APPS.md`:
+  what a client does with a kind 3 record it still meets (kind 3); `ribbon`
+  and `bookmark` reading as `note` (kind 2); the cap being each device's
+  own under sync, and what two devices whose clocks differ then agree on
+  ("Clocks"); the service row's fields ("How each store holds the
+  records"); and the merge vectors' version 9.
+- **An exact tie under sync** ("Clocks," "Two devices whose clocks differ"):
+  the website proposes that the row the service holds wins. **Not decided
+  by BVJ, and for BDR to confirm**; no vector carries it yet.
+- **Every note marker name either app has ever written** (kind 2;
+  `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps," 4): not
+  answered as of 2026-11-24, so the reading rule covers `ribbon`,
+  `bookmark`, and `star` only. A name outside the list is still refused.
+- **The three points BDR changed** (the verse limit, collections after a
+  highlight merge, printed sheet hints; the same list, 1): not written there
+  as of 2026-11-24, so each stands here as it was. Step 4d left them alone.
+- **A trash record's times** (the encryption spec's "Still open," 31; the
+  same list, 8): not answered as of 2026-11-24. This file still lets a
+  trash record carry times that merely parse, and the service still asks
+  the `Z` form of a row, so such a record can't be pushed.
 - ~~The overlap rule's three details~~: **approved by BDR, 2026-10-09**
   (under "Highlights that meet").
 - **How records merge, and the `trash` record's fields: answered by BDR,
@@ -1437,7 +1568,11 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   2026-10-29; maybe in version 2). See kind 5.
 - ~~The sheet's inner shape~~: **approved by BVJ, 2026-10-18**, under
   "Sheets (kind 9)".
-- Each store's exact mapping, once plan A or C is chosen.
+- ~~Each store's exact mapping, once plan A or C is chosen.~~ **Plan C was
+  chosen on 2026-11-23**, and the service's row is under "How each store
+  holds the records," with `STUDY-DESK-ENCRYPTION.md` as its spec. The
+  iCloud and Google Drive sketches there are plan A's and are kept only as
+  a record.
 - **Collections, kind 12** (BVJ, 2026-11-18): **for BDR to review**,
   under "Collections (kind 12)". The website goes ahead meanwhile (the
   record and its model are built; the merge vectors are version 8); the

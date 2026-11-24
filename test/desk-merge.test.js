@@ -40,7 +40,7 @@ function shuffled(items, seed) {
 }
 
 test("the vectors are well formed", () => {
-  assert.equal(vectors.version, 8);
+  assert.equal(vectors.version, 9);
   assert.ok(vectors.cases.length >= 15);
   const names = vectors.cases.map((c) => c.name);
   assert.equal(new Set(names).size, names.length, "case names are unique");
@@ -530,4 +530,212 @@ test("DI3-3: three devices that rename, move, stop, delete and restore bookmarks
     assert.ok(sameSet(x, y) && sameSet(y, z), `history ${history} ended with different notebooks`);
     for (const s of [x, y, z]) for (const r of s) if (r.kind === "bookmark") assert.deepEqual(validateForAudit2(r), [], `history ${history}: ${r.id}`);
   }
+});
+
+/* ── Two devices whose clocks differ (step 4d; vectors version 9) ─────── */
+
+// Under end-to-end encryption a record's seal covers its times, so the service
+// can't change one and caps nothing: each device caps what it receives against its own clock
+// (STUDY-DESK-ENCRYPTION.md, "A record on the service"). BVJ's yes to that
+// (2026-11-23) came with this test: two devices whose clocks differ must
+// still agree on which edit wins. They do at once when the clocks are within
+// CLOCK_TOLERANCE_MS of each other, and, when one runs further ahead, once
+// the slower clock has reached the faster one's stamps.
+
+import { CLOCK_TOLERANCE_MS } from "../src/lib/desk-merge.mjs";
+
+const vectorNamed = (name) => vectors.cases.find((c) => c.name === name) ?? assert.fail(`no vector named ${name}`);
+
+test("4d: the three-minute vectors are one pair of edits, merged on each device at its own clock, ending alike", () => {
+  const slower = vectorNamed("a-clocks-three-minutes-apart-the-slower-device-takes-the-later-stamp");
+  const faster = vectorNamed("a-clocks-three-minutes-apart-the-faster-device-keeps-the-later-stamp");
+  assert.deepEqual(slower.local, faster.incoming);
+  assert.deepEqual(slower.incoming, faster.local);
+  assert.equal(Date.parse(faster.now) - Date.parse(slower.now), 3 * 60_000, "the same moment, by two clocks");
+  assert.ok(Date.parse(faster.now) - Date.parse(slower.now) <= CLOCK_TOLERANCE_MS);
+  assert.deepEqual(slower.expect, faster.expect, "both devices hold the same record");
+  // The edit that wins carries the later stamp, and was not clamped on the device behind.
+  assert.deepEqual(slower.expect, slower.incoming);
+  assert.ok(Date.parse(slower.incoming[0].modified) > Date.parse(slower.now), "its stamp is ahead of the slower device's clock");
+});
+
+test("4d: the two-hour vectors differ while the edit is ahead, and end alike once the slower clock arrives", () => {
+  const waits = vectorNamed("clamp-clocks-two-hours-apart-the-slower-device-waits");
+  const faster = vectorNamed("a-clocks-two-hours-apart-the-faster-device-keeps-its-own");
+  const takes = vectorNamed("a-clocks-two-hours-apart-the-slower-device-takes-it-once-its-clock-arrives");
+  assert.deepEqual(waits.local, faster.incoming);
+  assert.deepEqual(waits.incoming, faster.local);
+  assert.equal(Date.parse(faster.now) - Date.parse(waits.now), 2 * 3_600_000, "the same moment, by two clocks");
+  assert.notDeepEqual(waits.expect, faster.expect, "meanwhile each device holds its own edit");
+  // The slower device judges the same record again later; nothing but its clock has changed.
+  assert.deepEqual(takes.local, waits.local);
+  assert.deepEqual(takes.incoming, waits.incoming);
+  assert.ok(Date.parse(takes.now) > Date.parse(waits.now));
+  assert.ok(Date.parse(takes.incoming[0].modified) <= Date.parse(takes.now) + CLOCK_TOLERANCE_MS);
+  assert.deepEqual(takes.expect, faster.expect, "and then both devices hold the same record");
+  // While it waits, the slower device writes nothing and reports the record as ahead, so its sync can keep its cursor behind it.
+  const plan = mergeRecords(clone(waits.local), clone(waits.incoming), { now: waits.now });
+  assert.deepEqual({ put: plan.put, remove: plan.remove }, { put: [], remove: [] });
+  assert.deepEqual(plan.ahead.map((a) => [a.record.id, a.written]), [[waits.incoming[0].id, false]]);
+});
+
+test("4d: through the real writes, two devices three minutes apart agree at once, whichever syncs first", () => {
+  const base = a2note("as both devices hold it", "2026-11-24T11:00:00.000Z");
+  // True noon: the phone, three minutes fast, edits. Two minutes later the desktop edits.
+  const phoneEdit = editForAudit2(base, { body: "the phone's edit" }, { now: "2026-11-24T12:03:00.000Z", client: "ios/3.2.0" });
+  const desktopEdit = editForAudit2(base, { body: "the desktop's edit" }, { now: "2026-11-24T12:02:00.000Z", client: "web/test" });
+  // They exchange copies at true 12:02:30, each judging by its own clock.
+  const desktopNow = "2026-11-24T12:02:30.000Z";
+  const phoneNow = "2026-11-24T12:05:30.000Z";
+  const onDesktop = mergeSets([desktopEdit], [phoneEdit], { now: desktopNow });
+  const onPhone = mergeSets([phoneEdit], [desktopEdit], { now: phoneNow });
+  assert.deepEqual(onDesktop, onPhone);
+  assert.equal(onDesktop[0].body, "the phone's edit", "the later stamp, though the desktop's edit was made later");
+  assert.equal(onDesktop[0].modified, phoneEdit.modified, "kept as stamped, not clamped");
+  // The next edit, on the slower clock, steps past the stamp it replaces, so it wins on both.
+  const next = editForAudit2(onDesktop[0], { body: "the desktop's second edit" }, { now: "2026-11-24T12:02:40.000Z", client: "web/test" });
+  assert.equal(next.modified, "2026-11-24T12:03:00.001Z");
+  assert.deepEqual(mergeSets(onPhone, [next], { now: "2026-11-24T12:05:45.000Z" }), [next]);
+  assert.deepEqual(mergeSets([next], onPhone, { now: "2026-11-24T12:02:45.000Z" }), [next]);
+});
+
+test("4d: a clock two hours fast wins once the slower clock reaches its stamp, even over an edit made meanwhile", () => {
+  const base = a2note("as both devices hold it", "2026-11-24T11:00:00.000Z");
+  const phoneEdit = editForAudit2(base, { body: "the phone's edit" }, { now: "2026-11-24T14:00:00.000Z", client: "ios/3.2.0" });
+  const desktopEdit = editForAudit2(base, { body: "the desktop's edit" }, { now: "2026-11-24T12:01:00.000Z", client: "web/test" });
+  // True 12:02: each keeps its own. The desktop drops the phone's edit as ahead; the phone holds the later stamp.
+  let desktop = mergeSets([desktopEdit], [phoneEdit], { now: "2026-11-24T12:02:00.000Z" });
+  let phone = mergeSets([phoneEdit], [desktopEdit], { now: "2026-11-24T14:02:00.000Z" });
+  assert.equal(desktop[0].body, "the desktop's edit");
+  assert.equal(phone[0].body, "the phone's edit");
+  // True 12:30: the desktop edits again. Its stamp is its own clock's: it never held the version from 14:00.
+  desktop = [editForAudit2(desktop[0], { body: "the desktop's second edit" }, { now: "2026-11-24T12:30:00.000Z", client: "web/test" })];
+  assert.equal(desktop[0].modified, "2026-11-24T12:30:00.000Z");
+  phone = mergeSets(phone, desktop, { now: "2026-11-24T14:31:00.000Z" });
+  assert.equal(phone[0].body, "the phone's edit", "the phone still holds the later stamp");
+  // True 13:56: the phone's stamp is within the five minutes of the desktop's clock, and rule a decides.
+  desktop = mergeSets(desktop, phone, { now: "2026-11-24T13:56:00.000Z" });
+  phone = mergeSets(phone, desktop, { now: "2026-11-24T15:56:00.000Z" });
+  assert.deepEqual(desktop, phone);
+  assert.equal(desktop[0].body, "the phone's edit");
+});
+
+// What the tests above don't need and the next ones do. An edit steps 1 ms
+// past the version it replaces, so two devices that are both behind a third
+// device's stamp, and each edit the version it stamped, write the SAME
+// `modified`: an exact tie, which stops being a rarity once clocks differ.
+// The format settles a tie by the store's revision, and keeps the local copy
+// where there is none (rule a), so without one the two never agree. A sync
+// must pass its revision as `tiebreak` (step 4g).
+
+/** A record's JSON with its keys sorted, so two copies compare by what they hold. */
+const sortedJson = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map((n) => [n, x[n]])) : x));
+
+/** Stands in for a store's revision order: any order of two copies that every device agrees on. */
+const agreedOrder = (local, incoming) => {
+  const [l, i] = [sortedJson(local), sortedJson(incoming)];
+  return l < i ? 1 : l > i ? -1 : 0;
+};
+
+test("4d: two devices behind a third's stamp tie when each edits it, and only a tiebreak they share settles it", () => {
+  const base = a2note("as all three hold it", "2026-11-24T11:00:00.000Z");
+  // The phone, three minutes fast, edits at true noon. The desktop and the tablet both take that edit.
+  const phoneEdit = editForAudit2(base, { body: "the phone's edit" }, { now: "2026-11-24T12:03:00.000Z", client: "ios/3.2.0" });
+  // Each then edits it, at different moments by clocks that are right: both stamps step 1 ms past the phone's.
+  const desktopEdit = editForAudit2(phoneEdit, { body: "the desktop's edit" }, { now: "2026-11-24T12:01:00.000Z", client: "web/test" });
+  const tabletEdit = editForAudit2(phoneEdit, { body: "the tablet's edit" }, { now: "2026-11-24T12:02:00.000Z", client: "android/2.4.1" });
+  assert.equal(desktopEdit.modified, "2026-11-24T12:03:00.001Z");
+  assert.equal(tabletEdit.modified, desktopEdit.modified);
+  const now = "2026-11-24T12:02:30.000Z";
+  // With no store revision, each keeps its own (rule a), and they stay apart however often they meet.
+  assert.equal(mergeSets([desktopEdit], [tabletEdit], { now })[0].body, "the desktop's edit");
+  assert.equal(mergeSets([tabletEdit], [desktopEdit], { now })[0].body, "the tablet's edit");
+  // With an order both agree on, as a service's revision is, they hold one record.
+  const onDesktop = mergeSets([desktopEdit], [tabletEdit], { now, tiebreak: agreedOrder });
+  const onTablet = mergeSets([tabletEdit], [desktopEdit], { now, tiebreak: agreedOrder });
+  assert.deepEqual(onDesktop, onTablet);
+});
+
+/**
+ * Three devices, each with its own clock (`offsets`, in ms from true time),
+ * that create, edit, delete, restore and swap copies, every stamp and every
+ * merge by the acting device's own clock and with `tiebreak`; then everyone
+ * swaps with everyone `settle` seconds after the last step. Null when all
+ * three end alike in every history, else the first history that didn't.
+ */
+function clocksDiverge(seed0, offsets, settle, histories, tiebreak) {
+  let seed = seed0;
+  const rnd = (n) => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed % n;
+  };
+  const BASE = Date.parse("2026-11-01T00:00:00.000Z");
+  const at = (tick, d) => new Date(BASE + tick * 1000 + offsets[d]).toISOString();
+  const sameSet = (p, q) => JSON.stringify(p) === JSON.stringify(q);
+  for (let history = 0; history < histories; history++) {
+    let tick = 0;
+    const devices = [[], [], []];
+    let ids = 0;
+    for (let step = 0; step < 24; step++) {
+      tick++;
+      const d = rnd(3);
+      const mine = devices[d];
+      const live = mine.filter((r) => r.kind === "note");
+      const trashed = mine.filter((r) => r.kind === "trash" && r.record);
+      const op = rnd(5);
+      if (op === 0 || (!live.length && !trashed.length)) {
+        const id = `00000000-0000-4000-8000-${String(++ids).padStart(12, "0")}`;
+        mine.push(a2note(`words ${tick}`, at(tick, d), id));
+      } else if (op === 1 && live.length) {
+        const r = live[rnd(live.length)];
+        mine.splice(mine.indexOf(r), 1, editForAudit2(r, { body: `edit ${tick}` }, { now: at(tick, d) }));
+      } else if (op === 2 && live.length) {
+        const r = live[rnd(live.length)];
+        mine.splice(mine.indexOf(r), 1, trashForAudit2(r, { ...A2, now: at(tick, d), id: `00000000-0000-4000-8000-b${String(++ids).padStart(11, "0")}` }));
+      } else if (op === 3 && trashed.length) {
+        const t = trashed[rnd(trashed.length)];
+        mine.splice(mine.indexOf(t), 1);
+        mine.push(restoreForAudit2(t, { now: at(tick, d) }));
+      } else {
+        const e = rnd(3);
+        if (e !== d) {
+          devices[d] = mergeSets(devices[d], devices[e], { now: at(tick, d), tiebreak });
+          devices[e] = mergeSets(devices[e], devices[d], { now: at(tick, e), tiebreak });
+        }
+      }
+    }
+    for (let round = 0; round < 4; round++) {
+      for (const i of [0, 1, 2]) for (const j of [0, 1, 2]) if (i !== j) devices[i] = mergeSets(devices[i], devices[j], { now: at(tick + settle, i), tiebreak });
+    }
+    const [x, y, z] = devices.map((s) => [...s].sort((p, q) => (p.id < q.id ? -1 : 1)));
+    if (!(sameSet(x, y) && sameSet(y, z))) return { history, devices: [x, y, z] };
+  }
+  return null;
+}
+
+// Two minutes slow, right, and two and a half fast: every pair within CLOCK_TOLERANCE_MS.
+const MINUTES_APART = [-120_000, 0, 150_000];
+
+test("4d: three devices whose clocks are minutes apart, each merging by its own clock, end with one notebook (property)", () => {
+  const failed = clocksDiverge(20261124, MINUTES_APART, 1, 3000, agreedOrder);
+  assert.equal(failed, null, failed ? `history ${failed.history} ended with different notebooks` : "");
+});
+
+test("4d: the same three devices, with no tiebreak they share, do not all end alike", () => {
+  // Not a rule to keep: it pins why the test above passes one. If this ever
+  // fails, ties between edits are settled without a store's help, and the
+  // comment above `agreedOrder` and the format's "Clocks" need the news.
+  assert.notEqual(clocksDiverge(20261124, MINUTES_APART, 1, 50), null);
+});
+
+test("4d: with one clock two hours fast, three devices end with one notebook once the slower clocks have passed its stamps (property)", () => {
+  // The settling swaps happen two hours and ten minutes on, each device still on its own clock.
+  const failed = clocksDiverge(20261125, [0, -60_000, 7_200_000], 7_800, 3000, agreedOrder);
+  assert.equal(failed, null, failed ? `history ${failed.history} ended with different notebooks` : "");
+});
+
+test("4d: three clocks hours apart end with one notebook too, once the slowest has passed the fastest's stamps (property)", () => {
+  // An hour slow, right, and two hours fast; settled three hours and a few minutes on.
+  const failed = clocksDiverge(99, [-3_600_000, 0, 7_200_000], 11_000, 2000, agreedOrder);
+  assert.equal(failed, null, failed ? `history ${failed.history} ended with different notebooks` : "");
 });

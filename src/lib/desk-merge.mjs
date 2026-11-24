@@ -85,8 +85,10 @@
 //      by the same id and `modified` rules and is written back exactly as it
 //      arrived. Nothing kind-specific is read or validated here. The one
 //      change to an arriving record is migrateRecord, which returns it as it
-//      was unless something needed filling in or a note's marker was renamed
-//      (`bookmark` reads as `ribbon`, E10).
+//      was unless something needed filling in or a note's marker has an old
+//      name (`ribbon` and `bookmark` read as `note`, `star` as `emphasis`;
+//      vectors version 9). A `hidden` record (kind 3, dropped 2026-11-23) is
+//      an unknown kind like any other, and is carried as it arrived.
 //   8. Highlights are NOT re-run through the overlap rule (desk-highlights.mjs).
 //      Each client applies that only when the reader makes or removes a
 //      highlight, so a merge never trims or joins one.

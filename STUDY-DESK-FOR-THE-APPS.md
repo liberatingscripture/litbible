@@ -120,8 +120,88 @@ because nothing carried them there. This file is what carries them now.
     database. In a real break: roll back first, tell BVJ second. A fix
     still goes through a pull request that BVJ merges, and the merge
     deploys it.
+11. **The freeze work's points, and one proposal** (asked 2026-11-24 with
+    step 4d, the first entry below). BDR's word on each: a `hidden`
+    record read as a kind the client doesn't know; `ribbon` and `bookmark`
+    read as `note`; the clock cap as each device's own; and merge vectors
+    version 9. **And the proposal**: under sync, the row the service
+    holds wins an exact tie in `modified` against a device's own copy.
+    Say here if the apps settle such a tie another way, or would rather.
 
 ## The list
+
+### 2026-11-24, the freeze work on the website's side (step 4d)
+
+**This changes the format, and the merge vectors both apps run.** The
+format is not declared frozen by it. Everything below is written into
+`STUDY-DESK-FORMAT.md` where it applies, and each point is **for BDR to
+confirm**. The full account is `STUDY-DESK.md`, “Order of work,” 4d.
+
+- **The merge vectors are version 9** (`test/fixtures/merge-vectors.json`,
+  91 cases, ten new; its `about` says what each is for). No rule of
+  versions 1 to 8 changed, so a client that passed version 8 fails only
+  where it differs on the three points below.
+- **Kind 3, `hidden`, is out of the format.** The number is kept, struck
+  through, so no later kind moves. **A client that still meets a `hidden`
+  record treats it as a kind it doesn't know** (principle 6): keeps it,
+  carries it as it arrived, never edits it, and hides nothing because of
+  it. Case `keep-a-hidden-record-arrives-as-it-is`. The format, kind 3.
+- **The `ribbon` note marker is out of kind 2**, which has six names:
+  `note`, `emphasis`, `question`, `heart`, `lightbulb`, `flame`. **Every
+  client reads `ribbon` and the older `bookmark` as `note`** (and `star`
+  as `emphasis`, as before), a note held by a trash record included, and
+  writes neither name. Nothing stored is rewritten for a read. Cases
+  `migrate-a-ribbon-marker-reads-as-note`,
+  `migrate-an-old-bookmark-marker-reads-as-note`,
+  `migrate-a-ribbon-marker-held-in-the-trash-reads-as-note`, and
+  `migrate-a-ribbon-marker-and-the-note-it-reads-as-are-one-record`.
+  These four are for every client, unlike version 3's ribbon `place`
+  cases. **Ask 4 above is still open**, so the rule covers the three names
+  the website knows; a note carrying any other name is refused by the
+  website when it arrives. The format, kind 2.
+- **The service row's fields are in the format** (“How each store holds
+  the records”): `v`, `id`, `rev`, `modified`, `deletedAt` on a trash
+  record's row only, `kid`, `nonce`, `ct`. Nothing new: it is the row of
+  `STUDY-DESK-ENCRYPTION.md`, “A record on the service,” which stays the
+  spec, and no record carries an `encryptedBody`.
+- **The clock cap is each device's own under sync.** The format's
+  sentence “A sync service's cap is its own clock” now says that the
+  service caps nothing and each device caps what it receives against its
+  own clock, as for a file (the spec's “Still open,” 14, which BVJ said
+  yes to on 2026-11-23). The format, “Clocks.”
+- **The test that yes came with: two devices whose clocks differ.** Five
+  cases, each one pair of edits merged on each device at its own `now`
+  (in a case, `now` is the receiving device's clock). They are rule a and
+  the clamp as you already have them. What they show, and what your sync
+  must do for the last of them to come true:
+  - **Clocks within the five minutes of skew agree at once**, on the edit
+    with the later `modified`, even when it was the earlier edit
+    (`a-clocks-three-minutes-apart-the-slower-device-takes-the-later-stamp`,
+    `a-clocks-three-minutes-apart-the-faster-device-keeps-the-later-stamp`).
+  - **Clocks further apart agree once the slower one reaches the stamp**,
+    and the faster clock's edit wins, even over an edit made on the slower
+    device in between. Until then each device keeps its own
+    (`clamp-clocks-two-hours-apart-the-slower-device-waits`,
+    `a-clocks-two-hours-apart-the-faster-device-keeps-its-own`,
+    `a-clocks-two-hours-apart-the-slower-device-takes-it-once-its-clock-arrives`).
+    **So a sync that drops a row as ahead must keep its cursor behind that
+    row and judge it again later**, as the format already says; a client
+    that moves on never takes the edit, and the two devices never agree.
+- **One thing the test found, not yet decided.** When clocks differ, two
+  devices can stamp the same `modified` on different edits: an edit stamps
+  1 ms past the version it replaces, so two devices that are both behind a
+  third's stamp, and each edit that version, write the same time. With no
+  store revision each keeps its own copy (`a-exact-tie-keeps-local`) and
+  they never agree, so under sync `rev` has to settle it, the same way on
+  all three clients. **The website proposes that the row the service
+  holds wins an exact tie** against a device's own copy, in a pull and in
+  a `conflict`'s answer. BVJ has not decided this and BDR has not seen it;
+  say here if the apps already settle a tie another way. The format,
+  “Clocks,” “Two devices whose clocks differ.”
+- **Not changed, because nothing was written here to act on**: the three
+  format points BDR changed (ask 1), and a trash record's times (ask 8;
+  the spec's “Still open,” 31, is still open and the service still
+  refuses a row whose `deletedAt` isn't in the `Z` form).
 
 ### 2026-11-23, notes from the Greek are built on the website (step 4k)
 
@@ -372,6 +452,7 @@ BVJ was walked through the choices draft 2 made (the spec's “Still open,”
 - **A merge test comes with the clock cap** (14), in the freeze work
   (step 4d): two devices whose clocks differ must still agree on which
   edit wins. It will be a new case in the merge vectors both apps run.
+  (**Added on 2026-11-24**, as five cases: the entry on step 4d, above.)
 - **The two sentences are settled** (16), and the apps show the same
   words: the one for a reader who takes no recovery code, in the spec
   under “Setting up the first device,” and the removal screen's under
@@ -486,9 +567,10 @@ Recorded in full in `STUDY-DESK.md`, “Decisions,” 2026-11-23.
   By the freeze, kind 2's marker list in `STUDY-DESK-FORMAT.md` will have
   six names, and every client will read `ribbon` and the older `bookmark`
   as `note`. **Not yet changed in the format or the website's code.**
+  (**Changed on 2026-11-24**: the entry on step 4d, above.)
 - **Kind 3, `hidden`, leaves the format by the freeze**, since the call
   dropped the hidden passage from all three. **Not yet changed in the
-  format.**
+  format.** (**Changed on 2026-11-24**: the entry on step 4d, above.)
 - **Notes from the Greek are in the website's version 1** (BVJ). A note
   started from the website's Greek tab or pane is an ordinary note on its
   verse (kind 2, no new field), with the Greek the reader selected put

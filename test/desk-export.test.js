@@ -54,7 +54,12 @@ const pin = make("footnotePin", { bookKey: "luke", chapter: 17, verse: 35, footn
 const glossary = make("note", { glossaryEntry: "flesh-body", targetTitle: "Flesh", body: "Compare sarx.", marker: "note" });
 const article = make("note", { article: "some-article", targetTitle: "Some article", body: "Good point.", marker: "emphasis" });
 const place = make("place", { bookKey: "luke", chapter: 15, verse: 11, endVerse: 11, name: "Thursday group", ribbon: true });
-const hidden = make("hidden", { bookKey: "mark", chapter: 9, verse: 44, endVerse: 44, body: "Skip for now" });
+// Kind 3, the hidden passage, left the format on 2026-11-23 (step 4d). No
+// client ever wrote one; one met anyway is a kind this code doesn't know.
+const hidden = {
+  id: nextId(), kind: "hidden", schema: 1, created: "2026-09-12T08:00:00.000Z", modified: "2026-09-12T08:00:00.000Z",
+  ...ctx, labels: [], bookKey: "mark", chapter: 9, verse: 44, endVerse: 44, body: "Skip for now",
+};
 const sheet = make("sheet", { title: "Study sheet", items: [] });
 const future = { ...make("note", { bookKey: "acts", chapter: 2, verse: 1, body: "x", marker: "note" }), schema: 9, novel: { a: [1, 2] } };
 const alien = { id: nextId(), kind: "starfield", schema: 1, created: "2026-09-12T08:00:00.000Z", modified: "2026-09-12T08:00:00.000Z", client: "ios/9", contentVersion: "v1", labels: [], shiny: true };
@@ -143,8 +148,7 @@ test("the Web Annotation collection follows the W3C shape", () => {
   assert.equal(byId(yellow).body, undefined);
   assert.equal(byId(mark).motivation, "bookmarking");
   assert.equal(byId(mark).body[0].value, "Evening reading");
-  assert.equal(byId(hidden).motivation, "commenting");
-  assert.equal(byId(hidden).lit.kind, "hidden");
+  assert.equal(byId(hidden), undefined, "kind 3 left the format (4d): a hidden record is no annotation");
 
   const p = byId(pin);
   assert.equal(p.motivation, "bookmarking");
@@ -158,7 +162,8 @@ test("the Web Annotation collection follows the W3C shape", () => {
 test("records that aren't marks go in the collection's own list, and trash stays out", () => {
   const c = webAnnotationCollection(everything, opts);
   const ids = new Set(c.lit.records.map((r) => r.id));
-  for (const r of [place, sheet, label, collection, alien]) assert.ok(ids.has(r.id), r.kind);
+  for (const r of [place, sheet, label, collection, alien, hidden]) assert.ok(ids.has(r.id), r.kind);
+  assert.deepEqual(c.lit.records.find((r) => r.id === hidden.id), hidden, "a hidden record travels whole, as any unknown kind does (4d)");
   assert.deepEqual(c.lit.records.find((r) => r.id === collection.id), collection, "a collection travels whole");
   assert.equal(c.first.items.some((a) => a.lit.record.id === collection.id), false, "a collection is no annotation");
   assert.equal(ids.has(trash.id), false);
@@ -408,47 +413,62 @@ test("parseReference reads references and refuses the rest", () => {
 
 const later = (r, changes, at) => editRecord(r, changes, { now: at, client: "ios/2.1" });
 
-test("E10: an incoming note marked bookmark is kept, and reads as ribbon", () => {
-  const old = make("note", { bookKey: "luke", chapter: 15, verse: 20, endVerse: 20, body: "Ran to meet him.", marker: "bookmark" });
-  const out = planImport([], [old], { now: "2026-10-13T00:00:00.000Z" });
-  assert.deepEqual(out.skipped, []);
-  assert.deepEqual(out.plan.put, [{ ...old, marker: "ribbon" }]);
-  assert.equal(out.plan.put[0].modified, old.modified, "renaming the marker isn't an edit");
-  assert.equal(out.summary.added, 1);
-  // The notebook holding it (read as ribbon) and a copy still saying bookmark agree.
-  const again = planImport(out.plan.put, [old], { now: "2026-10-13T00:00:00.000Z" });
-  assert.deepEqual(again.plan, { put: [], remove: [] });
-  assert.equal(again.summary.unchanged, 1);
-  // So does a note deleted while it said bookmark: undoing brings back a ribbon.
-  const trash = planDelete(old, { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
-  assert.equal(planImport([], [trash], { now: "2026-10-13T00:00:00.000Z" }).plan.put[0].record.marker, "ribbon");
-});
+for (const oldName of ["ribbon", "bookmark"]) {
+  test(`4d: an incoming note marked ${oldName} is kept, and reads as note`, () => {
+    const old = make("note", { bookKey: "luke", chapter: 15, verse: 20, endVerse: 20, body: "Ran to meet him.", marker: oldName });
+    const out = planImport([], [old], { now: "2026-10-13T00:00:00.000Z" });
+    assert.deepEqual(out.skipped, []);
+    assert.deepEqual(out.plan.put, [{ ...old, marker: "note" }]);
+    assert.equal(out.plan.put[0].modified, old.modified, "reading the marker under its current name isn't an edit");
+    assert.equal(out.summary.added, 1);
+    // The notebook holding it (read as note) and a copy still saying the old name agree.
+    const again = planImport(out.plan.put, [old], { now: "2026-10-13T00:00:00.000Z" });
+    assert.deepEqual(again.plan, { put: [], remove: [] });
+    assert.equal(again.summary.unchanged, 1);
+    // So does a note deleted while it said the old name: undoing brings back a plain note.
+    const trash = planDelete(old, { ...ctx, now: "2026-10-01T00:00:00.000Z" }).trash;
+    assert.equal(planImport([], [trash], { now: "2026-10-13T00:00:00.000Z" }).plan.put[0].record.marker, "note");
+  });
 
-test("E10: ribbon opens as itself, and an unknown marker is still skipped", () => {
-  const ribbon = make("note", { bookKey: "luke", chapter: 15, verse: 21, endVerse: 21, body: "", marker: "ribbon" });
-  const star = make("note", { bookKey: "luke", chapter: 15, verse: 22, endVerse: 22, body: "Robe.", marker: "spark" });
-  const out = planImport([], [ribbon, star], { now: "2026-10-13T00:00:00.000Z" });
-  assert.deepEqual(out.plan.put, [ribbon]);
-  assert.equal(out.skipped.length, 1);
-  assert.equal(out.skipped[0].record, star);
-  assert.equal(out.skipped[0].reason, "It has a marker the notebook doesn’t know.");
-  assert.match(out.skipped[0].detail, /^Marker "spark" is not one of note, emphasis, question, heart, ribbon, lightbulb, flame\.$/);
-});
-
-test("E10: Markdown says ribbon, and an old copy's “Note (bookmark)” reads as ribbon", () => {
-  const old = make("note", { bookKey: "luke", chapter: 15, verse: 20, endVerse: 20, body: "Ran to meet him.", marker: "bookmark" });
-  assert.match(toMarkdown([old], opts), /^Note \(ribbon\) · /m);
-  const text = `# My LIT notebook
+  test(`4d: Markdown says a plain Note for one marked ${oldName}, and an old copy's “Note (${oldName})” reads as note`, () => {
+    const old = make("note", { bookKey: "luke", chapter: 15, verse: 20, endVerse: 20, body: "Ran to meet him.", marker: oldName });
+    assert.match(toMarkdown([old], opts), /^Note · /m);
+    const text = `# My LIT notebook
 ## Luke 15:20
-Note (bookmark) · 2026-10-01
+Note (${oldName}) · 2026-10-01
 
 Ran to meet him.
 `;
-  const back = parseImport(text, { local: [], ctx });
-  assert.deepEqual(back.problems, []);
-  assert.equal(back.records[0].marker, "ribbon");
-  const unknown = parseImport(text.replace("(bookmark)", "(spark)"), { local: [], ctx });
+    const back = parseImport(text, { local: [], ctx });
+    assert.deepEqual(back.problems, []);
+    assert.equal(back.records[0].marker, "note");
+    assert.equal(back.records[0].body, "Ran to meet him.");
+  });
+}
+
+test("an unknown marker is still skipped from a backup, and is a plain note from Markdown", () => {
+  const plain = make("note", { bookKey: "luke", chapter: 15, verse: 21, endVerse: 21, body: "", marker: "note" });
+  const spark = make("note", { bookKey: "luke", chapter: 15, verse: 22, endVerse: 22, body: "Robe.", marker: "spark" });
+  const out = planImport([], [plain, spark], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(out.plan.put, [plain]);
+  assert.equal(out.skipped.length, 1);
+  assert.equal(out.skipped[0].record, spark);
+  assert.equal(out.skipped[0].reason, "It has a marker the notebook doesn’t know.");
+  assert.match(out.skipped[0].detail, /^Marker "spark" is not one of note, emphasis, question, heart, lightbulb, flame\.$/);
+  const text = "# My LIT notebook\n## Luke 15:20\nNote (spark) · 2026-10-01\n\nRan to meet him.\n";
+  const unknown = parseImport(text, { local: [], ctx });
   assert.equal(unknown.records[0].marker, "note", "an unknown marker in Markdown is a plain note, as before");
+});
+
+test("4d: a hidden record in a backup is kept as it arrived, and the Markdown file leaves it out", () => {
+  const out = planImport([], [hidden], { now: "2026-10-13T00:00:00.000Z" });
+  assert.deepEqual(out.skipped, []);
+  assert.deepEqual(out.plan.put, [hidden]);
+  // Markdown is for people and lists the kinds this code draws; nothing writes "Hidden passage" now.
+  const md = toMarkdown(everything, opts);
+  assert.ok(!md.includes("Hidden passage"));
+  assert.ok(!md.includes("Skip for now"));
+  assert.ok(!md.includes("## Mark 9:44"));
 });
 
 test("planImport adds new records and leaves identical ones alone", () => {
