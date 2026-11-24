@@ -6,11 +6,14 @@
   "scripts": {
     "dev": "wrangler dev --env preview",
     "test": "vitest run",
-    "check": "wrangler deploy --env preview --dry-run --outdir=.wrangler-check",
+    "check": "wrangler deploy --env preview --dry-run --outdir=.wrangler-check && wrangler deploy --env production --dry-run --outdir=.wrangler-check",
     "migrate:local": "wrangler d1 migrations apply DB --env preview --local",
     "migrate:preview": "wrangler d1 migrations apply DB --env preview --remote",
     "deploy:preview": "wrangler deploy --env preview",
-    "walkthrough": "node scripts/walkthrough.mjs"
+    "migrate:production": "wrangler d1 migrations apply DB --env production --remote",
+    "deploy:production": "wrangler deploy --env production",
+    "walkthrough": "node scripts/walkthrough.mjs",
+    "check:production": "node scripts/check-production.mjs"
   },
   "devDependencies": {
     "@cloudflare/vitest-plugin": "^1.8.5",

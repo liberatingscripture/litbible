@@ -196,7 +196,7 @@ test("shouldAnnounce: never on a shared verse link", () => {
 });
 
 test("shouldAnnounce: never on /apps, /privacy, the notebook page or the desk's help (E73)", () => {
-  for (const pathname of ["/apps", "/apps/", "/privacy", "/privacy/", "/notebook", "/notebook/", "/desk/help", "/desk/help/"]) {
+  for (const pathname of ["/apps", "/apps/", "/privacy", "/privacy/", "/delete-account", "/delete-account/", "/notebook", "/notebook/", "/desk/help", "/desk/help/"]) {
     page({ pathname });
     assert.equal(shouldAnnounce({ cookie: COOKIE }), false, pathname);
   }

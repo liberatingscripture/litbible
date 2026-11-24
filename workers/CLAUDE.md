@@ -55,13 +55,18 @@ The Study Desk's sync service: a Worker with a D1 database that holds each
 signed-in reader's notebook sealed, so the service can open nothing (the
 plan's step 4c in `STUDY-DESK.md`, "Order of work," 4; built 2026-11-23).
 **It is a preview only**, live at `https://notebook-preview.litbible.net`
-since 2026-11-23 and holding test data alone: no production deployment, no
-account deletion (step 4f), and the website's connector to it is step 4g.
+since 2026-11-23 and holding test data alone. **Production is prepared and
+not deployed** (step 4f, 2026-11-24: `env.production` in `wrangler.jsonc`
+with a placeholder database id, and two workflow jobs that are off), and
+the website's connector to the service is step 4g.
 **Sign-in is built (step 4e, 2026-11-24)**: a passkey with `litbible.net` as
 the relying party works; Sign in with Apple and with Google are built, off,
-and have never met either provider. Its README is the working reference (run,
-test, deploy, roll back, wipe, "Passkeys," "Apple and Google," and what each
-later step plugs in and where).
+and have never met either provider. **The account work is built (step 4f,
+2026-11-24)**: deleting an account, the requests that wait seven days, an
+hourly run, and limits by address. Its README is the working reference (run,
+test, deploy, roll back, wipe, "Passkeys," "Apple and Google," "The account
+work," "Production," and what each later step plugs in and where), and
+`RUNBOOK.md` beside it is the page for when it breaks.
 
 - **Its specification is `STUDY-DESK-ENCRYPTION.md`, "The service's
   interface," and the two change together.** That section holds the exact
@@ -111,6 +116,26 @@ later step plugs in and where).
     `test/link-files.test.js` fails when they differ. Those two link
     files are live and read by the released apps: change them only by
     inserting, and say so at the top of the pull request.
+- **The account work's rules** (`src/waiting.js`, `src/scheduled.js`,
+  `src/limits.js`):
+  - **Seven days is BVJ's number** (`WAIT_DAYS`), and only a session that
+    has proved the key deletes at once. Don't add a path that deletes or
+    replaces a notebook from a session that is signed in and no more.
+  - **Apple's tokens are revoked before an account goes**, and the account
+    stays if Apple can't be reached.
+  - **Each delete, cancel, and carry-out is one statement or batch with
+    its condition inside it** (still open, still waiting, still due).
+    `test/waiting-races.test.js` forces each race, and each condition was
+    checked by taking it out and watching a test fail. Do the same for a
+    new one.
+  - **A replaced notebook resets every session's proof.** The next
+    notebook's first key is `kid` 1 again.
+  - **The address a request comes from is never stored or logged.** It is
+    the limiter's key and nothing else. A missing limiter binding answers
+    `error` to everything, on purpose.
+  - **Production's config has no `PREVIEW_` anything**, and its workflow
+    jobs never run on a push; `test/config.test.js` holds both. The top
+    level of `wrangler.jsonc` stays empty.
 - **The tests are a real client.** They import the website's reference by
   relative path (`src/lib/desk-crypto.mjs`) and replay the vectors'
   walkthrough (`test/fixtures/notebook-crypto-vectors.json`) through the
@@ -121,12 +146,20 @@ later step plugs in and where).
 - **Migrations are applied before the code that needs them, and a rollback
   never undoes one**, so each must work with the code already deployed. Never
   edit one that has been applied; add the next numbered file.
-- **`.github/workflows/notebook-service-deploy.yml` is ON (since
-  2026-11-23). A merge to `main` that touches this package deploys the
-  preview**: tests, migrations, deploy, then the walkthrough against it. So
+- **`.github/workflows/notebook-service-deploy.yml` is ON for the preview
+  (since 2026-11-23), and off for production. A merge to `main` that
+  touches this package deploys the preview**: tests, migrations, deploy,
+  then the walkthrough against it. So
   a change here is live minutes after it merges, and a migration in it is
   applied for good. The workflow is also the way BDR rolls back, from the
   Actions tab (BVJ's choice over a member role on the Cloudflare account); a
   deploy, a rollback, and a second deploy were each run from it that day.
   The repository variable `NOTEBOOK_PREVIEW_DEPLOYS` is its switch, and the
   README's "Who can deploy and roll back" has how it is set up.
+- **`src/pages/delete-account.astro` is this service's page on the site**:
+  the address Google Play asks every app with accounts for. It is noindex,
+  out of the sitemap, and unlinked until accounts open, and it can't delete
+  anything until the website's sign-in (step 4h) adds the button. Each fact
+  on it is one the service does (the spec's "Deleting the account"): change
+  the two together, and BDR reviews its copy, as the one who files the
+  stores' forms.

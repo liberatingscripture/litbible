@@ -5454,6 +5454,28 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      new notebook"; limits on requests and bot protection at sign-up; the
      web page for deletion requests that Google Play asks for; a one-page
      runbook; `DISASTER-RECOVERY.md`; and the production deploy.
+     **Built 2026-11-24, with production prepared and not deployed.**
+     What exists: `DELETE /account`, `POST /notebook/replace`, and
+     `DELETE /waiting`, with Apple's tokens revoked before an account
+     goes; an hourly run that carries out what has waited seven days and
+     sweeps what ran out; limits by address (60 a minute to begin a
+     sign-in, 1,200 for the rest); the page at `/delete-account/`, out of
+     search until accounts open; `RUNBOOK.md` in the service's directory;
+     production's entry in `DISASTER-RECOVERY.md`; and production's
+     configuration and workflow jobs, off. The spec's “Waiting seven
+     days” is final, with what moved under “Changed in step 4f.”
+     **BVJ on the fifteen choices this step made** (the spec's “Still
+     open,” 59 to 73; 2026-11-24): yes to 59, 60, 63, 64, 66, 69
+     (production's address, `notebook.litbible.net`), and 71; yes to
+     Turnstile on the website's sign-in page (68), which step 4h
+     builds; “ask BDR” on 61, 65, 67, 70, 73, and the rest of 68; no
+     answer yet on 62. **Still BVJ's**: whether and when production is
+     deployed (the service's README, “Production”). **What was not
+     built**: bot protection at sign-up, which needs the sign-in page of
+     4h (“Still open,” 68); and handling Apple's server-to-server
+     notifications (73). **What waits on the preview**: the hourly run
+     started by Cloudflare's own clock, the real limiter, and a large
+     notebook's deletion on the real database.
    - **4g. The website's connector** (3–4). The sync loop on 1a's merge
      engine: sealing and opening rows, edits queued while offline,
      connection status and "Reconnect," the first sign-in merging the

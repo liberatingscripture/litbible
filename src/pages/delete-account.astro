@@ -1,0 +1,167 @@
+---
+// The page Google Play asks every app with accounts to have: a web address
+// where a reader can find out how to delete their account and what happens
+// to their data (Play's Data safety form, "Delete account URL"). Apple's
+// reviewers can be pointed here too, though Apple's own rule is met inside
+// the app.
+//
+// UNTIL ACCOUNTS OPEN it is noindex, out of the sitemap (astro.config.mjs),
+// and linked from nowhere, and it says so at the top. It can't delete
+// anything yet: that needs the website's sign-in, the Study Desk's step 4h,
+// which adds the sign-in and the button to this page.
+//
+// Every fact here is one the notebook service does and tests
+// (STUDY-DESK-ENCRYPTION.md, "Deleting the account" and "Waiting seven
+// days"). Change the two together. BDR reviews it, as the one who files the
+// stores' forms; the in-app steps below are BDR's to confirm for each app.
+import Layout from "../layouts/Layout.astro";
+// The privacy page's document column, used as it is. Nothing is added to
+// that stylesheet for this page.
+import "../styles/pages/privacy.css";
+import "../styles/v2/privacy.css";
+---
+
+<Layout
+  title="Delete your account | Liberation and Inclusion Translation"
+  description="How to delete a LIT Bible account, what is deleted, and what stays on your devices."
+  canonical="https://litbible.net/delete-account/"
+  robotsNoindex={true}
+>
+  <article class="privacy-page v2-frame" aria-labelledby="delete-title">
+
+    <header class="privacy-header v2-frame__head v2-bar">
+      <div class="privacy-header__inner">
+        <h1 id="delete-title" class="privacy-title">Delete your account</h1>
+        <p class="privacy-effective">
+          LIT Bible, from the Liberating Scripture Collective
+        </p>
+        <p class="privacy-lede">
+          <strong>Accounts are not open yet.</strong> Today the LIT Bible
+          website and the iOS and Android apps keep everything you create on
+          your own device, and there is no account to delete. This page is
+          ready for the day accounts open, and describes how deleting one
+          will work.
+        </p>
+      </div>
+    </header>
+
+    <div class="privacy-body v2-frame__text">
+
+      <section aria-labelledby="delete-what">
+        <h2 id="delete-what" class="v2-rule">What an account is</h2>
+        <p>
+          A LIT Bible account keeps your notebook (your notes, highlights,
+          bookmarks, and sheets) in step across your devices. The copy we
+          hold is locked on your devices before it is sent, with a key we
+          never have, so we can’t read it. We don’t keep your name or your
+          email address with it.
+        </p>
+      </section>
+
+      <section aria-labelledby="delete-how">
+        <h2 id="delete-how" class="v2-rule">How to delete your account</h2>
+        <p>You can delete your account from any place you are signed in.</p>
+        <ul>
+          <li>
+            <strong>In the LIT Bible app for iPhone and iPad:</strong> open
+            Settings, choose “Account,” and then choose “Delete account.”
+          </li>
+          <li>
+            <strong>In the LIT Bible app for Android:</strong> open Settings,
+            choose “Account,” and then choose “Delete account.”
+          </li>
+          <li>
+            <strong>On the web:</strong> when accounts open, you will be able
+            to sign in on this page and choose “Delete account” here, with no
+            app installed.
+          </li>
+        </ul>
+        <p>
+          We can’t delete an account for you from an email or a form. Because
+          we don’t keep your name or email address, we have no way to tell
+          which account is yours. Only someone signed in to an account can
+          delete it.
+        </p>
+      </section>
+
+      <section aria-labelledby="delete-when">
+        <h2 id="delete-when" class="v2-rule">How long it takes</h2>
+        <ul>
+          <li>
+            <strong>From a device that holds your notebook’s key,</strong>
+            the account is deleted at once.
+          </li>
+          <li>
+            <strong>From a device that is signed in but has not opened your
+            notebook,</strong> the request waits seven days. During that
+            time every device that holds your notebook shows the request,
+            and any of them can cancel it. This is so that someone who gets
+            into your Apple or Google account can’t delete your notebook
+            before you notice.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="delete-deleted">
+        <h2 id="delete-deleted" class="v2-rule">What is deleted</h2>
+        <p>Everything we hold for the account:</p>
+        <ul>
+          <li>the synced copy of your notebook, with every note, highlight, bookmark, and sheet in it;</li>
+          <li>the locked copies of your notebook’s key, your recovery code’s included;</li>
+          <li>the list of your devices;</li>
+          <li>your ways to sign in (the link to your Apple or Google account, and your passkey’s public half);</li>
+          <li>every signed-in session, on every device.</li>
+        </ul>
+        <p>
+          If you signed in with Apple, we also tell Apple to end the
+          connection between your Apple Account and LIT Bible.
+        </p>
+      </section>
+
+      <section aria-labelledby="delete-kept">
+        <h2 id="delete-kept" class="v2-rule">What is not deleted</h2>
+        <ul>
+          <li>
+            <strong>The notebook on each of your devices.</strong> Deleting
+            your account removes the copy we hold. Each device keeps its own
+            notebook until you erase it there.
+          </li>
+          <li>
+            <strong>Your passkey.</strong> It lives in your password manager
+            or on your device, where we can’t reach it. After your account
+            is deleted it opens nothing, and you can remove it there.
+          </li>
+          <li>
+            <strong>Backups, for up to 30 days.</strong> The service that
+            runs our database keeps a history of it for up to 30 days, so
+            that we can recover from a failure. Your deleted account can
+            remain in that history until it ages out. Your notebook in it is
+            still locked with a key we never have.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="delete-after">
+        <h2 id="delete-after" class="v2-rule">Afterward</h2>
+        <p>
+          Deleting an account can’t be undone. If you sign in again later
+          with the same Apple or Google account, you start a new, empty
+          account. Your devices still have their own notebooks, and you can
+          send one of them up to the new account.
+        </p>
+      </section>
+
+      <section aria-labelledby="delete-help">
+        <h2 id="delete-help" class="v2-rule">Questions</h2>
+        <p>
+          For help, write to the LIT Bible team through
+          <a href="/app-support/">app support</a> or the
+          <a href="/contact/">contact page</a>. Our
+          <a href="/privacy/">privacy policy</a> describes what the website
+          and the apps collect.
+        </p>
+      </section>
+
+    </div>
+  </article>
+</Layout>

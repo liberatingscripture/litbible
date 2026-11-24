@@ -3,7 +3,9 @@
 **Status: draft 2, 2026-11-23, for BDR to review and BVJ to check. The reference and the test
 vectors are built (step 4b, the same day), and so is the service, to run on a preview address
 (step 4c, the same day), and so is the service’s sign-in (step 4e, 2026-11-24: a passkey works on
-the preview; Apple and Google are built and off, waiting on client ids). Every client’s use of this
+the preview; Apple and Google are built and off, waiting on client ids), and so is its account work
+(step 4f, 2026-11-24: deleting an account, the requests that wait seven days, and limits on how
+often a client may ask; production is prepared and **not deployed**). Every client’s use of this
 is not, and no record changes with it.** Written by BVJ’s Claude, on the website’s side, which
 writes this spec, its reference, and its vectors and builds the service from here on (BVJ,
 2026-11-23). Draft 1 was written the same day by BDR’s Claude (PR #680) and BVJ answered its open
@@ -741,11 +743,14 @@ not rely on.**
 | A sealed keyring for each device and each holder | HPKE | No |
 | Records (under “A record on the service”) | sealed, beside a few plain fields | Only the plain fields |
 | An approval in progress, for at most ten minutes | MACs and HPKE | The new device’s model and platform, nothing else |
-| A request to replace the notebook or delete the account, while it waits (under “Deleting the account”) | plain | Yes |
+| A request to replace the notebook or delete the account, while it waits (under “Deleting the account”): which of the two, when it was made and falls due, the kind of device in the device’s own word, the kind of way in it came through, and the hash of the session that asked | plain | Yes |
+| When the account’s notebook was last replaced, and the same two words about the request that asked | plain | Yes |
 
 **It never holds** a note, highlight, bookmark, or any other record unsealed, a notebook key, a
 recovery code, a passkey’s secret, a device’s private key, a password, an email address, reading
-history, display settings, or analytics.
+history, display settings, or analytics. **Nor the address a request came from**: it is counted by
+Cloudflare’s limiter for a minute (under “How often a client may ask”), and stored and logged by
+the service nowhere. **Nor anything of a deleted account**, not even that there was one.
 
 ## A record on the service
 
@@ -1202,15 +1207,28 @@ signed-in device:
   can’t (a sign-in alone), it waits **seven days** (BVJ, 2026-11-23): every device that can open the
   notebook shows the request, with when it was made and from what kind of device, and any of them
   can cancel it. A stolen sign-in can’t take a reader’s notebook away while they look the other way
-  for a day.
+  for a day. The session that asked can cancel its own request too, so a reader who asked by mistake
+  can take it back from the same device.
+- **An account that has no notebook yet is deleted at once**, from any signed-in session: there is
+  nothing to protect, and no device that could cancel.
+- **The seven days are exact, and the deleting follows within about an hour.** A request falls due
+  seven days to the millisecond after it was made. The service carries out what is due once an
+  hour, and until it has, the request can still be canceled (under “Waiting seven days”).
 - **The service deletes everything it holds for the account**: every record, every sealed keyring,
   every holder, the device list, sessions, approvals, and sign-in methods, after revoking Apple’s
   refresh token (`appleid.apple.com/auth/revoke`). D1’s point-in-time history (Time Travel) keeps
-  the account’s rows, plain and sealed alike, until they age out.
+  the account’s rows, plain and sealed alike, until they age out (30 days on the plan production
+  is to run on).
+- **If Apple can’t be reached, the account stays, whole.** A token is never dropped unrevoked. A
+  device that asked to delete at once is told to try again (`provider`); a request that is due is
+  tried again every hour until Apple answers.
 - **The device that deletes it** removes its keyring, device key, signing key, and session at once.
   Its own notebook stays, unless the reader also chooses to erase it there.
 - **Every other device** finds out when it next reaches the service, removes its keys and session,
-  keeps its own notebook, and says so.
+  keeps its own notebook, and says so. What it is told is `sign_in`, the same word a session that
+  ran out gets: the service keeps nothing of a deleted account, not even that there was one. A
+  device that saw a request to delete waiting knows why; one that didn’t learns it when its reader
+  signs in again and finds an empty account (“Still open,” 71).
 - **The reader’s passkey stays where they keep it**, since LIT can’t delete it. The device says so,
   and that it no longer opens anything.
 - **Signing in again** with the same Apple or Google account starts a new, empty account with a new
@@ -1242,7 +1260,8 @@ the old sealed records and keys, and the device sets up as a first device (under
 first device”) with a new notebook id, so its notebook goes up sealed under the new key.
 
 **A device that held the old notebook never joins the new one on its own.** It sees a different
-notebook id, tells the reader when the notebook was replaced and from what kind of device, keeps its
+notebook id, tells the reader when the notebook was replaced and from what kind of device (the
+service answers both, as `replaced` in `GET /account`), keeps its
 own notebook, and joins only after the reader says yes; its own notes then join the new notebook.
 (Its keyring would fail the checks under “The keyring” anyway.)
 
@@ -1252,8 +1271,7 @@ Draft 1 left this to “the service’s own spec.” **It is a section of this f
 it**, for three reasons. What the service checks is half of every step above, and the other half is
 what the device checks; a reader of one needs the other on the same page. The two freeze together,
 under one version. And a second file would be one more thing for both apps’ sessions to find and
-for this repo’s `CLAUDE.md` to name. What is *not* here yet is step 4f’s: the requests that wait
-seven days (sketched below), and limits on how often a client may ask. How to run, deploy, and wipe
+for this repo’s `CLAUDE.md` to name. How to run, deploy, and wipe
 the service is in its own README, `workers/notebook-service/README.md`.
 
 **The service is built (step 4c, 2026-11-23), and this section is what it does.** The paths, the
@@ -1273,10 +1291,23 @@ configured), and **no real device’s passkey has met the service yet** (“Stil
 What moved is under “Changed in step 4e,” and every choice is under “Still open,” 41 to 58. **For
 BDR to confirm.**
 
+**The account work is built too (step 4f, 2026-11-24)**, under “Waiting seven days” and “How often
+a client may ask” below, to the same standard: each check has a test, each race the interface
+names was forced at an exact point, and each condition in a statement was taken out in turn to
+see a test fail. Three things about it are *not* proved, and are said where they matter: **the
+service’s hourly run has only ever been started by a test or by hand on one machine, never by
+Cloudflare’s own clock; deleting an account has run on a local database only, the largest of
+20,000 rows; and the limits were counted against the local copy of Cloudflare’s limiter**, which
+counts exactly where the real one says it is approximate. **Production is prepared and not
+deployed.** What moved is under “Changed in step 4f,” and every choice is under “Still open,” 59
+to 73. **For BDR to confirm.**
+
 ### How a request is carried
 
 - **The address.** The preview’s is `https://notebook-preview.litbible.net` (BVJ’s choice, and
-  live since 2026-11-23; it holds test data only). Production’s is step 4f’s. Every
+  live since 2026-11-23; it holds test data only). Production’s is to be
+  `https://notebook.litbible.net`: it is written into the service’s configuration (step 4f) and
+  **nothing is deployed there**, so no reader’s notebook is on any service yet. Every
   path below is under it. `GET /` needs no session and answers
   `{ "time": "…", "service": "lit-notebook", "interface": 1, "preview": true }`; `preview` says
   whether the preview’s own way in (below) is there.
@@ -1357,7 +1388,7 @@ and never “too large” or “bad request” for a body it would only send aga
 
 | Request | From | The service checks | Then |
 |---|---|---|---|
-| `GET /account` | signed in | nothing more | Answers with the notebook’s id (or none), the current `kid`, the lists’ version, whether this session is open and to which device, the ways in (each one’s kind, id, and dates, and whether a passkey syncs), and any request that is waiting |
+| `GET /account` | signed in | nothing more | Answers with the notebook’s id (or none), the current `kid`, the lists’ version, whether this session is open and to which device, the ways in (each one’s kind, id, and dates, and whether a passkey syncs), any request that is waiting, and when the notebook was last replaced |
 | `POST /session/proof` with the device’s id, `kid`, and the key proof | signed in | the account has a notebook; `kid` is current; the proof’s SHA-256 equals the stored hash; the device id is in the device list | The session is open and attached to that device. Wrong proofs are counted and limited |
 | `DELETE /session` | signed in | nothing more | This session is ended, and no other |
 
@@ -1367,7 +1398,11 @@ GET /account
       "session": { "open": true, "device": "<uuid>" or null, "expires": "<time>" },
       "ways": [ { "id": "<uuid>", "kind": "passkey", "added": "<time>",
                   "credential": "<bytes>", "syncs": true } ],
-      "waiting": null }
+      "waiting": null
+              or { "what": "delete" or "replace", "asked": "<time>", "due": "<time>",
+                   "platform": "ios", "through": "apple", "mine": false },
+      "replaced": null
+              or { "when": "<time>", "platform": "web", "through": "google" } }
 
 POST /session/proof   { "device": "<uuid>", "kid": 2, "proof": "<32 bytes>" }
   → { "open": true, "device": "<uuid>", "kid": 2 }
@@ -1384,7 +1419,14 @@ DELETE /session
 - **`DELETE /session`** is how a device that never joined the notebook signs out: a reader who
   signed in and went no further. A device that has joined signs out with `DELETE /devices/<id>`,
   which removes its entry and sealed keyring too (under “Devices and holders”).
-- **`waiting`** is always `null` until step 4f builds the seven-day requests.
+- **`waiting`** is the request to delete the account or replace the notebook that is waiting its
+  seven days, or `null` (under “Waiting seven days”). **Every session of the account is answered
+  it**, open or not, so that every device of the reader’s can show it. `mine` is true for the
+  session that made the request, and for no other.
+- **`replaced`** is the last time the account’s notebook was replaced, or `null` if it never was:
+  when it was carried out, and the `platform` and `through` of the request that asked. It is what
+  a device that held the old notebook tells its reader (under “When a reader loses every device”).
+  It stays until the notebook is replaced again.
 - **The proof’s checks run in the table’s order.** A `kid` that isn’t current is `old_key` whatever
   the proof, and is not counted. The comparison is of SHA-256 digests in constant time. A wrong
   proof is `wrong_proof` with `left`, the tries the session has left; the fifth in a row ends the
@@ -1587,14 +1629,99 @@ POST /approvals/<32 hex>/accept     { "kid": 2, "proof": "<32 bytes>" }
 
 ### Waiting seven days
 
-Not built yet: step 4f.
+A session that has proved the notebook’s key may delete the account at once. One that is signed in
+and no more may only *ask*, and what it asks waits seven days, where every device of the reader’s
+can see it and any device with the key can cancel it (under “Deleting the account” and “When a
+reader loses every device”). An account has at most one request waiting.
 
 | Request | From | The service checks | Then |
 |---|---|---|---|
-| `DELETE /account` | open | nothing more | Everything is deleted at once (under “Deleting the account”) |
-| `DELETE /account` | signed in, not open | none is already waiting | A request to delete is recorded: when, from what kind of device, and when it falls due, seven days on |
-| `POST /notebook/replace` | signed in, not open | the account has a notebook; none is already waiting | A request to replace is recorded the same way. When it falls due the service deletes the notebook’s records, keys, lists, and approvals, keeps the account and its ways in, and `POST /notebook` works again |
-| `DELETE /waiting` | open | a request is waiting | It is canceled |
+| `DELETE /account` | open | Apple’s refresh tokens are revoked first, if the account has any | Everything is deleted at once (under “Deleting the account”) |
+| `DELETE /account` | signed in, on an account with no notebook | the same | The same: everything is deleted at once |
+| `DELETE /account?platform=<kind>` | signed in, not open, on an account with a notebook | `platform`; none is already waiting | A request to delete is recorded: when, from what kind of device, through which kind of way in, and when it falls due, seven days on. Nothing else changes |
+| `POST /notebook/replace` with `platform` | signed in, not open | the account has a notebook; the session is not open; `platform`; none is already waiting | A request to replace is recorded the same way. When it is carried out the service deletes the notebook’s records, keys, lists, and approvals, keeps the account and its ways in, and `POST /notebook` works again |
+| `DELETE /waiting` | open, or the session that made the request | a request is waiting | It is canceled |
+
+```text
+DELETE /account                       (open, or no notebook)
+  → { "deleted": true }
+
+DELETE /account?platform=ios          (signed in, not open)
+  → { "deleted": false,
+      "waiting": { "what": "delete", "asked": "<time>", "due": "<time, seven days on>",
+                   "platform": "ios", "through": "apple", "mine": true } }
+
+POST /notebook/replace   { "platform": "web" }
+  → { "waiting": { "what": "replace", "asked": "<time>", "due": "<time, seven days on>",
+                   "platform": "web", "through": "google", "mine": true } }
+
+DELETE /waiting
+  → { "canceled": "delete" or "replace" }
+```
+
+- **`platform`** is 1 to 16 characters with no control character: the kind of device, in the
+  device’s own word, as in an approval (`ios`, `android`, `web`). On `DELETE /account` it travels
+  in the address, since not every HTTP client sends a body with `DELETE`; it is read only when the
+  request has to wait. **A device that isn’t open always sends it.** A request that must wait and
+  has none is `bad_request` with `field: "platform"`.
+- **`through`** is the kind of the way in the asking session came through (`apple`, `google`,
+  `passkey`; on the preview, also `preview`), which the service knows for itself, or `null` if
+  that way in was removed since. With `platform` it is “from what kind of device”: the one is what
+  the device said of itself, the other what the service saw.
+- **`due` is `asked` plus exactly seven days.** The service carries out what is due once an hour,
+  so a request is carried out within about an hour after `due`, later if Apple can’t be reached.
+  **Until it is carried out it can be canceled**, a minute before `due` or twenty minutes after.
+  Nothing is ever carried out before `due`.
+- **While a request waits, nothing else changes.** Every device syncs, joins, and changes the key
+  as before, and the request outlives the session that made it.
+- **A second request while one waits is `exists` with `what: "waiting"`**, whichever kind either
+  is and whichever session asks. Of two sent at once, one is recorded.
+- **Canceling is for a session with the key, and for the session that asked.** Any other session
+  without the key is `not_open`. Where none is waiting the answer is `gone` with
+  `what: "waiting"`.
+- **`POST /notebook/replace` from an open session** is `not_allowed` by the rule `already_open`,
+  and on an account with no notebook `no_notebook`, each whatever it sent.
+- **Deleting at once is one step.** The account goes only if the session is still open as the
+  account is deleted. A session that was open when it asked and was closed while it was being
+  answered (a change of key a moment before) is told `not_open`, and its request is never
+  quietly turned into one that waits.
+- **Apple first.** Before an account is deleted, at once or when due, each of Apple’s refresh
+  tokens for its ways in is revoked. If Apple can’t be reached the account stays whole:
+  `DELETE /account` answers `provider`, and a request that is due is tried again each hour. A
+  request to replace revokes nothing, since the ways in stay.
+- **After a deletion** every session of the account answers `sign_in`. The same Apple or Google
+  account then signs in to a new, empty account (`created: true`); a passkey that was the
+  account’s is `passkey_refused` with `reason: "unknown"`.
+- **After a replacement** the account has no notebook: `notebook` is null, `kid` is 0, the lists’
+  version has moved, `replaced` says when, and every session is signed in and no more. Each
+  session’s proof is forgotten with the key it was for, so a device that proved the old notebook’s
+  first key is not open on the new one’s. The next `POST /notebook` sets up as a first device does.
+
+### How often a client may ask
+
+The service counts requests **by the address they come from**, in two counts:
+
+| Count | What is counted | Limit for one address |
+|---|---|---|
+| Beginning a sign-in | every `POST` under `/sign-in/` (on the preview, also `POST /preview/session`) | 60 in a minute |
+| Everything else | every other request, with a session or without, a path that doesn’t exist included | 1,200 in a minute |
+
+A request over the limit is refused before anything is read or written: status 429,
+`{ "error": "slow_down", "retry": 60 }`, and the header `Retry-After: 60`. **A client waits that
+many seconds before it sends anything of that kind again**, and never retries in a loop. The two
+are counted apart, so an address that may not begin a sign-in still syncs.
+
+- **The numbers are far above what a reader’s devices send.** A sign-in is two requests; a first
+  sync of 50,000 records is about a hundred. They are sized so that people behind one address (a
+  household, a congregation on one network) don’t meet them.
+- **They are approximate.** The counting is Cloudflare’s, kept for each of its locations and not
+  exact across them. A limit slows a client down; nothing’s safety rests on it. What must be
+  exact is counted in the database: a session’s wrong proofs, an account’s approvals in progress.
+- **The address is kept nowhere.** It is handed to Cloudflare’s limiter as a key for the length of
+  one call. The service stores no address and logs none (under “What the service holds”).
+- **Nothing in this version tells a person from a program at sign-up.** A passkey or a provider
+  account is needed to make an account, and the limit above bounds how fast. Whether the website’s
+  sign-in page and the apps should prove more is “Still open,” 68.
 
 ### Signing in
 
@@ -1892,8 +2019,8 @@ there to save the client a request.
 | `lists_changed` | 409 | `lists`, the current version | **The lists changed.** Fetch them and start the step again |
 | `already_set_up` | 409 | `notebook`, its id | The account has a notebook. **Join it instead** |
 | `no_notebook` | 409 | | The account has none yet. Set one up |
-| `exists` | 409 | `what`: `device`, `holder`, `recovery`, `passkey`, `approval`, `grant`, or `way` | That id, or the one thing of that kind, is already there. For `passkey` and `way` under “Signing in” and “Ways to sign in”: it is some account’s way in already |
-| `gone` | 410 | `what`: `device`, `holder`, `approval`, `challenge`, or `way` | **Gone**: an approval ran out, a device has no entry, the holder a device came in through was removed, a sign-in challenge ran out or was used, or a way in isn’t this account’s |
+| `exists` | 409 | `what`: `device`, `holder`, `recovery`, `passkey`, `approval`, `grant`, `way`, or `waiting` | That id, or the one thing of that kind, is already there. For `passkey` and `way` under “Signing in” and “Ways to sign in”: it is some account’s way in already. For `waiting`: a request to delete or replace is already waiting |
+| `gone` | 410 | `what`: `device`, `holder`, `approval`, `challenge`, `way`, or `waiting` | **Gone**: an approval ran out, a device has no entry, the holder a device came in through was removed, a sign-in challenge ran out or was used, a way in isn’t this account’s, or no request is waiting to cancel |
 | `not_found` | 404 | `what: "keyring"` from `GET /keyring` | No such path, a way to sign in that is off here, or no sealed keyring for that device |
 | `bad_request` | 400 | `field`, the member at fault (`device.card.nonce`, `holders[0].kind`, `put[2].kid`, `credential.response.signature`, `idToken`, `Content-Type`, `body`) | The request isn’t in the form above. A fault in the client |
 | `not_allowed` | 422 | `rule`, below | The request is well formed and breaks a rule of the interface |
@@ -1902,6 +2029,7 @@ there to save the client a request.
 | `provider` | 502 | `which`: `apple` or `google` | Apple or Google couldn’t be reached, or answered wrongly. Nothing was written. Try again later |
 | `too_large` | 413 | `limit` | **Too large**: a body over 4,194,304 bytes, or more than 500 rows in one request |
 | `too_many` | 429 | `what`: `devices`, `holders`, `approvals`, or `ways`; `limit` | A list is full, or three approvals are in progress |
+| `slow_down` | 429 | `retry`, the seconds to wait; and the header `Retry-After` | This address has asked too often (under “How often a client may ask”). **Wait that long**, then send it again |
 | `busy` | 503 | | The notebook changed three times while the request was being checked, or a way in was removed while a sign-in through it was being checked. Send it again (a sign-in: start it again) |
 | `error` | 500 | | The service failed. Send it again later |
 
@@ -1909,12 +2037,13 @@ The rules a `not_allowed` names: `holder_needed` (a notebook always has a holder
 `one_holder_per_passkey`, `passkey_unknown` (the credential isn’t one of this account’s passkeys),
 `passkey_not_synced`, `distinct_ids`, `own_device`, `every_device` and `every_holder` (a change of
 key must name each one the service has, once), `keep_own_device`, `already_open` (a device that
-has the key has no approval to ask for), `requester`, `no_grant`, and from step 4e `prf_results`
+has the key has no approval to ask for, and no notebook to replace), `requester`, `no_grant`, and from step 4e `prf_results`
 (a passkey’s response still carries the PRF’s output), `last_way` (the last way that can sign the
 reader in can’t be removed), and `passkey_holds_key` (remove the passkey as a holder first).
 
 **“Conflict” is not a refusal**: it is one row’s answer inside a `POST /rows` that was answered
-200 (above). **“Waiting”** (a request to delete or replace is pending) arrives with step 4f. The
+200 (above). **“Waiting” is not a refusal either**: a request that must wait is answered 200 with
+`waiting`, and every session reads it in `GET /account`. The
 preview’s way in adds one word of its own, `preview_secret` (401).
 
 ## Later
@@ -2072,6 +2201,7 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 5. **4e and 4f, sign-in and the account work on the service**: the ceremonies this file leaves to
    them, the seven-day wait, and deleting an account. **4e is built (2026-11-24)**: a passkey signs
    in on the preview, and Apple and Google wait on client ids from BDR (“Changed in step 4e”).
+   **4f is built (2026-11-24)**, with production prepared and not deployed (“Changed in step 4f”).
 6. **4g and 4h, the website’s connector and account pages**, on `src/lib/desk-crypto.mjs`, with the
    full Content Security Policy enforced first (4i).
 7. **Both apps build against the vectors and the preview service** (IOS-108, NB15) with sign-in
@@ -2333,6 +2463,61 @@ check.
     changed. A passkey it lists has no public key and can’t sign anyone in.
 15. **`GET /account`’s answer is unchanged**, and now says its ways in are listed oldest first.
 
+## Changed in step 4f
+
+Step 4f built the account work on the service (2026-11-24): `src/waiting.js`, `src/scheduled.js`,
+and `src/limits.js` in `workers/notebook-service/`, with the database’s third migration. **No
+decision of draft 2 changed, and no request that steps 4c and 4e built changed its path or its
+body.** One answer grew a member (`GET /account`, item 3), which a client built to “a client
+ignores a member of an answer that it doesn’t know” already reads. The ones marked **(a choice)**
+could reasonably have gone another way, are mine (BVJ’s Claude), and are under “Still open,” 59 to
+73, for BDR to confirm and BVJ to check.
+
+1. **“Waiting seven days” is final**, where step 4c left a sketch of four rows marked “not built
+   yet”: the three requests, their shapes, and what each answers. Draft 2’s rule is kept as
+   written: at once with the key, seven days without, shown to every device, canceled by any
+   device with the key.
+2. **Four things the sketch didn’t say, each (a choice)**: an account with no notebook is deleted
+   at once; the session that asked may cancel its own request; `DELETE /account` carries
+   `platform` in its address, not a body; and a session that was open when it asked to delete and
+   was closed while being answered is told `not_open`, never recorded as waiting.
+3. **`GET /account` answers `waiting` in full, and a new member, `replaced`.** `waiting` was always
+   null before this step. **(a choice)**: what each holds, and that every session of the account
+   is answered `waiting`, open or not.
+4. **“From what kind of device” is two words**: `platform`, which the asking device says of
+   itself, and `through`, the kind of way in its session came through, which the service knows.
+   **(a choice)**
+5. **The timing is written down exactly**: due seven days to the millisecond after it was asked;
+   carried out by the service’s hourly run, so within about an hour after; cancelable until then.
+   **(a choice)**: an hour.
+6. **“How often a client may ask” is new**: two counts by address, and the refusal `slow_down`
+   (429, with `retry` and `Retry-After`). **(a choice)**: all of it, the numbers most of all.
+7. **Two refusals carry a new `what`**: `exists` and `gone` may say `waiting`. The rule
+   `already_open` now also refuses `POST /notebook/replace` from an open session. Draft 2 expected
+   a refusal called “waiting”; there is none, since a request that waits is an answer, not a
+   refusal. **(a choice)**: the words.
+8. **Deleting an account revokes Apple’s tokens first, and waits for Apple.** That it revokes is
+   draft 2’s. That the account stays, whole, while Apple can’t be reached is this step’s. **(a
+   choice)**
+9. **A replaced notebook leaves every session signed in and no more**, with its proof forgotten.
+   Without that, a device that had proved `kid` 1 of the old notebook would be open on `kid` 1 of
+   the new one, whose key it never held. The lists’ version moves; the revision counter is not
+   reset.
+10. **The service now does work on its own, once an hour**: it carries out what is due and deletes
+    sessions, approvals, and sign-in challenges that ran out. Each of those was already dead to
+    every request, so sweeping changes no answer.
+11. **“What the service holds”** lists what a waiting request keeps and what a replacement leaves,
+    and says two things the service does not hold: the address a request came from, and anything
+    of a deleted account.
+12. **Production’s address is written down**, `https://notebook.litbible.net`, and nothing is
+    deployed there. **(a choice)**: the name, which is BVJ’s to settle.
+13. **Nothing tells a person from a program at sign-up in this version.** The plan asked this step
+    to look at it; what it found, and why it waits for the website’s sign-in page (step 4h), is
+    “Still open,” 68.
+14. **The page Google Play asks for exists**, at `https://litbible.net/delete-account/`, kept out
+    of search and the sitemap and linked from nowhere until accounts open. It says what this
+    section says, in a reader’s words (“Still open,” 70).
+
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
@@ -2578,3 +2763,100 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
 58. **`DELETE /session`**, for a device that signed in and never joined; and **a client ignores a
     member of an answer that it doesn’t know**, so that a later step can add one. **BVJ checked,
     2026-11-24: “yes.”** BDR still confirms.
+
+**From step 4f, for BDR to confirm and BVJ to check.** Building the account work forced a choice in
+each of these. **Every one was made by me (BVJ’s Claude, 2026-11-24). BVJ was walked through them
+the same day and said yes to seven: 59, 60, 63, 64, 66, 69, and 71, which now wait on BDR alone;
+and yes to Turnstile on the website’s sign-in page, in 68. BVJ left five to BDR to answer: 61,
+65, 67, 70, and 73, and the rest of 68. BVJ gave no answer on 62, which waits on both.** Each is written into “Waiting seven days” or “How often a client may ask,”
+is what the service does today, and has a test. Changing one before the freeze is cheap. The
+numbers go on from 58:
+
+59. **An account with no notebook is deleted at once**, from any signed-in session. Draft 2’s
+    sketch would have made it wait seven days, with no device able to cancel, since canceling
+    needs the key and there is none. Before there is a notebook a signed-in session may already
+    add and remove ways in, for the same reason: there is nothing to protect. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
+60. **The session that asked may cancel its own request**, though it has no key. Draft 2 said any
+    device that can open the notebook. Without this, a reader who asked by mistake from a new
+    phone, and has no other device at hand, could only watch it happen. It gives a thief
+    nothing: a stolen sign-in is a different session, and can’t cancel the reader’s request. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
+61. **`DELETE /account` carries `platform` in its address** (`?platform=ios`), and
+    `POST /notebook/replace` in its body. Some HTTP clients and proxies drop a body sent with
+    `DELETE`. For BDR: say if either app’s client would rather have one form for both. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
+62. **What a waiting request says**: `what`, `asked`, `due`, `platform`, `through`, and `mine`.
+    `platform` is the asking device’s own word, so a thief can write anything there; `through`
+    is the service’s own. **And every session of the account is answered it**, not only open
+    ones: the device that asked has to see its own request, and a thief who learns that a
+    request is waiting learns nothing they can use. For the apps: the notice a device shows
+    (“a request to delete this account was made on … from …, and will be carried out on …”) is
+    built from these six. **Not yet answered by BVJ** (2026-11-24); BDR’s view is asked too.
+63. **`replaced`, in `GET /account`**: when the notebook was last replaced, and the `platform` and
+    `through` of the request. It is how a device that held the old notebook tells its reader
+    “when, and from what kind of device.” It is kept until the notebook is replaced again. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
+64. **Seven days exactly, then within about an hour.** The service’s own run is hourly.
+    Cloudflare may start a run late, and says so; nothing here depends on the minute. **A request
+    can be canceled until it is carried out**, so past `due` by up to that hour. The other
+    reading stops canceling at `due`, which would refuse a cancel for a deletion that hasn’t
+    happened yet. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
+65. **While Apple can’t be reached, an account is not deleted**: at once, the device is told
+    `provider` and tries again; when due, the service tries again every hour, without end. The
+    reader asked to be deleted and the service is holding their sealed notebook because of a
+    third party’s outage, so **BVJ may want a point (some days past due) at which it deletes
+    anyway and leaves a token unrevoked.** As built there is none, and the hourly log line
+    counts what is held, so it is seen (the service’s `RUNBOOK.md`). **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
+66. **A replacement closes every session, keeps every way in, revokes nothing with Apple, and
+    does not reset the revision counter.** A device of the old notebook sees `notebook` null and
+    then a new id. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
+67. **The new words**: `slow_down` (429, with `retry` and `Retry-After`); `waiting` under `exists`
+    and `gone`; `already_open` reused for a replacement asked from an open session; and the
+    members `deleted`, `waiting`, `canceled`, and `replaced`. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
+68. **Limits: by address, 60 a minute to begin a sign-in and 1,200 a minute for everything else;
+    and nothing yet that tells a person from a program.** The numbers are BVJ’s to approve. For
+    BDR: neither app should come near them; say if a first sync or a background task could.
+    **On bot protection, which the plan asked this step to assess**: an account can be made by
+    anything that can run a passkey ceremony, and since the service asks for no attestation, a
+    program can. What that costs is small and bounded: one row in two tables for each made-up
+    account, at most 30 a minute from one address, holding nothing. What would stop it is
+    different for each client, and none of it can be built before the client it is for: on the
+    website, a Turnstile token sent with `POST /sign-in/new-passkey/options` (the forms’ Worker
+    already checks one), which needs the sign-in page of step 4h to show the widget; in the
+    apps, Apple’s App Attest and Google’s Play Integrity, which are BDR’s to weigh and would be
+    a new member of that request. **So nothing is built, and the question goes to step 4h**:
+    does the website’s sign-in page carry Turnstile, and do the apps attest? Until an answer,
+    the request is unchanged, and a later answer adds a member a client must send, which is a
+    change to the interface. **BVJ, 2026-11-24: “yes to Turnstile,” so the website’s sign-in page (step 4h) carries it and the service checks its token; and “ask BDR about the rest,” so the numbers and whether the apps attest are BDR’s to answer.**
+69. **Production’s address, `https://notebook.litbible.net`**, beside the preview’s. Prepared in
+    the service’s configuration and **not deployed**: BVJ decides whether and when, and makes
+    the database. The apps should take the address from a build setting, as they do the
+    preview’s. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
+70. **The page for deleting an account, `https://litbible.net/delete-account/`**: what Google Play
+    asks for as the “delete account URL” in an app’s Data safety form, and where Apple’s reviewers
+    can be pointed. **For BDR to review**, as the one who files both forms: that it says what Play
+    asks (the app and developer by name, the steps, what is deleted, what is kept and for how
+    long), and that its in-app steps match where each app puts “Delete account.” It is out of
+    search and the sitemap and linked from nowhere, and says that accounts are not open yet. The
+    page can’t delete anything until the website has sign-in (step 4h), which adds the button. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**
+71. **A device whose account was deleted elsewhere is told `sign_in`, and no more.** The service
+    keeps nothing of a deleted account, so it can’t say “this account was deleted” to a session
+    that outlived it. A device that had seen the request waiting can say so itself; one that
+    hadn’t finds out when its reader signs in again. The other reading keeps a marker for each
+    deleted account for a while, which is keeping something about a reader who asked to be
+    forgotten. Say if either app needs the marker. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
+72. **What the tests could not show**, so that nobody takes it as shown: the hourly run started by
+    Cloudflare’s own clock; a deletion on the real database, above all of a large notebook (the
+    largest tried was 20,000 rows, locally, in 138 milliseconds); the real limiter’s counting; and
+    Apple’s real answer to a revoke. The first three are seen on the preview once this is
+    deployed there (the service’s README, “What to check on the preview after step 4f”); the
+    fourth waits on BDR’s identifiers, with the rest of Sign in with Apple. **And two vendors’
+    pages could not be reached while this was written**, Cloudflare’s documentation and Google
+    Play’s help: what this file says of the limiter’s counting, and what the deletion page is
+    built to, are from those pages as last read, not as re-read (the service’s README, “What was
+    checked against the vendors’ own pages”).
+73. **Apple’s server-to-server notifications are not handled.** Apple’s page on account deletion,
+    which was read for this step, asks an app with Sign in with Apple to take them: Apple calls
+    an address of the service’s when a reader ends the connection from their Apple Account’s
+    settings, or deletes their Apple Account. The service has no such address. As built, such a
+    reader’s LIT account simply stays, with a refresh token Apple has already ended. Whether
+    the service should then remove that way in, or the account, is a decision (it would be a
+    deletion nobody with the key asked for), and it belongs with turning Sign in with Apple on.
+    For BDR and BVJ. **BVJ, 2026-11-24: “ask BDR,” so this is BDR’s to answer.**

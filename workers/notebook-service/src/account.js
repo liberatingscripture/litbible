@@ -8,23 +8,28 @@ import { commit, guard } from "./db.js";
 import { authenticate, changing, needCurrentKid, needNotebook, needProof, openSession } from "./session.js";
 import { insertDevice, insertHolder, needRoomForHolders, needSyncedPasskeys } from "./lists.js";
 import { wayOut } from "./signin.js";
+import { waitingOut } from "./waiting.js";
 
 /** GET /account, from a signed-in session. */
 export async function getAccount({ request, env }) {
   const auth = await authenticate(request, env);
-  const { results } = await env.DB.prepare(
-    "SELECT id, kind, subject, syncs, created FROM ways WHERE account = ? ORDER BY created, id",
-  )
-    .bind(auth.account)
-    .all();
+  const [{ results }, waiting, account] = await env.DB.batch([
+    env.DB.prepare("SELECT id, kind, subject, syncs, created FROM ways WHERE account = ? ORDER BY created, id").bind(auth.account),
+    env.DB.prepare("SELECT what, asked, due, platform, through, session FROM waiting WHERE account = ?").bind(auth.account),
+    env.DB.prepare("SELECT replaced, replaced_platform, replaced_through FROM accounts WHERE id = ?").bind(auth.account),
+  ]);
+  const was = account.results[0];
   return answer({
     notebook: auth.notebook,
     kid: auth.kid,
     lists: auth.lists,
     session: { open: auth.open, device: auth.device, expires: auth.expires },
     ways: results.map(wayOut),
-    // A request to delete the account or replace the notebook, while it waits. Step 4f.
-    waiting: null,
+    // A request to delete the account or replace the notebook, while it waits (src/waiting.js).
+    // Every session of the account is shown it, so every device of the reader's can say so.
+    waiting: waitingOut(waiting.results[0], auth.tokenHash),
+    // The last time the account's notebook was replaced, for a device that held the old one.
+    replaced: was?.replaced ? { when: was.replaced, platform: was.replaced_platform, through: was.replaced_through } : null,
   });
 }
 

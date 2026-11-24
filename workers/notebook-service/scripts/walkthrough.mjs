@@ -13,7 +13,9 @@
 // the terminal, where it is drawn as asterisks as it is typed or pasted.
 //
 // Each run makes its own test account (walkthrough-<time>-<random>), so runs
-// never meet, and what it leaves behind is test data in a preview database.
+// never meet, and its last step deletes that account, so a run that passes
+// leaves nothing behind. One that fails partway leaves its test account in
+// the preview database.
 // It needs the preview's way in, so it cannot run against production.
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";

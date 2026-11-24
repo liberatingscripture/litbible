@@ -7,8 +7,20 @@ import worker from "../src/index.js";
 export const BASE = "https://notebook.test";
 export const SECRET = bindings.PREVIEW_SECRET;
 
+let address = 0;
+/**
+ * An address no other request in this run has come from, as Cloudflare would
+ * report it. The service counts requests by address (src/limits.js), and a
+ * suite makes thousands; a test about the limits passes `cf-connecting-ip`
+ * itself.
+ */
+const freshAddress = () => {
+  address += 1;
+  return `2001:db8::${(address >>> 16).toString(16)}:${(address & 0xffff).toString(16)}`;
+};
+
 export async function call(method, path, { token, body, headers = {}, env = {} } = {}) {
-  const init = { method, headers: { ...headers } };
+  const init = { method, headers: { "cf-connecting-ip": freshAddress(), ...headers } };
   if (token) init.headers.authorization = `Bearer ${token}`;
   if (body !== undefined) {
     init.headers["content-type"] ??= "application/json";
