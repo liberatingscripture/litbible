@@ -5959,6 +5959,19 @@ wording (E202).
   the title inline in a new-tab link). The strip stuck to the bottom of its whole
   group, button included; `paged` now puts the strip, what follows it and the
   list in one `.desk-search__body`, so it stops above the button. Status: done.
+- **E229, bug: selecting the Greek left seams in the highlight between
+  words.** BVJ, 2026-11-23 (copying and pasting were fine). Each word and
+  text-critical sign was a `<button>`, which a browser always lays out as a
+  box of its own, so the highlight broke at every word; taking the buttons'
+  padding off only narrowed the seams. They are now inline spans with
+  `role="button"` (`tab-greek.js`), Enter and Space handled by the
+  scroller, and the copy handler turns them into plain spans as before. The
+  verse number's margins left one more seam on each side, so it has none: the
+  space before it and a narrow no-break space after it are text, which the
+  highlight covers. Measured over John 3's first 61 words (three verse
+  numbers) in the branch build: no gap between any two of the selection's
+  boxes. Fixed with step 4k (PR #693).
+  Status: done.
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

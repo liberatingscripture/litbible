@@ -426,8 +426,9 @@ export function createGreekTab({
         p.append(document.createTextNode(piece.text));
         continue;
       }
-      const b = make("button", "desk-greek__sign", piece.text);
-      b.type = "button";
+      // A span acting as a button, as the words are (see build).
+      const b = make("span", "desk-greek__sign", piece.text);
+      b.setAttribute("role", "button");
       b.tabIndex = -1;
       b.dataset.verse = String(verse);
       b.setAttribute("aria-label", `Apparatus note on verse ${verse}`);
@@ -473,12 +474,20 @@ export function createGreekTab({
           vn.dataset.vn = String(verse);
           vn.append(make("span", "sr-only", "Verse "), String(verse));
           verseMarks.set(verse, vn);
-          p.append(vn);
+          // A narrow no-break space after the number rather than a margin: a
+          // selection's highlight covers a character but not a margin, which
+          // left a seam beside every verse number, and the number never ends
+          // a line apart from its first word.
+          p.append(vn, "\u202F");
         }
         appendWithSigns(p, w[W.pre], verse);
-        const b = make("button", "desk-greek__w", w[W.text]);
+        // A span acting as a button, never a <button>: a browser lays every
+        // <button> out as a box of its own, which left a seam in a selection's
+        // highlight between each word (BVJ, 2026-11-23). Enter and Space are
+        // the scroller's keydown's to give it.
+        const b = make("span", "desk-greek__w", w[W.text]);
         b.lang = "grc";
-        b.type = "button";
+        b.setAttribute("role", "button");
         b.tabIndex = -1;
         b.dataset.i = String(i);
         b.setAttribute("aria-pressed", "false");
@@ -988,12 +997,13 @@ export function createGreekTab({
     });
   }
 
-  // Copying the Greek (BVJ, 2026-11-06): each word and sign is a button, and a
-  // sheet's paste drops buttons with what they hold (as it should for a web
-  // page's controls), so a copy reached a sheet as spaces, commas and verse
-  // numbers. The clipboard gets the words as Greek text instead: buttons become
-  // spans keeping their lang, the screen reader's "Verse " goes, and the plain
-  // text puts a space after each verse number and a blank line between paragraphs.
+  // Copying the Greek (BVJ, 2026-11-06): each word and sign is a button (a span
+  // with role="button" since 4k), and a sheet's paste drops buttons with what
+  // they hold (as it should for a web page's controls), so a copy reached a
+  // sheet as spaces, commas and verse numbers. The clipboard gets the words as
+  // Greek text instead: buttons become plain spans keeping their lang, the
+  // screen reader's "Verse " goes, and the plain text puts a space after each
+  // verse number and a blank line between paragraphs.
   el.addEventListener("copy", (e) => {
     const sel = document.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount || !e.clipboardData) return;
@@ -1002,7 +1012,7 @@ export function createGreekTab({
     const box = document.createElement("div");
     box.append(range.cloneContents());
     for (const n of box.querySelectorAll(".sr-only")) n.remove();
-    for (const b of box.querySelectorAll("button")) {
+    for (const b of box.querySelectorAll('button, [role="button"]')) {
       const s = document.createElement("span");
       if (b.lang) s.lang = b.lang;
       s.textContent = b.textContent;
@@ -1052,6 +1062,16 @@ export function createGreekTab({
     });
   });
   scroller.addEventListener("pointerleave", clearKin);
+
+  // Enter and Space press a word or a sign, as they would a <button>.
+  scroller.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    const control = e.target.closest?.(".desk-greek__w, .desk-greek__sign");
+    if (!control) return;
+    e.preventDefault();
+    control.click();
+  });
 
   scroller.addEventListener("keydown", (e) => {
     const word = e.target.closest?.(".desk-greek__w");

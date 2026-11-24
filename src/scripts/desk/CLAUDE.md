@@ -914,9 +914,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        one (E133). **Arrowing
        through words asks for a lexicon only at rest** (150 ms, GK-10).
      - **A copy from the tab writes its own clipboard** (E54): its words and
-       signs are buttons, which a sheet's paste drops with their text, so
-       `tab-greek.js` turns them into `lang="grc"` spans and leaves out the
-       "Verse " labels. A new clickable element among the words needs the same.
+       signs are buttons (`role="button"` spans, never `<button>`, which is a
+       box of its own and broke a selection's highlight at every word; 4k),
+       which a sheet's paste drops with their text, so `tab-greek.js` turns
+       them into plain `lang="grc"` spans and leaves out the "Verse " labels.
+       A new clickable element among the words needs the same.
      - **The tab never moves the page.** Its text scrolls on its own and
        opens at the verse being read, with "Go to verse N" to catch up; its
        words are one roving tab stop. The lexicon choice is

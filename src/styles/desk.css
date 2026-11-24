@@ -3969,23 +3969,21 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 /* Verse numbers, small like Chapter View's. */
+/* No margin: the space before the number and the narrow no-break space after
+   it (tab-greek.js) are text, which a selection's highlight covers. */
 .desk-greek__vn {
-  margin: 0 0.25em 0 0.2em;
+  margin: 0;
   color: var(--green-text);
   font-family: Inter, "Inter Fallback", system-ui, sans-serif;
   font-size: 0.6em;
   font-weight: 600;
 }
 
-/* A word is a button that looks like text. */
+/* A word is a button that looks like text: an inline span with
+   role="button", with no padding or margin, so a selection's highlight runs
+   unbroken from word to word. */
 .desk-greek__w {
-  margin: 0;
-  padding: 0 1px;
-  border: 0;
   border-radius: 3px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
   cursor: pointer;
 }
 
@@ -4011,12 +4009,7 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 .desk-greek__sign {
-  margin: 0;
-  padding: 0 1px;
-  border: 0;
-  background: transparent;
   color: var(--green-text);
-  font: inherit;
   font-size: 0.85em;
   cursor: pointer;
 }

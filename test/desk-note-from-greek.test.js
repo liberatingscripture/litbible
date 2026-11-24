@@ -264,6 +264,22 @@ test("a comma touching the selection's last word comes in only when the selectio
   assert.ok(calls.at(-1).startsWith(`“${plain},”`), calls.at(-1));
 });
 
+test("a word is an inline span acting as a button, so a selection's highlight has no seams; Enter and Space press it", async () => {
+  const t = await tab(() => {});
+  await t.selectWord(16, 1);
+  const words = [...t.el.querySelectorAll(".desk-greek__w")];
+  assert.ok(words.length > 0);
+  assert.ok(words.every((w) => w.tagName === "SPAN" && w.getAttribute("role") === "button"), "never a <button>, which is always a box of its own");
+  const signs = [...t.el.querySelectorAll(".desk-greek__sign")];
+  assert.ok(signs.every((s) => s.tagName === "SPAN" && s.getAttribute("role") === "button"));
+  const i = words.findIndex((w) => w.textContent === "κόσμον");
+  const press = (key) => words[i].dispatchEvent(new window.KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+  assert.equal(press("Enter"), false, "Enter is taken");
+  assert.equal(words[i].getAttribute("aria-pressed"), "true", "Enter chose the word");
+  press(" ");
+  assert.equal(words[i].getAttribute("aria-pressed"), "false", "Space, on the chosen word, lets it go");
+});
+
 test("destroy lets go of the document's selection events", async () => {
   const t = await tab(() => {});
   t.destroy();
