@@ -189,6 +189,20 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       session.openKid = account.kid;
     },
 
+    /**
+     * A row written by some other client, whatever it holds: stored at the
+     * next revision with none of the service's checks, so a test can stand a
+     * row no well-behaved client would send (a damaged seal, a version from
+     * the future) where a device will pull it. Returns the stored row.
+     */
+    plant(name, row) {
+      const account = service.account(name);
+      account.rev += 1;
+      const stored = { deletedAt: null, ...row, rev: account.rev };
+      account.rows.set(row.id, stored);
+      return stored;
+    },
+
     /** The service restored from an older copy: every row written after `rev` is gone, and revisions go back. */
     goBack(name, rev) {
       const account = service.account(name);
@@ -438,8 +452,7 @@ export async function join(service, from) {
  * `removed`. Only `by` is given the new keyring here: every other kept
  * device finds its sealed copy on the service, as a real one does.
  */
-export async function changeKey(service, by, { kept, removed = [] }) {
-  const next = ref.nextKeyring(by.keyring, ref.randomBytes(32));
+export async function changeKey(service, by, { kept, removed = [], next = ref.nextKeyring(by.keyring, ref.randomBytes(32)) }) {
   await service.changeKey(by.token, {
     proofHash: await proofHashOf(next),
     devices: await Promise.all(kept.map(async (d) => ({ id: d.id, keyring: await sealedFor(d.key.public, next) }))),

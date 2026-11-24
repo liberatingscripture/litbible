@@ -262,7 +262,9 @@ export async function settle({ outcomes, after, base, tolerance }) {
   for (const { row, how, why, read } of outcomes) {
     const id = row.id;
     const prev = entryOf(id);
-    const kept = prev?.sent ? { sent: prev.sent } : {};
+    // The damper is for a copy another device replaced. A row whose revision went back was not
+    // replaced: the service lost what this device sent, and is owed it again.
+    const kept = prev?.sent && row.rev >= prev.rev ? { sent: prev.sent } : {};
     if (how === "aside") {
       next.set(id, { id, rev: row.rev, hash: prev?.hash ?? (await hashHere(id)), ...kept, held: "aside" });
       hold.push({ id, why: "aside", row });
@@ -287,7 +289,7 @@ export async function settle({ outcomes, after, base, tolerance }) {
     // Merged. The service's copy, as this client reads it, against what the notebook now holds.
     const served = await digest(read);
     const here = await hashHere(id);
-    const settledHere = here === null || here === served || prev?.sent === here;
+    const settledHere = here === null || here === served || kept.sent === here;
     next.set(id, { id, rev: row.rev, hash: settledHere && here !== null ? here : served, ...del, ...kept });
     release.push(id);
     // Rule 5: an arriving deletion that lost to a live record.

@@ -80,6 +80,12 @@
 //      the NEWER content, judged by the held record's `modified` (rule a); if
 //      only one still holds content, that one; if neither, none; on a tie, the
 //      survivor's own. Its `modified` is the later of the two.
+//      Two copies of ONE trash record (the same id on both sides) merge the
+//      same way, and there every tie (the two `deletedAt`, the two held
+//      copies' `modified`) goes to the local copy, or to the arriving one when
+//      `tiebreak` favors it (step 4g, 2026-11-24, for BDR to confirm with the
+//      tie rule itself: under sync two devices can hold one trash record with
+//      different held copies of equal `modified`, and each kept its own).
 //   7. Principle 6, keep what you don't understand. A record of an unknown
 //      kind, from a newer schema, or with fields this code doesn't know merges
 //      by the same id and `modified` rules and is written back exactly as it
@@ -275,7 +281,13 @@ function pickWithin(x, y) {
 
 /** A local and an arriving copy of one id: later wins; a tie, `tiebreak`, else local. */
 function pickAcross(local, incoming, tiebreak) {
-  if (bothTrash(local, incoming)) return collapseTrash([local, incoming]);
+  // Two copies of one trash record merge field by field (collapseTrash), and every tie in it falls
+  // to the copy listed first. With a tiebreak that favors the arriving copy (a sync service's row),
+  // that is the arriving one, so two devices holding different copies of one trash record end
+  // with the same one (step 4g; with no tiebreak, the local copy as before).
+  if (bothTrash(local, incoming)) {
+    return collapseTrash(tiebreak && tiebreak(local, incoming) < 0 ? [incoming, local] : [local, incoming]);
+  }
   const onTie = (l, i) => ((tiebreak ? tiebreak(l, i) : 0) < 0 ? i : l);
   if (stampedBookmark(local) && stampedBookmark(incoming)) return mergeBookmark(local, incoming, onTie);
   const dl = instant(local.modified);

@@ -301,11 +301,13 @@ export function createSyncEngine({
    * settles each row's entry. `cursor`, when given, is written with them.
    */
   async function takeRows(rows, { cursor } = {}) {
-    const fresh = latestRows(rows).filter((row) => {
+    // Every row here is the service's own word for what it holds now (a pulled page, a conflict's
+    // row, or a kept row whose revision still stands), so none is passed over for being older than
+    // the entry: a service restored from an older copy answers with revisions that went back.
+    const fresh = latestRows(rows);
+    for (const row of fresh) {
       if (typeof row?.id !== "string" || !Number.isSafeInteger(row.rev)) throw new Error("desk-sync: a row without an id or a revision");
-      // A row older than the one this device already settled says nothing new.
-      return row.rev >= (base.get(row.id)?.rev ?? 0);
-    });
+    }
     const patch = cursor !== undefined && cursor !== meta.cursor ? { cursor } : null;
     if (!fresh.length) return save({ patch });
 
@@ -440,9 +442,11 @@ export function createSyncEngine({
         cursor = Math.min(cursor, prev?.rev ?? 0);
       }
     }
-    // The service's last revision can't be behind what this device has pulled, unless the service
-    // went back (restored from an older copy). Then everything is fetched again.
-    if (Number.isSafeInteger(answer.rev) && answer.rev < cursor && !audited) {
+    // Each row stored takes a new revision past everything this device has pulled. A last revision
+    // short of that means the service went back (restored from an older copy): everything is
+    // fetched again, and what it lost is owed to it.
+    const stored = results.filter((r) => r.did === "stored").length;
+    if (Number.isSafeInteger(answer.rev) && answer.rev < meta.cursor + stored && !audited) {
       startAudit();
       cursor = 0;
     }
