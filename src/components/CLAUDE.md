@@ -3,9 +3,8 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
+
+## The header's title swap
 
 - **The header's title is chosen before first paint; keep its script
   inline** (E138; BVJ, 2026-11-17). `SiteHeader.astro` shows "The Liberation &
@@ -13,11 +12,10 @@
   an ellipsis on a computer; always the short one in OpenDyslexic). The
   choice needs a measurement, made by an `is:inline` script right after
   `.site-header__inner`, so the first paint already has the right title.
-  It was a bundled script that waited for idle time, to keep its forced
-  layout off the load, and every page whose window was too narrow painted
-  the long title and then swapped it: every phone, a computer from about
-  1100 to 1440px, every OpenDyslexic window. **Don't move it back to a
-  bundled or deferred script.** It depends on three things staying true:
+  A bundled script that waited for idle time made every page with a narrow
+  window (every phone, a computer from about 1100 to 1440px, every
+  OpenDyslexic window) paint the long title and then swap it. **Don't move it
+  back to a bundled or deferred script.** It depends on three things staying true:
   stylesheets in `<head>`, `data-font` and `data-desk` stamped there, and
   `scrollbar-gutter: stable` on `<html>` (the row has its final width
   before the page can scroll).
@@ -27,10 +25,9 @@
   in its fallbacks, which are wider (the long title by 56px, the nav by up
   to 31px). A measurement made at once therefore picks the short title
   across some 90px of widths above each threshold, and the layout it
-  forces makes Chrome paint sooner (about 56 ms in, where the page
-  otherwise paints at about 110), into just that gap: a version that
-  measured at once and again as each font settled painted the wrong title
-  for some 50 ms in about one new-tab load in eleven there. So the script
+  forces makes Chrome paint sooner, into just that gap (a version that
+  measured at once painted the wrong title for some 50 ms in about one
+  new-tab load in eleven). So the script
   asks for every font the row is drawn in (`document.fonts.load`) and
   measures when all have settled, which for cached fonts is before first
   paint. The first animation frame measures if they haven't by then, so a
@@ -49,6 +46,8 @@
   of the script's own and sees a title that frame never paints, and a
   handful of fixed widths misses the bands where the fallback and the font
   disagree. Read View's whole book is the heaviest page to try.
+## The announcement popover
+
 - **One announcement popover at a time.** `Layout.astro` renders exactly ONE
   popover component (currently `AppsLaunchPopover.astro`, the iOS/Android
   launch). Retiring an announcement means swapping that import and leaving the

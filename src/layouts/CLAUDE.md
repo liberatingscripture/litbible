@@ -3,9 +3,6 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 - **On a phone, Chapter View's toolbar is one row** (audit F3, owner
   2026-09-28). At 640px and below the passage picker, a search button and an
@@ -29,7 +26,7 @@
   carries speculation rules that prefetch the Previous/Next buttons' and the
   bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
   prerender: a prerendered page runs its scripts, so it would count a pageview
-  toward the app popover's `lit_pv` gate (see the popover rule below), could
+  toward the app popover's `lit_pv` gate (`src/components/CLAUDE.md`, "One announcement popover at a time"), could
   open the popover in a page nobody has seen yet, and may log an analytics visit
   for a chapter nobody opened. None of those scripts check
   `document.prerendering`.

@@ -3,9 +3,8 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
+
+## The contact and app-support Worker (`workers/contact-form/`)
 
 - **The contact + app-support forms are self-hosted**: `/contact` posts to
   `/contact/submit` and `/app-support` posts to `/app-support/submit`, both
@@ -29,7 +28,7 @@
 
 ## What the two Workers share
 
-From the root's project tree. Each Worker is a package of its own: its own
+Each Worker is a package of its own: its own
 `package.json`, lockfile, and vitest suite (`npm test` in its directory), and
 its own CI job and Dependabot stream. The root `npm ci` and `npm test` reach
 neither, and nothing in the site imports either.
@@ -53,7 +52,7 @@ neither, and nothing in the site imports either.
 
 The Study Desk's sync service: a Worker with a D1 database that holds each
 signed-in reader's notebook sealed, so the service can open nothing (the
-plan's step 4c in `STUDY-DESK.md`, "Order of work," 4; built 2026-11-23).
+plan's step 4c in `STUDY-DESK.md`, "Order of work," 4).
 **It is a preview only**, live at `https://notebook-preview.litbible.net`
 since 2026-11-23 and holding test data alone. **Production is prepared and
 not deployed** (step 4f, 2026-11-24: `env.production` in `wrangler.jsonc`
@@ -161,8 +160,7 @@ work," "Production," and what each later step plugs in and where), and
   then the walkthrough against it. So
   a change here is live minutes after it merges, and a migration in it is
   applied for good. The workflow is also the way BDR rolls back, from the
-  Actions tab (BVJ's choice over a member role on the Cloudflare account); a
-  deploy, a rollback, and a second deploy were each run from it that day.
+  Actions tab (BVJ's choice over a member role on the Cloudflare account).
   The repository variable `NOTEBOOK_PREVIEW_DEPLOYS` is its switch, and the
   README's "Who can deploy and roll back" has how it is set up.
 - **`src/pages/delete-account.astro` is this service's page on the site**:

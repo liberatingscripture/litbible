@@ -3,9 +3,6 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory. It also governs `scripts/alignment-review/`, `scripts/alignment-words/`, `src/data/alignment-words/` and the term lens.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 ## The Alignment Dataset (`src/data/alignment/`)
 
@@ -27,18 +24,15 @@ history call **1a** and **1b**:
   `lit` renderings, then reviewed verse by verse against the Greek. `term` is
   populated, `greek` is empty.
   - **1a** is the original 31 terms.
-  - **1b** widens the glossary past those 31, one reviewed batch at a time,
-    each term getting a glossary entry written from the owner's own published
-    footnotes. The batches so far took it to 39 terms (the
-    `claude/alignment-phase1b` / `1c` branches, Aug 2026) and then to 47 (#168,
-    "Alignment phase 1b: eight new glossary terms", Sept 2026). The owner is
-    continuing it with the other terms the footnotes explain and link.
+  - **1b** widens the glossary past those 31, one reviewed batch at a time
+    (47 terms so far), each term getting a glossary entry written from the
+    owner's own published footnotes; the owner is continuing it.
     `GLOSSARY-CANDIDATES.md` is the register of candidates set aside, and
-    which terms earn an entry is the owner's editorial call (see the
-    `glossary` collection below).
+    which terms earn an entry is the owner's editorial call
+    (`src/content/CLAUDE.md`, "Content Collections").
   - **Every lemma-seeded queue verse is decided across all 47 terms**, so all
-    47 clear the display gate below. Regenerate the current numbers rather
-    than trusting this sentence — new chapters keep arriving, and each one
+    47 clear the display gate ("Rendering consolidation" below). Regenerate
+    the current numbers rather than trusting this sentence: each new chapter
     reopens its terms, and each 1b batch adds a term to review.
   - Not to be confused with the **Study Desk's** phases 1a/1b/1c
     (`STUDY-DESK.md`), a separate project that reuses the numbering. Say
@@ -89,7 +83,7 @@ history call **1a** and **1b**:
   not be rendering the Greek: "trust", "clean"). The `DISTINCTIVE` set in the
   script is an editorial judgment, not a derivable rule.
 - `lemma` is the **Greek-side check** — `present`, `absent`, or `unchecked` —
-  and is deliberately a separate axis from `confidence`. See below.
+  and is deliberately a separate axis from `confidence`. See "Greek verification (MorphGNT)" below.
 - `status` is `auto` until a human reviews it, then `confirmed`,
   `no-rendering`, or `rejected`. A reviewed record carries `confidence: null`
   — `confidence` answers "is this English string unambiguous *out* of context",
@@ -126,7 +120,7 @@ behind it (reviewed by Opus on 2026-10-12, which added 3, 4, 6 and 8):
    joined). `form` is the SBLGNT word without punctuation or apparatus
    signs, stored NFC, and doubles as a checksum. The check ignores the
    elision mark and capitals, which differ between MorphGNT and SBL's v1.2
-   data without being different words (see "Translation Source Text").
+   data without being different words (see `src/data/chapters/CLAUDE.md`, "Translation Source Text (SBLGNT)").
 3. **Each file keeps its verses' English as aligned (`basis`).** `n` alone
    cannot survive a revision: insert a second "the" early in a verse and every
    later "the" record resolves to the word before its own, with nothing
@@ -180,7 +174,7 @@ working copy: does the lemma this record claims actually occur in this verse?
 2022-12-19; MorphGNT's README still names the old EULA.) The one place its
 data is published is `public/greek/text/`, the Study Desk's Greek tab, which
 `npm run build:greek` writes under CC BY-SA 4.0 and keeps apart from
-everything else (see "The Study Desk preview", rule 14). Clone it by hand
+everything else (`public/greek/CLAUDE.md`, rule 14). Clone it by hand
 when you need to re-verify:
 
 ```bash
@@ -189,7 +183,7 @@ git clone --depth 1 https://github.com/morphgnt/sblgnt.git .morphgnt
 
 Without it the run still succeeds, verdicts on disk are preserved rather than
 blanked, and it says so. (The review tool is the opposite — it refuses to
-start; see below.)
+start; see "The review tool" below.)
 
 **Keep the clone OUTSIDE the repo and point `MORPHGNT_DIR` at it.** The default
 location resolves per-checkout, so a clone made inside a worktree is lost the
@@ -220,20 +214,13 @@ lemma concordance, so it's gitignored rather than committed.
 `lit` field is a **headline, not a rendering inventory**. It states the
 interpretive commitment; the running text realizes it several ways. `metanoia`
 is glossed "reorienting the mind" but appears as "transformation of the mind",
-"the reorienting of minds", "reorienting your mind"; `blasphemia` was glossed
-"disrespectfulness" but appears as "speaking with contempt", "speak
-disrespectfully", "contemptuous speech", "slander" — and neither term rendered
-as its glossed word, which is why both scored 0% coverage. (Blasphemia's
-headline was changed to "contemptuous speech" in 2026-09; metanoia's gap
-stands.) So an English-first scan can only ever find what it was told to look
-for. **Seed future work from the lemma side, where the verse list is complete
-by construction, and classify; don't seed from the English side and discover.**
-
-Completing the review bore that out at scale: *pistis* came out as faithfulness
-and trust in comparable numbers plus commitment and allegiance; *doxa* as
-praise, praiseworthiness, renown, honor, reputation, radiance; *koinos* as
-unconsecrated, shared, and worthless — never the glossed word. The scan alone
-would have found a fraction of these.
+"the reorienting of minds", "reorienting your mind", and neither it nor
+`blasphemia` rendered as its glossed word, which is why both scored 0%
+coverage. So an English-first scan can only ever find what it was told to look
+for (the full review bore that out: *pistis*, *doxa* and *koinos* each came out
+as many renderings, never only the glossed word). **Seed future work from the
+lemma side, where the verse list is complete by construction, and classify;
+don't seed from the English side and discover.**
 
 ### Re-auditing decided records (`npm run audit:alignment`)
 
@@ -270,9 +257,8 @@ straight apostrophe that turned curly.
 That second kind exists because `computeOccurrenceN` is deliberately
 case-**insensitive** while `english[].text` separately preserves the casing as
 written, so a drifted record goes on numbering correctly and the staleness check
-alone passes it in silence. Decapitalizing three "Triumphant Message" verses in
-2026-08 drifted three confirmed records that way and exposed a fourth
-(`2Cor.2.12`) that had been drifted for months with nothing reporting it. The
+alone passes it in silence (decapitalizing three "Triumphant Message" verses
+drifted three records that way and exposed a fourth, `2Cor.2.12`). The
 check is one matching position, not all of them — Romans 8:2 renders *nomos* as
 "Torah" and "torah" in the same verse on purpose, and demanding every candidate
 position match would report that pair as drift.
@@ -412,7 +398,8 @@ neither vouch for nor rule out withholds the whole term. Per record:
 
 (A term also disappears from `/glossary` when its entry carries `draft: true`,
 which is a separate axis — the records are fine, the entry is unpublished. Its
-alignment data keeps building either way; see the `glossary` collection below.)
+alignment data keeps building either way; see `src/content/CLAUDE.md`,
+"Content Collections.")
 
 | | |
 |---|---|
@@ -451,7 +438,7 @@ four other renderings with their corpus counts, and a link to
 the glossary entry. Four owner decisions (2026-09-28): **every use**, not just
 the first of each term; **on by default**, with a **Key terms** box in the
 Display tray to turn it off; **Chapter View only**, never Read View, which is
-for immersion; and **no tab stops** (below). The pieces are
+for immersion; and **no tab stops** (rule 4). The pieces are
 `src/lib/term-lens.mjs` (pure, unit-tested), `term-lens-data.mjs` (its fs
 shell), `term-words.mjs` (rule 7) and `src/scripts/term-lens.js`. Seven rules:
 
@@ -470,9 +457,9 @@ shell), `term-words.mjs` (rule 7) and `src/scripts/term-lens.js`. Seven rules:
    is skipped, never guessed.
 3. **Two records claiming the same words keep the first** in reading order;
    the other is skipped rather than nested. A sweep of every published chapter
-   in 2026-09 placed 4,326 of 4,328 marks, and both misses were errors in the
-   records (1 Corinthians 5:8 and Mark 12:23), fixed in the data rather than
-   worked around here. Re-run that kind of sweep after a large review session.
+   (2026-09) placed all but two marks, and both were errors in the records
+   (1 Corinthians 5:8 and Mark 12:23), fixed in the data rather than worked
+   around here. Re-run that kind of sweep after a large review session.
 4. **Terms are not controls**: plain spans, with no role and no tab stop. A tab
    stop per term would interrupt scripture mid-sentence, up to 60 times a
    chapter (Romans 7). /glossary carries the same information for keyboard and
@@ -483,15 +470,14 @@ shell), `term-words.mjs` (rule 7) and `src/scripts/term-lens.js`. Seven rules:
    element's computed style into the copied HTML, so the underline pasted as
    real formatting. A `copy` listener adds `.is-copying` to the chapter for
    that one task, which drops the underline while the browser serializes;
-   the copy itself stays the browser's (decision 4 under "Sharing a
-   selection").
+   the copy itself stays the browser's (`src/scripts/CLAUDE.md`, "Sharing a
+   selection," decision 4).
 6. **A pointer that is selecting never opens the card** (Study Desk audit 5,
    SH5-15): `pointerover` with a button down is ignored, and the hover delay's
    callback stands aside when a selection has formed meanwhile, as the click
-   handler already did for a live selection. Before this, a drag that paused on
-   a term before its release opened the card mid-drag, which cut the selection
-   to its first word and kept the selection panel from appearing; a leader
-   gathering passages in /desk's LIT pane met it on every underlined word.
+   handler already did for a live selection. (A drag that paused on a term
+   opened the card mid-drag, cutting the selection to its first word and
+   keeping the selection panel from appearing.)
 7. **The card names the mark's own Greek word, not its entry's for every
    mark** (BVJ, 2026-11-11; STUDY-DESK-FIXES.md, E85). An entry governs a
    family of Greek words (`glossary-lemmas.mjs`) and names one of them
@@ -523,9 +509,9 @@ shell), `term-words.mjs` (rule 7) and `src/scripts/term-lens.js`. Seven rules:
      differ (123 marks), nothing says which the rendering renders until
      phase 2 links words, and **nobody guesses, the entry's own word
      included**: that half of the card names each, "Traditionally faith or
-     believe · Greek pistis or pisteuo" (`markOrigin` returns lists). The
-     entry's pair was tried there first and named a word the verse doesn't
-     hold in 16 of them ("Greek dikaiosune" on Galatians 3:11's "just"). A
+     believe · Greek pistis or pisteuo" (`markOrigin` returns lists). (The
+     entry's pair named a word the verse doesn't hold in 16 of them:
+     "Greek dikaiosune" on Galatians 3:11's "just".) A
      sheet offers the candidates to its leader instead. The entry's own
      pair is only for a mark whose page says nothing of its verse.
 

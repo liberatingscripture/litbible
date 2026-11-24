@@ -2,23 +2,21 @@
 
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
-> in this directory. It governs the desk's code wherever it lives, including `src/lib/desk-*.mjs`, the /desk, /notebook and /sheets pages and `desk.css`; read it before touching any of them. The Greek (the Greek tab, `public/greek/`, searching the Greek) is in `public/greek/CLAUDE.md`.
-> The Sheets' own rules (the Sheets pane and its editor, /sheets, present
-> mode, templates, sharing) are in `sheets/CLAUDE.md`, beside their code; it keeps this file's
-> rule numbers 18 to 23 in its headings. Syncing the notebook is `sync/CLAUDE.md`.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file.
-
-**`STUDY-DESK.md` (about 500 KB), `STUDY-DESK-FIXES.md` and the
-`STUDY-DESK-AUDIT-*.md` files are too large to read whole.** Grep them for the ID
-(BA42, 3j, N9, SEC-1) and read that section.
+> in this directory. It governs the desk's code wherever it lives, including `src/lib/desk-*.mjs`, the /desk, /notebook and /sheets pages and `desk.css`; read it before touching any of them.
+> Its children keep their own rules beside their code: the Greek (the Greek
+> tab, `public/greek/`, searching the Greek) is `public/greek/CLAUDE.md`, which
+> keeps this file's rule numbers 14, 15 and 17; the Sheets (the Sheets pane
+> and its editor, /sheets, present mode, templates, sharing) are
+> `sheets/CLAUDE.md`, which keeps rule numbers 18 to 23 in its headings;
+> Collections are `collections/CLAUDE.md`; syncing the notebook is
+> `sync/CLAUDE.md`. A rule lives once, in the file whose code it is about.
 
 **This file has a size cap** (`DESK_LIMIT` in `test/claude-docs.test.js`; BVJ,
 2026-11-07), lowered as it is trimmed, never raised; keep 8 KB or more of
-headroom. Rules, owner decisions and their reasons go here; the story of how
-an E number or an audit finding was decided and built goes under its entry in
-`STUDY-DESK-FIXES.md` or the audit file, Sheets material goes in
-`sheets/CLAUDE.md` (no cap), and a "Built on…" line goes nowhere.
+headroom. The story of how an E number or an audit finding was decided and
+built goes under its entry in `STUDY-DESK-FIXES.md` or the audit file, Sheets
+material goes in `sheets/CLAUDE.md` (no cap), and a "Built on…" line goes
+nowhere.
 
 ## The records
 
@@ -42,16 +40,16 @@ an E number or an audit finding was decided and built goes under its entry in
 findings with their own IDs and statuses, never added to `STUDY-DESK.md` or
 `STUDY-DESK-FIXES.md`. A finding is marked fixed in its entry in the audit
 file as it ships; a bug or preference BVJ raises in daily use goes in
-`STUDY-DESK-FIXES.md`. Give a new audit file a row in the table above and a
-mention in the root `CLAUDE.md`'s Important Files row.
+`STUDY-DESK-FIXES.md`. Give a new audit file a row in the table above (the
+root's Important Files row covers it by its `STUDY-DESK-AUDIT-*.md` name).
 
 ## Routes
 
 | Route | File | Purpose |
 |-------|------|---------|
-| `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap (a `notebook/` prefix rule in `astro.config.mjs`) and Pagefind (Layout's default); empty for anyone without the preview (`?desk=on`). See "The Study Desk preview" |
+| `/notebook` | `notebook.astro` | The Study Desk preview's notebook page. noindex, out of the sitemap (a `notebook/` prefix rule in `astro.config.mjs`) and Pagefind (Layout's default); empty for anyone without the preview (`?desk=on`). See "The rules", rule 13 |
 | `/desk/help` | `desk/help.astro` (`desk-help.css`) | **One help page for the whole desk** (the Notebook, /desk, sheets, the Greek; BVJ, 2026-11-07). `/notebook/help/` redirects to it (`redirects` in `astro.config.mjs`; the static redirect page drops a `#fragment`, so link `HELP_HREF`/`WAYS_HREF`, never the old address). A static page that reads without the desk: noindex, out of the sitemap (`desk/help` in the filter) and Pagefind. **A feature that adds a pane, a menu item, or a sheet tool gets its sentence there**; counts come from `MAX_PANES`, `MAX_FOLLOWING`, `TRASH_DAYS`, never typed. Eight parts of topics with a contents list (`parts` in its frontmatter; E125): a new topic gets a row there, an old `id` stays on its topic's heading, and nothing is folded away (`test/desk-help-page.test.js`) |
-| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. `?desk-tour` and `?sheet-tour` start its two tours. See "The Study Desk preview", rule 18 |
+| `/desk` | `desk.astro` | The Study Desk as a page of its own (D9): one to four panes. Same treatment as `/notebook`: noindex, out of the sitemap and Pagefind, and a short note without the preview. `?desk-tour` and `?sheet-tour` start its two tours. See "The rules", rule 18 |
 | `/sheets` | `sheets.astro` | A sheet's own address (3i): the list of the reader's sheets, one sheet (`?id=`, with `&view=present`, `presenter` or `edit`), a shared one (`#share1.<data>`), and `?sheet-tour`. Same treatment as `/desk`. Routes in full: `sheets/CLAUDE.md`, rules 19 and 21 |
 | `/collections` | `collections.astro` | The reader's collections (D13): the list, and one collection (`?id=`). Same treatment as `/desk`: noindex, out of the sitemap (a `collections` rule in `astro.config.mjs`) and Pagefind, and a short note without the preview. Its rules: `collections/CLAUDE.md` |
 
@@ -456,7 +454,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      footnote HTML that adds visible text will fail there.
   10. **The Notebook panel has tabs, one module each**: "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
-     and "Greek" (`desk/tab-greek.js`, rule 14) on Chapter View chapters, and
+     and "Greek" (`desk/tab-greek.js`; `public/greek/CLAUDE.md`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
      `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
      the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (No Versions tab, and no API.bible:
@@ -659,7 +657,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **Bookmarks, and Continue reading** (`desk-bookmarks.mjs`,
        `desk-bookmark-change.mjs`, `desk/bookmark-follow.js`,
        `desk/bookmark-form.js`, `desk/continue-reading.js`; STUDY-DESK-FIXES.md
-       E9; the longer account of each rule is in its "Bookmarks" appendix).
+       E9; the longer account of each rule is its section "Bookmarks: the
+       long account").
        **There is one feature, Bookmarks, and no Places** (BVJ, 2026-10-22;
        no reader sees a "ribbon" since 4d). A `bookmark` record is
        a verse, an optional `label` (up to 40 characters, not unique) and an
@@ -732,10 +731,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and
        Edit, Add a bookmark that moves or stays put, and for the resting one "Leave
        it here". A verse with none keeps the one-press "Bookmark", and a
-       finger's chips stay flat. **The flyout is shared code since E39** (BVJ,
-       2026-11-06): `flyoutRow` in `src/scripts/panel-flyout.js` also builds
-       every reader's "Copy text ▸" and "Share ▸" rows and this file's "Print
-       ▸" (rule 19). Desk code imports it; shared code never imports desk code.
+       finger's chips stay flat. **The flyout is shared code** (E39):
+       `flyoutRow` (`src/scripts/CLAUDE.md`, "One set of actions, two ways
+       in"), which also builds "Print ▸" (rule 19). Desk code imports it;
+       shared code never imports desk code.
        **"Stop following" and "Start following" are one quiet link**
        (`bookmark-stop.js`, `drawFollowLink`; BVJ, 2026-11-04 and E44) under
        the state line of every bookmark with "Move as I read" on, its label
@@ -750,7 +749,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        restored, and a restored page reports its own last place (`pageshow`).
        **A bookmark found in a notebook search opens like its row**
        (`openAsBookmark`); the Show menu and a search's count name bookmarks by
-       kind (BVJ, 2026-11-04; the appendix has the words), and the group is
+       kind (BVJ, 2026-11-04; E9's long account has the words), and the group is
        always "My notebook" (E32).
        **Known and accepted** (BVJ, 2026-11-04): /notebook and /search clear the
        flag, so Back into the book doesn't resume it; a move overtakes Undo of
@@ -1113,7 +1112,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        numbers. **The scroller is positioned** for the same reason: a hidden
        number, letter or heading is a 1px absolute box (global.css), so
        without a positioned scroller the location field read verse 1 and a
-       jump landed wrong (styles/CLAUDE.md, the Display tray's rule 6).
+       jump landed wrong (`src/styles/CLAUDE.md`, "The Display tray," the bullet
+       on text size and verse numbers, its rule 4).
        **Its bar has "Open on its page"** (E35; `extra` in `passage-bar.js`):
        the chapter's page at the verse the field names (`showPlace`, which
        every move of the field goes through), in a new tab, as the chapter
@@ -1246,7 +1246,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        `var(--desk-leading, 0)` to its line height**, which means a line
        height of 1.4 or more: a title, a one-line label and a control are
        tighter and keep theirs. `test/desk-text-size.test.js` fails on a rule
-       that doesn't, so a new one does the same. Five things to keep:
+       that doesn't, so a new one does the same. Six things to keep:
        1. **A pane sets its size once**, on `.desk-pane`. `.desk-lit__text`
           sets none, or the scale is squared.
        2. **A bar keeps its line** (`.desk-pane__head`, `.desk-passage`,
@@ -1264,9 +1264,6 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
           to that inside every `.lit-panel`, and `--desk-leading` to 0, so the
           rows the desk adds match the rows around them. The Display tray and
           tooltips are the site's too, at their own size.
-       6. **`/desk/help` follows both behind the gate** (E110): its sizes
-          multiply by `--help-scale` and its text adds `--help-leading`
-          (`pages/desk-help.css`), which are 1 and 0 without `html[data-desk]`.
        5. **Larger words must never push a control out of a fixed width.**
           The panel is 280 to 440px whatever the size, so its header's name
           and badge share one clipped row (`.desk-panel__name`): the badge
@@ -1276,6 +1273,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
           (a 286px pane's bar shortens the passage field and the My Notes
           chapter at the largest OpenDyslexic size). Check a new row of controls at Extra large in OpenDyslexic at
           280px.
+       6. **`/desk/help` follows both behind the gate** (E110): its sizes
+          multiply by `--help-scale` and its text adds `--help-leading`
+          (`pages/desk-help.css`), which are 1 and 0 without `html[data-desk]`.
      - **The panes, then the source-text notice** (`SblgntNotice`, with the
        LIT's license line), then the site's footer, newsletter and all, as
        on /notebook and /sheets (E143, BVJ 2026-11-17). Each pane scrolls on
@@ -1296,8 +1296,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        **It keeps nothing about a search** (no key, no layout field), so /privacy
        doesn't name it. **It stands alone**: not a follower. **A passage result
        offers both ways to read it** (E34; BVJ, 2026-11-05): a plain click moves
-       the leading LIT pane through `env.showPassage`, or opens one by the rule
-       above, and the note line says which (`passageMoveMessage`); a small link
+       the leading LIT pane through `env.showPassage`, or opens one by E127's
+       rule (above), and the note line says which (`passageMoveMessage`); a small link
        beside the row (`awayLink`) opens its page in a new tab. Rows stay real
        links, so a modified click opens a tab and `ref-preview.js` previews them
        (on /desk the preview's "Open John 3" opens in a new tab, E136). A
@@ -1305,9 +1305,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        or an introduction opens in a new tab, as does a typed “Matthew intro”
        (E173; `introPath` builds that link).
        A Greek result goes through `env.openGreekHit`, and
-       every Greek group carries `creditHtml` (rule 14). Its add buttons
-       (checked verses, E117; topic chapters and Greek verses, E166) are the Sheets' (`addTarget`; `sheets/CLAUDE.md`,
-       rule 18, and its four kinds of button, E126). `/` reaches it as a `lit:desk-search` event from
+       every Greek group carries `creditHtml` (`public/greek/CLAUDE.md`, rule
+       14). Its add buttons (checked verses, E117; topic chapters and Greek
+       verses, E166) are the Sheets' (`addTarget`; `sheets/CLAUDE.md`, rule 18;
+       their looks, E126, are its "How the Sheets look"). `/` reaches it as a `lit:desk-search` event from
        `keyboard-shortcuts.js`, which imports nothing of the desk; ← → and
        `[` `]` come the same way as `lit:desk-chapter`, a press of the passage
        bar's arrow in the pane being read.
@@ -1396,9 +1397,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        keeps none. The look is a background on the scripture container (ruled
        lines and a left rule on the right 35%), in `desk.css` beside M6's
        section, so the rules run unbroken across page breaks.
-  20. **Phase 3j, present mode**: in that file too.
-  21. **Phase 3k, getting started and sharing** (templates, share links): in that file too.
-  22. **Phase 2b, a sheet checked before printing**: in that file too.
+  20. **Phase 3j, present mode**: in `src/scripts/desk/sheets/CLAUDE.md`.
+  21. **Phase 3k, getting started and sharing** (templates, share links): in `src/scripts/desk/sheets/CLAUDE.md`.
+  22. **Phase 2b, a sheet checked before printing**: in `src/scripts/desk/sheets/CLAUDE.md` (N9 is rule 19 here).
   23. **Phase 2c was notes on a footnote and questions for discussion**
      (STUDY-DESK.md, M11, N6 and "Order of work", 2c). **Notes on a footnote
      are gone** (BVJ, 2026-11-10; E79): no "Add a note" beside Pin, and no

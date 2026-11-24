@@ -24,7 +24,7 @@ it holds. Computer only; the apps carry it untouched.
 
 ## Where the code is
 
-- **Now (step 1, the record and its model, no UI):**
+- **Step 1, the record and its model (no UI):**
   `src/lib/desk-collection-format.mjs` (limits, member types, orders,
   `validateCollection`, reached through `validateRecord`) and
   `src/lib/desk-collections.mjs` (making one, every change, the planner, the
@@ -163,12 +163,12 @@ it holds. Computer only; the apps carry it untouched.
   notebook there, with the undo bar's "Open the sheet" and
   `skippedSheetsNote`. **There is no "Make a sheet" button** (decision 36;
   BVJ, 2026-11-19: "the /collections page can just use add to sheet also"):
-  it made the sheet "New sheet" makes, so it came out of the view with its
-  tests, and the help page's "Onto a sheet" starts from Add to sheet…. A collection with nothing that makes a part
+  it made what "New sheet" makes, and the help page's "Onto a sheet" starts
+  from Add to sheet…. A collection with nothing that makes a part
   says so and writes nothing. `add-forms.js`' "+ From my notes…" has a
-  section, "Or add a whole collection" ("From a collection" until E181, which
-  read as picking from one; a line under it says choosing one adds everything
-  at once), a button per collection, or one line and a link to `/collections/`, adding the block through the editor's own change at its
+  section, "Or add a whole collection" (E181; `src/scripts/desk/sheets/CLAUDE.md`,
+  rule 23; a line under it says choosing one adds everything at once), a
+  button per collection, or one line and a link to `/collections/`, adding the block through the editor's own change at its
   `insertIndex`. The converter puts a word joiner (U+2060) after a collection
   heading whose words are a template's reading-part words, so `readingPart`
   never takes it for the reading part; leave it, it is the owner's to decide.
@@ -193,8 +193,7 @@ each collection's `viewState`, and `openWords`, the passages shown whole for
 the visit); the header of `collection-view.js` lists every field. What to
 keep:
 
-- **`open(id)` and `toList()`, never an address.** They replaced `go(href)`:
-  the page turns them into its address and a history entry, and the pane
+- **`open(id)` and `toList()`, never an address.** The page turns them into its address and a history entry, and the pane
   into its layout field. A host that gives `listHref` and
   `href(id)` (the page) gets links for "‹ My collections" and the list's
   rows, a plain click running `open` or `toList` in place (`follow`); one
@@ -383,8 +382,9 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
 
 BVJ, 2026-11-18, on the first mocks: no new color, toggle, menu, bar,
 window, or button style. Each piece of the UI takes an existing class, and
-a new button joins one of restyle.css's `:is()` lists (E126) rather than
-getting a rule of its own. Before writing a style for collections, find the
+a new button joins one of the four kinds' `:is()` lists at the end of
+`desk.css` (E126; `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets
+look") rather than getting a rule of its own. Before writing a style for collections, find the
 pattern it copies; if none fits, ask BVJ rather than drawing one. What the
 second draft of the mocks takes from where:
 

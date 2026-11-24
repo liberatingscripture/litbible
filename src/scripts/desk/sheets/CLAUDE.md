@@ -5,10 +5,9 @@
 > in this directory. It governs the Sheets wherever they live: the client code here, the /sheets page (`src/pages/sheets.astro`, `src/styles/pages/sheets-page.css`), the sheet rules in `src/lib/desk-sheet*.mjs`, `desk-present.mjs`, and the document and slide writers (`desk-doc-*.mjs`, `desk-slides*.mjs`).
 > The Sheets are part of the Study Desk, so **`src/scripts/desk/CLAUDE.md` applies here too**
 > (the preview switch, the store, the records, the panes); read it unless it is already loaded.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section. The headings keep the desk file's
-> rule numbers, which STUDY-DESK.md and the audits cite.
+> The headings keep the desk file's rule numbers, which STUDY-DESK.md and the
+> audits cite; a bare "rule N" here means this file's heading, and "desk rule
+> N" the desk file's.
 
 The code moved here from `src/scripts/desk/` on 2026-11-08 (STUDY-DESK.md,
 S12, step 0), so older records name the files without `sheets/`.
@@ -28,9 +27,8 @@ likewise sanitize a sheet before checking it (DI6-1). A replacement behind the `
 item; add a cross-browser golden-file test of the ten commands it calls before it.
 A menu's `close()` takes the menu out of `openMenu` before removing it:
 removing the focused item fires blur, the editor's `focusout` closes menus
-too, and in the other order the second `remove()` threw NotFoundError before
-`pick()` ran, so Paragraph style, Text alignment and Style applied nothing
-(Audit 5, SH5-1). **A part's toolbar shows only while its editor has focus**,
+too, and in the other order a second `remove()` throws before `pick()` runs,
+so the pick applies nothing (Audit 5, SH5-1). **A part's toolbar shows only while its editor has focus**,
 or while one of its menus or its link form is open, or while a mouse press
 that moved focus away is still down (`desk-rich-editor--tools`); it is drawn
 below the text, so clicking into a part grows the card downward instead of
@@ -115,9 +113,9 @@ holds the inventory, the pairs, the two files in step and reduced motion.
 **`.desk-sheet__btn` is ordinary wherever `desk.css` is loaded**, inside a
 sheet or not (the collections page, a window, the search's add bar). The
 phone's shared sheet loads only `desk-sheet-view.css`, so it keeps that
-file's look without a scope. The rule was scoped to `.desk-sheet,
-.sheets-page` until E169, which left every such button outside them the
-color of the page.
+file's look without a scope. Don't scope the rule again: scoped to
+`.desk-sheet, .sheets-page`, it left every such button outside them the
+color of the page (E169).
 
 ## Rule 18: the Sheets pane
 
@@ -126,8 +124,7 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
 
 - **The sheet editor is `sheet-editor.js`, and the Sheets pane is
   `sheet-pane.js`, the editor in a pane** (3f; the pane is "Sheets", BVJ
-  2026-11-08, "Sheet" until then; split for S12, part 1, step 1, so another
-  page can hold the editor). **The editor knows nothing of panes**: its host
+  2026-11-08; split so another page can hold the editor, S12 part 1). **The editor knows nothing of panes**: its host
   hands in which sheet it shows (`getSheet`, `setSheet`; the pane's are the
   layout's `setPaneSheet`), an `idSuffix` for its element ids (the pane's id),
   `showPassage`, and `onSheetChange`, and it returns `sheet`, `persist`,
@@ -143,7 +140,7 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   calls its editor's `newSheet`. The Search pane's add buttons read the
   target the same way as “Add to sheet” and write in one `store.change`, and
   `showSheet`'s `keep` stops that pane giving its own place to the sheet it
-  just made (moved from desk rule 18, the Search pane). **They add only
+  just made. **They add only
   checked verses** (E117; BVJ, 2026-11-12): every verse has a box and keeps
   its +, Bible order sits small at the right of the title line, and a sticky
   strip under it holds the box that checks them all, the count line and the
@@ -181,8 +178,8 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   19): it passes `onList` and `onDone`, so "‹ All sheets" and a "Preview"
   button go to the page's own list and versions instead of the editor's
   list and its "Present" and "Print or share" (**Preview pairs with the
-  versions view's Edit**, E209, BVJ 2026-11-20: it was "Done", which
-  sounds finished, then "Close", which names only what is left), and it
+  versions view's Edit**, E209, BVJ 2026-11-20: not "Done", which sounds
+  finished, nor "Close", which names only what is left), and it
   uses the exported
   `templateChooser` for the list's "New sheet…". While the chooser is open
   that button reads "Cancel" in the ordinary look, not the primary green
@@ -212,8 +209,8 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   `clearConflict`), handed the editor's `content`, `idSuffix`, `change`,
   `opCtx` and `say`; when to ask and when to draw the line stay the
   editor's. **A sheet is changed over the record as read** in one
-  `store.change` (`planSheetChange` in `desk-sheets.mjs`; desk rule 11,
-  from which this moved), never over a copy a pane or /search holds, which
+  `store.change` (`planSheetChange` in `desk-sheets.mjs`; the store's rules
+  are `src/scripts/desk/CLAUDE.md`, rule 11), never over a copy a pane or /search holds, which
   another tab may have saved past (BA129, BA130); the Sheets pane's `sheet`
   moves only once a save lands, so a failed one leaves it on the saved copy
   (BA128), though each save's transaction opens when the change is asked
@@ -223,7 +220,7 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   writes what hasn't landed, applied to the newest copy it has heard of
   (its own, or one another tab saved: a change message carries a saved
   sheet whole, and `refresh` reads it too; Audit 8, DI8-4), through
-  `store.writeNow` (desk rule 11), since a read-then-write save made while
+  `store.writeNow` (`src/scripts/desk/CLAUDE.md`, rule 11), since a read-then-write save made while
   a page closes is lost. One race remains and is accepted (BVJ,
   2026-11-10): a part another tab saved in the instant before this one
   closes, whose message hasn't arrived, can be written over at close.
@@ -281,8 +278,7 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   Key terms box lists every word of the family its passages' verses hold
   (`collectKeyTerms`), and the give-away checks read any of a blank's
   possible words (`blankWords`' `telltale`, alternatives joined by “ / ”,
-  which `findLeaks` reads one by one). After an independent review
-  (2026-11-11): the entry's own word still tells (`blankWords`' `also`,
+  which `findLeaks` reads one by one). The entry's own word still tells (`blankWords`' `also`,
   "faith" beside "believe"), a phrase tells by its own word and never by
   the verb that carries it (`tellingForms`, `tellingText`: "mercy" for
   "have mercy"), and a footnote's flag names the word the note uses
@@ -307,7 +303,7 @@ and the layout, is in `src/scripts/desk/CLAUDE.md`.
   row's ×, "Unblank" beside "Blank"
   (`blanksTouching`: every blank the selection reaches, whole), and Enter on
   words the keyboard cursor holds that are already blank. **The free-text part
-  is "Text"** everywhere (E66; it was "Your text"). When a redraw
+  is "Text"** everywhere (E66). When a redraw
   removes the control that had focus, focus goes to one that is always
   drawn ("Blank", the footnotes summary, the key
   terms note), never to the page (`restoreFocus`, SH5-10). A footnote
@@ -388,8 +384,7 @@ The header's Study group is part 3's, built with header C.
 - **"Add to sheet ▸" on a chapter page and in /desk's LIT pane**
   (`sheet-add.js`, rules in `src/lib/desk-sheet-add.mjs`): after Add bookmark
   in the verse menu and the selection panel, in Chapter View and the LIT pane
-  (`d.view` "study" or "desk"; the LIT pane since E170, BVJ 2026-11-19: from
-  3f it had only "Add to “…”", shown while a Sheets pane held a sheet).
+  (`d.view` "study" or "desk"; the LIT pane since E170, BVJ 2026-11-19).
   **It is Add to collection's twin, and no add is one press** (E172; BVJ,
   2026-11-19: "It should match what we did with collections"): the row never
   names a sheet or splits, whatever a Sheets pane shows, since one press can
@@ -448,8 +443,8 @@ The header's Study group is part 3's, built with header C.
 
 ## The Sheets tour (E63)
 
-The third tour (BVJ, 2026-11-09; the shared tour rules are in the desk file,
-"Three tours" under rule 13). **It runs on /desk, in a Sheets pane, and on
+The third tour (BVJ, 2026-11-09; the shared tour rules are
+`src/scripts/desk/CLAUDE.md`, rule 13, "Three tours"). **It runs on /desk, in a Sheets pane, and on
 /sheets**, acting on that page's list, editor and versions view (BVJ,
 2026-11-09): since header C's Study menu and the ways in above, a reader can
 meet the Sheets on the Sheets page first, and an offer there that sent them
@@ -584,7 +579,7 @@ my notebook"**. Twelve things to know:
   (`showList`'s `focusKey`), and a change from elsewhere redraws the rows
   alone, off the page, swapped in only when they changed, so an open "New
   sheet…" chooser, the scroll, and focus stay (SH8-1).
-  Where the import fails the sheets are plain links, as before E64.
+  Where the import fails the sheets are plain links.
   **A new button on a sheet's row needs a column of its own** in the list's
   grid (`.desk-sheet__sheets` in `desk.css`, a column per button, Delete
   always the last), and the width below which the rows stack measured again
@@ -1015,8 +1010,8 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   phone, with no notebook opened and nothing that saves (Present with
   taps and no presenter view, Print, Share…); a test holds the gate.
   **It loads only `desk-sheet-view.css`, never `desk.css` or `boot.js`**
-  (Audit 8, LG8-10; moved from the desk file's "Launching", which lists the
-  other stages' stylesheets): the highlight tints, a sheet's formatted text
+  (Audit 8, LG8-10; the other stages' stylesheets are
+  `src/scripts/desk/CLAUDE.md`, "Launching"): the highlight tints, a sheet's formatted text
   (`.desk-rich` and its colors) and the sheets' buttons
   (`.desk-sheet__btn`), added by `showSharedOnPhone` through
   `sheet-view-style.js` and by `boot.js` ahead of `desk.css`. So
@@ -1025,7 +1020,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   `import()` at the start of `start()`. A rule a phone's shared sheet needs
   goes in `desk-sheet-view.css`; `test/desk-sheet-view-styles.test.js` holds
   it. **Its browser floor is Safari 16.4 (iOS 16.4)** (BVJ, 2026-11-10,
-  Audit 8 LG8-9; item 9 of the desk file's launch list): the first with a
+  Audit 8 LG8-9; `src/scripts/desk/CLAUDE.md`, "Launching", item 9): the first with a
   regular expression lookbehind (the reference linker's) and
   `CompressionStream`. `sheet-share-gate.js` asks `viewerSupported()` before
   it imports the viewer, and below the floor says the browser is too old,
@@ -1038,8 +1033,8 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
 ## Rule 22: a sheet checked before printing
 
 **Phase 2b is a sheet checked before printing** (STUDY-DESK.md,
-S2, N9 and "Order of work", 2b). N9 is the bullet under
-rule 19. S2, in three things:
+S2, N9 and "Order of work", 2b). N9, printing with room to write, is
+`src/scripts/desk/CLAUDE.md`, rule 19. S2, in three things:
 - **`src/lib/desk-sheet-check.mjs` is the rules** (pure, tested):
   `passageCheck` compares a passage's `verseCopy` with today's verses
   through N3's `wordingChanged` (typography folded), judging a quoted
@@ -1074,11 +1069,10 @@ on a footnote were removed, E79), is in `src/scripts/desk/CLAUDE.md`.
   chooser (`openFromNotes`), adding the checked ones in one change
   (E62; BVJ, 2026-11-08). Items already on the sheet can't be checked, and
   the Add handler drops them again over the saved sheet (`notAlreadyOn`,
-  PC8B-1), so a second gathering never adds a part twice. It replaced N6's "+ For discussion"
-  (`desk-sheet-discussion.mjs`, 2026-10-20 to 2026-11-08), which
-  gathered only the notes marked `question` under a heading: "The
+  PC8B-1), so a second gathering never adds a part twice. It replaced N6's
+  "+ For discussion," which gathered only question notes (BVJ: "The
   options for sheets need to be more flexible than that, more useful to
-  more people." The chooser also has an "Or add a whole collection" section
+  more people."). The chooser also has an "Or add a whole collection" section
   (D13, step 7; "From a collection" until E181, BVJ 2026-11-19, since it adds
   the whole collection, at a press, and not by Add): one of the reader's collections added as one block of parts through
   `collectionSheetParts` (`src/lib/desk-collection-sheet.mjs`), over the sheet

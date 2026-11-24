@@ -3,9 +3,6 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
 
 - **Security headers / CSP** live in `public/_headers` (deploy-only — `dev`
   and `astro preview` don't apply them). The CSP is deliberately split (owner

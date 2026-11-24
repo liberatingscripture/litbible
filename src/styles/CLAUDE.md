@@ -3,9 +3,8 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory. These rules also govern `<style>` blocks in components and layouts.
-> Cross-references such as "below" or "rule 15" were written when all of
-> this was one file, so they may point into another area file; the root's
-> index says which file holds each section.
+
+## Fonts and theming
 
 - **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter) plus two
   reader-selectable accessibility fonts, OpenDyslexic and Atkinson
@@ -13,15 +12,15 @@
   the Display tray. Playpen Sans (variable) is the Study Desk's margin-note
   face, loaded only by the desk. All of them load Latin only; Greek and Hebrew
   letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
-  by character range (see "Greek and Hebrew letters" below).
+  by character range (see "Greek and Hebrew letters," below).
 - **Theming (light/dark) is a dual mechanism.** Dark-mode tokens are declared
   twice — `@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) … }`
   (follow the OS) and `:root[data-theme="dark"] … }` (explicit override) — in
   `global.css` and mirrored in a few page stylesheets (`apps.css`,
   `found-in-translation-podcast.css`, `translation-commitments.css`) and
   `ReadMenu.astro`. The header "Aa" tray (`SiteHeader.astro`, heading
-  **"Display"**, the one panel for every reader setting; see the next two
-  bullets) holds Theme: a 3-state control
+  **"Display"**, the one panel for every reader setting; see "The Display
+  tray," below) holds Theme: a 3-state control
   (**System / Light / Dark**) persisted in `localStorage['lit-theme']`
   (`light`/`dark`; **key absent = System**). `Layout.astro` stamps `data-theme`
   on `<html>` in a pre-paint `is:inline` script (beside the font one) and
@@ -33,7 +32,10 @@
   `:global(:root:not([data-theme="light"])) .x` (as `ScriptureLayout.astro` and
   the `/apps` components do), so the scoper leaves `:root` alone. The bare
   media query is the common slip: three components shipped with it, which gave a
-  reader who forces light on a dark OS the dark values under light-mode colours.
+  reader who forces light on a dark OS the dark values under light-mode colors.
+
+## The Display tray
+
 - **The reader font is a Display tray setting too, and works the same way.**
   A 3-state radio list (**Default / Atkinson Hyperlegible / OpenDyslexic**,
   each option set in the font it selects so the list previews itself) writes
@@ -110,9 +112,8 @@
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Six rules:
   1. **They reach every page of running text, and what a thing is decides
-     how far** (BVJ, 2026-11-12, for preference and for accessibility; until
-     then only the scripture pages and article bodies followed, and the rest
-     was left to browser zoom). Three scales, each a custom property on
+     how far** (BVJ, 2026-11-12, for preference and for accessibility; before
+     then only the scripture pages and article bodies followed). Three scales, each a custom property on
      `<html>` in `global.css`. Every rule multiplies its own default by one
      of them, or adds the line-spacing extra, so Medium and Normal change
      nothing anywhere:
@@ -161,9 +162,8 @@
      `font-size: calc(1em * var(--reading-scale, 1))`, wrap each rem, px or
      `clamp()` size (`calc(1.3rem * var(--reading-scale, 1))`), and leave
      each em size alone, since it now inherits the scale. **Once, never
-     twice**: the glossary's entries sat in a `.wrap` inside another `.wrap`,
-     both scaled, and took the size twice with the desk preview on (29px for
-     23) until this change. A button inside a scaled element undoes it
+     twice**: the glossary's entries once sat in a `.wrap` inside another
+     `.wrap`, both scaled, and took the size twice (29px for 23). A button inside a scaled element undoes it
      (`calc(1em / var(--reading-scale, 1))`), and a mark keeps its size (the
      Collective's lockup). **Then check OpenDyslexic at Extra large at 320
      and 375px**, the case that breaks: a long word leaves the screen, and
@@ -220,11 +220,10 @@
      needs the same `:not([data-own-marks])`.
   6. **Verse numbers are one setting per view** (owner, 2026-09-30). Every
      other setting is the reader's everywhere; what a page shows depends on
-     what the page is for. They were one switch at first, so hiding
-     numbers to read a book straight through also hid them in Chapter View,
-     where (rule 4) a hidden number is a 1px box a finger can't tap, and the
-     verse menu vanished from touch screens with nothing on the page saying
-     why. That was 2026-09-27 to 09-30. Chapter View reads `lit-verse-numbers` alone. Read View reads
+     what the page is for. As one switch, hiding numbers to read a book
+     straight through also hid them in Chapter View, where (rule 4) a hidden
+     number is a 1px box a finger can't tap, and the verse menu vanished from
+     touch screens with nothing on the page saying why. Chapter View reads `lit-verse-numbers` alone. Read View reads
      `lit-read-numbers`, then `lit_rm_markers`, then Chapter View's key, so
      it **follows Chapter View until the reader sets it**, and nobody's Read
      View changed when the switch split. That fallback is why the tray
@@ -247,15 +246,15 @@
   `src/scripts/keep-reading-place.js`, which the Study Desk's panel uses
   too), and lets that one scroll through without closing itself
   (`isHoldingPlace`).
+
+## Text columns and `--ch`
+
 - **Text columns are sized with `--ch`, never the `ch` unit.** `ch` is the "0"
   advance of *whichever font is currently painting*, so every column here was one
   width under the metric-matched fallback face and another once the webfont
   arrived: the box resized and, being `margin: 0 auto`, re-centred, sliding the
-  whole text block sideways mid-load. That was **0.256 CLS on scripture pages**
-  (Cloudflare RUM, attributed to `div.scripture-main`), the site's worst Core Web
-  Vital, and nothing in the repo pointed at it — `--content-width` was referenced
-  at 14 call sites and *defined at none*, so the `, 72ch` fallback silently ran
-  the site. `--ch` in `global.css` is an em fraction of the body font's "0",
+  whole text block sideways mid-load (**0.256 CLS on scripture pages**, the
+  site's worst Core Web Vital). `--ch` in `global.css` is an em fraction of the body font's "0",
   re-declared under `html[data-font="dyslexic"]` and `[data-font="atkinson"]`;
   because `Layout.astro` stamps `data-font` **before first paint**, the width is
   settled from the first frame and no font swap can move it. Write
@@ -285,6 +284,9 @@
      notably OpenDyslexic's markedly shorter line: switching those readers to one
      shared width would have lengthened their line by ~26%, the opposite of the
      "buy back space" rule above.
+
+## Greek and Hebrew letters
+
 - **Greek and Hebrew letters come from faces registered by character
   range** (`src/styles/greek-hebrew-fonts.css`, Study Desk C27; the owner
   picked the faces 2026-10-05). Every site font loads Latin only, so each rule
@@ -293,16 +295,15 @@
   Greek is Inter's own (the `@fontsource/inter` package always had it;
   Atkinson and OpenDyslexic, which have none, take Inter's too), and Hebrew is
   Noto Sans Hebrew. In serif text (Crimson Text, which print uses, and
-  Fraunces) both come from Cardo. A file loads only on a page with its letters:
-  four articles and two chapters' footnotes had Greek in 2026-10, and nothing
-  had Hebrew. The file's header carries four rules, each learned by breaking
+  Fraunces) both come from Cardo. A file loads only on a page with its letters.
+  The file's header carries four rules, each learned by breaking
   it; the two that bite:
   1. **Copy the descriptors of a face the family already has.** A browser
      joins faces of one family by range only when weight and style match
      exactly, so a rule at a weight the family doesn't declare is never
-     reached, or worse, catches text at that weight and drops its Latin. The
-     first draft's Hebrew rule (`100 900` under Inter, whose faces are 400 to
-     700) was never used, and Crimson's 600 skipped Cardo's 700.
+     reached, or worse, catches text at that weight and drops its Latin. (A
+     Hebrew rule at `100 900` under Inter, whose faces are 400 to 700, was
+     never used, and Crimson's 600 skipped Cardo's 700.)
   2. **Write the ranges out; never import Fontsource's per-subset CSS** for
      this. Those files carry no `unicode-range`, so they claim every
      character and load on every page. Their Hebrew range also claims a
@@ -312,6 +313,9 @@
   Printing needs `Emulation.setEmulatedMedia` set to print and the fonts left
   to load before `Page.printToPDF`. Otherwise headless Chrome prints fonts
   used only in print in their stand-ins, which looks like a failure.
+
+## Brand colors, the emblem, and the LSC mark
+
 - **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
   Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
   non-button icon accents — it carries **ink** text (4.6:1) or white *large*
@@ -327,8 +331,8 @@
   blocks, because a focus indicator needs 3:1 against the surface and LIT Green
   manages only 2.63:1 on cream (3.35:1 on `#FAFAF8`), while the text green is
   4.97:1 on cream, 6.34:1 on `#FAFAF8`, and ~7–8:1 in dark (`#3abf6a`).
-  Translucent rings (`rgba(32, 157, 80, 0.35)`) fail worse still, 1.4–2.0:1;
-  fourteen of them were routed through the token in 2026-09. The rings that use `--text` on
+  Translucent rings (`rgba(32, 157, 80, 0.35)`) fail worse still, 1.4–2.0:1,
+  so none is written by hand. The rings that use `--text` on
   purpose (the Display tray's options, whose selected segments are green) stay as they are. Don't
   kill a ring with `outline: none` on `:focus-visible` either: `/support`,
   `/liberating-scripture-collective`, the about TOC, and the launch popover's
@@ -349,15 +353,14 @@
   is the raster fallback for the default `ogImage` only. Every icon is generated
   from these two SVGs by `npm run build:favicons` — never hand-edit
   `public/favicon.*`, `apple-touch-icon.png`, or `web-app-manifest-*.png`, or the
-  set drifts from the source the way the previous emblem's hand-vectorized
-  `favicon.svg` drifted from its raster master. The retired emblem and its icon
+  set drifts from the source. The retired emblem and its icon
   set are archived in `_source-images/retired-emblem-2024/`.
   The manifest itself, `public/site.webmanifest`, is hand-maintained (the
   script writes its icons, not the file), and it says **`"display":
   "browser"` on purpose** (owner, 2026-09-28): a home-screen icon opens the
   site in the browser, and no browser offers to install the website as an app
-  beside the real iOS and Android apps. It said `standalone` until then, which
-  is what made the site installable. Don't set it back.
+  beside the real iOS and Android apps (`standalone` is what made it
+  installable). Don't set it back.
 - **The LSC brand mark is a different mark, mirrored from
   liberatingscripture.org.** Don't confuse it with the site emblem above: that
   one is LIT's, this one is the *organization's*. The Liberating Scripture
@@ -379,6 +382,9 @@
   `.questions-block` (a fixed `--green` band) does exactly that in `home.css`.
   Inline SVG is load-bearing here: an `<img src>` to an external SVG can't read
   these custom properties at all.
+
+## Focus rings and field borders
+
 - **The focus ring pins on fixed surfaces the same way the dove does.** An
   outline is drawn *outside* its element, on the parent's surface, so what
   decides its contrast is whatever the control sits on, never the control's own
@@ -429,14 +435,17 @@
   The desk's placeholders are ink at 0.7 (`::placeholder` in `desk.css`;
   5.2:1 on cream, Audit 8 XA8-13), since the browser's default gray fails
   4.5:1, and its small secondary text is 0.7 too (XA8-3).
+
+## The Study Desk's buttons
+
 - **The Study Desk's buttons are four kinds** (E126; BVJ, 2026-11-12):
   primary (Deep Green, white words, at most one per pane or view, edged in
   dark themes with the text green at 70%), ordinary (`--desk-control` with a
   `--field-border` edge, a shadow at rest, a 1px lift on hover, sunk when
   pressed), toggle, and the quiet and glyph buttons, which keep their own
   looks. One rule per kind ends `desk.css`. Its tokens, every shadow with a
-  dark pair in both dark selectors, are in its "The desk's layers" and
-  repeated in `desk-search.css`, which /search loads alone. Under
+  dark pair in both dark selectors, are in the comment "The desk's layers" in
+  `desk.css` and repeated in `desk-search.css`, which /search loads alone. Under
   `prefers-reduced-motion` the lift and the transitions are zeroed by token
   and the shadows stay. A disabled button keeps its edge and its fill and
   says so in its words (ink at 0.7, or the text green on a disabled primary,
@@ -452,11 +461,14 @@
   window, and tab opened**: E159's sweep of empty pages missed the
   collections page's buttons and the Highlight swatches (E169). The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
+
+## The restyle and Site 2.0
+
 - **The rest of the site takes the desk's look in `restyle.css`, behind
   `data-restyle`** (E132; BVJ, 2026-11-13). Layout.astro stamps it from
   `lit-desk-preview` on every device, phones included, and loads the file
   after `global.css` on every page; it comes off at launch (item 14 of
-  "Launching", `src/scripts/desk/CLAUDE.md`). Five rules hold it together,
+  "Launching" in `src/scripts/desk/CLAUDE.md`). Five rules hold it together,
   and `test/restyle-css.test.js` checks the first four:
   1. **Every rule starts `:root[data-restyle]`**, so nothing reaches a reader
      without the preview. Dark values name both selectors, as everywhere.
@@ -532,6 +544,9 @@
   `white-space: nowrap` (the footer's license link, `global.css`, did this
   at some widths from about 1030 to 1050px); a long one can't, so give it
   the paragraph treatment above.
+
+## Forced colors
+
 - **In forced colors (Windows contrast themes) a background draws nothing.**
   An icon made of backgrounds, like the header's Menu bars, vanishes, and a
   button with no border vanishes with it (BA149). Under
