@@ -62,7 +62,6 @@ const ORDINARY = [
   ".desk-greek__choice", // the Greek's word choices, a toggle
   ".desk-greek__choices-more",
   ".desk-greek__hits-more",
-  ".desk-greek__note", // Add a note from the Greek (4k)
   ".desk-dp__retry",
   ".desk-search__btn:where(:not(.desk-search__btn--primary))", // Bible order, a toggle, and the strip's New sheet
   ".desk-search__choice",
@@ -175,7 +174,7 @@ test("E126: no component rule paints an inventory button's edge, fill or shadow 
     ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-pane__page", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
     ".desk-verse__step", ".desk-mine__more-button", ".desk-note__more", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
     ".desk-notice__actions", ".desk-notice__keep", ".desk-panel__reset", ".desk-panel__print-button", ".desk-greek__goto",
-    ".desk-greek__back", ".desk-greek__retry", ".desk-greek__choice", ".desk-greek__choices-more", ".desk-greek__hits-more", ".desk-greek__note",
+    ".desk-greek__back", ".desk-greek__retry", ".desk-greek__choice", ".desk-greek__choices-more", ".desk-greek__hits-more",
     ".desk-dp__retry", ".desk-search__btn", ".desk-search__choice", ".desk-sheet__btn", ".desk-sheet__choice",
     ".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip",
     ".desk-note__edit", ".desk-home-card__choose", ".desk-tour__next", ".desk-tour__back", ".desk-offer__go", ".desk-offer__later",

@@ -5352,17 +5352,29 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      or pane is an ordinary note on its verse, with the selected Greek in
      its body. No change to the format. After 4d.
      **Built 2026-11-23, ahead of 4d** (which it doesn't touch). Both ways
-     in, as BVJ asked that day: **a chosen word**, whose details gain “Add
-     a note on verse 16 with this word” under its parsing, and **a run of
-     the Greek selected** with the mouse or Shift and the arrows, which
-     the same button names “…on verses 16–17 with the selected Greek”
-     (a selection wins over a chosen word while it lasts). It opens the
+     in, as BVJ asked that day: **a chosen word**, and **a run of the
+     Greek selected** with the mouse or Shift and the arrows (a selection
+     wins over a chosen word while it lasts). **The button is the note
+     glyph alone in a square like the details' ×, just left of it** (BVJ,
+     the same day), in the ×'s place when only a selection is open; its
+     name and tooltip say “Add a note on verse 16 with this word” or
+     “…on verses 16–17 with the selected Greek.” **A selection also gets a
+     small menu beside it with that one choice**, “Add a note on verses
+     16–17” (BVJ, the same day: a second way in, the button staying). It
+     shows once the mouse button comes up, above the selection (below it
+     where the top has no room), scrolls with the words, never takes focus
+     or a tab stop (the button is the keyboard's way, as the verse menu is
+     beside the scripture's selection panel), and closes with the
+     selection or on Escape. Either opens the
      ordinary note editor on the LIT's whole verses (no `quote`, a
      `verseCopy` as any whole-verse note has), its body opening with the
      Greek in curly quotes and the cursor on the next line. Claude's
-     choices, for BVJ to change: one word is quoted without the
-     punctuation after it; a run keeps its inner punctuation and, where it
-     crosses into another verse, that verse's number (“λόγος. 2 οὗτος”);
+     choices, for BVJ to change: **the quote holds only the punctuation
+     the selection holds** (BVJ, the same day): a mark between selected
+     words stays, and one touching the first or last word comes in only if
+     the selection reaches over it, so a chosen word alone is the bare
+     word; a run that crosses into another verse carries that verse's
+     number (“λόγος. 2 οὗτος”);
      the SBLGNT's text-critical signs are left out, since they need the
      tab's font and its apparatus to mean anything; a word counts only if
      a letter of it is selected; closing with nothing added asks nothing,

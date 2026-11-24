@@ -267,9 +267,9 @@ function mountGreek(body, env, pane) {
       startVerse: p.verse,
       idSuffix: `-${pane.id}`,
       onAddNote: notes
-        ? (draft, trigger, { body = null } = {}) => openNoteEditor({
+        ? (draft, trigger, { body = null, restoreFocus = trigger } = {}) => openNoteEditor({
           trigger, store: env.store, ctx: env.ctx, ref: recordReference(draft),
-          draft, restoreFocus: trigger, text: notes.anchorText, startBody: body,
+          draft, restoreFocus, text: notes.anchorText, startBody: body,
         })
         : null,
       openHit: (hit) => {

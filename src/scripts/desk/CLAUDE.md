@@ -937,9 +937,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (Matthew 17:21) opens at the nearest before it (`nearestVerse`, BA120)
        and says so on /desk; This verse shows a gap (`gapNote`, E157).
      - **A note starts from a chosen word or a selection of the Greek** (4k):
-       its button opens the ordinary editor on the LIT's whole verses, the
-       Greek quoted as `startBody` (`desk-note-from-greek.mjs`). Kind 2, no
-       new field; offered only with LIT text and a notebook (`onAddNote`).
+       its button (and, for a selection, a small menu inside the scroller,
+       never a tab stop) opens the ordinary editor on the LIT's whole
+       verses, the Greek quoted as `startBody` (`desk-note-from-greek.mjs`).
+       Kind 2, no new field; offered only with LIT text and a notebook
+       (`onAddNote`).
   15. **Phase 1h is searching the Greek** (STUDY-DESK.md,
      "Order of work", 1h).
      - **It is ordinary site search, gated until launch.** Only while

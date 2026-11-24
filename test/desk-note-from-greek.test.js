@@ -29,13 +29,18 @@ const word = (verse, t, text, pre = "", post = " ") => {
 
 // ── The rules ──────────────────────────────────────────────────────────────
 
-test("one word is the word alone, without the punctuation after it", () => {
+test("one chosen word is the word alone, without the punctuation after it", () => {
   assert.equal(greekQuote([word(16, 3, "ἠγάπησεν", "", ", ")]), "ἠγάπησεν");
 });
 
-test("a run keeps its inner punctuation, evens its spaces, and leaves out the signs", () => {
-  const run = [word(16, 1, "Οὕτως", "⸀", " "), word(16, 2, "γὰρ", "", "  "), word(16, 3, "ἠγάπησεν", "", ", ")];
-  assert.equal(greekQuote(run), "Οὕτως γὰρ ἠγάπησεν,");
+test("a run keeps the punctuation between its words, not at its edges, unless the selection holds it", () => {
+  const run = [word(16, 1, "Οὕτως", "⸀", " "), word(16, 2, "γὰρ", "", "·  "), word(16, 3, "ἠγάπησεν", "", ", ")];
+  // The raised dot between two words stays; the comma touching the last word
+  // and the sign before the first don't come in by themselves.
+  assert.equal(greekQuote(run), "Οὕτως γὰρ· ἠγάπησεν");
+  // Selected along with the words, they do (the sign still left out).
+  assert.equal(greekQuote(run, { lead: "⸀", trail: ", " }), "Οὕτως γὰρ· ἠγάπησεν,");
+  assert.equal(greekQuote([run[2]], { trail: ";" }), "ἠγάπησεν;");
 });
 
 test("a run into another verse carries that verse's number", () => {
@@ -117,7 +122,11 @@ test("a chosen word: the button names its verse, and hands the editor a plain ve
   assert.equal(b.hidden, true, "nothing chosen, nothing to note");
   assert.equal(await t.selectWord(16, 3), true);
   assert.equal(b.hidden, false);
-  assert.equal(b.textContent, "Add a note on verse 16 with this word");
+  assert.equal(b.getAttribute("aria-label"), "Add a note on verse 16 with this word");
+  assert.equal(b.dataset.tip, "Add a note on verse 16 with this word", "the tooltip says the same");
+  assert.equal(b.textContent.trim(), "", "the glyph alone shows");
+  assert.ok(b.querySelector("svg.desk-greek__note-glyph"), "the note glyph");
+  assert.equal(b.nextElementSibling, t.el.querySelector(".desk-greek__close"), "just before the ×");
   const chosen = t.el.querySelector(".desk-greek__w.is-selected").textContent;
   b.click();
   assert.equal(calls.length, 1);
@@ -158,7 +167,7 @@ test("a selection of the Greek: the button covers its verses and the words it to
   document.dispatchEvent(new Event("selectionchange"));
   await settle(120);
   const b = noteButton(t);
-  assert.equal(b.textContent, "Add a note on verses 1–2 with the selected Greek");
+  assert.equal(b.getAttribute("aria-label"), "Add a note on verses 1–2 with the selected Greek");
   b.click();
   assert.deepEqual(calls[0].draft, { bookKey: "john", chapter: 3, verse: 1, endVerse: 2 });
   const body = calls[0].opts.body;
@@ -169,7 +178,90 @@ test("a selection of the Greek: the button covers its verses and the words it to
   sel.removeAllRanges();
   document.dispatchEvent(new Event("selectionchange"));
   await settle(120);
-  assert.equal(b.textContent, "Add a note on verse 1 with this word");
+  assert.equal(b.getAttribute("aria-label"), "Add a note on verse 1 with this word");
+});
+
+test("a selection also gets a small menu beside it, with that one choice", async () => {
+  const calls = [];
+  const t = await tab((draft, trigger, opts) => calls.push({ draft, trigger, opts }));
+  await t.selectWord(16, 1);
+  const menu = () => t.el.querySelector(".desk-greek__selmenu");
+  // A chosen word alone gets no menu: the button beside the × serves it.
+  assert.equal(menu(), null);
+  const words = [...t.el.querySelectorAll(".desk-greek__w")];
+  const scroller = t.el.querySelector(".desk-greek__scroller");
+  const i = words.findIndex((b) => b.textContent === "ἠγάπησεν");
+  const sel = document.getSelection();
+  const select = () => {
+    const range = document.createRange();
+    range.setStart(words[i].firstChild, 0);
+    range.setEnd(words[i + 2].firstChild, words[i + 2].firstChild.length);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.dispatchEvent(new Event("selectionchange"));
+  };
+  // Mid-drag it waits for the mouse button to come up.
+  scroller.dispatchEvent(new window.PointerEvent("pointerdown", { bubbles: true, button: 0 }));
+  select();
+  await settle(120);
+  assert.equal(menu(), null, "no menu while the button is held");
+  document.dispatchEvent(new window.PointerEvent("pointerup", { bubbles: true }));
+  await settle(120);
+  assert.ok(menu(), "the menu shows once the button comes up");
+  assert.ok(scroller.contains(menu()), "inside the scroller, so it scrolls with the words");
+  const item = menu().querySelector("button");
+  assert.equal(item.textContent, "Add a note on verse 16");
+  assert.ok(item.querySelector("svg.desk-greek__selmenu-glyph"));
+  assert.equal(item.tabIndex, -1, "never a tab stop: the button beside the × is the keyboard's way");
+  item.click();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].draft, { bookKey: "john", chapter: 3, verse: 16, endVerse: 16 });
+  assert.ok(calls[0].opts.body.startsWith(`“${words[i].textContent} `));
+  assert.ok(calls[0].opts.restoreFocus === words[i], "focus comes back to the first selected word");
+  // Escape closes it, and it stays closed for that selection.
+  document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert.equal(menu(), null);
+  document.dispatchEvent(new Event("selectionchange"));
+  await settle(120);
+  assert.equal(menu(), null, "the same selection doesn't bring it back");
+  // Clearing the selection takes it away for good; a new one brings it back.
+  sel.removeAllRanges();
+  document.dispatchEvent(new Event("selectionchange"));
+  await settle(120);
+  select();
+  await settle(120);
+  assert.ok(menu(), "a new selection shows it again");
+  sel.removeAllRanges();
+  document.dispatchEvent(new Event("selectionchange"));
+  await settle(120);
+  assert.equal(menu(), null, "gone with the selection");
+});
+
+test("a comma touching the selection's last word comes in only when the selection holds it", async () => {
+  const calls = [];
+  const t = await tab((draft, trigger, opts) => calls.push(opts.body));
+  await t.selectWord(16, 1);
+  const words = [...t.el.querySelectorAll(".desk-greek__w")];
+  // The first word in John 3 with a comma after it, and two words before it.
+  const at = words.findIndex((w) => w.nextSibling?.textContent.startsWith(","));
+  const from = words[at - 2];
+  const to = words[at];
+  const plain = [from, words[at - 1], to].map((w) => w.textContent).join(" ");
+  const sel = document.getSelection();
+  const pick = async (endNode, endOffset) => {
+    const range = document.createRange();
+    range.setStart(from.firstChild, 0);
+    range.setEnd(endNode, endOffset);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.dispatchEvent(new Event("selectionchange"));
+    await settle(120);
+    noteButton(t).click();
+  };
+  await pick(to.firstChild, to.firstChild.length);
+  assert.ok(calls.at(-1).startsWith(`“${plain}”`), calls.at(-1));
+  await pick(to.nextSibling, 1);
+  assert.ok(calls.at(-1).startsWith(`“${plain},”`), calls.at(-1));
 });
 
 test("destroy lets go of the document's selection events", async () => {

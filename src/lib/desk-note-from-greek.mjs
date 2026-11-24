@@ -27,29 +27,36 @@ const withoutSigns = (s) =>
     .join("");
 
 /**
- * The Greek of some words, as it reads in the tab: each word with the
- * punctuation round it, spaces evened out, and the signs left out. A run that
- * crosses into another verse carries that verse's number before its first
- * word ("… λόγος. 2 οὗτος ἦν …"), as a copy of the tab's text does. One word
- * alone is the word, without the punctuation after it.
+ * The Greek of some words as the reader selected it (BVJ, 2026-11-23: no
+ * punctuation the selection doesn't hold). Between the words, everything the
+ * tab shows (a comma, a raised dot, a bracket); at either edge only what the
+ * selection reaches over, handed in as `lead` (before the first word) and
+ * `trail` (after the last), so a word's comma comes only if it was selected
+ * too. One chosen word with neither is the word alone. Spaces are evened out
+ * and the SBLGNT's signs left out. A run that crosses into another verse
+ * carries that verse's number before its first word ("λόγος. 2 οὗτος ἦν"),
+ * as a copy of the tab's text does.
  *
  * @param {{ w: any[], verse: number }[]} words in reading order (flattenWords' items)
+ * @param {{ lead?: string, trail?: string }} [edges] the selected text before the first word and after the last
  * @returns {string}
  */
-export function greekQuote(words) {
+export function greekQuote(words, { lead = "", trail = "" } = {}) {
   const list = (words ?? []).filter((x) => x?.w);
   if (!list.length) return "";
-  if (list.length === 1) return withoutSigns(String(list[0].w[W.text] ?? "")).trim();
-  let s = "";
+  let s = lead ?? "";
   let last = list[0].verse;
-  for (const { w, verse } of list) {
+  list.forEach(({ w, verse }, i) => {
     if (verse !== last) {
       s += ` ${verse} `;
       last = verse;
     }
-    s += withoutSigns(`${w[W.pre] ?? ""}${w[W.text] ?? ""}${w[W.post] ?? ""}`);
-  }
-  return s.replace(/\s+/g, " ").trim();
+    if (i > 0) s += w[W.pre] ?? "";
+    s += w[W.text] ?? "";
+    if (i < list.length - 1) s += w[W.post] ?? "";
+  });
+  s += trail ?? "";
+  return withoutSigns(s).replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -87,11 +94,12 @@ export function greekNoteBody(quote, max = MAX_NOTE_BODY) {
  *
  * @param {{ bookKey: string, chapter: number }} here the chapter shown
  * @param {{ w: any[], verse: number }[]} words the word chosen, or the words selected
+ * @param {{ lead?: string, trail?: string }} [edges] greekQuote's: what a selection holds beyond its words
  * @returns {{ draft: { bookKey: string, chapter: number, verse: number, endVerse: number }, body: string } | null}
  */
-export function noteFromGreek(here, words) {
+export function noteFromGreek(here, words, edges) {
   const span = greekVerses(words);
-  const body = greekNoteBody(greekQuote(words));
+  const body = greekNoteBody(greekQuote(words, edges));
   if (!here || !span || !body) return null;
   return { draft: { bookKey: here.bookKey, chapter: here.chapter, ...span }, body };
 }
