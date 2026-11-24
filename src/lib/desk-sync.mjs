@@ -318,7 +318,7 @@ const blocked = (entry) => entry?.held === "aside" || entry?.held === "ahead";
  *   holds only rows whose replacement is already on the service (rule 4);
  *   `forget` are entries with nothing on either side; `missing` are records
  *   the service has and this notebook lost without a trace; `waiting`
- *   counts removals whose evidence has not gone up yet; `blocked` and
+ *   counts removals whose evidence goes up in this same push; `blocked` and
  *   `stuck` count changed copies that can't be pushed now.
  */
 export function planPush(local, base) {
@@ -352,6 +352,7 @@ export function planPush(local, base) {
     if (!trashOf.has(here.del)) trashOf.set(here.del, []);
     trashOf.get(here.del).push(id);
   }
+  const going = new Set(out.put.map((p) => p.id));
   for (const [id, entry] of base) {
     if (local.has(id)) continue;
     if (entry.rev === 0) {
@@ -365,9 +366,12 @@ export function planPush(local, base) {
     // Any other row: a deletion of it stands.
     const replacedBy = entry.del ? [...(local.has(entry.del) && !local.get(entry.del).del ? [entry.del] : []), ...deletions] : deletions;
     if (replacedBy.some(synced)) out.remove.push({ id, rev: entry.rev });
-    else if (replacedBy.length) out.waiting++;
-    // A row that was never merged here ("skip") left nothing here to miss.
-    else if (!entry.held) out.missing.push(id);
+    // Its replacement goes up in this push, and the removal follows it. One whose replacement can't
+    // go up (stuck, or blocked) waits with it, and is counted there.
+    else if (replacedBy.some((r) => going.has(r))) out.waiting++;
+    // A row with no replacement here and no trace of why is missing, unless it was never merged
+    // here at all ("skip"), which left nothing here to miss.
+    else if (!replacedBy.length && !entry.held) out.missing.push(id);
   }
   return out;
 }

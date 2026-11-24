@@ -456,11 +456,17 @@ export function createSyncEngine({
     auditing = new Set();
   }
 
-  /** Pushes what is owed. Resolves to true when the plan should be made again. */
-  async function push() {
+  /** Reads what changed in the notebook and plans the push: what the status counts, with no request made. */
+  async function owed() {
     await scan();
     const plan = planPush(local, base);
     counts = { pending: plan.put.length + plan.remove.length + plan.waiting, blocked: plan.blocked, stuck: plan.stuck };
+    return plan;
+  }
+
+  /** Pushes what is owed. Resolves to true when the plan should be made again. */
+  async function push() {
+    const plan = await owed();
     if (plan.forget.length) await save({ forget: plan.forget });
     if (plan.missing.length) {
       if (!audited) {
@@ -523,7 +529,8 @@ export function createSyncEngine({
    * keyring finishes this, and a row already resealed is not answered again.
    */
   async function reseal() {
-    if (meta.resealed >= keyring.current) return;
+    // A notebook still on its first key has nothing older to seal again.
+    if (keyring.current <= 1 || meta.resealed >= keyring.current) return;
     let since = 0;
     let left = 0;
     for (;;) {
@@ -594,8 +601,18 @@ export function createSyncEngine({
       publish({ state: done ? "upToDate" : "syncing", again: !done });
     } catch (err) {
       open = false;
+      const known = err instanceof Halt || err instanceof Offline || err?.name === "Offline" || err instanceof Refused || err instanceof Behind;
+      // Anything else may have left this memory ahead of what was written (a failed write of the
+      // sync's own state): the next pass reads it again.
+      if (!known) meta = null;
+      // What waits is counted from the notebook alone, so the reader sees it while nothing can be sent.
+      try {
+        await load();
+        await owed();
+      } catch (inner) {
+        log("what is owed could not be counted", inner);
+      }
       if (err instanceof Halt) {
-        if (err.state === "error") failures++;
         publish({ state: err.state, ...err.detail });
       } else if (err instanceof Offline || err?.name === "Offline") {
         failures++;
@@ -605,6 +622,18 @@ export function createSyncEngine({
         log("a pass failed", err);
         publish({ state: "error", failures, reason: err instanceof Refused ? err.word : err instanceof Behind ? "behind" : "failed" });
       }
+    }
+    return status;
+  }
+
+  /** Counts what waits without a request, and publishes it: for a change made while nothing can be sent. */
+  async function tally() {
+    try {
+      await load();
+      await owed();
+      publish({});
+    } catch (err) {
+      log("what is owed could not be counted", err);
     }
     return status;
   }
@@ -619,6 +648,15 @@ export function createSyncEngine({
         running = null;
       });
       return running;
+    },
+
+    /**
+     * Counts what waits to be sent, with no request, and publishes the status
+     * with it. For a change the reader makes while a pass can't run (offline,
+     * signed out). While a pass runs, it resolves when that pass does.
+     */
+    tally() {
+      return running ?? tally();
     },
 
     /** The notebook changed: these ids are read again before the next push. Leave `ids` out to read everything. */

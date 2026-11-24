@@ -23,7 +23,7 @@ import { Offline } from "../../src/lib/desk-sync-engine.mjs";
 
 const b64 = ref.toBase64url;
 
-const LIMITS = { rowsPerRequest: 500, pageRows: 500, pageChars: 4 * 1024 * 1024, maxRecordBytes: 1_048_576, tagBytes: 16, padBlock: 256 };
+const LIMITS = { rowsPerRequest: 500, pageRows: 500, pageChars: 4 * 1024 * 1024, bodyBytes: 4 * 1024 * 1024, maxRecordBytes: 1_048_576, tagBytes: 16, padBlock: 256 };
 const TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 const RECORD_ID = /^[\x20-\x7e]{1,64}$/;
 const BASE64URL = /^[A-Za-z0-9_-]*$/;
@@ -94,6 +94,7 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
   let slow = 0;
   let busy = 0;
   let failing = 0;
+  let lost = 0;
   let tokens = 0;
   const service = {
     /** Every request, as { method, path, body, account }, in order. */
@@ -119,6 +120,15 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
     fail(n = 1) {
       failing = n;
     },
+    /** The next `n` requests (those `only` picks, if given) are carried out, and their answers are lost on the way back. */
+    loseAnswer(n = 1, only = null) {
+      lost = n;
+      service.losing = only;
+    },
+    /** When true, a conflict is answered without the row that stands (as the real service does past a page of them). */
+    withoutConflictRows: false,
+    /** The service's own clock, when a test sets one apart from the devices'. */
+    time: null,
 
     account(name) {
       if (!accounts.has(name)) {
@@ -199,22 +209,30 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       return {
         async call(method, path, body) {
           const token = typeof getToken === "function" ? getToken() : getToken;
-          const call = { method, path, body, account: sessions.get(token)?.account ?? null };
+          const call = { method, path, body, token, account: sessions.get(token)?.account ?? null };
           service.calls.push(call);
           if (service.onCall) await service.onCall(call);
           if (unreachable) throw new Offline();
           // Through JSON, as a request and an answer are: nothing is shared by reference.
-          const sent = body === undefined ? undefined : JSON.parse(JSON.stringify(body));
+          const text = body === undefined ? undefined : JSON.stringify(body);
+          const sent = text === undefined ? undefined : JSON.parse(text);
           let status = 200;
           let answered;
           try {
+            if (text !== undefined && text.length > LIMITS.bodyBytes) refuse(413, "too_large", { what: "body", limit: LIMITS.bodyBytes });
             answered = await route(token, method, path, sent);
           } catch (err) {
             if (!(err instanceof Refuse)) throw err;
             status = err.status;
             answered = { error: err.code, message: err.code, ...err.extra };
           }
-          return { status, body: JSON.parse(JSON.stringify({ time: now(), ...answered })) };
+          // The request was carried out and its answer never arrived.
+          if (lost > 0 && (!service.losing || service.losing(call))) {
+            lost--;
+            throw new Offline();
+          }
+          if (service.withoutConflictRows) for (const item of [...(answered.put ?? []), ...(answered.remove ?? [])]) delete item.row;
+          return { status, body: JSON.parse(JSON.stringify({ time: service.time?.() ?? now(), ...answered })) };
         },
       };
     },
