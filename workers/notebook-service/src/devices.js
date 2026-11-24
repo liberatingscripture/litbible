@@ -75,7 +75,6 @@ export function postDevices({ request, env }) {
       device: needDeviceEntry(body.device, "device"),
     }),
     async (auth, { kid, proof, holder, device }) => {
-      needNotebook(auth);
       needCurrentKid(auth, kid);
       await needProof(env, auth, proof);
       const lists = await readLists(env.DB, auth.account);
@@ -91,6 +90,7 @@ export function postDevices({ request, env }) {
       ]);
       return answer({ kid, lists: auth.lists + 1, session: { open: true, device: device.id } });
     },
+    needNotebook,
   );
 }
 
@@ -133,10 +133,9 @@ export function putDevice({ request, env, params }) {
       keyring: body.keyring === undefined || body.keyring === null ? null : needKeyring(body.keyring, "keyring"),
     }),
     async (auth, { lists, kid, card, keyring }) => {
-      needOpen(auth);
       if (params.id !== auth.device) notAllowed("own_device");
-      needCurrentKid(auth, kid);
       needCurrentLists(auth, lists);
+      needCurrentKid(auth, kid);
       const where = "WHERE account = ? AND id = ?";
       await commit(env.DB, [
         guard(env.DB, auth.account, { kid, lists }),
@@ -155,6 +154,7 @@ export function putDevice({ request, env, params }) {
       ]);
       return answer({ lists: lists + 1 });
     },
+    needOpen,
   );
 }
 
@@ -195,9 +195,8 @@ export function postHolders({ request, env }) {
       holder: needHolder(body.holder, "holder"),
     }),
     async (auth, { lists, kid, holder }) => {
-      needOpen(auth);
-      needCurrentKid(auth, kid);
       needCurrentLists(auth, lists);
+      needCurrentKid(auth, kid);
       const existing = (await readLists(env.DB, auth.account)).holders;
       if (existing.some((h) => h.id === holder.id)) refuse(409, "exists", { what: "holder" });
       if (holder.kind === "recovery" && existing.some((h) => h.kind === "recovery")) {
@@ -215,5 +214,6 @@ export function postHolders({ request, env }) {
       ]);
       return answer({ lists: lists + 1 });
     },
+    needOpen,
   );
 }

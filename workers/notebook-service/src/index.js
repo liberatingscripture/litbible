@@ -127,15 +127,20 @@ export default {
         response = refusalAnswer(error);
       } else {
         word = "error";
-        // A D1 error names tables and columns and never a bound value; anything
-        // else might quote what it was given, so only its kind is kept.
+        // What an error says may quote what it was given, so only its kind is
+        // kept. The one exception is SQLite's own message (D1_ERROR), which
+        // names tables, columns, and constraints and never a bound value.
+        // D1's other kinds (D1_TYPE_ERROR quotes the value it couldn't bind)
+        // are logged by name alone.
         const message = String(error?.message ?? "");
+        const d1 = /^D1_[A-Z_]+/.exec(message)?.[0];
         console.error(
           JSON.stringify({
             at: now(),
             route: route?.name ?? "unmatched",
             failure: error?.name ?? "Error",
-            ...(message.startsWith("D1_") ? { d1: message.slice(0, 300) } : {}),
+            ...(d1 ? { d1 } : {}),
+            ...(d1 === "D1_ERROR" ? { detail: message.slice(0, 300) } : {}),
           }),
         );
         response = refusalAnswer(new Refusal(500, "error"));

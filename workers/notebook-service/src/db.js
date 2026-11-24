@@ -46,16 +46,25 @@ export function guard(db, account, expect) {
 }
 
 /**
- * Runs a guarded batch. A failed constraint means the account moved between
- * the read and the write: the guard's own CHECK, or a primary key or unique
- * index that a request racing this one got to first. Anything else is a real
- * failure and is thrown as it is.
+ * True when a write failed because a request racing this one got there first:
+ * the guard's own CHECK (named `state_moved` in the schema), or a primary key
+ * or unique index, which SQLite reports alike as "UNIQUE constraint failed."
+ * Any other failed constraint (a NOT NULL, a foreign key) is a fault in this
+ * code, and must surface as one instead of being retried into "busy."
+ */
+export const raced = (error) =>
+  /CHECK constraint failed: state_moved|UNIQUE constraint failed/.test(String(error?.message));
+
+/**
+ * Runs a guarded batch. When it was rolled back by a race (see `raced`), the
+ * account moved between the read and the write, and Moved is thrown. Anything
+ * else is a real failure and is thrown as it is.
  */
 export async function commit(db, statements) {
   try {
     return await db.batch(statements);
   } catch (error) {
-    if (/constraint/i.test(String(error?.message))) throw new Moved();
+    if (raced(error)) throw new Moved();
     throw error;
   }
 }

@@ -50,16 +50,18 @@ export function postProof({ request, env }) {
       proof: needBytes(body.proof, "proof", LIMITS.proofBytes),
     }),
     async (auth, { device, kid, proof }) => {
-      needNotebook(auth);
       needCurrentKid(auth, kid);
       await needProof(env, auth, proof);
       const entry = await env.DB.prepare("SELECT 1 FROM devices WHERE account = ? AND id = ?")
         .bind(auth.account, device)
         .first();
       if (!entry) refuse(410, "gone", { what: "device" });
-      await commit(env.DB, [guard(env.DB, auth.account, { kid }), openSession(env, auth, device, kid)]);
+      // The lists too: the entry just read must still stand when the session is attached to it,
+      // or a device signed out a moment ago would keep a session that outlives its sign-out.
+      await commit(env.DB, [guard(env.DB, auth.account, { kid, lists: auth.lists }), openSession(env, auth, device, kid)]);
       return answer({ open: true, device, kid });
     },
+    needNotebook,
   );
 }
 
@@ -95,7 +97,6 @@ export function postNotebook({ request, env }) {
       return { ...input, credentials };
     },
     async (auth, { notebook, proofHash, device, holders, credentials }) => {
-      if (auth.kid !== 0) refuse(409, "already_set_up", { notebook: auth.notebook });
       await needSyncedPasskeys(env.DB, auth.account, credentials);
       const time = now();
       const kid = 1;
@@ -113,5 +114,8 @@ export function postNotebook({ request, env }) {
       ]);
       return answer({ notebook, kid, lists: auth.lists + 1, session: { open: true, device: device.id } });
     },
+    // The table's first check, made before the body is read: an account that has a notebook
+    // is told so whatever the second setup sent.
+    (auth) => (auth.kid === 0 ? auth : refuse(409, "already_set_up", { notebook: auth.notebook })),
   );
 }

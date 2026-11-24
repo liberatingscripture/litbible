@@ -8,7 +8,7 @@
 // new holder. Removing a device, switching to "this device only," replacing a
 // passkey, and making a new recovery code are all this one request.
 
-import { answer, notAllowed, now, refuse } from "./http.js";
+import { answer, notAllowed, now } from "./http.js";
 import { LIMITS, needArray, needBytes, needCount, needDeviceEntry, needDistinct, needHolder, needKeptHolder, needUuid } from "./check.js";
 import { commit, guard, idList } from "./db.js";
 import { changing, needCurrentKid, needCurrentLists, needOpen } from "./session.js";
@@ -41,9 +41,10 @@ const sameIds = (a, b) => a.length === b.length && a.every((id) => b.includes(id
 
 /** POST /notebook/key, from an open session. */
 export function postNotebookKey({ request, env }) {
-  return changing(request, env, parse, async (auth, input) => {
+  return changing(request, env, parse, change, needOpen);
+
+  async function change(auth, input) {
     const { kid, lists, proofHash, devices, holders, newHolders, removeDevices, removeHolders } = input;
-    needOpen(auth);
     needCurrentKid(auth, kid);
     needCurrentLists(auth, lists);
 
@@ -65,7 +66,8 @@ export function postNotebookKey({ request, env }) {
     if (after.filter((h) => h.kind === "recovery").length > 1) notAllowed("one_recovery");
     const credentials = after.filter((h) => h.kind === "passkey").map((h) => h.credential);
     if (new Set(credentials).size !== credentials.length) notAllowed("one_holder_per_passkey");
-    if (newHolders.some((h) => stored.holders.some((s) => s.id === h.id))) refuse(409, "exists", { what: "holder" });
+    // A new holder's id can't be one the service already has: every stored holder is named as
+    // kept or removed (above), and parse() refused any id named twice.
     await needSyncedPasskeys(
       env.DB,
       auth.account,
@@ -100,5 +102,5 @@ export function postNotebookKey({ request, env }) {
       db.prepare("UPDATE sessions SET open_kid = ? WHERE token_hash = ?").bind(next, auth.tokenHash),
     ]);
     return answer({ kid: next, lists: lists + 1 });
-  });
+  }
 }

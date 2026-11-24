@@ -32,7 +32,8 @@ export const MAX_WRONG_PROOFS = 5;
 /** A device's "last seen" is written at most this often. */
 const SEEN_EVERY_MS = 60 * 60 * 1000;
 
-const BEARER = /^Bearer ([A-Za-z0-9_-]{43})$/;
+// The scheme's name is matched in any case, as HTTP says it is (RFC 9110, 11.1).
+const BEARER = /^Bearer ([A-Za-z0-9_-]{43})$/i;
 
 const sha256 = async (bytes) => new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
 
@@ -50,9 +51,17 @@ export async function createSession(env, { account, way }) {
   const token = toBase64url(crypto.getRandomValues(new Uint8Array(32)));
   const created = now();
   const expires = after(created, SESSION_DAYS * 24 * 60 * 60 * 1000);
-  await env.DB.prepare("INSERT INTO sessions (token_hash, account, way, created, expires) VALUES (?, ?, ?, ?, ?)")
-    .bind(await hashText(token), account, way, created, expires)
-    .run();
+  await env.DB.batch([
+    // The account's sessions that ran out are swept here, where the next one is made.
+    env.DB.prepare("DELETE FROM sessions WHERE account = ? AND expires <= ?").bind(account, created),
+    env.DB.prepare("INSERT INTO sessions (token_hash, account, way, created, expires) VALUES (?, ?, ?, ?, ?)").bind(
+      await hashText(token),
+      account,
+      way,
+      created,
+      expires,
+    ),
+  ]);
   return { token, expires };
 }
 
@@ -166,12 +175,19 @@ export function openSession(env, auth, device, kid) {
  * checked by `parse`, before anything is read from the database on its
  * account), then `step(auth, input)`, run again from a fresh read of the
  * session if the account moved under its batch (src/db.js).
+ *
+ * `need` is what the request asks of the session and its account before
+ * anything else: needOpen where the interface says "open," needNotebook where
+ * the account must have one. It is checked before the body is read, so a
+ * device that has fallen behind a change of key is told "not_open" whatever
+ * it sent, and never "too_large" or "bad_request" for a body it would only
+ * send again.
  */
-export async function changing(request, env, parse, step) {
-  let auth = await authenticate(request, env);
+export async function changing(request, env, parse, step, need = (auth) => auth) {
+  let auth = need(await authenticate(request, env));
   const input = parse ? parse(await readJson(request)) : undefined;
   return transact(async (again) => {
-    if (again) auth = await authenticate(request, env);
+    if (again) auth = need(await authenticate(request, env));
     return step(auth, input);
   });
 }

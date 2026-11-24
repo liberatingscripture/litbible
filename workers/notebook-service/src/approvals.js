@@ -43,8 +43,6 @@ export function postApprovals({ request, env }) {
       mac: needBytes(body.mac, "mac", LIMITS.proofBytes),
     }),
     async (auth, input) => {
-      if (auth.open) notAllowed("already_open");
-      needNotebook(auth);
       const time = now();
       const [approvals, entry] = await env.DB.batch([
         env.DB.prepare("SELECT id FROM approvals WHERE account = ? AND expires > ?").bind(auth.account, time),
@@ -52,17 +50,19 @@ export function postApprovals({ request, env }) {
       ]);
       if (approvals.results.some((a) => a.id === input.id)) refuse(409, "exists", { what: "approval" });
       if (entry.results.length) refuse(409, "exists", { what: "device" });
-      if (approvals.results.length >= LIMITS.approvals) {
-        refuse(429, "too_many", { what: "approvals", limit: LIMITS.approvals });
-      }
+      const tooMany = () => refuse(429, "too_many", { what: "approvals", limit: LIMITS.approvals });
+      if (approvals.results.length >= LIMITS.approvals) tooMany();
       const expires = after(time, APPROVAL_MINUTES * 60 * 1000);
-      await commit(env.DB, [
+      const [, , made] = await commit(env.DB, [
         guard(env.DB, auth.account, { kid: auth.kid, lists: auth.lists }),
         // Ones that ran out are swept here, where the next one is made.
         env.DB.prepare("DELETE FROM approvals WHERE account = ? AND expires <= ?").bind(auth.account, time),
+        // The limit is counted again inside the write: an approval moves none of the account's
+        // numbers, so the guard can't see one made a moment ago by a request racing this one.
         env.DB.prepare(
           `INSERT INTO approvals (account, id, session, device, platform, model, public, sign, mac, created, expires)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            WHERE (SELECT COUNT(*) FROM approvals WHERE account = ? AND expires > ?) < ?`,
         ).bind(
           auth.account,
           input.id,
@@ -75,10 +75,16 @@ export function postApprovals({ request, env }) {
           input.mac,
           time,
           expires,
+          auth.account,
+          time,
+          LIMITS.approvals,
         ),
       ]);
+      if (made.meta.changes !== 1) tooMany();
       return answer({ id: input.id, expires });
     },
+    // Signed in and not open: a device that has the key has nothing to ask for.
+    (auth) => (auth.open ? notAllowed("already_open") : needNotebook(auth)),
   );
 }
 
@@ -124,13 +130,13 @@ export function postGrant({ request, env, params }) {
       mac: needBytes(body.mac, "mac", LIMITS.proofBytes),
     }),
     async (auth, { kid, card, keyring, mac }) => {
-      needOpen(auth);
       const time = now();
       const approval = await needApproval(env, auth, params.id, time);
       if (approval.granted_by) refuse(409, "exists", { what: "grant" });
       needCurrentKid(auth, kid);
       const [, granted] = await commit(env.DB, [
-        guard(env.DB, auth.account, { kid }),
+        // The lists too, so the granting device still has its entry when its grant is kept.
+        guard(env.DB, auth.account, { kid, lists: auth.lists }),
         env.DB.prepare(
           `UPDATE approvals SET granted_by = ?, grant_kid = ?, grant_card_nonce = ?, grant_card_ct = ?,
                                 grant_enc = ?, grant_ct = ?, grant_mac = ?
@@ -141,6 +147,7 @@ export function postGrant({ request, env, params }) {
       if (granted.meta.changes !== 1) refuse(409, "exists", { what: "grant" });
       return answer({ id: approval.id });
     },
+    needOpen,
   );
 }
 
@@ -159,7 +166,6 @@ export function postAccept({ request, env, params }) {
       proof: needBytes(body.proof, "proof", LIMITS.proofBytes),
     }),
     async (auth, { kid, proof }) => {
-      needNotebook(auth);
       const approval = await needApproval(env, auth, params.id, now());
       if (approval.session !== auth.tokenHash) notAllowed("requester");
       if (!approval.granted_by) notAllowed("no_grant");
@@ -186,5 +192,6 @@ export function postAccept({ request, env, params }) {
       ]);
       return answer({ kid, lists: auth.lists + 1, session: { open: true, device: device.id } });
     },
+    needNotebook,
   );
 }

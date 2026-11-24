@@ -1,11 +1,13 @@
 # Dependabot configuration.
 #
-# Three update streams, because the repo has two independent npm dependency
+# Four update streams, because the repo has three independent npm dependency
 # trees plus the workflows:
-#   1. /                      — the Astro site
-#   2. /workers/contact-form  — the Cloudflare Worker (its own package.json +
-#                               lockfile; root `npm ci` never reaches it)
-#   3. GitHub Actions used by .github/workflows/
+#   1. /                          — the Astro site
+#   2. /workers/contact-form      — the forms' Cloudflare Worker (its own
+#                                   package.json + lockfile; root `npm ci`
+#                                   never reaches it)
+#   3. /workers/notebook-service  — the notebook service's Worker (likewise)
+#   4. GitHub Actions used by .github/workflows/
 #
 # Minor and patch bumps are GROUPED into one PR per stream per week, so routine
 # churn arrives as a single reviewable change instead of a scattered pile.
@@ -24,7 +26,7 @@
 # stream's group below and gets a PR of its own, whatever Dependabot calls the
 # bump: a caret range like `^0.35` doesn't even admit 0.36, so a 0.x "minor"
 # is a major in all but name. Today that is @astrojs/check and sharp at the
-# root (sharp renders the share cards on every build). The worker has none
+# root (sharp renders the share cards on every build). Neither Worker has one
 # since pool-workers was renamed @cloudflare/vitest-plugin and went 1.x (see
 # stream 2). Keep each `exclude-patterns` list in step with the 0.x entries in
 # that stream's package.json. A group PR can still carry a transitive major in
@@ -127,6 +129,43 @@ updates:
           - minor
           - patch
       worker-minor-and-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@cloudflare/vitest-plugin"
+          - "wrangler"
+        update-types:
+          - minor
+          - patch
+
+  # Stream 3, the notebook service: the same test runtime and deploy CLI as
+  # stream 2, so the same two groups for the same reason (read stream 2's
+  # comment before changing either). Group names are per stream, but these are
+  # spelled differently so a PR's title says which Worker it is for.
+  #
+  # The two Workers' lockfiles are independent, so the two streams can land on
+  # different wrangler versions for a week. That is harmless (each package
+  # tests and deploys with its own), but when one stream's runtime PR is
+  # verified, the other's is the same swap: check both the same way.
+  - package-ecosystem: npm
+    directory: /workers/notebook-service
+    schedule:
+      interval: weekly
+      day: monday
+    # 5: two group PRs, plus one ungrouped major for each of the 3 direct deps.
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      notebook-runtime:
+        patterns:
+          - "@cloudflare/vitest-plugin"
+          - "wrangler"
+        update-types:
+          - minor
+          - patch
+      notebook-minor-and-patch:
         patterns:
           - "*"
         exclude-patterns:

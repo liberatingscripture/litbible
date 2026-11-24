@@ -128,8 +128,9 @@ function parse(body) {
  * the ones beside it.
  */
 export function postRows({ request, env }) {
-  return changing(request, env, parse, async (auth, { put, remove }) => {
-    needOpen(auth);
+  return changing(request, env, parse, store, needOpen);
+
+  async function store(auth, { put, remove }) {
     const stale = put.find((row) => row.kid !== auth.kid);
     if (stale) refuse(409, "old_key", { kid: auth.kid });
 
@@ -230,5 +231,5 @@ export function postRows({ request, env }) {
     }
 
     return answer({ kid: auth.kid, rev, put: putAnswers, remove: removeAnswers });
-  });
+  }
 }

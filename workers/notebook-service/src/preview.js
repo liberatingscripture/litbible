@@ -10,8 +10,9 @@
 //   1. The requests are routed only when the environment's own configuration
 //      says PREVIEW_SIGN_IN = "on". Only `env.preview` in wrangler.jsonc sets
 //      it; the top level, which is production's, has no such variable.
-//   2. An environment that calls itself "production" never routes them,
-//      whatever else is set.
+//   2. They are routed only in an environment that names itself "preview":
+//      an allow-list, so production is safe whether or not anyone remembers
+//      to name it, and so is any environment added later.
 //   3. They need PREVIEW_SECRET, a Wrangler secret that production is never
 //      given, and refuse to work with one too short to be a real secret.
 //
@@ -22,6 +23,7 @@
 
 import { answer, bad, now, readJson, refuse } from "./http.js";
 import { LIMITS, base64urlBytes } from "./check.js";
+import { raced } from "./db.js";
 import { authenticate, createSession, digestText, needOpen, sameDigest } from "./session.js";
 
 const MIN_SECRET_CHARS = 32;
@@ -32,7 +34,7 @@ const ACCOUNT_NAME = /^[A-Za-z0-9._-]{1,64}$/;
 export function previewOn(env) {
   return (
     env.PREVIEW_SIGN_IN === "on" &&
-    env.ENVIRONMENT !== "production" &&
+    env.ENVIRONMENT === "preview" &&
     typeof env.PREVIEW_SECRET === "string" &&
     env.PREVIEW_SECRET.length >= MIN_SECRET_CHARS
   );
@@ -68,7 +70,7 @@ export async function previewSession({ request, env }) {
       ]);
     } catch (error) {
       // Two sessions asking for a new name at once: the second finds the first's account.
-      if (!/constraint/i.test(String(error?.message))) throw error;
+      if (!raced(error)) throw error;
     }
     way = await find();
   }
@@ -96,7 +98,7 @@ export async function previewPasskey({ request, env }) {
       .bind(id, auth.account, body.credential, body.syncs ? 1 : 0, now())
       .run();
   } catch (error) {
-    if (/constraint/i.test(String(error?.message))) refuse(409, "exists", { what: "passkey" });
+    if (raced(error)) refuse(409, "exists", { what: "passkey" });
     throw error;
   }
   return answer({ id, credential: body.credential, syncs: body.syncs });
