@@ -1,12 +1,19 @@
 # End-to-end encryption for the notebook (draft 2)
 
-**Status: draft 2, 2026-11-23, for BDR to review and BVJ to check. Docs only: nothing here is built,
-and no code or record changes with it.** Written by BVJ’s Claude, on the website’s side, which
+**Status: draft 2, 2026-11-23, for BDR to review and BVJ to check. The reference and the test
+vectors are built (step 4b, the same day); the service, sign-in, and every client’s use of this are
+not, and no record changes with it.** Written by BVJ’s Claude, on the website’s side, which
 writes this spec, its reference, and its vectors and builds the service from here on (BVJ,
 2026-11-23). Draft 1 was written the same day by BDR’s Claude (PR #680) and BVJ answered its open
 items that evening (`STUDY-DESK.md`, “Decisions,” 2026-11-23). This draft writes those answers in,
 adds the service’s interface, and ends with what changed and what is still open. It is step 4a of
 the plan in `STUDY-DESK.md`, “Order of work,” 4.
+
+**Writing the reference meant reading every sentence here as code, and some said less than code
+needs.** Each such place now says what the reference does, in its own section; “Changed in step
+4b” lists them all, and the ones that were a choice are under “Still open,” 22 to 30, **for BVJ and
+BDR to confirm**, with one question it turned up (31). No decision of draft 2 was changed, and none
+of its open items was settled.
 
 Plan C was chosen on BDR and BVJ’s call of 2026-11-23: a small LIT service on Cloudflare holds each
 signed-in reader’s notebook, and only the reader’s own devices can read it. This file says exactly
@@ -202,22 +209,39 @@ the website; Android may take Tink or write HKDF and HPKE on the platform’s pr
   `info` label from the table under “Labels,” unless a step says otherwise. The same goes for the
   empty salts inside a hand-written HPKE.
 - **HPKE in base mode** with the suite DHKEM(P-256, HKDF-SHA256), HKDF-SHA256, AES-256-GCM
-  (identifiers `0x0010`, `0x0001`, `0x0002`). An HPKE written by hand is checked against the CFRG’s
-  published RFC 9180 test vectors for this suite before LIT’s own.
+  (identifiers `0x0010`, `0x0001`, `0x0002`). **Every HPKE seal here is single-shot**: a fresh
+  sender key for each seal, one ciphertext from it (sequence number 0, so the nonce is the base
+  nonce), `info` the ASCII bytes of the label, and an empty AAD. An HPKE written by hand is checked
+  against published vectors before LIT’s own. RFC 9180’s own appendix doesn’t print this suite (its
+  P-256 case, A.3, uses AES-128-GCM); the CFRG’s full vector file does, and the reference runs
+  both through the same code (under “The test vectors”).
 - **P-256 keys** are written as the 65-byte uncompressed point (`04 ‖ x ‖ y`: WebCrypto’s `raw`
   export, CryptoKit’s `x963Representation`), and private keys as the 32-byte big-endian scalar `d`,
   always kept beside its public key, since WebCrypto can import a private key only with both (as a
   JWK with `d`, `x`, and `y`).
 - **Every public key a client is given**, and HPKE’s `enc`, is checked to be a valid point on P-256
-  before it is used.
-- **Byte strings in JSON** are base64url without padding (RFC 4648 §5). Ids and times are the
+  before it is used: 65 bytes, the first `04`, `x` and `y` each less than the field’s size, and
+  `y² = x³ − 3x + b`. The compressed form is refused. The reference makes the check by hand, before
+  any platform call sees the bytes, since platforms differ in what they take.
+- **Byte strings in JSON** are base64url without padding (RFC 4648 §5). **A client writes each byte
+  string the one way and refuses any other spelling**: padding, `+` or `/`, any other character, a
+  length no byte string encodes to, and leftover bits that aren’t zero. Ids and times are the
   strings the record carries, byte for byte.
 - **“Lines”**: where a step authenticates several values together (an AAD or an HMAC’s input), it
   joins their UTF-8 bytes with one line feed (`0x0A`) between each and none at the end. No value may
-  contain a line feed; a client refuses to seal one that does.
+  contain a line feed; a client refuses to seal one that does. Two things follow, and both are in
+  the vectors. **An empty last value leaves the line feed before it at the end** (a row’s AAD for a
+  record that isn’t trash ends with `0x0A`). **A `kid` among the values is written in decimal
+  digits**, with no sign and no leading zero.
 - **MACs and the key proof are compared in constant time.**
 - **Ids a device makes** (the notebook’s, a device’s, a holder’s) are UUIDs, written in lowercase
-  with hyphens.
+  with hyphens. A device makes a random one (version 4), and writes it lowercase (Swift’s
+  `uuidString` is uppercase). A check asks only for the form: 8, 4, 4, 4, and 12 lowercase hex
+  digits.
+- **A check that fails is a refusal with a reason.** The vectors file names each reason with one
+  word (its `refusals` list, copied from the reference’s `REFUSALS`), so “refused, and why” means
+  the same thing on all three clients. A client need not use the words. It must refuse every case
+  marked so, and tell two refusals apart wherever this file treats them differently.
 
 ### Labels
 
@@ -311,7 +335,13 @@ in UTF-8.
   uses. Old keys stay for good: they are 32 bytes each, a notebook changes its key rarely, and they
   are what lets a device check a new keyring (below).
 - **A client refuses a keyring** whose `lit` or `v` it doesn’t know, whose `kid`s aren’t exactly the
-  whole numbers from 1 to `current`, each once, or whose keys aren’t 32 bytes.
+  whole numbers from 1 to `current`, each once, or whose keys aren’t 32 bytes. These are **the
+  keyring’s own checks**, made on every keyring a client opens, however it came. They also refuse
+  bytes that aren’t a UTF-8 JSON object and a `notebook` that isn’t text.
+- **The order of `keys` means nothing**: a client finds a key by its `kid`. The reference writes
+  the newest first, as above.
+- **A field this version doesn’t know is ignored**, and isn’t carried into a keyring the client
+  makes. A later version that adds one changes `v`, which every version 1 client refuses.
 - Draft 1’s keyring also named the recovery public key. Holders have cards now, as devices do
   (under “Holders”), so the keyring holds keys and nothing else.
 
@@ -326,6 +356,12 @@ only if:
 The service has never held a notebook key, so it can’t make a keyring that passes the second check,
 or hand a device an old keyring after a change of key. A keyring that fails is reported and never
 used. A device keeps the highest `current` it has accepted beside its keys, for the third check.
+
+**All three must pass; where more than one fails, the vectors name the first of 1, 3, 2.** A
+keyring that goes backward also lacks the device’s newer keys, and “it went backward” is the truer
+report. And since a keyring’s own checks make its `kid`s run from 1 to `current`, one that drops a
+key the device holds is either malformed or lower: the second check is left to catch other bytes
+under a `kid` the device holds.
 
 ### Device keys and device cards
 
@@ -349,11 +385,22 @@ card = AES-256-GCM(card key of the current notebook key, nonce: 12 random bytes,
 - **`public`** is the device key’s public half and **`sign`** the signing key’s, each 65 bytes in
   base64url. **`added`** is the time the card was first written, in the format’s form (UTC, with
   `Z`).
+- **`platform`** is `ios`, `android`, or `web`, the same word a device gives in an approval’s
+  request. Nothing checks it: a client that meets another word shows the card all the same.
+- **A sealed card is two things: its 12-byte nonce, and its ciphertext with the tag.** The
+  plaintext is the card’s JSON in UTF-8, as the client writes it, and **isn’t padded** (records
+  are). How the two are spelled in a request is the interface’s, settled in step 4c.
+- **A client that opens a card checks that `public` is a point** (under “Fixed choices”) and
+  refuses the card otherwise. It doesn’t check `sign`, which nothing uses in version 1 (under “The
+  signing key”).
 - **The approving device writes the new device’s card** in its grant (under “By approval”). A first
   device, and a device that joined through a holder, write their own. Whoever changes the key seals
   every card again under the new one.
 - **Sealing a card again keeps every field in it**, the ones this version doesn’t know included, so
-  a later version can add to a card and an older client won’t drop what it added.
+  a later version can add to a card and an older client won’t drop what it added. **The simplest
+  way, and the reference’s, is to seal the opened bytes again as they are**; the `card` vectors’
+  resealed ciphertext is those bytes’. A client that renames a device parses the card, changes
+  `name`, and writes every other field back.
 - **The name is what the reader calls the device.** Since LIT can’t read a card, it can be personal;
   it starts as the model (“iPhone,” “Pixel 8,” “Firefox on Windows”), and the reader can rename a
   device on the device itself, which seals its card again.
@@ -391,6 +438,10 @@ know. So:
   CryptoKit’s `rawRepresentation`; Android’s `Signature` gives DER, to convert). Because every card
   already carries a signing key that a key holder wrote, turning signatures on won’t ask readers to
   enroll their devices again.
+- **The vectors hold the key’s shape now**, so the day signatures turn on finds three clients that
+  already agree (`signingKey`): a signature is verified over the message with SHA-256, and a client
+  that converts between `r ‖ s` and DER by hand reads only strict DER (short lengths, no padding
+  that isn’t needed, nothing after the end). Nothing in version 1 depends on them.
 
 ### Holders
 
@@ -430,7 +481,10 @@ holder record = AES-256-GCM(the code key or the passkey key, nonce: 12 random by
                             plaintext: that JSON)
 ```
 
-`kind` is `recovery` or `passkey`, and a recovery holder’s record has no `credential`.
+`kind` is `recovery` or `passkey`, and a recovery holder’s record has no `credential`. Like a card,
+a sealed holder record is its 12-byte nonce and its ciphertext with the tag, and its plaintext
+isn’t padded. `public` is `d`’s own public key: a client refuses to write a record where either
+isn’t a valid key.
 
 **2. The holder card** tells the other devices the holder’s public key, as a device card does:
 
@@ -444,7 +498,9 @@ holder card = AES-256-GCM(card key of the current notebook key, nonce: 12 random
 platform calls the passkey’s home (“iCloud Keychain,” “Google Password Manager”), or “Passkey.” The
 rules for device cards hold: whoever changes the key seals every kept holder’s card again and keeps
 every field, and a client seals a keyring only to the public key in a holder card that opens under
-the current key and names that holder’s id.
+the current key and names that holder’s id. It is sealed the same way too: a nonce and a
+ciphertext, unpadded, with `public` checked to be a point when it is opened. The two labels keep
+the two kinds apart, so a holder’s card never opens as a device’s, or a device’s as a holder’s.
 
 **3. A keyring sealed to the holder’s public key**, with HPKE, as for a device.
 
@@ -457,13 +513,25 @@ this order, and stops at the first failure:
 1. **The record opens** under the key made from the secret, with the AAD made from the kind and id
    the service gave. A failure means the code is wrong, or this passkey doesn’t open this notebook.
 2. **The record is what it should be**: `lit`, `v`, `kind`, and `id` as expected; `notebook` the
-   account’s notebook; for a passkey, `credential` the id of the passkey that just answered.
+   account’s notebook; for a passkey, `credential` the id of the passkey that just answered,
+   compared as bytes. Its keys have their shapes too: `d` a private scalar (32 bytes, 1 or more,
+   and less than the curve’s order), `public` a point, and the anchor a `kid` of 1 or more with a
+   32-byte key.
 3. **The keyring sealed to the holder opens** with `d`, and passes the keyring’s own checks.
 4. **The keyring names the record’s notebook and holds the anchor’s key**, with the same `kid` and
    the same bytes.
 
 Then it keeps the keyring and joins (under “Adding a device”). What the anchor can’t show is that
 the keyring is the newest, which is the gap described under “An older copy,” above.
+
+**A client can say which check stopped it**, since the first means something a reader can act on
+(a wrong code) and the others don’t. The vectors give the number of the check with each refusal.
+
+**One thing no vector tests: a record whose `public` isn’t `d`’s own public key.** Only a device
+that had the secret can have written it, so it is a client’s bug and never an attack, and platforms
+notice at different moments: WebCrypto when it takes the key or when the keyring doesn’t open
+(HPKE binds the recipient’s public key), CryptoKit not at all, since it works the public key out
+from `d`.
 
 #### The recovery code
 
@@ -478,6 +546,14 @@ six groups of four:
 (That one is made up.) Reading a code back, a client removes spaces and hyphens, takes lowercase as
 uppercase, reads `O` as `0` and `I` or `L` as `1`, and refuses any other character (`U` included) or
 a length other than 24.
+
+**Read to the letter, as the reference does:** the space is U+0020 and the hyphen is U+002D, and
+nothing else is removed. A tab, a line break, a no-break space, an en dash, and a letter from
+another alphabet that looks like one of these are each “any other character,” and refused.
+Lowercase means `a` to `z`. Characters are checked before the length, so a code with both faults is
+reported as a wrong character. **The two groups a reader types back** (under “Setting up the first
+device”) are read by the same rules, each as four characters. A wider reading (any white space, the
+dashes a notes app swaps in) may be kinder to a reader who pastes a code; it is under “Still open.”
 
 **The code key** is `HKDF(the 15 bytes, info "lit-notebook/1 recovery", 32 bytes)`. No slow password
 hash is needed: the code is 120 random bits, not something a person chose, so guessing it is out of
@@ -498,7 +574,10 @@ passkey can make them.
 
 - **The input is fixed**: the 18 ASCII bytes of `lit-notebook/1 prf`, given as the extension’s
   first value (`eval.first`). The platform hashes it as the standard says before the passkey sees
-  it. The second value is not used. **A client never takes a PRF input from the service.**
+  it: SHA-256 of the ASCII bytes of `WebAuthn PRF`, one zero byte, and the input. A client never
+  does that itself; the `prf` vectors give the hashed form for one that has to check what its
+  platform sent. The second value is not used. **A client never takes a PRF input from the
+  service.**
 - **Why fixed, and not a random input kept on the service**: with a fixed input, the ceremony that
   signs a reader in can ask for the secret at the same time, before the service knows who they are,
   so a new device takes one prompt and not two. A random input would be known to the service
@@ -517,7 +596,9 @@ passkey can make them.
   response turned into JSON carries them (`clientExtensionResults.prf.results`), and Android’s
   Credential Manager hands the app that JSON. A client removes `results` before any response leaves
   the device, and the service refuses a response that still has them, so a client that forgets
-  fails in testing and not in a reader’s hands.
+  fails in testing and not in a reader’s hands. **That one member is all it removes**: `prf` itself
+  and `prf.enabled` stay, and so does every other extension’s result, so the response is otherwise
+  the one the platform made.
 - **Only a synced passkey with a working PRF holds the key.** A client makes a passkey a holder
   only when the passkey reported `prf.enabled` at creation or returned results since, and its
   backup-eligible flag is set (it is the kind that syncs). A passkey that stays on one computer or
@@ -655,6 +736,10 @@ One row per record, as the format sketches it (“How each store holds the recor
 - **`id`, `modified`, and, on a trash record only, `deletedAt`** are copied byte for byte from the
   record. They are the agreed plain fields, and the seal covers them. `deletedAt` stays among them
   (BVJ, 2026-11-23).
+- **A trash record is a record whose `kind` is `trash`** (the format’s kind 10). The row of any
+  other record has no `deletedAt` at all: the example above is a trash record’s. A client that
+  reads a row takes a missing `deletedAt` and a `null` one alike, as “none.”
+- **`nonce` and `ct`** are base64url, and `ct` ends with the 16-byte tag.
 - **`rev`** is the service’s own revision, the cursor for “what changed since.” The service sets it
   after the record is sealed, so it is the one plain field the seal doesn’t cover.
 - **`v` and `kid`** say how to open the row; the seal covers both (`v` as its label, `lit-row/1`).
@@ -669,16 +754,18 @@ One row per record, as the format sketches it (“How each store holds the recor
 ### Sealing
 
 1. **Serialize** the record as the format writes it (JSON, in UTF-8). It must be no more than
-   `MAX_RECORD_BYTES` (1,048,576 bytes), the format’s ceiling for any record.
+   `MAX_RECORD_BYTES` (1,048,576 bytes), the format’s ceiling for any record; a client refuses to
+   seal a larger one. Each client’s JSON writer orders keys and spaces its own way, and that is
+   fine: what is sealed is that client’s bytes, and what every client reads back is the record.
 2. **Pad** it with spaces (`0x20`) to the next multiple of 256 bytes (a length already a multiple of
    256 takes none), so the stored size says only roughly how much was written.
 3. **Make the AAD**: lines `lit-row/1`, the `kid` in decimal, `id`, `modified`, and `deletedAt` (an
-   empty line on a record that isn’t trash).
+   empty line on a record that isn’t trash, so that AAD ends with a line feed).
 4. **Seal** with AES-256-GCM under the record key of the current notebook key, with a fresh random
    12-byte nonce.
 
 The largest ciphertext is therefore 1,048,592 bytes, and the service refuses anything larger, or
-any whose length isn’t a multiple of 256 plus the 16-byte tag.
+any whose length isn’t a multiple of 256 plus the 16-byte tag. The smallest is 272.
 
 ### Opening
 
@@ -692,6 +779,35 @@ any whose length isn’t a multiple of 256 plus the 16-byte tag.
    step 2.
 4. **Then the format’s own checks**, as for any record that arrives (`validateRecord` on the
    website).
+
+**The steps above, as exactly as the vectors need them.** There are two outcomes short of
+success, and a client must tell them apart: **aside** (step 1: keep the row, fetch the keyring, try
+again) and **skip and report** (everything else). Neither ever deletes anything. The checks run in
+this order, and a row is refused at the first that fails:
+
+1. `v` is 1. Otherwise: aside.
+2. The device holds `kid`. Otherwise: aside. (A `kid` that isn’t a whole number of 1 or more is a
+   row no client wrote: skip and report.)
+3. The row’s own fields are what a row carries: `id` and `modified` text, `deletedAt` text or
+   none, `nonce` 12 bytes, `ct` base64url.
+4. **The ciphertext’s length is a padded record’s**: without its 16-byte tag, a multiple of 256
+   bytes, at least 256 and at most `MAX_RECORD_BYTES`. The service makes this check too; a client
+   makes it for itself and doesn’t open a row that fails it, even one whose seal would hold.
+5. The seal opens.
+6. The opened bytes, with the spaces at their end removed, are well-formed UTF-8 and a JSON object.
+7. The record agrees with the plain fields: the same `id`, byte for byte; the same `modified`; and
+   for a trash record the same `deletedAt`, while any other record’s row has none. A row that
+   carries a `deletedAt` for a record that isn’t trash is refused, and so is a trash record’s row
+   without one.
+
+**“The same time” is the same instant, by this rule:** the two strings are the same bytes; or both
+are in the format’s form (`YYYY-MM-DDTHH:MM:SS`, an optional fraction of any length, and `Z`), they
+are alike through the seconds, and their fractions are alike once trailing zeros are dropped. So
+`…09.5Z` and `…09.500Z` are the same instant, and `…09Z` and `…09.0Z`. Fractions are compared in
+full, so no client’s clock decides it, and a time that isn’t in the format’s form is the same only
+as itself. The seal already holds the row’s times to the byte (they are in the AAD), so this rule
+only ever decides a row whose sealing client wrote one time two ways, once inside the record and
+once in the row.
 
 **Deletions under encryption.** A deleted record’s row leaves the service when the record is
 deleted: its copy lives on in the trash record for 30 days (`TRASH_DAYS`), as the format says.
@@ -787,21 +903,33 @@ Two devices signed in to the same account: the new one, without the key, and one
    device public key, its signing public key, and this MAC:
 
    `HMAC(MAC key, lines "lit-approve/1 request", approval id, device id, platform, model, base64url(public key), base64url(signing public key))`
+
+   The platform is the card’s word (`ios`, `android`, or `web`) and the model is the name the card
+   will start with. Neither may hold a line feed, as for any line.
 4. **The approving device** finds the request by its id, checks its MAC, and asks the reader “Add
    [model] to your notebook?” The screen says to approve only a device the reader is holding.
 5. **On yes, it posts a grant**: it seals its keyring to the new device’s public key (HPKE, `info`
-   `lit-notebook/1 keyring`, an empty AAD), writes the new device’s card (the model as its name, and
-   both public keys from the request), and sends the approval id, the `kid` it sealed (the keyring’s
-   `current`), the card, HPKE’s `enc` and ciphertext, and this MAC:
+   `lit-notebook/1 keyring`, an empty AAD), writes the new device’s card (the model as its name, the
+   platform, and both public keys from the request, with `added` its own time now), and sends the
+   approval id, the `kid` it sealed (the keyring’s `current`), the card, HPKE’s `enc` and
+   ciphertext, and this MAC:
 
    `HMAC(MAC key, lines "lit-approve/1 grant", approval id, kid, base64url(enc), base64url(ciphertext))`
+
+   The ciphertext in that MAC is the sealed keyring’s. The card isn’t under the MAC and needs no
+   place there: it is sealed under the card key of the keyring the MAC vouches for, with the new
+   device’s id in its AAD.
 
    The service refuses a grant whose `kid` isn’t the account’s current one, so no approval crosses a
    change of key: the approving device fetches the newer keyring and grants again.
 6. **The new device** checks the grant’s MAC, opens the keyring, checks it, and checks that its
    `current` is the grant’s `kid` and that the card opens and names its own id and both of its
    public keys. Then it keeps the keyring and **accepts**: it sends the key proof, and the service
-   lists it, with the grant’s card and sealed keyring, as added by the approving device.
+   lists it, with the grant’s card and sealed keyring, as added by the approving device. Those
+   checks run in that order, and the vectors name the first that fails: the MAC; the keyring opens
+   (to this device’s key) and passes the keyring’s own checks; its `current` is the grant’s `kid`;
+   the card opens under that key’s card key with this device’s id, and its `public` and `sign` are
+   this device’s two public keys.
 7. **The service keeps an approval for at most ten minutes**, deletes it once accepted, and shows it
    only to sessions of that account.
 
@@ -1205,52 +1333,97 @@ file depends on that choice.
 ## The test vectors
 
 As with the anchor text and the merge rules, **one file of known inputs and outputs that all three
-clients run in their own tests.** BVJ’s side writes it (BVJ, 2026-11-23), in step 4b, once this
-text is agreed. **The reference is the code the website ships**, not a second copy under
-`scripts/`:
+clients run in their own tests.** BVJ’s side wrote it (BVJ, 2026-11-23), in step 4b, built the
+same day against draft 2 as written. **The reference is the code the website ships**, not a second
+copy under `scripts/`:
 
 - `src/lib/desk-crypto.mjs`: the reference. Pure, on WebCrypto, with no storage and no network, so
-  the website’s connector, the vector builder, and the tests all import the same functions.
+  the website’s connector, the vector builder, and the tests all import the same functions. Every
+  random input is an argument with a random default, which is how the builder fixes each one.
 - `scripts/build-notebook-crypto-vectors.mjs` (`npm run build:notebook-crypto-vectors`): writes the
-  file. On demand only, and the file is committed, like `build:anchor-vectors`.
+  file. On demand only, and the file is committed, like `build:anchor-vectors`. Running it twice
+  gives the same bytes. `scripts/lib/p256-fixed.mjs` does the two things WebCrypto can’t, for
+  vectors only: a public key from a private scalar, and a signature with a chosen number.
 - `test/fixtures/notebook-crypto-vectors.json`: the vectors. Both apps fetch it from this repo, as
-  they do the anchor vectors.
+  they do the anchor vectors. Its `vectorsVersion` moves whenever a value in it does.
+- `test/fixtures/published-crypto-vectors.json`: the few published cases the reference is run
+  against first, each with its source named (below).
 - `test/desk-crypto.test.js`: checks the file against the reference, in `npm test` and in
-  `npm run test:desk`. It also runs the hand-written HPKE against the CFRG’s published RFC 9180
-  vectors for this suite, before LIT’s own.
+  `npm run test:desk`: the published cases first; then that the committed file is byte for byte
+  what the builder makes; then every group, from each case’s `given` to its `expected`; then
+  `node:crypto` as a second implementation on the file’s own values; then, with real randomness,
+  that what the reference seals, it opens.
 
-Every random input (keys, nonces, codes, a passkey’s PRF output) is fixed and written into the
-file, every private key comes with its public key, and byte strings in it are lowercase hex. Each
-case says what it tests:
+**The file is not only the reference agreeing with itself.** Before any of LIT’s own vectors, the
+reference’s primitives pass published ones, committed with their sources so no test reaches the
+network:
+
+| What | Source | What it covers, and doesn’t |
+|---|---|---|
+| HKDF-SHA-256 | RFC 5869, Appendix A.1 to A.3 | Extract and expand, with a salt, a long input, and the empty salt this file writes as 32 zero bytes |
+| HMAC-SHA-256 | RFC 4231, test cases 1 to 7 | Short and long keys and data, and the truncated case |
+| AES-256-GCM | Project Wycheproof, `aes_gcm_test.json` (eleven cases with a 256-bit key and a 96-bit nonce, at a named commit) | Seven that must seal and open exactly, with and without AAD and plaintext, and four that must not open (a changed tag). Not other nonce or tag sizes, which this file never uses |
+| HPKE, the notebook’s exact suite | The CFRG’s full vector file for RFC 9180 (`test-vectors.json` in `cfrg/draft-irtf-cfrg-hpke`, at a named commit): base mode, KEM `0x0010`, KDF `0x0001`, AEAD `0x0002` | The shared secret, the key schedule, and the seals at sequence numbers 0, 1, 2, 4, 255, and 256, from both the sender’s and the recipient’s side. **RFC 9180’s printed appendix has no case for this suite**, so this file, which the RFC names as the home of its full set, is the published source. Not the PSK and Auth modes, the export interface, or deriving a key pair from a seed, none of which the notebook uses |
+| HPKE, the nearest suite the RFC prints | RFC 9180, Appendix A.3.1 (the same KEM and KDF with AES-128-GCM), compared with the RFC’s own text | The same code with one parameter changed, so the hand-written KEM and key schedule are held to the RFC’s page as well as to the CFRG’s file |
+
+On top of those, LIT’s own values are checked against `node:crypto`, a second implementation, in
+the builder as each is made and again in the test on the committed file: the `hkdf` group’s
+outputs, each record `seal` made (sealed by the one, opened by the other), the key agreement
+behind an HPKE seal, every key pair’s public key, both approval MACs, and the signatures in both
+encodings. No published vector exists for the notebook’s own constructions (a row’s AAD, a card, a
+holder, an approval), which is what the file is for.
+
+**How the file is written.** Every random input (keys, nonces, codes, a passkey’s PRF output, the
+sender key of each HPKE seal) is fixed and written into the file, every private key comes with its
+public key, and byte strings in it are lowercase hex. That includes a row’s `nonce` and `ct`, which
+the service carries in base64url. The exceptions are inside text this file defines: a `plaintext`
+(JSON as it is sealed) and a MAC’s input carry their byte strings in base64url, as on a device.
+Each case has a `why`, a `given`, and an `expected`, and a case that must be refused has
+`expected.refused` with a word from the file’s `refusals` list, plus `aside: true` or a holder’s
+`check` where the two kinds of refusal differ. **To reproduce a ciphertext a client seals the
+`plaintext` given, byte for byte**; what it makes with its own JSON writer differs, and it checks
+that by opening it again. Each group says what it tests:
 
 | Group | Given | Expected |
 |---|---|---|
 | `hkdf` | an input and each label | each derived key |
 | `keyProof` | a notebook key | the proof, and the hash the service stores |
-| `recoveryCode`, `approvalCode` | bytes; typed forms (lowercase, spaces, `O`, `I`, `L`) | the text; the bytes, or the refusal and why |
-| `seal` | a record, a notebook key, `kid`, nonce, plain fields | the AAD, the padded length, the ciphertext, exactly |
-| `open` | the rows `seal` made | the record |
-| `openRefused` | a row with one byte or field changed, the wrong key, a record whose `id` or `modified` disagrees with the plain fields | a refusal, and which |
-| `padding` | lengths around each multiple of 256 | the padded length |
-| `keyring` | valid and invalid keyrings (a `kid` missing from 1 to `current`, one repeated, a short key); for a device holding given keys, keyrings from the service that drop a key, change a key’s bytes, name another notebook, or go backward | accepted, or the refusal and why |
-| `hpkeOpen` | a private key and its public key, `enc`, a ciphertext | the keyring |
-| `card` | a notebook key, a card with `public` and `sign`, its AAD fields; a card with a field this version doesn’t know, sealed again under a new key | the sealed card; refused under another device’s id; the unknown field still there |
+| `recoveryCode`, `approvalCode` | bytes; typed forms (lowercase, spaces, `O`, `I`, `L`; a tab, an en dash, a no-break space, a look-alike letter, `U`, too few and too many characters); for the recovery code, groups typed back | the text; the bytes, or the refusal and why; whether a typed group matches |
+| `base64url` | byte strings of several lengths; text with padding, `+`, `/`, a space, an impossible length, leftover bits | the text; refused |
+| `seal` | a record’s serialized text, a notebook key, `kid`, nonce | the row, the AAD (as text and as bytes), the padded length, the ciphertext, exactly. Records of several kinds, a trash record, text beyond ASCII, a record that takes no padding, one record written with its keys in another order; refused: a record whose `id` holds a line feed |
+| `open` | the rows `seal` made, and rows a client must also accept (times written two ways for one instant, a `null` `deletedAt`, an older `kid` the device still holds) | the record |
+| `openRefused` | a row with one byte or one plain field changed, the wrong key, a wrong length, bytes that aren’t JSON, a record whose `id`, `modified`, or `deletedAt` disagrees with the plain fields, an unknown `v`, a `kid` not held | a refusal, which, and whether it means “aside” |
+| `padding` | lengths around each multiple of 256, and at both ends | the padded length and the ciphertext’s; refused: 0, and one byte past the ceiling |
+| `keyring` | valid and invalid keyrings (a `kid` missing from 1 to `current`, one repeated, a short key, an unknown `lit` or `v`); for a device holding given keys, keyrings from the service that drop a key, change a key’s bytes, name another notebook, or go backward | accepted, or the refusal and why |
+| `hpkeOpen` | a private key and its public key, `enc`, a ciphertext; the same with a byte changed, the wrong recipient, an `enc` off the curve | the keyring, with the shared secret, key, and nonce along the way; refused |
+| `card` | a notebook key, a card with `public` and `sign`, its AAD fields; a card with a field this version doesn’t know, sealed again under a new key; cards a client won’t write | the sealed card; refused under another device’s id, another notebook, another `kid`, and as a holder’s card; the unknown field still there |
 | `holderCard` | a notebook key, a holder card of each kind, its AAD fields | the sealed card; refused under another holder’s id, and as a device card |
 | `prf` | the fixed input | its bytes, its base64url (as Android’s request JSON carries it), and the hashed form the standard sends to the passkey; a passkey response with `prf.results`, and the same response as it may be sent to the service |
-| `passkeyHolder` | a PRF output, a nonce, a holder record, the keyring sealed to it | the passkey key; the sealed record and its opening; the keyring accepted. Refused: the wrong PRF output; a record of the other kind or another id; a `credential` that isn’t the passkey that answered; a keyring that lacks the anchor’s key, holds other bytes for it, or names another notebook |
+| `passkeyHolder` | a PRF output, a nonce, a holder record, the keyring sealed to it | the passkey key; the sealed record and its opening; the keyring accepted. Refused, with the check that stops it: the wrong PRF output; a record of the other kind or another id; a `credential` that isn’t the passkey that answered; a keyring that lacks the anchor’s key, holds other bytes for it, or names another notebook |
 | `recoveryHolder` | a code, a nonce, a holder record, the keyring sealed to it | the same, from the code key |
-| `approval` | a code, a request with both public keys, a grant | the approval id and both MACs; refused with either key changed |
-| `signingKey` | a P-256 signing key pair; a message and its signature as `r ‖ s`; the same signature in DER | the public key as `sign` carries it; the signature verified; a changed byte refused; each form converted to the other |
-| `point` | public keys on and off the curve | accepted, or refused |
-| `walkthrough` | a first device under “follows my account,” a second joined by passkey, a third approved, the first removed, a switch to “this device only” with a recovery code made, a recovery by code, a forged keyring | every value along the way, and the forgery refused |
+| `approval` | a code, a request with both public keys, a grant | the approval id and both MACs, with each MAC’s input as text; the grant accepted. Refused: a key, the model, the device id, or the MAC of the request changed; `enc`, the ciphertext, the `kid`, or the MAC of the grant changed; a grant whose `kid` isn’t its keyring’s; a card for another device or with other keys |
+| `signingKey` | a P-256 signing key pair; a message and its signature as `r ‖ s`; the same signature in DER | the public key as `sign` carries it; the signature verified; a changed byte refused; each form converted to the other; DER that isn’t strict refused |
+| `point` | public keys on and off the curve, compressed, too short, with a coordinate past the field’s size | accepted, or refused |
+| `walkthrough` | a first device under “follows my account,” a second joined by passkey, a third approved, the first removed, a switch to “this device only” with a recovery code made, a recovery by code, forged keyrings | every value along the way, and each forgery refused |
 
 HPKE makes a fresh key pair each time it seals, ECDSA a fresh number each time it signs, and
 CryptoKit can be handed neither, so the HPKE cases run in the opening direction and the signing
-cases in the verifying one. Each client also checks that what it seals, it opens.
+cases in the verifying one. The sender’s key and the signing number are in the file all the same,
+for a client that can fix them. Each client also checks that what it seals, it opens, and what it
+signs, it verifies.
 
-**What the vectors can’t reach** is the passkey itself: no test can ask Apple’s or Google’s
-passkey for its secret. `prf` and `passkeyHolder` start from the 32 bytes. That every client gets
-the *same* 32 bytes from one real passkey is a test on real devices (under “Still open”).
+**What the vectors can’t reach:**
+
+- **The passkey itself.** No test can ask Apple’s or Google’s passkey for its secret. `prf` and
+  `passkeyHolder` start from the 32 bytes. That every client gets the *same* 32 bytes from one real
+  passkey is a test on real devices (under “Still open”).
+- **Where each client keeps its keys.** A non-extractable `CryptoKey`, the Keychain, the Keystore,
+  and what a backup copies are each platform’s to test.
+- **The service.** What it checks, the key proof as a request, and sessions are tested with the
+  service (step 4c). The vectors give the proof and its hash, and the rows a service must accept.
+- **Randomness.** The file fixes every random input. That a client’s own nonces, keys, and codes
+  come from the platform’s random source is for its own review.
+- **A holder record whose `public` isn’t `d`’s** (under “Holders”).
 
 ## Departures from earlier documents
 
@@ -1275,7 +1448,8 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 1. **4a, this draft.** BDR’s Claude reviews it, and BDR confirms or changes the calls marked “for
    BDR to confirm.” Answers go in `STUDY-DESK-FOR-THE-APPS.md`, under “Waiting to hear from the
    apps.”
-2. **4b, the reference and the vectors** (under “The test vectors”), by BVJ’s side.
+2. **4b, the reference and the vectors** (under “The test vectors”), by BVJ’s side. **Built
+   2026-11-23**, with what it changed here under “Changed in step 4b.”
 3. **4c, the service on a preview address**: `workers/notebook-service/`, built to “The service’s
    interface.” With 4a and 4b it is the gate of about December 15.
 4. **4d, the freeze**, tentatively December 24: this file freezes with the format. A change after
@@ -1307,6 +1481,9 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
   1’s author, not by this one, which has no access to the apps’ repositories. The iOS app targets
   iOS 26; the Android app supports API 26 and later.
 - The documentation listed under “Where a passkey can carry a key,” read on 2026-11-23.
+- For step 4b: RFC 5869, RFC 4231, RFC 9180 and the CFRG’s full vector file for it, and Project
+  Wycheproof’s AES-GCM cases, each read on 2026-11-23 and named with its address in
+  `test/fixtures/published-crypto-vectors.json`.
 
 ## Changed since draft 1
 
@@ -1335,6 +1512,74 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
     reference is `src/lib/desk-crypto.mjs`.
 12. **Settled, and no longer open**: the setup sentence, two groups typed back, seven days, the
     second way in, `deletedAt`.
+
+## Changed in step 4b
+
+Step 4b built the reference (`src/lib/desk-crypto.mjs`) and the vectors against draft 2 as it
+stood. Code can’t leave a sentence half-read, so wherever draft 2 was silent, loose, or wrong, the
+text was changed here in the same pull request, and the reference does what the text now says.
+**None of these changes a decision of draft 2.** The ones marked **(a choice)** could reasonably
+have gone another way: each took the smallest reading, and is under “Still open,” 22 to 30.
+
+1. **HPKE’s published vectors** (“Fixed choices,” “The test vectors”). Draft 2 said the hand-written
+   HPKE is checked against “the CFRG’s published RFC 9180 test vectors for this suite.” RFC 9180’s
+   printed appendix has no case for this suite: its P-256 case uses AES-128-GCM. The CFRG’s full
+   vector file does have it, and the reference passes that case and the RFC’s printed one through
+   the same code. A wrong statement, corrected.
+2. **Every HPKE seal is single-shot** (“Fixed choices”): `info` is the label’s ASCII bytes, the AAD
+   is empty, and one ciphertext comes from each sender key. Draft 2 said so only inside step 5 of
+   “By approval.”
+3. **What “a valid point” is** (“Fixed choices”): 65 bytes, uncompressed, each coordinate less
+   than the field’s size, on the curve; checked by hand before any platform call.
+4. **Base64url is read strictly** (“Fixed choices”), so each byte string has one spelling. **(a
+   choice)**
+5. **“Lines” with an empty last value** (“Fixed choices,” “Sealing”): the line feed before it
+   stays, so the AAD of a row that has no `deletedAt` ends with a line feed. Draft 2’s two
+   sentences (“none at the end,” “an empty line”) could be read either way. Also that a `kid` in
+   lines is decimal digits with no sign and no leading zero.
+6. **Ids** (“Fixed choices”): a device makes a version 4 UUID; a check asks for the form only.
+7. **Refusals have reasons** (“Fixed choices”), named by one word each in the vectors file.
+8. **The keyring’s own checks** (“The keyring”) also refuse bytes that aren’t a JSON object; the
+   order of `keys` means nothing; an unknown field is ignored and not carried forward **(a
+   choice)**; and where more than one of the three acceptance checks fails, the report is the
+   first of “another notebook,” “backward,” “a key changed” **(a choice)**.
+9. **A sealed card and a sealed holder record are a nonce and a ciphertext, unpadded** (“Device
+   keys and device cards,” “Holders”). Draft 2’s formulas named the nonce and didn’t say where it
+   travels. Their spelling in a request is step 4c’s. **(a choice)**
+10. **Reading a card** (“Device keys and device cards”): `public` must be a point or the card is
+    refused; `sign` isn’t checked on reading. Draft 2 said only what a client won’t write.
+11. **Sealing a card again** (“Device keys and device cards”): the opened bytes are sealed again
+    as they are, which is how every field is kept; the vector’s ciphertext is those bytes’.
+12. **`platform` is `ios`, `android`, or `web`** (“Device keys and device cards,” “By approval”).
+    Draft 2 named the field and gave it no values. **(a choice)**
+13. **A holder’s second check covers the shape of its keys** (“Holders”), and a client reports
+    which of the four checks stopped it. Noted too: the one case no vector tests.
+14. **How a typed code is read** (“The recovery code”): only U+0020 and U+002D are removed, other
+    white space and dashes are refused, characters are checked before the length, and a group
+    typed back is read by the same rules. **(a choice)**
+15. **The PRF** (“The passkey”): the hashed form written out, and that `results` is the one member
+    removed from a response.
+16. **A row’s `deletedAt`** (“A record on the service”): left out for a record that isn’t trash,
+    where draft 2’s example showed it on every row; a `null` reads as left out **(a choice)**; and
+    a trash record is one whose `kind` is `trash`.
+17. **Sealing** (“Sealing”): each client seals its own serialization, and the smallest ciphertext
+    is 272 bytes.
+18. **Opening, step by step** (“Opening”): the order of checks; which refusals mean “aside”; the
+    client’s own check of the ciphertext’s length **(a choice)**; that the opened bytes must be
+    UTF-8 and a JSON object; that a row with a `deletedAt` for a record that isn’t trash is
+    refused; and the exact rule for “the same instant” **(a choice)**.
+19. **By approval**: the grant’s card takes its platform from the request and its `added` from
+    the approving device; the card is not under the grant’s MAC, and why that is enough; the order
+    of the new device’s checks.
+20. **The signing key** (“The signing key”): what the vectors hold for it now, and strict DER for a
+    client that converts by hand.
+21. **“The test vectors”**: the files as built, the published vectors and what each covers, how the
+    file is written, a `base64url` group added to the table, the table’s rows brought up to what
+    the file holds, and a longer list of what the vectors can’t reach.
+
+**Noticed, and not changed, since it is the format’s and the service’s to settle** (“Still open,”
+31): the format lets a trash record carry times that merely parse, and the service’s check on a
+row asks for the format’s form, so a trash record with an old, looser time could never be pushed.
 
 ## Still open
 
@@ -1381,3 +1626,43 @@ The plan is `STUDY-DESK.md`, “Order of work,” 4, steps 4a to 4l. What this f
 20. **Scanning a code with an iPhone to sign in on a computer**, where Apple’s behavior has been
     unreliable. The design falls back to approval; the question is how often a reader will meet it.
 21. **A passkey kept in 1Password or Bitwarden**, on each platform.
+
+**From step 4b, for BVJ and BDR to confirm.** Writing the reference forced a choice in each of
+these, where draft 2 made none. Each took the smallest reading, is written into its section, and
+is what the vectors test. Changing one means changing the reference and the vectors with it, which
+is cheap before the freeze. The numbers go on from 21 so that nothing above is renumbered:
+
+22. **Base64url is read strictly**: padding, `+`, `/`, a stray character, and leftover bits are
+    each refused (“Fixed choices”). The other reading takes anything a lenient decoder takes.
+23. **A typed code is read to the letter**: only the space (U+0020) and the hyphen (U+002D) are
+    removed, so a tab, a line break, a no-break space, and an en dash are refused (“The recovery
+    code”). A reader who pastes a code from a note may bring a line break with it. A client can
+    trim what it likes before it reads, but then three clients trim three ways; the alternative is
+    to say here that all white space and the common dashes are removed, and change the vectors.
+    **This one is worth a real answer**, since it is the one a reader could meet.
+24. **A row’s `deletedAt` is left out unless the record is trash**, and a `null` reads the same
+    (“A record on the service”). The service’s own spelling of “none” is step 4c’s.
+25. **A client checks the ciphertext’s length itself** and doesn’t open a row that isn’t a padded
+    record’s, even one whose seal would hold (“Opening”).
+26. **“The same instant,”** exactly: the same bytes, or both in the format’s form, alike through
+    the seconds, with the same fraction once trailing zeros are dropped (“Opening”). A time outside
+    the format’s form matches only itself.
+27. **A sealed card and a sealed holder record travel as a 12-byte nonce and a ciphertext**,
+    unpadded, and the interface settles their spelling in step 4c (“Device keys and device cards,”
+    “Holders”). Padding a card would hide the length of a device’s name; draft 2 padded records
+    only, and so does the reference.
+28. **`platform` is `ios`, `android`, or `web`**, in a card and in an approval’s request, and
+    nothing checks it (“Device keys and device cards”).
+29. **A keyring’s unknown fields are ignored and not carried forward**, unlike a card’s, which
+    are kept (“The keyring”). A later version that adds to the keyring changes its `v`.
+30. **The words and the order of refusals** in the vectors file: for a keyring from the service,
+    “another notebook,” then “backward,” then “a key changed”; for a typed code, a wrong character
+    before a wrong length; for a row, the order under “Opening”; for a grant, the order under “By
+    approval”; for a holder, the number of the check. A client need not use the words, and where
+    two faults meet, the vectors fix which one is named.
+31. **A trash record whose times aren’t in the format’s form can’t be pushed.** The format lets a
+    trash record carry times that merely parse (“write them with `Z` too”); the service’s check on
+    a row asks for the format’s form (“The service’s interface,” “Records”). Not changed here, since
+    the answer is the format’s or the service’s: either the service takes any time on a row with a
+    `deletedAt`, or a client rewrites such a record before it seals it. Whether any client ever
+    wrote such a time is for each to say.

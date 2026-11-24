@@ -138,6 +138,14 @@ Each file in `src/data/chapters/` follows this structure:
   see: a curly opener paired with a *wrong-direction* curly closer
   (`‘lord”`), which is well-formed to the checker but reads as a mismatched
   pair. That cleanup fixed 12 of those.
+- **A British form in the owner's text is reported to BVJ, never changed**
+  (the root's rule on American conventions, which governs what Claude
+  writes; moved here from the root file, 2026-11-23). A 2026-10-13 audit
+  found four: `1corinthians-14` (“all things are lawful…”, before a
+  citation), `hebrews-8` (“After those days:”), `james-intro`
+  (“…big things”,) and the `many-and-all` article (“…many!”,), plus the
+  shared *hupotasso* note's nested ‘…burden’.” and similar single-quote
+  closes.
 - **A numeric range takes an en dash** — `Matthew 5:3–12`, `verses 9–11`, not
   a hyphen. Settled corpus-wide 2026-08-20 (413 conversions). It is a **repo**
   convention only: the Word masters keep hyphens, because Word does not

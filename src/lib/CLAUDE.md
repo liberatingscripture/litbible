@@ -79,7 +79,13 @@ From the root's project tree.
                      #   and the highlight carry (desk-collections; see
                      #   src/scripts/desk/collections/CLAUDE.md);
                      #   merging two copies
-                     #   of a notebook (desk-merge); the scrub a fetched
+                     #   of a notebook (desk-merge); the synced
+                     #   notebook's encryption (desk-crypto: the
+                     #   reference for STUDY-DESK-ENCRYPTION.md and the
+                     #   code its test vectors are made from; WebCrypto
+                     #   alone, no imports, every random input an
+                     #   argument; nothing imports it yet but its vector
+                     #   builder and its test); the scrub a fetched
                      #   page's parts get before a pane imports them
                      #   (desk-inert); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page

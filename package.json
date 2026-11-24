@@ -24,6 +24,7 @@
     "build:alignment": "node scripts/build-alignment.mjs",
     "build:anchor-vectors": "node scripts/build-anchor-vectors.mjs",
     "build:sheet-golden": "node scripts/build-sheet-text-golden.mjs",
+    "build:notebook-crypto-vectors": "node scripts/build-notebook-crypto-vectors.mjs",
     "build:greek": "node scripts/build-greek.mjs",
     "review:alignment": "node scripts/alignment-review/server.mjs",
     "review:words": "node scripts/alignment-words/server.mjs",
