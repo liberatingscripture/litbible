@@ -26,7 +26,7 @@
 export const CRYPTO_VERSION = 1;
 
 /** The committed vectors' own version: it moves whenever a value in the file does. */
-export const CRYPTO_VECTORS_VERSION = 1;
+export const CRYPTO_VECTORS_VERSION = 2;
 
 export const KEY_BYTES = 32;
 export const NONCE_BYTES = 12;
@@ -666,16 +666,36 @@ function base32(bytes) {
 const grouped = (chars) => chars.match(/.{4}/g).join("-");
 
 /**
- * A typed code's characters, read as the spec says: spaces (U+0020) and
- * hyphens (U+002D) removed, a to z taken as A to Z, O read as 0, I and L as 1.
- * Any other character is refused (U included, and any other space or dash),
- * and then any other length.
+ * The characters removed from a typed or pasted code before it is read: the
+ * spec's list under "The recovery code," as code point ranges. White space
+ * (Unicode's White_Space), the invisible characters a paste can carry, and
+ * the hyphen with the dashes a word processor puts in its place. The list is
+ * the rule: every client removes exactly these, and nothing else.
+ */
+const CODE_SEPARATORS = [
+  [0x0009, 0x000d], [0x0020, 0x0020], [0x0085, 0x0085], [0x00a0, 0x00a0], [0x1680, 0x1680],
+  [0x2000, 0x200a], [0x2028, 0x2029], [0x202f, 0x202f], [0x205f, 0x205f], [0x3000, 0x3000],
+  [0x00ad, 0x00ad], [0x200b, 0x200d], [0x2060, 0x2060], [0xfeff, 0xfeff],
+  [0x002d, 0x002d], [0x2010, 0x2015], [0x2212, 0x2212], [0xfe58, 0xfe58], [0xfe63, 0xfe63], [0xff0d, 0xff0d],
+];
+
+function isCodeSeparator(ch) {
+  const cp = ch.codePointAt(0);
+  return CODE_SEPARATORS.some(([from, to]) => cp >= from && cp <= to);
+}
+
+/**
+ * A typed code's characters, read as the spec says: white space, invisible
+ * characters, and hyphens and dashes removed (CODE_SEPARATORS), a to z taken
+ * as A to Z, O read as 0, I and L as 1. Any other character is refused (U
+ * included, and a letter from another alphabet that looks like one of
+ * these), and then any other length.
  */
 function readCodeCharacters(typed, count) {
   if (typeof typed !== "string") refuse("code");
   let chars = "";
   for (const ch of typed) {
-    if (ch === " " || ch === "-") continue;
+    if (isCodeSeparator(ch)) continue;
     let c = ch >= "a" && ch <= "z" ? ch.toUpperCase() : ch;
     if (c === "O") c = "0";
     else if (c === "I" || c === "L") c = "1";

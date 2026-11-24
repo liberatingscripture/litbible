@@ -544,18 +544,32 @@ six groups of four:
 7KQ2-9XMB-4TRE-HN3A-W8CD-5FGJ
 ```
 
-(That one is made up.) Reading a code back, a client removes spaces and hyphens, takes lowercase as
-uppercase, reads `O` as `0` and `I` or `L` as `1`, and refuses any other character (`U` included) or
-a length other than 24.
+(That one is made up.) Reading a code back, a client removes white space, hyphens, and dashes, takes
+lowercase as uppercase, reads `O` as `0` and `I` or `L` as `1`, and refuses any other character
+(`U` included) or a length other than 24.
 
-**Read to the letter, as the reference does:** the space is U+0020 and the hyphen is U+002D, and
-nothing else is removed. A tab, a line break, a no-break space, an en dash, and a letter from
-another alphabet that looks like one of these are each “any other character,” and refused.
-Lowercase means `a` to `z`. Characters are checked before the length, so a code with both faults is
-reported as a wrong character. **The two groups a reader types back** (under “Setting up the first
-device”) are read by the same rules, each as four characters. A wider reading (any white space, the
-dashes a notes app swaps in) was weighed for a reader who pastes a code, and BVJ kept the strict
-one (2026-11-23; “Still open,” 23, for BDR to confirm).
+**A pasted code is forgiven what a paste brings, and every client forgives the same things** (BVJ,
+2026-11-23, changing the strict reading BVJ kept earlier that day; “Still open,” 23, for BDR to
+confirm). A reader uses this code after losing their devices, and a code that is right in every
+character must not be refused for a line break copied with it or a dash a notes app swapped in.
+Removing these costs nothing: the code’s strength is its 120 random bits, and no wrong code passes
+because of it. **The list below is the rule.** A client removes exactly these characters, wherever
+they are in what was typed, and no others, so it does not use its platform’s own idea of white
+space (JavaScript’s `\s`, Swift’s `isWhitespace`, and Kotlin’s `isWhitespace` each differ from it):
+
+| Removed | Code points |
+|---|---|
+| White space (Unicode’s `White_Space`) | U+0009 to U+000D, U+0020, U+0085, U+00A0, U+1680, U+2000 to U+200A, U+2028, U+2029, U+202F, U+205F, U+3000 |
+| Invisible characters a paste can carry | U+00AD (soft hyphen), U+200B to U+200D (zero width space, non-joiner, joiner), U+2060 (word joiner), U+FEFF (byte order mark) |
+| The hyphen and the dashes put in its place | U+002D, U+2010 to U+2015, U+2212 (minus sign), U+FE58, U+FE63, U+FF0D |
+
+Everything else that isn’t one of the 32 characters, or a letter read as one, is still “any other
+character,” and refused: an underscore, a full stop, a fullwidth digit, and a letter from another
+alphabet that looks like one of these. Lowercase means `a` to `z`. Characters are checked before
+the length, so a code with both faults is reported as a wrong character, and one that is nothing
+but removed characters is reported as a wrong length. **The two groups a reader types back** (under
+“Setting up the first device”) are read by the same rules, each as four characters, and so is an
+approval code.
 
 **The code key** is `HKDF(the 15 bytes, info "lit-notebook/1 recovery", 32 bytes)`. No slow password
 hash is needed: the code is 120 random bits, not something a person chose, so guessing it is out of
@@ -1391,7 +1405,7 @@ that by opening it again. Each group says what it tests:
 |---|---|---|
 | `hkdf` | an input and each label | each derived key |
 | `keyProof` | a notebook key | the proof, and the hash the service stores |
-| `recoveryCode`, `approvalCode` | bytes; typed forms (lowercase, spaces, `O`, `I`, `L`; a tab, an en dash, a no-break space, a look-alike letter, `U`, too few and too many characters); for the recovery code, groups typed back | the text; the bytes, or the refusal and why; whether a typed group matches |
+| `recoveryCode`, `approvalCode` | bytes; typed forms (lowercase, spaces, `O`, `I`, `L`; a tab, line breaks, dashes, no-break and zero width spaces, and every removed character at once; an underscore, a full stop, a fullwidth digit, a look-alike letter, `U`, too few and too many characters); for the recovery code, groups typed back | the text; the bytes, or the refusal and why; whether a typed group matches |
 | `base64url` | byte strings of several lengths; text with padding, `+`, `/`, a space, an impossible length, leftover bits | the text; refused |
 | `seal` | a record’s serialized text, a notebook key, `kid`, nonce | the row, the AAD (as text and as bytes), the padded length, the ciphertext, exactly. Records of several kinds, a trash record, text beyond ASCII, a record that takes no padding, one record written with its keys in another order; refused: a record whose `id` holds a line feed |
 | `open` | the rows `seal` made, and rows a client must also accept (times written two ways for one instant, a `null` `deletedAt`, an older `kid` the device still holds) | the record |
@@ -1562,7 +1576,8 @@ said yes to all nine on 2026-11-23; each still waits on BDR.
     which of the four checks stopped it. Noted too: the one case no vector tests.
 14. **How a typed code is read** (“The recovery code”): only U+0020 and U+002D are removed, other
     white space and dashes are refused, characters are checked before the length, and a group
-    typed back is read by the same rules. **(a choice)**
+    typed back is read by the same rules. **(a choice)** **Changed later on 2026-11-23**: white space,
+    invisible characters, and dashes are removed, by the list in that section (vectors version 2).
 15. **The PRF** (“The passkey”): the hashed form written out, and that `results` is the one member
     removed from a response.
 16. **A row’s `deletedAt`** (“A record on the service”): left out for a record that isn’t trash,
@@ -1641,20 +1656,19 @@ day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
 
 **From step 4b, for BDR to confirm.** Writing the reference forced a choice in each of these,
 where draft 2 made none. **BVJ said yes to all nine on 2026-11-23** (23 first, “Keep the recovery
-code pasting strict,” then 22 and 24 to 30 after a walk through each), so 22 to 30 now wait on BDR
-alone. Each took the smallest reading, is written into its section, and
+code pasting strict,” then 22 and 24 to 30 after a walk through each; **23 was then loosened the
+same day**, below), so 22 to 30 now wait on BDR alone. Each took the smallest reading, is written into its section, and
 is what the vectors test. Changing one means changing the reference and the vectors with it, which
 is cheap before the freeze. The numbers go on from 21 so that nothing above is renumbered:
 
 22. **Base64url is read strictly**: padding, `+`, `/`, a stray character, and leftover bits are
     each refused (“Fixed choices”). The other reading takes anything a lenient decoder takes.
-23. **A typed code is read to the letter**: only the space (U+0020) and the hyphen (U+002D) are
-    removed, so a tab, a line break, a no-break space, and an en dash are refused (“The recovery
-    code”). A reader who pastes a code from a note may bring a line break with it. A client can
-    trim what it likes before it reads, but then three clients trim three ways; the alternative is
-    to say here that all white space and the common dashes are removed, and change the vectors.
-    **BVJ, 2026-11-23: keep it strict**, as written and as the vectors test. Still for BDR to
-    confirm.
+23. **A typed code is read with white space, invisible characters, and dashes removed**, by one
+    list every client shares (“The recovery code”), so a code pasted from a note with a line break,
+    a no-break space, or an en dash in it is read. As built in step 4b it was read to the letter,
+    with only U+0020 and U+002D removed, and BVJ first kept that. **BVJ, later on 2026-11-23:
+    “Let’s go ahead and loosen it,”** after weighing who pastes a code and when. The reference and
+    the vectors changed with it (`CRYPTO_VECTORS_VERSION` 2). Still for BDR to confirm.
 24. **A row’s `deletedAt` is left out unless the record is trash**, and a `null` reads the same
     (“A record on the service”). The service’s own spelling of “none” is step 4c’s.
 25. **A client checks the ciphertext’s length itself** and doesn’t open a row that isn’t a padded
