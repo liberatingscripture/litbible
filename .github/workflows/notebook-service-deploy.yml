@@ -1,0 +1,165 @@
+# Deploys the notebook service's PREVIEW (workers/notebook-service) from
+# `main`, and rolls it back. READY, AND OFF: both jobs are skipped until the
+# repository variable NOTEBOOK_PREVIEW_DEPLOYS is set to "on". BVJ chose this
+# workflow on 2026-11-23 as the way BDR rolls the service back, and sets the
+# variable once the token below exists (workers/notebook-service/README.md,
+# "Who can deploy and roll back"). Until then the preview is deployed by
+# hand, from BVJ's machine.
+#
+# Why it exists: when the service breaks, BVJ answers first and BDR second
+# (STUDY-DESK-ENCRYPTION.md, "Still open," 17), and only BVJ can reach the
+# Cloudflare account. With this on, a merge to `main` deploys, and anyone with
+# write access to this repository can roll the Worker back from the Actions
+# tab ("Run workflow," action: rollback), with no access to Cloudflare at all.
+#
+# What it needs, all of it BVJ's to set up (names only here, never a value):
+#   - a GitHub environment named `notebook-preview`, limited to the `main`
+#     branch, holding the secrets CLOUDFLARE_API_TOKEN and
+#     CLOUDFLARE_ACCOUNT_ID, and optionally NOTEBOOK_PREVIEW_SECRET (the
+#     preview's own secret, which lets a deploy check itself);
+#   - the repository variable NOTEBOOK_PREVIEW_DEPLOYS = on, and, with that
+#     optional secret, NOTEBOOK_PREVIEW_URL (the preview's address).
+# The environment's branch limit is what keeps the token out of a workflow
+# pushed on any other branch: don't store these as plain repository secrets.
+#
+# It deploys with the wrangler in the package's own lockfile, the one its
+# tests ran with, and not with an action that brings its own.
+#
+# Production is not here. Step 4f adds it, as its own job and environment.
+name: Notebook service (preview)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - workers/notebook-service/**
+      - .github/workflows/notebook-service-deploy.yml
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "deploy what is on main, or roll back to an earlier version"
+        type: choice
+        options: [deploy, rollback]
+        default: deploy
+      version:
+        description: "rollback only: the version ID to return to (empty: the one before the current)"
+        type: string
+        required: false
+      reason:
+        description: "rollback only: why, in a few words (kept with the deployment; nothing personal)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+# One deploy or rollback at a time, in the order they were asked for.
+concurrency:
+  group: notebook-service-preview
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      vars.NOTEBOOK_PREVIEW_DEPLOYS == 'on' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || inputs.action == 'deploy')
+    runs-on: ubuntu-latest
+    environment: notebook-preview
+    defaults:
+      run:
+        working-directory: workers/notebook-service
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: workers/notebook-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Nothing is deployed that fails its own tests.
+      - name: Run the service's tests
+        run: npm test
+
+      # Migrations first: a migration must work with the code already deployed
+      # (README, "Migrations"), so the gap between these two steps is safe.
+      # The Cloudflare token is given to the steps that call Cloudflare and to
+      # no other: `npm ci` and the tests above never see it.
+      - name: Apply D1 migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler d1 migrations apply DB --env preview --remote
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy --env preview
+
+      # The same walkthrough the tests run, against the deployed service. It
+      # runs when the variable NOTEBOOK_PREVIEW_URL is set, and then it needs
+      # the preview's own secret stored as NOTEBOOK_PREVIEW_SECRET: set the two
+      # together. With neither, a deploy doesn't check itself.
+      - name: Check the deployed service
+        if: ${{ vars.NOTEBOOK_PREVIEW_URL != '' }}
+        env:
+          PREVIEW_SECRET: ${{ secrets.NOTEBOOK_PREVIEW_SECRET }}
+          NOTEBOOK_URL: ${{ vars.NOTEBOOK_PREVIEW_URL }}
+        run: npm run walkthrough
+
+  rollback:
+    if: >-
+      vars.NOTEBOOK_PREVIEW_DEPLOYS == 'on' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.action == 'rollback'
+    runs-on: ubuntu-latest
+    environment: notebook-preview
+    defaults:
+      run:
+        working-directory: workers/notebook-service
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: workers/notebook-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Versions before
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deployments list --env preview
+
+      # Code only: a rollback never undoes a D1 migration, which is why every
+      # migration has to work with the version before it (README, "Migrations").
+      # The inputs reach the shell as environment variables, never as text
+      # pasted into the command.
+      - name: Roll back
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION: ${{ inputs.version }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          if [ -n "$VERSION" ]; then
+            npx wrangler rollback "$VERSION" --env preview --yes --message "${REASON:-rolled back from GitHub Actions}"
+          else
+            npx wrangler rollback --env preview --yes --message "${REASON:-rolled back from GitHub Actions}"
+          fi
+
+      - name: Versions after
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deployments list --env preview

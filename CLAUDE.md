@@ -47,7 +47,7 @@ below unless it is already loaded.** Two rules keep this from decaying:
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
 | `scripts/alignment-review/CLAUDE.md`, `scripts/alignment-words/CLAUDE.md` | Pointers to the alignment file |
 | `public/CLAUDE.md` | `_headers`, the CSP, the agent discovery files |
-| `workers/CLAUDE.md` | The contact and app-support form Worker |
+| `workers/CLAUDE.md` | The contact and app-support form Worker; the notebook service (the Study Desk's sync Worker with D1), its preview and its tests; the wrangler pin both share |
 | `.github/CLAUDE.md` | Dependabot's configuration |
 
 ### Rules that apply everywhere
@@ -288,27 +288,25 @@ emails/              # Archive of hand-built HTML campaigns (not part of the sit
                      #   copying the file here, which predates that and has
                      #   neither
 workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
-                     #   part of the site build): contact-form/ backs both the
-                     #   /contact/submit and /app-support/submit form endpoints
-                     #   (two routes, one Worker) — see its README. Has its OWN
-                     #   package.json + deps (incl. its vitest suite, `npm test`
-                     #   in that dir); root `npm ci`/`npm test` don't reach it.
-                     #   Its tests run in workerd via @cloudflare/vitest-plugin,
-                     #   which pins wrangler EXACTLY: our wrangler range must
-                     #   only admit that pin, or the tree splits into a second,
-                     #   nested wrangler/miniflare/workerd (README, "wrangler's
-                     #   version is set by…")
+                     #   part of the site build), each with its OWN package.json,
+                     #   lockfile and vitest suite (`npm test` in its dir); root
+                     #   `npm ci`/`npm test` reach neither. contact-form/ backs
+                     #   the /contact/submit and /app-support/submit endpoints;
+                     #   notebook-service/ is the Study Desk's sync service (D1;
+                     #   a preview only so far). See workers/CLAUDE.md
 .githooks/           # pre-commit hook (validates staged chapter JSON)
 .github/workflows/   # ci.yml — `build` job (chapter validation, type-check, unit
                      #   tests, full build, internal-link check on push/PR) plus a
-                     #   separate `worker-tests` job (workers/contact-form has its
-                     #   own dep tree, so it needs its own npm ci);
+                     #   job for each Worker (`worker-tests`,
+                     #   `notebook-service-tests`: own dep trees, own npm ci);
+                     #   notebook-service-deploy.yml (the service's preview; OFF
+                     #   until BVJ turns it on, see workers/CLAUDE.md);
                      #   release-notes.yml (auto-updates release-notes.json on push);
                      #   apps-mirror-notify.yml (tells the LSC repo when a
                      #   mirrored /apps file or /privacy changes — see
                      #   The /apps mirror below)
-.github/dependabot.yml  # Three update streams (npm at `/`, npm at
-                     #   `/workers/contact-form`, github-actions); see
+.github/dependabot.yml  # Four update streams (npm at `/` and in each of the
+                     #   two Workers, github-actions); see
                      #   .github/CLAUDE.md before changing it
 ```
 

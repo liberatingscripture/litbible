@@ -1,0 +1,20 @@
+{
+  "name": "litbible-notebook-service",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker and D1 database that hold each signed-in reader's Study Desk notebook, sealed so the service can't read it (STUDY-DESK-ENCRYPTION.md, \"The service's interface\").",
+  "scripts": {
+    "dev": "wrangler dev --env preview",
+    "test": "vitest run",
+    "check": "wrangler deploy --env preview --dry-run --outdir=.wrangler-check",
+    "migrate:local": "wrangler d1 migrations apply DB --env preview --local",
+    "migrate:preview": "wrangler d1 migrations apply DB --env preview --remote",
+    "deploy:preview": "wrangler deploy --env preview",
+    "walkthrough": "node scripts/walkthrough.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.8.5",
+    "vitest": "^5.1.1",
+    "wrangler": "^4.149.0"
+  }
+}

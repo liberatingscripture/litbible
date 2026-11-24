@@ -5263,6 +5263,41 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      role on the Cloudflare account, or deploys that run from a merged
      pull request) and writes the steps into `DISASTER-RECOVERY.md`,
      since BDR answers second when the service breaks (BVJ, 2026-11-23).
+     **Built and deployed as a preview on 2026-11-23**, at
+     `https://notebook-preview.litbible.net`. What exists:
+     - **The Worker and its schema**, every request of the spec's “The
+       service's interface” but sign-in (4e) and the seven-day requests
+       (4f), with a test for each check in the interface's tables, the
+       vectors' walkthrough run end to end through it with the website's
+       reference as the client, and races forced at an exact point. It
+       has its own CI job and Dependabot stream.
+     - **The spec's interface section holds the final shapes**: every
+       request and answer, every size, and the word of every refusal.
+       What moved is the spec's “Changed in step 4c”; the nine places
+       that were a choice are its “Still open,” 32 to 40, for BDR to
+       confirm and BVJ to check. Item 31 (a trash record's times) is
+       built as the spec states it and is still open.
+     - **The preview's way in** (`POST /preview/session`), off unless
+       the environment's own configuration turns it on, names itself
+       the preview, and holds a secret. Production is given none of the
+       three.
+     - **A deploy workflow, ready and off**, for the second way to roll
+       back, and the preview's entry in `DISASTER-RECOVERY.md`.
+     - **The preview itself** (BVJ, 2026-11-23: "Yes, deploy it"). The
+       step's session created the D1 database, applied the schema, and
+       deployed to the address above; BVJ typed the preview's secret at
+       Wrangler's own prompt, so its value is in BVJ's password manager
+       and nowhere else. The vectors' walkthrough, run against the
+       deployed service over HTTPS, passed 8 of 8 steps. **The gate's
+       “preview service running” is met.**
+     - **How BDR rolls back is chosen** (BVJ, 2026-11-23: "Let's go
+       with the GitHub workflow"): the deploy workflow, and not a member
+       role on the Cloudflare account. It stays off until its token and
+       its GitHub environment exist
+       (`workers/notebook-service/README.md`, “Who can deploy and roll
+       back”); until then only BVJ can deploy or roll back.
+     **Left for BVJ**: to give BDR the preview's secret privately, and
+     to make the workflow's Cloudflare token so it can be turned on.
    - **4d. The freeze work** (1–2). In `STUDY-DESK-FORMAT.md` and the
      website's code together: kind 3 (`hidden`) leaves; the `ribbon`
      marker leaves kind 2, and `ribbon` and the older `bookmark` read as
@@ -7982,7 +8017,8 @@ And the two that were BVJ's alone:
   (BDR's part is for BDR to accept). Only BVJ can deploy or roll back
   today, so step 4c gives BDR a way to (a member role on the Cloudflare
   account, or deploys that run from a merged pull request; not yet
-  chosen) and writes the steps into `DISASTER-RECOVERY.md`. A break
+  chosen when this was written, and chosen later the same day: the
+  second, see step 4c) and writes the steps into `DISASTER-RECOVERY.md`. A break
   pauses sync and loses nothing, since each device keeps its own
   notebook.
 

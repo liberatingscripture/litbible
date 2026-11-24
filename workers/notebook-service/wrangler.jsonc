@@ -1,0 +1,59 @@
+// The LIT notebook service (step 4c of STUDY-DESK.md, "Order of work," 4).
+// README.md has the setup, the deploy, the rollback, and the wipe.
+//
+// Two environments, and they are deliberately not alike:
+//
+//   env.preview   The preview the apps and the website build against. Test
+//                 data only. It is the ONLY environment configured here, and
+//                 the only one that turns the preview's way in on.
+//   (top level)   Production's. Step 4f fills it in (its own database, its
+//                 address, and no PREVIEW_* of any kind). Until then it has
+//                 no bindings on purpose, so nothing can be deployed as
+//                 production by leaving `--env preview` off a command; every
+//                 npm script in package.json names the environment.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "litbible-notebook",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-18",
+  // No *.workers.dev address and no per-version preview addresses: the
+  // service answers on its own address or not at all.
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true,
+    "logs": {
+      // The platform's own line for each request holds the address that was
+      // asked for, ids and all. The service writes its own line instead, with
+      // the route as it is written in src/index.js and nothing from the request.
+      "invocation_logs": false
+    }
+  },
+
+  "env": {
+    // Deploys as the Worker "litbible-notebook-preview".
+    "preview": {
+      "routes": [{ "pattern": "notebook-preview.litbible.net", "custom_domain": true }],
+      "vars": {
+        "ENVIRONMENT": "preview",
+        // The preview's way in (src/preview.js). Production never sets this.
+        "PREVIEW_SIGN_IN": "on",
+        // Origins the website's connector may call from: the site, and `npm run dev`.
+        "ALLOWED_ORIGINS": "https://litbible.net,http://localhost:4321"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "litbible-notebook-preview",
+          // The id `wrangler d1 create litbible-notebook-preview` printed
+          // on 2026-11-23 (README, "One-time setup"). An id is not a secret.
+          // Local development and the tests never read it.
+          "database_id": "39ae93c2-7585-4442-bfa7-71d18267af69",
+          "migrations_dir": "migrations"
+        }
+      ],
+      // `wrangler deploy` refuses to deploy the preview until this secret is set.
+      "secrets": { "required": ["PREVIEW_SECRET"] }
+    }
+  }
+}

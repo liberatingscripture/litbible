@@ -1,0 +1,5 @@
+# Local development only. Copy this file to .dev.vars (which git ignores) and
+# put any 32 or more characters of your own after the equals sign. It is the
+# preview's secret for `npm run dev` on this machine and nothing else: never
+# reuse the deployed preview's secret here, and never commit .dev.vars.
+PREVIEW_SECRET=

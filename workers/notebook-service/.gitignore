@@ -1,0 +1,4 @@
+# Local secrets for `wrangler dev` (README, "Run it locally"). Never committed.
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
