@@ -52,7 +52,13 @@ jobs are skipped unless the repository variable `NOTEBOOK_PREVIEW_DEPLOYS` is
 `on`, which is its switch (`workers/CLAUDE.md`). Its secrets belong in a GitHub
 environment limited to `main` (`notebook-preview`), never in plain repository
 secrets, so that a workflow pushed on another branch can't read the
-Cloudflare token. It deploys with the wrangler in the package's own lockfile,
+Cloudflare token. **Since step 4f (2026-11-24) the same file holds two
+production jobs, off and never run**: they run only from "Run workflow" with
+environment `production`, never on a push, only while
+`NOTEBOOK_PRODUCTION_DEPLOYS` is `on` (it is not set), and from an
+environment of their own, `notebook-production`, which BVJ has not made.
+The service's `test/config.test.js` fails if either gains a `push`
+condition. It deploys with the wrangler in the package's own lockfile,
 not with an action that brings its own. The other workflows (`ci.yml`,
 `release-notes.yml`, `apps-mirror-notify.yml`) never touch Cloudflare: the
 site deploys through the Pages project's own git connection.
