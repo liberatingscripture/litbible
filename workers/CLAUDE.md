@@ -57,8 +57,17 @@ plan's step 4c in `STUDY-DESK.md`, "Order of work," 4; built 2026-11-23).
 **It is a preview only**, live at `https://notebook-preview.litbible.net`
 since 2026-11-23 and holding test data alone. **Production is prepared and
 not deployed** (step 4f, 2026-11-24: `env.production` in `wrangler.jsonc`
-with a placeholder database id, and two workflow jobs that are off), and
-the website's connector to the service is step 4g.
+with a placeholder database id, and two workflow jobs that are off).
+**The website's connector is built (step 4g, 2026-11-24;
+`src/scripts/desk/sync/CLAUDE.md`)** and changed nothing here. Two
+sentences of this package's README are stale since then ("Nothing in the
+website imports the service," and "The website's own Content Security
+Policy doesn't name this origin yet"): they were left because any change
+in this package redeploys the preview, so correct them with the next
+change that has to. **The root suite's stand-in for this service**
+(`test/helpers/fake-notebook-service.mjs`) repeats the checks, words, and
+order of `src/rows.js`, `src/session.js`, and `src/check.js` by hand: a
+change to any of them needs the same change there.
 **Sign-in is built (step 4e, 2026-11-24)**: a passkey with `litbible.net` as
 the relying party works; Sign in with Apple and with Google are built, off,
 and have never met either provider. **The account work is built (step 4f,

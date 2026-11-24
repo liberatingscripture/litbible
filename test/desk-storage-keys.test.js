@@ -26,6 +26,7 @@ import { join } from "node:path";
 
 import { LAYOUT_KEY } from "../src/lib/desk-layout.mjs";
 import { GREEK_NOTES_KEY } from "../src/lib/desk-greek-notes.mjs";
+import { SYNC_DB } from "../src/lib/desk-sync-link.mjs";
 
 const privacy = readFileSync(new URL("../src/pages/privacy.astro", import.meta.url), "utf8");
 const SRC = new URL("../src", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
@@ -111,8 +112,8 @@ test("every storage key the code writes or reads is named on /privacy, or allowl
   const channels = new Set(["lit-desk-follow-tab"]);
   // Not storage either: two of the encryption spec's labels (an HKDF `info` and an HPKE `info`), found
   // because they sit under property names that hold "key" (LABELS.passkey, LABELS.keyring). That module
-  // has no storage at all, and test/desk-crypto.test.js holds it to that. A store the synced notebook
-  // adds later (step 4g) is a real key, and is named on /privacy like any other.
+  // has no storage at all, and test/desk-crypto.test.js holds it to that. The synced notebook's own
+  // storage (step 4g) is a database, not a key, so this scan can't find it: the test below holds it.
   const cryptoLabels = new Set(["lit-notebook/1 passkey", "lit-notebook/1 keyring"]);
   const named = new Set(privacyCodeKeys());
   const missing = [...found]
@@ -136,6 +137,21 @@ test("every key /privacy names in code is still in the code", () => {
 test("the two keys the layout and Greek-notes rules export are the ones /privacy names", () => {
   assert.ok(privacy.includes(`<code>${LAYOUT_KEY}</code>`));
   assert.ok(privacy.includes(`<code>${GREEK_NOTES_KEY}</code>`));
+});
+
+test("the synced notebook's storage is named on /privacy, and it adds no local or session storage", () => {
+  // The sync keeps its state in one IndexedDB database of its own (sync/sync-db.js) and one value in
+  // the notebook's meta store; neither is a key the scan above can see.
+  assert.ok(privacy.includes(`<code>${SYNC_DB}</code>`), `/privacy names the database ${SYNC_DB}`);
+  const dir = join(SRC, "scripts", "desk", "sync");
+  const files = [...sources(dir), join(SRC, "lib", "desk-sync.mjs"), join(SRC, "lib", "desk-sync-engine.mjs"), join(SRC, "lib", "desk-sync-link.mjs"), join(SRC, "lib", "desk-sync-status.mjs")];
+  assert.ok(files.length >= 9, "the sync's files were found");
+  for (const file of files) {
+    const text = readFileSync(file, "utf8");
+    assert.ok(!/\b(?:localStorage|sessionStorage|document\.cookie)\b/.test(text.replace(/\/\/.*$/gm, "")), `${file} uses storage /privacy doesn't name`);
+    // Every database the sync opens is the one named.
+    for (const m of text.matchAll(/\.open\(\s*(["'`])([^"'`]+)\1/g)) assert.ok(m[2] === SYNC_DB || m[2] === "lit-desk", `${file} opens ${m[2]}`);
+  }
 });
 
 test("every cookie a rendered component sets is named on /privacy, and the page counts them right", () => {

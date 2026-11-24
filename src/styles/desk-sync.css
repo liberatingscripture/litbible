@@ -1,0 +1,125 @@
+/* src/styles/desk-sync.css
+
+   The synced notebook's status line (the plan's step 4g): where it stands,
+   what couldn't be synced, and "Reconnect." Added to the page as a <style> by
+   src/scripts/desk/sync/status-line.js, which only a browser linked to an
+   account ever downloads, so no other reader carries these rules (a plain
+   CSS import would be gathered into every page's stylesheet; desk/boot.js).
+
+   The line sits in a slot a desk page leaves for it (`[data-desk-sync-slot]`:
+   the Notebook's Settings tab, the notebook page), and takes its type from
+   where it sits. Sizes follow the Display tray's text size through --desk-ui,
+   as every desk rule does (test/desk-text-size.test.js). */
+
+.desk-sync {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border-radius: 8px;
+  color: rgba(var(--ink-rgb), 0.86);
+}
+
+.desk-sync[data-state="ok"] {
+  border-color: rgba(var(--ink-rgb), 0.1);
+}
+
+/* A state that needs the reader is marked by a heavier edge as well as its words, never by color alone. */
+.desk-sync[data-state="stopped"] {
+  border-left-width: 4px;
+  border-color: rgba(var(--ink-rgb), 0.5);
+}
+
+.desk-sync__label {
+  margin: 0 0 2px;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  font-weight: 600;
+}
+
+.desk-sync__line {
+  margin: 0;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: calc(1.45 + var(--desk-leading, 0));
+}
+
+.desk-sync__detail {
+  margin: 6px 0 0;
+  padding: 0 0 0 1.1em;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: calc(1.45 + var(--desk-leading, 0));
+}
+
+.desk-sync__detail li + li {
+  margin-top: 4px;
+}
+
+.desk-sync__again {
+  margin: 8px 0 0;
+  padding: 5px 12px;
+  border: 1px solid rgba(var(--ink-rgb), 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desk-sync__again:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.desk-sync__again:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.desk-sync__again[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* The notebook page is wide: the line keeps to a reading width there. */
+.desk-np > [data-desk-sync-slot] .desk-sync {
+  max-width: calc(60 * var(--ch));
+  margin-bottom: 1rem;
+}
+
+@media print {
+  .desk-sync {
+    display: none;
+  }
+}
+
+/* The dot that says the sync has stopped and needs the reader
+   (sync/stopped-notice.js stamps <html data-desk-sync="stopped">): the dot a
+   backup that is due shows, in the same places (desk-tab.css and desk.css,
+   [data-desk-due]). The minimized tab is positioned already. In forced
+   colors, Highlight, since a background alone draws nothing there. */
+html[data-desk-sync="stopped"] :is([data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item]) {
+  position: relative;
+}
+
+html[data-desk-sync="stopped"] :is(.desk-tab, [data-desk-toggle])::after,
+html[data-desk-sync="stopped"] :is(.desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item])::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green-text);
+}
+
+html[data-desk-sync="stopped"] :is(.desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item])::after {
+  top: 3px;
+  right: 3px;
+}
+
+@media (forced-colors: active) {
+  html[data-desk-sync="stopped"] :is(.desk-tab, [data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item])::after {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}

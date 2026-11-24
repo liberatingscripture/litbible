@@ -36,6 +36,7 @@ import { startState } from "../../lib/desk-start.mjs";
 import {
   CHANNEL, REMIND_HOME, REMIND_HOME_KEY, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook, peekReminder,
 } from "../../lib/desk-first-stage.mjs";
+import { peekLinked } from "../../lib/desk-sync-link.mjs";
 import { createRail } from "./margin.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { addTabStyle, notebookTab } from "./notebook-tab.js";
@@ -80,6 +81,21 @@ function beginReminder(where) {
       getFacts: () => peekReminder({ idb: indexedDB, now: new Date() }),
     }))
     .catch((err) => console.error("Study Desk: the backup reminder didn’t start", err));
+}
+
+/**
+ * A browser linked to an account syncs its notebook on a reading page too,
+ * before the shell and without it (the plan's step 4g): what another device
+ * wrote arrives, and what waits here goes out. One look at the notebook's
+ * link, which never creates the notebook; with no link, which is every reader
+ * until the account pages exist, nothing more is loaded. Where the shell is
+ * loading anyway, its store does this itself (store.js).
+ */
+function beginSync() {
+  if (!globalThis.indexedDB) return;
+  peekLinked({ idb: indexedDB })
+    .then((linked) => (linked ? import("./sync/start.js").then((m) => m.startSyncAlone()) : null))
+    .catch((err) => console.error("Study Desk: syncing didn’t start", err));
 }
 
 /**
@@ -152,6 +168,8 @@ async function drawAndWait({ where, state, importShell, leave }) {
   leave.skip = skip;
   // The backup reminder: a read-only look, so the shell stays unloaded (E113).
   beginReminder(where);
+  // And the sync, for a browser linked to an account.
+  beginSync();
 
   /* ── Loading stage two ───────────────────────────────────────────── */
 

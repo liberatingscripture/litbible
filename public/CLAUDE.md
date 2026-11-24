@@ -21,7 +21,12 @@
   report-only allowlist so it stays an accurate inventory. **Revisit enforcing
   the full policy if the site ever gains logins/accounts/sessions** (e.g. a
   members area) — the "static site with no secrets" premise behind the
-  report-only decision stops holding at that point.
+  report-only decision stops holding at that point. **That point is the
+  Study Desk's account pages (plan step 4h)**: since step 4g the allowlist
+  names the notebook service's two origins in `connect-src`, and a linked
+  browser holds a session and device keys in IndexedDB. **Enforcing the
+  full policy before sign-in ships is the plan's step 4i** (`STUDY-DESK.md`,
+  "Order of work," 4): review a week of reports first.
 - **Agent/AI discovery surface** lives in static files, all served as-is from
   `public/`. They only take effect on a deployed Cloudflare Pages site — `dev`
   and `astro preview` do **not** apply `_headers`:
