@@ -2,7 +2,7 @@
 //
 // test/fixtures/notebook-crypto-vectors.json ends with one notebook followed
 // from its first device to a recovery, every value along the way. This file
-// plays those eight steps against the service: each device sends exactly the
+// plays those steps against the service: each device sends exactly the
 // sealed values the vectors give, reads back what the service kept, and opens
 // it with the reference the website ships (src/lib/desk-crypto.mjs), making
 // the checks a real device makes. The service never opens anything.
@@ -15,10 +15,13 @@
 // So it uses nothing but what it is handed: `call` (one request), `ref` (the
 // reference), `vectors`, the preview's `secret`, and a test account's name.
 //
-// One step goes beyond the vectors: the last pushes a row of the largest size
+// Two steps go beyond the vectors. The eighth pushes a row of the largest size
 // the format allows and reads it back. The suite proves the check on a row's
 // size; this proves that the database behind a deployed service really holds
-// such a row, which only a deploy can show.
+// such a row, which only a deploy can show. The ninth (step 4f) asks to
+// delete the account from a session without the key, sees it wait, cancels
+// it, and then deletes the account at once from a device that has the key,
+// so a run leaves nothing behind.
 
 /** How long a `ct` is as base64url, for a padded record of this many bytes and its 16-byte tag. */
 const ctChars = (padded) => Math.ceil(((padded + 16) * 4) / 3);
@@ -390,6 +393,25 @@ export function walkthroughSteps({ call, ref, vectors, secret, account }) {
     same(tooLarge.refused, "too_large", "a row one block larger");
     const removed = ok(await call("POST", "/rows", { ...as("D"), body: { remove: [{ id: row.id, rev: stored.rev }] } }), "D removes it");
     same(removed.remove, [{ id: row.id, removed: true }], "the removal");
+  });
+
+  step("Beyond the vectors: a sign-in without the key asks to delete and must wait; D cancels it, then deletes the account at once", async () => {
+    await signIn("E");
+    const asked = ok(await call("DELETE", "/account?platform=web", as("E")), "E asks to delete the account");
+    same([asked.deleted, asked.waiting?.what, asked.waiting?.mine], [false, "delete", true], "a request from a session without the key");
+    same(Date.parse(asked.waiting.due) - Date.parse(asked.waiting.asked), 7 * 24 * 60 * 60 * 1000, "how long it waits, in milliseconds");
+    refused(await call("POST", "/notebook/replace", { ...as("E"), body: { platform: "web" } }), 409, "exists", "a second request while one waits");
+    const seen = ok(await call("GET", "/account", as("D")), "D reads the account").waiting;
+    same([seen?.what, seen?.platform, seen?.mine], ["delete", "web", false], "the request as D is shown it");
+    same(ok(await call("DELETE", "/waiting", as("D")), "D cancels it").canceled, "delete", "what D canceled");
+    same(ok(await call("GET", "/account", as("E")), "E reads the account").waiting, null, "the request, once canceled");
+    // The account goes, and with it the test data this run made. On a deployed service this is
+    // the one statement that deletes everything that hangs from an account, on the real database.
+    same(ok(await call("DELETE", "/account", as("D")), "D deletes the account").deleted, true, "the deletion");
+    for (const who of ["B", "C", "D", "E"]) refused(await call("GET", "/account", as(who)), 401, "sign_in", `${who}'s session, after the account is deleted`);
+    const again = ok(await call("GET", "/account", { token: await signIn("F") }), "the same name signs in again");
+    same([again.notebook, again.kid, again.ways.length], [null, 0, 1], "a new, empty account under the same name");
+    same(ok(await call("DELETE", "/account", as("F")), "the empty account is deleted too").deleted, true, "the second deletion");
   });
 
   return out;

@@ -35,6 +35,9 @@ const approvalId = () => [...ref.randomBytes(16)].map((b) => b.toString(16).padS
 /** Every route that needs a session, as [method, path]. Ids are made up: authentication comes first. */
 const NEEDS_A_SESSION = [
   ["GET", "/account"],
+  ["DELETE", "/account"],
+  ["DELETE", "/waiting"],
+  ["POST", "/notebook/replace"],
   ["POST", "/session/proof"],
   ["POST", "/notebook"],
   ["POST", "/notebook/key"],
@@ -190,6 +193,8 @@ async function closedSession() {
     ["POST /ways/apple", "POST", "/ways/apple", {}],
     ["POST /ways/google", "POST", "/ways/google", {}],
     ["DELETE /ways/:id", "DELETE", `/ways/${uuid()}`, undefined],
+    // Canceling a request that waits is for a session with the key (or the one that asked).
+    ["DELETE /waiting", "DELETE", "/waiting", undefined],
   ];
   const signedIn = [
     ["GET /account", "GET", "/account", undefined, 200, undefined],
@@ -209,6 +214,10 @@ async function closedSession() {
     ["POST /approvals", "POST", "/approvals", asking.body, 200, undefined],
     ["DELETE /devices/:id", "DELETE", `/devices/${device.id}`, undefined, 422, "not_allowed"],
     ["POST /approvals/:id/accept", "POST", `/approvals/${approvalId()}/accept`, { kid: 1, proof: random32() }, 410, "gone"],
+    // A session without the key may ask to replace the notebook or delete the account; either
+    // waits seven days, and the second is told that one is waiting already.
+    ["POST /notebook/replace", "POST", "/notebook/replace", { platform: "web" }, 200, undefined],
+    ["DELETE /account", "DELETE", "/account?platform=web", undefined, 409, "exists"],
     // Last, since it ends the session the rows above were sent from.
     ["DELETE /session", "DELETE", "/session", undefined, 200, undefined],
   ];
@@ -232,6 +241,7 @@ describe("signed in and not open", () => {
         "POST /ways/apple",
         "POST /ways/google",
         "DELETE /ways/:id",
+        "DELETE /waiting",
       ].sort(),
     );
     for (const [name, method, path, body] of open) {

@@ -11,7 +11,7 @@
 //   - never on a link shared into scripture: a verse (#v16), a range
 //     (#v16-17), part of a verse (#john-8-p9), a Read View verse
 //     (#john-3-v16)
-//   - never on /apps or /privacy, which people open to act on or to read
+//   - never on /apps, /privacy, or /delete-account, which people open to act on or to read
 //     terms, not to be pitched to, nor on the Study Desk's notebook page or
 //     its help page (E73, 2026-11-10), which people open in the middle of a
 //     task
@@ -25,7 +25,7 @@
 // with the Android banner, say) is passed in as `skip`, so nothing about one
 // announcement is written into the slot itself.
 
-const SUPPRESSED_PATHS = /^\/(apps|privacy|notebook|collections|desk\/help)\/?$/;
+const SUPPRESSED_PATHS = /^\/(apps|privacy|delete-account|notebook|collections|desk\/help)\/?$/;
 const VERSE_LINK = /^#(?:v\d+(?:-\d+)?|[0-9a-z]+-\d+-[pv]\d+)$/;
 const SCRIPTURE_SURFACES = ".scripture-layout--scripture, .scripture-layout--intro, .rm-page, [data-desk-page], [data-sheet-page]";
 

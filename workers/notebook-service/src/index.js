@@ -32,21 +32,25 @@ import {
   postPasskeySignIn,
 } from "./signin.js";
 import { deleteWay, postWayApple, postWayGoogle, postWayPasskey, postWayPasskeyOptions } from "./ways.js";
+import { deleteAccount, deleteWaiting, postReplace } from "./waiting.js";
+import { RETRY_SECONDS, limit } from "./limits.js";
+import { scheduled } from "./scheduled.js";
 
 /** The interface's version: the `/1` of the spec's labels. */
 const INTERFACE = 1;
 
-// Step 4f adds DELETE /account, POST /notebook/replace, and DELETE /waiting
-// ("Waiting seven days"). It changes no line below.
 const ROUTES = [
   ["GET", "/", root],
   ["GET", "/sign-in", getSignIn],
   ["DELETE", "/session", deleteSession],
   ["DELETE", "/ways/:id", deleteWay],
   ["GET", "/account", getAccount],
+  ["DELETE", "/account", deleteAccount],
+  ["DELETE", "/waiting", deleteWaiting],
   ["POST", "/session/proof", postProof],
   ["POST", "/notebook", postNotebook],
   ["POST", "/notebook/key", postNotebookKey],
+  ["POST", "/notebook/replace", postReplace],
   ["GET", "/holders", getHolders],
   ["POST", "/holders", postHolders],
   ["GET", "/keyring", getKeyring],
@@ -157,6 +161,13 @@ function withCors(response, cors) {
   return new Response(response.body, { status: response.status, headers });
 }
 
+/** A "slow_down" says how long to wait in a header too, where an HTTP client looks for it. */
+function withRetryAfter(response) {
+  const headers = new Headers(response.headers);
+  headers.set("retry-after", String(RETRY_SECONDS));
+  return new Response(response.body, { status: response.status, headers });
+}
+
 export default {
   async fetch(request, env) {
     const started = Date.now();
@@ -171,12 +182,15 @@ export default {
     let response;
     let word;
     try {
+      // Counted before anything is read or written, a path that doesn't exist included.
+      await limit(env, request, route?.name);
       if (!route) throw new Refusal(404, "not_found");
       response = await route.handler({ request, env, url, params: route.params });
     } catch (error) {
       if (error instanceof Refusal) {
         word = error.code;
         response = refusalAnswer(error);
+        if (word === "slow_down") response = withRetryAfter(response);
       } else {
         word = "error";
         // What an error says may quote what it was given, so only its kind is
@@ -209,4 +223,7 @@ export default {
     );
     return withCors(response, cors);
   },
+
+  // Every hour: the requests that have waited seven days, and the sweep (src/scheduled.js).
+  scheduled,
 };

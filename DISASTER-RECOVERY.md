@@ -123,8 +123,9 @@ Losing this account is the worst case — it holds five distinct things:
 
 The Study Desk's sync service (`workers/notebook-service/`; the plan's step
 4c in `STUDY-DESK.md`). The preview was created and deployed on 2026-11-23
-by a session at BVJ's word, with BVJ typing the secret. Production is step
-4f, which finishes this section.
+by a session at BVJ's word, with BVJ typing the secret. Production is
+prepared and not deployed: its own entry follows this one. **When either
+breaks, the one-page protocol is `workers/notebook-service/RUNBOOK.md`.**
 
 - **What it adds to the account**: a Worker, `litbible-notebook-preview`;
   a D1 database of the same name (western North America); one Worker
@@ -145,8 +146,8 @@ by a session at BVJ's word, with BVJ typing the secret. Production is step
 - **Who answers when it breaks**: BVJ first, BDR second (BVJ, 2026-11-23;
   BDR's part is BDR's to accept). **Anyone with write access to this
   repository can roll back, with no access to Cloudflare**: Actions,
-  "Notebook service (preview)," "Run workflow" on `main`, action
-  `rollback` (empty version: the one before the current). That is the
+  "Notebook service," "Run workflow" on `main`, environment `preview`,
+  action `rollback` (empty version: the one before the current). That is the
   workflow `.github/workflows/notebook-service-deploy.yml`, BVJ's choice
   on 2026-11-23 over a member role on this account. **It is on, and was
   tried that day**: a deploy, a rollback, and a second deploy each
@@ -170,6 +171,45 @@ by a session at BVJ's word, with BVJ typing the secret. Production is step
   those come from BDR's Apple developer account and Google Cloud project,
   which are two more dashboards this service will then depend on: record
   them here when they are in use.
+
+### The notebook service's production (prepared 2026-11-24, NOT deployed)
+
+Step 4f of the plan wrote everything production needs into the repository
+and created nothing. **No reader's notebook is on any service yet.**
+Whether and when to deploy is BVJ's; the steps are in
+`workers/notebook-service/README.md`, "Production."
+
+- **What it will add to the account, when deployed**: a Worker,
+  `litbible-notebook-production`; a D1 database, `litbible-notebook`, made
+  by hand first (its id in `wrangler.jsonc` is a placeholder of zeros until
+  then, and nothing deploys with it); a Custom Domain,
+  `notebook.litbible.net`, with one record in the zone; a cron trigger,
+  hourly; and two rate limit bindings, which are configuration and no
+  resource. It should run on Workers Paid.
+- **What it will hold**: every signed-in reader's notebook, sealed on their
+  devices with keys the service never has, and the plain fields
+  `STUDY-DESK-ENCRYPTION.md` lists under "What the service holds." **This
+  is the one thing in the whole deployment that the repository cannot
+  rebuild.**
+- **Its backup is D1's Time Travel**: any minute of the last 30 days (7 on
+  the Free plan), restored with `wrangler d1 time-travel restore`. There is
+  no other copy, by design: a second copy is a second place a deleted
+  account would linger. A restore undoes deletions made since, so it is
+  BVJ's call each time (`RUNBOOK.md`, 4).
+- **Losing the database entirely** loses the synced copies and no reader's
+  notebook: every device holds its own, whole, and pushes it again once a
+  reader signs in and sets up. They would need their recovery code or
+  passkey only for a notebook the service still held, so a new, empty
+  database means every reader sets up again as a first device.
+- **Deleting accounts depends on the hourly run**, which carries out
+  requests that waited seven days. If the cron trigger is lost, nothing is
+  deleted until it is back (`RUNBOOK.md`, 6).
+- **Roll back, and who answers**: as for the preview, with environment
+  `production` in the workflow. The workflow's production jobs never run on
+  a merge, and stay skipped until BVJ sets `NOTEBOOK_PRODUCTION_DEPLOYS`.
+- **The site serves one page for it**, `/delete-account/`, the address
+  Google Play asks for. It is out of search and the sitemap until accounts
+  open.
 
 ## DNS record inventory (litbible.net zone, 2026-07-18)
 
@@ -304,11 +344,15 @@ deploy workflow on; the fifth is not set yet:
 | `CLOUDFLARE_API_TOKEN` | GitHub environment `notebook-preview` (limited to `main`) | A Cloudflare API token, named `litbible-notebook-preview-deploys` on the account's API tokens page, that can deploy and roll back Workers and run D1 migrations on this account, and nothing else (Workers Scripts, Workers Tail read, and D1 on the account; Workers Routes on the `litbible.net` zone). Never expires, like the two tokens above and for the same reason. Kill switch: Cloudflare dashboard, Account API tokens, "Roll" (then update this secret) or "Delete." Losing it stops the workflow and nothing else; deploys by hand still work. |
 | `CLOUDFLARE_ACCOUNT_ID` | the same environment | The account's ID. Not a secret in itself; kept beside the token. |
 | `NOTEBOOK_PREVIEW_SECRET` | the same environment, optional | The same value as `PREVIEW_SECRET`, so that a deploy can run its own check against the preview. Change the two together. |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | GitHub environment `notebook-production`, **which does not exist yet** (2026-11-24) | Production's own copy of the two above, for the workflow's production jobs. Made when BVJ decides to deploy production (the service's README, "Production," step 4): limit the environment to `main` and add BVJ as a required reviewer. The token may be a second one with the same four permissions, or the preview's. Same kill switch. |
 | `APPLE_PRIVATE_KEY` | Worker secret, **not yet set** (2026-11-24) | The Sign in with Apple key from BDR's Apple developer account: the whole text of its `.p8` file. Sign in with Apple stays off until it and its three variables are set (the service's README, "Apple and Google"). When it is: BVJ types it at Wrangler's own prompt, `npx wrangler secret put APPLE_PRIVATE_KEY --env preview`. The service uses it to sign the short-lived token Apple asks for when it trades a sign-in's code or revokes a refresh token, and for nothing else. If it leaks: revoke the key in the Apple developer account (Certificates, Identifiers & Profiles, Keys), make a new one, and set the new key and its `APPLE_KEY_ID`. Apple lets a key be downloaded once, so a lost file means a new key. |
 
 The workflow is switched by two repository **variables** (not secrets):
 `NOTEBOOK_PREVIEW_DEPLOYS` (`on` to enable it; absent, both of its jobs are
-skipped) and `NOTEBOOK_PREVIEW_URL` (the preview's address).
+skipped) and `NOTEBOOK_PREVIEW_URL` (the preview's address). Production's
+two jobs have their own pair, **neither set** (2026-11-24):
+`NOTEBOOK_PRODUCTION_DEPLOYS` and `NOTEBOOK_PRODUCTION_URL`. Production has
+no Worker secret of its own until Sign in with Apple is turned on there.
 
 There are **no other secrets**. The site build needs none (the podcast fetch
 is an unauthenticated public feed; Brevo/GiveLively integrations are
@@ -351,7 +395,9 @@ smoke tests) is in `workers/contact-form/README.md`.
 **The notebook service's preview** (independent of the site and of the
 forms' Worker, and holding only test data): `workers/notebook-service/README.md`,
 "One-time setup." Its last step runs a scripted check against the deployed
-service.
+service. **Production**, once it exists: the same README, "Production."
+Its code and configuration come back from the repository; **its data comes
+back only from D1's Time Travel**, and only within 30 days.
 
 **Verify after redeploy:**
 

@@ -1,16 +1,25 @@
-// The LIT notebook service (step 4c of STUDY-DESK.md, "Order of work," 4).
-// README.md has the setup, the deploy, the rollback, and the wipe.
+// The LIT notebook service (steps 4c, 4e, and 4f of STUDY-DESK.md, "Order of
+// work," 4). README.md has the setup, the deploy, the rollback, and the wipe;
+// RUNBOOK.md has what to do when it breaks.
 //
-// Two environments, and they are deliberately not alike:
+// Two environments, each named, and they are deliberately not alike:
 //
-//   env.preview   The preview the apps and the website build against. Test
-//                 data only. It is the ONLY environment configured here, and
-//                 the only one that turns the preview's way in on.
-//   (top level)   Production's. Step 4f fills it in (its own database, its
-//                 address, and no PREVIEW_* of any kind). Until then it has
-//                 no bindings on purpose, so nothing can be deployed as
-//                 production by leaving `--env preview` off a command; every
-//                 npm script in package.json names the environment.
+//   env.preview      The preview the apps and the website build against. Test
+//                    data only. The only environment that turns the preview's
+//                    way in on.
+//   env.production   Readers' notebooks. PREPARED IN STEP 4F AND NOT
+//                    DEPLOYED: its database doesn't exist yet, and the id
+//                    below is a placeholder that no deploy can succeed with
+//                    (README, "Production"). It has no PREVIEW_* of any kind
+//                    and no PASSKEY_LOCAL_ORIGINS, and test/config.test.js
+//                    holds it to that.
+//   (top level)      Nothing: no binding, no route, no trigger. A command
+//                    that leaves `--env` off therefore reaches no database
+//                    and answers at no address. Every npm script in
+//                    package.json names its environment.
+//
+// Bindings, variables, triggers, and rate limits are not inherited by a named
+// environment, so each is written out in both.
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "litbible-notebook",
@@ -74,8 +83,58 @@
           "migrations_dir": "migrations"
         }
       ],
+      // Every hour, at seventeen past: the requests that have waited seven
+      // days are carried out, and what ran out is swept (src/scheduled.js).
+      "triggers": { "crons": ["17 * * * *"] },
+      // How often one address may ask (src/limits.js). A namespace id is a
+      // number of our own choosing, unique on the account; it is not a
+      // resource to create and not a secret. `period` is in seconds.
+      "ratelimits": [
+        // The requests that begin a sign-in: 60 a minute from one address.
+        { "name": "SIGN_IN_LIMIT", "namespace_id": "4101", "simple": { "limit": 60, "period": 60 } },
+        // Every other request: 1,200 a minute from one address.
+        { "name": "REQUEST_LIMIT", "namespace_id": "4102", "simple": { "limit": 1200, "period": 60 } }
+      ],
       // `wrangler deploy` refuses to deploy the preview until this secret is set.
       "secrets": { "required": ["PREVIEW_SECRET"] }
+    },
+
+    // Deploys as the Worker "litbible-notebook-production". NOT DEPLOYED, and
+    // not to be until BVJ says so (README, "Production").
+    "production": {
+      "routes": [{ "pattern": "notebook.litbible.net", "custom_domain": true }],
+      "vars": {
+        "ENVIRONMENT": "production",
+        // The website alone. No dev server.
+        "ALLOWED_ORIGINS": "https://litbible.net",
+        "PASSKEY_RP_ID": "litbible.net",
+        // The same origins as the preview's, without the dev server's:
+        // the root's test/link-files.test.js keeps both lists equal to the
+        // certificates in public/.well-known/assetlinks.json.
+        "PASSKEY_ORIGINS": "https://litbible.net,android:apk-key-hash:i0jYJmPpHB9l29QmwXak-oP4_MisDdoXizByqeH510k,android:apk-key-hash:1fwRSSnQjSYWhPzTsioZe2Wjm838nZnc6GVT8PMwlEU"
+
+        // Never here: PREVIEW_SIGN_IN, PREVIEW_SECRET, PASSKEY_LOCAL_ORIGINS.
+        // Apple and Google are off until BDR's identifiers are configured,
+        // exactly as on the preview.
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "litbible-notebook",
+          // A PLACEHOLDER. The database doesn't exist. BVJ makes it with
+          // `npx wrangler d1 create litbible-notebook` and puts the id it
+          // prints here (README, "Production," step 2). Until then no
+          // migration and no deploy of production can succeed, and the
+          // workflow's production job refuses to start.
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "triggers": { "crons": ["17 * * * *"] },
+      "ratelimits": [
+        { "name": "SIGN_IN_LIMIT", "namespace_id": "4111", "simple": { "limit": 60, "period": 60 } },
+        { "name": "REQUEST_LIMIT", "namespace_id": "4112", "simple": { "limit": 1200, "period": 60 } }
+      ]
     }
   }
 }

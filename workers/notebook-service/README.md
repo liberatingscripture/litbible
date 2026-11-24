@@ -12,14 +12,18 @@ answer, every size, and the word of every refusal is a row of that section,
 and each check has a test. Read that section before changing anything in
 `src/`; change the two together.
 
-This is steps 4c and 4e of the plan in `STUDY-DESK.md` ("Order of work," 4).
-**What it is today: the whole interface but the seven-day requests, under
-test, and deployed as a preview at `https://notebook-preview.litbible.net`
-(since 2026-11-23, test data only).** A passkey signs in (step 4e,
-2026-11-24). Sign in with Apple and with Google are built and off, and have
-never met either provider ("Apple and Google" below). It has no production
-deployment, and nothing in the website imports it (the website's connector
-is step 4g).
+This is steps 4c, 4e, and 4f of the plan in `STUDY-DESK.md` ("Order of work,"
+4). **What it is today: the whole interface, under test, and deployed as a
+preview at `https://notebook-preview.litbible.net` (since 2026-11-23, test
+data only).** A passkey signs in (step 4e, 2026-11-24). Sign in with Apple
+and with Google are built and off, and have never met either provider
+("Apple and Google" below). Deleting an account, the requests that wait
+seven days, the hourly run, and the limits are built (step 4f, 2026-11-24;
+"The account work" below). **Production is prepared and not deployed**
+("Production" below): no reader's notebook is on any service yet. Nothing in
+the website imports the service (the website's connector is step 4g).
+
+**When it breaks, read `RUNBOOK.md`**, one page, in this directory.
 
 ## What is here
 
@@ -41,11 +45,16 @@ src/devices.js     the device and holder lists
 src/key.js         POST /notebook/key, the change of key
 src/rows.js        GET /rows, POST /rows
 src/approvals.js   the four approval requests
+src/waiting.js     DELETE /account, POST /notebook/replace, DELETE /waiting, and what is done when one falls due
+src/scheduled.js   the hourly run: what is due is carried out, what ran out is swept
+src/limits.js      how often an address may ask
 src/lists.js       what the list requests share
 src/preview.js     the preview's way in (never in production)
 migrations/        the D1 schema, one numbered file a change
 test/              the suite: it runs the Worker in workerd on a real local D1
-scripts/walkthrough.mjs   the check to run against a deployed service
+scripts/walkthrough.mjs        the check to run against a deployed preview
+scripts/check-production.mjs   the check to run against a deployed production (no secret, writes nothing)
+RUNBOOK.md         what to do when the service breaks, on one page
 ```
 
 The package is on its own: its own `package.json` and lockfile, as
@@ -56,13 +65,19 @@ and nothing of the service ships to the site.
 
 ## Configuration, by name
 
-All of it is in `wrangler.jsonc`. The top level is production's and is
-deliberately empty of bindings until step 4f; `env.preview` is the preview.
+All of it is in `wrangler.jsonc`, in two named environments: `env.preview`
+and `env.production`. **The top level is deliberately empty**, so a command
+that leaves `--env` off reaches no database and answers at no address. A
+named environment inherits no binding, variable, trigger, or rate limit, so
+each is written out in both, and `test/config.test.js` holds the file to
+what each must and must not have.
 
 | Name | Kind | What it is |
 |---|---|---|
-| `DB` | D1 binding | The database. The preview's is named `litbible-notebook-preview` |
-| `ENVIRONMENT` | variable | `preview` on the preview. The preview's way in works only where this says exactly that |
+| `DB` | D1 binding | The database. The preview's is named `litbible-notebook-preview`; production's is to be `litbible-notebook`, and doesn't exist yet |
+| `ENVIRONMENT` | variable | `preview` or `production`. The preview's way in works only where this says exactly `preview` |
+| `SIGN_IN_LIMIT`, `REQUEST_LIMIT` | rate limit bindings | How often one address may ask: 60 a minute to begin a sign-in, 1,200 a minute for everything else ("The account work" below). Each environment has its own two namespaces. A namespace id is a number we choose; it is no resource to create and no secret |
+| the cron trigger | `triggers.crons` | `17 * * * *`: every hour, at seventeen past, the hourly run |
 | `PREVIEW_SIGN_IN` | variable | `on` on the preview, and set nowhere else |
 | `ALLOWED_ORIGINS` | variable | The origins a browser may call from, comma separated (the website, and its dev server) |
 | `PREVIEW_SECRET` | Wrangler secret | What `POST /preview/session` asks for. At least 32 characters. The preview only, never production |
@@ -88,7 +103,7 @@ Nothing here needs a Cloudflare account.
 cd workers/notebook-service
 npm ci
 npm test                 # the whole suite, in workerd, on a local D1
-npm run check            # bundles the Worker as a deploy would, and uploads nothing
+npm run check            # bundles the Worker as each environment's deploy would, and uploads nothing
 ```
 
 To run it as a server, for an app's debug build or the walkthrough:
@@ -102,8 +117,13 @@ npm run dev                       # http://localhost:8787
 Then, in another shell:
 
 ```bash
-npm run walkthrough      # eight steps, against http://localhost:8787
+npm run walkthrough      # nine steps, against http://localhost:8787
 ```
+
+To start the hourly run by hand, run the server with
+`npx wrangler dev --env preview --test-scheduled` and open
+`http://localhost:8787/__scheduled`. Its one log line appears in the
+server's output.
 
 For a local address the script reads the secret from `.dev.vars` itself, and
 it never prints it.
@@ -145,14 +165,33 @@ against a local D1 made from the real migrations.
   log.
 - `preview.test.js`: the preview's way in answers "not found" unless the
   environment turns it on.
+- `waiting.test.js`: `DELETE /account`, `POST /notebook/replace`, and
+  `DELETE /waiting`, one test for each check, with Apple stood in for; and
+  the deletion of a notebook of 20,000 rows.
+- `scheduled.test.js`: the hourly run. **Time is tested two ways**: the run
+  is given an instant, so a test stands exactly on a request's `due` and one
+  millisecond before it; and the Worker's own `scheduled` handler is run
+  with the clock itself moved, so the path a real run takes is the one
+  tested. Also what a run does when Apple is down, when one request fails,
+  and when more are due than one run takes; and the sweep.
+- `waiting-races.test.js`: the account work where two requests meet, or a
+  request and a run. Each condition in a statement of `src/waiting.js` was
+  taken out in turn, and a test here failed each time.
+- `limits.test.js`: the two limits, against workerd's own local copy of
+  Cloudflare's rate limiting, with the numbers `wrangler.jsonc` gives.
+- `config.test.js`: `wrangler.jsonc` and the deploy workflow, held to what
+  production must never have (anything of the preview's way in, a dev
+  server, a deploy on a push).
 - `races.test.js`: "checked and written as one step." Each test pauses one
   request right after a read, lets a second request finish, and lets the
   first go on; it fails if the guard it is about is weakened.
 
 **What the tests can't show**: anything about the real D1 over a network. That
-is what the walkthrough is for, after a deploy. Its last step pushes a row of
-the largest size the format allows and reads it back, which only a deployed
-database can prove. **Nor anything about a real passkey, a real Apple or
+is what the walkthrough is for, after a deploy. Its eighth step pushes a row
+of the largest size the format allows and reads it back, and its ninth
+deletes the account, each of which only a deployed database can prove. **Nor
+Cloudflare's own clock starting the hourly run, nor its real limiter's
+counting**: "What to check on the preview after step 4f" below. **Nor anything about a real passkey, a real Apple or
 Google token, or Apple's real answers**: see "Passkeys" and "Apple and
 Google" for what is owed there.
 
@@ -167,9 +206,11 @@ fails if `PASSKEY_ORIGINS` in `wrangler.jsonc` and the certificates in
 real notebook belongs there, and nothing there is backed up on purpose.
 
 It was first deployed on 2026-11-23, and the walkthrough (step 6 below) run
-against it over HTTPS passed 8 of 8 steps that day. Each run of the
-walkthrough leaves one test account named `walkthrough-…` behind; "Wipe"
-clears them.
+against it over HTTPS passed 8 of 8 steps that day. Since step 4f the
+walkthrough has nine steps, and its last deletes the test account it made,
+so a run that passes leaves nothing behind. A run that fails partway leaves
+its account, named `walkthrough-…`; "Wipe" clears those, and the ones left
+by runs before step 4f.
 
 ### One-time setup (BVJ)
 
@@ -200,7 +241,7 @@ so in that session.
 6. Check it, at a terminal:
    `npm run walkthrough -- https://notebook-preview.litbible.net`
    The script asks for the secret from step 4 and draws it as asterisks as
-   it is typed or pasted. Eight lines of `ok` mean the deployed service does
+   it is typed or pasted. Nine lines of `ok` mean the deployed service does
    everything the suite does, on the real database, down to keeping a row of
    the largest size. Where there is no terminal to ask at (a workflow), the
    script reads the secret from `PREVIEW_SECRET` in the environment. For a
@@ -211,7 +252,7 @@ so in that session.
 The account's plan matters in one way. On Workers Free a request gets 10 ms of
 CPU, which is enough for everything here but may cut off a push of several
 megabytes; on Workers Paid the limit is 30 seconds. The preview works on
-either. Production (step 4f) should be on Paid.
+either. Production should be on Paid ("Production" below).
 
 ### The address
 
@@ -220,8 +261,8 @@ either. Production (step 4f) should be on Paid.
 this and not a `workers.dev` name: it doesn't put the account's
 `workers.dev` subdomain into two apps and a spec; it stays the same if the
 Worker is ever renamed or moved; the zone's own protections apply to it; and
-production can take the same shape (`notebook.litbible.net`, settled in step
-4f). `workers_dev` and `preview_urls` are off, so the service answers at this
+production takes the same shape (`notebook.litbible.net`, written into
+`env.production` in step 4f, for BVJ to settle). `workers_dev` and `preview_urls` are off, so the service answers at this
 one address and no other.
 
 To use another address, change `routes` in `env.preview`, and the address in
@@ -266,13 +307,13 @@ npx wrangler rollback <version-id> --env preview --message "why"
 
 A rollback returns the Worker's code and the configuration deployed with it,
 in seconds. **It doesn't touch the database.** If the fault is in the data, a
-rollback won't help: on the preview, wipe it (below); for production, step 4f
-writes down D1's Time Travel, which restores a database to any minute of the
-last 30 days (7 on the Free plan).
+rollback won't help: on the preview, wipe it (below); for production,
+`RUNBOOK.md` has D1's Time Travel, which restores a database to any minute
+of the last 30 days (7 on the Free plan).
 
 **The same rollback runs from GitHub with no access to Cloudflare**: the
-repository's Actions tab, "Notebook service (preview)," "Run workflow" on
-`main`, action `rollback`. Leave the version empty to return to the one
+repository's Actions tab, "Notebook service," "Run workflow" on `main`,
+environment `preview`, action `rollback`. Leave the version empty to return to the one
 before the current, or give a version ID. See "Who can deploy and roll back."
 
 ### Wipe
@@ -438,8 +479,9 @@ taken, and why.
 `.github/workflows/notebook-service-deploy.yml`.
 - *What it does when on*: a merge to `main` that touches this package runs
   the tests, applies migrations, deploys the preview, and runs the
-  walkthrough against it. From the Actions tab, "Notebook service (preview),"
-  "Run workflow" on `main` with action `rollback` returns the Worker to the
+  walkthrough against it. From the Actions tab, "Notebook service" (named
+  "Notebook service (preview)" until step 4f), "Run workflow" on `main` with
+  environment `preview` and action `rollback` returns the Worker to the
   version before the current one, or to a version ID given. Anyone with write
   access to this repository can do that, with no access to Cloudflare.
 - *What BVJ did to turn it on* (2026-11-23; kept as the way to set it up
@@ -483,8 +525,9 @@ taken, and why.
   redeployed: whether it could make a Custom Domain from nothing is not
   known.
 
-**Chosen: B** (BVJ, 2026-11-23), for the preview now; production's own job
-and environment are step 4f's. It gives BDR exactly the one power the role
+**Chosen: B** (BVJ, 2026-11-23), for the preview now. Production has its own
+two jobs and its own environment in the same workflow, prepared in step 4f
+and off ("Production" below). It gives BDR exactly the one power the role
 calls for, and it leaves BVJ's account with one more narrow token instead of
 one more administrator.
 
@@ -492,18 +535,233 @@ one more administrator.
 `NOTEBOOK_PREVIEW_DEPLOYS` (or set it to anything but `on`): both jobs are
 then skipped, and deploys and rollbacks are by hand again, as "Deploy again"
 and "Roll back" above describe. `DISASTER-RECOVERY.md` has the preview's
-entry; step 4f finishes it for production.
+entry and production's.
 
 ## What is logged
 
 One line for each request: the time, the route as `src/index.js` writes it
 (`PUT /devices/:id`, never the address that was asked for), the status, the
-refusal's word, and how long it took. **No body, key proof, session token,
-id, or account reaches a log**, and no name or email address is stored
+refusal's word, and how long it took. And one line for each hourly run:
+how many requests it carried out, held, or failed on, and how many rows it
+swept, as counts. **No body, key proof, session token, id, account, or
+address a request came from reaches a log**, and no name or email address is stored
 anywhere: a way to sign in is kept as the provider's own account id, and the
 preview's as a made-up label. Cloudflare's own per-request log (which would
 record each address) is turned off in `wrangler.jsonc`
 (`observability.logs.invocation_logs`). `test/http.test.js` checks the lines.
+
+## The account work (step 4f)
+
+Built 2026-11-24. The requests are in `STUDY-DESK-ENCRYPTION.md`, "Waiting
+seven days" and "How often a client may ask"; this is what is particular to
+running them.
+
+- **Deleting an account is one statement.** Every table hangs from
+  `accounts` (`ON DELETE CASCADE`), so the account's row takes its ways in,
+  sessions, devices, holders, rows, approvals, and waiting request with it,
+  or nothing goes. The statement carries its own condition: the session is
+  still open, or the request is still waiting and due.
+- **Apple first.** `revokeApple` (`src/waiting.js`) revokes every row of
+  `apple_tokens` for the account's ways before the account goes, at once or
+  when due, and forgets each token as it is revoked. If Apple can't be
+  reached, or the deployment has no Apple key while a token exists, the
+  account stays whole.
+- **The hourly run** (`src/scheduled.js`, the cron trigger) carries out at
+  most 100 requests that are due, oldest first, then deletes sessions,
+  approvals, and sign-in challenges that ran out. A request it can't carry
+  out is left for the next hour and never stops the others. **Read its log
+  line** (`RUNBOOK.md`, "Reading the hourly line"): `held` above 0 for more
+  than a few hours means Apple is refusing, and `failed` above 0 is a fault
+  here.
+- **Seven days is `WAIT_DAYS` in `src/waiting.js`**, BVJ's number
+  (2026-11-23). A request is due seven days to the millisecond after it was
+  made and is carried out by the next run, so within about an hour after.
+- **The limits are Cloudflare's rate limiting binding**, not a table and not
+  a rule on the zone. `src/limits.js` says why at length; the short of it is
+  that counting costs the database nothing, and that the service would
+  otherwise have to store the address it counts by. The counters are kept
+  for each Cloudflare location and are approximate, so a limit slows a
+  client and is not a wall. **A deployment with a binding missing answers
+  `error` to everything**, on purpose: an unlimited service that nobody
+  knows is unlimited is the worse failure.
+- **A rule on the zone can sit in front of it**, if a flood ever comes: the
+  dashboard's Security, WAF, Rate limiting rules, on the hostname. That
+  stops requests before the Worker runs (and is billed). It is a dashboard
+  setting, BVJ's, and nothing here needs it.
+
+### What to check on the preview after step 4f
+
+The suite can't show these, and each is seen once on the deployed preview.
+**The merge that carries step 4f deploys it there**, with a migration (a new
+table and three columns), a cron trigger, and two rate limit bindings, none
+of which the preview had.
+
+1. **The walkthrough's nine steps pass** (the deploy runs it). The ninth is
+   the first deletion of an account on a real D1.
+2. **The hourly run starts by Cloudflare's clock.** In the dashboard:
+   Workers & Pages, `litbible-notebook-preview`, Settings, Trigger Events
+   shows the cron; Logs shows a line with `"job":"scheduled"` at seventeen
+   past each hour. Until one is seen, the run has only ever been started by
+   a test or by hand.
+3. **The limiter counts.** From one machine, 61 requests in a minute:
+
+   ```bash
+   for i in $(seq 1 61); do curl -s -o /dev/null -w "%{http_code}\n" -X POST https://notebook-preview.litbible.net/sign-in/passkey/options; done | sort | uniq -c
+   ```
+
+   About 60 answers of `200` and then `429`. "About," because the real
+   limiter says it is approximate.
+4. **A large notebook deletes.** The largest tried is 20,000 rows on a local
+   database, in 138 milliseconds. D1's limit on one statement is 30 seconds
+   as its limits page was last read (not re-read for this step: the page
+   could not be reached from the session that wrote this), so there should
+   be room, but it is owed a try: push a few tens of thousands of rows to a
+   test account on the preview from an app's debug build or a script, and
+   delete the account. If it ever fails, the statement fails whole, the
+   account stays, and `RUNBOOK.md` ("An account won't delete") has the way
+   through.
+
+### Bot protection at sign-up: assessed, and left for step 4h
+
+The plan asked this step what can be done before the website has a sign-in
+page. **Nothing is built, and here is why.**
+
+- **What a program can do today**: make an empty account, by running a
+  passkey ceremony with a software authenticator (the service asks for no
+  attestation, so it can't tell), at most 30 a minute from one address. An
+  empty account is one row in `accounts` and one in `ways`, and holds
+  nothing. Sign in with Apple and with Google need a real provider account,
+  which is those providers' problem to police and is off here anyway.
+- **What would stop it, and why not now**:
+  - *On the website*: a Turnstile token sent with
+    `POST /sign-in/new-passkey/options` and checked here, as the forms'
+    Worker checks one. It needs a page to show the widget on, which is the
+    sign-in page of step 4h, and a Turnstile widget and secret, which are
+    BVJ's to make. It would be a new member of that request for the website
+    alone.
+  - *In the apps*: Turnstile needs a browser. The native answer is Apple's
+    App Attest and Google's Play Integrity, each a real piece of work in
+    BDR's apps and a new member of the request. That is BDR's to weigh.
+  - *Here, alone*: the hourly run could delete accounts that have no
+    notebook and no session after some weeks. That bounds the clutter and
+    stops nobody, and it would leave a real reader who made a passkey and
+    never set up with a passkey that signs in to nothing. Not built; it is
+    there if empty accounts ever pile up.
+- **So**: the limits are what there is, and the question goes to step 4h
+  with the sign-in page (the spec's "Still open," 68).
+
+### What was checked against the vendors' own pages, and what was not
+
+Said plainly, since this step leans on three vendors' rules (2026-11-24):
+
+- **Apple, read**: "Offering account deletion in your app." Deletion must
+  start inside the app; the whole account goes, not a deactivation; an app
+  with Sign in with Apple revokes its tokens through Apple's REST API; and
+  where deleting takes time, the reader is told. The seven-day wait is
+  within that as long as each app says so when it records the request. The
+  same page asks apps to handle Apple's **server-to-server notifications**
+  (a reader ending the connection from their Apple Account's settings).
+  **That is not built**: the service has no address for Apple to call. It
+  belongs with turning Sign in with Apple on, and is the spec's "Still
+  open," 73.
+- **Cloudflare, not re-read**: `developers.cloudflare.com` could not be
+  reached from the session that built this. The rate limit binding's config
+  is the one the pinned wrangler's own schema defines, and it ran locally.
+  That its counters are kept for each location and are approximate, D1's 30
+  seconds for one statement, and Time Travel's 30 and 7 days are from
+  memory of those pages.
+- **Google Play, not re-read**: `support.google.com` could not be reached
+  either. The deletion page is written to what Play's account deletion
+  requirement asked for when last read: a web address, named in the Data
+  safety form, that names the app or developer, gives the steps, and says
+  what is deleted, what is kept, and for how long. **BDR, who files that
+  form, should read the page against Play's current text.**
+
+## Production
+
+**Prepared in step 4f. Not deployed, and not to be until BVJ says so.** No
+session creates anything on Cloudflare without BVJ's word in that session
+(`workers/CLAUDE.md`).
+
+**What is ready, in this repository:**
+
+- `env.production` in `wrangler.jsonc`: the address
+  `notebook.litbible.net`, `ENVIRONMENT` `production`, the website as the
+  one allowed origin, the passkey settings, the cron trigger, both limiters,
+  and a D1 binding whose id is a **placeholder of zeros**. It has no
+  `PREVIEW_` anything, no dev-server origin, and no required secret.
+- `npm run migrate:production`, `npm run deploy:production`, and
+  `npm run check:production -- https://notebook.litbible.net`.
+- Two jobs in `.github/workflows/notebook-service-deploy.yml`,
+  `deploy-production` and `rollback-production`. **Neither ever runs on a
+  push.** Each runs only from "Run workflow" on `main` with environment
+  `production`, only while the repository variable
+  `NOTEBOOK_PRODUCTION_DEPLOYS` is `on` (it is not set), and only with a
+  GitHub environment named `notebook-production` (it does not exist). The
+  deploy job also refuses to start while the database id is the placeholder.
+- `RUNBOOK.md`, and production's entry in `DISASTER-RECOVERY.md`.
+
+**What it would run, for a reader**: everything the preview runs, without
+the preview's way in. A passkey signs in. Apple and Google stay off until
+BDR's identifiers are configured, exactly as on the preview.
+
+**BVJ's steps, in order, when the day comes.** Each creates or changes
+something on Cloudflare or GitHub.
+
+1. **Decide the plan.** Production should be on Workers Paid: Free gives a
+   request 10 ms of CPU, which may cut off a large push, and keeps Time
+   Travel's history for 7 days instead of 30. The deletion page tells
+   readers 30 days.
+2. **Make the database**: `npx wrangler d1 create litbible-notebook`. Choose
+   the location when asked (the preview's is western North America). Put
+   the `database_id` it prints into `env.production.d1_databases` in
+   `wrangler.jsonc`, in place of the zeros, through a pull request. An id is
+   not a secret.
+3. **Confirm the address.** `notebook.litbible.net` is written into
+   `env.production.routes`. The first deploy makes it, as a Custom Domain
+   with its DNS record and certificate. Add the record to the DNS inventory
+   in `DISASTER-RECOVERY.md`.
+4. **Choose how it deploys.** Either by hand, from this directory:
+
+   ```bash
+   npm test
+   npm run migrate:production
+   npm run deploy:production
+   npm run check:production -- https://notebook.litbible.net
+   ```
+
+   or from the workflow, which is what lets BDR roll production back:
+   - make a second Cloudflare API token like the preview's (the same four
+     permissions; "Who can deploy and roll back," step 1), or decide to use
+     the same one;
+   - in GitHub, Settings, Environments, make `notebook-production`, limit
+     it to `main`, **add yourself as a required reviewer** (so every
+     production deploy waits for your click), and add the environment
+     secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`;
+   - add the repository variables `NOTEBOOK_PRODUCTION_DEPLOYS` = `on` and
+     `NOTEBOOK_PRODUCTION_URL` = `https://notebook.litbible.net`;
+   - Actions, "Notebook service," "Run workflow" on `main`, environment
+     `production`, action `deploy`. As with the preview, the first deploy
+     may need doing by hand: whether the token can make a Custom Domain from
+     nothing is not known.
+5. **Check it**: `npm run check:production -- https://notebook.litbible.net`
+   reads four things and writes nothing: it is this service, it says it is
+   not a preview, the preview's way in is not found, and a passkey can begin
+   a sign-in (which shows the database answers). The walkthrough can't run
+   against production, by design.
+6. **See the hourly run once** in the Worker's logs, as for the preview.
+7. **Record it**: production's rows in `DISASTER-RECOVERY.md` (the secrets
+   table, the DNS inventory), and the address in
+   `STUDY-DESK-FOR-THE-APPS.md`.
+
+**Before any reader's notebook goes there**, these are still owed, and none
+is this step's: a real passkey from each platform against the preview; the
+website's connector and account pages (4g, 4h), with the Content Security
+Policy naming this origin in `connect-src`; the privacy page and terms (4j);
+and BDR's confirmation of the spec's open items.
+
+**A migration applied to production is applied for good**, and a rollback
+never undoes one. `migrations/0001` to `0003` are what the preview runs.
 
 ## What is left, and where it plugs in
 
@@ -516,31 +774,22 @@ Nothing below changes a request that exists; each adds beside it.
 - The preview's way in stays for the apps' sessions and automated tests. It
   stays off in production.
 
-**Step 4f, the account work and production**:
-- `DELETE /account`, `POST /notebook/replace`, `DELETE /waiting` ("Waiting
-  seven days"): new routes, and a table for the request that waits.
-  `GET /account` already answers `waiting`, as null.
-- A scheduled handler, to carry out a request that falls due and to sweep
-  what ran out. Today an account's expired sessions are swept when it next
-  signs in, and its expired approvals when it next asks for one, so an
-  account that never returns leaves a few rows behind.
-- Deleting an account is one statement (every table hangs from `accounts`
-  and is deleted with it). Try it on a large notebook before relying on it.
-- Limits on how often a client may ask, and bot protection on sign-in. **The
-  sign-in requests need them most**: the three `options` requests and
-  `POST /sign-in/challenge` take no session and each writes a row to
-  `challenges`. A row lasts five minutes and is swept when the next is made,
-  so the table can't grow without bound, but nothing yet slows a client that
-  asks without end.
-- **Deleting an account must revoke Apple's tokens first**: every row of
-  `apple_tokens` for the account's ways, with `appleRevoke`
-  (`src/providers.js`), as `DELETE /ways/<id>` does for one way
-  (`src/ways.js`).
-- The scheduled handler should sweep `challenges` too.
-- Production: its own D1 database, `ENVIRONMENT` set to `production`, its
-  address and `ALLOWED_ORIGINS` at the top level of `wrangler.jsonc`, and no
-  `PREVIEW_` anything. A production job in the deploy workflow, with its own
-  GitHub environment. The rest of `DISASTER-RECOVERY.md`.
+**Step 4f, the account work, is built** (2026-11-24). What it left:
+- **Production is not deployed** ("Production" above). Whether and when is
+  BVJ's.
+- **Four things to see on the preview** once it is deployed there ("What to
+  check on the preview after step 4f" above).
+- **Bot protection at sign-up** waits for the sign-in page of step 4h.
+- **Apple's revoke has never met Apple**, like the rest of Sign in with
+  Apple. When the identifiers arrive, delete an Apple test account and see
+  the app gone from the Apple Account's "Sign in with Apple" list.
+- **Whether an account should ever be deleted with Apple unreachable** is
+  open (the spec's "Still open," 65). As built it never is.
+- **The deletion page can't delete yet**: `src/pages/delete-account.astro`
+  describes; step 4h adds the sign-in and the button.
+
+**Step 4g, the website's connector**: adds this origin to `connect-src` in
+`public/_headers`, and reads `waiting` and `replaced` from `GET /account`.
 
 ## Changing things
 

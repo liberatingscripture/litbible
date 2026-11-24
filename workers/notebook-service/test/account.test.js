@@ -15,12 +15,13 @@ describe("GET /account", () => {
     const session = await must("POST", "/preview/session", { body: { secret: SECRET, account: freshAccount() } });
     const res = await call("GET", "/account", { token: session.token });
     expect(res.status).toBe(200);
-    expect(Object.keys(res.body)).toEqual(["time", "notebook", "kid", "lists", "session", "ways", "waiting"]);
+    expect(Object.keys(res.body)).toEqual(["time", "notebook", "kid", "lists", "session", "ways", "waiting", "replaced"]);
     expect(res.body.notebook).toBeNull();
     expect(res.body.kid).toBe(0);
     expect(res.body.lists).toBe(0);
     expect(res.body.session).toEqual({ open: false, device: null, expires: session.expires });
     expect(res.body.waiting).toBeNull();
+    expect(res.body.replaced).toBeNull();
     expect(res.body.ways).toEqual([{ id: expect.stringMatching(UUID), kind: "preview", added: expect.stringMatching(TIME) }]);
   });
 

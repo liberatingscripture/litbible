@@ -299,8 +299,9 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
                      #   tests, full build, internal-link check on push/PR) plus a
                      #   job for each Worker (`worker-tests`,
                      #   `notebook-service-tests`: own dep trees, own npm ci);
-                     #   notebook-service-deploy.yml (the service's preview; OFF
-                     #   until BVJ turns it on, see workers/CLAUDE.md);
+                     #   notebook-service-deploy.yml (deploys the service's
+                     #   preview on merge; production by hand only, and off;
+                     #   see workers/CLAUDE.md);
                      #   release-notes.yml (auto-updates release-notes.json on push);
                      #   apps-mirror-notify.yml (tells the LSC repo when a
                      #   mirrored /apps file or /privacy changes — see
@@ -330,7 +331,7 @@ workers/             # Cloudflare Workers, deployed separately via wrangler (NOT
 | `/app-support` | `app-support.astro` | App support contact form (linked from inside the apps, not the site nav; `/app-support/thanks` is the native-POST fallback success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here). Its embeds are three deliberately different shapes, and only the Apple one is derived at build: read `src/pages/CLAUDE.md` before touching them |
 | `/404` | `404.astro` | Not found; a guessable scripture address lands on its page (`src/pages/CLAUDE.md`) |
-| others | `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
+| others | `delete-account` (noindex; `workers/CLAUDE.md`), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.

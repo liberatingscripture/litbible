@@ -198,8 +198,87 @@ because nothing carried them there. This file is what carries them now.
     for refusing: it is the only sign of a copied key the service ever
     gets. **What do you think, and has either app met a passkey whose
     count went backward?** The service refuses until this is decided.
+14. **The fifteen choices the account work had to make** (asked
+    2026-11-24, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
+    “Still open,” 59 to 73. Every one was the website's Claude's, and
+    **BVJ has not yet been walked through them**. Each is what the
+    service does today and has a test. Answer by number here. **Most
+    of all**: 60 (the session that asked may cancel its own request),
+    61 (`platform` travels in the address on `DELETE /account`), 62
+    (what a waiting request says, which is what your notice is built
+    from), 68 (the limits, and whether the apps would attest at
+    sign-up with App Attest and Play Integrity), 71 (a deleted
+    account's other devices are told `sign_in` and no more), and 73
+    (Apple's server-to-server notifications, which the service doesn't
+    take yet).
+15. **The page for deleting an account** (asked 2026-11-24):
+    `src/pages/delete-account.astro`, live at
+    `https://litbible.net/delete-account/` once this merges. You file
+    the stores' forms, so please read it against Google Play's current
+    account deletion requirement, which the session that wrote it
+    could not reach, and against Apple's. **Its in-app steps are a
+    guess**: it says “open Settings, choose ‘Account,’ and then choose
+    ‘Delete account’” for both apps. Write here where each app will
+    put it, and anything Play's form needs that the page lacks.
 
 ## The list
+
+### 2026-11-24, the account work is built on the service (step 4f)
+
+**Nothing you call today changed its path or its body.** One answer
+grew: `GET /account` now fills in `waiting`, which was always null, and
+has a new member, `replaced`. The full text is
+`STUDY-DESK-ENCRYPTION.md`, “The service's interface,” “Waiting seven
+days” and “How often a client may ask,” with what moved under “Changed
+in step 4f.” **Once this merges it is live on the preview**, with a
+database migration, an hourly run, and limits the preview never had.
+Production is prepared and **not deployed**.
+
+- **Deleting an account**: `DELETE /account`. From an open session it
+  answers `{ "deleted": true }` and everything is gone at once; so it
+  is from an account that has no notebook yet. From a session that is
+  signed in and no more, send `DELETE /account?platform=ios` (or
+  `android`): it answers `{ "deleted": false, "waiting": { … } }` and
+  nothing is deleted for seven days. **A device that isn't open always
+  sends `platform`.** Apple's guideline wants a reader told when
+  deleting takes time: show `waiting.due`.
+- **“Start a new notebook”**: `POST /notebook/replace` with
+  `{ "platform": "ios" }`, from a session that is signed in and not
+  open. It waits the same seven days. Afterward `GET /account` answers
+  `notebook` null and `kid` 0, and `POST /notebook` sets up as a first
+  device does.
+- **Canceling**: `DELETE /waiting`, from any open session, or from the
+  session that asked.
+- **What every device shows**: `GET /account` answers `waiting` to every
+  session of the account as `{ what, asked, due, platform, through,
+  mine }`. `platform` is what the asking device said of itself,
+  `through` is the kind of way in it signed in by, and `mine` is true
+  on the session that asked. A device with the key shows the notice and
+  a way to cancel; the spec's “Deleting the account” has the reader's
+  side.
+- **After a replacement**, `GET /account` answers `replaced` as
+  `{ when, platform, through }`: what a device that held the old
+  notebook tells its reader before it offers to join the new one.
+- **After a deletion**, every other device's next request answers
+  `sign_in`, the same word an expired session gets. The service keeps
+  nothing of a deleted account, so it can't say more (“Still open,”
+  71).
+- **A new refusal, `slow_down`** (429, with `retry` in seconds and a
+  `Retry-After` header): this address has asked too often. Wait that
+  long; never retry in a loop. The limits are 60 requests a minute to
+  begin a sign-in and 1,200 a minute for everything else, counted by
+  address, so neither app should come near them.
+- **`exists` and `gone` may carry `what: "waiting"`**: a request is
+  already waiting, or none is there to cancel.
+- **The walkthrough has a ninth step**, which asks to delete from a
+  session without the key, sees it wait, cancels it, and deletes the
+  account from a device with the key. A run now leaves nothing behind.
+- **The page Google Play asks for** is
+  `https://litbible.net/delete-account/` once this merges: out of
+  search, linked from nowhere, and saying that accounts are not open.
+
+**For BDR** (asks 14 and 15 above): the choices, 59 to 73; and the
+deletion page's copy.
 
 ### 2026-11-24, sign-in is built on the service (step 4e)
 

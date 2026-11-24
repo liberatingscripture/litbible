@@ -43,7 +43,10 @@ describe("routing", () => {
     for (const [method, path] of [
       ["POST", "/"],
       ["PUT", "/account"],
-      ["DELETE", "/account"],
+      ["POST", "/account"],
+      ["GET", "/waiting"],
+      ["POST", "/waiting"],
+      ["GET", "/notebook/replace"],
       ["GET", "/notebook"],
       ["PUT", "/notebook"],
       ["DELETE", "/rows"],

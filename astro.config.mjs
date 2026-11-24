@@ -78,6 +78,8 @@ export default defineConfig({
         if (slug === 'unsubscribe') return false; // noindex utility page
         if (slug === 'contact/thanks') return false; // noindex form-success page
         if (slug === 'app-support/thanks') return false; // noindex form-success page
+        // The account-deletion page (noindex and unlinked until accounts open)
+        if (slug === 'delete-account') return false;
         // The Study Desk's notebook page and everything under it (noindex utility pages)
         if (slug === 'notebook' || slug.startsWith('notebook/')) return false;
         // The Study Desk as a page of its own (noindex, a preview)

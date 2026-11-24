@@ -33,6 +33,7 @@ const MESSAGES = {
   not_allowed: "The interface does not allow that.",
   too_large: "Too large.",
   too_many: "A limit was reached.",
+  slow_down: "Too many requests from this address. Wait, then try again.",
   busy: "The notebook changed while this was being done. Try again.",
   error: "The service failed. Try again.",
 };
