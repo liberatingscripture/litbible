@@ -120,13 +120,27 @@ because nothing carried them there. This file is what carries them now.
     database. In a real break: roll back first, tell BVJ second. A fix
     still goes through a pull request that BVJ merges, and the merge
     deploys it.
-11. **The freeze work's points, and one proposal** (asked 2026-11-24 with
-    step 4d, the first entry below). BDR's word on each: a `hidden`
-    record read as a kind the client doesn't know; `ribbon` and `bookmark`
-    read as `note`; the clock cap as each device's own; and merge vectors
-    version 9. **And the proposal**: under sync, the row the service
-    holds wins an exact tie in `modified` against a device's own copy.
-    Say here if the apps settle such a tie another way, or would rather.
+11. **The freeze work's points, one question, and one proposal** (asked
+    2026-11-24 with step 4d, the first entry below). Answer part by part.
+    1. **BDR's word on each of four points**: a `hidden` record read as a
+       kind the client doesn't know; `ribbon` and `bookmark` read as
+       `note`; the clock cap as each device's own; and merge vectors
+       version 9.
+    2. **Which device wins when two clocks are far apart** (BVJ,
+       2026-11-24, asked that this be put to BDR). With clocks more than
+       the five minutes of skew apart, the edit stamped by the faster
+       clock wins once the slower clock reaches its stamp, **even over an
+       edit made on the slower device in between, which is lost**. Until
+       then the two devices show different words for that record. Nothing
+       new makes this so: it is rule a and the clamp as they stand, once
+       the cap is each device's own. Is that what the apps want? If not,
+       say what should happen instead. Two things a client could do, as
+       examples from the website's side and not decisions: tell the reader
+       when its clock is far from the service's `time` (every answer
+       carries it), or hold back sync until the clock is set.
+    3. **The proposal**: under sync, the row the service holds wins an
+       exact tie in `modified` against a device's own copy. Say here if
+       the apps settle such a tie another way, or would rather.
 
 ## The list
 
@@ -187,6 +201,8 @@ confirm**. The full account is `STUDY-DESK.md`, “Order of work,” 4d.
     **So a sync that drops a row as ahead must keep its cursor behind that
     row and judge it again later**, as the format already says; a client
     that moves on never takes the edit, and the two devices never agree.
+    **Whether the faster clock should win this way is a question for
+    BDR** (ask 11 above, its second part; BVJ, 2026-11-24).
 - **One thing the test found, not yet decided.** When clocks differ, two
   devices can stamp the same `modified` on different edits: an edit stamps
   1 ms past the version it replaces, so two devices that are both behind a
@@ -196,8 +212,8 @@ confirm**. The full account is `STUDY-DESK.md`, “Order of work,” 4d.
   all three clients. **The website proposes that the row the service
   holds wins an exact tie** against a device's own copy, in a pull and in
   a `conflict`'s answer. BVJ has not decided this and BDR has not seen it;
-  say here if the apps already settle a tie another way. The format,
-  “Clocks,” “Two devices whose clocks differ.”
+  say under ask 11, its third part, if the apps already settle a tie
+  another way. The format, “Clocks,” “Two devices whose clocks differ.”
 - **Not changed, because nothing was written here to act on**: the three
   format points BDR changed (ask 1), and a trash record's times (ask 8;
   the spec's “Still open,” 31, is still open and the service still

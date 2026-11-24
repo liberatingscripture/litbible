@@ -1525,9 +1525,15 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   own under sync, and what two devices whose clocks differ then agree on
   ("Clocks"); the service row's fields ("How each store holds the
   records"); and the merge vectors' version 9.
-- **An exact tie under sync** ("Clocks," "Two devices whose clocks differ"):
-  the website proposes that the row the service holds wins. **Not decided
-  by BVJ, and for BDR to confirm**; no vector carries it yet.
+- **Which device wins when two clocks are far apart** ("Clocks," "Two
+  devices whose clocks differ"): the faster clock's edit, once the slower
+  clock reaches its stamp, even over an edit made on the slower device in
+  between. **Put to BDR at BVJ's request** (2026-11-24;
+  `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps," 11): is
+  that what the apps want, or should something else happen?
+- **An exact tie under sync** (the same place): the website proposes that
+  the row the service holds wins. **Not decided by BVJ, and for BDR to
+  confirm** (the same ask); no vector carries it yet.
 - **Every note marker name either app has ever written** (kind 2;
   `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps," 4): not
   answered as of 2026-11-24, so the reading rule covers `ribbon`,

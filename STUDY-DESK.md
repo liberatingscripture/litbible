@@ -5325,8 +5325,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        On the website `hidden` left `KINDS`, so one can't be made or
        edited; it is a plain "Item" row on the notebook page, never a
        search result, whole in a backup, and absent from the Markdown
-       file. That is the code half of Phase 6's "Delete the hidden
-       passage's code"; its two branches are still on origin.
+       file. That was the code half of Phase 6's item on the hidden
+       passage, which now reads "Delete the hidden passage's branches":
+       the two branches are still on origin.
      - **The `ribbon` marker is out of kind 2**, which has six names.
        `ribbon` and the older `bookmark` read as `note`, and `star` still
        as `emphasis` (`RENAMED_MARKERS`); nothing stored is rewritten, and
@@ -5361,7 +5362,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
           Until the slower clock is within five minutes of the stamp, the
           slower device keeps its own edit and the faster one its own.
           After that both hold the faster clock's edit, even over an edit
-          made on the slower device in between, which is lost.
+          made on the slower device in between, which is lost. **BVJ had
+          this put to BDR** (2026-11-24; ask 11 in
+          `STUDY-DESK-FOR-THE-APPS.md`): is that what the apps want?
        3. **An exact tie is no longer rare, and needs the service to settle
           it.** An edit stamps 1 ms past the version it replaces, so two
           devices that are both behind a third's stamp, and each edit that
@@ -5605,16 +5608,19 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      version 1 (S12, Part 4), and GF8c-1's ceiling of 200 on a verse
      number. They bear on Phase 4's sync more than on the launch, but
      settle them before the format is frozen for syncing.
-   - **Delete the hidden passage's code** (N8; BVJ decided 2026-11-10 not
-     to include it, unless BDR makes the case for it before then). Delete
-     the branches `claude/desk-1d-hidden` and `claude/desk-1d-search`, local
-     and on `origin`; on `main`, drop the `hidden` name from `kindName`
-     (`desk-store-core.mjs`), "Hidden passage" from `KIND_WORD`
-     (`desk-export.mjs`), the hidden-passage handling in `desk-notebook.mjs`
-     and the tests that name it, and the pointers in this file and the desk's
-     `CLAUDE.md`, and the `hidden` kind in `STUDY-DESK-FORMAT.md`. No
-     `hidden` record was ever written (the feature was never switched on),
-     so there is nothing to migrate or keep.
+   - **Delete the hidden passage's branches** (N8; BVJ decided 2026-11-10
+     not to include it, and the 2026-11-23 call dropped it from the website
+     and both apps). **The code half of this item is done** (Phase 4's
+     step 4d, 2026-11-24): `hidden` is out of `KINDS` and of `kindName`
+     (`desk-store-core.mjs`), "Hidden passage" is out of `KIND_WORD`
+     (`desk-export.mjs`), the tests treat a `hidden` record as a kind the
+     website doesn't know, the desk's `CLAUDE.md` says so, and kind 3 is
+     struck through in `STUDY-DESK-FORMAT.md`, which says what a client
+     does with one it still meets. **What is left**: delete the branches
+     `claude/desk-1d-hidden` and `claude/desk-1d-search`, local and on
+     `origin` (both were still there on 2026-11-24). No `hidden` record
+     was ever written (the feature was never switched on), so there is
+     nothing to migrate or keep.
    - **The announcement.** M12 decided on a line in the release notes and
      the newsletter at launch (the newsletter is written in Brevo). Decide
      whether the site's one announcement popover, now the apps' launch,
