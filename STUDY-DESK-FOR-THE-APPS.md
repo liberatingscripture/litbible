@@ -148,9 +148,13 @@ because nothing carried them there. This file is what carries them now.
       `assetlinks.json` and into the service's list together.
 13. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
     first entry below): `STUDY-DESK-ENCRYPTION.md`, “Still open,” 41 to
-    58. Every one is the website's Claude's, and BVJ has not decided
-    them yet. Each is what the service does today and has a test, and
-    each is cheap to change before the freeze. Answer by number here.
+    58. Every one was the website's Claude's. **BVJ has said yes to
+    three** (2026-11-24), so those are BVJ's calls and wait on BDR
+    alone: 50 (every passkey is named “LIT Bible notebook,” under “LIT
+    Bible”), 52 (how long a session lasts), and 55 (accounts are not
+    joined in version 1). The other fifteen BVJ has not decided. Each
+    is what the service does today and has a test, and each is cheap
+    to change before the freeze. Answer by number here.
     **Most of all**: 45 (a passkey's options and response travel in the
     standard's JSON forms, which an iOS app builds by hand), 48 (each
     SDK must send the service's challenge to Apple or Google unchanged,
@@ -230,8 +234,9 @@ step 4e.”
   session is now kept alive by use**, up to a year from its sign-in, so
   a device that syncs is not signed out monthly; one that is signed in
   and no more is never extended. `DELETE /session` signs out a device
-  that never joined. This is the website's Claude's choice, and BVJ has
-  not decided it (the spec's 52).
+  that never joined. This was the website's Claude's choice, and **BVJ
+  said yes to it on 2026-11-24** (the spec's 52). It is for BDR to
+  confirm.
 - **Three new refusals** to switch on: `passkey_refused` and
   `token_refused` (403, each with a `reason` for your log), and
   `provider` (502: Apple or Google couldn't be reached; try again

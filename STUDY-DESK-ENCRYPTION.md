@@ -2302,7 +2302,8 @@ check.
 7. **How long a session lasts changed for an open session.** Step 4c wrote a flat 30 days and
    said this step might revisit it. A session still starts with 30 days. An open one is now kept
    alive by use, up to 365 days from its sign-in; one that is signed in and no more never is.
-   **(a choice)**, and a change to what BVJ said yes to under item 40.
+   **(a choice)**, and a change to what BVJ said yes to under item 40. **BVJ said yes to the
+   change on 2026-11-24** (“Still open,” 52).
 8. **`DELETE /session` is new** (“The account”): a device that signed in and never joined had no
    way to sign out.
 9. **`GET /sign-in` is new**, and says which ways to sign in are on. `GET /` is unchanged.
@@ -2472,10 +2473,11 @@ from 31:
     directly and which is never written into a repository.
 40. **A session is a bearer token and lasts 30 days.** Step 4e, which builds real sign-in, may
     change how long. **BVJ checked, 2026-11-23: “yes.”** BDR still confirms. **Step 4e did change
-    it, for an open session only: item 52**, which BVJ has not seen.
+    it, for an open session only: item 52**, which BVJ checked on 2026-11-24.
 
 **From step 4e, for BDR to confirm and BVJ to check.** Building sign-in forced a choice in each of
-these. **Every one is mine (BVJ’s Claude, 2026-11-24), and BVJ has decided none of them yet.**
+these. **Every one was made by me (BVJ’s Claude, 2026-11-24). BVJ has since said yes to three,
+50, 52, and 55 (2026-11-24), which now wait on BDR alone; the other fifteen BVJ has not decided.**
 Each is written into “Signing in” or “Ways to sign in,” is what the service does today, and has a
 test. Changing one before the freeze is cheap. The numbers go on from 40:
 
@@ -2520,7 +2522,8 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
 50. **One user handle for an account, and one name for every passkey: “LIT Bible notebook,”** with
     the relying party shown as “LIT Bible.” These are words a reader sees in their password
     manager, so they are BVJ’s to approve. The service holds no name or address to show in their
-    place; a client can’t change them, since the options come from the service.
+    place; a client can’t change them, since the options come from the service. **BVJ checked,
+    2026-11-24: “yes.”** BDR still confirms.
 51. **A counter that doesn’t go forward is refused.** A passkey that keeps no counter sends 0 and
     is always accepted, which covers every synced passkey. The other reading only notes a counter
     that went backward and lets the sign-in through.
@@ -2529,7 +2532,8 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     syncs in the background would stop until its reader noticed. Only an open session is
     extended, so a sign-in that can’t open the notebook still runs out in 30 days; a removed
     device’s sessions end at once, and a change of key closes the rest, as before. Going back to
-    a flat 30 days is one number in `src/session.js`.
+    a flat 30 days is one number in `src/session.js`. **BVJ checked, 2026-11-24: “yes.”** BDR
+    still confirms.
 53. **The new words**: `passkey_refused`, `token_refused`, and `provider`; `challenge` and `way`
     under `gone`, `way` under `exists`, `ways` under `too_many`; the rules `prf_results`,
     `last_way`, and `passkey_holds_key`; and that a way to sign in that is off answers
@@ -2540,7 +2544,7 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     that is no account’s way in makes a new, empty account when it signs in, and the answer says
     so (`created`). A reader who ends up with two accounts can’t fold one into the other in
     version 1: they delete one (step 4f) and add its way in to the other. Whether that is good
-    enough for launch is BVJ’s call.
+    enough for launch is BVJ’s call. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 56. **Removing a way in ends the other sessions that came in through it** and leaves their
     devices listed. **And an Apple way in can’t be removed while Apple can’t be reached**, since
     its refresh token is revoked first.

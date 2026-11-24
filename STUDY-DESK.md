@@ -5342,8 +5342,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        way in stays, and so does a passkey that holds the key.
      - **Sessions** begin with 30 days, as before. An open one is now
        kept alive by use for up to a year, and one that is signed in and
-       no more never is. That is a choice of this step's, not yet BVJ's
-       (the spec's “Still open,” 52). `DELETE /session` is new.
+       no more never is. That was a choice of this step's, and BVJ
+       said yes to it on 2026-11-24 (the spec's “Still open,” 52).
+       `DELETE /session` is new.
      - **The preview's way in is unchanged** and stays beside real
        sign-in, so the apps' sessions keep working as they are.
      - **The link files have their passkey sections**, with only the
@@ -5351,7 +5352,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The spec's interface holds the final shapes** (“Signing in,”
        “Ways to sign in”). What moved is its “Changed in step 4e”; the
        eighteen places that were a choice are its “Still open,” 41 to 58,
-       for BDR to confirm and BVJ to check.
+       for BDR to confirm and BVJ to check. **BVJ said yes to three on
+       2026-11-24**: 50 (every passkey is named “LIT Bible notebook”),
+       52 (how long a session lasts), and 55 (accounts are not joined
+       in version 1).
      **What waits on BDR**: Apple's client ids, team id, key id, and
      key, and Google's client ids (`STUDY-DESK-FOR-THE-APPS.md`,
      “Waiting to hear from the apps”); then a first sign-in with each
