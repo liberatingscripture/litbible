@@ -55,3 +55,11 @@
   and the certificates in `assetlinks.json` ever differ. Apple fetches its
   file through its own CDN, so a change can take a day or more to reach a
   phone.
+- **Images are optimized ahead of time.** There is no `astro:assets`
+  pipeline: page-loaded raster images are WebP, resized to about twice their
+  display size, and referenced by plain URL string (frontmatter, `src`,
+  JSON). The pre-WebP originals are archived in `_source-images/`, outside
+  `public/` so they never ship (its README). `assets/screenshots/` holds the
+  /apps phone and tablet shots, **mirrored to the LSC site**: lowercase-kebab
+  names, no spaces, so the two repos' components stay byte-identical
+  (`src/components/apps/CLAUDE.md`).

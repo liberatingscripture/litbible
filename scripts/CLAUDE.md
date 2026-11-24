@@ -7,7 +7,78 @@
 > this was one file, so they may point into another area file; the root's
 > index says which file holds each section.
 
-### Build Pipeline (`npm run build`, in order)
+## The toolchain's pins
+
+- **Node**: `.node-version` (24, the major CI uses) is what Cloudflare Pages
+  builds with; with no pin, Pages falls back to its image's default, and a
+  2026-10 Astro minor that raised its floor to 22.22 failed every Pages
+  build while GitHub CI stayed green. Keep `engines` in `package.json` (and
+  the root `engines` copy in `package-lock.json`) at the higher of Astro's
+  minimum and the test suite's, and leave the dashboard's `NODE_VERSION`
+  unset so it doesn't override the file.
+- **Two Astro 7 defaults are pinned back to their Astro 6 behavior** in
+  `astro.config.mjs`, each with a comment explaining why: `compressHTML:
+  true` (the new `'jsx'` default joins deliberately spaced adjacent inline
+  text, which corrupts accessible names and Pagefind's extracted text) and
+  `markdown: { processor: unified() }` (the new Sätteri Markdown pipeline
+  changes published copy). Don't drop either without re-running a
+  rendered-output diff; adopting Sätteri is a **content** decision for the
+  owner, not an upgrade side effect.
+
+## Commands run by hand
+
+None of these runs in `npm run build`, and each one's output is committed
+(the table below has each script's rules):
+
+```bash
+npm run build:favicons     # favicon/touch/manifest icons from the emblem SVGs
+npm run build:bracket-font # public/fonts/bracket-markers.otf (the ⟦/⟧ glyph patch)
+npm run build:text-critical-font # public/fonts/text-critical-signs.otf (the SBLGNT's ⸀–⸅ signs)
+npm run build:greek        # public/greek/, from clones outside the repo (GREEK_SOURCES_DIR,
+                           #   MORPHGNT_DIR); see public/greek/CLAUDE.md
+npm run build:apps-qr      # public/images/apps-qr.svg, the app announcement's QR code
+npm run build:alignment    # rescan for glossary-term renderings (src/data/alignment/; carries review state)
+npm run review:alignment   # localhost review tool for that dataset (needs the MorphGNT clone)
+npm run review:words       # alignment phase 2: link SBLGNT words to LIT words (port 4501;
+                           #   --chapters-dir=<dir> aligns English not yet in the corpus)
+npm run build:anchor-vectors        # test/fixtures/anchor-vectors.json (the apps fetch it)
+npm run build:api2-vectors          # test/fixtures/api2-vectors.json (likewise)
+npm run build:sheet-golden          # test/fixtures/sheet-text-golden.json (bump SHEET_FORMAT if one moved)
+npm run build:notebook-crypto-vectors # test/fixtures/notebook-crypto-vectors.json (the apps fetch it)
+npm run draft:release-notes -- --since <ref>  # draft a release-notes entry from git diff
+npm run studio:apps -- <seed|apply|check|board-css|board-files>  # src/components/apps/CLAUDE.md
+```
+
+Each build step also runs alone (`build:topics`, `build:verses`,
+`build:glossary`, `build:greek-bridge`, `build:manifest`, `build:api`,
+`build:api2`, `build:og`); their outputs are git-ignored.
+
+## The apps' sync contract
+
+**Mobile apps are first-class consumers** of `public/api/`, so changing a
+chapter, intro or manifest shape can break them; treat the API as a
+contract. Both apps poll `version.json` first and do nothing further unless
+its `version` string differs from what they last stored (a cheap ~80-byte
+check, run at most once every 24 hours on foreground, by a ~6-hour
+background task, and on pull-to-refresh). Only on a change do they fetch
+`manifest.json` and download the files whose SHA-256 hashes moved. **So the
+whole system works only if `version` moves on every content publish**, which
+is why it's content-derived (build step 6), not date-only. The sync-critical
+files (`version.json`, `manifest.json`, `data/*`) are served `no-store` in
+`public/_headers`, so a version bump is never served beside a stale manifest
+or data file.
+
+**An optional top-level file that never resolves is skipped silently.**
+`topLevelFiles` in `build-api-manifest.mjs` throws only for `required: true`
+entries; anything else missing takes the `// optional + missing → skip
+silently` branch. `glossary.json` sat there as optional from 2026-03 to
+2026-08 with a source that never existed, so the API carried no glossary for
+five months, nothing reported it, and the two apps' bundled copies drifted
+apart. It is `required: true` now, and generated (`src/content/CLAUDE.md`,
+"The glossary feed"). **Treat any new optional entry with suspicion**:
+silence is its failure mode.
+
+## Build Pipeline (`npm run build`, in order)
 
 1. `fetch:podcast` — refreshes `src/data/podcast-feed.xml` from RedCircle. The
    committed XML is a snapshot; a fetch failure reuses it and **never fails the
@@ -43,8 +114,8 @@
    download only changed files. **This step owns the content `version`**: it's
    `v<YYYYMMDD>.<8-char hash of all file hashes>`, so it changes on *every*
    content publish (including multiple on the same day) and stays stable when
-   nothing changed. The apps gate all syncing on this string — see the app-sync
-   note below.
+   nothing changed. The apps gate all syncing on this string ("The apps'
+   sync contract" above).
 7. `build:api` — generates `public/api/content.json` (full NT in canonical
    order). Runs *after* `build:manifest` and reads the shared `version` from
    `version.json` so all three API artifacts report the same version.

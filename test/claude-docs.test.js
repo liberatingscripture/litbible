@@ -15,7 +15,7 @@ import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
-const ROOT_LIMIT = 40 * 1024;
+const ROOT_LIMIT = 28 * 1024;
 // The Study Desk's file loads whole the first time a session reads any file in
 // src/scripts/desk/, so it is capped too. Audit 3 (LG3-5) found it grown from
 // 77 KB to 136 KB in four days. The cap was 150 KB until the Sheets' rules
