@@ -2081,7 +2081,10 @@ from 31:
     client acts on `error` and never on `message`.
 34. **Wrong proofs are counted for the session, and the fifth in a row ends it.** Counting them for
     the account would let someone with a stolen sign-in lock the reader’s own devices out by
-    guessing, and guessing 32 bytes is out of reach at any count.
+    guessing, and guessing 32 bytes is out of reach at any count. Ending a session is not a
+    timed lockout: that one device signs in again and has five more tries, and the reader’s
+    other devices and the notebook are untouched. **BVJ checked, 2026-11-23: “Yes, keep it.”**
+    BDR still confirms.
 35. **`POST /rows` answers each row for itself**, and refuses the whole request only for an old
     `kid`, a request not in form, an id named twice, or more than 500 rows. The other reading
     refuses everything for one bad row, which lets a single record a device can’t fix block its
