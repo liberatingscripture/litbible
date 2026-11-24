@@ -267,15 +267,16 @@ because nothing carried them there. This file is what carries them now.
     ‘Account,’ and then choose ‘Delete account’” for both apps. Write
     here where each app will put it, and anything Play's form needs
     that the page lacks.
-16. **The ten choices the website's connector had to make** (asked
+16. **The eleven choices the website's connector had to make** (asked
     2026-11-24, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
-    “Still open,” 74 to 83. Every one was the website's Claude's, and
-    **BVJ has not been walked through them yet**, so none is BVJ's call.
+    “Still open,” 74 to 84. Every one was the website's Claude's.
+    **BVJ has said yes to eight** (2026-11-24), so those are BVJ's calls
+    and wait on BDR alone: 74, 75, 76, 77, 78, 79, 80, and 82.
     None changes a request or an answer. They are what a client does
     between the requests, and two clients that choose differently can
     each follow the interface and still not end with the same notebook.
     Each is what the website does today and has a test. Answer by
-    number here. **Most of all**:
+    number here. **Most of all, among those eight**:
     - **74**: the format says a sync that drops a record as ahead must
       not move its cursor past it. The website keeps the row and moves
       its cursor on, then judges the row again once its clock arrives.
@@ -292,13 +293,20 @@ because nothing carried them there. This file is what carries them now.
     - **82**: what will each app do if the service is ever restored
       from an older copy, so that its revisions go back? The website
       reads everything again and gives back what it still holds.
+    **Three BVJ left to you to answer** (2026-11-24: “Ask BDR”):
+    - **81**: two copies of one trash record tie toward the service's
+      row. It goes with ask 11's proposal: if the service's row wins an
+      exact tie, should it win the ties inside one trash record too?
     - **83**: a removed device is told “signed out” first and “removed”
       only after signing in again, because removal deletes its
       sessions. Is that acceptable in the apps, or should the service
-      say why a session ended?
-    **And 81 goes with ask 11's proposal**: if the service's row wins an
-    exact tie, it wins the ties inside two copies of one trash record
-    too.
+      say why a session ended? The second is a change to the service
+      and to the interface.
+    - **84**: when a device's clock is five minutes or more from the
+      service's, the website tells its reader and keeps syncing. Should
+      a client only say it, or stop syncing until the clock is right,
+      and will the apps say it too? This is the question under ask 11,
+      part 2, now with one client built.
 
 ## The list
 
@@ -312,8 +320,9 @@ until the account pages (step 4h). What it means for the apps:
 - **The website is now a second client of the rows**, so where the
   interface leaves a client to choose, there is a choice on record to
   match or to argue with. They are the spec's “Changed in step 4g” (what
-  the website does, in order) and “Still open,” 74 to 83 (ask 16 above).
-  **None is BVJ's decision yet.**
+  the website does, in order) and “Still open,” 74 to 84 (ask 16 above).
+  **BVJ said yes to eight of the eleven on 2026-11-24 and left three to
+  BDR** (81, 83, and 84); all eleven are for BDR to confirm.
 - **Pull before push, always**, and the service's row wins an exact tie.
   The second is still the proposal of ask 11; the website is built on it
   behind one constant, so changing it is cheap.
@@ -329,7 +338,8 @@ until the account pages (step 4h). What it means for the apps:
   “Clocks,” “One trash id, two copies”): two copies of one trash record
   tie toward the store's tiebreak, which under sync is the service's
   row. With no tiebreak the result is as before, so the merge vectors
-  are unchanged. **For BDR to confirm**, with ask 11.
+  are unchanged. **BVJ, 2026-11-24: “Ask BDR,” so it is BDR's to
+  answer**, with ask 11 (ask 16, under 81).
 - **Run against a local copy of the service, not the preview**: the
   first sign-in merge, offline edits through a reload, a change of key
   with the reseal, deletions each way, a session ended by the service,

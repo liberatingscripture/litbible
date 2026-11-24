@@ -1272,8 +1272,9 @@ deletion made in between, every time (BA4). So:
   now, so an edit from a phone whose clock is seconds fast isn't dropped as
   "from the future". A file's own `exported` time stays exact. A sync that
   drops a record as ahead must not advance its cursor past it. (**Proposed
-  by the website, step 4g, 2026-11-24; Claude's, not decided by BVJ, and
-  for BDR to confirm**: what the sentence protects is that the record is
+  by the website, step 4g, 2026-11-24; Claude's, BVJ said yes the same
+  day, and for BDR to confirm**: what the sentence protects is that the
+  record is
   judged again once the clock reaches it, so a client may instead keep the
   row it set aside and move its cursor on. The website's connector does
   that, since a cursor held back holds back every later row with it; the
@@ -1311,8 +1312,9 @@ deletion made in between, every time (BA4). So:
   held record with the later `modified`. A trash record whose held record has
   another id than `deletedId` is skipped and reported. **A tie in any of
   the three goes to the local copy, or to the store's tiebreak, as rule
-  a's tie does** (step 4g, 2026-11-24; Claude's, **for BDR to confirm**
-  with the exact-tie proposal under "Two devices whose clocks differ"):
+  a's tie does** (step 4g, 2026-11-24; Claude's; **BVJ the same day:
+  "Ask BDR," so it is BDR's to answer**, with the exact-tie proposal
+  under "Two devices whose clocks differ"):
   under sync two devices can hold one trash record with different held
   copies of equal `modified`, and with every tie local, each kept its own
   for good. With no tiebreak the result is as before, so no vector moves.
@@ -1551,12 +1553,12 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   `SERVICE_WINS_TIE` in `src/lib/desk-sync.mjs`), and carried it to two
   copies of one trash record ("Clocks," "One trash id, two copies").
 - **From the connector (step 4g, 2026-11-24), for BDR to confirm**, both
-  Claude's and neither decided by BVJ: that a client may keep a row that
-  is ahead and move its cursor on, where "Clocks" says the cursor must not
-  pass it; and the trash record's tie above. The rest of what the
-  connector had to choose is in the encryption spec's "Still open," 74 to
-  83, and `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps,"
-  16.
+  Claude's: that a client may keep a row that is ahead and move its
+  cursor on, where "Clocks" says the cursor must not pass it (**BVJ,
+  2026-11-24: "yes"**); and the trash record's tie above (**BVJ: "Ask
+  BDR"**). The rest of what the connector had to choose is in the
+  encryption spec's "Still open," 74 to 84, and
+  `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps," 16.
 - **Every note marker name either app has ever written** (kind 2;
   `STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps," 4): not
   answered as of 2026-11-24, so the reading rule covers `ribbon`,

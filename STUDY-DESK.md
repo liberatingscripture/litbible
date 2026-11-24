@@ -5509,10 +5509,18 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **Built 2026-11-24, and switched on for nobody.** A browser syncs
      only once it is linked to an account, and nothing links one until
      step 4h's pages exist. Nothing under `workers/notebook-service/`
-     changed, so the merge redeploys nothing. **Every choice below is
+     changed, so the merge redeploys nothing. **Every choice below was
      Claude's** unless it names BVJ, the format, or the spec; the ones
      that change what the apps build are the spec's "Still open," 74 to
-     83, for BDR to confirm. What exists:
+     84, for BDR to confirm.
+     **BVJ on this step's choices** (walked through on 2026-11-24): yes
+     to the status sentences as written, to how a stop is announced, to
+     when a pass runs, and to one notebook at a time; yes to 74 to 80
+     and 82 of the spec's "Still open"; and "Ask BDR" on 81 (two copies
+     of one trash record), 83 (a removed device hearing it in two
+     steps), and 84 (a wrong clock said, not enforced). On where the
+     status line sits: "good so far. I think the place on /desk should
+     be tied to the page menu." What exists:
      - **The rules and the loop** (`src/lib/desk-sync.mjs`,
        `desk-sync-engine.mjs`; pure, with storage, the network, and the
        clock handed in). One pass opens the session (the keyring fetched
@@ -5610,7 +5618,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        again, which settles none of those by itself. The reader's yes
        for `replace: true` is 4h's to ask. /desk has no place for the
        status line (the dot and the notice only), and /sheets shows
-       nothing of a stop.
+       nothing of a stop. **BVJ, 2026-11-24: on /desk the place "should
+       be tied to the page menu."** It is not built yet.
      - **Sentences that become false in a linked browser**, for 4h and
        4j: "Your notebook is kept in this browser" on the first-use
        card and in the nudge after a first record (`first-use.js`,
@@ -5650,17 +5659,32 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      unreadable, or refused, and a service restored from an older copy.
      **The deployed preview was not exercised at all.** Mac Safari and
      Firefox were not tried, nor a browser without Web Locks.
-     **For BVJ to settle**:
-     - The wording of every status sentence and of the notice, the dot,
-       "once, then daily," and the timings above.
-     - **A removed device hears it in two steps.** Removing a device
-       ends its sessions, so it is first told it was signed out, and
-       learns it was removed only after signing in again. Whether that
-       should be one step is a change to the service (the spec's "Still
-       open," 83).
-     - **This computer's clock is said, not enforced**: the status line
-       says when it is 5 minutes or more from the service's. The
-       question of which device wins is still with BDR (4d).
+     **What BVJ said of each, 2026-11-24**:
+     - **Yes** to the status sentences and "Reconnect" as written; to
+       the dot with a notice once for each stop and again a day later;
+       to the timings above; and to refusing a second notebook without
+       the reader's yes.
+     - **Yes** to telling the reader when an entry couldn't be sent
+       (the spec's 80), and to the rules of 74 to 79 and 82: a row that
+       is ahead kept and judged again; nothing pushed for a record whose
+       row is held; no copy pushed twice over another device's; rows
+       removed only on evidence; a record that outlives a deletion
+       pushed again; an unreadable row left alone; and a restored
+       service given back what devices hold. Each still waits on BDR.
+     - **The status line's places are "good so far," and on /desk it
+       "should be tied to the page menu."** Claude reads that as the
+       title menu ("Study Desk ▾", `title-menu.js`). Not built. Claude
+       suggests building it with step 4h, whose account pages will want
+       a way in from that menu too.
+     - **"Ask BDR"** on three. **A removed device hears it in two
+       steps** (83): removing a device ends its sessions, so it is first
+       told it was signed out, and learns it was removed only after
+       signing in again; one step is a change to the service. **This
+       computer's clock is said, not enforced** (84): the status line
+       says when it is 5 minutes or more from the service's, and sync
+       goes on. **Two copies of one trash record tie toward the
+       service's row** (81). The website stays as built on all three
+       until BDR answers.
      **What is left**: the account pages (4h); enforcing the policy
      (4i); the privacy page's account section and the sentences above
      (4j); and real devices and browsers (4l). Known limits, none of

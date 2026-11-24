@@ -83,9 +83,10 @@
 //      Two copies of ONE trash record (the same id on both sides) merge the
 //      same way, and there every tie (the two `deletedAt`, the two held
 //      copies' `modified`) goes to the local copy, or to the arriving one when
-//      `tiebreak` favors it (step 4g, 2026-11-24, for BDR to confirm with the
-//      tie rule itself: under sync two devices can hold one trash record with
-//      different held copies of equal `modified`, and each kept its own).
+//      `tiebreak` favors it (step 4g, 2026-11-24; BVJ the same day: "Ask BDR,"
+//      so it is BDR's to answer with the tie rule itself: under sync two
+//      devices can hold one trash record with different held copies of equal
+//      `modified`, and each kept its own).
 //   7. Principle 6, keep what you don't understand. A record of an unknown
 //      kind, from a newer schema, or with fields this code doesn't know merges
 //      by the same id and `modified` rules and is written back exactly as it

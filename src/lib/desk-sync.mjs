@@ -32,6 +32,10 @@
 //          service refused the row, or it can't be sealed), until it changes
 //
 // THE RULES, each a decision of this step's unless it names another source.
+// BVJ went through them on 2026-11-24 and said yes to each but the tie (rule
+// 2 is still a proposal, and on the trash record's tie in desk-merge.mjs BVJ
+// said "Ask BDR"). Every one still waits on BDR: STUDY-DESK-ENCRYPTION.md,
+// "Still open," 74 to 84.
 //
 // 1. Pull before push, always. A row from the service is opened, read as any
 //    arriving record is (readIncoming, the door a backup's records pass too),

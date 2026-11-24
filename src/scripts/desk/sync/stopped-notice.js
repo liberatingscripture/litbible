@@ -24,7 +24,7 @@
 // is), and never replaces another notice: it waits its turn. After the
 // reader presses "Reconnect," what came of it is said too, whatever it was.
 //
-// The wording and the day are Claude's (2026-11-24), for BVJ to change.
+// The wording and the day are Claude's, and BVJ said yes to both (2026-11-24).
 
 import { SLOT_EVENT } from "../../../lib/desk-sync-link.mjs";
 import { STOPPED_WORDS, needsReader, shouldTell, statusWords } from "../../../lib/desk-sync-status.mjs";

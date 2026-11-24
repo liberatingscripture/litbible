@@ -21,10 +21,14 @@ links one until the account pages (step 4h) exist. Sign-in, setup, joining a
 device, and every account page are 4h's; this directory takes a session and
 keys from whoever calls it.
 
-**Every design choice here is Claude's unless a file says BVJ made it**, and
-the ones another client has to match are open with BDR: the spec's "Still
-open," 74 to 83, and `STUDY-DESK-FOR-THE-APPS.md`, ask 16. So keep each one
-cheap to change: one constant, one function, one place.
+**The design choices here were Claude's, and BVJ went through them on
+2026-11-24**: yes to the status sentences, how a stop is announced, when a
+pass runs, one notebook at a time, and eight of the rules another client
+has to match; "Ask BDR" on three (the trash record's tie, a removed device
+hearing it in two steps, and a wrong clock said but not enforced). **All of
+the rules another client has to match are still open with BDR**: the spec's
+"Still open," 74 to 84, and `STUDY-DESK-FOR-THE-APPS.md`, ask 16. So keep
+each one cheap to change: one constant, one function, one place.
 
 ## Where the code is
 
@@ -104,10 +108,11 @@ cheap to change: one constant, one function, one place.
    `linkNotebook` refuses a private key that can be read out.
 9. **The service's row wins an exact tie** (`SERVICE_WINS_TIE`). It is the
    format's proposal of step 4d, not a decision; keep it one constant.
-10. **The words are Claude's, for BVJ to change**, and follow the site's
-    conventions (`test/desk-sync-status.test.js` checks curly quotes and no
-    em dashes). Every sentence for a stop says the notebook is still on this
-    computer.
+10. **BVJ said yes to the words as written** (2026-11-24), and to the dot
+    with a notice once for each stop and again a day later. They follow the
+    site's conventions (`test/desk-sync-status.test.js` checks curly quotes
+    and no em dashes), and every sentence for a stop says the notebook is
+    still on this computer. A new sentence is a new thing to show BVJ.
 
 ## A place for the status line
 
@@ -116,7 +121,10 @@ A desk page that wants the line leaves an empty, hidden element marked
 makes or shows one (the Notebook's Settings tab and `/notebook` do). An
 unlinked browser never loads the code that fills it. `/desk` has no slot yet
 (the dot and the notice only), and `/sheets` shows nothing of a stop, since
-the notice never comes up over a sheet's page.
+the notice never comes up over a sheet's page. **BVJ on the places
+(2026-11-24): "good so far. I think the place on /desk should be tied to the
+page menu."** Claude reads that as /desk's title menu ("Study Desk ▾",
+`desk/title-menu.js`); it is not built.
 
 ## What step 4h calls
 

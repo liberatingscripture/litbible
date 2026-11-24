@@ -36,7 +36,8 @@ to 58, for BDR to confirm and BVJ to check. No request that step 4c built change
 and the key proof. **No request, answer, or word changed, and the service was not touched.** What a
 client does between the requests was mostly unwritten, and the connector had to decide it. “Changed
 in step 4g” says what it does, and each place that another client must match, or may want to, is
-under “Still open,” 74 to 83, for BDR to confirm and BVJ to check.
+under “Still open,” 74 to 84, for BDR to confirm. **BVJ was walked through them the same day**:
+yes to eight, and three left to BDR to answer (81, 83, and 84).
 
 Plan C was chosen on BDR and BVJ’s call of 2026-11-23: a small LIT service on Cloudflare holds each
 signed-in reader’s notebook, and only the reader’s own devices can read it. This file says exactly
@@ -2559,8 +2560,8 @@ cursor after its own push) and one under “The website” (what a linked browse
 this section says what a client does between the requests, which this file had left to the client.
 Each item is what the website does today and has a test in `test/desk-sync*.test.js`. The ones
 marked **(a choice)** could reasonably have gone another way, are mine (BVJ’s Claude), and are
-under “Still open,” 74 to 83, for BDR to confirm and BVJ to check. **BVJ has not been walked
-through them.**
+under “Still open,” 74 to 84, for BDR to confirm. **BVJ was walked through them on 2026-11-24**,
+and what BVJ said is written there, item by item.
 
 1. **A pass, in order**: `GET /account`; `GET /keyring` and `POST /session/proof` when the session
    isn’t open on the current key; `GET /rows?since=` until `more` is false; merge; `POST /rows`;
@@ -2610,6 +2611,8 @@ through them.**
 15. **One thing the run against the real service showed, and no decision**: removing a device ends
     its sessions, so a removed device is told `sign_in` first, and learns that it was removed only
     when its reader signs in again (item 83).
+16. **A clock five minutes or more from the service’s is said to the reader, and sync goes on**
+    (item 84). **(a choice)**
 
 **Run against a local copy of the service on 2026-11-24** (`wrangler dev`, the Study Desk in a real
 browser, a second device in Node): the first sign-in merge, offline edits through a reload, a
@@ -2999,10 +3002,12 @@ numbers go on from 58:
 
 **From step 4g, for BDR to confirm and BVJ to check.** Building the website’s connector forced a
 choice in each of these, where this file and the format made none. **Every one was made by me
-(BVJ’s Claude, 2026-11-24), and BVJ has not been walked through them.** None changes a request or
+(BVJ’s Claude, 2026-11-24). BVJ was walked through them the same day and said yes to eight: 74,
+75, 76, 77, 78, 79, 80, and 82, which now wait on BDR alone. BVJ left three to BDR to answer: 81,
+83, and 84, which the walk-through added.** None changes a request or
 an answer. What they decide is whether the website and an app, each following the interface, end
 with the same notebook: 74 to 79 and 81 are rules a second client has to share, or at least not
-work against; 80, 82, and 83 are questions. Each is what the website does today and has a test.
+work against; 80 and 82 to 84 are questions. Each is what the website does today and has a test.
 Changing one before the freeze is cheap. The numbers go on from 73:
 
 74. **A row from a clock running ahead is kept and judged again, and the cursor moves on.** The
@@ -3014,14 +3019,14 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     the device had no copy of the record, the merge writes one capped at the device’s own time,
     as the format’s clamp says, and that capped copy is never pushed. **For BDR**: is the
     format’s sentence the rule the apps will build to, or its purpose? The format now says, as a
-    proposal, that either way serves.
+    proposal, that either way serves. **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 75. **While a device keeps a row aside or ahead, it pushes nothing for that record**, not even an
     edit its reader makes meanwhile, since it hasn’t read what the push would replace. The edit
     stays in the notebook, is counted for the reader (“1 change made here is waiting behind an
     entry this computer hasn’t been able to take in yet”), and is settled by the merge once the
     row can be read. For a row that is ahead, the format’s “Two devices whose clocks differ”
     already names the cost: the edit made in between gives way. **For BDR**: the same in the
-    apps?
+    apps? **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 76. **A copy is not pushed twice over another device’s answer (the damper).** When a device has
     pushed a copy of a record, another device replaces that row, and the first device’s merge
     still prefers its own copy, it does not push that copy again until the record next changes
@@ -3029,7 +3034,8 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     field one of them drops) would otherwise trade pushes without end, each a new revision that
     every other device pulls. With the damper each keeps its own copy until the record changes,
     which is the smaller harm. If merges never disagree, it never acts. **For BDR**: the apps
-    need this or a bound of their own; say which.
+    need this or a bound of their own; say which. **BVJ checked, 2026-11-24: “yes.”** BDR still
+    confirms.
 77. **A row is removed from the service only on evidence.** A record that is gone from a device
     is never reason to remove its row. The row goes only once the device holds what replaced the
     record, already stored on the service: for a deleted record, its trash record; for a trash
@@ -3037,25 +3043,26 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     format’s collapse rule). So the trash record is pushed first and the row removed after. A
     record that is simply missing (storage cleared in part, a fault) is fetched again, so a
     damaged device can’t delete a notebook for every other device. **For BDR**: the same order
-    in the apps?
+    in the apps? **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 78. **A record that outlives an arriving deletion is pushed again.** When a trash record arrives
     and loses to a record that is live on the device (the format’s rule b: the edit is the later
     action), the device pushes that record as a new row, and then removes the trash record’s
     row. The device that deleted the record removed its row (77), and nothing else would put it
-    back for the others. **For BDR**: the same in the apps?
+    back for the others. **For BDR**: the same in the apps? **BVJ checked, 2026-11-24: “yes.”**
+    BDR still confirms.
 79. **A row a device can’t read is left exactly as it is.** “Opening” says to skip such a row,
     keep the device’s own copy, and report it. It doesn’t say whether the device’s copy should
     then go up over the row. The website’s doesn’t: the fault may be this client’s, so the copy
     it happens to hold is no evidence against the row. Only a later change to that record on
     this device pushes over it. The reader is told how many entries couldn’t be read. **For
-    BDR**: the same in the apps?
+    BDR**: the same in the apps? **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 80. **A row the service refuses stays on the device, and the reader is told.** `refused` names a
     check the row failed, which sending it again can’t mend, so the device doesn’t until the
     record changes. Its status line says “1 entry couldn’t be sent to your account. It is still
     in your notebook on this computer.” The same is done for a record too large to seal. The one
     case known to be reachable is item 31’s, a trash record whose times aren’t in the `Z` form,
-    so 31 is now something a reader could see. **For BVJ**: is telling the reader right? **For
-    BDR**: item 31’s answer.
+    so 31 is now something a reader could see. **BVJ, 2026-11-24: “yes” to telling the reader.**
+    **For BDR**: item 31’s answer, and whether the apps tell their readers too.
 81. **Two copies of one trash record tie toward the service’s row.** The format merges two copies
     of one trash record field by field and gave every tie to the local copy. Under sync two
     devices can hold one trash record, the same id, with different held copies of equal
@@ -3063,6 +3070,8 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     row when the store’s tiebreak favors it: the exact-tie proposal of step 4d, applied to the
     one place it didn’t reach. With no tiebreak the merge is as it was, so the merge vectors
     don’t move. **For BDR**, with the tie rule itself (`STUDY-DESK-FOR-THE-APPS.md`, ask 11).
+    **BVJ, 2026-11-24: “Ask BDR,” so this is BDR’s to answer.** The website keeps it as built
+    until then, behind the same constant as the tie rule.
 82. **A service whose revisions went backward.** If the database is ever restored from an older
     copy (the runbook’s Time Travel), its revision counter goes back, and rows written since are
     gone from it while devices still hold them. The website notices at its next push, when the
@@ -3072,7 +3081,9 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     something. **For BDR**: what will the apps do after a restore? **For BVJ and the runbook
     (step 4l)**: only the website does this today, and it infers the restore. A member of
     `GET /account` that names it (a number the service raises when it is restored) would let
-    every client know instead, and would be a change to the interface. Not built.
+    every client know instead, and would be a change to the interface. Not built. **BVJ checked,
+    2026-11-24: “yes”** to what the website does, with the question to BDR standing and the
+    service’s own marker left for step 4l to weigh.
 83. **A removed device hears it in two steps.** Removing a device deletes its sessions (“Removing
     a device, and changing the key,” step 4), and the same section says that a device which
     finds no sealed keyring for itself has been removed and says so. The two don’t meet: with no
@@ -3083,4 +3094,15 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     the first message is not the true reason. One way to make it one step, as an example and not
     a decision: `sign_in` already carries a `reason` after a fifth wrong proof, and could carry
     one for a session ended by a removal, which needs the service to remember why a session
-    ended. **For BVJ and BDR**: are two steps acceptable?
+    ended. **For BVJ and BDR**: are two steps acceptable? **BVJ, 2026-11-24: “Ask BDR,” so this
+    is BDR’s to answer.**
+84. **A clock far from the service’s is said to the reader, and sync goes on.** Added by the
+    walk-through. The service sends its time with every answer (“A record on the service”), and
+    the format leaves what a client does with it to the client. The website’s status line says
+    so when this computer’s clock is five minutes or more from the service’s (“This computer’s
+    clock is about 2 hours ahead. Until it is set right, changes made here can replace later
+    ones from your other devices.”), and it keeps syncing. The other reading holds sync back
+    until the clock is set, which the apps’ file already named as an example under ask 11. **For
+    BDR**: should a client only say it, or stop syncing until the clock is right, and will the
+    apps say it too? **BVJ, 2026-11-24: “Ask BDR,” so this is BDR’s to answer.** The website
+    says it and syncs on until then.

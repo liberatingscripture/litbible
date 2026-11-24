@@ -5,7 +5,8 @@
 // synced, and whether "Reconnect" is offered. Pure, so the words are tested
 // without a browser; src/scripts/desk/sync/status-line.js draws them.
 //
-// The wording is Claude's (2026-11-24), for BVJ to change. Two things it
+// The wording is Claude's, and BVJ said yes to it as written (2026-11-24),
+// so a new sentence here is a new thing to show BVJ. Two things it
 // holds to, which are BVJ's standing requirements for sync: a reader is never
 // signed out silently, and never left to wonder whether work was lost, so
 // every state that stops the sync says where the notebook is (on this
