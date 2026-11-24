@@ -6,7 +6,7 @@
 // Every other test file sends each request from an address of its own
 // (test/call.js); these send from one.
 import { env } from "cloudflare:workers";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import config from "../wrangler.jsonc?raw";
 import { RETRY_SECONDS, limitFor } from "../src/limits.js";
 import { SECRET, call, freshAccount } from "./call.js";
@@ -24,6 +24,29 @@ function configured(name) {
 }
 const SIGN_IN = configured("SIGN_IN_LIMIT");
 const REQUEST = configured("REQUEST_LIMIT");
+
+// THE LOCAL LIMITER COUNTS IN WINDOWS ALIGNED TO THE WALL CLOCK. workerd's
+// local copy keeps one count for a key and a period, and starts it again each
+// time floor(now / period) moves (miniflare's ratelimit-object worker). So a
+// burst that is under way as the clock crosses the top of a minute is counted
+// in two halves and is never refused, and a test that expects an exact count
+// fails through no fault of the service's ("expected 1220 to be 1200"). That
+// failed a CI run on 2026-11-24, and it would fail a deploy the same way,
+// since the deploy workflow runs this suite first.
+//
+// So every test here starts with room to finish inside one window: when less
+// than ROOM_MS is left of the current one, it waits for the next to begin.
+// A run meets that wait about one time in six, and once at most.
+
+/** The shorter of the two periods: an edge of the longer is an edge of the shorter too (10 divides 60). */
+const WINDOW_MS = Math.min(SIGN_IN.period, REQUEST.period) * 1000;
+/** Longer than a test may take (Vitest stops one at five seconds), so a test that starts with this much room can't cross an edge. */
+const ROOM_MS = 6000;
+
+beforeEach(async () => {
+  const left = WINDOW_MS - (Date.now() % WINDOW_MS);
+  if (left < ROOM_MS) await new Promise((resolve) => setTimeout(resolve, left + 100));
+}, ROOM_MS + 5000);
 
 /** Sends `send` until it is refused, at most `most` times. Returns how many were answered before the refusal, and the refusal. */
 async function until(send, most) {
