@@ -14,7 +14,8 @@
 // response that carries a PRF result is refused, and an Android app's origin
 // is checked against a list. The tests hold this code to the W3C's own
 // published examples (test/webauthn.test.js), not only to an authenticator
-// written beside it.
+// written beside it. The pieces are exported for that test: the examples
+// don't all verify the user, so it reads each one piece by piece.
 //
 // WHAT THE SERVICE NEVER SEES: the PRF's output. A client removes it before a
 // response leaves the device, and the routes refuse one that still has it
@@ -75,7 +76,7 @@ export function readClientData(bytes, type) {
  * flags, the signature counter, and, at registration, the new credential's id
  * and public key. Nothing may follow what the flags announce.
  */
-function readAuthenticatorData(bytes) {
+export function readAuthenticatorData(bytes) {
   if (bytes.length < 37) fail("authenticator_data");
   const flags = bytes[32];
   const out = {
@@ -127,7 +128,7 @@ async function checkAuthenticatorData(data, rpId) {
  * A COSE public key (RFC 9052) as the JWK the service stores: P-256 for
  * ES256, or RSA of 2,048 bits or more for RS256. Anything else is refused.
  */
-function jwkFromCose(key) {
+export function jwkFromCose(key) {
   const bytes = (label, min, max) => {
     const value = key.get(label);
     return value instanceof Uint8Array && value.length >= min && value.length <= max ? value : fail("key");
@@ -233,17 +234,23 @@ export async function checkAssertion({ clientDataJSON, authenticatorData, signat
   // Whether a credential may be backed up is fixed when it is made (WebAuthn, 6.1.3).
   if (data.eligible !== syncs) fail("backup");
 
+  if (!(await verifySignature({ jwk, signature, authenticatorData, clientDataJSON }))) fail("signature");
+  return { count: data.count };
+}
+
+/**
+ * Whether `signature` is the passkey's over what an assertion signs: the
+ * authenticator data, then the SHA-256 of the client data (WebAuthn 7.2,
+ * steps 20 and 21).
+ */
+export async function verifySignature({ jwk, signature, authenticatorData, clientDataJSON }) {
   const key = await importPublicKey(jwk);
   const signed = new Uint8Array(authenticatorData.length + 32);
   signed.set(authenticatorData);
   signed.set(await sha256(clientDataJSON), authenticatorData.length);
-  let good = false;
   if (jwk.kty === "EC") {
     const raw = ecdsaSignatureFromDer(signature);
-    good = raw !== null && (await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, raw, signed));
-  } else {
-    good = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, signature, signed);
+    return raw !== null && (await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, raw, signed));
   }
-  if (!good) fail("signature");
-  return { count: data.count };
+  return crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, signature, signed);
 }
