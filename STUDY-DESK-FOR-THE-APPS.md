@@ -170,20 +170,34 @@ because nothing carried them there. This file is what carries them now.
 13. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
     first entry below): `STUDY-DESK-ENCRYPTION.md`, “Still open,” 41 to
     58. Every one was the website's Claude's. **BVJ has said yes to
-    eleven** (2026-11-24), so those are BVJ's calls and wait on BDR
+    thirteen** (2026-11-24), so those are BVJ's calls and wait on BDR
     alone: 42, 43, 44, 46, 47, 49, 50 (every passkey is named “LIT
     Bible notebook,” under “LIT Bible”), 52 (how long a session lasts),
-    55 (accounts are not joined in version 1), 56, and 57. **Four BVJ
-    left to you to answer** (2026-11-24: “ask BDR”): 41 (ask 12 above),
-    45 (a passkey's options and response travel in the standard's JSON
-    forms, which an iOS app builds by hand), 48 (each SDK must send the
-    service's challenge to Apple or Google unchanged, as the nonce),
-    and 53 (the words of the new refusals). Three BVJ has not decided:
-    51, 54, and 58. Each is what the service does today and has a
-    test, and each is cheap to change before the freeze. Answer by
-    number here. **Most of all**: 45 and 48; in 42, that a passkey
-    used from the iOS app answers from `https://litbible.net`; and 52
-    (how long a session lasts).
+    54, 55 (accounts are not joined in version 1), 56, 57, and 58.
+    **Four BVJ left to you to answer** (2026-11-24: “ask BDR”): 41 (ask
+    12 above), 45 (a passkey's options and response travel in the
+    standard's JSON forms, which an iOS app builds by hand), 48 (each
+    SDK must send the service's challenge to Apple or Google unchanged,
+    as the nonce), and 53 (the words of the new refusals). Each is
+    what the service does today and has a test, and each is cheap to
+    change before the freeze. Answer by number here. **Most of all**:
+    45 and 48; in 42, that a passkey used from the iOS app answers
+    from `https://litbible.net`; and 52 (how long a session lasts).
+    **And one BVJ asks your view on before deciding: 51.** Some
+    passkeys count their uses (security keys, and passkeys kept on one
+    device, like Windows Hello), and as built the service refuses a
+    sign-in whose count didn't go up, since that is what a copied
+    security key looks like. BVJ leans toward letting it through
+    instead (2026-11-24: “I think no”). The case for that: a false
+    alarm, such as a count rolled back when a device is restored,
+    shuts a reader out of that passkey until its count passes the one
+    the service holds; they can mend it only by signing in another way
+    and adding the passkey again; and a passkey that counts doesn't
+    sync, as far as the vendors' pages say, so it never holds the key,
+    and a copy that signs in still can't open the notebook. The case
+    for refusing: it is the only sign of a copied key the service ever
+    gets. **What do you think, and has either app met a passkey whose
+    count went backward?** The service refuses until this is decided.
 
 ## The list
 

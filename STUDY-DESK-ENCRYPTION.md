@@ -2487,9 +2487,10 @@ from 31:
     it, for an open session only: item 52**, which BVJ checked on 2026-11-24.
 
 **From step 4e, for BDR to confirm and BVJ to check.** Building sign-in forced a choice in each of
-these. **Every one was made by me (BVJ’s Claude, 2026-11-24). BVJ has since said yes to eleven
-(2026-11-24): 42, 43, 44, 46, 47, 49, 50, 52, 55, 56, and 57, which now wait on BDR alone. BVJ
-left four to BDR to answer: 41, 45, 48, and 53. Three BVJ has not decided: 51, 54, and 58.**
+these. **Every one was made by me (BVJ’s Claude, 2026-11-24). BVJ has since said yes to thirteen
+(2026-11-24): 42, 43, 44, 46, 47, 49, 50, 52, 54, 55, 56, 57, and 58, which now wait on BDR alone.
+BVJ left four to BDR to answer: 41, 45, 48, and 53. One is not decided: 51, where BVJ leans
+toward no and asks what BDR thinks.**
 Each is written into “Signing in” or “Ways to sign in,” is what the service does today, and has a
 test. Changing one before the freeze is cheap. The numbers go on from 40:
 
@@ -2541,7 +2542,14 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     2026-11-24: “yes.”** BDR still confirms.
 51. **A counter that doesn’t go forward is refused.** A passkey that keeps no counter sends 0 and
     is always accepted, which covers every synced passkey. The other reading only notes a counter
-    that went backward and lets the sign-in through.
+    that went backward and lets the sign-in through. **BVJ leans toward that other reading
+    (2026-11-24: “I think no”) and asks what BDR thinks, so this is not decided, and the service
+    refuses until it is.** For letting it through: a false alarm, such as a count rolled back when a
+    device is restored, shuts a reader out of that passkey until its count passes the one the
+    service holds, which they can mend only by signing in another way and adding the passkey again;
+    and a passkey that counts is, as far as the vendors’ pages say, one that doesn’t sync, which
+    never holds the key (item 8), so a copy that signs in still can’t open the notebook. For
+    refusing: it is the only sign of a copied security key the service ever gets.
 52. **How long a session lasts: 30 days from a sign-in, and an open session kept alive by use for
     up to 365 days.** Item 40’s flat 30 days would sign every device out monthly, and a phone that
     syncs in the background would stop until its reader noticed. Only an open session is
@@ -2555,7 +2563,8 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     `not_found`, with `GET /sign-in` to say which are on. **BVJ, 2026-11-24: “ask BDR,” so this is
     BDR’s to answer.**
 54. **A change to the ways in moves the lists’ version**, and those requests carry no `lists` of
-    their own. A device may therefore be told `lists_changed` when neither list changed.
+    their own. A device may therefore be told `lists_changed` when neither list changed. **BVJ
+    checked, 2026-11-24: “yes.”** BDR still confirms.
 55. **No joining of accounts, and no separate sign-up for Apple or Google.** A provider account
     that is no account’s way in makes a new, empty account when it signs in, and the answer says
     so (`created`). A reader who ends up with two accounts can’t fold one into the other in
@@ -2567,4 +2576,5 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
 57. **The limits**: 20 ways in for an account, and the sizes of a passkey’s response and of a
     token under “How values are spelled.” **BVJ checked, 2026-11-24: “yes.”** BDR still confirms.
 58. **`DELETE /session`**, for a device that signed in and never joined; and **a client ignores a
-    member of an answer that it doesn’t know**, so that a later step can add one.
+    member of an answer that it doesn’t know**, so that a later step can add one. **BVJ checked,
+    2026-11-24: “yes.”** BDR still confirms.

@@ -5433,12 +5433,15 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **The spec's interface holds the final shapes** (“Signing in,”
        “Ways to sign in”). What moved is its “Changed in step 4e”; the
        eighteen places that were a choice are its “Still open,” 41 to 58,
-       for BDR to confirm and BVJ to check. **BVJ said yes to eleven on
-       2026-11-24**: 42, 43, 44, 46, 47, 49, 50 (every passkey is named
-       “LIT Bible notebook”), 52 (how long a session lasts), 55
-       (accounts are not joined in version 1), 56, and 57. **BVJ left
-       four to BDR to answer**: 41, 45, 48, and 53. Three BVJ has not
-       decided: 51, 54, and 58.
+       for BDR to confirm and BVJ to check. **BVJ said yes to thirteen
+       on 2026-11-24**: 42, 43, 44, 46, 47, 49, 50 (every passkey is
+       named “LIT Bible notebook”), 52 (how long a session lasts), 54,
+       55 (accounts are not joined in version 1), 56, 57, and 58. **BVJ
+       left four to BDR to answer**: 41, 45, 48, and 53. **One is not
+       decided**: 51 (a passkey whose count doesn't go forward is
+       refused), where BVJ leans toward letting it through (“I think
+       no”) and asks what BDR thinks. The service refuses until it is
+       decided.
      **What waits on BDR**: Apple's client ids, team id, key id, and
      key, and Google's client ids (`STUDY-DESK-FOR-THE-APPS.md`,
      “Waiting to hear from the apps”); then a first sign-in with each
