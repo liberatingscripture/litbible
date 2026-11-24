@@ -178,7 +178,11 @@ against a local D1 made from the real migrations.
   request and a run. Each condition in a statement of `src/waiting.js` was
   taken out in turn, and a test here failed each time.
 - `limits.test.js`: the two limits, against workerd's own local copy of
-  Cloudflare's rate limiting, with the numbers `wrangler.jsonc` gives.
+  Cloudflare's rate limiting, with the numbers `wrangler.jsonc` gives. That
+  local copy counts exactly, in windows aligned to the wall clock, so a
+  burst that crossed the top of a minute was counted in two halves and never
+  refused (it failed a CI run on 2026-11-24). Each test there now waits for
+  the next window when fewer than six seconds are left of the current one.
 - `config.test.js`: `wrangler.jsonc` and the deploy workflow, held to what
   production must never have (anything of the preview's way in, a dev
   server, a deploy on a push).
