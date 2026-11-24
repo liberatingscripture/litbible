@@ -93,6 +93,33 @@ because nothing carried them there. This file is what carries them now.
    itself, so one row a device can't fix never blocks the rest of its
    queue. **32 next**: say if either app would ever send a body over
    4 MiB or more than 500 rows in one request.
+10. **BDR, please try one rollback of the preview, and say here how it
+    went** (asked by BVJ, 2026-11-23). It has only been run from BVJ's
+    account, and you are the one who will need it. It needs no
+    coordination with BVJ, no merge, and nothing on Cloudflare, and the
+    preview holds test data only, so nothing can be lost.
+    1. On github.com, open this repository's **Actions** tab. In the
+       left list, choose **Notebook service (preview)**.
+    2. Click **Run workflow** (right side). Leave the branch on `main`.
+       Set **action** to `rollback`. Leave **version** empty, which
+       means "the version before the current one." In **reason**, write
+       a few words (`BDR's first rollback test`). Click the green
+       **Run workflow**.
+    3. Open the run that appears. It takes about a minute. Its
+       **Versions before** and **Versions after** steps list what was
+       deployed and what is now. A green check means the Worker is back
+       on the earlier version.
+    4. **Put it back**: **Run workflow** again on `main`, with
+       **action** `deploy`. That redeploys what is on `main`, runs the
+       service's tests first, and finishes by running the walkthrough
+       against the deployed service (about two minutes). A green check
+       means the preview is where it started.
+    To return to one particular version instead, copy its Version ID
+    from a **Versions before** step into **version**. A rollback
+    returns the service's code in seconds and never touches the
+    database. In a real break: roll back first, tell BVJ second. A fix
+    still goes through a pull request that BVJ merges, and the merge
+    deploys it.
 
 ## The list
 
