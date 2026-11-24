@@ -65,7 +65,8 @@ because nothing carried them there. This file is what carries them now.
    or an en dash in it is refused. **BVJ said to keep it strict**
    (2026-11-23), so it is BVJ's call and **for BDR to confirm**. If the
    apps would rather every client remove those, say so and the vectors
-   change. **BVJ then said yes to the other eight as built** (22, and 24
+   change. **Overtaken the same day: BVJ loosened it**, and the vectors
+   are version 2 (the first entry in the list below). **BVJ then said yes to the other eight as built** (22, and 24
    to 30; 2026-11-23), so all nine are BVJ's calls and wait on BDR alone.
 8. **Has either app ever written a trash record's time in any form but
    the `Z` one** (`2026-11-23T18:35:09.978Z`)? Asked 2026-11-23; the
@@ -76,6 +77,33 @@ because nothing carried them there. This file is what carries them now.
    relaxes its check for a trash record's row instead.
 
 ## The list
+
+### 2026-11-23, a pasted code is read more kindly (vectors version 2)
+
+**This changes what both apps build, and the vectors file.** BVJ
+loosened the spec's “Still open,” 23, after first keeping it strict the
+same day. **For BDR to confirm.**
+
+- **The rule**: before a typed recovery code, approval code, or
+  typed-back group is read, a client removes white space, the invisible
+  characters a paste can carry, and the hyphen with the dashes put in its
+  place. Everything else is read as before (`O` as `0`, `I` and `L` as
+  `1`, anything else refused, characters checked before length).
+- **The list is the rule**, in `STUDY-DESK-ENCRYPTION.md` under “The
+  recovery code,” as code points. **Do not use Swift's `isWhitespace` or
+  Kotlin's `isWhitespace` in its place**: each differs from the list, and
+  three clients would then read one paste three ways.
+- **The vectors**: `test/fixtures/notebook-crypto-vectors.json` now has
+  `vectorsVersion` 2. Only the `read` cases of `recoveryCode` and
+  `approvalCode` changed. Four cases that were refused are now read (a
+  tab, a line break, an en dash, a no-break space), and there are new
+  ones: other dashes and spaces, a zero width space, a byte order mark,
+  every removed character at once, and four that are still refused (an
+  underscore, a full stop, a fullwidth digit, and a code that is nothing
+  but removed characters, which is a wrong length).
+- **Why**: a reader uses the recovery code after losing their devices,
+  and a code that is right in every character should not be refused for
+  what a copy brought with it. It costs nothing in security.
 
 ### 2026-11-23, the encryption reference and its test vectors
 

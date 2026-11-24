@@ -5234,8 +5234,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        and BDR to confirm**. The one a reader could meet: a typed code is
        read to the letter, so a pasted code that brings a line break or an
        en dash with it is refused (22 to 30 has the alternative). **BVJ,
-       2026-11-23: "Keep the recovery code pasting strict,"** so 23 stands
-       as built. **BVJ then said yes to the other eight** (22, and 24 to
+       2026-11-23: "Keep the recovery code pasting strict,"** so 23 stood
+       as built, until **BVJ loosened it later the same day** ("Let's go
+       ahead and loosen it"): white space, invisible characters, and
+       dashes are removed by one list every client shares, and the
+       vectors are version 2. **BVJ then said yes to the other eight** (22, and 24 to
        30) after a walk through each, so all nine wait on BDR alone.
      - **One question it turned up** (the spec's "Still open," 31): the
        format lets a trash record carry times that merely parse, and the

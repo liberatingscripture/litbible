@@ -3,7 +3,7 @@
  "spec": "STUDY-DESK-ENCRYPTION.md",
  "specDraft": 2,
  "version": 1,
- "vectorsVersion": 1,
+ "vectorsVersion": 2,
  "generatedBy": "npm run build:notebook-crypto-vectors (scripts/build-notebook-crypto-vectors.mjs)",
  "conventions": [
   "Byte strings are lowercase hex. The exceptions are inside text the spec itself defines: a `plaintext` or `text` (JSON as it is sealed) carries its byte strings in base64url, as do a MAC's `macInput` and the passkey responses under `prf`.",
@@ -208,7 +208,7 @@
   ]
  },
  "recoveryCode": {
-  "about": "The recovery code: 15 bytes as 24 characters of Crockford's base32 (0123456789ABCDEFGHJKMNPQRSTVWXYZ), five bits to a character, most significant first, shown in six groups of four. Reading one back: spaces (U+0020) and hyphens (U+002D) are removed, a to z are taken as A to Z, O is read as 0 and I or L as 1; any other character is refused (`code`), and then any length but 24 (`codeLength`). `typedBack` is the check after a code is shown: the reader types a group back (groups are numbered from 1), read by the same rules.",
+  "about": "The recovery code: 15 bytes as 24 characters of Crockford's base32 (0123456789ABCDEFGHJKMNPQRSTVWXYZ), five bits to a character, most significant first, shown in six groups of four. Reading one back: white space, invisible characters, and hyphens and dashes are removed (the spec's list under \"The recovery code\": U+0009 to U+000D, U+0020, U+0085, U+00A0, U+1680, U+2000 to U+200A, U+2028, U+2029, U+202F, U+205F, U+3000; U+00AD, U+200B to U+200D, U+2060, U+FEFF; U+002D, U+2010 to U+2015, U+2212, U+FE58, U+FE63, U+FF0D), a to z are taken as A to Z, O is read as 0 and I or L as 1; any other character is refused (`code`), and then any length but 24 (`codeLength`). `typedBack` is the check after a code is shown: the reader types a group back (groups are numbered from 1), read by the same rules.",
   "format": [
    {
     "why": "all zero bytes",
@@ -372,39 +372,147 @@
     }
    },
    {
-    "why": "a tab between groups: only the space (U+0020) and the hyphen (U+002D) are removed",
+    "why": "a tab between groups: white space is removed",
     "given": {
      "typed": "DS1X\t9T3V-7T8Y-FDRD-1B46-QTYP"
     },
     "expected": {
-     "refused": "code"
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
     }
    },
    {
-    "why": "a line break at the end",
+    "why": "a line break at the end, as a paste from a note brings",
     "given": {
      "typed": "DS1X-9T3V-7T8Y-FDRD-1B46-QTYP\n"
     },
     "expected": {
-     "refused": "code"
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
     }
    },
    {
-    "why": "an en dash (U+2013) for a hyphen",
+    "why": "a Windows line break (U+000D U+000A) at each end",
     "given": {
-     "typed": "DS1X–9T3V-7T8Y-FDRD-1B46-QTYP"
+     "typed": "\r\nDS1X-9T3V-7T8Y-FDRD-1B46-QTYP\r\n"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "an en dash (U+2013) for every hyphen",
+    "given": {
+     "typed": "DS1X–9T3V–7T8Y–FDRD–1B46–QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "an em dash (U+2014) for a hyphen",
+    "given": {
+     "typed": "DS1X—9T3V-7T8Y-FDRD-1B46-QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "a non-breaking hyphen (U+2011) for a hyphen",
+    "given": {
+     "typed": "DS1X‑9T3V-7T8Y-FDRD-1B46-QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "a minus sign (U+2212) for a hyphen",
+    "given": {
+     "typed": "DS1X−9T3V-7T8Y-FDRD-1B46-QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "a no-break space (U+00A0) for every hyphen",
+    "given": {
+     "typed": "DS1X 9T3V 7T8Y FDRD 1B46 QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "a narrow no-break space (U+202F) and an ideographic space (U+3000)",
+    "given": {
+     "typed": "DS1X 9T3V　7T8Y-FDRD-1B46-QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "a zero width space (U+200B) after every character",
+    "given": {
+     "typed": "D​S​1​X​9​T​3​V​7​T​8​Y​F​D​R​D​1​B​4​6​Q​T​Y​P"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "a byte order mark (U+FEFF) at the start and a soft hyphen (U+00AD) inside",
+    "given": {
+     "typed": "﻿DS1X­9T3V7T8YFDRD1B46QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "every removed character at once: the first and last of each range in the spec's list",
+    "given": {
+     "typed": "\t\r         　­​‍⁠﻿-‐―−﹘﹣－DS1X9T3V7T8YFDRD1B46QTYP"
+    },
+    "expected": {
+     "bytes": "6e43d4e87b3e91e7b70d0ac86bebd6"
+    }
+   },
+   {
+    "why": "an underscore, which is not a dash here",
+    "given": {
+     "typed": "DS1X_9T3V-7T8Y-FDRD-1B46-QTYP"
     },
     "expected": {
      "refused": "code"
     }
    },
    {
-    "why": "a no-break space (U+00A0) for a space",
+    "why": "a full stop between groups",
     "given": {
-     "typed": "DS1X 9T3V-7T8Y-FDRD-1B46-QTYP"
+     "typed": "DS1X.9T3V-7T8Y-FDRD-1B46-QTYP"
     },
     "expected": {
      "refused": "code"
+    }
+   },
+   {
+    "why": "a fullwidth digit zero (U+FF10), which is not 0",
+    "given": {
+     "typed": "０S1X9T3V7T8YFDRD1B46QTYP"
+    },
+    "expected": {
+     "refused": "code"
+    }
+   },
+   {
+    "why": "only white space and dashes: nothing is left to read",
+    "given": {
+     "typed": " \t-–\n"
+    },
+    "expected": {
+     "refused": "codeLength"
     }
    },
    {
@@ -689,39 +797,147 @@
     }
    },
    {
-    "why": "a tab between groups: only the space (U+0020) and the hyphen (U+002D) are removed",
+    "why": "a tab between groups: white space is removed",
     "given": {
      "typed": "CSDX\tA1AC-JZGF-12AE"
     },
     "expected": {
-     "refused": "code"
+     "bytes": "665bd5054c97e0f0894e"
     }
    },
    {
-    "why": "a line break at the end",
+    "why": "a line break at the end, as a paste from a note brings",
     "given": {
      "typed": "CSDX-A1AC-JZGF-12AE\n"
     },
     "expected": {
-     "refused": "code"
+     "bytes": "665bd5054c97e0f0894e"
     }
    },
    {
-    "why": "an en dash (U+2013) for a hyphen",
+    "why": "a Windows line break (U+000D U+000A) at each end",
     "given": {
-     "typed": "CSDX–A1AC-JZGF-12AE"
+     "typed": "\r\nCSDX-A1AC-JZGF-12AE\r\n"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "an en dash (U+2013) for every hyphen",
+    "given": {
+     "typed": "CSDX–A1AC–JZGF–12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "an em dash (U+2014) for a hyphen",
+    "given": {
+     "typed": "CSDX—A1AC-JZGF-12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "a non-breaking hyphen (U+2011) for a hyphen",
+    "given": {
+     "typed": "CSDX‑A1AC-JZGF-12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "a minus sign (U+2212) for a hyphen",
+    "given": {
+     "typed": "CSDX−A1AC-JZGF-12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "a no-break space (U+00A0) for every hyphen",
+    "given": {
+     "typed": "CSDX A1AC JZGF 12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "a narrow no-break space (U+202F) and an ideographic space (U+3000)",
+    "given": {
+     "typed": "CSDX A1AC　JZGF-12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "a zero width space (U+200B) after every character",
+    "given": {
+     "typed": "C​S​D​X​A​1​A​C​J​Z​G​F​1​2​A​E"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "a byte order mark (U+FEFF) at the start and a soft hyphen (U+00AD) inside",
+    "given": {
+     "typed": "﻿CSDX­A1ACJZGF12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "every removed character at once: the first and last of each range in the spec's list",
+    "given": {
+     "typed": "\t\r         　­​‍⁠﻿-‐―−﹘﹣－CSDXA1ACJZGF12AE"
+    },
+    "expected": {
+     "bytes": "665bd5054c97e0f0894e"
+    }
+   },
+   {
+    "why": "an underscore, which is not a dash here",
+    "given": {
+     "typed": "CSDX_A1AC-JZGF-12AE"
     },
     "expected": {
      "refused": "code"
     }
    },
    {
-    "why": "a no-break space (U+00A0) for a space",
+    "why": "a full stop between groups",
     "given": {
-     "typed": "CSDX A1AC-JZGF-12AE"
+     "typed": "CSDX.A1AC-JZGF-12AE"
     },
     "expected": {
      "refused": "code"
+    }
+   },
+   {
+    "why": "a fullwidth digit zero (U+FF10), which is not 0",
+    "given": {
+     "typed": "０SDXA1ACJZGF12AE"
+    },
+    "expected": {
+     "refused": "code"
+    }
+   },
+   {
+    "why": "only white space and dashes: nothing is left to read",
+    "given": {
+     "typed": " \t-–\n"
+    },
+    "expected": {
+     "refused": "codeLength"
     }
    },
    {
