@@ -1,10 +1,9 @@
 # Deploys the notebook service's PREVIEW (workers/notebook-service) from
-# `main`, and rolls it back. READY, AND OFF: both jobs are skipped until the
-# repository variable NOTEBOOK_PREVIEW_DEPLOYS is set to "on". BVJ chose this
-# workflow on 2026-11-23 as the way BDR rolls the service back, and sets the
-# variable once the token below exists (workers/notebook-service/README.md,
-# "Who can deploy and roll back"). Until then the preview is deployed by
-# hand, from BVJ's machine.
+# `main`, and rolls it back. ON SINCE 2026-11-23: the repository variable
+# NOTEBOOK_PREVIEW_DEPLOYS is "on" (unset, both jobs are skipped; that is its
+# switch). BVJ chose this workflow as the way BDR rolls the service back
+# (workers/notebook-service/README.md, "Who can deploy and roll back"), and
+# a deploy, a rollback, and a second deploy were each run from it that day.
 #
 # Why it exists: when the service breaks, BVJ answers first and BDR second
 # (STUDY-DESK-ENCRYPTION.md, "Still open," 17), and only BVJ can reach the

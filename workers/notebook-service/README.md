@@ -192,6 +192,11 @@ connector that calls it (step 4g) adds it to `connect-src` in
 
 ### Deploy again
 
+A merge to `main` that touches this package deploys the preview by itself
+(the workflow, on since 2026-11-23), and "Run workflow" with action `deploy`
+does the same on demand. By hand, which needs `wrangler login` on BVJ's
+account:
+
 ```bash
 npm test
 npm run migrate:preview     # applies any migration not yet applied; safe to run when there is none
@@ -223,8 +228,10 @@ rollback won't help: on the preview, wipe it (below); for production, step 4f
 writes down D1's Time Travel, which restores a database to any minute of the
 last 30 days (7 on the Free plan).
 
-The same rollback can be run from GitHub with no access to Cloudflare, once
-BVJ turns that on: see "Who can deploy and roll back."
+**The same rollback runs from GitHub with no access to Cloudflare**: the
+repository's Actions tab, "Notebook service (preview)," "Run workflow" on
+`main`, action `rollback`. Leave the version empty to return to the one
+before the current, or give a version ID. See "Who can deploy and roll back."
 
 ### Wipe
 
@@ -281,8 +288,9 @@ When the service breaks, BVJ answers first and BDR second (BVJ, 2026-11-23;
 BDR's part is BDR's to accept). Today only BVJ can reach the Cloudflare
 account, so BDR needs a way to roll the service back. There are two, and
 **BVJ chose B, the workflow, on 2026-11-23** ("Let's go with the GitHub
-workflow"). It is built and not yet on: "What BVJ does" under B is what turns
-it on. A is kept below as the road not taken, and why.
+workflow"), **and it has been on since that day**: a merge to `main` that
+touches this package deploys the preview. A is kept below as the road not
+taken, and why.
 
 **A. A member role for BDR on BVJ's Cloudflare account.**
 - *What BVJ does*: in the dashboard, Manage Account, Members, invite BDR with
@@ -297,15 +305,16 @@ it on. A is kept below as the road not taken, and why.
 - *Against it*: far more access than a rollback needs, on the account that
   serves the whole site; and a deploy from a laptop is tied to no commit.
 
-**B. Deploys that run from `main`, and a rollback run from GitHub.** Built,
-and off: `.github/workflows/notebook-service-deploy.yml`.
+**B. Deploys that run from `main`, and a rollback run from GitHub.** On:
+`.github/workflows/notebook-service-deploy.yml`.
 - *What it does when on*: a merge to `main` that touches this package runs
   the tests, applies migrations, deploys the preview, and runs the
   walkthrough against it. From the Actions tab, "Notebook service (preview),"
   "Run workflow" on `main` with action `rollback` returns the Worker to the
   version before the current one, or to a version ID given. Anyone with write
   access to this repository can do that, with no access to Cloudflare.
-- *What BVJ does*:
+- *What BVJ did to turn it on* (2026-11-23; kept as the way to set it up
+  again):
   1. Make a Cloudflare API token (dashboard, Account API tokens, Create
      Token, the "Edit Cloudflare Workers" template). Narrow it to this
      account and to the `litbible.net` zone, remove what the service doesn't
@@ -333,22 +342,28 @@ and off: `.github/workflows/notebook-service-deploy.yml`.
 - *Against it*: a token to look after; it depends on GitHub Actions; and a
   deploy needs a merge, which is BVJ's, so BDR alone can roll back but can't
   ship a fix. That is what "second to answer" needs, and no more.
-- *Not verified here*: no token has been made, so the exact permissions in
-  step 1 are from Cloudflare's documentation and not from a run. The
-  workflow's first run settles it. The first deploy (which makes the Custom
-  Domain) is best done by hand, as in the setup above, so the token only
-  ever redeploys.
+- *Verified, 2026-11-23*: a deploy, a rollback, and a second deploy, each
+  started from the workflow on `main`, each passing every step (the deploys
+  ended with the walkthrough against the deployed service). The token that
+  did it holds four permissions and no more: on the account, Workers Scripts
+  (edit), Workers Tail (read), and D1 (edit); on the `litbible.net` zone,
+  Workers Routes (edit). Cloudflare's "Edit Cloudflare Workers" template
+  offers more rows today than step 1 names (Workers CI, CF Agents,
+  Observability, Containers); they were removed too. The first deploy, which
+  made the Custom Domain, was done by hand, so the token has only ever
+  redeployed: whether it could make a Custom Domain from nothing is not
+  known.
 
 **Chosen: B** (BVJ, 2026-11-23), for the preview now; production's own job
 and environment are step 4f's. It gives BDR exactly the one power the role
 calls for, and it leaves BVJ's account with one more narrow token instead of
 one more administrator.
 
-**Until B is turned on, only BVJ can deploy or roll back**, by hand, as
-"Deploy again" and "Roll back" above describe. When it is on, try a rollback
-once from the Actions tab before relying on it, and say so in
-`DISASTER-RECOVERY.md`, which has the preview's entry; step 4f finishes it
-for production.
+**To turn it off**, delete the repository variable
+`NOTEBOOK_PREVIEW_DEPLOYS` (or set it to anything but `on`): both jobs are
+then skipped, and deploys and rollbacks are by hand again, as "Deploy again"
+and "Roll back" above describe. `DISASTER-RECOVERY.md` has the preview's
+entry; step 4f finishes it for production.
 
 ## What is logged
 

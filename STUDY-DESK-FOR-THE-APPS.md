@@ -60,8 +60,10 @@ because nothing carried them there. This file is what carries them now.
    workflow” on `main`, action `rollback`) with no access to Cloudflare.
    The other way, a member role on BVJ's Cloudflare account, was set
    aside because the only role that could do the same reaches the whole
-   account. **The workflow is built and still off**: an entry in the list
-   below will say when it is on and has been tried. It is laid out in
+   account. **The workflow is on and has been tried** (2026-11-23: a
+   deploy, a rollback, and a second deploy, each run from the Actions tab
+   and each passing). A rollback returns the service's code in seconds
+   and never touches the database. It is laid out in
    `workers/notebook-service/README.md`, “Who can deploy and roll back.”
    Say here if a rollback from GitHub doesn't work for you.
 7. **The nine readings the reference had to choose**, and one question
@@ -160,9 +162,12 @@ from anyone.
   interface states, since neither app has answered: a row whose
   `deletedAt` isn't in the `Z` form is answered `refused: "deletedAt"`,
   alone. Say if either app has ever written another form.
-- **Rolling back** (ask 6 above): BVJ chose the GitHub workflow, which
-  is built and not yet turned on. Until it is, only BVJ can deploy or
-  roll back.
+- **Rolling back** (ask 6 above): BVJ chose the GitHub workflow, and it
+  is on (2026-11-23). A merge to `main` that touches
+  `workers/notebook-service/` now deploys the preview by itself, after
+  the service's tests, and then runs the walkthrough against it. Anyone
+  with write access to this repository can roll back from the Actions
+  tab.
 - **Everything on the preview is test data, wiped at any time.** Use
   made-up account labels of your own (`bdr-ios-1`), and expect a wipe to
   be announced here.

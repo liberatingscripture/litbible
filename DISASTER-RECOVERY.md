@@ -143,14 +143,17 @@ by a session at BVJ's word, with BVJ typing the secret. Production is step
   `npx wrangler rollback --env preview` (or with a version ID). The
   README's "Roll back" has the detail, and "Wipe" clears the test data.
 - **Who answers when it breaks**: BVJ first, BDR second (BVJ, 2026-11-23;
-  BDR's part is BDR's to accept). **Today only BVJ can deploy or roll
-  back.** BDR's way is chosen (BVJ, 2026-11-23): the workflow
-  `.github/workflows/notebook-service-deploy.yml`, which rolls back from
-  GitHub with no access to Cloudflare, and not a member role on this
-  account. **It is built and still off**: it needs the token and the
-  GitHub environment in the secrets table below, and the README's "Who
-  can deploy and roll back" has the steps. Update this bullet when it is
-  on and a rollback has been tried.
+  BDR's part is BDR's to accept). **Anyone with write access to this
+  repository can roll back, with no access to Cloudflare**: Actions,
+  "Notebook service (preview)," "Run workflow" on `main`, action
+  `rollback` (empty version: the one before the current). That is the
+  workflow `.github/workflows/notebook-service-deploy.yml`, BVJ's choice
+  on 2026-11-23 over a member role on this account. **It is on, and was
+  tried that day**: a deploy, a rollback, and a second deploy each
+  passed. It also deploys the preview on every merge to `main` that
+  touches the service. Its token and environment are in the secrets
+  table below; if GitHub Actions is down, BVJ rolls back by hand, as
+  above.
 - **A break pauses sync and loses nothing**, on the preview and later in
   production: every device keeps its own notebook.
 
@@ -278,13 +281,13 @@ pull `RELEASE_NOTES_PAT` first: it can write to `main` past the branch
 ruleset, where `LSC_SYNC_TOKEN` can only open issues on a public repo.
 
 **The notebook service's preview** (see "The notebook service's preview"
-above). `PREVIEW_SECRET` has been set since 2026-11-23; the other three
-exist only if BVJ turns the deploy workflow on:
+above). All four have been set since 2026-11-23, when BVJ turned the
+deploy workflow on:
 
 | Name | Where | What it is |
 |------|-------|------------|
 | `PREVIEW_SECRET` | Worker secret, the `preview` environment only | What the preview's own way in asks for, so the apps' sessions can get a test session before sign-in exists. Set from `workers/notebook-service/` with `npx wrangler secret put PREVIEW_SECRET --env preview`. If it leaks or is lost, set a new value (32 or more random characters) and give it to BDR privately; sessions already made keep working, and all it ever reaches is test data. Production is never given it. |
-| `CLOUDFLARE_API_TOKEN` | GitHub environment `notebook-preview` (limited to `main`), only if the deploy workflow is turned on | A Cloudflare API token that can deploy and roll back Workers and run D1 migrations on this account, and nothing else. Never expires, like the two tokens above and for the same reason. Kill switch: Cloudflare dashboard, Account API tokens, "Roll" (then update this secret) or "Delete." Losing it stops the workflow and nothing else; deploys by hand still work. |
+| `CLOUDFLARE_API_TOKEN` | GitHub environment `notebook-preview` (limited to `main`) | A Cloudflare API token, named `litbible-notebook-preview-deploys` on the account's API tokens page, that can deploy and roll back Workers and run D1 migrations on this account, and nothing else (Workers Scripts, Workers Tail read, and D1 on the account; Workers Routes on the `litbible.net` zone). Never expires, like the two tokens above and for the same reason. Kill switch: Cloudflare dashboard, Account API tokens, "Roll" (then update this secret) or "Delete." Losing it stops the workflow and nothing else; deploys by hand still work. |
 | `CLOUDFLARE_ACCOUNT_ID` | the same environment | The account's ID. Not a secret in itself; kept beside the token. |
 | `NOTEBOOK_PREVIEW_SECRET` | the same environment, optional | The same value as `PREVIEW_SECRET`, so that a deploy can run its own check against the preview. Change the two together. |
 

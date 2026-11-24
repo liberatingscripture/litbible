@@ -1998,10 +1998,10 @@ day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
     on the Cloudflare account, or deploys that run from a merged pull request) and
     writes the steps into `DISASTER-RECOVERY.md`. **BVJ chose the second** (2026-11-23: “Let’s go
     with the GitHub workflow”): a workflow that deploys the preview from `main` and rolls it back
-    from GitHub, with no access to Cloudflare. Step 4c built it, and it stays off until its token
-    and its GitHub environment exist; until then only BVJ can deploy or roll back. Both options
-    and what turning it on takes are in `workers/notebook-service/README.md`, “Who can deploy and
-    roll back.”
+    from GitHub, with no access to Cloudflare. Step 4c built it, and **it has been on since
+    2026-11-23**, when a deploy, a rollback, and a second deploy were each run from it and passed.
+    Both options and how the workflow is set up are in `workers/notebook-service/README.md`, “Who
+    can deploy and roll back.”
 
 **To find out, on real devices, before the freeze:**
 

@@ -5292,12 +5292,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        “preview service running” is met.**
      - **How BDR rolls back is chosen** (BVJ, 2026-11-23: "Let's go
        with the GitHub workflow"): the deploy workflow, and not a member
-       role on the Cloudflare account. It stays off until its token and
-       its GitHub environment exist
-       (`workers/notebook-service/README.md`, “Who can deploy and roll
-       back”); until then only BVJ can deploy or roll back.
-     **Left for BVJ**: to give BDR the preview's secret privately, and
-     to make the workflow's Cloudflare token so it can be turned on.
+       role on the Cloudflare account. **It has been on since 2026-11-23**:
+       BVJ made its Cloudflare token and its GitHub environment, and a
+       deploy, a rollback, and a second deploy were each run from it
+       and passed (`workers/notebook-service/README.md`, “Who can
+       deploy and roll back”). A merge to `main` that touches the
+       service now deploys the preview.
+     **Nothing of step 4c is left for BVJ.** BVJ gave BDR the preview's
+     secret the same day.
    - **4d. The freeze work** (1–2). In `STUDY-DESK-FORMAT.md` and the
      website's code together: kind 3 (`hidden`) leaves; the `ribbon`
      marker leaves kind 2, and `ribbon` and the older `bookmark` read as
