@@ -5615,12 +5615,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      - **What is not there, and is 4h's**: sign-in itself, with
        Turnstile; making the device's keys; setup and joining; and the
        step behind the button when the sync is signed out, removed, on
-       another notebook, or can't open it. Today "Reconnect" only asks
-       again, which settles none of those by itself. The reader's yes
-       for `replace: true` is 4h's to ask. /desk has no place for the
-       status line (the dot and the notice only), and /sheets shows
-       nothing of a stop. **BVJ, 2026-11-24: on /desk the place "should
-       be tied to the page menu."** It is not built yet.
+       another notebook, or can't open it. As 4g left it, "Reconnect"
+       only asked again, which settles none of those by itself, /desk
+       had no place for the status line (the dot and the notice only),
+       and /sheets showed nothing of a stop. **All of it is built in 4h
+       (below)**: "Reconnect" opens the account page for such a stop,
+       the reader's yes for `replace: true` is "Join the new notebook,"
+       and the status has a place on every page of a computer, the
+       header's account menu.
      - **Sentences that become false in a linked browser**, for 4h and
        4j: "Your notebook is kept in this browser" on the first-use
        card and in the nudge after a first record (`first-use.js`,
@@ -5673,10 +5675,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        pushed again; an unreadable row left alone; and a restored
        service given back what devices hold. Each still waits on BDR.
      - **The status line's places are "good so far," and on /desk it
-       "should be tied to the page menu."** Claude reads that as the
-       title menu ("Study Desk ▾", `title-menu.js`). Not built. Claude
-       suggests building it with step 4h, whose account pages will want
-       a way in from that menu too.
+       "should be tied to the page menu."** Claude read that as the
+       title menu ("Study Desk ▾", `title-menu.js`). **Settled in step
+       4h, the same day**: the status lives in the header's account
+       menu and "Study Desk ▾" stays as it is (4h, below, the first of
+       BVJ's yeses).
      - **"Ask BDR"** on three. **A removed device hears it in two
        steps** (83): removing a device ends its sessions, so it is first
        told it was signed out, and learns it was removed only after
@@ -5708,31 +5711,178 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      device was added, a request is waiting). **Account pages work on every
      device** (audit C1), so what a phone gets, without the desk, is
      settled here. Every new storage key is named on /privacy.
-     **Begun 2026-11-24; the flows are built, and no page is.** What
-     exists: a passkey's two ceremonies (`src/lib/desk-passkey.mjs`);
-     signing in, the account, its ways in, deleting, and the seven days
-     (`desk-account-session.mjs`); and everything that touches the key
-     (`desk-account.mjs`): setup under either choice, joining by passkey,
-     by recovery code, and by approval from either side, the lists with
-     each card opened, renaming, removing a device, a first and a new
-     recovery code, turning “follows my account” on and off, and signing
-     a device out. **Tested against the service's own code**: the root
-     suite now runs `workers/notebook-service/src/` in Node on a real
-     SQLite database with the real migrations, with the service's
-     software passkey behind a browser's `navigator.credentials`
-     (`src/scripts/desk/account/CLAUDE.md`, "Testing"), so neither side's
-     checks are written out a second time. **Not verified**: nothing here
-     has met a real browser, a real passkey, or the deployed preview, and
-     Sign in with Apple and with Google have only their requests written.
-     **The screens wait on BVJ**: a mock of every screen and twelve
-     choices, each with Claude's pick, went to BVJ on 2026-11-24. One is
-     BVJ's own idea of that day, “Sign in” in the header (on /desk, with
-     the header's tools), which Claude would make the main way in.
-     **One is decided: every setup makes a recovery code**, with no box
-     to tick (BVJ, 2026-11-24; under “Decisions,” 2026-11-23, where the
-     earlier call is, and the spec's “Still open,” 85). The rest are
-     not. Still to build: the pages, the service's half of Turnstile, the
-     notices, and the status on /desk.
+     **Built 2026-11-24 and 25, and closed.** No reader sees an account:
+     accounts open in one browser with `?account=preview`, as the desk
+     does with `?desk=on` (below, BVJ's fourth yes).
+     **The pages**: `/account/` (every screen, signed out to the
+     account's home), `/account/connect/` (where a link that carries an
+     approval code lands), and a box on `/delete-account/`. What a
+     reader can do there, each with tests that drive the real page
+     against the service's own code:
+     - **Sign in with a passkey, or make an account with one.** Two
+       buttons, and under them, plainly, “You don't need an account.”
+     - **Set the notebook up**: where the key lives (“Follows my
+       account,” offered only where the passkey syncs and gives a PRF
+       output, or “This device only”), then the recovery code, shown
+       with Copy and Print, and two of its groups typed back.
+     - **Open the notebook on another computer**: with the passkey as
+       it signs in; by approval (the joining computer shows 16
+       characters and a QR code, the one with the notebook types them
+       and says yes to a named device; “Enter a code from the other
+       device instead” is the other direction); or with the recovery
+       code. For a reader with none of those left, “I can't do any of
+       these” asks to start a new notebook, which waits seven days.
+     - **The account's home**: the sync's status; where the key lives,
+       switched either way; the devices, with renaming and removing
+       (which changes the key); adding a device; a new recovery code;
+       the ways to sign in (add a passkey, remove one); signing out;
+       deleting the account.
+     - **The notices**: a device or a way to open the notebook added
+       since this browser last said so, told once; a request that is
+       waiting, with Cancel for a sign-in that may cancel it.
+     - **The step behind “Reconnect”**: “Sign in again,” “Join again,”
+       or “Join the new notebook” (the reader's yes for `replace:
+       true`), each beside “Stop syncing on this computer.”
+     - **On a phone or tablet, the basics only**: sign in, see or cancel
+       a request, delete the account, sign out. It never holds a key,
+       and no notebook is made there.
+     - **`/delete-account/` takes a request on the page itself**,
+       without the app, which is Google Play's rule (4f, above): at
+       once from a computer that holds the key, and after seven days
+       from any other sign-in.
+     Elsewhere: “Sign in” in the header, which becomes an account
+     button with the sync's status in its menu; “Reconnect” opens the
+     account page; and in a browser that syncs the one line reads “Kept
+     in this browser and in your account.”
+     **Tested against the service's own code**: the root suite runs
+     `workers/notebook-service/src/` in Node on a real SQLite database
+     with the real migrations, with the service's software passkey
+     behind a browser's `navigator.credentials`
+     (`src/scripts/desk/account/CLAUDE.md`, "Testing"), so neither
+     side's checks are written out a second time.
+     **What BVJ decided, 2026-11-24.** A mock of every screen and twelve
+     choices, each with Claude's pick, went to BVJ that day. **Every
+     setup makes a recovery code**, with no box to tick (under
+     “Decisions,” 2026-11-23, where the earlier call is, and the spec's
+     “Still open,” 85). **No account at all must be plainly an option.**
+     And of the other picks, “Yes, your picks”:
+     1. On /desk the sync's status lives in the header's account menu,
+        and “Study Desk ▾” stays as it is. (This settles step 4g's
+        “tied to the page menu.”)
+     2. In a browser that syncs, the one line becomes “Kept in this
+        browser and in your account.” The tour, the help page, and the
+        privacy page are step 4j's.
+     3. The sign-in page has two buttons: “Sign in with a passkey,”
+        green, and “Create an account,” quiet.
+     4. Accounts are closed for everyone until opened in one browser
+        with `?account=preview`: one stored value, named on the privacy
+        page, retired at launch.
+     5. (The recovery code at every setup, above.)
+     6. The recovery code's screen offers Copy and Print, and no file to
+        download.
+     7. The device that is joining shows the code (a QR code and 16
+        characters), and the one with the notebook types it. “Enter a
+        code from the other device instead” is offered too.
+     8. A device's first name is its browser and system (“Chrome on
+        Windows”), and the reader can change it.
+     9. Signing out keeps the notebook in the browser and says so, with
+        no “erase it here too.”
+     10. “Reconnect” keeps its word and opens the account page, which
+         names the real step.
+     11. A phone gets the account's basics only, and never holds a key.
+     12. “Sign in” in the header is the main way in (BVJ's own idea of
+         that day), only with the Study Desk on and on a computer.
+         Signed in, it is a small account button whose menu holds the
+         sync's status, “Account and devices,” and “Sign out.” The
+         Settings tab's status line stays.
+     **Choices Claude made while building, none of them BVJ's yet**:
+     the header's two buttons are tiles like Search and Aa, since green
+     words beside the green “Read” read as a second primary; “Sign out”
+     in the header's menu goes to the account page, which asks first, so
+     one place signs out; under 760px the way in is “Account” in the
+     phone menu's Study group; a screen whose heading repeats the page's
+     own (“Your account”) doesn't draw it twice; the app announcement
+     stays off the account pages; a notice of an approval given here
+     says “approved from this computer,” since two computers often
+     share a first name; and “I can't do any of these” asks to start a
+     new notebook with one press and no second question, because the
+     request waits seven days and can be canceled. **The words of the
+     first-time choice are proposed, not final** (step 4j).
+     **Sign in with Apple and with Google: the website's half is built,
+     and off.** Each turns on when the service lists it and the website
+     has its client id (`src/lib/desk-account-providers.mjs`). Neither
+     id exists, none was guessed, and **neither provider could be
+     tried**: the flow was tested against stand-ins for both, and its
+     two addresses and the shape of each answer are from the providers'
+     documentation. The flow is a navigation to the provider's own page
+     and back with the token after the `#`, so it needs no script of
+     theirs and no new origin in the content security policy, and it
+     asks for no name and no email address. What BDR has to register is
+     the spec's “Still open,” 90.
+     **Seen in a real browser, 2026-11-25**: headless Chrome with a
+     virtual authenticator (a real WebAuthn ceremony, a real PRF
+     output, real IndexedDB and WebCrypto), each device in its own
+     browser context, against `wrangler dev` of the service and the
+     production build served from `dist/`. 45 checks, all passing at the
+     end: an account made with a passkey; setup on this device only;
+     the recovery code shown and two groups typed back; a note saved
+     from the verse menu and pushed; the header's “Sign in” on the
+     visit that opens accounts, its account button the moment the
+     browser is linked, and its menu's status following the sync; a
+     second computer joined by approval, with the first computer's note
+     in its notebook, and the first told once; a rename; the second
+     removed (it was told “signed out,” signed in again, was told
+     “removed,” and joined again with the recovery code); a new
+     recovery code, and the old one refused; the passkey made to carry
+     the key; a third computer whose passkey couldn't open the notebook
+     saying so and joining with the code; a request to start a new
+     notebook made, shown on the computer that has the key, and
+     canceled; signing out from the header's link, with the notebook
+     still in the browser, and signing in again; a phone's basics, with
+     no notebook database made and no sideways scroll at 412px; the box
+     on `/delete-account/`; and the account deleted at once, after
+     which the other computer said it was signed out. The header was
+     also swept at 12 window widths, and 6 more in OpenDyslexic, on
+     five pages, signed out and signed in: no overflow, no overlap, no
+     clipped title.
+     **That run found seven faults, each fixed, and all but one
+     stylesheet rule with a test**: the
+     header's “Sign out” did nothing when pressed on the account page
+     itself; on the visit that opens accounts the header kept an empty
+     space where “Sign in” belongs, and didn't follow a link made or
+     ended on the page; a notice named the approving computer by a name
+     both computers had; a browser the list didn't know was called
+     Safari; “Your account” and “Sync” were each drawn twice; and the
+     app announcement came up over the device list.
+     **Not seen, and not to be assumed**: an operating system's own
+     passkey prompt (Windows Hello, Touch ID) or a password manager's; a
+     passkey that syncs between two real devices and carries the key to
+     the second (DevTools can't copy a passkey's PRF secret, so in the
+     rig a copied passkey opens nothing, which is the “can't open”
+     path); Safari, Firefox, and a real phone; scanning the QR code;
+     **the deployed preview, which was not called at all** (BVJ hasn't
+     given the go-ahead); the Turnstile widget, which waits on its own
+     pull request and on a widget and a secret only BVJ can make; the
+     content security policy, since the local server sends no headers;
+     and Apple and Google. Only in tests, not in the browser: a
+     notebook replaced after its seven days and “Join the new
+     notebook”; “Stop syncing on this computer”; adding and removing a
+     passkey; “Show a code for the new device instead”; a setup whose
+     answer was lost.
+     **What is left of 4h**: Turnstile's half on the service (written,
+     in its own pull request, which redeploys the preview when merged);
+     the notices anywhere but the account's home; a try against the
+     deployed preview with a passkey made from `localhost:4321`, on
+     BVJ's go-ahead; and real browsers and devices (4l). **Known
+     limits**: a browser that was syncing one account's notebook and
+     signs in to a different account is told its notebook “was
+     replaced,” which is the right step and the wrong reason; a reader
+     signed in on a second computer who hasn't opened the notebook yet
+     still sees “Sign in” in the header, since the header reads only
+     whether the browser is linked; and with the header's entry there
+     the long title gives way to “LIT Bible” in two more bands of
+     window width (about 1100 and 1180px on the home page and a
+     chapter).
    - **4i. Enforcing the full content security policy** (1–2). It is
      report-only today. Review a week of its reports, then enforce it
      before sign-in ships, since the page will hold a credential to a

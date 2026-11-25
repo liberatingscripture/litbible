@@ -16,10 +16,11 @@
 
 Built in the plan's step 4g (2026-11-24; `STUDY-DESK.md`, "Order of work,"
 4, which says what was verified and what was not). **It is switched on for
-nobody**: a browser syncs only once it is linked to an account, and nothing
-links one until the account pages (step 4h) exist. Sign-in, setup, joining a
-device, and every account page are 4h's; this directory takes a session and
-keys from whoever calls it.
+nobody**: a browser syncs only once it is linked to an account, only the
+account pages link one (step 4h; `src/scripts/desk/account/CLAUDE.md`), and
+those are closed until opened in one browser with `?account=preview`.
+Sign-in, setup, joining a device, and every account page are theirs; this
+directory takes a session and keys from whoever calls it.
 
 **The design choices here were Claude's, and BVJ went through them on
 2026-11-24**: yes to the status sentences, how a stop is announced, when a
@@ -58,9 +59,12 @@ each one cheap to change: one constant, one function, one place.
      reader out).
    - **A stop only the reader can settle is always said, and never retried
      on a timer** (`needsReader` in `desk-sync-status.mjs`): the status
-     line, a dot on the Notebook's tab and buttons, and a notice with
-     "Reconnect" on whatever page the reader is on, once for each stop and
-     again a day later. A new state that needs the reader goes in that set
+     line, a dot on the Notebook's tab and buttons (and on the header's
+     account button), and a notice with "Reconnect" on whatever page the
+     reader is on, once for each stop and again a day later. **"Reconnect"
+     for such a stop opens the account page** (`ACCOUNT_PAGE`; BVJ,
+     2026-11-24), which names the real step; for every other stop it asks
+     for another pass. A new state that needs the reader goes in that set
      and gets a sentence that says where the notebook is.
    - **A row is removed from the service only on evidence** (rule 4 in
      `desk-sync.mjs`). A record missing from this browser is fetched again,
@@ -120,29 +124,40 @@ each one cheap to change: one constant, one function, one place.
 
 A desk page that wants the line leaves an empty, hidden element marked
 `data-desk-sync-slot` and dispatches `SLOT_EVENT` on `document` when it
-makes or shows one (the Notebook's Settings tab and `/notebook` do). An
-unlinked browser never loads the code that fills it. `/desk` has no slot yet
-(the dot and the notice only), and `/sheets` shows nothing of a stop, since
-the notice never comes up over a sheet's page. **BVJ on the places
-(2026-11-24): "good so far. I think the place on /desk should be tied to the
-page menu."** Claude reads that as /desk's title menu ("Study Desk ▾",
-`desk/title-menu.js`); it is not built.
+makes or shows one (the Notebook's Settings tab, `/notebook`, the account's
+home, and the header's account menu when it opens). An unlinked browser
+never loads the code that fills it. `/sheets` shows nothing of a stop but
+the header's dot, since the notice never comes up over a sheet's page.
+**On /desk and every other page the place is the header's account menu**
+(BVJ, 2026-11-24, of Claude's pick: the status lives in that menu and
+"Study Desk ▾" stays as it is; it settles the earlier "tied to the page
+menu"). The entry is `src/scripts/desk/account/CLAUDE.md`, rule 17. On a
+page that runs no connector (About, say) the menu holds its two links and
+no status. **On the account page the stop is the page's to show**: the
+status line draws no "Reconnect" for a stop that needs the reader, and the
+notice never comes up there.
 
-## What step 4h calls
+## What the account pages supply
 
 `start.js`'s header is the surface: `linkNotebook`, `currentSync`, `unlink`,
 and `LinkRefused`; `connector.js` documents each method of the connector
 (`status`, `subscribe`, `syncNow`, `setSession`, `call`, `device`,
-`keyring`, `adopt`). Three things 4h must not assume:
+`keyring`, `adopt`). The account pages (step 4h;
+`src/scripts/desk/account/CLAUDE.md`) are their only caller, and supply
+what the sync leaves to the reader:
 
-- **"Reconnect" only asks for another pass.** For a reader who is signed
-  out, removed, on another notebook, or without keys, 4h supplies the step
-  behind it (sign in again and `setSession`; join again and `linkNotebook`).
-- **A browser linked to another notebook is refused** unless the caller
-  passes `replace: true`, which is the reader's own yes and 4h's to ask.
+- **The step behind "Reconnect."** For a reader who is signed out, removed,
+  on another notebook, or without keys, the account's home offers the real
+  step: sign in again (`setSession`), or join again (`linkNotebook`), each
+  beside "Stop syncing on this computer" (`unlink`).
+- **The reader's yes for `replace: true`.** A browser linked to another
+  notebook is refused unless the caller passes it; the one place that does
+  is "Join the new notebook" (the account file's rule 15).
 - **Several sentences on the desk become false in a linked browser**
   ("kept in this browser," "never leaves this computer"); the list is under
-  step 4g in `STUDY-DESK.md`.
+  step 4g in `STUDY-DESK.md`. One is changed (`keptLine` in
+  `desk-reminder.mjs`: "Kept in this browser and in your account."); the
+  rest are step 4j's.
 
 ## Testing
 
