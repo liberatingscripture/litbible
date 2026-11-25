@@ -271,3 +271,11 @@ without the switch. The announcement popover stays off all three
      arrived. Wait for the Notebook's tab before clicking.
   The Browser pane can't run a WebAuthn ceremony, and no OS passkey prompt
   can be driven: say plainly what was not seen.
+- **The same rig runs against the deployed preview** with
+  `?account=preview` in place of `?account=local`, and only on BVJ's
+  go-ahead, each time. Two things differ there. **Delete the account the
+  run made, in a `finally` too** (`DELETE /account?platform=web` with the
+  session the page kept), since the virtual passkey is gone when Chrome
+  closes and nothing else could sign in to delete it. **Wait for the
+  home's lists, not only for “in sync”**: the three sections that need
+  their own requests are drawn a moment later over a network.

@@ -2656,7 +2656,9 @@ the link a QR code carries, what the website calls itself in a request to join, 
 says once its account is deleted, and the website’s half of Sign in with Apple and with Google.
 
 **Seen in the browser run of 2026-11-25** (headless Chrome with a virtual authenticator, against
-the service run locally), and worth a client’s notice though nothing changed:
+the service run locally, and then, on BVJ’s go-ahead, against the deployed preview from
+`http://localhost:4321`, where the same was seen), and worth a client’s notice though nothing
+changed:
 
 - **A copy of a passkey that counts is refused, as 51 says it should be.** Chrome’s virtual
   authenticator keeps a signature counter for each copy of a credential, so a credential copied

@@ -5660,8 +5660,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      state, a push that half succeeds, `old_key` met in the middle of a
      push, another notebook, keys that don't open, rows held as ahead,
      unreadable, or refused, and a service restored from an older copy.
-     **The deployed preview was not exercised at all.** Mac Safari and
-     Firefox were not tried, nor a browser without Web Locks.
+     **The deployed preview was not exercised at all in that run**;
+     step 4h's run of 2026-11-25, below, synced through it. Mac Safari
+     and Firefox were not tried, nor a browser without Web Locks.
      **What BVJ said of each, 2026-11-24**:
      - **Yes** to the status sentences and "Reconnect" as written; to
        the dot with a notice once for each stop and again a day later;
@@ -5854,14 +5855,34 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      both computers had; a browser the list didn't know was called
      Safari; “Your account” and “Sync” were each drawn twice; and the
      app announcement came up over the device list.
+     **Against the deployed preview, the same day, on BVJ's go-ahead**
+     (“Yes, try it”): the same run, with the pages served from
+     `http://localhost:4321` and opened with `?account=preview`, so the
+     passkey's relying party is `localhost` and every request goes to
+     `notebook-preview.litbible.net`. 48 checks, all passing: each step
+     of the local run, and three more (the account was made on the
+     preview, nothing went to a local service, and the deleted account's
+     passkey then signed in to nothing). So the pages and the sync have
+     now met the service as deployed, with its own limits, its CORS
+     answers, and a network between them. **The run's account was
+     deleted at the end**, at once, from the computer that held the key.
+     A first try stopped part way on the rig's own timing, and the
+     account it had made was deleted the same minute (the rig deletes
+     what it made when it stops). **What a network showed that
+     `wrangler dev` didn't**: on the account's home, the three sections
+     that wait on their own requests (where the key lives, the devices,
+     the recovery code) are drawn a moment after the status line says
+     “in sync.” Nothing is wrong on the page, and it is how the rig was
+     caught; a reader sees those sections arrive after the rest.
      **Not seen, and not to be assumed**: an operating system's own
      passkey prompt (Windows Hello, Touch ID) or a password manager's; a
      passkey that syncs between two real devices and carries the key to
      the second (DevTools can't copy a passkey's PRF secret, so in the
      rig a copied passkey opens nothing, which is the “can't open”
      path); Safari, Firefox, and a real phone; scanning the QR code;
-     **the deployed preview, which was not called at all** (BVJ hasn't
-     given the go-ahead); the Turnstile widget, which waits on its own
+     the preview or anything else from `litbible.net` itself, where a
+     passkey is a real `litbible.net` one (the preview was reached only
+     from `localhost:4321`); the Turnstile widget, which waits on its own
      pull request and on a widget and a secret only BVJ can make; the
      content security policy, since the local server sends no headers;
      and Apple and Google. Only in tests, not in the browser: a
@@ -5871,9 +5892,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      answer was lost.
      **What is left of 4h**: Turnstile's half on the service (written,
      in its own pull request, which redeploys the preview when merged);
-     the notices anywhere but the account's home; a try against the
-     deployed preview with a passkey made from `localhost:4321`, on
-     BVJ's go-ahead; and real browsers and devices (4l). **Known
+     the notices anywhere but the account's home; a try from
+     `litbible.net` itself once the pages are merged, which is the first
+     real `litbible.net` passkey and the first time the content security
+     policy's headers meet these pages; and real browsers and devices
+     (4l). **Known
      limits**: a browser that was syncing one account's notebook and
      signs in to a different account is told its notebook “was
      replaced,” which is the right step and the wrong reason; a reader
