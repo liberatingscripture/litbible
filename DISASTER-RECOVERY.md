@@ -211,6 +211,35 @@ Whether and when to deploy is BVJ's; the steps are in
   Google Play asks for. It is out of search and the sitemap until accounts
   open.
 
+### The policy's report Worker (deployed 2026-11-25)
+
+Counts the reports browsers send about the site's content security policy
+(`workers/csp-reports/`; the plan's step 4i in `STUDY-DESK.md`). It was
+created and deployed on 2026-11-25, on BVJ's go-ahead that day, by the
+steps in `workers/csp-reports/README.md`, "One-time setup," which is also
+how to make it again from nothing.
+
+- **What it added to the account**: a Worker, `litbible-csp-reports`; a D1
+  database of the same name, in Western North America (its id is in
+  `wrangler.jsonc`; an id is not a secret); a route on the zone,
+  `litbible.net/csp-report`, with no DNS record; a cron trigger, once a
+  day at 04:41 UTC; and one rate limit binding, which is configuration and
+  no resource. **No secret, and no token.**
+- **What it holds**: counts of reports by day, rule, blocked origin, page
+  path, and browser family, each deleted after 30 days. Nothing about a
+  reader. **Losing it loses nothing that matters**: the counts are a
+  working list for one decision (enforcing the policy), and they start
+  again from the next report.
+- **If it is down or gone**: no page breaks. The static site answers at
+  the address and refuses each report (405), and nothing is counted until
+  it is redeployed.
+  The policy itself is in `public/_headers` and doesn't depend on it.
+- **Deleting old counts depends on the daily run.** If the cron trigger is
+  lost, counts outlive the 30 days the privacy page gives; redeploying
+  restores the trigger, and the README's "Stop, roll back, or wipe" has
+  the command that deletes every count by hand.
+- **It deploys by hand**, with no workflow and no GitHub secret.
+
 ## DNS record inventory (litbible.net zone, 2026-07-18)
 
 Captured from live DNS + the Cloudflare dashboard. All values here are
@@ -354,6 +383,9 @@ two jobs have their own pair, **neither set** (2026-11-24):
 `NOTEBOOK_PRODUCTION_DEPLOYS` and `NOTEBOOK_PRODUCTION_URL`. Production has
 no Worker secret of its own until Sign in with Apple is turned on there.
 
+**The policy's report Worker has no secret**, in Cloudflare or in GitHub.
+Its counts are read with Wrangler's own login on the owner's machine.
+
 There are **no other secrets**. The site build needs none (the podcast fetch
 is an unauthenticated public feed; Brevo/GiveLively integrations are
 public-key/embed-only).
@@ -399,6 +431,11 @@ service. **Production**, once it exists: the same README, "Production."
 Its code and configuration come back from the repository; **its data comes
 back only from D1's Time Travel**, and only within 30 days.
 
+**The policy's report Worker** (independent of everything else, with no
+secret): `workers/csp-reports/README.md`, "One-time setup," whose last
+step checks it. A new database has a new id, which goes into
+`wrangler.jsonc`. Its counts are not worth restoring.
+
 **Verify after redeploy:**
 
 - Site loads; a chapter page and `/read/<book>` render.
@@ -406,6 +443,9 @@ back only from D1's Time Travel**, and only within 30 days.
 - Submit `/contact` and `/app-support` once each; confirm both emails
   arrive with a working `Reply-To`.
 - Newsletter footer form still posts to Brevo (sibforms).
+- `curl.exe -i https://litbible.net/csp-report` answers `405` with
+  `allow: POST` (the policy's report Worker; a `404` means the static site
+  is answering there and the Worker is not deployed).
 
 ## The mobile apps
 

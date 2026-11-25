@@ -12,8 +12,9 @@
   #    backend changes). 'self' covers the contact form, which posts to the
   #    /contact/submit Worker (F1 — replaced Formspree); sibforms is the
   #    Brevo newsletter.
-  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://sibforms.com https://*.sibforms.com
-  # 2) REPORT-ONLY resource allowlist: logs to the console, blocks nothing.
+  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://sibforms.com https://*.sibforms.com; report-uri https://litbible.net/csp-report; report-to csp
+  # 2) REPORT-ONLY resource allowlist: logs to the console and reports (see
+  #    3), blocks nothing.
   #    Kept as documentation of every third-party origin the site uses and as
   #    free telemetry; enforcing it was rejected because a missed origin would
   #    silently break the newsletter/Turnstile/donate widgets ("future you
@@ -34,7 +35,20 @@
   #    origins are the Study Desk's sync service and its preview (step 4g):
   #    a fetch target only, and only from a browser linked to an account,
   #    which no reader can be until the account pages exist.
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://sibforms.com https://*.sibforms.com https://cloudflareinsights.com https://secure.givelively.org https://notebook.litbible.net https://notebook-preview.litbible.net; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://secure.givelively.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://secure.givelively.org; font-src 'self'; connect-src 'self' https://sibforms.com https://*.sibforms.com https://cloudflareinsights.com https://secure.givelively.org https://notebook.litbible.net https://notebook-preview.litbible.net; frame-src https://challenges.cloudflare.com https://embed.podcasts.apple.com https://www.youtube.com https://open.spotify.com https://secure.givelively.org; media-src 'self'; report-uri https://litbible.net/csp-report; report-to csp
+  # 3) WHERE BOTH POLICIES REPORT (Study Desk step 4i, 2026-11): a browser
+  #    that sees a page break either one posts a report to /csp-report, a
+  #    Worker of our own that keeps counts and nothing about the reader
+  #    (workers/csp-reports/). Both directives are there on purpose:
+  #    `report-to` names the endpoint declared in Reporting-Endpoints (Chrome
+  #    and Edge 96, Safari 16.4, Firefox 149), and a browser that knows it
+  #    ignores `report-uri`, which every older one still uses. The endpoint
+  #    is NOT named `default`: Safari doesn't take that name. The address is
+  #    written out in full because MDN doesn't say a path alone is allowed
+  #    here, and it is the site's own origin so no browser has to ask
+  #    permission to post. All three addresses must be the Worker's route:
+  #    test/csp-reporting.test.js fails when they differ.
+  Reporting-Endpoints: csp="https://litbible.net/csp-report"
   # Agent discovery (RFC 8288) — advertise the API catalog and machine-readable docs.
   Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"
   Link: </llms-full.txt>; rel="service-doc"; type="text/plain"

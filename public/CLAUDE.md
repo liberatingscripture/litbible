@@ -24,6 +24,22 @@
   browser holds a session and device keys in IndexedDB. **Enforcing the
   full policy before sign-in ships is the plan's step 4i** (`STUDY-DESK.md`,
   "Order of work," 4): review a week of reports first.
+  **Both policies report to `https://litbible.net/csp-report`** (step 4i,
+  2026-11-24), a Worker of our own that keeps counts and nothing about the
+  reader (`workers/CLAUDE.md`, "The policy's report Worker"). Three more
+  rules, each held by `test/csp-reporting.test.js`:
+  (3) each policy ends with both `report-uri` (every browser; deprecated)
+  and `report-to` (Chrome and Edge 96, Safari 16.4, Firefox 149), because a
+  browser that knows the second ignores the first and older ones know only
+  the first;
+  (4) `Reporting-Endpoints` declares the endpoint by a name that is not
+  `default` (Safari doesn't take that name), with the address in full;
+  (5) no policy asks for `'report-sample'`: a sample is a piece of the page
+  or of what a reader typed, and /privacy says nothing of the kind is sent.
+  **A week of reports is read with `npm run summary` in
+  `workers/csp-reports/`**, and at this site's traffic a week is thin, so
+  walk each kind of page in a real browser too (that README, "Reading a
+  week"). Adding an origin to the allowlist never needs the Worker touched.
 - **Agent/AI discovery surface** lives in static files, all served as-is from
   `public/`. They only take effect on a deployed Cloudflare Pages site — `dev`
   and `astro preview` do **not** apply `_headers`:

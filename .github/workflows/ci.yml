@@ -94,3 +94,31 @@ jobs:
 
       - name: Bundle the Worker (dry run)
         run: npm run check
+
+  # The Worker that counts the content security policy's reports
+  # (workers/csp-reports) is a fourth package with its own tree, for the same
+  # reason. Its tests run it in workerd against a real local D1 with the real
+  # migration and the limiter its config declares. No Cloudflare account is
+  # touched.
+  csp-reports-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/csp-reports
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: workers/csp-reports/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run the Worker's tests
+        run: npm test
+
+      - name: Bundle the Worker (dry run)
+        run: npm run check
