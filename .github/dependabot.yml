@@ -1,13 +1,15 @@
 # Dependabot configuration.
 #
-# Four update streams, because the repo has three independent npm dependency
+# Five update streams, because the repo has four independent npm dependency
 # trees plus the workflows:
 #   1. /                          — the Astro site
 #   2. /workers/contact-form      — the forms' Cloudflare Worker (its own
 #                                   package.json + lockfile; root `npm ci`
 #                                   never reaches it)
 #   3. /workers/notebook-service  — the notebook service's Worker (likewise)
-#   4. GitHub Actions used by .github/workflows/
+#   4. /workers/csp-reports       — the Worker that counts the content
+#                                   security policy's reports (likewise)
+#   5. GitHub Actions used by .github/workflows/
 #
 # Minor and patch bumps are GROUPED into one PR per stream per week, so routine
 # churn arrives as a single reviewable change instead of a scattered pile.
@@ -166,6 +168,40 @@ updates:
           - minor
           - patch
       notebook-minor-and-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@cloudflare/vitest-plugin"
+          - "wrangler"
+        update-types:
+          - minor
+          - patch
+
+  # Stream 4, the Worker that counts the policy's reports: the same test
+  # runtime and deploy CLI again, so the same two groups (read stream 2's
+  # comment before changing either). Its lockfile began as a copy of stream
+  # 3's, so the two start on the same wrangler; after that each moves with
+  # its own PRs, and stream 3's note on verifying both the same way holds for
+  # all three.
+  - package-ecosystem: npm
+    directory: /workers/csp-reports
+    schedule:
+      interval: weekly
+      day: monday
+    # 5: two group PRs, plus one ungrouped major for each of the 3 direct deps.
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      csp-reports-runtime:
+        patterns:
+          - "@cloudflare/vitest-plugin"
+          - "wrangler"
+        update-types:
+          - minor
+          - patch
+      csp-reports-minor-and-patch:
         patterns:
           - "*"
         exclude-patterns:

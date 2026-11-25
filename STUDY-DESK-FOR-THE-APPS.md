@@ -32,6 +32,9 @@ because nothing carried them there. This file is what carries them now.
    on labels, the trash, and undo) once BDR marks them, and for the iOS
    catch that page raised: a deletion on iOS leaves no synced record of
    when it happened.
+   **iOS confirmed that catch from its code on 2026-11-24, with one
+   addition** (the first entry in the list below). The rest of this ask
+   is still BDR's.
 2. **BDR's word on the calls marked “for BDR to confirm”** in the list
    below, above all that passkeys carry the key at launch. **They are now
    numbered in one place**: `STUDY-DESK-ENCRYPTION.md`, “Still open,” 1 to
@@ -43,7 +46,8 @@ because nothing carried them there. This file is what carries them now.
    OAuth client from it.
 4. **Every note marker name either app has ever written**, still asked in
    `STUDY-DESK-FORMAT.md` under kind 2. It matters more now that one marker
-   is leaving (below).
+   is leaving (below). **iOS answered on 2026-11-24** (the first entry in the
+   list below). Android's answer is still to come.
 5. **Four things only real devices can show**, asked with the spec's
    draft 2 (its “Still open,” 18 to 21), since the website's side can't
    run the apps: whether one passkey gives the same 32-byte secret in the
@@ -52,6 +56,9 @@ because nothing carried them there. This file is what carries them now.
    on Android 9 to 13; what happens when an iPhone scans a code to sign in
    on a computer; and a passkey kept in 1Password or Bitwarden. **The
    first is wanted before the freeze**, since the design leans on it.
+   **The first is answered for iOS** (2026-11-24, the first entry
+   below): the same 32 bytes in the iOS app and in Safari on a Mac.
+   Android's half, and the other three, are still to come.
 6. **BDR, you are second to answer when the service breaks**, after BVJ
    (BVJ, 2026-11-23). Say here if that doesn't work. **How you roll the
    service back is chosen** (BVJ, 2026-11-23: “Let's go with the GitHub
@@ -89,6 +96,8 @@ because nothing carried them there. This file is what carries them now.
    such a record could never be pushed. If neither app has, the format
    will ask the `Z` form of trash records too; if one has, the service
    relaxes its check for a trash record's row instead.
+   **iOS: never** (2026-11-24, the first entry below). Android's answer
+   is still to come.
 9. **The nine choices the service had to make** (asked 2026-11-23 with
    the service, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
    “Still open,” 32 to 40. Each is what the service does today and has
@@ -97,6 +106,8 @@ because nothing carried them there. This file is what carries them now.
    itself, so one row a device can't fix never blocks the rest of its
    queue. **32 next**: say if either app would ever send a body over
    4 MiB or more than 500 rows in one request.
+   **iOS on 32 and 35** is in the first entry below (2026-11-24). BDR's
+   word is still to come.
 10. **BDR, please try one rollback of the preview, and say here how it
     went** (asked by BVJ, 2026-11-23). It has only been run from BVJ's
     account, and you are the one who will need it. It needs no
@@ -181,6 +192,10 @@ because nothing carried them there. This file is what carries them now.
       upload key? And does any other build need to use a passkey (a
       debug or internal build)? Its certificate would have to go into
       `assetlinks.json` and into the service's list together.
+    - **iOS confirmed (a) and (b) from its code** (2026-11-24, the first
+      entry below): the bundle id `com.litbible.app` and the team id
+      `9KL9F7A3CR`. The Services ID, the key and its id, and the return
+      address are still BDR's.
 13. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
     first entry below): `STUDY-DESK-ENCRYPTION.md`, “Still open,” 41 to
     58. Every one was the website's Claude's. **BVJ has said yes to
@@ -212,6 +227,10 @@ because nothing carried them there. This file is what carries them now.
     for refusing: it is the only sign of a copied key the service ever
     gets. **What do you think, and has either app met a passkey whose
     count went backward?** The service refuses until this is decided.
+    **iOS facts on 42, 45, and 51** (2026-11-24, the first entry
+    below): the preview accepted a passkey used from the iOS app, the
+    JSON forms are no burden, and iOS has never met a passkey whose
+    count went backward. BDR's word on each is still to come.
 14. **The fifteen choices the account work had to make** (asked
     2026-11-24, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
     “Still open,” 59 to 73. Every one was the website's Claude's.
@@ -255,6 +274,8 @@ because nothing carried them there. This file is what carries them now.
     either app, and what will an app show when it is told `slow_down`?
     **62 is not yet answered by BVJ** (what a waiting request says,
     which is what your notice is built from); your view is asked too.
+    **iOS on 61** (2026-11-24, the first entry below): no burden either
+    way.
     Each is what the service does today and has a test. Answer by
     number here.
 15. **The page for deleting an account** (asked 2026-11-24):
@@ -312,9 +333,12 @@ because nothing carried them there. This file is what carries them now.
       a client only say it, or stop syncing until the clock is right,
       and will the apps say it too? This is the question under ask 11,
       part 2, now with one client built.
+    **The iOS builder's views on 74, 76, 77, and 82** are in the first
+    entry below (2026-11-24). They are views, not BDR's word.
 
-17. **Every setup makes a recovery code** (asked 2026-11-24, the first
-    entry below; `STUDY-DESK-ENCRYPTION.md`, “Still open,” 85). BVJ's
+17. **Every setup makes a recovery code** (asked 2026-11-24, in the
+    entry below with that heading; `STUDY-DESK-ENCRYPTION.md`, “Still
+    open,” 85). BVJ's
     call, made without you: under “follows my account” the reader is no
     longer asked whether they want a recovery code. One is made and shown
     at every setup, and the two groups are typed back under both choices,
@@ -392,6 +416,182 @@ means for the apps:
   deleted its other devices can say only “signed out” (89); and a copied
   passkey that keeps a counter is refused (51), which is worth a try
   with a password manager that syncs passkeys.
+
+### 2026-11-24, iOS's answers, from its code and a real iPhone
+
+**Facts from the iOS app, not decisions.** BDR's iOS Claude read the iOS
+code (`next` at `dd0cfb1`, the 2.2 TestFlight build, with every branch
+head, every release tag, and the history) against this repo's `main` at
+`c7c729fe`. It then built the notebook's client on a Debug-only iOS
+branch (`feat/notebook-sync`, nothing shipped) and ran it on BDR's iPhone.
+Paths below are the iOS repo's. **Nothing here answers an ask for BDR's
+word**: where the iOS builder gives a view, it says so, and BDR hasn't
+ruled on it. The asks above stay open where Android's half or BDR's word
+is still to come.
+
+**Ask 4, the marker names.** iOS has written eight: `note`, `emphasis`,
+`question`, `heart`, `bookmark`, `lightbulb`, `flame`, and `star`, the
+last only on development builds for two days in June (2026-06-23 to 25),
+before any TestFlight build could carry it. **It has never written
+`ribbon`, and it still writes `bookmark`**, in the 2.2 TestFlight build.
+BDR ruled on 2026-11-24 that iOS stops offering `bookmark` in its next
+build after 2.2; notes that already carry it keep it on iOS until sync
+arrives. A new note with no marker chosen is written `note`. Only notes
+made before 2026-06-23, or moved from the app's old database, carry no
+marker (nil), and nothing writes `""`. Saving an edited note writes the
+marker it shows, so nil becomes `note` and `star` becomes `emphasis`. So
+`RENAMED_MARKERS` covers every name iOS has written, as long as `bookmark`
+stays in it.
+
+**Ask 8, trash times: no iOS build has ever written the format's trash
+record, in any form.** No iOS build has a sync client or an export. Its own
+Recently Deleted (from 2.1) is per device and never synced: it stores
+`deletedAt` as GRDB's text, `2026-11-23 18:35:09.978` (a space, no `T`, no
+`Z`), and the held copy's times as seconds since 2001. Nothing on iOS
+stands in the way of the format asking the `Z` form, and iOS's client must
+write `deletedAt` fresh in that form, never copy its local column.
+
+**Ask 1, the iOS catch: confirmed, with one addition.** Every delete on
+iOS is CloudKit's own record delete, and its time is kept only in that
+device's Recently Deleted. **A highlight absorbed by a merge leaves no
+record at all**, even on the device (`AnnotationService.swift:268` and
+`:1120`). Old rows marked `isDeleted` (from before 2026-05-23) carry no
+deletion time, only `updatedAt`.
+
+**Ask 5, the first device check, answered for iOS.** One passkey (Apple's
+own, in iCloud Keychain, relying party `litbible.net`), made in the iOS
+app on BDR's iPhone (iOS 27.3), gave **the same 32-byte PRF output** in the
+app (AuthenticationServices, `saltInput1`) and in Safari on a Mac
+(`prf.eval.first`), from the spec's plain 18-byte input in both, which the
+app never hashes. They were compared by fingerprint (the first 8 bytes of
+SHA-256, `cf840a12ac1cdea3` in both); the output was never shown or kept.
+Apple also returns the PRF at creation, the same bytes as at an assertion.
+No change to the spec. **Not yet tried**: iOS 26, Safari on the iPhone
+itself, and 19 to 21.
+
+**Ask 13, facts only.**
+- **42:** the preview accepted a passkey made and used from the iOS app,
+  so the app's origin passes the service's check as built.
+- **45:** building the standard's JSON forms from AuthenticationServices
+  is no burden (about 40 lines), and the real service accepted both a
+  registration and an assertion. iOS hands the PRF back apart from the
+  response, so `clientExtensionResults` is `{}` and the PRF can't leak
+  into a request.
+- **51:** iOS has never met a passkey whose count went backward. It had
+  never used a passkey before this branch.
+
+**Ask 12, from the code:** the bundle id is `com.litbible.app` and the
+team id `9KL9F7A3CR`, matching the site's `apple-app-site-association`.
+The app has no Sign in with Apple entitlement and no Google client id.
+`webcredentials:litbible.net` is on the iOS branch so far.
+
+**Ask 9, and ask 14's 61.** On 32: the ceilings are fine, but a padded
+record can be 1 MiB, so a client must batch a push **by bytes as well as
+by count**. The iOS pass does, and the spec could say so. On 35: agreed,
+and built to. On 61: no burden for iOS either way.
+
+**Ask 16, the iOS builder's views (not BDR's word).**
+- **74:** the same as the website. A phone gets short background windows
+  to sync, and a cursor held behind one wrong clock would stall it.
+- **76:** iOS needs the damper more than the website does, since a Swift
+  merge will be a second, separate build of the format.
+- **77:** the same. On iOS, when the notes store won't open, the app runs
+  on an empty stand-in, and an empty notebook must never remove rows.
+- **82:** it works the same, but a phone that rarely pushes notices late.
+  A marker from the service in `GET /account` would help the apps.
+
+Every rule marked for BDR to confirm in asks 11 and 16 is one constant on
+iOS, set to what the website does today.
+
+**What passed on the iOS branch:** every case of both crypto vector files
+(451 in all, vectors version 2), in pure Swift on CryptoKit with no added
+library; the 20 cases of `desk-sync.mjs`; 275 checks against a Swift copy
+of the website's fake service; the website's 58 engine cases, and 18 of
+iOS's own; and one full run against the preview (setting up, a passkey
+holder, push and pull of sealed rows, a second device by approval, a
+change of key, a third device by recovery code, and deleting the test
+account). `merge-vectors.json` waits for the freeze. On the iPhone, the
+Keychain self-test passed: items “after first unlock, this device only,”
+never synchronizable.
+
+**Where the spec, the reference, the service, and the website's fake
+disagree**, found while building the iOS client. No vector failed; each
+is the website's to weigh.
+
+From the crypto (`desk-crypto.mjs`):
+1. `TextDecoder` drops a leading byte order mark, and iOS matches; the
+   spec doesn't say so.
+2. `JSON.parse` takes a lone UTF-16 surrogate in a `\u` escape, which a
+   Swift string can't hold, so iOS refuses it as `json`. The spec could
+   say no record, card, or keyring carries one.
+3. A holder record whose `public` isn't `d`'s own isn't in the vectors.
+   iOS refuses it (`record`), and any mismatched key pair as `privateKey`.
+4. **“The same id, byte for byte.”** Swift's `==` treats “é” written two
+   ways as equal, so a first Swift build let two different ids pass as
+   one. iOS now compares bytes. A vector with canonically equivalent ids
+   and object keys would catch this on every client; Android should check
+   it in Kotlin.
+5. CryptoKit's `HPKE` can't be handed a sender key, so iOS runs the
+   fixed-key vectors through a small hand-written key schedule, proven by
+   the CFRG vectors and RFC 9180, A.3.1.
+6. CryptoKit can't be handed an ECDSA nonce, so the `signingKey` vectors
+   run in the verifying direction only, as the spec allows.
+
+From the service and the website's fake:
+7. The fake hands out `"token-1"`, while `session.js`'s `BEARER` takes only
+   43 base64url characters, so a client that checks a token's form can't
+   use the fake.
+8. The fake's `replaceNotebook` sets `rev` back to 0; `carryOutReplace`
+   (`waiting.js`) leaves `accounts.rev` alone.
+9. `too_large` for a body: the fake adds `what: "body"`, and `readJson`
+   (`http.js`) sends `{ limit }` only, as the spec's table has it. For
+   rows, `rows.js` sends `what: "rows"`, which the table doesn't list.
+10. `POST /session/proof`: the fake checks no form; `postProof`
+    (`account.js`) checks the device id, `kid`, and a 32-byte proof first.
+11. `GET /keyring`: the fake doesn't check that `device` is a UUID;
+    `getKeyring` (`devices.js`) answers `bad_request` with
+    `field: "device"`, which the spec's row doesn't list.
+12. `GET /account`: the fake answers `ways: []` and a fixed `expires`.
+13. The order of checks differs. The fake checks a body's size and its
+    knobs before routing; the service counts the rate limit before routing
+    and reads the body after the session checks. The fake has no
+    Content-Type check, and `readJson` requires `application/json`.
+14. `previewPasskey` (`preview.js`) checks the body before the session
+    (the preview only).
+15. One fault, two words: `POST /notebook/key` with a passkey that already
+    holds the key answers `not_allowed` / `one_holder_per_passkey`
+    (`key.js`), and `POST /holders` answers `exists` / `passkey`.
+16. A malformed id, two words: an approval's is `bad_request` / `id`
+    (`approvals.js`), and a way's is `gone` / `way` (`ways.js`).
+17. The `platform` and `model` limits count UTF-16 units, not characters.
+    iOS matches; the spec could say which.
+
+From the sync pass (`desk-sync-engine.mjs` and its tests):
+18. `openSession` keeps another notebook's keyring in memory after
+    refusing it, so the next pass skips the check. iOS holds a keyring
+    only once it passes.
+19. `adopt` checks nothing while no keyring is in memory. iOS also
+    refuses a `kid` below the highest one stored.
+20. `rowSize` counts UTF-16 units against a limit in bytes; they agree
+    only while a row's JSON is ASCII. iOS counts bytes.
+21. `desk-sync-engine-edges.test.js` (“a request waiting on the
+    account…”) builds `waiting` as `{what: "notebook", since, ready,
+    from}`, which isn't the interface's shape (`what` is `delete` or
+    `replace`, with `asked`, `due`, `platform`, `through`, and `mine`).
+22. `request` accepts a 200 with no `time`; the iOS client treats that as
+    a malformed answer.
+
+**Key storage on iOS: three things the spec doesn't settle.**
+- **`sign_in` means two things** (71): a session that ran out, which
+  should keep the device's keys, and an account deleted elsewhere, which
+  should clear them. A client can't tell which from the word alone.
+- **The reinstall check needs a guard.** Before the first unlock after a
+  restart, the marker in `UserDefaults` can read as missing, which looks
+  like a fresh install, while a Keychain delete may still be allowed. iOS
+  writes a probe item before it deletes anything; the spec's sentence is
+  safe only with that guard.
+- **The session item records which service it is for**, so a preview
+  session is never sent to production.
 
 ### 2026-11-24, every setup makes a recovery code (step 4h, begun)
 
