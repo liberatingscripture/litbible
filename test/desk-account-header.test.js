@@ -208,4 +208,7 @@ test("SiteHeader.astro's entry has the parts this module reads, in both copies",
     assert.equal(count(part), 2, `${part}: once in the nav's tools and once in the actions`);
   }
   assert.equal(count('class="menu-overlay__account"'), 1, "and the menu's own link, for a window too narrow for either");
+  // check:links holds a fragment to an element on the page it names, so the page's sheet carries the id.
+  const page = readFileSync(new URL("../src/pages/account.astro", import.meta.url), "utf8");
+  assert.equal(page.split('id="sign-out" data-account-page="account"').length - 1, 1, "“Sign out” lands on the account page's sheet");
 });

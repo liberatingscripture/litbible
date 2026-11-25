@@ -17,6 +17,10 @@ import "../styles/v2/account.css";
  * basics (sign in, see or cancel a request to delete, delete, sign out) and
  * never holds a notebook or a key. The rules are in
  * src/scripts/desk/account/CLAUDE.md.
+ *
+ * The sheet's id is the header's “Sign out” link's target
+ * (/account/#sign-out, SiteHeader.astro): the page opens its question
+ * there, and `npm run check:links` holds every fragment to a real element.
  */
 ---
 
@@ -28,7 +32,7 @@ import "../styles/v2/account.css";
 >
   <div class="account-page">
     <h1 class="account-page__title v2-bar">Your account</h1>
-    <div class="account-sheet v2-sheet" data-account-page="account">
+    <div class="account-sheet v2-sheet" id="sign-out" data-account-page="account">
       <p>
         <strong>Accounts are not open yet.</strong> Today the LIT Bible
         website and the iOS and Android apps keep everything you create on

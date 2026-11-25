@@ -160,7 +160,8 @@ without the switch. The announcement popover stays off all three
     here too”). Signing out is asked first, in one place: the header's
     “Sign out” is a link to `/account/#sign-out`, which opens the question
     (the page hears `hashchange` too, since on the account page itself only
-    the fragment changes).
+    the fragment changes). The page's sheet carries `id="sign-out"` for
+    it, because `npm run check:links` fails a fragment with no element.
 15. **`replace: true` has one way to be said**: “Join the new notebook,” on
     a stop of `otherNotebook`. Nothing else sets `S.replace`, and it is
     cleared when a link is made or the reader leaves. The old browser's
