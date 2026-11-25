@@ -5711,6 +5711,87 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      report-only today. Review a week of its reports, then enforce it
      before sign-in ships, since the page will hold a credential to a
      reader's notes (review finding 11).
+     **Somewhere for it to report to: built 2026-11-24, and live
+     2026-11-25, when its Worker was deployed and the header change
+     merged. The week of reports is 2026-11-25 through 2026-12-01.**
+     Until then the policy named no address and nothing received a
+     report, so there was no week to review. Enforcing is still to do,
+     after the week and 4h's pages.
+     - **BVJ chose, 2026-11-24: "A: new Worker, counts."** Reports go to
+       LIT's own Cloudflare, to a small Worker of their own
+       (`workers/csp-reports/`, at `https://litbible.net/csp-report`) that
+       keeps counts and nothing about the reader. The two not chosen: a
+       third route on the contact-form Worker (one package fewer, but
+       report code beside the mail binding, and a redeploy of the forms'
+       backend for every change), and a third-party collector (every
+       reader's address, browser, and page sent to another company).
+     - **What is kept**: one row for each day, rule, blocked origin, page
+       path, asking file, and browser family, with a count. No address,
+       no user agent, no query string, no extension's id. /privacy has a
+       new paragraph, "Security reports."
+     - **Claude's choices, which BVJ kept (2026-11-25: "Go with your
+       choices as they are")**: counts are deleted after 30 days; both
+       policies report, the enforced one too, since a block there is a
+       real break (each row says which); the Worker stores no log at all,
+       because Cloudflare's documentation doesn't say what a stored log
+       line carries; D1 over Analytics Engine, which would need a new API
+       token to read and keeps data three months with no earlier delete;
+       64 KB a post, 120 posts a minute from one address, 5,000 reports a
+       day; and /privacy's effective date is left as it was (BVJ, the
+       same day: the page "is going to be updated soon anyway").
+     - **What the browsers' documentation says** (MDN's compatibility
+       data, read 2026-11-24): `report-uri` works everywhere and is
+       deprecated; `report-to` with `Reporting-Endpoints` is Chrome and
+       Edge 96, Safari 16.4, and Firefox 149 (March 2026), and a browser
+       that knows it ignores `report-uri`. So each policy carries both,
+       and the Worker reads both shapes. The rules are in
+       `public/CLAUDE.md`.
+     - **The week is 2026-11-25 through 2026-12-01**, in UTC days, as the
+       Worker counts them. Both halves went live on 2026-11-25. BVJ said
+       "Yes, deploy it," and the database, its tables, and the Worker
+       were made by the steps in its README, "One-time setup." Then BVJ
+       said to merge the header change ("merge with admin bypass when
+       green"), since `_headers` does nothing off the deployed site. The
+       first day is a part of one: the headers went live in its
+       afternoon. Read the week on or after 2026-12-02, with
+       `npm run summary -- --from 2026-11-25 --to 2026-12-01` in
+       `workers/csp-reports/`.
+     - **A week is a thin sample here.** The site had about 27 page views
+       a day in a browser (BVJ's Cloudflare numbers, 2026-11-24; the rest
+       of its 17,000 requests are bots, the apps, and files). Reports
+       come only from pages someone opened, so each kind of page also
+       needs walking in a real browser once the headers are live: the
+       donation box through to its payment step above all, which has
+       never been exercised with the policy watching.
+     - **Verified, 2026-11-24**: the Worker's suite (80 tests in workerd,
+       on a real local D1 and the configured limiter), with each of 19
+       safeguards weakened in turn and a test failing each time; the
+       Worker over real HTTP on this machine, both report shapes, and the
+       summary read back from its local database; and, on the pull
+       request's Pages preview, the three headers as written, and a real
+       browser (the app's Chromium) flagging a test request under the
+       report-only policy. **And on 2026-11-25, the deployed Worker at
+       its real address**: 405 to a GET, 415 to a wrong type, 400 to what
+       isn't JSON, 204 to an empty object and to a report about another
+       site's page with nothing written, and one marked report (about a
+       page that doesn't exist, `/csp-report-check/`) counted and read
+       back by the summary, its query string gone. That one row is the
+       check's and not a reader's. **Not verified**: the daily run that
+       deletes old counts (its first is 04:41 UTC on 2026-11-26),
+       Cloudflare's own limiter under load, and a browser's own report
+       arriving and being counted, which the first reading of the summary
+       after the merge will show.
+     - **First gaps, seen in that browser on the preview before any report
+       was counted**: `/support/` loads stylesheets from
+       `https://secure.givelively.org` and `https://fonts.googleapis.com`
+       (the list's `style-src` has neither) and fonts from
+       `https://fonts.gstatic.com` (`font-src` is `'self'` alone), all
+       brought in by the donation box. Enforced today, the box would lose
+       its styles and its font. By the browser's own record of what each
+       page fetched, a chapter, the podcast page, /contact, and the home
+       page loaded nothing from outside the list. That was one browser, on
+       the preview's host, with nothing clicked: the list is not changed
+       here, and these go on the week's list.
    - **4j. The privacy page, the terms, and "Ways to keep your notebook"**
      (1–2, plus BVJ's own writing). The terms are new and carry a minimum
      age. The privacy page's account section comes from the spec's "What
