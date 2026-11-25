@@ -5872,8 +5872,27 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      `wrangler dev` didn't**: on the account's home, the three sections
      that wait on their own requests (where the key lives, the devices,
      the recovery code) are drawn a moment after the status line says
-     “in sync.” Nothing is wrong on the page, and it is how the rig was
-     caught; a reader sees those sections arrive after the rest.
+     “in sync.” It is how the rig was caught, and a reader saw those
+     sections arrive after the rest, pushing “Ways to sign in” and “Sign
+     out or delete” down the page.
+     **The home now fills from the top down** (BVJ, 2026-11-25, asked
+     whether to keep the home from shifting: “Yes, fix it”). What lies
+     under the three sections is drawn at once and held back, then shown
+     in the same step as they are, so neither it nor they ever move. The
+     header's “Sign out” question waits for that step too. The wait has
+     an end, three seconds (Claude's number, for BVJ to change), since
+     signing out and deleting are down there; a stop, or a sync with no
+     pass running, ends it at once. Three tests drive it with the
+     lists' answer held. **Seen in headless Chrome the same day**,
+     against `wrangler dev` with that answer held back 1.2 seconds (16
+     checks): the status was on the page 1.3 seconds before the lists,
+     and “Sign out,” “Ways to sign in,” and the devices were each drawn
+     in one place and never moved; the header's question opened with
+     them, in the window. Held back 5 seconds, “Sign out” showed at 3.0
+     seconds and moved once when the lists came, by 879px at a 1366px
+     window, which is the shift every visit over a network had before.
+     Not tried against the deployed preview again: that go-ahead was for
+     one run.
      **Not seen, and not to be assumed**: an operating system's own
      passkey prompt (Windows Hello, Touch ID) or a password manager's; a
      passkey that syncs between two real devices and carries the key to

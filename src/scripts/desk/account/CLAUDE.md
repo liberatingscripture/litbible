@@ -222,6 +222,30 @@ without the switch. The announcement popover stays off all three
     folded under the ways to open a notebook, asks nothing more (the
     request waits seven days, and a device with the key can cancel it),
     and is not offered while any request waits.
+21. **The home fills from the top down** (BVJ, 2026-11-25: “Yes, fix it,”
+    of the home shifting when its late sections arrive). Where the key
+    lives, the devices, and the recovery code wait on requests of their own
+    (`readLists`), so over a network they come after the status line. What
+    lies under them, “Ways to sign in” and “Sign out or delete,” is drawn
+    at once inside `.account__rest` and held back, then shown in the same
+    step as the three (`settle` in `showHome`), so neither ever moves down
+    the page under a reader. Four things to keep:
+    - **The wait has an end**, `REST_WAIT_MS` (three seconds; Claude's
+      number), because signing out and deleting are down there. Past it the
+      rest shows and moves once when the lists come. A stop, or a state
+      with no pass running (offline, slowed, a pass that failed), settles
+      at once, since no list is coming.
+    - **The three sections, the notice of what is new, and the rest show
+      together**: the notice is read (`drawNews`) before any of them is
+      shown. The notice sits above the status, so on the rare visit that
+      has one the status moves down once; nothing else above the lists
+      arrives late.
+    - **The header's “Sign out” waits for it** (`wantSignOut`): the mark
+      leaves the address at once, and the question opens when the home has
+      settled, never under sections still to come.
+    - **A new section of the home** that waits on a request goes above
+      `.account__rest` and is shown in `loadLists`' one step; one that
+      doesn't wait goes above the lists or inside the rest.
 
 ## Testing
 
