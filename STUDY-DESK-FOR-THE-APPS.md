@@ -413,7 +413,8 @@ yes to Turnstile on the website's sign-in page (the spec's “Still open,”
   widget's site key; and `POST /sign-in/new-passkey/options` from a
   request with an `Origin` header must carry `{ "turnstile": "<token>" }`.
   A missing or refused token is `not_allowed` by the rule `turnstile`;
-  Cloudflare out of reach is `provider` with `which: "turnstile"`.
+  Cloudflare out of reach, or refusing because the deployment's own
+  secret is wrong, is `provider` with `which: "turnstile"`.
 - **What doesn't, for the apps**: a request with no `Origin` is not
   checked and its body is not read, so an app sends what it sends today.
   Ignore the new member of `GET /sign-in`. Signing in with a passkey,

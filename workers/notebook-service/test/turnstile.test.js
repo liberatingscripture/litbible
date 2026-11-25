@@ -141,6 +141,25 @@ describe("with the check on, a browser's request (it has an Origin)", () => {
     expect(body).toMatchObject({ error: "not_allowed", rule: "turnstile" });
   });
 
+  for (const code of ["invalid-input-secret", "missing-input-secret", "bad-request", "internal-error"]) {
+    it(`is refused provider, never the reader's token, when siteverify says no for "${code}"`, async () => {
+      // A wrong secret on the deployment fails every token. The reader's check didn't fail: the service's did.
+      world.answer = () => [200, JSON.stringify({ success: false, "error-codes": [code] })];
+      const before = await challenges();
+      const { status, body } = await asked({ turnstile: TOKEN });
+      expect(status).toBe(502);
+      expect(body).toMatchObject({ error: "provider", which: "turnstile" });
+      expect(await challenges()).toBe(before);
+    });
+  }
+
+  it("is still not_allowed when siteverify names the token among its reasons", async () => {
+    world.answer = () => [200, JSON.stringify({ success: false, "error-codes": ["timeout-or-duplicate"] })];
+    const { status, body } = await asked({ turnstile: TOKEN });
+    expect(status).toBe(422);
+    expect(body).toMatchObject({ error: "not_allowed", rule: "turnstile" });
+  });
+
   for (const [what, change] of [
     ["can't be reached", () => (world.down = true)],
     ["answers 500", () => (world.answer = () => [500, JSON.stringify({ success: true })])],

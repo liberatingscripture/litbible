@@ -164,7 +164,8 @@ against a local D1 made from the real migrations.
 - `sign-in-races.test.js`: sign-in and ways in where two requests meet, and
   how long a session lasts.
 - `turnstile.test.js`: the Turnstile check, on and off by configuration,
-  each way a token is refused, siteverify out of reach, an app's request
+  each way a token is refused, siteverify out of reach, a "no" that is
+  the deployment's own fault (a wrong secret), an app's request
   (no `Origin`) let through unchecked, and the secret in no answer or log
   line. Siteverify is stood in for, and `fetch` replaced, as for Apple.
 - `http.test.js`: the time on every answer, bodies, CORS, and that no token,
@@ -477,7 +478,12 @@ deployment holds both `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET`:
   Apple and Google, before a challenge is made or anything is written. A
   missing or refused token is `not_allowed` (`rule: "turnstile"`);
   siteverify out of reach, or answering other than 200 or unreadably, is
-  `provider` (`which: "turnstile"`).
+  `provider` (`which: "turnstile"`). **So is a "no" whose reason is the
+  deployment's own**: siteverify answers 200 and `success: false` for a
+  secret it doesn't know just as for a bad token, so a "no" that names
+  `missing-input-secret`, `invalid-input-secret`, `bad-request`, or
+  `internal-error` is `provider` too, and a mistyped secret never tells a
+  reader their check failed.
 - **A request with no `Origin` is not checked.** Only a browser sends one,
   and the iOS and Android apps send none. So until the apps attest
   themselves (App Attest, Play Integrity: a question for BDR), a program can
@@ -706,10 +712,11 @@ page. **Nothing is built, and here is why.**
 - **What would stop it, and why not now**:
   - *On the website*: a Turnstile token sent with
     `POST /sign-in/new-passkey/options` and checked here, as the forms'
-    Worker checks one. It needs a page to show the widget on, which is the
-    sign-in page of step 4h, and a Turnstile widget and secret, which are
-    BVJ's to make. It would be a new member of that request for the website
-    alone.
+    Worker checks one. **Built in step 4h and off** ("Turnstile before a
+    new account" above): the website's sign-in page shows the widget where
+    `GET /sign-in` names a site key, and the check here is on only once a
+    widget and its secret exist, which are BVJ's to make. It is a new
+    member of that request for the website alone.
   - *In the apps*: Turnstile needs a browser. The native answer is Apple's
     App Attest and Google's Play Integrity, each a real piece of work in
     BDR's apps and a new member of the request. That is BDR's to weigh.
@@ -718,12 +725,12 @@ page. **Nothing is built, and here is why.**
     stops nobody, and it would leave a real reader who made a passkey and
     never set up with a passkey that signs in to nothing. Not built; it is
     there if empty accounts ever pile up.
-- **So**: the limits are what there is until step 4h. **BVJ said yes to
-  Turnstile on the website's sign-in page (2026-11-24)**, so step 4h shows
-  the widget and adds the token's check here; whether the apps attest is
-  asked of BDR (the spec's "Still open," 68). **The check is built** (step
-  4h, 2026-11-24) and off until configured: "Turnstile before a new account"
-  above.
+- **So**: the limits are what there is until the check is configured.
+  **BVJ said yes to Turnstile on the website's sign-in page (2026-11-24)**;
+  step 4h built the widget's place on that page and the token's check
+  here, both off until a widget and its secret exist ("Turnstile before a
+  new account" above). Whether the apps attest is asked of BDR (the spec's
+  "Still open," 68 and 86).
 
 ### What was checked against the vendors' own pages, and what was not
 

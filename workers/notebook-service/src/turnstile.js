@@ -46,11 +46,23 @@ export const turnstileOn = (env) => set(env.TURNSTILE_SITE_KEY) && set(env.TURNS
 export const turnstileSiteKey = (env) => (turnstileOn(env) ? env.TURNSTILE_SITE_KEY.trim() : null);
 
 /**
+ * What siteverify says when the fault is this deployment's or Cloudflare's
+ * own, never the reader's token: a secret it doesn't know, a request it
+ * couldn't read, or an error on its side
+ * (https://developers.cloudflare.com/turnstile/get-started/server-side-validation/,
+ * "Error codes").
+ */
+const NOT_THE_TOKEN = new Set(["missing-input-secret", "invalid-input-secret", "bad-request", "internal-error"]);
+
+/**
  * Asks Cloudflare whether a token is good. Returns true or false; refuses
  * with `provider` (`which: "turnstile"`) when Cloudflare can't be reached,
  * answers other than 200, or answers something the service can't read, the
  * same refusal Apple or Google out of reach gives (src/signin.js,
- * providerCheck).
+ * providerCheck). A verdict of "no" for a reason that isn't the token's
+ * (`NOT_THE_TOKEN`: a wrong secret on this deployment, most of all) is that
+ * refusal too, so a reader is never told their check failed when the
+ * service is what is misconfigured.
  */
 async function siteverify(env, token, request) {
   const form = new URLSearchParams({ secret: env.TURNSTILE_SECRET.trim(), response: token });
@@ -70,6 +82,10 @@ async function siteverify(env, token, request) {
     return refuse(502, "provider", { which: "turnstile" });
   }
   if (verdict === null || typeof verdict !== "object" || typeof verdict.success !== "boolean") {
+    return refuse(502, "provider", { which: "turnstile" });
+  }
+  const codes = Array.isArray(verdict["error-codes"]) ? verdict["error-codes"] : [];
+  if (!verdict.success && codes.some((code) => NOT_THE_TOKEN.has(code))) {
     return refuse(502, "provider", { which: "turnstile" });
   }
   return verdict.success;

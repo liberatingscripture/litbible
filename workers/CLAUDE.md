@@ -130,7 +130,9 @@ work," "Production," and what each later step plugs in and where), and
     secret) are set**, and checks only a request with an `Origin` (a
     browser's), so the apps pass unchecked until they attest (the spec's
     "Still open," 86). Only Cloudflare's published dummy keys go in the
-    repo; the check runs before a challenge is written.
+    repo; the check runs before a challenge is written. A "no" from
+    siteverify for the deployment's own reason (a secret it doesn't know)
+    is `provider`, never the reader's `not_allowed`.
   - **The Android origins in `wrangler.jsonc` and the certificates in
     `public/.well-known/assetlinks.json` change together**; the root's
     `test/link-files.test.js` fails when they differ. Those two link

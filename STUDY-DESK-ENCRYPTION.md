@@ -1842,7 +1842,8 @@ POST /sign-in/google        { "challenge": "<32 bytes>", "idToken": "<the token>
   Cloudflare’s siteverify about it (with the address the request came from) before a challenge
   is made or anything is written, and after the limit on beginning a sign-in is counted. A
   missing, malformed, or refused token is `not_allowed` by the rule `turnstile`; Cloudflare out
-  of reach, answering other than 200, or answering something unreadable is `provider` with
+  of reach, answering other than 200, answering something unreadable, or refusing for a reason
+  that is the deployment’s own (a secret it doesn’t know, most of all) is `provider` with
   `which: "turnstile"`. A token is good once, so a client that is refused gets a new one from
   the widget before it asks again. **A request with no `Origin` (an app’s) is not checked, and
   its body is not read**, as before. Only a browser sends `Origin`, and Turnstile needs a
