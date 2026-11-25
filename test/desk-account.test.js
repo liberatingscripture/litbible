@@ -460,6 +460,26 @@ test("an entry whose card doesn't open is shown as unknown, and the next change 
   assert.equal((await account.readLists({ call: reader.call, held: change.held })).devices.length, 1);
 });
 
+test("a holder is what its card says: a service that names another passkey or kind for it is not believed", async () => {
+  const w = world();
+  const reader = await setUpReader(w);
+  const lying = (change) => async (method, path, body) => {
+    const res = await reader.call(method, path, body);
+    if (method === "GET" && path === "/devices") for (const holder of res.body.holders) change(holder);
+    return res;
+  };
+  const other = ref.toBase64url(ref.randomBytes(20));
+  const renamed = await account.readLists({ call: lying((holder) => holder.kind === "passkey" && (holder.credential = other)), held: reader.held });
+  assert.deepEqual(renamed.holders.map((holder) => [holder.kind, holder.opens]), [["passkey", false], ["recovery", true]]);
+  assert.equal(account.whereKeyLives(renamed), "device", "a holder that isn't believed doesn't count as the passkey's");
+
+  const swapped = await account.readLists({ call: lying((holder) => (holder.kind = holder.kind === "passkey" ? "recovery" : "passkey")), held: reader.held });
+  assert.deepEqual(swapped.holders.map((holder) => holder.opens), [false, false]);
+
+  const honest = await account.readLists({ call: reader.call, held: reader.held });
+  assert.equal(account.whereKeyLives(honest), "account");
+});
+
 test("a change of key that the lists moved under is refused whole, and done again", async () => {
   const w = world();
   const reader = await setUpReader(w, { follows: false });

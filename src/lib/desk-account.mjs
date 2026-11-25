@@ -439,8 +439,9 @@ export async function readLists({ call, held }) {
       const key = keyOf(held, entry.card.kid);
       if (!key) throw new Refusal("missingKey");
       const opened = await openHolderCard({ notebookKey: key, kid: entry.card.kid, notebook, holderId: entry.id, ...sealedBytes(entry.card) });
-      // The card, not the service, says what a holder is.
+      // The card, not the service, says what a holder is, and which passkey it is for.
       if (opened.card.kind !== entry.kind) throw new Refusal("card", "kind");
+      if (entry.kind === "passkey" && opened.card.credential !== entry.credential) throw new Refusal("card", "credential");
       holders.push({ ...base, opens: true, name: opened.card.name, public: opened.public });
     } catch (error) {
       if (!(error instanceof Refusal)) throw error;
