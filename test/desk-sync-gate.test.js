@@ -23,8 +23,14 @@ const toRel = (file) => relative(root, file).replaceAll("\\", "/");
 const STATIC_IMPORT = /^\s*(?:import|export)\s[^;]*?\sfrom\s+["'](\.[^"']+)["']|^\s*import\s+["'](\.[^"']+)["']/gm;
 const DYNAMIC_IMPORT = /\bimport\(\s*["'](\.[^"']+)["']\s*\)/g;
 
-/** What only a syncing browser may download. */
+/**
+ * What only a syncing browser may download. The account's key flows
+ * (desk-account.mjs, step 4h) are held the same way: they bring the
+ * encryption with them, and no page reaches them yet. When the account
+ * page is built its own dynamic import is a third way in, listed below.
+ */
 const GATED_LIBS = new Set([
+  "src/lib/desk-account.mjs",
   "src/lib/desk-crypto.mjs",
   "src/lib/desk-sync.mjs",
   "src/lib/desk-sync-engine.mjs",

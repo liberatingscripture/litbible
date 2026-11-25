@@ -63,7 +63,13 @@ sentences of this package's README are stale since then ("Nothing in the
 website imports the service," and "The website's own Content Security
 Policy doesn't name this origin yet"): they were left because any change
 in this package redeploys the preview, so correct them with the next
-change that has to. **The root suite's stand-in for this service**
+change that has to. **The root suite also runs this package's own code**
+(step 4h; `test/helpers/real-notebook-service.mjs`): `src/` in Node on
+`node:sqlite` with the real migrations, and `test/authenticator.js` as the
+website's tests' passkey. So `src/` must go on importing nothing outside
+itself, a D1 call it has never used before (`raw()`, `exec()`, a session)
+needs adding to that helper's stand-in, and a change to either can fail
+the root's CI job. **The root suite's stand-in for this service**
 (`test/helpers/fake-notebook-service.mjs`) repeats the checks, words, and
 order of `src/rows.js`, `src/session.js`, and `src/check.js` by hand: a
 change to any of them needs the same change there.
