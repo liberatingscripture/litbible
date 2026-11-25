@@ -125,6 +125,12 @@ work," "Production," and what each later step plugs in and where), and
   - **No identifier of Apple's or Google's is in the repo, and none is
     guessed**: both stay off until BDR's are configured. The tests use
     made-up ones (`test/idp.js`).
+  - **Turnstile before a new account (`src/turnstile.js`) is on only where
+    both `TURNSTILE_SITE_KEY` (a variable) and `TURNSTILE_SECRET` (a
+    secret) are set**, and checks only a request with an `Origin` (a
+    browser's), so the apps pass unchecked until they attest (the spec's
+    "Still open," 86). Only Cloudflare's published dummy keys go in the
+    repo; the check runs before a challenge is written.
   - **The Android origins in `wrangler.jsonc` and the certificates in
     `public/.well-known/assetlinks.json` change together**; the root's
     `test/link-files.test.js` fails when they differ. Those two link
@@ -145,7 +151,8 @@ work," "Production," and what each later step plugs in and where), and
   - **A replaced notebook resets every session's proof.** The next
     notebook's first key is `kid` 1 again.
   - **The address a request comes from is never stored or logged.** It is
-    the limiter's key and nothing else. A missing limiter binding answers
+    the limiter's key, and is passed on to Turnstile's siteverify with a
+    token, and nothing else. A missing limiter binding answers
     `error` to everything, on purpose.
   - **Production's config has no `PREVIEW_` anything**, and its workflow
     jobs never run on a push; `test/config.test.js` holds both. The top

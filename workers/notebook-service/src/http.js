@@ -28,7 +28,7 @@ const MESSAGES = {
   preview_secret: "That is not the preview's secret.",
   passkey_refused: "That passkey's answer did not pass the service's checks.",
   token_refused: "That identity token did not pass the service's checks.",
-  provider: "Apple or Google could not be reached, or answered something the service can't use. Try again.",
+  provider: "Apple, Google, or Cloudflare's Turnstile could not be reached, or answered something the service can't use. Try again.",
   bad_request: "The request is not in the form the interface gives.",
   not_allowed: "The interface does not allow that.",
   too_large: "Too large.",

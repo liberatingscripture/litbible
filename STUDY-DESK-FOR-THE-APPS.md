@@ -319,8 +319,16 @@ because nothing carried them there. This file is what carries them now.
     longer asked whether they want a recovery code. One is made and shown
     at every setup, and the two groups are typed back under both choices,
     with no way to skip. **Say here whether the apps will do the same.**
-18. (The Turnstile check on the website's sign-in page, asked with its
-    own pull request. The number is held here so the two don't collide.)
+18. **Turnstile checks only a browser's request** (asked 2026-11-24, the
+    first entry below; `STUDY-DESK-ENCRYPTION.md`, “Still open,” 86).
+    **For BDR to confirm**: the design is the website's Claude's. Where
+    it is configured, `POST /sign-in/new-passkey/options` must carry a
+    Turnstile token when the request has an `Origin` header, and an
+    app's request, which has none, is not checked. **The apps need do
+    nothing now**: `GET /sign-in` may carry a new member, `turnstile`,
+    which they ignore. **Say here whether the apps will attest at
+    sign-up** (App Attest, Play Integrity), and when, since until they
+    do a program can skip the check by sending no `Origin`.
 19. **The four choices the website's account pages had to make** (asked
     2026-11-25, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
     “Still open,” 87 to 90. None changes a request or an answer. Answer
@@ -392,6 +400,28 @@ means for the apps:
   deleted its other devices can say only “signed out” (89); and a copied
   passkey that keeps a counter is refused (51), which is worth a try
   with a password manager that syncs passkeys.
+
+### 2026-11-24, Turnstile before a new account, on the service (step 4h)
+
+**For BDR to confirm**; the design is the website's Claude's. BVJ said
+yes to Turnstile on the website's sign-in page (the spec's “Still open,”
+68), and the service now checks its token.
+
+- **What changes, and only where a deployment holds both
+  `TURNSTILE_SITE_KEY` and the secret `TURNSTILE_SECRET`** (neither the
+  preview nor production does yet): `GET /sign-in` gains `turnstile`, the
+  widget's site key; and `POST /sign-in/new-passkey/options` from a
+  request with an `Origin` header must carry `{ "turnstile": "<token>" }`.
+  A missing or refused token is `not_allowed` by the rule `turnstile`;
+  Cloudflare out of reach is `provider` with `which: "turnstile"`.
+- **What doesn't, for the apps**: a request with no `Origin` is not
+  checked and its body is not read, so an app sends what it sends today.
+  Ignore the new member of `GET /sign-in`. Signing in with a passkey,
+  `POST /sign-in/new-passkey`, Apple, and Google are untouched.
+- **The open door**: since the check keys on `Origin`, a program can skip
+  it by sending none. What would close it is the apps attesting
+  themselves, which is ask 18. The spec's “Signing in” and “Changed in
+  step 4h,” 1, have the full text.
 
 ### 2026-11-24, every setup makes a recovery code (step 4h, begun)
 

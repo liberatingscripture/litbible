@@ -90,6 +90,11 @@ describe("production", () => {
       }
     }
   });
+
+  it("never writes Turnstile's secret into the file, in either environment", () => {
+    for (const env of [preview, production]) expect(env.vars.TURNSTILE_SECRET).toBeUndefined();
+    expect(raw).not.toMatch(/TURNSTILE_SECRET"\s*:/);
+  });
 });
 
 describe("what both environments must have, each written out (a named environment inherits none of it)", () => {

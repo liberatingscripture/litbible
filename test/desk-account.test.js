@@ -19,9 +19,9 @@ import * as account from "../src/lib/desk-account.mjs";
 const PRF = (await ref.prfInput()).bytes;
 const { AccountRefusal, AccountStop } = account;
 
-/** A service, the way in to it, and a record of every body sent. */
-function world() {
-  const service = realService();
+/** A service, the way in to it, and a record of every body sent. `env` adds bindings to the service's. */
+function world(env = {}) {
+  const service = realService({ env });
   const sent = [];
   const fetch = (url, init = {}) => {
     sent.push({ method: init.method, path: new URL(url).pathname, body: init.body ? JSON.parse(init.body) : null });
@@ -96,6 +96,56 @@ const stops = (run, why) =>
 test("the service says which ways to sign in are on", async () => {
   const w = world();
   assert.deepEqual(await session.signInWays(w.door), { ways: ["passkey"], turnstile: null });
+});
+
+// Cloudflare's published dummy keys for testing (the site key and secret that
+// always pass), not LIT's. Siteverify is stood in for: the service's own call
+// to it goes through the global fetch, which is replaced for the test.
+const TURNSTILE = { TURNSTILE_SITE_KEY: "1x00000000000000000000AA", TURNSTILE_SECRET: "1x0000000000000000000000000000000AA" };
+const DUMMY_TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
+
+async function withSiteverify(run) {
+  const asked = [];
+  const real = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    assert.equal(String(url), "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+    const form = Object.fromEntries(new URLSearchParams(init.body));
+    asked.push(form);
+    return new Response(JSON.stringify({ success: form.response === DUMMY_TOKEN }), { status: 200 });
+  };
+  try {
+    return await run(asked);
+  } finally {
+    globalThis.fetch = real;
+  }
+}
+
+test("with Turnstile on, the service names its site key, and a new account needs the page's token", async () => {
+  await withSiteverify(async (asked) => {
+    // The website's page is a browser on https://litbible.net, so its requests carry that Origin.
+    const w = world(TURNSTILE);
+    assert.equal(w.service.pageOrigin, "https://litbible.net");
+    assert.deepEqual(await session.signInWays(w.door), { ways: ["passkey"], turnstile: TURNSTILE.TURNSTILE_SITE_KEY });
+
+    await refused(
+      () => session.signUpWithPasskey({ call: w.door, credentials: fakeCredentials(), prfInput: PRF }),
+      "not_allowed",
+      "turnstile",
+    );
+    await refused(
+      () => session.signUpWithPasskey({ call: w.door, credentials: fakeCredentials(), prfInput: PRF, turnstile: "not-the-token" }),
+      "not_allowed",
+      "turnstile",
+    );
+
+    const made = await session.signUpWithPasskey({ call: w.door, credentials: fakeCredentials(), prfInput: PRF, turnstile: DUMMY_TOKEN });
+    assert.equal(made.created, true);
+    assert.deepEqual(lastSent(w, "/sign-in/new-passkey/options"), { turnstile: DUMMY_TOKEN });
+    assert.deepEqual(asked.map((form) => form.response), ["not-the-token", DUMMY_TOKEN]);
+    assert.equal(asked[1].secret, TURNSTILE.TURNSTILE_SECRET);
+    assert.equal(JSON.stringify(w.sent).includes(TURNSTILE.TURNSTILE_SECRET), false);
+    assert.deepEqual(w.service.failures, []);
+  });
 });
 
 test("a new passkey makes an account, and the PRF's output never leaves the browser", async () => {
