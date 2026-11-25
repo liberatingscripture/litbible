@@ -6,9 +6,11 @@ the Study Desk's plan (`STUDY-DESK.md`, "Order of work," 4): the full policy
 is to be enforced before sign-in ships, and a week of these reports is how
 the policy's list is checked first.
 
-**Status (2026-11-24): built and tested on this machine, NOT deployed.** The
-database doesn't exist, and `wrangler.jsonc` holds a placeholder id of zeros.
-Creating it and deploying are BVJ's (see "One-time setup").
+**Status: deployed 2026-11-25**, on BVJ's go-ahead that day, and checked at
+its real address (see "One-time setup," which is now the record of what was
+done and the way to do it again from nothing). It counts nothing from the
+site until `public/_headers` with the reporting directives is live on
+litbible.net.
 
 ## What it is for
 
@@ -119,9 +121,11 @@ that the port is free afterward.
 
 ## One-time setup (BVJ, or a session with BVJ's go-ahead)
 
-1. **Create the database**: `npx wrangler d1 create litbible-csp-reports`.
+1. **Create the database**:
+   `npx wrangler d1 create litbible-csp-reports --update-config=false`.
    Put the id it prints into `wrangler.jsonc` as `database_id` (an id is not
-   a secret) and commit it.
+   a secret) and commit it. Without that flag Wrangler offers to write a
+   second, differently named binding into the config.
 2. **Make its two tables**: `npm run migrate`.
 3. **Deploy**: `npm run deploy`. This creates the Worker
    `litbible-csp-reports`, its route `litbible.net/csp-report`, and its
@@ -136,6 +140,13 @@ that the port is free afterward.
      the deploy the static site answers this post `405`.)
    - `npm run summary` prints "No reports were counted," which proves the
      database and its tables are there and readable.
+
+**Done on 2026-11-25**: the database is `litbible-csp-reports` in Western
+North America, and all three checks answered as written. One more was made
+that day, to see the whole path work: a single marked report about a page
+that doesn't exist, `/csp-report-check/`, which the summary then showed as
+one `connect-src` report from browser `other`. That row is the check's and
+not a reader's; it goes with the rest after 30 days.
 
 **The Worker goes live before, or with, the site change that names it.** If
 `public/_headers` names the address first, the static site answers there and

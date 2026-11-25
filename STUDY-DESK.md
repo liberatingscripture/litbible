@@ -5711,10 +5711,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      report-only today. Review a week of its reports, then enforce it
      before sign-in ships, since the page will hold a credential to a
      reader's notes (review finding 11).
-     **Somewhere for it to report to: built 2026-11-24, not deployed, and
-     the week has not started.** Until now the policy named no address and
-     nothing received a report, so there was no week to review. Enforcing
-     is still to do, after the week and 4h's pages.
+     **Somewhere for it to report to: built 2026-11-24, its Worker deployed
+     2026-11-25, and the week starts the day the header change merges.**
+     Until now the policy named no address and nothing received a report,
+     so there was no week to review. Enforcing is still to do, after the
+     week and 4h's pages.
      - **BVJ chose, 2026-11-24: "A: new Worker, counts."** Reports go to
        LIT's own Cloudflare, to a small Worker of their own
        (`workers/csp-reports/`, at `https://litbible.net/csp-report`) that
@@ -5742,11 +5743,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        that knows it ignores `report-uri`. So each policy carries both,
        and the Worker reads both shapes. The rules are in
        `public/CLAUDE.md`.
-     - **The week starts the day both are live**: the Worker deployed
-       (BVJ's: a database, a migration, a deploy; its README, "One-time
-       setup") and the header change merged, since `_headers` does nothing
-       off the deployed site. **Write that date here.** Read the week
-       with `npm run summary` in `workers/csp-reports/`.
+     - **The week starts the day both are live.** The Worker has been,
+       since 2026-11-25: BVJ said "Yes, deploy it" that day, and the
+       database, its tables, and the Worker were made by the steps in its
+       README, "One-time setup." What is left is the header change
+       merging, since `_headers` does nothing off the deployed site.
+       **Write the merge's date here: it is the week's first day.** Read
+       the week with `npm run summary` in `workers/csp-reports/`.
      - **A week is a thin sample here.** The site had about 27 page views
        a day in a browser (BVJ's Cloudflare numbers, 2026-11-24; the rest
        of its 17,000 requests are bots, the apps, and files). Reports
@@ -5761,9 +5764,16 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        summary read back from its local database; and, on the pull
        request's Pages preview, the three headers as written, and a real
        browser (the app's Chromium) flagging a test request under the
-       report-only policy. **Not verified**: anything on Cloudflare (the
-       route, the remote database, the daily run), and a browser's report
-       arriving and being counted, which needs both live.
+       report-only policy. **And on 2026-11-25, the deployed Worker at
+       its real address**: 405 to a GET, 415 to a wrong type, 400 to what
+       isn't JSON, 204 to an empty object and to a report about another
+       site's page with nothing written, and one marked report (about a
+       page that doesn't exist, `/csp-report-check/`) counted and read
+       back by the summary, its query string gone. That one row is the
+       check's and not a reader's. **Not verified**: the daily run that
+       deletes old counts (its first is 04:41 UTC on 2026-11-26),
+       Cloudflare's own limiter under load, and a browser's own report
+       arriving, which needs the headers live on litbible.net.
      - **First gaps, seen in that browser on the preview before any report
        was counted**: `/support/` loads stylesheets from
        `https://secure.givelively.org` and `https://fonts.googleapis.com`

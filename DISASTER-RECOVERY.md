@@ -211,20 +211,20 @@ Whether and when to deploy is BVJ's; the steps are in
   Google Play asks for. It is out of search and the sitemap until accounts
   open.
 
-### The policy's report Worker (built 2026-11-24, NOT deployed)
+### The policy's report Worker (deployed 2026-11-25)
 
 Counts the reports browsers send about the site's content security policy
-(`workers/csp-reports/`; the plan's step 4i in `STUDY-DESK.md`). Everything
-it needs is in the repository, and **nothing of it exists on the account
-yet**: creating its database and deploying it are BVJ's, and the steps are
-in `workers/csp-reports/README.md`, "One-time setup."
+(`workers/csp-reports/`; the plan's step 4i in `STUDY-DESK.md`). It was
+created and deployed on 2026-11-25, on BVJ's go-ahead that day, by the
+steps in `workers/csp-reports/README.md`, "One-time setup," which is also
+how to make it again from nothing.
 
-- **What it will add to the account, when deployed**: a Worker,
-  `litbible-csp-reports`; a D1 database of the same name, made by hand
-  first (its id in `wrangler.jsonc` is a placeholder of zeros until then);
-  a route on the zone, `litbible.net/csp-report`, with no DNS record; a
-  cron trigger, once a day; and one rate limit binding, which is
-  configuration and no resource. **No secret, and no token.**
+- **What it added to the account**: a Worker, `litbible-csp-reports`; a D1
+  database of the same name, in Western North America (its id is in
+  `wrangler.jsonc`; an id is not a secret); a route on the zone,
+  `litbible.net/csp-report`, with no DNS record; a cron trigger, once a
+  day at 04:41 UTC; and one rate limit binding, which is configuration and
+  no resource. **No secret, and no token.**
 - **What it holds**: counts of reports by day, rule, blocked origin, page
   path, and browser family, each deleted after 30 days. Nothing about a
   reader. **Losing it loses nothing that matters**: the counts are a
@@ -431,9 +431,10 @@ service. **Production**, once it exists: the same README, "Production."
 Its code and configuration come back from the repository; **its data comes
 back only from D1's Time Travel**, and only within 30 days.
 
-**The policy's report Worker**, once it exists (independent of everything
-else, with no secret): `workers/csp-reports/README.md`, "One-time setup,"
-whose last step checks it. Its counts are not worth restoring.
+**The policy's report Worker** (independent of everything else, with no
+secret): `workers/csp-reports/README.md`, "One-time setup," whose last
+step checks it. A new database has a new id, which goes into
+`wrangler.jsonc`. Its counts are not worth restoring.
 
 **Verify after redeploy:**
 
@@ -442,6 +443,9 @@ whose last step checks it. Its counts are not worth restoring.
 - Submit `/contact` and `/app-support` once each; confirm both emails
   arrive with a working `Reply-To`.
 - Newsletter footer form still posts to Brevo (sibforms).
+- `curl.exe -i https://litbible.net/csp-report` answers `405` with
+  `allow: POST` (the policy's report Worker; a `404` means the static site
+  is answering there and the Worker is not deployed).
 
 ## The mobile apps
 

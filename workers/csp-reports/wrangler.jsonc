@@ -36,11 +36,11 @@
     {
       "binding": "DB",
       "database_name": "litbible-csp-reports",
-      // A PLACEHOLDER. The database doesn't exist yet. BVJ makes it with
-      // `npx wrangler d1 create litbible-csp-reports` and the id it prints
-      // goes here (README, "One-time setup"). An id is not a secret. Local
-      // development and the tests never read it.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // The id `wrangler d1 create litbible-csp-reports` printed on
+      // 2026-11-25 (README, "One-time setup"); the database is in Western
+      // North America. An id is not a secret. Local development and the
+      // tests never read it.
+      "database_id": "b5716402-9cdd-47f8-bb44-8a5ce086430f",
       "migrations_dir": "migrations"
     }
   ],

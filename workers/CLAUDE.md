@@ -30,10 +30,10 @@
 
 Counts the reports browsers send about the site's content security policy,
 at `https://litbible.net/csp-report` (Study Desk step 4i; BVJ chose a Worker
-of its own keeping counts only, 2026-11-24). **Built and not deployed**
-(2026-11-24): its database doesn't exist, and `wrangler.jsonc` holds a
-placeholder id. Its README is the working reference (what it keeps, the
-answers, the limits, setup, reading a week, stopping it).
+of its own keeping counts only, 2026-11-24). **Deployed 2026-11-25**, on
+BVJ's go-ahead that day, with a D1 database of its own. Its README is the
+working reference (what it keeps, the answers, the limits, setup, reading a
+week, stopping it).
 
 - **Nothing about a reader is kept or logged, and /privacy says so**
   ("Security reports"). What is kept is in `src/report.js` and the
