@@ -146,6 +146,19 @@ test("without the flag, nothing is set", () => {
   assert.equal(run().restyle, false);
 });
 
+// Accounts (the plan's step 4h) are closed for everyone until one browser opens them with
+// ?account=preview, which src/scripts/account-gate.js stores. The stamp is on every device,
+// since /delete-account/ shows its box on a phone too; the header's way in also needs the desk's.
+test("accounts opened in this browser are stamped before paint, on every device, and nowhere else", () => {
+  assert.equal("data-account" in run({ stored: { "lit-desk-preview": "on" } }).attrs, false);
+  for (const value of ["preview", "local"]) {
+    assert.deepEqual(run({ stored: { "lit-desk-account": value } }).attrs, { "data-account": "open" }, value);
+  }
+  assert.deepEqual(run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-account": "preview" } }).attrs, { "data-account": "open" });
+  assert.deepEqual(run({ surface: "home", stored: { "lit-desk-account": "preview", "lit-desk-preview": "on" } }).attrs, { "data-account": "open", "data-desk": "on" });
+  assert.deepEqual(run({ stored: { "lit-desk-account": "yes" } }).attrs, {}, "only the two values the gate writes");
+});
+
 // D1 of the site style pass (E132): the rest of the site's new look follows the
 // same flag on every device, phones and tablets included, so it can be checked
 // there before launch, when the stamp and the old rules both go.

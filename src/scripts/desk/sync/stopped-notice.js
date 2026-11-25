@@ -21,13 +21,17 @@
 //
 // The bar never comes up over a tour or a print, never over a sheet's own
 // page (present mode is never interrupted, as the backup reminder's rule
-// is), and never replaces another notice: it waits its turn. After the
-// reader presses "Reconnect," what came of it is said too, whatever it was.
+// is), never on the account page (which shows the stop and its step
+// itself), and never replaces another notice: it waits its turn.
+//
+// "Reconnect" keeps its word and opens the account page (BVJ, 2026-11-24),
+// which names the real step for the stop: sign in again, join again, or
+// decide about a replaced notebook. Another pass would only end the same way.
 //
 // The wording and the day are Claude's, and BVJ said yes to both (2026-11-24).
 
 import { SLOT_EVENT } from "../../../lib/desk-sync-link.mjs";
-import { STOPPED_WORDS, needsReader, shouldTell, statusWords } from "../../../lib/desk-sync-status.mjs";
+import { ACCOUNT_PAGE, STOPPED_WORDS, needsReader, shouldTell, statusWords } from "../../../lib/desk-sync-status.mjs";
 
 /** On `<html>` while the sync is stopped and needs the reader. */
 export const STOPPED_ATTR = "data-desk-sync";
@@ -39,13 +43,12 @@ const DOT_TARGETS = [
   '.desk-panel__tabs [data-tab="settings"]',
   ".desk-title__button",
   "[data-desk-notebook-item]",
+  ".site-header__account-btn", // the header's account button (step 4h), whose menu holds the status line
 ].join(", ");
 
 /** How long the bar waits for a tour, a print or another notice to be over, and how many times. */
 const WAIT_MS = 5000;
 const WAIT_TIMES = 24;
-/** How long a press of "Reconnect" waits for a pass to end before saying where the sync stands anyway. */
-const ANSWER_MS = 20_000;
 
 async function loadBar(doc) {
   const bar = await import("../undo-bar.js");
@@ -55,9 +58,9 @@ async function loadBar(doc) {
 }
 
 /**
- * @param {{ status: () => object, subscribe: (fn: (s: object) => void) => () => void, syncNow: () => Promise<void> }} connector
+ * @param {{ status: () => object, subscribe: (fn: (s: object) => void) => () => void }} connector
  * @param {{ db: { getAll: (keys: string[]) => Promise<object>, set: (values: object) => Promise<void> },
- *   doc?: Document, win?: Window, nowMs?: () => number, bar?: () => Promise<object>,
+ *   doc?: Document, win?: Window, nowMs?: () => number, bar?: () => Promise<object>, go?: (href: string) => void,
  *   setTimer?: (fn: () => void, ms: number) => unknown, clearTimer?: (t: unknown) => void,
  *   log?: (...args: unknown[]) => void }} env
  *   `db` is the sync's storage; `bar` replaces the notice bar's loading in tests
@@ -70,6 +73,7 @@ export function mountStoppedNotice(connector, env) {
     win = globalThis.window,
     nowMs = () => Date.now(),
     bar: getBar = () => loadBar(doc),
+    go = (href) => win?.location?.assign(href),
     setTimer = (fn, ms) => setTimeout(fn, ms),
     clearTimer = (t) => clearTimeout(t),
     log = (...args) => console.error("Study Desk sync:", ...args),
@@ -82,7 +86,6 @@ export function mountStoppedNotice(connector, env) {
   let number = null; // our notice's number while it may be the one showing
   let said = null; // the state that notice is about
   let handled = null; // the state this tab has dealt with: said, or found said already
-  let asked = false; // the reader pressed "Reconnect" on the bar: say what came of it
   let working = false;
   let timer = null;
   let waits = 0;
@@ -130,14 +133,8 @@ export function mountStoppedNotice(connector, env) {
         {
           label: "Reconnect",
           primary: true,
-          onPress: async () => {
-            asked = true;
-            await connector.syncNow();
-            // If no pass answers (the tab that syncs is gone and none has taken over yet), say where it stands.
-            setTimer(() => {
-              if (asked) settle(connector.status());
-            }, ANSWER_MS);
-          },
+          // Another pass would end the same way: the step is the reader's, and the account page names it.
+          onPress: () => go(ACCOUNT_PAGE),
         },
       ],
       { onClose: () => {} },
@@ -153,11 +150,6 @@ export function mountStoppedNotice(connector, env) {
       // Ours comes down: what it said is no longer so.
       if (number !== null) ui?.hideUndo(number);
       number = null;
-      if (asked) {
-        asked = false;
-        // The answer to the reader's press, whatever the pass ended in.
-        if (ui && free()) ui.showNotice(statusWords(status).line);
-      }
       if (state === "upToDate") {
         const { told } = await db.getAll(["told"]);
         if (told) await db.set({ told: undefined });
@@ -171,13 +163,16 @@ export function mountStoppedNotice(connector, env) {
       ui?.hideUndo(number);
       number = null;
     }
-    if (handled === state && !asked) return;
-    if (!asked) {
-      const { told } = await db.getAll(["told"]);
-      if (!shouldTell(told, state, nowMs())) {
-        handled = state;
-        return;
-      }
+    if (handled === state) return;
+    // The account page shows the stop and its step itself. Nothing is recorded, so the next page still says it.
+    if (doc.querySelector("[data-account-page]")) {
+      handled = state;
+      return;
+    }
+    const { told } = await db.getAll(["told"]);
+    if (!shouldTell(told, state, nowMs())) {
+      handled = state;
+      return;
     }
     ui ??= await getBar();
     if (off) return;
@@ -186,7 +181,6 @@ export function mountStoppedNotice(connector, env) {
       later();
       return;
     }
-    asked = false;
     handled = state;
     waits = 0;
     show(status);

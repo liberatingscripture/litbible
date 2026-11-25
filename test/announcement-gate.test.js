@@ -196,12 +196,14 @@ test("shouldAnnounce: never on a shared verse link", () => {
 });
 
 test("shouldAnnounce: never on /apps, /privacy, the notebook page or the desk's help (E73)", () => {
-  for (const pathname of ["/apps", "/apps/", "/privacy", "/privacy/", "/delete-account", "/delete-account/", "/notebook", "/notebook/", "/desk/help", "/desk/help/"]) {
+  for (const pathname of ["/apps", "/apps/", "/privacy", "/privacy/", "/delete-account", "/delete-account/", "/account", "/account/", "/account/connect", "/account/connect/", "/notebook", "/notebook/", "/desk/help", "/desk/help/"]) {
     page({ pathname });
     assert.equal(shouldAnnounce({ cookie: COOKIE }), false, pathname);
   }
   page({ pathname: "/apps/beta/" });
   assert.equal(shouldAnnounce({ cookie: COOKIE }), true);
+  page({ pathname: "/accounts/" });
+  assert.equal(shouldAnnounce({ cookie: COOKIE }), true, "only the account pages themselves");
 });
 
 test("shouldAnnounce: never over scripture, unless the announcement opts out", () => {

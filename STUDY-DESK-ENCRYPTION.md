@@ -2631,13 +2631,16 @@ reach is listed under step 4g in `STUDY-DESK.md`.
 
 ## Changed in step 4h
 
-Step 4h is the website’s account pages, begun 2026-11-24 and not finished. **No request, answer,
-size, or word of the interface has changed, and nothing under `workers/notebook-service/` has been
-touched.** So far it has built the website’s side of every flow in this file as code with no
-page (`src/lib/desk-passkey.mjs`, `desk-account-session.mjs`, and `desk-account.mjs`), and its
-tests run against the service’s own code, so they are a second reading of “The service’s
-interface” by a client. Two things that reading turned up, both as this file already says them
-and worth a client’s notice:
+Step 4h is the website’s account pages, built 2026-11-24 and 25 and closed to every reader
+(`STUDY-DESK.md`, “Order of work,” 4h, says what they do and what was and was not seen in a
+browser). **No request, answer, size, or word of the interface has changed, and nothing under
+`workers/notebook-service/` has been touched** by the pages. (The Turnstile check of 68 is the one
+change to the service that step 4h makes, in a pull request of its own: “Still open,” 86.) The
+website’s side of every flow in this file is code under `src/lib/` (`desk-passkey.mjs`,
+`desk-account-session.mjs`, `desk-account.mjs`) with the pages over it, and its tests run against
+the service’s own code, so they are a second reading of “The service’s interface” by a client.
+Two things that reading turned up, both as this file already says them and worth a client’s
+notice:
 
 - **`DELETE /ways/<id>` checks the last way in before it checks a passkey that holds the key.**
   A reader whose only way in is the passkey that holds the key is told `last_way`, and
@@ -2646,7 +2649,27 @@ and worth a client’s notice:
   even when nothing is waiting.** `gone` is for a session that could have canceled.
 
 **One decision changed** (BVJ, 2026-11-24): every setup makes a recovery code (“Where the key
-lives,” and “Still open,” 85). This section grows as the pages are built.
+lives,” and “Still open,” 85).
+
+**What the pages chose where this file leaves a client to choose** is “Still open,” 87 to 90:
+the link a QR code carries, what the website calls itself in a request to join, what a device
+says once its account is deleted, and the website’s half of Sign in with Apple and with Google.
+
+**Seen in the browser run of 2026-11-25** (headless Chrome with a virtual authenticator, against
+the service run locally, and then, on BVJ’s go-ahead, against the deployed preview from
+`http://localhost:4321`, where the same was seen), and worth a client’s notice though nothing
+changed:
+
+- **A copy of a passkey that counts is refused, as 51 says it should be.** Chrome’s virtual
+  authenticator keeps a signature counter for each copy of a credential, so a credential copied
+  to a second browser was answered `passkey_refused` (`counter`) until its counter was ahead. A
+  passkey that syncs reports 0 and is never refused this way. **For step 4l**: try a password
+  manager that syncs passkeys (20 and 21 name two), since one that both syncs a passkey and
+  counts would be refused on its second device.
+- **The two steps of 83 were seen again**, and the same shape after a deletion (89).
+- **A passkey that can’t open the notebook loses nothing.** The copied credential gave another
+  PRF output (DevTools does not copy that secret), so its holder didn’t open; the page said so
+  and offered approval and the recovery code, and no holder was touched.
 
 ## Still open
 
@@ -3149,3 +3172,52 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     skip adding the two number groups”). So “They can just choose not to use it” is about
     whether the reader ever uses the code, not about confirming it: every reader is shown one
     and proves they kept it, as “Setting up the first device,” step 5, already says.
+86. (The Turnstile check on the website’s sign-in page: the service’s half, in step 4h’s second
+    pull request. The number is held here so the two pull requests don’t take the same one.)
+87. **The link a QR code carries is `https://litbible.net/account/connect/#a=<16 characters>`,
+    the code’s characters unbroken.** “The link” recommended this shape and left the exact
+    address to be settled. The website’s account page shows it as a QR code beside the code in
+    four groups, whenever it shows an approval code (a computer that is joining, and “Show a code
+    for the new device instead” on one that has the notebook). Reading one, the page at that
+    address takes `#a=` followed by 16 to 24 characters of the code’s alphabet and hyphens, takes
+    it out of the address before anything else runs, never sends it, and then uses it for what
+    this browser can do: with the notebook, it fills in “Add a device” and asks the reader to say
+    yes to the device named; without one, it asks to join with that code after sign-in. A
+    computer has no camera to count on, so the website never scans: it types. **For BDR to
+    confirm**: that an app which scans this link reads the code the same way and takes its part
+    from its own state, and that a QR code an app shows carries the same link.
+88. **In a request to join, the website’s `model` is its browser and system** (“Chrome on
+    Windows,” “Safari on Mac”; a browser it doesn’t know is “A browser on Windows”), and that is
+    also the first name on its device card, which the reader can change (BVJ, 2026-11-24). The
+    approving device shows it with the platform: “Add “Chrome on Windows” (Website) to your
+    notebook?” Two computers therefore often share a first name until one is renamed; the
+    website’s own notice of an approval says “approved from this computer” for that reason. **For
+    BDR**: what will each app send as `model`, and will its list show the website’s name as
+    written?
+89. **A device whose account was deleted says only that it was signed out.** Deleting an account
+    ends every session, so another device’s next request is answered `sign_in`, and it tells its
+    reader they were signed out, with the notebook still on the device. Nothing more can be told
+    without the service keeping a trace of a deleted account, which it does not. The reader
+    learns the rest when the passkey is refused as `unknown`. Seen in the browser run. It is 83’s
+    shape with no second step to wait for. **For BVJ and BDR**: is that acceptable, or should the
+    sentence for `sign_in` allow for it (“…or your account was deleted from another device”)?
+90. **The website’s half of Sign in with Apple and with Google, built and off.** It needs, from
+    BDR’s accounts (ask 12), a client id of the website’s own at each provider: an Apple Services
+    ID, and a Google OAuth client of type “Web application.” Each id goes in two places: the
+    service’s `APPLE_CLIENT_IDS` or `GOOGLE_CLIENT_IDS`, and the website’s
+    `src/lib/desk-account-providers.mjs`. **What the website does**: it asks the service for a
+    challenge (`POST /sign-in/challenge`), keeps it with a random `state` for five minutes, and
+    sends the reader to the provider’s own sign-in page (Apple: `response_type=code id_token`,
+    `response_mode=fragment`, no scope; Google: `response_type=id_token`, `scope=openid`), with
+    the challenge as `nonce`. The provider sends the reader back to the page they left with the
+    identity token after the `#`; the page takes it out of the address, checks `state`, and
+    posts `{ challenge, idToken }` (for Apple also `code` and `redirect`) as “Signing in” says.
+    No name and no email address is asked for. **What must be registered at each provider** as a
+    return address: `https://litbible.net/account/` and `https://litbible.net/delete-account/`
+    (the second so that an account whose only way in is Apple or Google can be deleted from the
+    web page, as Google Play requires). **Neither provider has been tried**: no id exists, none
+    was guessed, and the flow has run only against stand-ins that sign real tokens. Apple’s rule
+    that an answer after the `#` needs a request with no scope, and Google’s implicit answer for
+    `id_token`, are from their documentation. **For BDR to confirm**: the two ids, the two return
+    addresses, and that asking for no email address suits the apps’ own use of the same account
+    (the service keeps none either way).

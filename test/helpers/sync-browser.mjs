@@ -144,7 +144,10 @@ export function freshBrowser() {
   const bar = fakeBar();
   const clock = { at: Date.now() };
   const logged = [];
+  /** Every address “Reconnect” opened. */
+  const went = [];
   const env = {
+    go: (href) => went.push(href),
     fetch: service.fetch,
     locks: fakeLocks(),
     setTimer: timers.set,
@@ -153,7 +156,7 @@ export function freshBrowser() {
     nowMs: () => clock.at,
     log: (...args) => logged.push(args),
   };
-  return { service, timers, bar, clock, env, logged };
+  return { service, timers, bar, clock, env, logged, went };
 }
 
 /** The records a store holds that aren't trash, as their bodies, sorted. */

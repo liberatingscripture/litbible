@@ -28,6 +28,14 @@ export const CLOCK_NOTICE_MS = 5 * 60_000;
 const NEEDS_READER = new Set(["signedOut", "removed", "otherNotebook", "cantOpen", "noKeys"]);
 export const needsReader = (state) => NEEDS_READER.has(state);
 
+/**
+ * Where “Reconnect” leads for a stop only the reader can settle (BVJ,
+ * 2026-11-24: the button keeps its word and opens the account page, which
+ * names the real step: sign in again, join again, or decide about a
+ * replaced notebook). For every other stop it asks for another pass.
+ */
+export const ACCOUNT_PAGE = "/account/";
+
 /** A stop the reader was told of and hasn't settled is said again this long after. */
 export const TELL_AGAIN_MS = 24 * 60 * 60_000;
 

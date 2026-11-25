@@ -1,0 +1,366 @@
+/* =========================================================
+   The account page (/account/, /account/connect/) and the box on
+   /delete-account/
+   =========================================================
+   The frame and every part src/scripts/desk/account/ draws. Theme tokens
+   only (--text, --surface-raised, --ink-rgb, --green-text, --green-deep,
+   --field-border, --focus-ring), so the dark theme needs no rules of its
+   own. One green button a screen; everything else is quiet. */
+
+.account-page {
+  max-width: calc(72 * var(--ch));
+  margin: 0 auto;
+  padding: clamp(2rem, 4vw, 3.5rem) var(--gutter, 1.25rem) 5rem;
+}
+
+.account-page__title {
+  margin: 0 0 1.25rem;
+}
+
+/* The sheet every screen sits on. */
+.account-sheet {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+
+/* Closed, and open: the page's own note shows until accounts are open here. */
+html[data-account="open"] [data-account-closed],
+html:not([data-account="open"]) [data-account-opened] {
+  display: none;
+}
+
+.account__screen > :first-child {
+  margin-top: 0;
+}
+
+.account__screen > :last-child {
+  margin-bottom: 0;
+}
+
+.account__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.375rem;
+  line-height: 1.25;
+}
+
+.account__title:focus {
+  outline: none;
+}
+
+.account__heading {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.account__subhead {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.account__loading,
+.account__hint,
+.account__wait {
+  color: rgba(var(--ink-rgb), 0.74);
+}
+
+.account__hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* What a step answered: a result, and a failure. Both are sentences. */
+.account__status,
+.account__alert,
+.account__note {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  background: rgba(var(--ink-rgb), 0.04);
+}
+
+.account__alert {
+  border-color: var(--field-border);
+  border-inline-start-width: 4px;
+}
+
+.account__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+}
+
+.account__actions--stack {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.account__button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+/* Deep Green with white words: the one fill that reads in both themes
+   (src/styles/CLAUDE.md, "Brand colors"). With the restyle on, the button
+   lists in restyle.css draw these instead. */
+.account__button--primary {
+  border-color: var(--green-deep);
+  background: var(--green-deep);
+  color: var(--white);
+}
+
+.account__button--danger {
+  border-width: 2px;
+}
+
+.account__button:hover {
+  background: rgba(var(--ink-rgb), 0.06);
+}
+
+.account__button--primary:hover {
+  background: var(--green-deep);
+  filter: brightness(1.12);
+}
+
+.account__button:focus-visible,
+.account__input:focus-visible,
+.account__choice input:focus-visible,
+.account-sheet a:focus-visible,
+.account-sheet summary:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.account__button[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.account__field {
+  margin: 0.9rem 0 0;
+}
+
+.account__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+}
+
+.account__label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.account__input {
+  width: 100%;
+  max-width: calc(34 * var(--ch));
+  min-height: 44px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background: var(--surface-input, var(--surface-raised));
+  color: var(--text);
+  font: inherit;
+}
+
+/* The first-time choice: two options, each a title and a sentence. */
+.account__choices {
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.account__choice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 0.7rem;
+  margin: 0 0 0.6rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  border-radius: 8px;
+}
+
+.account__choice:has(input:checked) {
+  border-color: var(--green-text);
+  box-shadow: inset 0 0 0 1px var(--green-text);
+}
+
+.account__choice input {
+  margin-top: 0.3rem;
+  accent-color: var(--green-text);
+}
+
+.account__choice-title {
+  display: block;
+  font-weight: 700;
+}
+
+.account__choice-body {
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.account__choice .account__hint {
+  grid-column: 2;
+}
+
+/* A code the reader copies down: large, spaced, never broken inside a group. */
+.account__code {
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--field-border);
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+.account__figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 1.25rem;
+}
+
+.account__qr {
+  width: 148px;
+  flex: none;
+}
+
+.account__qr svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.account__more-ways {
+  margin-top: 0.75rem;
+}
+
+.account__more-ways summary {
+  cursor: pointer;
+  color: var(--link);
+}
+
+/* "You don't need an account": set apart, and quiet. */
+.account__aside {
+  margin: 1.75rem 0 0;
+  padding: 0.9rem 1rem;
+  border: 1px dashed rgba(var(--ink-rgb), 0.4);
+  border-radius: 8px;
+}
+
+.account__aside-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.account__aside p {
+  margin: 0.35rem 0 0;
+}
+
+/* A step asked for in place, a stop, and a notice. */
+.account__confirm,
+.account__stop,
+.account__notice,
+.account__waiting {
+  margin: 0.75rem 0;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+}
+
+.account__confirm > :first-child,
+.account__stop > :first-child,
+.account__notice > :first-child,
+.account__waiting > :first-child {
+  margin-top: 0;
+}
+
+.account__notice ul {
+  margin: 0 0 0.6rem;
+  padding-left: 1.1rem;
+}
+
+.account__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account__item {
+  padding: 0.7rem 0;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.16);
+}
+
+.account__item:first-child {
+  border-top: 0;
+}
+
+.account__item-name {
+  margin: 0;
+  font-weight: 600;
+}
+
+.account__item .account__button,
+.account__row .account__button,
+.account__delete .account__button {
+  margin-top: 0.5rem;
+}
+
+.account__more {
+  margin-left: 0.6rem;
+}
+
+.account__add {
+  margin-top: 1rem;
+}
+
+/* The sync's status line (src/styles/desk-sync.css) names itself "Sync." On this page it sits
+   under a heading that says the same, so its own label is not drawn; it still names the group. */
+[data-account-page] .desk-sync__label {
+  display: none;
+}
+
+[data-account-page] .desk-sync {
+  margin-bottom: 0;
+}
+
+/* Printing the recovery code: the code and its two sentences, and nothing else. */
+@media print {
+  html[data-account-print="code"] .account__actions,
+  html[data-account-print="code"] .account__status,
+  html[data-account-print="code"] .account__alert,
+  html[data-account-print="code"] .account-page__title {
+    display: none !important;
+  }
+
+  html[data-account-print="code"] .account-sheet {
+    border: 0;
+    padding: 0;
+  }
+
+  html[data-account-print="code"] .account__code {
+    border: 1px solid #000;
+    font-size: 18pt;
+  }
+}

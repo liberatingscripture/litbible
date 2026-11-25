@@ -1,0 +1,40 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import "../../styles/pages/account.css";
+import "../../styles/v2/account.css";
+
+/**
+ * Where a QR code for adding a device leads (STUDY-DESK-ENCRYPTION.md, "The
+ * link"): https://litbible.net/account/connect/#a=<16 characters>. The code
+ * is after the `#`, so no server ever reads it, this one included: the
+ * page's script (src/scripts/desk/account/page.js) reads it, takes it out of
+ * the address at once, and never sends it. A browser that holds the notebook
+ * is then asked whether to add the device that showed the code; one that
+ * doesn't asks to join with it.
+ *
+ * The apps claim /account/ on a phone (BDR's proposal, section 6b), so this
+ * page is what a computer's browser, or a phone without the app, shows.
+ * Closed with the rest of the account pages until launch.
+ */
+---
+
+<Layout
+  title="Add a device | Liberation and Inclusion Translation"
+  description="Add a device to your LIT Bible notebook."
+  canonical="https://litbible.net/account/connect/"
+  robotsNoindex={true}
+>
+  <div class="account-page">
+    <h1 class="account-page__title v2-bar">Add a device</h1>
+    <div class="account-sheet v2-sheet" data-account-page="connect">
+      <p>
+        <strong>Accounts are not open yet.</strong> Today the LIT Bible
+        website and the iOS and Android apps keep everything you create on
+        your own device.
+      </p>
+    </div>
+  </div>
+  <script>
+    import "../../scripts/account-gate.js";
+  </script>
+</Layout>

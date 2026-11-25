@@ -11,7 +11,7 @@ import {
   CONTACT_HREF, DESK_STAGE, DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE,
   DESK_TOUR_KEY, SHEET_TOUR_KEY, SHEET_TOUR_LINK, SHEET_TOUR_PAGE_LINK, SHEET_TOUR_PARTS, SHEET_TOUR_STEPS,
   TOUR_KEY, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
-  FEEDBACK_HREF, FEEDBACK_LABEL, agoPhrase, daysSince, isDesktopSafari, localDay, parseTourState, planTour, readHome, readLastExport,
+  FEEDBACK_HREF, FEEDBACK_LABEL, agoPhrase, daysSince, isDesktopSafari, keptLine, localDay, parseTourState, planTour, readHome, readLastExport,
   reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withLater, withNever, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
 
@@ -47,6 +47,11 @@ test("how long ago is said in plain words", () => {
   assert.equal(agoPhrase(0), "today");
   assert.equal(agoPhrase(1), "yesterday");
   assert.equal(agoPhrase(3), "3 days ago");
+});
+
+test("the foot says where the notebook is: this browser, and the account too once it syncs", () => {
+  assert.equal(keptLine(false), "Kept in this browser.");
+  assert.equal(keptLine(true), "Kept in this browser and in your account.");
 });
 
 test("the foot says when the notebook was last backed up", () => {

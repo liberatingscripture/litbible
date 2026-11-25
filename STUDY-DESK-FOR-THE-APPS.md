@@ -176,11 +176,16 @@ because nothing carried them there. This file is what carries them now.
       web flow is planned, the return address registered for the
       Services ID. The site's `apple-app-site-association` names
       `9KL9F7A3CR.com.litbible.app`, which suggests answers to (a) and
-      (b); they were not assumed, so please confirm them.
+      (b); they were not assumed, so please confirm them. **Since
+      2026-11-25 a web flow is built, and off** (ask 19, part 4): the
+      Services ID needs two return addresses,
+      `https://litbible.net/account/` and
+      `https://litbible.net/delete-account/`.
     - **Google** (the project is yours, ask 3). Each OAuth client id a
       token will be issued to: the one the Android app gives Credential
       Manager as its server client id, the iOS app's, and the
-      website's.
+      website's. **The website's is a client of type “Web application”**
+      with the same two return addresses as Apple's (ask 19, part 4).
     - **Passkeys on Android.** `assetlinks.json` lists two signing
       certificates, and the service accepts a passkey from the Android
       app signed by either. Which is the Play signing key and which the
@@ -338,8 +343,85 @@ because nothing carried them there. This file is what carries them now.
     longer asked whether they want a recovery code. One is made and shown
     at every setup, and the two groups are typed back under both choices,
     with no way to skip. **Say here whether the apps will do the same.**
+18. (The Turnstile check on the website's sign-in page, asked with its
+    own pull request. The number is held here so the two don't collide.)
+19. **The four choices the website's account pages had to make** (asked
+    2026-11-25, the first entry below): `STUDY-DESK-ENCRYPTION.md`,
+    “Still open,” 87 to 90. None changes a request or an answer. Answer
+    by number here.
+    1. **87, the link in a QR code**:
+       `https://litbible.net/account/connect/#a=<16 characters>`, the
+       code's characters unbroken, as the spec recommended. Will each
+       app read that link when it scans one, and write the same link
+       when it shows one? The website never scans (a computer has no
+       camera to count on); it shows the code and types one.
+    2. **88, what a device calls itself**: the website sends its browser
+       and system as `model` (“Chrome on Windows”) and uses it as the
+       card's first name, which the reader can change. What will each
+       app send, and will its device list show the website's name as
+       written?
+    3. **89, after an account is deleted**, its other devices can only
+       say “You've been signed out,” since the service keeps no trace
+       of a deleted account. Is that acceptable in the apps, or should
+       the sentence allow for it?
+    4. **90, Sign in with Apple and with Google on the website**: built
+       and off, and **never tried against either provider**. It needs a
+       Services ID from Apple and a “Web application” client from
+       Google (ask 12), each with two return addresses registered:
+       `https://litbible.net/account/` and
+       `https://litbible.net/delete-account/`. It asks for no name and
+       no email address. Write the two ids under ask 12; they go into
+       the service's variables and into
+       `src/lib/desk-account-providers.mjs`.
 
 ## The list
+
+### 2026-11-25, the website's account pages are built (step 4h)
+
+**Nothing you call changed, and the pages did not touch the service**:
+no request, answer, size, or word. (The Turnstile check is the one
+change to the service in step 4h, and comes in its own pull request with
+its own entry.) The pages are closed to every reader: they open in one
+browser with `?account=preview`, on BVJ's side only for now. What it
+means for the apps:
+
+- **The website is now a client of the whole account interface**, with
+  screens: sign-in, setup, opening a notebook by passkey, approval, or
+  recovery code, the device list, a new recovery code, ways to sign in,
+  signing out, deleting, and the request that waits seven days. What it
+  does and what was seen in a browser is `STUDY-DESK.md`, “Order of
+  work,” 4h. Where the spec leaves a client to choose, its choices are
+  “Still open,” 87 to 90 (ask 19 above), each **for BDR to confirm**.
+- **`https://litbible.net/delete-account/` now takes a deletion request
+  on the page itself**, as Google Play asks (ask 15): a reader signs in
+  there and deletes, at once from a computer that holds the key and
+  after seven days from any other sign-in. It is closed with the rest
+  until accounts open, so **say under ask 15 when the Android build that
+  makes accounts goes to review**: the pages must be open by then.
+- **A phone's or tablet's browser gets the account's basics only** (BVJ,
+  2026-11-24): sign in, see or cancel a request, delete, sign out. It
+  never holds a key, and it says the notebook opens in the app or on a
+  computer. So on a phone the app is the only client that syncs.
+- **The website's device is first named for its browser and system**
+  (“Chrome on Windows”), which is what your approval screens and device
+  lists will show for it (88).
+- **A QR code from the website carries the link the spec recommended**
+  (87). The website's page at `/account/connect/` reads the same link.
+- **Sign in with Apple and with Google have a web half now, off** (90).
+  It turns on only when you send the ids of ask 12, and it has never met
+  either provider.
+- **Seen in a browser, and the same in your clients unless you choose
+  otherwise**: a removed device is told “signed out” and then, after
+  signing in, “removed” (83, still yours to answer); after an account is
+  deleted its other devices can say only “signed out” (89); and a copied
+  passkey that keeps a counter is refused (51), which is worth a try
+  with a password manager that syncs passkeys.
+- **The website has now used the deployed preview** (2026-11-25, on
+  BVJ's go-ahead): its pages, served from `http://localhost:4321`, made
+  an account there with a `localhost` passkey, set a notebook up, synced
+  a note between three browsers, changed the key, and deleted the
+  account. **Nothing of it is left on the preview.** It used passkeys
+  only, never `POST /preview/session`, and no secret.
 
 ### 2026-11-24, iOS's answers, from its code and a real iPhone
 

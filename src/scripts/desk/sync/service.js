@@ -5,8 +5,11 @@
 // the session as `Authorization: Bearer`, never a cookie, nothing cached.
 // The loop (src/lib/desk-sync-engine.mjs) decides what every answer means;
 // this file only carries them, and says "offline" when no answer came.
+//
+// It imports neither the loop nor the encryption, so the account's basics on
+// a phone can carry a sign-in with it (../account/page.js).
 
-import { Offline } from "../../../lib/desk-sync-engine.mjs";
+import { Offline } from "../../../lib/desk-sync-offline.mjs";
 import { allowedService } from "../../../lib/desk-sync-link.mjs";
 
 /** How long a request may take before it counts as no answer. A page of rows can be four megabytes. */

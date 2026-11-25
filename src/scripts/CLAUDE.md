@@ -58,7 +58,11 @@ From the root's project tree.
                      #   desk-gate + desk/, the Study Desk preview (its
                      #   Sheets in desk/sheets/), and
                      #   desk-frame, what every page knows about its panel;
-                     #   see `desk/CLAUDE.md`, "The Study Desk preview")
+                     #   see `desk/CLAUDE.md`, "The Study Desk preview";
+                     #   account-gate, the account pages' only static
+                     #   script, which reads their switch and imports
+                     #   desk/account/page.js dynamically; see
+                     #   `desk/account/CLAUDE.md`)
 ```
 
 ## Copying, sharing and printing scripture

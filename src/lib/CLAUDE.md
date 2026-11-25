@@ -84,12 +84,18 @@
                      #   service (desk-sync, the rules; desk-sync-engine,
                      #   the loop; desk-sync-link, what says a browser
                      #   is linked, which imports nothing;
-                     #   desk-sync-status, the status line's words; see
+                     #   desk-sync-status, the status line's words, and
+                     #   desk-sync-offline, telling a dead network from a
+                     #   refusal; see
                      #   src/scripts/desk/sync/CLAUDE.md) and its account
                      #   (desk-passkey, a passkey's two ceremonies, which
                      #   imports nothing; desk-account-session, what needs
                      #   no key; desk-account, what touches the notebook's
-                     #   key; see src/scripts/desk/account/CLAUDE.md);
+                     #   key; desk-account-words, every word the account
+                     #   pages say and the switch's key; and
+                     #   desk-account-providers, the website's half of
+                     #   Sign in with Apple and with Google, off; see
+                     #   src/scripts/desk/account/CLAUDE.md);
                      #   the scrub a fetched
                      #   page's parts get before a pane imports them
                      #   (desk-inert); finding a pinned

@@ -36,9 +36,10 @@
 import {
   BACKUP_HREF, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, HOME_KEY, REMIND_KEY, SAFARI_LINE,
   SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
-  backedUpSaid, isDesktopSafari, readHome, reminderState,
+  backedUpSaid, isDesktopSafari, keptLine, readHome, reminderState,
   localDay, parseTourState, savedLine, tourOffer, wantsReminder, withLater, withNever, withOffered,
 } from "../../lib/desk-first-use.mjs";
+import { SYNC_META, readLink } from "../../lib/desk-sync-link.mjs";
 import { createFloatWindow } from "../float-window.js";
 import { REMINDER_EVENT, backUp, factsFromStore, refreshReminder } from "./reminder.js";
 import { showNotice } from "./undo-bar.js";
@@ -367,6 +368,13 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
     drawCard();
 
     const facts = (await factsFromStore(store)) ?? { lastExport: null, hasRecords: false, oldest: null };
+    // A notebook that syncs with an account is in two places, and the line says so (step 4h).
+    let linked = false;
+    try {
+      linked = readLink(await store.getMeta(SYNC_META)) != null;
+    } catch (_) {
+      /* the link couldn't be read: the line says what is certain */
+    }
     if (mine !== seq) return;
     const now = new Date();
     let putOff = null;
@@ -377,10 +385,10 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
     if (state.dots) {
       noticeText.textContent = state.text;
       notice.insertBefore(remindLabel, noticeBtn.nextSibling);
-      kept.replaceChildren("Kept in this browser.");
+      kept.replaceChildren(keptLine(linked));
     } else {
       foot.insertBefore(remindLabel, foot.firstChild);
-      kept.replaceChildren(`Kept in this browser. ${savedLine(facts.lastExport, now)} `);
+      kept.replaceChildren(`${keptLine(linked)} ${savedLine(facts.lastExport, now)} `);
       if (facts.hasRecords) kept.append(quietBtn);
     }
   }

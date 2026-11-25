@@ -52,6 +52,16 @@ export function agoPhrase(days) {
   return `${plural(days, "day")} ago`;
 }
 
+/**
+ * The Settings tab's plain statement of where the notebook is. In a browser
+ * linked to an account it is in two places (BVJ, 2026-11-24: change this one
+ * line now; the tour, the help page, and the privacy page are step 4j's).
+ * @param {boolean} linked whether this browser's notebook syncs with an account
+ */
+export function keptLine(linked) {
+  return linked ? "Kept in this browser and in your account." : "Kept in this browser.";
+}
+
 /** The Settings tab's plain statement of when a backup was last made. */
 export function savedLine(lastExport, now) {
   const days = daysSince(readLastExport(lastExport), now);

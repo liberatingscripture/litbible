@@ -6,9 +6,16 @@
 // the app.
 //
 // UNTIL ACCOUNTS OPEN it is noindex, out of the sitemap (astro.config.mjs),
-// and linked from nowhere, and it says so at the top. It can't delete
-// anything yet: that needs the website's sign-in, the Study Desk's step 4h,
-// which adds the sign-in and the button to this page.
+// and linked only from the account page, and it says so at the top. THE
+// SIGN-IN AND THE BUTTON ARE BUILT (the Study Desk's step 4h): the box under
+// "How to delete your account" is the account page's own code
+// (src/scripts/desk/account/page.js, loaded by src/scripts/account-gate.js),
+// showing sign-in and "Delete account" and nothing else. It is drawn only
+// where accounts are open in a browser (?account=preview, until launch), so
+// for everyone else the page reads as before. Parts marked
+// data-account-closed show while accounts are closed and parts marked
+// data-account-opened once they are open (src/styles/pages/account.css); at
+// launch the closed parts are deleted.
 //
 // WHAT PLAY'S RULE ASKS OF THIS PAGE, as its help page read on 2026-11-24
 // (support.google.com/googleplay/android-developer/answer/13327111): a
@@ -16,8 +23,8 @@
 // opening the app, and the way to ask must be plain on the page. Steps
 // alone don't meet it. An email address or a form would, but neither can
 // work here, since the service keeps no name or address to find an account
-// by. So step 4h's sign-in and button are owed before an Android build that
-// makes accounts goes to review. The page must also name the app or the
+// by. So the sign-in and button below must be open to every reader before an
+// Android build that makes accounts goes to review. The page must also name the app or the
 // developer as the Play listing does ("LIT Bible," "Liberating Scripture
 // Collective"): keep both names in the header.
 //
@@ -30,6 +37,8 @@ import Layout from "../layouts/Layout.astro";
 // that stylesheet for this page.
 import "../styles/pages/privacy.css";
 import "../styles/v2/privacy.css";
+// The box that signs in and deletes: the account page's own styles.
+import "../styles/pages/account.css";
 ---
 
 <Layout
@@ -46,7 +55,13 @@ import "../styles/v2/privacy.css";
         <p class="privacy-effective">
           LIT Bible, from the Liberating Scripture Collective
         </p>
-        <p class="privacy-lede">
+        <p class="privacy-lede" data-account-opened>
+          <strong>You can delete your account on this page,</strong> with no
+          app installed: sign in under “How to delete your account” and
+          choose “Delete account.” The rest of the page says what is
+          deleted and what stays on your devices.
+        </p>
+        <p class="privacy-lede" data-account-closed>
           <strong>Accounts are not open yet.</strong> Today the LIT Bible
           website and the iOS and Android apps keep everything you create on
           your own device, and there is no account to delete. This page is
@@ -81,12 +96,17 @@ import "../styles/v2/privacy.css";
             <strong>In the LIT Bible app for Android:</strong> open Settings,
             choose “Account,” and then choose “Delete account.”
           </li>
-          <li>
+          <li data-account-closed>
             <strong>On the web:</strong> when accounts open, you will be able
             to sign in on this page and choose “Delete account” here, with no
             app installed.
           </li>
+          <li data-account-opened>
+            <strong>On the web:</strong> sign in here and choose “Delete
+            account,” with no app installed.
+          </li>
         </ul>
+        <div class="account-sheet v2-sheet" data-account-page="delete" data-account-opened></div>
         <p>
           We can’t delete an account for you from an email or a form. Because
           we don’t keep your name or email address, we have no way to tell
@@ -175,4 +195,7 @@ import "../styles/v2/privacy.css";
 
     </div>
   </article>
+  <script>
+    import "../scripts/account-gate.js";
+  </script>
 </Layout>

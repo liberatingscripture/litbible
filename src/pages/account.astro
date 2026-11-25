@@ -1,0 +1,46 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/account.css";
+import "../styles/v2/account.css";
+
+/**
+ * The account page (STUDY-DESK.md, "Order of work," 4, step 4h): signing in,
+ * setting the synced notebook up, joining it, and everything a reader does
+ * with an account. Everything on it is drawn in the browser by
+ * src/scripts/desk/account/page.js, which src/scripts/account-gate.js loads
+ * only where accounts are open in this browser (?account=preview, until
+ * launch) or the Study Desk is on. For everyone else, and with JS off, this
+ * is the whole page: a note that accounts are not open yet. noindex, out of
+ * the sitemap (astro.config.mjs) and out of Pagefind (Layout's default).
+ *
+ * It works on every device (Audit C1): a phone's browser gets the account's
+ * basics (sign in, see or cancel a request to delete, delete, sign out) and
+ * never holds a notebook or a key. The rules are in
+ * src/scripts/desk/account/CLAUDE.md.
+ *
+ * The sheet's id is the header's “Sign out” link's target
+ * (/account/#sign-out, SiteHeader.astro): the page opens its question
+ * there, and `npm run check:links` holds every fragment to a real element.
+ */
+---
+
+<Layout
+  title="Your account | Liberation and Inclusion Translation"
+  description="Your LIT Bible account: sign in, set up your synced notebook, and manage your devices."
+  canonical="https://litbible.net/account/"
+  robotsNoindex={true}
+>
+  <div class="account-page">
+    <h1 class="account-page__title v2-bar">Your account</h1>
+    <div class="account-sheet v2-sheet" id="sign-out" data-account-page="account">
+      <p>
+        <strong>Accounts are not open yet.</strong> Today the LIT Bible
+        website and the iOS and Android apps keep everything you create on
+        your own device.
+      </p>
+    </div>
+  </div>
+  <script>
+    import "../scripts/account-gate.js";
+  </script>
+</Layout>
