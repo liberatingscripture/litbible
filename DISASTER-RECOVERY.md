@@ -230,8 +230,9 @@ in `workers/csp-reports/README.md`, "One-time setup."
   reader. **Losing it loses nothing that matters**: the counts are a
   working list for one decision (enforcing the policy), and they start
   again from the next report.
-- **If it is down or gone**: no page breaks. Browsers post their reports
-  to the site's 404 page, and nothing is counted until it is redeployed.
+- **If it is down or gone**: no page breaks. The static site answers at
+  the address and refuses each report (405), and nothing is counted until
+  it is redeployed.
   The policy itself is in `public/_headers` and doesn't depend on it.
 - **Deleting old counts depends on the daily run.** If the cron trigger is
   lost, counts outlive the 30 days the privacy page gives; redeploying

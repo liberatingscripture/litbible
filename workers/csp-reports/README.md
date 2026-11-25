@@ -132,13 +132,15 @@ that the port is free afterward.
      `allow: POST`. Before the deploy the same address is the site's 404 page.
    - `curl.exe -i -X POST https://litbible.net/csp-report -H "content-type: application/csp-report" --data "{}"`
      answers `204`. An empty object is no report, so nothing is written; the
-     answer proves the route, the limiter, and the configuration.
+     answer proves the route, the limiter, and the configuration. (Before
+     the deploy the static site answers this post `405`.)
    - `npm run summary` prints "No reports were counted," which proves the
      database and its tables are there and readable.
 
 **The Worker goes live before, or with, the site change that names it.** If
-`public/_headers` names the address first, browsers post to the site's 404
-page: nothing breaks, and nothing is counted.
+`public/_headers` names the address first, the static site answers there and
+refuses each post (`405`, seen on a Pages preview on 2026-11-24): nothing
+breaks, and nothing is counted.
 
 ## Reading a week
 

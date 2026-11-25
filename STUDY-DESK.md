@@ -5754,6 +5754,27 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        needs walking in a real browser once the headers are live: the
        donation box through to its payment step above all, which has
        never been exercised with the policy watching.
+     - **Verified, 2026-11-24**: the Worker's suite (80 tests in workerd,
+       on a real local D1 and the configured limiter), with each of 19
+       safeguards weakened in turn and a test failing each time; the
+       Worker over real HTTP on this machine, both report shapes, and the
+       summary read back from its local database; and, on the pull
+       request's Pages preview, the three headers as written, and a real
+       browser (the app's Chromium) flagging a test request under the
+       report-only policy. **Not verified**: anything on Cloudflare (the
+       route, the remote database, the daily run), and a browser's report
+       arriving and being counted, which needs both live.
+     - **First gaps, seen in that browser on the preview before any report
+       was counted**: `/support/` loads stylesheets from
+       `https://secure.givelively.org` and `https://fonts.googleapis.com`
+       (the list's `style-src` has neither) and fonts from
+       `https://fonts.gstatic.com` (`font-src` is `'self'` alone), all
+       brought in by the donation box. Enforced today, the box would lose
+       its styles and its font. By the browser's own record of what each
+       page fetched, a chapter, the podcast page, /contact, and the home
+       page loaded nothing from outside the list. That was one browser, on
+       the preview's host, with nothing clicked: the list is not changed
+       here, and these go on the week's list.
    - **4j. The privacy page, the terms, and "Ways to keep your notebook"**
      (1–2, plus BVJ's own writing). The terms are new and carry a minimum
      age. The privacy page's account section comes from the spec's "What
