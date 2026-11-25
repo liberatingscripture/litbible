@@ -470,7 +470,9 @@ test("a holder is what its card says: a service that names another passkey or ki
   };
   const other = ref.toBase64url(ref.randomBytes(20));
   const renamed = await account.readLists({ call: lying((holder) => holder.kind === "passkey" && (holder.credential = other)), held: reader.held });
-  assert.deepEqual(renamed.holders.map((holder) => [holder.kind, holder.opens]), [["passkey", false], ["recovery", true]]);
+  // The two holders were added in the same instant, so the service lists them in the order of their random ids.
+  const byKind = (lists) => Object.fromEntries(lists.holders.map((holder) => [holder.kind, holder.opens]));
+  assert.deepEqual(byKind(renamed), { passkey: false, recovery: true });
   assert.equal(account.whereKeyLives(renamed), "device", "a holder that isn't believed doesn't count as the passkey's");
 
   const swapped = await account.readLists({ call: lying((holder) => (holder.kind = holder.kind === "passkey" ? "recovery" : "passkey")), held: reader.held });
