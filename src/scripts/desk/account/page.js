@@ -24,15 +24,19 @@
 import { ACCOUNT_PATH, HELP_COPIES, HELP_KEPT, WORDS, signedInWords, waitingWords } from "../../../lib/desk-account-words.mjs";
 import {
   AccountRefusal,
+  addProviderWay,
   cancelWaiting,
   deleteAccount,
   deletesAtOnce,
   endSession,
   readAccount,
+  signInChallenge,
   signInWays,
   signInWithPasskey,
+  signInWithProvider,
   signUpWithPasskey,
 } from "../../../lib/desk-account-session.mjs";
+import { PROVIDER_CLIENTS, answersKept, anyClient, authorizeAddress, offered, readReturn, returnAddress } from "../../../lib/desk-account-providers.mjs";
 import { passkeysHere } from "../../../lib/desk-passkey.mjs";
 import { SERVICES, allowedService, peekLink } from "../../../lib/desk-sync-link.mjs";
 import { createApi } from "../sync/service.js";
@@ -81,6 +85,16 @@ export async function start({ root = document.querySelector("[data-account-page]
     }
   }
 
+  // What Apple or Google sent back after the `#`: read and taken out of the address the same way.
+  const back = kind === "connect" ? null : readReturn(win.location.hash);
+  if (back) {
+    try {
+      win.history.replaceState(null, "", win.location.pathname + win.location.search);
+    } catch {
+      /* the address stays; nothing after a `#` is sent */
+    }
+  }
+
   doc.documentElement.setAttribute("data-account", "open");
   const ui = screens(root, env.log ? { log: env.log } : {});
   ui.show(h("p", { class: "account__loading", text: WORDS.loading }));
@@ -102,7 +116,7 @@ export async function start({ root = document.querySelector("[data-account-page]
   const pageTitle = doc.querySelector(".account-page__title")?.textContent.trim() ?? null;
   const title = (text) => h(kind === "delete" ? "h3" : "h2", { class: text === pageTitle ? "account__title sr-only" : "account__title", text });
 
-  const ctx = { S, ui, db, door, call, env, win, doc, credentials, locale, title, refresh, route, signIn, showSignedOut, basicsParts, forget };
+  const ctx = { S, ui, db, door, call, env, win, doc, credentials, locale, title, refresh, route, signIn, showSignedOut, basicsParts, forget, providers, leaveFor };
 
   /* ── The account, read ─────────────────────────────────────────────── */
 
@@ -186,6 +200,62 @@ export async function start({ root = document.querySelector("[data-account-page]
     await took(got);
   }
 
+  /* ── Apple and Google ──────────────────────────────────────────────────
+     Off until the website has a client id for each (../../../lib/desk-account-providers.mjs,
+     which says how the flow goes). With none, `providers()` answers [] without asking the
+     service anything, so nothing below runs. */
+
+  const clients = env.providerClients ?? PROVIDER_CLIENTS;
+  const SIGN_IN_WITH = { apple: WORDS.signInApple, google: WORDS.signInGoogle };
+
+  /** The providers to offer on this page: on at the service, and with a client id here. */
+  async function providers() {
+    if (!anyClient(clients) || !returnAddress(win.location)) return [];
+    S.ways ??= await signInWays(door);
+    return offered(S.ways.ways, clients);
+  }
+
+  /**
+   * Sends the reader to a provider's own sign-in page, keeping what its answer must match:
+   * the service's challenge (the token's `nonce`) and a random `state`. `purpose` is
+   * "signIn", or "way" to add the provider to an account that is already signed in.
+   */
+  async function leaveFor(provider, purpose) {
+    const redirect = returnAddress(win.location);
+    const { challenge } = await signInChallenge(door);
+    const bytes = env.random ? env.random(16) : crypto.getRandomValues(new Uint8Array(16));
+    const state = [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    await db.set({ provider: { v: 1, provider, purpose, challenge, state, redirect, service, at: Date.now() } });
+    (env.go ?? ((href) => win.location.assign(href)))(authorizeAddress(provider, { client: clients[provider], redirect, challenge, state }));
+  }
+
+  /** Finishes what a provider's answer began, and shows where it led. What was kept for it is used once. */
+  async function comeBack() {
+    const kept = await db.get("provider");
+    await db.set({ provider: undefined });
+    let note = null;
+    let failed = null;
+    if (!answersKept(back, kept, { service })) note = WORDS.providerStale;
+    else if (back.error) note = WORDS.providerCanceled;
+    else {
+      const answer = { provider: kept.provider, challenge: kept.challenge, idToken: back.idToken, code: back.code, redirect: kept.redirect };
+      try {
+        if (kept.purpose === "way") {
+          await addProviderWay({ call, ...answer });
+          note = WORDS.wayAdded;
+        } else {
+          return await took(await signInWithProvider({ call: door, ...answer }));
+        }
+      } catch (error) {
+        failed = error;
+      }
+    }
+    await refresh();
+    await route(note);
+    if (failed) ui.fail(failed);
+    return undefined;
+  }
+
   function showSignedOut(note) {
     const can = canPasskey();
     const check = h("div", { class: "account__check", hidden: true });
@@ -207,6 +277,9 @@ export async function start({ root = document.querySelector("[data-account-page]
       );
       if (kind !== "delete") nodes.push(check, h("p", { class: "account__hint", text: WORDS.createNote }));
     }
+    // Apple and Google take their place under the passkey once each is on; they need no passkey.
+    const others = h("div", { class: "account__actions", hidden: true });
+    nodes.push(others);
     // "No account" is plainly a choice (BVJ, 2026-11-24), said where the notebook is: a computer with the desk on.
     if (kind !== "delete" && desk) {
       nodes.push(
@@ -220,6 +293,15 @@ export async function start({ root = document.querySelector("[data-account-page]
       );
     }
     ui.show(nodes);
+    const alive = ui.live();
+    providers().then(
+      (list) => {
+        if (!list.length || !alive()) return;
+        others.append(...list.map((provider) => button(ui, SIGN_IN_WITH[provider], () => leaveFor(provider, "signIn"))));
+        others.hidden = false;
+      },
+      () => {}, // the service didn't say which are on: the passkey's buttons stand as they are
+    );
   }
 
   /* ── The account's basics: what needs no key ───────────────────────── */
@@ -326,8 +408,12 @@ export async function start({ root = document.querySelector("[data-account-page]
       const kept = await db.get("account");
       if (kept?.v === 1 && kept.service === service && typeof kept.token === "string") S.session = kept;
     }
-    await refresh();
-    await route();
+    if (back) {
+      await comeBack();
+    } else {
+      await refresh();
+      await route();
+    }
   } catch (error) {
     showProblem(error);
   }

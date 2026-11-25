@@ -89,8 +89,9 @@ export async function use(b) {
  * the page ("account", "delete", "connect"); `open` the switch's value;
  * `hash` what the address carries after its `#`; `heading` the page's own
  * h1 above the box, as account.astro draws it.
+ * `env` adds to what the page is handed (`providerClients`, `go`).
  */
-export async function openPage(b, { kind = "account", open = "preview", hash = "", heading = null } = {}) {
+export async function openPage(b, { kind = "account", open = "preview", hash = "", heading = null, env: more = {} } = {}) {
   await use(b);
   resetDom(`${b.w.service.pageOrigin}/${kind === "delete" ? "delete-account" : kind === "connect" ? "account/connect" : "account"}/${hash}`);
   const root = document.createElement("div");
@@ -135,7 +136,7 @@ export async function openPage(b, { kind = "account", open = "preview", hash = "
   page.ctx = await start({
     root,
     open,
-    env: { fetch: b.w.fetch, credentials: b.creds, userAgent: b.userAgent, setTimer: b.timers.set, clearTimer: b.timers.clear, log: (...args) => b.logged.push(args), locale: "en-US" },
+    env: { fetch: b.w.fetch, credentials: b.creds, userAgent: b.userAgent, setTimer: b.timers.set, clearTimer: b.timers.clear, log: (...args) => b.logged.push(args), locale: "en-US", ...more },
   });
   b.page = page;
   return page;

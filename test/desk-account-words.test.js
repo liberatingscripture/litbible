@@ -44,7 +44,7 @@ function everySentence() {
   for (const why of ["wrongCode", "noRecovery", "holderBroken", "approvalGone", "approvalForged", "holderNeeded", "behind", "other"]) said.push(failureWords({ name: "AccountStop", why }));
   const refusals = [
     ["passkey_refused", "unknown"], ["passkey_refused", "counter"], ["sign_in"], ["limited"], ["exists", "waiting"], ["exists", "notebook"], ["exists"], ["not_found"], ["gone"],
-    ["old_key"], ["not_allowed"], ["not_open"], ["provider"], ["bad_request"], ["too_many"], ["anything_else"],
+    ["old_key"], ["not_allowed"], ["not_open"], ["provider"], ["token_refused"], ["bad_request"], ["too_many"], ["anything_else"],
   ];
   for (const [word, about] of refusals) said.push(failureWords({ name: "AccountRefusal", word, about, is: (w, a) => w === word && (a === undefined || a === about) }));
   return said.filter((text) => typeof text === "string");

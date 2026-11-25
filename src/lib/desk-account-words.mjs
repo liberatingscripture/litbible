@@ -119,6 +119,11 @@ export const WORDS = Object.freeze({
     "An account keeps your notebook in step across your devices. Your notebook is locked on your devices before it is sent, with a key we never have, so we can’t read it.",
   signInPasskey: "Sign in with a passkey",
   create: "Create an account",
+  /* Apple and Google: shown only once each has a client id (desk-account-providers.mjs) */
+  signInApple: "Sign in with Apple",
+  signInGoogle: "Sign in with Google",
+  providerStale: "That sign-in didn’t finish, so nothing was changed. Try again.",
+  providerCanceled: "The sign-in was closed before it finished. Nothing was changed.",
   createNote:
     "Creating an account makes a passkey, which your browser or password manager keeps for you. There is no password, and we don’t ask for your name or email address.",
   noPasskeys: "This browser can’t use passkeys, so it can’t sign in here. Try a current version of Chrome, Edge, Safari, or Firefox.",
@@ -259,6 +264,8 @@ export const WORDS = Object.freeze({
   waysTitle: "Ways to sign in",
   wayCarries: "carries your notebook’s key",
   wayAdd: "Add a passkey",
+  wayAddApple: "Add Sign in with Apple",
+  wayAddGoogle: "Add Sign in with Google",
   wayAdded: "Added.",
   wayRemoved: "Removed.",
   wayLast: "This is your only way to sign in, so it can’t be removed.",
@@ -375,6 +382,7 @@ export function failureWords(error) {
     if (is("wrong_proof") || is("old_key") || is("lists_changed")) return "Something about your notebook changed on another device just now. Try again.";
     if (is("gone")) return "That is no longer there. Nothing was changed.";
     if (is("slow_down") || is("too_many") || is("busy")) return "Too many tries in a short time. Wait a minute, and then try again.";
+    if (is("token_refused")) return "That sign-in wasn’t accepted, so nothing was changed. Try again.";
     if (is("provider")) return "A service this step depends on couldn’t be reached. Try again in a moment.";
   }
   return "Something went wrong, and nothing was changed. Try again.";

@@ -893,8 +893,20 @@ export async function showHome(ctx, note) {
       await ctx.refresh();
       await again(WORDS.wayAdded);
     });
-    ways.replaceChildren(ways.firstChild, list, h("div", { class: "account__actions" }, add));
+    const actions = h("div", { class: "account__actions" }, add);
+    ways.replaceChildren(ways.firstChild, list, actions);
     ways.hidden = !S.account;
+    // Apple and Google, where each is on and the account doesn't have it yet (page.js, "Apple and Google").
+    ctx.providers().then(
+      (offered) => {
+        if (!alive() || !actions.isConnected) return;
+        const has = new Set((S.account?.ways ?? []).map((way) => way.kind));
+        for (const provider of offered) {
+          if (!has.has(provider)) actions.append(button(ui, provider === "apple" ? WORDS.wayAddApple : WORDS.wayAddGoogle, () => ctx.leaveFor(provider, "way")));
+        }
+      },
+      () => {},
+    );
   };
 
   /** What this device hasn't told its reader about: a device that joined, a new way to open the notebook. */
