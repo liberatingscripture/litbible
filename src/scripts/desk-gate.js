@@ -61,6 +61,21 @@ export function loadShell(importer, stand = standDown) {
     );
 }
 
+// The header's way into an account (the plan's step 4h): “Sign in,” or the
+// account button once this browser's notebook is linked. Only where accounts
+// are open in this browser (data-account, stamped before paint from
+// lit-desk-account; closed for everyone until launch). The entry stays hidden,
+// keeping its place, until this has read which of the two to show.
+if (document.documentElement.dataset.desk === "on" && document.documentElement.dataset.account === "open" && document.querySelector("[data-account-entry]")) {
+  import("./desk/account/header-entry.js")
+    .then((m) => m.start())
+    .catch((err) => {
+      console.error("Study Desk: the header’s account entry didn’t load", err);
+      // The plain link still works without the script.
+      for (const entry of document.querySelectorAll("[data-account-entry]")) entry.setAttribute("data-account-state", "out");
+    });
+}
+
 if (shellHere) {
   // On a reading page the desk comes in two stages (Audit 3, LG3-2): the
   // Notebook's tab and a look at the notebook first, and the shell

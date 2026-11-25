@@ -204,6 +204,34 @@ const SIZE_OPTIONS = [
                 <span class="site-header__desk-label">Study Desk</span>
               </a>
             )}
+            {/* The account's way in (step 4h; BVJ, 2026-11-24): “Sign in,” and once this browser's
+                notebook is linked to an account, a small account button with a menu. In the
+                markup for everyone and shown only with data-desk and data-account (global.css),
+                both stamped before paint, so the row never moves. It is drawn hidden until
+                desk/account/header-entry.js has read which of the two this browser gets. */}
+            <span class="site-header__account site-header__account--nav" data-account-entry>
+              <a class="site-header__account-link" href="/account/" data-account-signin>Sign in</a>
+              <button
+                type="button"
+                class="site-header__account-btn"
+                aria-expanded="false"
+                aria-controls="accountMenu-nav"
+                data-account-button
+                hidden
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4.5 20.5c.6-4 3.6-6 7.5-6s6.9 2 7.5 6" />
+                </svg>
+                <span class="sr-only">Account</span>
+              </button>
+              <div class="site-nav__menu site-header__account-menu" id="accountMenu-nav" data-account-menu hidden>
+                <div data-desk-sync-slot hidden></div>
+                <a href="/account/">Account and devices</a>
+                <a href="/account/#sign-out">Sign out</a>
+              </div>
+            </span>
           </div>
         </li>
       </ul>
@@ -255,6 +283,34 @@ const SIZE_OPTIONS = [
           <span class="site-header__desk-label">Study Desk</span>
         </a>
       )}
+      {/* The account's way in (step 4h; BVJ, 2026-11-24): “Sign in,” and once this browser's
+          notebook is linked to an account, a small account button with a menu. In the
+          markup for everyone and shown only with data-desk and data-account (global.css),
+          both stamped before paint, so the row never moves. It is drawn hidden until
+          desk/account/header-entry.js has read which of the two this browser gets. */}
+      <span class="site-header__account site-header__account--actions" data-account-entry>
+        <a class="site-header__account-link" href="/account/" data-account-signin>Sign in</a>
+        <button
+          type="button"
+          class="site-header__account-btn"
+          aria-expanded="false"
+          aria-controls="accountMenu-actions"
+          data-account-button
+          hidden
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4.5 20.5c.6-4 3.6-6 7.5-6s6.9 2 7.5 6" />
+          </svg>
+          <span class="sr-only">Account</span>
+        </button>
+        <div class="site-nav__menu site-header__account-menu" id="accountMenu-actions" data-account-menu hidden>
+          <div data-desk-sync-slot hidden></div>
+          <a href="/account/">Account and devices</a>
+          <a href="/account/#sign-out">Sign out</a>
+        </div>
+      </span>
       <button
         class="site-header__menu-toggle"
         type="button"
@@ -597,6 +653,8 @@ const SIZE_OPTIONS = [
             {group.links.filter((link) => link.phone !== false).map((link) => (
               <a href={link.href}>{link.v2Label ? <><span data-v1>{link.short ?? link.label}</span><span data-v2>{link.v2Label}</span></> : (link.short ?? link.label)}</a>
             ))}
+            {/* A window too narrow for the header's own way in (under 760px) has it here. */}
+            {group.desk && <a href="/account/" class="menu-overlay__account">Account</a>}
           </div>
         ))}
 

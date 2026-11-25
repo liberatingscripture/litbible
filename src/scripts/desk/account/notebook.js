@@ -632,7 +632,7 @@ export async function showHome(ctx, note) {
     const parts = ctx.basicsParts(again);
     waiting.replaceChildren(...(parts.waiting ? [parts.waiting] : []));
     const out = h("div", { class: "account__delete" });
-    const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: WORDS.signOut });
+    const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: WORDS.signOut, "data-account-signout": true });
     opener.addEventListener("click", () => {
       if (out.querySelector(".account__confirm")) return;
       out.append(
@@ -950,5 +950,16 @@ export async function showHome(ctx, note) {
   }
   if (!alive()) return;
   drawAccount();
+  // The header's “Sign out” comes here to be asked (header-entry.js): the question opens, and the address loses its mark.
+  if (ctx.win.location.hash === "#sign-out") {
+    try {
+      ctx.win.history.replaceState(ctx.win.history.state, "", ctx.win.location.pathname + ctx.win.location.search);
+    } catch {
+      /* the address keeps its mark; the question is asked all the same */
+    }
+    const opener = end.querySelector("[data-account-signout]");
+    opener?.scrollIntoView?.({ block: "center" });
+    opener?.click();
+  }
   await onStatus(connector.status());
 }

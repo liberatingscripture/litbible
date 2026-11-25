@@ -428,6 +428,20 @@ test("signing out takes this computer off the notebook and keeps the notebook in
   assert.ok((await after.all()).some((record) => record.body === "kept through signing out"), "the notebook is still in the browser");
 });
 
+test("the header's “Sign out” link opens the question on the account page, and nothing is signed out until the reader says yes", async () => {
+  const w = world();
+  const { b } = await setUpReader(w);
+  const page = await openPage(b, { hash: "#sign-out" });
+  await page.shows(WORDS.signOutLinked);
+  assert.equal(window.location.hash, "", "the mark is taken out of the address");
+  assert.ok(page.button(WORDS.signOutConfirm), "the question is open");
+  assert.notEqual(await linkOf(b), null, "and the browser is still linked");
+
+  await page.press(WORDS.signOutConfirm);
+  await page.shows(WORDS.signedOutNow);
+  assert.equal(await linkOf(b), null);
+});
+
 test("deleting from a computer that holds the key happens at once, and the notebook stays in the browser", async () => {
   const w = world();
   const { page, b } = await setUpReader(w);

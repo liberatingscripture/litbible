@@ -43,6 +43,7 @@ const DOT_TARGETS = [
   '.desk-panel__tabs [data-tab="settings"]',
   ".desk-title__button",
   "[data-desk-notebook-item]",
+  ".site-header__account-btn", // the header's account button (step 4h), whose menu holds the status line
 ].join(", ");
 
 /** How long the bar waits for a tour, a print or another notice to be over, and how many times. */

@@ -833,7 +833,9 @@ body:has(.site-header--green) .skip-link {
 
 .site-header__font-toggle,
 .site-header__search,
-.site-header__desk {
+.site-header__desk,
+.site-header__account-link,
+.site-header__account-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -858,7 +860,9 @@ body:has(.site-header--green) .skip-link {
    toolbar/chip. Keyboard focus uses the global green :focus-visible ring. */
 .site-header__font-toggle:hover,
 .site-header__search:hover,
-.site-header__desk:hover {
+.site-header__desk:hover,
+.site-header__account-link:hover,
+.site-header__account-btn:hover {
   background: var(--green-text);
   color: var(--on-green-fill);
   border-color: transparent;
@@ -866,7 +870,9 @@ body:has(.site-header--green) .skip-link {
 
 .site-header__font-toggle:focus:not(:focus-visible),
 .site-header__search:focus:not(:focus-visible),
-.site-header__desk:focus:not(:focus-visible) {
+.site-header__desk:focus:not(:focus-visible),
+.site-header__account-link:focus:not(:focus-visible),
+.site-header__account-btn:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -1039,6 +1045,81 @@ html[data-desk] .site-nav__plain {
 @media (min-width: 1101px) {
   html[data-desk] .site-header__desk {
     display: none;
+  }
+}
+
+/* The account's way in (the plan's step 4h; BVJ, 2026-11-24): "Sign in," or a
+   small account button with a menu once this browser's notebook is linked to
+   an account. It shows only on a computer with the Study Desk on (data-desk)
+   and with accounts opened in this browser (data-account), both stamped
+   before paint, so the row is settled when the title is measured. Its two
+   copies follow the header's other pairs: the nav's from 1101px (1401px in
+   OpenDyslexic), the actions' below that, down to 760px, where header C's
+   groups fold away and the menu's "Account" takes over. The Study Desk's
+   own header has no nav, so the actions' copy shows there at every width.
+   The entry is drawn hidden until desk/account/header-entry.js has read
+   which of the two this browser gets (data-account-state), and it keeps the
+   link's width when the button takes its place, so nothing beside it moves. */
+.site-header__account {
+  display: none;
+  position: relative;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.site-header__account:not([data-account-state]) > * {
+  visibility: hidden;
+}
+
+.site-header__account-link {
+  text-decoration: none;
+}
+
+.site-header__account-btn {
+  padding: 0 9px;
+}
+
+.site-header__account-link[hidden],
+.site-header__account-btn[hidden] {
+  display: none;
+}
+
+.site-nav__menu.site-header__account-menu {
+  left: auto;
+  right: 0;
+  width: min(320px, calc(100vw - 24px));
+  min-width: 0;
+}
+
+.menu-overlay .menu-overlay__nav a.menu-overlay__account {
+  display: none;
+}
+
+@media (min-width: 760px) {
+  html[data-desk][data-account="open"] .site-header__account {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 1101px) {
+  html[data-desk][data-account="open"]:not([data-font="dyslexic"]) .site-header:not(.site-header--desk) .site-header__account--actions {
+    display: none;
+  }
+}
+
+@media (min-width: 1401px) {
+  html[data-desk][data-account="open"][data-font="dyslexic"] .site-header:not(.site-header--desk) .site-header__account--actions {
+    display: none;
+  }
+}
+
+html[data-desk][data-account="open"] .site-header--desk .site-header__account--actions {
+  display: inline-flex;
+}
+
+@media (max-width: 759px) {
+  html[data-desk][data-account="open"] .menu-overlay .menu-overlay__nav a.menu-overlay__account {
+    display: block;
   }
 }
 
@@ -1505,6 +1586,8 @@ html .site-header.site-header--desk .site-header__inner {
   .site-header__font-toggle,
   .site-header__search,
   .site-header__desk,
+  .site-header__account-link,
+  .site-header__account-btn,
   .font-tray__font-option,
   .font-tray__check,
   .font-tray__seg-text,

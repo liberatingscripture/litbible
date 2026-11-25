@@ -43,6 +43,8 @@ const LINK = "src/lib/desk-sync-link.mjs";
 const WAY_IN = "src/scripts/desk/sync/start.js";
 const ACCOUNT_GATE = "src/scripts/account-gate.js";
 const ACCOUNT_PAGE = "src/scripts/desk/account/page.js";
+const DESK_GATE = "src/scripts/desk-gate.js";
+const HEADER_ENTRY = "src/scripts/desk/account/header-entry.js";
 
 function files(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -75,7 +77,7 @@ test("nothing outside the sync imports it statically", () => {
   assert.deepEqual(broken, [], `a reader who isn't syncing would download:\n  ${broken.join("\n  ")}`);
 });
 
-test("the only ways in are a dynamic import of start.js, from the two files that read the link first, and of the account page, from its gate", () => {
+test("the only ways in are a dynamic import of start.js, from the two files that read the link first, of the account page, from its gate, and of the header's entry, from the desk's", () => {
   const ways = [];
   for (const file of ALL) {
     if (isGated(file)) continue;
@@ -83,7 +85,7 @@ test("the only ways in are a dynamic import of start.js, from the two files that
       if (isGated(to)) ways.push(`${file} -> ${to}`);
     }
   }
-  assert.deepEqual(ways.sort(), [`${ACCOUNT_GATE} -> ${ACCOUNT_PAGE}`, `src/scripts/desk/first-stage.js -> ${WAY_IN}`, `src/scripts/desk/store.js -> ${WAY_IN}`]);
+  assert.deepEqual(ways.sort(), [`${ACCOUNT_GATE} -> ${ACCOUNT_PAGE}`, `${DESK_GATE} -> ${HEADER_ENTRY}`, `src/scripts/desk/first-stage.js -> ${WAY_IN}`, `src/scripts/desk/store.js -> ${WAY_IN}`]);
   for (const file of ["src/scripts/desk/first-stage.js", "src/scripts/desk/store.js"]) {
     assert.ok(imports(file, STATIC_IMPORT).includes(LINK), `${file} reads the link with ${LINK}`);
   }
@@ -106,6 +108,13 @@ test("the account page's own file brings no encryption: a phone that signs in lo
     ["src/scripts/desk/account/notebook.js", "src/scripts/desk/account/turnstile.js"],
     "and the two halves it loads on demand are these",
   );
+});
+
+test("the header's account entry is one small read: what says a browser is linked, the tooltip, and nothing else", () => {
+  // desk-gate.js loads it on every page of a computer with the Study Desk on and accounts open, so it stays this small.
+  assert.deepEqual(imports(HEADER_ENTRY, STATIC_IMPORT).sort(), [LINK, "src/scripts/tip.js"]);
+  assert.deepEqual(imports("src/scripts/tip.js", STATIC_IMPORT), []);
+  assert.deepEqual(imports(HEADER_ENTRY, DYNAMIC_IMPORT), []);
 });
 
 test("what says a browser is linked imports nothing, so reading it costs a reader nothing", () => {

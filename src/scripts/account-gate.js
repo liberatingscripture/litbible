@@ -44,12 +44,21 @@ export function readSwitch(win = window) {
 const root = typeof document === "undefined" ? null : document.querySelector("[data-account-page]");
 if (root) {
   const open = readSwitch();
+  // Layout.astro stamped data-account before paint from what was stored then. Where the page
+  // turns out closed (?account=off just now, a service this page may not reach, a page that
+  // didn't load), the stamp comes off, so the page's own note shows again.
+  const closed = () => document.documentElement.removeAttribute("data-account");
   if (open || document.documentElement.dataset.desk === "on") {
     import("./desk/account/page.js")
       .then((page) => page.start({ root, open }))
+      .then((started) => {
+        if (!started) closed();
+      })
       .catch((err) => {
         console.error("LIT Bible account: the page didn't load", err);
-        document.documentElement.removeAttribute("data-account");
+        closed();
       });
+  } else {
+    closed();
   }
 }
