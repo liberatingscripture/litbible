@@ -7,9 +7,9 @@
 ## Dependabot
 
 ```
-.github/dependabot.yml  # Four update streams: npm at `/`, npm at
-                     #   `/workers/contact-form` and at
-                     #   `/workers/notebook-service` (separate dep trees), and
+.github/dependabot.yml  # Five update streams: npm at `/`, npm at
+                     #   `/workers/contact-form`, `/workers/notebook-service`,
+                     #   and `/workers/csp-reports` (separate dep trees), and
                      #   github-actions. Minor/patch are grouped into one weekly
                      #   PR per stream; majors stay ungrouped so each gets the
                      #   hand-checked treatment (`scripts/CLAUDE.md`, "The toolchain's pins").
@@ -20,11 +20,12 @@
                      #   still carry a transitive major (see the file's
                      #   header comment).
                      #   Each Worker's stream has a second group
-                     #   (`worker-runtime`, `notebook-runtime`), so
+                     #   (`worker-runtime`, `notebook-runtime`,
+                     #   `csp-reports-runtime`), so
                      #   @cloudflare/vitest-plugin and wrangler always bump
                      #   together (bumped apart, they split that Worker's tree).
-                     #   The two Workers' lockfiles are independent, so their
-                     #   runtime PRs arrive separately: verify both the same way.
+                     #   The three Workers' lockfiles are independent, so their
+                     #   runtime PRs arrive separately: verify each the same way.
                      #   Dependabot can't follow a package rename: the plugin
                      #   was @cloudflare/vitest-pool-workers until 2026-08, and
                      #   the frozen old name drew no PRs for six weeks while the
@@ -56,4 +57,9 @@ The service's `test/config.test.js` fails if either gains a `push`
 condition. It deploys with the wrangler in the package's own lockfile,
 not with an action that brings its own. The other workflows (`ci.yml`,
 `release-notes.yml`, `apps-mirror-notify.yml`) never touch Cloudflare: the
-site deploys through the Pages project's own git connection.
+site deploys through the Pages project's own git connection. **The forms'
+Worker and the policy's report Worker have no workflow**: each deploys by
+hand, the owner's `npm run deploy` in its directory. `ci.yml` has a test
+job for each Worker (`worker-tests`, `notebook-service-tests`,
+`csp-reports-tests`); a new job is not a required check until BVJ adds it
+to the branch ruleset.

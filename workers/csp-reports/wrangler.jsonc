@@ -1,0 +1,57 @@
+// Where litbible.net's content security policy reports go (step 4i of
+// STUDY-DESK.md, "Order of work," 4). README.md has what it keeps, the
+// one-time setup, the deploy, and how a week of reports is read.
+//
+// One environment: the site has one policy and one address for its reports.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "litbible-csp-reports",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-18",
+  // No *.workers.dev address and no per-version preview addresses: reports
+  // arrive at the site's own address or not at all.
+  "workers_dev": false,
+  "preview_urls": false,
+  // NO STORED LOGS, on purpose. The site's privacy page says nothing about a
+  // reader is kept or logged here, and Cloudflare's documentation doesn't say
+  // what it attaches to a stored log line (read 2026-11-24), so nothing is
+  // stored. A failure still writes one line of fixed words, which
+  // `npx wrangler tail` shows live. test/config.test.js holds this off.
+  "observability": { "enabled": false },
+
+  // The same origin as every page that reports, so a browser sends its
+  // report without asking permission first. A Worker route on the zone wins
+  // over the Pages site for this one path, as the contact form's routes do.
+  // public/_headers names this address three times, and the root's
+  // test/csp-reporting.test.js fails if the two ever differ.
+  "routes": [{ "pattern": "litbible.net/csp-report", "zone_name": "litbible.net" }],
+
+  "vars": {
+    // The only origin whose pages are counted (src/report.js). A report
+    // about a page anywhere else is dropped.
+    "SITE_ORIGIN": "https://litbible.net"
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "litbible-csp-reports",
+      // A PLACEHOLDER. The database doesn't exist yet. BVJ makes it with
+      // `npx wrangler d1 create litbible-csp-reports` and the id it prints
+      // goes here (README, "One-time setup"). An id is not a secret. Local
+      // development and the tests never read it.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Once a day, at 04:41 UTC: counts older than 30 days are deleted
+  // (src/store.js, KEEP_DAYS). The privacy page promises that number.
+  "triggers": { "crons": ["41 4 * * *"] },
+
+  // How often one address may post (src/index.js). A namespace id is a
+  // number of our own choosing, unique on the account (the contact form has
+  // 1001, the notebook service 4101 to 4112); it is not a resource to create
+  // and not a secret. `period` is in seconds.
+  "ratelimits": [{ "name": "REPORT_LIMIT", "namespace_id": "4201", "simple": { "limit": 120, "period": 60 } }]
+}

@@ -5711,6 +5711,49 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      report-only today. Review a week of its reports, then enforce it
      before sign-in ships, since the page will hold a credential to a
      reader's notes (review finding 11).
+     **Somewhere for it to report to: built 2026-11-24, not deployed, and
+     the week has not started.** Until now the policy named no address and
+     nothing received a report, so there was no week to review. Enforcing
+     is still to do, after the week and 4h's pages.
+     - **BVJ chose, 2026-11-24: "A: new Worker, counts."** Reports go to
+       LIT's own Cloudflare, to a small Worker of their own
+       (`workers/csp-reports/`, at `https://litbible.net/csp-report`) that
+       keeps counts and nothing about the reader. The two not chosen: a
+       third route on the contact-form Worker (one package fewer, but
+       report code beside the mail binding, and a redeploy of the forms'
+       backend for every change), and a third-party collector (every
+       reader's address, browser, and page sent to another company).
+     - **What is kept**: one row for each day, rule, blocked origin, page
+       path, asking file, and browser family, with a count. No address,
+       no user agent, no query string, no extension's id. /privacy has a
+       new paragraph, "Security reports."
+     - **Claude's choices, for BVJ to change**: counts are deleted after
+       30 days; both policies report, the enforced one too, since a block
+       there is a real break (each row says which); the Worker stores no
+       log at all, because Cloudflare's documentation doesn't say what a
+       stored log line carries; D1 over Analytics Engine, which would need
+       a new API token to read and keeps data three months with no earlier
+       delete; 64 KB a post, 120 posts a minute from one address, 5,000
+       reports a day; and /privacy's effective date is left as it was.
+     - **What the browsers' documentation says** (MDN's compatibility
+       data, read 2026-11-24): `report-uri` works everywhere and is
+       deprecated; `report-to` with `Reporting-Endpoints` is Chrome and
+       Edge 96, Safari 16.4, and Firefox 149 (March 2026), and a browser
+       that knows it ignores `report-uri`. So each policy carries both,
+       and the Worker reads both shapes. The rules are in
+       `public/CLAUDE.md`.
+     - **The week starts the day both are live**: the Worker deployed
+       (BVJ's: a database, a migration, a deploy; its README, "One-time
+       setup") and the header change merged, since `_headers` does nothing
+       off the deployed site. **Write that date here.** Read the week
+       with `npm run summary` in `workers/csp-reports/`.
+     - **A week is a thin sample here.** The site had about 27 page views
+       a day in a browser (BVJ's Cloudflare numbers, 2026-11-24; the rest
+       of its 17,000 requests are bots, the apps, and files). Reports
+       come only from pages someone opened, so each kind of page also
+       needs walking in a real browser once the headers are live: the
+       donation box through to its payment step above all, which has
+       never been exercised with the policy watching.
    - **4j. The privacy page, the terms, and "Ways to keep your notebook"**
      (1–2, plus BVJ's own writing). The terms are new and carry a minimum
      age. The privacy page's account section comes from the spec's "What

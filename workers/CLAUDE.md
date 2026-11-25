@@ -26,15 +26,46 @@
   **Adding a route means redeploying the Worker before the site deploy that
   publishes the new form**, or the POST hits the Pages 404.
 
-## What the two Workers share
+## The policy's report Worker (`workers/csp-reports/`)
+
+Counts the reports browsers send about the site's content security policy,
+at `https://litbible.net/csp-report` (Study Desk step 4i; BVJ chose a Worker
+of its own keeping counts only, 2026-11-24). **Built and not deployed**
+(2026-11-24): its database doesn't exist, and `wrangler.jsonc` holds a
+placeholder id. Its README is the working reference (what it keeps, the
+answers, the limits, setup, reading a week, stopping it).
+
+- **Nothing about a reader is kept or logged, and /privacy says so**
+  ("Security reports"). What is kept is in `src/report.js` and the
+  migration: a change to either is a change to that paragraph, by hand.
+  The address a post comes from is the limiter's key and nothing else; an
+  extension's address is cut to its scheme (Firefox's ids are unique to one
+  installation); query strings are cut from every address.
+- **Workers Logs stays off** (`observability.enabled: false`).
+  Cloudflare's docs don't say what a stored log line carries, so none is
+  stored. Don't turn it on to debug: `npx wrangler tail` shows the failure
+  line live.
+- **Every answer has an empty body, and a counted, dropped, or capped post
+  is answered alike.** Anyone can post here; nothing posted comes back.
+- **The day's cap (`DAILY_CAP`) is checked and written as one batch**, each
+  statement carrying the same condition and the day's total moved last
+  (`src/store.js`). It is what keeps a flood from spending D1's daily
+  writes, which the notebook service's database shares on Workers Free.
+- **The address is in five places**, and `KEEP_DAYS` is the privacy page's
+  "30 days": the root's `test/csp-reporting.test.js` holds both, and holds
+  the policy to reporting both ways (`public/CLAUDE.md`).
+- **It deploys by hand** (`npm run deploy`, the owner's), with no workflow,
+  and must be live before or with a site change that renames its address.
+
+## What the Workers share
 
 Each Worker is a package of its own: its own
 `package.json`, lockfile, and vitest suite (`npm test` in its directory), and
 its own CI job and Dependabot stream. The root `npm ci` and `npm test` reach
-neither, and nothing in the site imports either.
+none of them, and nothing in the site imports any.
 
 - **`wrangler`'s version is set by `@cloudflare/vitest-plugin`, not by our
-  range.** Both suites run in workerd through that plugin, which pins wrangler
+  range.** Every suite runs in workerd through that plugin, which pins wrangler
   EXACTLY. Our wrangler range must only admit that pin, or the tree splits
   into a second, nested wrangler/miniflare/workerd that no bump of ours can
   reach. `workers/contact-form/README.md`, "Development notes," has the whole

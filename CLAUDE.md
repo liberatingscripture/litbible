@@ -54,8 +54,8 @@ below unless it is already loaded.** Rules that keep this from decaying:
 | `scripts/CLAUDE.md` | The toolchain's pins (Node, Astro), commands run by hand, **the apps' sync contract**, the build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
 | `scripts/alignment-review/CLAUDE.md`, `scripts/alignment-words/CLAUDE.md` | Pointers to the alignment file |
-| `public/CLAUDE.md` | `_headers`, the CSP, the agent discovery files, the apps' link files, image optimization |
-| `workers/CLAUDE.md` | The contact and app-support form Worker; the notebook service (the Study Desk's sync Worker with D1), its preview and its tests; the wrangler pin both share |
+| `public/CLAUDE.md` | `_headers`, the CSP and where it reports, the agent discovery files, the apps' link files, image optimization |
+| `workers/CLAUDE.md` | The contact and app-support form Worker; the Worker that counts the CSP's reports; the notebook service (the Study Desk's sync Worker with D1), its preview and its tests; the wrangler pin all three share |
 | `.github/CLAUDE.md` | Dependabot's configuration; the workflows that touch Cloudflare |
 | `emails/CLAUDE.md` | The campaign archive (not a template source) |
 
