@@ -15,7 +15,7 @@
 
 import syncCss from "../../../styles/desk-sync.css?inline";
 import { SLOT_EVENT } from "../../../lib/desk-sync-link.mjs";
-import { statusWords, worthSaying } from "../../../lib/desk-sync-status.mjs";
+import { ACCOUNT_PAGE, needsReader, statusWords, worthSaying } from "../../../lib/desk-sync-status.mjs";
 
 let seq = 0;
 
@@ -38,10 +38,13 @@ const format = {
  * drawn. Returns the way to take it all off again.
  *
  * @param {{ status: () => object, subscribe: (fn: (s: object) => void) => () => void, syncNow: () => Promise<void> }} connector
- * @param {{ doc?: Document, log?: (...args: unknown[]) => void }} [env]
+ * @param {{ doc?: Document, go?: (href: string) => void, log?: (...args: unknown[]) => void }} [env]
+ *   `go` opens an address (the account page, for a stop only the reader can settle)
  */
-export function mountStatusLines(connector, { doc = globalThis.document, log = (...args) => console.error("Study Desk sync:", ...args) } = {}) {
+export function mountStatusLines(connector, { doc = globalThis.document, go = (href) => globalThis.location?.assign(href), log = (...args) => console.error("Study Desk sync:", ...args) } = {}) {
   if (!doc?.querySelectorAll) return () => {};
+  // On the account page the step behind a stop is on the page itself, so the line offers no button for it.
+  const onAccountPage = () => doc.querySelector("[data-account-page]") != null;
   addSyncStyle(doc);
   /** slot → its parts */
   const lines = new Map();
@@ -73,6 +76,8 @@ export function mountStatusLines(connector, { doc = globalThis.document, log = (
     again.addEventListener("click", () => {
       // Busy, not disabled: the button keeps focus while the pass runs.
       if (again.getAttribute("aria-disabled") === "true") return;
+      // A stop only the reader can settle: another pass would end the same way, so the button opens the account page.
+      if (needsReader(connector.status()?.state)) return go(ACCOUNT_PAGE);
       again.setAttribute("aria-disabled", "true");
       connector.syncNow().catch((err) => log("“Reconnect” failed", err));
     });
@@ -107,7 +112,7 @@ export function mountStatusLines(connector, { doc = globalThis.document, log = (
         }),
       );
       parts.detail.hidden = words.detail.length === 0;
-      if (words.action) {
+      if (words.action && !(needsReader(status.state) && onAccountPage())) {
         parts.again.textContent = words.action;
         parts.again.hidden = false;
         parts.again.removeAttribute("aria-disabled");

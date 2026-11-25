@@ -188,18 +188,27 @@ test("a stop that still stands a day later is said again", async () => {
   await until(() => bar.shown.length === 2, "the notice, a day on");
 });
 
-test("“Reconnect” on the notice is answered, whatever comes of it, and signing in again clears the stop", async () => {
-  const { service, bar, mine, connector, slots } = await linkedPage();
+test("“Reconnect” opens the account page for a stop only the reader can settle, and signing in again clears the stop", async () => {
+  const { service, bar, went, mine, connector, slots } = await linkedPage();
   service.endSession(mine.token);
   await connector.syncNow();
   await until(() => bar.shown.length === 1, "the notice");
 
-  // Pressed while still signed out: the same answer, said again rather than a bar that just closes.
+  // Another pass would end the same way, so neither button asks for one: each opens the account
+  // page, which names the real step (BVJ, 2026-11-24).
+  const calls = service.calls.length;
   await bar.press();
-  await until(() => bar.shown.length === 2, "the notice again, as the answer");
-  assert.match(bar.shown[1].message, /^You’ve been signed out\./);
+  assert.deepEqual(went, ["/account/"]);
+  const button = slots.settings.querySelector(".desk-sync__again");
+  assert.equal(button.hidden, false);
+  button.click();
+  assert.deepEqual(went, ["/account/", "/account/"]);
+  assert.equal(button.hasAttribute("aria-disabled"), false, "no pass was started");
+  await moment();
+  assert.equal(service.calls.length, calls, "and nothing was asked of the service");
+  assert.equal(bar.shown.length, 1, "nor the notice said again");
 
-  // Signed in again (what the account pages will do): the stop is over everywhere it was said.
+  // Signed in again (what the account page does): the stop is over everywhere it was said.
   await connector.setSession(service.signIn("reader"));
   await until(() => state(connector) === "upToDate", "in step");
   await until(() => !html().hasAttribute(STOPPED_ATTR), "the dot gone");
@@ -250,11 +259,9 @@ test("a stop another tab has said: a notice still up here from the stop before c
   assert.equal(bar.shown.length, 1, "and it isn't said twice");
 });
 
-test("a press on the notice that mends it says so", async () => {
-  const { service, bar, connector } = await linkedPage();
-  // The account's notebook is replaced: a stop, said; then (for the test) the service is as it was.
+test("a replaced notebook is said, and its “Reconnect” opens the account page too", async () => {
+  const { service, bar, went, connector } = await linkedPage();
   const account = service.account("reader");
-  const kept = { notebook: account.notebook };
   account.notebook = "00000000-0000-4000-8000-000000000000";
   await connector.syncNow();
   await until(() => bar.shown.length === 1, "the notice");
@@ -262,10 +269,30 @@ test("a press on the notice that mends it says so", async () => {
   assert.match(bar.shown[0].message, /^Your account’s notebook was replaced/);
   assert.match(bar.shown[0].message, /nothing in it was changed\./);
 
-  account.notebook = kept.notebook;
   await bar.press();
-  await until(() => bar.notices.length === 1, "the answer to the press");
-  assert.equal(bar.notices[0], "Your notebook is in sync.");
+  assert.deepEqual(went, ["/account/"]);
+  assert.equal(bar.notices.length, 0);
+});
+
+test("on the account page the stop is the page's to show: no notice, no button on the line, and the next page still says it", async () => {
+  const { service, bar, env, mine, connector, slots } = await linkedPage();
+  const account = document.createElement("div");
+  account.setAttribute("data-account-page", "account");
+  document.body.append(account);
+  service.endSession(mine.token);
+  await connector.syncNow();
+  await until(() => state(connector) === "signedOut", "signed out");
+  await moment();
+  assert.equal(bar.shown.length, 0, "the page names the step itself");
+  assert.equal(html().getAttribute(STOPPED_ATTR), "stopped", "the dot still shows");
+  assert.match(text(slots.settings, ".desk-sync__line"), /^You’ve been signed out\./);
+  assert.equal(slots.settings.querySelector(".desk-sync__again").hidden, true, "a button that opened this page would go nowhere");
+  const db = await openSyncDb();
+  assert.equal(await db.get("told"), undefined, "and it isn't counted as said");
+  db.close();
+
+  await reopen(env);
+  await until(() => bar.shown.length === 1, "the notice, on the next page");
 });
 
 test("the notice waits its turn: never over a tour, another notice, or a sheet's page", async () => {
