@@ -14,6 +14,13 @@
 // notebook is already linked to an account uses its link, whatever this says
 // (page.js reads that).
 //
+// THE PARAMETER WORKS ON EVERY PAGE, as ?desk= does: Layout.astro's
+// pre-paint script reads it first, stores the choice, and takes it out of
+// the address, so by the time this file runs there is usually nothing left
+// in the address to read. readSwitch still reads it, for a page that runs
+// without that script and for a value the script doesn't know, which is
+// taken out of the address here and stores nothing.
+//
 // The key and the values are src/lib/desk-account-words.mjs's (SWITCH_KEY,
 // SWITCH_VALUES), repeated here because shared reader code never imports a
 // desk module statically; test/desk-account-page.test.js holds the two

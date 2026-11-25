@@ -25,6 +25,7 @@ import {
   EDGE, FIRST_PAINT, GAP, KEEP_LEFT, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH, MOVE_PROP, firstPaint, placeInMargin,
 } from "../src/lib/desk-margin.mjs";
 import { READING_SURFACES, hasPanel } from "../src/scripts/desk-frame.js";
+import { SWITCH_KEY, SWITCH_PARAM, SWITCH_VALUES } from "../src/lib/desk-account-words.mjs";
 
 const layout = readFileSync(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
 const match = /define:vars=\{\{ appUa: APP_PLATFORM_UA\.source, appUaFlags: APP_PLATFORM_UA\.flags, deskFit, deskPanel, deskChapter \}\}>([\s\S]*?)<\/script>/.exec(layout);
@@ -147,8 +148,9 @@ test("without the flag, nothing is set", () => {
 });
 
 // Accounts (the plan's step 4h) are closed for everyone until one browser opens them with
-// ?account=preview, which src/scripts/account-gate.js stores. The stamp is on every device,
-// since /delete-account/ shows its box on a phone too; the header's way in also needs the desk's.
+// ?account=preview, which this script stores on whatever page it is given ("?account=, on
+// every page," below). The stamp is on every device, since /delete-account/ shows its box
+// on a phone too; the header's way in also needs the desk's.
 test("accounts opened in this browser are stamped before paint, on every device, and nowhere else", () => {
   assert.equal("data-account" in run({ stored: { "lit-desk-preview": "on" } }).attrs, false);
   for (const value of ["preview", "local"]) {
@@ -330,6 +332,71 @@ test("any other value is left alone, address included", () => {
   const r = run({ href: "https://litbible.net/?desk=yes" });
   assert.deepEqual(r.stored, {});
   assert.deepEqual(r.replaced, []);
+});
+
+/* ── ?account=, on every page ───────────────────────────────────────────── */
+
+// It was read only on the account pages at first, so on the home page it stayed in the
+// address and opened nothing (BVJ, 2026-11-25). The script reads it wherever it runs.
+test("?account=preview on any page opens accounts in this browser and leaves the address", () => {
+  // The home page, with the Study Desk already on: what BVJ did.
+  const home = run({ surface: "home", href: "https://litbible.net/?account=preview", stored: { "lit-desk-preview": "on" } });
+  assert.equal(home.stored[SWITCH_KEY], "preview");
+  assert.deepEqual(home.attrs, { "data-account": "open", "data-desk": "on" }, "so the header's “Sign in” is in the row from first paint");
+  assert.deepEqual(home.replaced, ["/"]);
+
+  // A chapter, keeping the rest of the address.
+  const chapter = run({ href: "https://litbible.net/romans-8/?account=preview&x=1#v3" });
+  assert.equal(chapter.stored[SWITCH_KEY], "preview");
+  assert.deepEqual(chapter.attrs, { "data-account": "open" });
+  assert.deepEqual(chapter.replaced, ["/romans-8/?x=1#v3"]);
+
+  // A phone: accounts open there too (its basics), with no desk.
+  const phone = run({ href: "https://litbible.net/about/?account=preview", ua: UA.iphone, touch: 5 });
+  assert.equal(phone.stored[SWITCH_KEY], "preview");
+  assert.deepEqual(phone.attrs, { "data-account": "open" });
+  assert.deepEqual(phone.replaced, ["/about/"]);
+});
+
+test("the script stores the switch under the words module's key, for each of its values", () => {
+  for (const value of SWITCH_VALUES) {
+    const r = run({ href: `https://litbible.net/?${SWITCH_PARAM}=${value}` });
+    assert.deepEqual(r.stored, { [SWITCH_KEY]: value }, value);
+    assert.deepEqual(r.attrs, { "data-account": "open" }, value);
+    assert.deepEqual(r.replaced, ["/"], value);
+  }
+});
+
+test("?account=off closes accounts again, on any page", () => {
+  const r = run({ href: "https://litbible.net/glossary/?account=off", surface: "glossary", stored: { [SWITCH_KEY]: "preview", "lit-desk-preview": "on" } });
+  assert.equal(SWITCH_KEY in r.stored, false);
+  assert.equal("data-account" in r.attrs, false);
+  assert.equal(r.attrs["data-desk"], "on", "the Study Desk's own switch is untouched");
+  assert.deepEqual(r.replaced, ["/glossary/"]);
+});
+
+test("?desk= and ?account= together are both read, and the address is rewritten once", () => {
+  const r = run({ surface: "home", href: "https://litbible.net/?desk=on&account=preview&x=1" });
+  assert.equal(r.stored["lit-desk-preview"], "on");
+  assert.equal(r.stored[SWITCH_KEY], "preview");
+  assert.deepEqual(r.attrs, { "data-account": "open", "data-desk": "on" });
+  assert.deepEqual(r.replaced, ["/?x=1"]);
+
+  const off = run({ href: "https://litbible.net/?account=off&desk=off", stored: { [SWITCH_KEY]: "local", "lit-desk-preview": "on" } });
+  assert.deepEqual(off.stored, {});
+  assert.deepEqual(off.attrs, {});
+  assert.deepEqual(off.replaced, ["/"]);
+});
+
+test("an ?account= value the switch doesn't know is left alone, address and storage both", () => {
+  const r = run({ href: "https://litbible.net/?account=yes", stored: { [SWITCH_KEY]: "preview" } });
+  assert.deepEqual(r.stored, { [SWITCH_KEY]: "preview" });
+  assert.deepEqual(r.replaced, []);
+  assert.deepEqual(r.attrs, { "data-account": "open" }, "what was stored before still stands");
+
+  const none = run({ href: "https://litbible.net/?account=" });
+  assert.deepEqual(none.stored, {});
+  assert.deepEqual(none.replaced, []);
 });
 
 /* ── Only where the window holds it (BA25, BA30) ─────────────────────── */
