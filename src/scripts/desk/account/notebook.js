@@ -98,6 +98,14 @@ export const prfBytes = async () => (await prfInput()).bytes;
 
 /** What a kept recovery code is sealed under: this device's own key, with this label. */
 const CODE_INFO = "lit-notebook/1 account page: recovery code";
+
+/**
+ * How long the home holds back what lies under its three late sections
+ * (showHome, "The home fills from the top down"). Claude's number: long
+ * enough for the lists over an ordinary connection, short enough that
+ * signing out never waits on a slow one.
+ */
+export const REST_WAIT_MS = 3000;
 /** How often a device that asked to join looks for its grant, and one that showed a code looks for the request. */
 export const POLL_MS = 3000;
 
@@ -652,11 +660,40 @@ export async function showHome(ctx, note) {
   const needOpen = [key, devices, recovery];
   const slot = h("div", { "data-desk-sync-slot": true, hidden: true });
   const end = section(WORDS.endTitle);
+  // THE HOME FILLS FROM THE TOP DOWN (BVJ, 2026-11-25). The three sections above wait on the notebook's
+  // lists, which are requests of their own, so over a network they arrive after the rest. What lies under
+  // them is held back until they are drawn, or known not to be coming (`settle`), so nothing a reader can
+  // already see, or is about to press, moves down the page.
+  const rest = h("div", { class: "account__rest", hidden: true }, ways, end);
 
-  ui.show([ctx.title(WORDS.homeTitle), note ? h("p", { class: "account__note", text: note }) : null, stop, said, section(WORDS.syncTitle, slot), waiting, key, devices, recovery, ways, end]);
+  ui.show([ctx.title(WORDS.homeTitle), note ? h("p", { class: "account__note", text: note }) : null, stop, said, section(WORDS.syncTitle, slot), waiting, key, devices, recovery, rest]);
   doc.dispatchEvent(new CustomEvent(SLOT_EVENT));
   const alive = ui.live();
   const again = (text) => showHome(ctx, text);
+
+  /* What is under the lists shows once they are settled, and no later than REST_WAIT_MS. */
+
+  const setTimer = ctx.env.setTimer ?? ((fn, ms) => setTimeout(fn, ms));
+  const clearTimer = ctx.env.clearTimer ?? ((t) => clearTimeout(t));
+  let settled = false;
+  let wantSignOut = false;
+  let restTimer = null;
+  const openSignOut = () => {
+    const opener = end.querySelector("[data-account-signout]");
+    opener?.scrollIntoView?.({ block: "center" });
+    opener?.click();
+  };
+  const settle = () => {
+    if (settled) return;
+    settled = true;
+    if (restTimer) clearTimer(restTimer);
+    if (!alive()) return;
+    rest.hidden = false;
+    if (wantSignOut) openSignOut();
+    wantSignOut = false;
+  };
+  // Signing out and deleting are down there, so the wait has an end whatever the service does.
+  restTimer = setTimer(settle, REST_WAIT_MS);
 
   /* Each part, drawn from what is known now. */
 
@@ -939,12 +976,16 @@ export async function showHome(ctx, note) {
       const lists = await readLists({ call: connector.call, held });
       if (!alive()) return;
       Object.assign(H, { lists, held, device });
-      for (const part of needOpen) part.hidden = false;
       drawKey();
       drawDevices();
       drawRecovery();
       drawWays();
+      // The notice is read before anything is shown, so it, the three sections, and what is under them
+      // arrive together. A stop that came while it was read keeps the three hidden, as `onStatus` left them.
       await drawNews();
+      if (!alive()) return;
+      if (!needsReader(connector.status()?.state)) for (const part of needOpen) part.hidden = false;
+      settle();
       if (S.pendingCode) {
         const typed = S.pendingCode;
         S.pendingCode = null;
@@ -953,7 +994,10 @@ export async function showHome(ctx, note) {
       }
     } catch (error) {
       // Not open yet (the first pass hasn't proved the key): the next status tries again.
-      if (!(error instanceof AccountRefusal && (error.is("not_open") || error.is("sign_in"))) && alive()) ui.fail(error);
+      if (error instanceof AccountRefusal && (error.is("not_open") || error.is("sign_in"))) return;
+      // Anything else is said, and the lists aren't coming: the rest of the home shows.
+      if (alive()) ui.fail(error);
+      settle();
     } finally {
       H.loading = false;
     }
@@ -967,9 +1011,12 @@ export async function showHome(ctx, note) {
     if (stopped) {
       if (state !== lastState) stop.replaceChildren(stopPart(ctx, status));
       for (const part of needOpen) part.hidden = true;
+      settle(); // nothing that needs the key is offered while a stop stands, so nothing more is coming
     } else {
       stop.replaceChildren();
       if (state === "upToDate" || state === "syncing") await loadLists();
+      // Offline, slowed, or a pass that failed: the lists wait on a pass that isn't running.
+      else if (state !== "starting") settle();
     }
     if (state !== lastState && (state === "upToDate" || stopped)) {
       lastState = state;
@@ -984,7 +1031,7 @@ export async function showHome(ctx, note) {
     }
     lastState = state;
   };
-  const off = connector.subscribe(onStatus);
+  let off = () => {};
 
   for (const part of needOpen) part.hidden = true;
   try {
@@ -996,6 +1043,7 @@ export async function showHome(ctx, note) {
   drawAccount();
   // The header's “Sign out” comes here to be asked (header-entry.js): the question opens, and the address
   // loses its mark. Pressed on this page, the link only changes the address, so that is heard too.
+  // It opens once the home has filled in (`settle`), never before, so it doesn't move under the pointer.
   ctx.offSignOutLink?.();
   const askSignOut = () => {
     if (!alive() || !end.isConnected || ctx.win.location.hash !== "#sign-out") return;
@@ -1004,12 +1052,14 @@ export async function showHome(ctx, note) {
     } catch {
       /* the address keeps its mark; the question is asked all the same */
     }
-    const opener = end.querySelector("[data-account-signout]");
-    opener?.scrollIntoView?.({ block: "center" });
-    opener?.click();
+    if (settled) openSignOut();
+    else wantSignOut = true;
   };
   ctx.win.addEventListener("hashchange", askSignOut);
   ctx.offSignOutLink = () => ctx.win.removeEventListener("hashchange", askSignOut);
   askSignOut();
+  // The sync is heard only from here, once the account's own parts are drawn, so the lists can't arrive
+  // above a part that is still to come. The status as it stands now is read first.
+  off = connector.subscribe(onStatus);
   await onStatus(connector.status());
 }

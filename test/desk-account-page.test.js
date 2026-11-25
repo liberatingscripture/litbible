@@ -18,6 +18,7 @@ const { SYNC_META, readLink } = await import("../src/lib/desk-sync-link.mjs");
 const { openSyncDb } = await import("../src/scripts/desk/sync/sync-db.js");
 const { openStore } = await import("../src/scripts/desk/store.js");
 const { fakeCredentials } = await import("./helpers/fake-credentials.mjs");
+const { REST_WAIT_MS } = await import("../src/scripts/desk/account/notebook.js");
 
 /** What stamps a record made by a test. */
 const CTX = () => ({ client: "test-web", contentVersion: "2026.11.24" });
@@ -387,6 +388,7 @@ test("removing a device changes the key; the removed computer says so and joins 
   assert.ok(page2.has("Your notebook is still on this computer"));
   assert.deepEqual(page2.labels().slice(0, 2), [WORDS.stopSignIn, WORDS.stopLeave]);
   assert.equal(page2.has(WORDS.devicesTitle) && !page2.root.querySelector(".account__section [hidden]"), false, "nothing that needs the key is offered meanwhile");
+  await until(() => page2.root.querySelector(".account__rest")?.hidden === false, "what is under the lists to show at once, since no list is coming while the stop stands");
   await page2.press(WORDS.stopSignIn);
   // ...and signed in again, it learns it is no longer one of the notebook's devices.
   await synced(page2, "removed");
@@ -634,6 +636,118 @@ test("pressed on the account page itself, the header's “Sign out” link only 
   // A second press while the question is open asks nothing twice.
   pressLink();
   assert.equal(page.root.querySelectorAll(".account__confirm").length, 1);
+});
+
+/* ── The home fills from the top down ───────────────────────────────────── */
+
+/**
+ * Lets a test hold the service's answer to the home's lists (`GET /devices`,
+ * the first of their requests), as a network does. Call it before the
+ * browser is made: a browser keeps the `fetch` it was made with.
+ */
+function holdLists(w) {
+  const real = w.fetch;
+  let waiting = null;
+  w.fetch = async (url, init = {}) => {
+    const res = await real(url, init);
+    if (waiting && (init.method ?? "GET") === "GET" && new URL(url).pathname === "/devices") await waiting.promise;
+    return res;
+  };
+  return {
+    hold() {
+      let release;
+      const promise = new Promise((resolve) => (release = resolve));
+      waiting = { promise, release };
+    },
+    release() {
+      waiting?.release();
+      waiting = null;
+    },
+    /** How many times the lists have been asked for. */
+    asked: () => w.sent.filter((r) => r.method === "GET" && r.path === "/devices").length,
+  };
+}
+
+/** The home as it stands on the page, whether or not its page has finished starting. */
+const home = () => {
+  const root = document.querySelector("[data-account-page]");
+  const section = (title) => [...root.querySelectorAll(".account__section")].find((el) => el.querySelector("h2")?.textContent === title) ?? null;
+  return { root, section, rest: root.querySelector(".account__rest") };
+};
+
+/**
+ * Opens `b`'s home with its lists held, and waits until they have been asked for. Answers
+ * `{ opening }`, the page's promise in an object: an async function that returned the promise itself
+ * would wait for it, and a page whose sync is already up finishes starting only with its lists.
+ */
+async function openHeld(b, lists, options) {
+  const before = lists.asked();
+  lists.hold();
+  const opening = openPage(b, options);
+  await until(() => lists.asked() > before && !!document.querySelector("[data-account-page] .account__rest"), "the home, with its lists asked for");
+  return { opening };
+}
+
+test("the home fills from the top down: what lies under the lists shows with them, never before", async () => {
+  const w = world();
+  const lists = holdLists(w);
+  const { b } = await setUpReader(w);
+
+  const { opening } = await openHeld(b, lists);
+  const { section, rest } = home();
+  assert.equal(section(WORDS.syncTitle).hidden, false, "the status is there from the start");
+  for (const title of [WORDS.keyTitle, WORDS.devicesTitle, WORDS.recoveryTitle]) assert.equal(section(title).hidden, true, `“${title}” waits for the lists`);
+  assert.equal(rest.hidden, true, "and what is under them is held back, so nothing shown moves when they come");
+  assert.ok(rest.contains(section(WORDS.waysTitle)) && rest.contains(section(WORDS.endTitle)), "the ways to sign in and the end of the page");
+  assert.equal(rest.querySelectorAll("[data-account-signout]").length, 1, "which are drawn and ready, only not shown");
+
+  // The sections and what is under them are shown in one step: the rest never shows above a gap.
+  const seen = [];
+  const watch = new MutationObserver(() => seen.push({ rest: rest.hidden, devices: section(WORDS.devicesTitle).hidden }));
+  watch.observe(home().root, { attributes: true, attributeFilter: ["hidden"], subtree: true });
+  lists.release();
+  await opening;
+  await until(() => !rest.hidden, "the rest of the home");
+  watch.disconnect();
+  for (const title of [WORDS.keyTitle, WORDS.devicesTitle, WORDS.recoveryTitle]) assert.equal(section(title).hidden, false);
+  assert.equal(seen.some((at) => !at.rest && at.devices), false, "the rest was never showing while the devices were still to come");
+  assert.deepEqual(b.timers.waiting().filter((ms) => ms === REST_WAIT_MS), [], "and the limit on the wait is put away");
+});
+
+test("the wait for the lists has an end: after three seconds the rest of the home shows without them", async () => {
+  const w = world();
+  const lists = holdLists(w);
+  const { b } = await setUpReader(w);
+
+  const { opening } = await openHeld(b, lists);
+  const { section, rest } = home();
+  assert.equal(REST_WAIT_MS, 3000);
+  assert.equal(rest.hidden, true);
+  assert.ok((await b.timers.fire((ms) => ms === REST_WAIT_MS)) >= 1, "the limit comes due");
+  assert.equal(rest.hidden, false, "signing out and deleting never wait on a slow service");
+  assert.equal(section(WORDS.devicesTitle).hidden, true, "though the lists are still to come");
+
+  lists.release();
+  await opening;
+  await until(() => !section(WORDS.devicesTitle).hidden, "the lists, late");
+});
+
+test("the header's “Sign out” waits for the home to fill in before it asks", async () => {
+  const w = world();
+  const lists = holdLists(w);
+  const { b } = await setUpReader(w);
+
+  const { opening } = await openHeld(b, lists, { hash: "#sign-out" });
+  const { root, rest } = home();
+  assert.equal(window.location.hash, "", "the mark is out of the address at once");
+  assert.equal(rest.hidden, true);
+  assert.equal(root.querySelectorAll(".account__confirm").length, 0, "and nothing is asked under sections still to come");
+
+  lists.release();
+  const page = await opening;
+  await page.shows(WORDS.signOutLinked);
+  assert.equal(rest.hidden, false);
+  assert.equal(page.labels().includes(WORDS.signOutConfirm), true, "the question opens once the page has stopped growing above it");
 });
 
 test("deleting from a computer that holds the key happens at once, and the notebook stays in the browser", async () => {

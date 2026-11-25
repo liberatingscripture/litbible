@@ -425,6 +425,12 @@ means for the apps:
   deleted its other devices can say only “signed out” (89); and a copied
   passkey that keeps a counter is refused (51), which is worth a try
   with a password manager that syncs passkeys.
+- **The website has now used the deployed preview** (2026-11-25, on
+  BVJ's go-ahead): its pages, served from `http://localhost:4321`, made
+  an account there with a `localhost` passkey, set a notebook up, synced
+  a note between three browsers, changed the key, and deleted the
+  account. **Nothing of it is left on the preview.** It used passkeys
+  only, never `POST /preview/session`, and no secret.
 
 ### 2026-11-24, iOS's answers, from its code and a real iPhone
 
