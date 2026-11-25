@@ -5901,18 +5901,20 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      path); Safari, Firefox, and a real phone; scanning the QR code;
      the preview or anything else from `litbible.net` itself, where a
      passkey is a real `litbible.net` one (the preview was reached only
-     from `localhost:4321`); the Turnstile widget, which waits on its own
-     pull request and on a widget and a secret only BVJ can make; the
+     from `localhost:4321`); the Turnstile widget and the real
+     siteverify, which wait on a widget and a secret only BVJ can make;
+     the
      content security policy, since the local server sends no headers;
      and Apple and Google. Only in tests, not in the browser: a
      notebook replaced after its seven days and “Join the new
      notebook”; “Stop syncing on this computer”; adding and removing a
      passkey; “Show a code for the new device instead”; a setup whose
      answer was lost.
-     **What is left of 4h**: Turnstile's half on the service (written,
-     in its own pull request, which redeploys the preview when merged);
-     the notices anywhere but the account's home; a try from
-     `litbible.net` itself once the pages are merged, which is the first
+     **What is left of 4h**: Turnstile's widget and its secret, which
+     are BVJ's to make and set (the service's half is built and stays off
+     until both are there), and then a look at the widget on the sign-in
+     page; the notices anywhere but the account's home; a try from
+     `litbible.net` itself, now that the pages are merged, which is the first
      real `litbible.net` passkey and the first time the content security
      policy's headers meet these pages; and real browsers and devices
      (4l). **Known

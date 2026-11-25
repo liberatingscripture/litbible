@@ -20,8 +20,10 @@ one browser opens them with `?account=preview` (rule 11). What was and was
 not seen in a real browser is under step 4h in `STUDY-DESK.md`. Not built:
 the notices anywhere but the account's home, and the final words of the
 first-time choice (step 4j). Sign in with Apple and with Google are built
-and off (rule 19). The Turnstile check's half on the service is its own
-pull request.
+and off (rule 19). The Turnstile check is built on both sides and off: the
+service asks for it only once BVJ has made a widget and set its site key
+and secret (`workers/CLAUDE.md`, “The notebook service”), and no widget
+has been seen on the sign-in page.
 
 ## Routes
 

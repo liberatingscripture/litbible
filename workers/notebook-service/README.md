@@ -40,6 +40,7 @@ src/webauthn.js    checking a passkey's answer (WebAuthn 7.1 and 7.2), bytes in 
 src/cbor.js        the small CBOR reader webauthn.js needs
 src/providers.js   Apple's and Google's identity tokens, and the two calls to Apple
 src/jwt.js         RS256 tokens against a provider's published keys; the token Apple asks us to sign
+src/turnstile.js   Cloudflare Turnstile before a new account, from a browser (off until configured)
 src/account.js     GET /account, POST /session/proof, POST /notebook
 src/devices.js     the device and holder lists
 src/key.js         POST /notebook/key, the change of key
@@ -88,6 +89,8 @@ what each must and must not have.
 | `APPLE_CLIENT_IDS` | variable, **not set** | The client ids an Apple identity token may be issued to (a bundle id, a Services ID), comma separated |
 | `APPLE_TEAM_ID`, `APPLE_KEY_ID` | variables, **not set** | The Apple developer team, and the id of its Sign in with Apple key |
 | `APPLE_PRIVATE_KEY` | Wrangler secret, **not set** | That key, the text of the `.p8` file. Sign in with Apple is off until all four of Apple's are set |
+| `TURNSTILE_SITE_KEY` | variable, **not set** | The site key of the notebook service's Turnstile widget. Public by design: `GET /sign-in` hands it to the website, which shows the widget with it ("Turnstile before a new account" below) |
+| `TURNSTILE_SECRET` | Wrangler secret, **not set** | That widget's secret key. The check is off until both this and the site key are set |
 
 No value of a secret is written in this repository, in a pull request, or in a
 conversation with an assistant. `DISASTER-RECOVERY.md` records names only.
@@ -160,6 +163,11 @@ against a local D1 made from the real migrations.
   authenticator written beside it.
 - `sign-in-races.test.js`: sign-in and ways in where two requests meet, and
   how long a session lasts.
+- `turnstile.test.js`: the Turnstile check, on and off by configuration,
+  each way a token is refused, siteverify out of reach, a "no" that is
+  the deployment's own fault (a wrong secret), an app's request
+  (no `Origin`) let through unchecked, and the secret in no answer or log
+  line. Siteverify is stood in for, and `fetch` replaced, as for Apple.
 - `http.test.js`: the time on every answer, bodies, CORS, and that no token,
   proof, id, body, challenge, credential, identity token, or code reaches a
   log.
@@ -456,6 +464,68 @@ the real thing. Each is one sign-in against the preview from a real client:
 What is kept from a token is `sub` and nothing else. No name and no email
 address is read, stored, or logged.
 
+## Turnstile before a new account
+
+**Built in step 4h (2026-11-24), and off until configured.** The design is
+Claude's, for BDR to confirm (the spec's "Still open," 86). Where the
+deployment holds both `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET`:
+
+- `GET /sign-in` carries `turnstile`, the site key, and the website shows the
+  widget on its sign-in page.
+- `POST /sign-in/new-passkey/options` from a request that carries an
+  `Origin` header must carry `{ "turnstile": "<token>" }`. `src/turnstile.js`
+  asks Cloudflare's siteverify about it, with an eight-second limit as for
+  Apple and Google, before a challenge is made or anything is written. A
+  missing or refused token is `not_allowed` (`rule: "turnstile"`);
+  siteverify out of reach, or answering other than 200 or unreadably, is
+  `provider` (`which: "turnstile"`). **So is a "no" whose reason is the
+  deployment's own**: siteverify answers 200 and `success: false` for a
+  secret it doesn't know just as for a bad token, so a "no" that names
+  `missing-input-secret`, `invalid-input-secret`, `bad-request`, or
+  `internal-error` is `provider` too, and a mistyped secret never tells a
+  reader their check failed.
+- **A request with no `Origin` is not checked.** Only a browser sends one,
+  and the iOS and Android apps send none. So until the apps attest
+  themselves (App Attest, Play Integrity: a question for BDR), a program can
+  skip the check by sending no `Origin`. This closes the website's door and
+  leaves the apps' open, bounded by the limits as before.
+
+The secret goes to siteverify and nowhere else: it is in no answer and no
+log line (`test/turnstile.test.js`). The address a request came from is
+passed to siteverify as `remoteip`, as Cloudflare asks, and is not kept.
+
+**To turn it on** (BVJ's to do, since it changes the deployed service):
+
+1. In the Cloudflare dashboard, Turnstile, add a widget for the notebook
+   service, **Managed** mode, with the hostnames `litbible.net` and
+   `localhost` (the website and its dev server). It is a widget of its own,
+   apart from the two forms'.
+2. Put its site key in `env.preview.vars` as `TURNSTILE_SITE_KEY`, through a
+   pull request (it is public, like the forms' keys in their pages).
+3. Set the secret once, typing it at Wrangler's own prompt:
+   `npx wrangler secret put TURNSTILE_SECRET --env preview`. It is never
+   pasted into a file, a pull request, or a conversation with an assistant.
+   Add `TURNSTILE_SECRET` to `secrets.required` in `wrangler.jsonc` in the
+   same pull request as the site key, so a deploy without it fails loudly
+   (and to the preview's list in `test/config.test.js`), and record both
+   names in `DISASTER-RECOVERY.md` as set.
+4. Merge. `GET /sign-in` then names the site key. Production takes the same
+   two when it is deployed.
+
+**To try it locally**, with Cloudflare's published dummy keys (they are for
+testing and reach no real widget). Put these in `.dev.vars`:
+
+```bash
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+```
+
+That secret passes every token, including the dummy token
+`XXXX.DUMMY.TOKEN.XXXX`; `2x0000000000000000000000000000000AA` in its place
+fails every token, and the site key `2x00000000000000000000AB` shows a widget
+that always fails. A local server's siteverify call still goes to
+Cloudflare, so it needs a network.
+
 ## Who can deploy and roll back
 
 When the service breaks, BVJ answers first and BDR second (BVJ, 2026-11-23;
@@ -642,10 +712,11 @@ page. **Nothing is built, and here is why.**
 - **What would stop it, and why not now**:
   - *On the website*: a Turnstile token sent with
     `POST /sign-in/new-passkey/options` and checked here, as the forms'
-    Worker checks one. It needs a page to show the widget on, which is the
-    sign-in page of step 4h, and a Turnstile widget and secret, which are
-    BVJ's to make. It would be a new member of that request for the website
-    alone.
+    Worker checks one. **Built in step 4h and off** ("Turnstile before a
+    new account" above): the website's sign-in page shows the widget where
+    `GET /sign-in` names a site key, and the check here is on only once a
+    widget and its secret exist, which are BVJ's to make. It is a new
+    member of that request for the website alone.
   - *In the apps*: Turnstile needs a browser. The native answer is Apple's
     App Attest and Google's Play Integrity, each a real piece of work in
     BDR's apps and a new member of the request. That is BDR's to weigh.
@@ -654,10 +725,12 @@ page. **Nothing is built, and here is why.**
     stops nobody, and it would leave a real reader who made a passkey and
     never set up with a passkey that signs in to nothing. Not built; it is
     there if empty accounts ever pile up.
-- **So**: the limits are what there is until step 4h. **BVJ said yes to
-  Turnstile on the website's sign-in page (2026-11-24)**, so step 4h shows
-  the widget and adds the token's check here; whether the apps attest is
-  asked of BDR (the spec's "Still open," 68).
+- **So**: the limits are what there is until the check is configured.
+  **BVJ said yes to Turnstile on the website's sign-in page (2026-11-24)**;
+  step 4h built the widget's place on that page and the token's check
+  here, both off until a widget and its secret exist ("Turnstile before a
+  new account" above). Whether the apps attest is asked of BDR (the spec's
+  "Still open," 68 and 86).
 
 ### What was checked against the vendors' own pages, and what was not
 
@@ -823,7 +896,9 @@ Nothing below changes a request that exists; each adds beside it.
   BVJ's.
 - **Four things to see on the preview** once it is deployed there ("What to
   check on the preview after step 4f" above).
-- **Bot protection at sign-up** waits for the sign-in page of step 4h.
+- **Bot protection at sign-up**: the service's Turnstile check is built
+  (step 4h) and waits for BVJ's widget and secret ("Turnstile before a new
+  account" above); the apps' side waits on BDR.
 - **Apple's revoke has never met Apple**, like the rest of Sign in with
   Apple. When the identifiers arrive, delete an Apple test account and see
   the app gone from the Apple Account's "Sign in with Apple" list.

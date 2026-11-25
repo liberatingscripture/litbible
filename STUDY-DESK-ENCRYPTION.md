@@ -1771,10 +1771,14 @@ says which are on, in the order a client might show them:
 
 ```text
 GET /sign-in
-  → { "ways": ["passkey", "apple", "google"] }
+  → { "ways": ["passkey", "apple", "google"],
+      "turnstile": "<Turnstile's site key>" }      only where the check is on
 ```
 
-On the preview today it answers `["passkey"]`. **Sign in with Apple and with Google are built and
+On the preview today it answers `["passkey"]`. **`turnstile` is there only where the deployment
+checks a Cloudflare Turnstile token before a new account** (below, and “Still open,” 86): it is
+the site key a browser shows the widget with, public by design. Where the check is off the member
+is absent. A client that shows no widget (an app) ignores it. **Sign in with Apple and with Google are built and
 off**: their client ids come from BDR’s Apple developer account and Google Cloud project, none is
 configured, and none is guessed (“Still open,” 41). They have been tested against stand-ins for
 the two providers and against neither provider itself.
@@ -1788,7 +1792,7 @@ nothing captured from one sign-in can be played again.
 | `GET /sign-in` | anyone | nothing | Answers which ways to sign in are on |
 | `POST /sign-in/passkey/options` | anyone | nothing | A challenge, inside the options a client passes to its platform to use a passkey |
 | `POST /sign-in/passkey` with the passkey’s response | anyone | its form, and that it carries no PRF result; the client data’s type, and that it wasn’t made in another site’s frame; the challenge; the origin; that the passkey is one the service knows; the user handle, if one came; the authenticator data (the relying party, presence, verification, the backup flags); the signature; that the counter went forward | A session for the passkey’s account |
-| `POST /sign-in/new-passkey/options` | anyone | nothing | A challenge and a new user handle, inside the options for making a passkey |
+| `POST /sign-in/new-passkey/options`, with `{ "turnstile": "<token>" }` from a browser where the check is on | anyone | where Turnstile is on and the request carries an `Origin` header: the token, with Cloudflare, before anything else is done; otherwise nothing | A challenge and a new user handle, inside the options for making a passkey |
 | `POST /sign-in/new-passkey` with the new passkey’s response | anyone | the same as far as the origin; then the attestation object’s form; the authenticator data; that the credential id named is the one made; the public key’s algorithm and form; that no account has the passkey | A new account with the passkey as its one way in, and a session |
 | `POST /sign-in/challenge` | anyone | nothing | A challenge for Apple or Google to carry back |
 | `POST /sign-in/apple` with the challenge, the identity token, and Apple’s authorization code | anyone | the form; the challenge; the token’s signature under Apple’s published keys, then its issuer, audience, times, nonce, and subject; then, the first time through each client, that Apple trades the code for a refresh token | A session for the account that Apple account signs in to, or for a new account if there is none |
@@ -1801,6 +1805,7 @@ POST /sign-in/passkey/options
       "expires": "<time>" }
 
 POST /sign-in/new-passkey/options
+  { "turnstile": "<the widget's token>" }      only a browser's, and only where the check is on
   → { "publicKey": {
         "rp": { "id": "litbible.net", "name": "LIT Bible" },
         "user": { "id": "<32 bytes>", "name": "LIT Bible notebook",
@@ -1829,6 +1834,22 @@ POST /sign-in/google        { "challenge": "<32 bytes>", "idToken": "<the token>
                "credential": "<bytes>", "syncs": true } }
 ```
 
+- **Turnstile, before a new account** (step 4h; the design is Claude’s, for BDR to confirm:
+  “Still open,” 86). The check is on only where the deployment holds both `TURNSTILE_SITE_KEY`
+  and the secret `TURNSTILE_SECRET`; with either missing nothing here changes. Where it is on,
+  `POST /sign-in/new-passkey/options` **from a request that carries an `Origin` header** must
+  carry `turnstile`, the widget’s token, as text of 1 to 2,048 characters. The service asks
+  Cloudflare’s siteverify about it (with the address the request came from) before a challenge
+  is made or anything is written, and after the limit on beginning a sign-in is counted. A
+  missing, malformed, or refused token is `not_allowed` by the rule `turnstile`; Cloudflare out
+  of reach, answering other than 200, answering something unreadable, or refusing for a reason
+  that is the deployment’s own (a secret it doesn’t know, most of all) is `provider` with
+  `which: "turnstile"`. A token is good once, so a client that is refused gets a new one from
+  the widget before it asks again. **A request with no `Origin` (an app’s) is not checked, and
+  its body is not read**, as before. Only a browser sends `Origin`, and Turnstile needs a
+  browser, so until the apps attest themselves **a program can skip the check by sending no
+  `Origin`**: this closes the website’s door and leaves the apps’ open. Every other sign-in
+  request, `POST /sign-in/new-passkey` included, is unchanged.
 - **Every sign-in answers the same four members**: `token`, the session, shown this once;
   `expires`; `created`, true when this request made the account; and `way`, the way in that was
   used, as `GET /account` lists it. The session is signed in. On an account with a notebook the
@@ -2061,7 +2082,7 @@ there to save the client a request.
 | `not_allowed` | 422 | `rule`, below | The request is well formed and breaks a rule of the interface |
 | `passkey_refused` | 403 | `reason`, the check that failed (under “Signing in”) | A passkey’s answer didn’t pass. **Start the sign-in again** from new options; for `unknown`, the service has no such passkey |
 | `token_refused` | 403 | `reason`, the check that failed (under “Signing in”) | An identity token from Apple or Google, or Apple’s code, didn’t pass. **Start the sign-in again** |
-| `provider` | 502 | `which`: `apple` or `google` | Apple or Google couldn’t be reached, or answered wrongly. Nothing was written. Try again later |
+| `provider` | 502 | `which`: `apple`, `google`, or `turnstile` | Apple, Google, or Cloudflare’s Turnstile check (under “Signing in”) couldn’t be reached, or answered wrongly. Nothing was written. Try again later (for `turnstile`, with a new token) |
 | `too_large` | 413 | `limit` | **Too large**: a body over 4,194,304 bytes, or more than 500 rows in one request |
 | `too_many` | 429 | `what`: `devices`, `holders`, `approvals`, or `ways`; `limit` | A list is full, or three approvals are in progress |
 | `slow_down` | 429 | `retry`, the seconds to wait; and the header `Retry-After` | This address has asked too often (under “How often a client may ask”). **Wait that long**, then send it again |
@@ -2074,7 +2095,10 @@ The rules a `not_allowed` names: `holder_needed` (a notebook always has a holder
 key must name each one the service has, once), `keep_own_device`, `already_open` (a device that
 has the key has no approval to ask for, and no notebook to replace), `requester`, `no_grant`, and from step 4e `prf_results`
 (a passkey’s response still carries the PRF’s output), `last_way` (the last way that can sign the
-reader in can’t be removed), and `passkey_holds_key` (remove the passkey as a holder first).
+reader in can’t be removed), and `passkey_holds_key` (remove the passkey as a holder first); and
+from step 4h `turnstile` (where the check is on, a browser’s request to begin a new account
+carried no Turnstile token, one that isn’t text of 1 to 2,048 characters, or one Cloudflare
+refused: get a new token from the widget and ask again).
 
 **“Conflict” is not a refusal**: it is one row’s answer inside a `POST /rows` that was answered
 200 (above). **“Waiting” is not a refusal either**: a request that must wait is answered 200 with
@@ -2633,9 +2657,10 @@ reach is listed under step 4g in `STUDY-DESK.md`.
 
 Step 4h is the website’s account pages, built 2026-11-24 and 25 and closed to every reader
 (`STUDY-DESK.md`, “Order of work,” 4h, says what they do and what was and was not seen in a
-browser). **No request, answer, size, or word of the interface has changed, and nothing under
-`workers/notebook-service/` has been touched** by the pages. (The Turnstile check of 68 is the one
-change to the service that step 4h makes, in a pull request of its own: “Still open,” 86.) The
+browser). **One request has changed, and only where a deployment turns the change on** (1,
+below): the Turnstile check, which is the one change step 4h makes under
+`workers/notebook-service/`. No other request, answer, size, or word of the interface has
+changed, and the pages themselves touched nothing there. The
 website’s side of every flow in this file is code under `src/lib/` (`desk-passkey.mjs`,
 `desk-account-session.mjs`, `desk-account.mjs`) with the pages over it, and its tests run against
 the service’s own code, so they are a second reading of “The service’s interface” by a client.
@@ -2670,6 +2695,18 @@ changed:
 - **A passkey that can’t open the notebook loses nothing.** The copied credential gave another
   PRF output (DevTools does not copy that secret), so its holder didn’t open; the page said so
   and offered approval and the recovery code, and no holder was touched.
+
+1. **Turnstile before a new account, on the service** (2026-11-24; BVJ said yes to Turnstile on
+   the website’s sign-in page under “Still open,” 68, and the design of the check is Claude’s,
+   for BDR to confirm: “Still open,” 86). Where the deployment holds both `TURNSTILE_SITE_KEY`
+   and `TURNSTILE_SECRET`, `GET /sign-in` gains `turnstile`, the site key, and
+   `POST /sign-in/new-passkey/options` from a request with an `Origin` header must carry
+   `{ "turnstile": "<token>" }`, checked with Cloudflare before a challenge is made. New: the
+   `not_allowed` rule `turnstile`, and `turnstile` as a `which` of `provider`. A request with no
+   `Origin` (an app’s) is not checked. Neither key is set on the preview or in production yet,
+   so today nothing answers differently. The service’s `src/turnstile.js` and
+   `test/turnstile.test.js`; the website already sends the token where `GET /sign-in` names a
+   key (`src/lib/desk-account-session.mjs`).
 
 ## Still open
 
@@ -2978,7 +3015,7 @@ numbers go on from 58:
     a new member of that request. **So nothing is built, and the question goes to step 4h**:
     does the website’s sign-in page carry Turnstile, and do the apps attest? Until an answer,
     the request is unchanged, and a later answer adds a member a client must send, which is a
-    change to the interface. **BVJ, 2026-11-24: “yes to Turnstile,” so the website’s sign-in page (step 4h) carries it and the service checks its token; and “ask BDR about the rest,” so the numbers and whether the apps attest are BDR’s to answer.**
+    change to the interface. **BVJ, 2026-11-24: “yes to Turnstile,” so the website’s sign-in page (step 4h) carries it and the service checks its token; and “ask BDR about the rest,” so the numbers and whether the apps attest are BDR’s to answer.** The service’s check is built and off until configured (86).
     **Found by the check after the merge (BVJ’s Claude, 2026-11-24; nothing here is decided).**
     Three facts for the numbers. (a) Cloudflare’s page for the limiter advises against counting by
     address, because many people can share one. Before a sign-in there is nothing else to count
@@ -3172,8 +3209,20 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     skip adding the two number groups”). So “They can just choose not to use it” is about
     whether the reader ever uses the code, not about confirming it: every reader is shown one
     and proves they kept it, as “Setting up the first device,” step 5, already says.
-86. (The Turnstile check on the website’s sign-in page: the service’s half, in step 4h’s second
-    pull request. The number is held here so the two pull requests don’t take the same one.)
+86. **Turnstile checks only a request that carries an `Origin` header.** The design is Claude’s
+    (2026-11-24), **for BDR to confirm**; BVJ’s word was “yes to Turnstile” on the website’s
+    sign-in page (68). Where the deployment holds both `TURNSTILE_SITE_KEY` and
+    `TURNSTILE_SECRET`, `POST /sign-in/new-passkey/options` with an `Origin` must carry a token
+    Cloudflare accepts (“Signing in”), and `GET /sign-in` names the site key. **A request with
+    no `Origin` is not checked**, because only a browser sends one, Turnstile needs a browser,
+    and the iOS and Android apps send none; asking them for a token would shut them out. The cost
+    is plain: **a program can skip the check by leaving `Origin` off**, so this closes the
+    website’s door to scripted sign-ups and leaves the apps’ door as it was, bounded by the
+    limits alone (68). What would close the apps’ door is attestation: Apple’s App Attest and
+    Google’s Play Integrity, each a new member of the same request, which the service would then
+    require of a request with no `Origin`. **For BDR**: will the apps attest at sign-up, and
+    when? Until they do, the apps need change nothing: `GET /sign-in` may carry `turnstile`,
+    which they ignore. Neither key is set on any deployment yet.
 87. **The link a QR code carries is `https://litbible.net/account/connect/#a=<16 characters>`,
     the code’s characters unbroken.** “The link” recommended this shape and left the exact
     address to be settled. The website’s account page shows it as a QR code beside the code in

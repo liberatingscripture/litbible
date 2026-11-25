@@ -29,6 +29,7 @@ import { createSession } from "./session.js";
 import { ProviderDown, TokenRefused } from "./jwt.js";
 import { appleExchange, appleOn, appleRevoke, checkIdToken, googleOn } from "./providers.js";
 import { checkAssertion, checkRegistration } from "./webauthn.js";
+import { needTurnstile, turnstileSiteKey } from "./turnstile.js";
 import {
   CHALLENGE_MS,
   creationOptions,
@@ -47,9 +48,10 @@ export function signInWays(env) {
   return [...(passkeysOn(env) ? ["passkey"] : []), ...(appleOn(env) ? ["apple"] : []), ...(googleOn(env) ? ["google"] : [])];
 }
 
-/** GET /sign-in, from anyone: which ways to sign in are on here. */
+/** GET /sign-in, from anyone: which ways to sign in are on here, and Turnstile's site key where it is on (src/turnstile.js). */
 export function getSignIn({ env }) {
-  return answer({ ways: signInWays(env) });
+  const turnstile = turnstileSiteKey(env);
+  return answer({ ways: signInWays(env), ...(turnstile ? { turnstile } : {}) });
 }
 
 /* ── Challenges ─────────────────────────────────────────────────────────── */
@@ -158,8 +160,14 @@ export async function postPasskeySignIn({ request, env }) {
   return signedIn(env, way, false);
 }
 
-/** POST /sign-in/new-passkey/options, from anyone: what to ask in order to make a passkey and an account with it. */
+/**
+ * POST /sign-in/new-passkey/options, from anyone: what to ask in order to
+ * make a passkey and an account with it. Where Turnstile is on, a browser's
+ * request first passes its check, before a challenge is made or anything is
+ * written; an app's request (no `Origin`) is not checked (src/turnstile.js).
+ */
 export async function postNewPasskeyOptions({ request, env }) {
+  await needTurnstile(env, request);
   const handle = toBase64url(crypto.getRandomValues(new Uint8Array(32)));
   const { challenge, expires } = await issueChallenge(env, "passkey_new", { handle });
   return answer({ publicKey: creationOptions({ rpId: rpIdFor(passkeyConfig(env), request), challenge, handle }), expires });
