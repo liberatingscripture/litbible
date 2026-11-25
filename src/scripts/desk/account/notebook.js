@@ -56,7 +56,7 @@ import {
   waysToOpen,
   whereKeyLives,
 } from "../../../lib/desk-account.mjs";
-import { addPasskeyWay, endSession, must, readAccount, removeWay } from "../../../lib/desk-account-session.mjs";
+import { addPasskeyWay, askToReplace, endSession, must, readAccount, removeWay } from "../../../lib/desk-account-session.mjs";
 import {
   CONNECT_PATH,
   WORDS,
@@ -488,14 +488,44 @@ function drawJoin(ctx, J, note) {
   }
   ways.push(button(ui, WORDS.joinApprove, () => startApproval(ctx, J), { kind: J.ways.passkeys.length ? "quiet" : "primary" }));
   if (J.ways.recovery) ways.push(button(ui, WORDS.joinRecovery, () => drawRecovery(ctx, J)));
+  // A request that waits (to start a new notebook, or to delete the account) is said here too,
+  // with its Cancel for the sign-in that asked.
+  const { waiting } = ctx.basicsParts((said) => showJoin(ctx, said));
   ui.show([
     ctx.title(WORDS.joinTitle),
     note ? h("p", { class: "account__note", text: note }) : null,
+    waiting,
     h("p", { text: WORDS.joinLede }),
     h("div", { class: "account__actions account__actions--stack" }, ways),
     J.area,
+    cantPart(ctx, J),
     h("div", { class: "account__actions" }, signOutLink(ctx)),
   ]);
+}
+
+/**
+ * "I can’t do any of these": asking to start a new notebook in the old one's
+ * place (the spec's `POST /notebook/replace`). The request waits seven days and
+ * a device that still has the key can cancel it, so the button asks nothing
+ * more; while any request waits, the line above says so and this is not
+ * offered.
+ */
+function cantPart(ctx, J) {
+  const { S, ui, call } = ctx;
+  if (S.account?.waiting) return null;
+  return h(
+    "details",
+    { class: "account__more-ways" },
+    h("summary", { text: WORDS.joinCant }),
+    h("h3", { class: "account__subhead", text: WORDS.replaceTitle }),
+    h("p", { text: WORDS.replaceLede }),
+    button(ui, WORDS.replaceAsk, async () => {
+      J.stop?.();
+      await askToReplace(call);
+      await ctx.refresh();
+      await showJoin(ctx, WORDS.replaceAsked);
+    }),
+  );
 }
 
 /** By approval: this device asks, shows the code (or uses one typed from the other device), and waits for its grant. */
@@ -874,7 +904,7 @@ export async function showHome(ctx, note) {
     if (!Array.isArray(seen)) return db.set({ seen: all });
     const items = news({ lists: H.lists, seen, own: H.device.id });
     if (!items.length) return undefined;
-    const box = h("div", { class: "account__notice", role: "group" }, h("ul", {}, items.map((item) => h("li", { text: newsWords(item, ctx.locale) }))));
+    const box = h("div", { class: "account__notice", role: "group" }, h("ul", {}, items.map((item) => h("li", { text: newsWords(item, ctx.locale, { own: H.device.id }) }))));
     box.append(
       button(ui, WORDS.ok, async () => {
         await db.set({ seen: all });
@@ -950,8 +980,11 @@ export async function showHome(ctx, note) {
   }
   if (!alive()) return;
   drawAccount();
-  // The header's “Sign out” comes here to be asked (header-entry.js): the question opens, and the address loses its mark.
-  if (ctx.win.location.hash === "#sign-out") {
+  // The header's “Sign out” comes here to be asked (header-entry.js): the question opens, and the address
+  // loses its mark. Pressed on this page, the link only changes the address, so that is heard too.
+  ctx.offSignOutLink?.();
+  const askSignOut = () => {
+    if (!alive() || !end.isConnected || ctx.win.location.hash !== "#sign-out") return;
     try {
       ctx.win.history.replaceState(ctx.win.history.state, "", ctx.win.location.pathname + ctx.win.location.search);
     } catch {
@@ -960,6 +993,9 @@ export async function showHome(ctx, note) {
     const opener = end.querySelector("[data-account-signout]");
     opener?.scrollIntoView?.({ block: "center" });
     opener?.click();
-  }
+  };
+  ctx.win.addEventListener("hashchange", askSignOut);
+  ctx.offSignOutLink = () => ctx.win.removeEventListener("hashchange", askSignOut);
+  askSignOut();
   await onStatus(connector.status());
 }

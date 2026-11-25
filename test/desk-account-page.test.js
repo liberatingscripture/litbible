@@ -19,6 +19,9 @@ const { openSyncDb } = await import("../src/scripts/desk/sync/sync-db.js");
 const { openStore } = await import("../src/scripts/desk/store.js");
 const { fakeCredentials } = await import("./helpers/fake-credentials.mjs");
 
+/** What stamps a record made by a test. */
+const CTX = () => ({ client: "test-web", contentVersion: "2026.11.24" });
+
 /** What a browser's sync storage holds under `key`. */
 async function kept(b, key) {
   const db = await openSyncDb({ idb: b.idb });
@@ -32,7 +35,7 @@ async function kept(b, key) {
 /** The link in a browser's notebook, or null. */
 async function linkOf(b) {
   await use(b);
-  const store = await openStore({ ctx: () => ({ client: "test-web", contentVersion: "2026.11.24" }) });
+  const store = await openStore({ ctx: CTX });
   return readLink(await store.getMeta(SYNC_META));
 }
 
@@ -197,6 +200,24 @@ test("reopening the page on a syncing computer shows the home, with no sign-in a
   assert.equal(w.sent.slice(before).some((r) => r.path.startsWith("/sign-in")), false);
 });
 
+test("a screen whose heading repeats the page's own is not drawn twice, and every other heading is", async () => {
+  // Seen 2026-11-25: “Your account” twice, the page's h1 and the home's h2 under it.
+  const headings = (page) => [...page.root.querySelectorAll(".account__title")].map((el) => [el.textContent.trim(), el.classList.contains("sr-only")]);
+  const w = world();
+  const { b } = await setUpReader(w);
+  const page = await openPage(b, { heading: WORDS.homeTitle });
+  await synced(page);
+  assert.deepEqual(headings(page), [[WORDS.homeTitle, true]]);
+  // With no heading of the page's above it, the box draws its own.
+  const plain = await openPage(b);
+  await synced(plain);
+  assert.deepEqual(headings(plain), [[WORDS.homeTitle, false]]);
+  // A screen with words of its own under the same page heading is drawn.
+  const out = await openPage(browser(w), { heading: WORDS.homeTitle });
+  await out.shows(WORDS.signInPasskey);
+  assert.deepEqual(headings(out), [[WORDS.signInTitle, false]]);
+});
+
 /* ── A second device ────────────────────────────────────────────────────── */
 
 test("a second computer with the same passkey opens the notebook as it signs in, and the first is told once", async () => {
@@ -231,7 +252,8 @@ test("joining with the recovery code, where the key stays on the devices", async
   const page = await openPage(second);
   await page.press(WORDS.signInPasskey);
   await page.shows(WORDS.joinTitle);
-  assert.deepEqual(page.labels(), [WORDS.joinApprove, WORDS.joinRecovery, WORDS.signOut], "no passkey holds the key, so none is offered");
+  assert.deepEqual(page.labels(), [WORDS.joinApprove, WORDS.joinRecovery, WORDS.replaceAsk, WORDS.signOut], "no passkey holds the key, so none is offered");
+  assert.equal(page.button(WORDS.replaceAsk).closest("details").open, false, "starting a new notebook is folded away under “I can’t do any of these”");
 
   await page.press(WORDS.joinRecovery);
   page.fill("account-join-recovery", "0000-0000-0000-0000-0000-0000");
@@ -342,6 +364,124 @@ test("removing a device changes the key; the removed computer says so and joins 
   await page2.shows("Chrome on Windows");
 });
 
+test("a reader with no way left asks to start a new notebook; the old computer is told it was replaced, and joins the new one only on its reader's yes", async () => {
+  const w = world();
+  const first = await setUpReader(w); // the key stays on its devices, so the passkey alone opens nothing
+  const { createRecord } = await import("../src/lib/desk-records.mjs");
+  const note = createRecord("note", { bookKey: "john", chapter: 3, verse: 16, body: "from the old notebook", marker: "note" }, { now: new Date(Date.now() - 5000).toISOString(), ...CTX() });
+  await first.page.ctx.S.store.save(note);
+  const oldNotebook = first.page.ctx.S.account.notebook;
+
+  // Another computer signs in and can open nothing: “I can’t do any of these.”
+  const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
+  let page2 = await openPage(second);
+  await page2.press(WORDS.signInPasskey);
+  await page2.shows(WORDS.joinTitle);
+  assert.ok(page2.has(WORDS.joinCant) && page2.has(WORDS.replaceLede));
+  await page2.press(WORDS.replaceAsk);
+  await page2.shows(WORDS.replaceAsked);
+  assert.ok(page2.has("You asked to replace your account’s notebook. It takes effect on"));
+  assert.equal(page2.button(WORDS.replaceAsk), null, "one request waits at a time");
+  assert.ok(page2.button(WORDS.cancelRequest), "the sign-in that asked may cancel");
+  const due = page2.ctx.S.account.waiting.due;
+
+  // The computer that still has the key is told, and could cancel.
+  let page1 = await openPage(first.b);
+  await synced(page1);
+  await page1.shows("Someone signed in to your account asked to replace your account’s notebook.");
+  assert.ok(page1.button(WORDS.cancelRequest));
+
+  // No one cancels. Seven days on, the account has no notebook, and the computer that asked sets one up.
+  await w.service.due(new Date(Date.parse(due) + 60_000).toISOString());
+  page2 = await openPage(second);
+  await page2.shows(WORDS.setupTitle);
+  page2.root.querySelector("#account-key-device").checked = true;
+  await page2.press(WORDS.setupContinue);
+  await page2.shows(WORDS.codeTitle);
+  const code = await saveCode(page2);
+  await page2.shows(WORDS.homeTitle);
+  await synced(page2);
+  const newNotebook = page2.ctx.S.account.notebook;
+  assert.notEqual(newNotebook, oldNotebook);
+
+  // The old computer: its notebook is untouched, it isn't syncing, and it says why.
+  page1 = await openPage(first.b);
+  await synced(page1, "otherNotebook");
+  await page1.shows("Your account’s notebook was replaced");
+  assert.ok(page1.has("The notebook on this computer is still here, and nothing in it was changed."));
+  assert.deepEqual(page1.labels().slice(0, 2), [WORDS.stopJoinNew, WORDS.stopLeave]);
+  assert.equal((await linkOf(first.b)).notebook, oldNotebook, "nothing moves until the reader says so");
+
+  // “Join the new notebook” is the reader's yes: the new code opens it, and what this computer held goes in.
+  page1 = await openPage(first.b);
+  await synced(page1, "otherNotebook");
+  await page1.press(WORDS.stopJoinNew);
+  await page1.shows(WORDS.joinTitle);
+  await page1.press(WORDS.joinRecovery);
+  page1.fill("account-join-recovery", code);
+  await page1.press(WORDS.joinOpen);
+  await page1.shows(WORDS.joined);
+  await synced(page1);
+  assert.equal((await linkOf(first.b)).notebook, newNotebook);
+  page2 = await openPage(second);
+  await synced(page2);
+  await until(async () => (await page2.ctx.S.store.all()).some((record) => record.body === "from the old notebook"), "the old computer's note to reach the new notebook's other device");
+});
+
+test("a request to start a new notebook can be canceled by the sign-in that asked", async () => {
+  const w = world();
+  const first = await setUpReader(w);
+  const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
+  const page2 = await openPage(second);
+  await page2.press(WORDS.signInPasskey);
+  await page2.shows(WORDS.joinTitle);
+  await page2.press(WORDS.replaceAsk);
+  await page2.shows(WORDS.replaceAsked);
+  await page2.press(WORDS.cancelRequest);
+  await page2.shows(WORDS.canceled);
+  assert.equal(page2.ctx.S.account.waiting, null);
+  assert.ok(page2.button(WORDS.replaceAsk), "and it can be asked again");
+  assert.ok(page2.has(WORDS.joinTitle), "the reader is still on the ways to open the notebook");
+});
+
+test("“Stop syncing on this computer” ends the link from a stop, and keeps the notebook in the browser", async () => {
+  const w = world();
+  const first = await setUpReader(w, { follows: true });
+  const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
+  const joined = await openPage(second);
+  await joined.press(WORDS.signInPasskey);
+  await joined.shows(WORDS.joined);
+  await synced(joined);
+  const { createRecord } = await import("../src/lib/desk-records.mjs");
+  const note = createRecord("note", { bookKey: "john", chapter: 3, verse: 16, body: "kept through the stop", marker: "note" }, { now: new Date(Date.now() - 5000).toISOString(), ...CTX() });
+  await joined.ctx.S.store.save(note);
+
+  // The first computer removes the second, which is then stopped: signed out, as the service tells it first.
+  const page1 = await openPage(first.b);
+  await synced(page1);
+  await page1.shows("Safari on Mac");
+  await page1.press(WORDS.ok);
+  await page1.press(WORDS.remove);
+  await page1.press(WORDS.removeYes);
+  await page1.shows(WORDS.keyChanged);
+
+  const page2 = await openPage(second);
+  await synced(page2, "signedOut");
+  await page2.press(WORDS.stopLeave);
+  await page2.shows(WORDS.stopLeaveNote);
+  assert.deepEqual(page2.labels(), [WORDS.signInPasskey, WORDS.create]);
+  assert.equal(await linkOf(second), null, "the browser is no longer linked");
+  assert.equal(await kept(second, "token"), undefined, "its session and keys are gone");
+  assert.equal(await kept(second, "device"), undefined);
+  await use(second);
+  const after = await openStore({ ctx: CTX });
+  assert.ok((await after.all()).some((record) => record.body === "kept through the stop"), "the notebook is still in the browser");
+  // Opened again, the page asks nothing and syncs nothing: the stop is over.
+  const again = await openPage(second);
+  await again.shows(WORDS.signInPasskey);
+  assert.equal(again.ctx.S.connector ?? null, null);
+});
+
 test("a new recovery code is shown once and confirmed, and the old one opens nothing", async () => {
   const w = world();
   const first = await setUpReader(w);
@@ -403,8 +543,6 @@ test("this computer can be renamed, and the name is cut to what a card keeps", a
 
 /* ── Signing out, and deleting ──────────────────────────────────────────── */
 
-const CTX = () => ({ client: "test-web", contentVersion: "2026.11.24" });
-
 test("signing out takes this computer off the notebook and keeps the notebook in the browser", async () => {
   const w = world();
   const { page, b } = await setUpReader(w);
@@ -440,6 +578,26 @@ test("the header's “Sign out” link opens the question on the account page, a
   await page.press(WORDS.signOutConfirm);
   await page.shows(WORDS.signedOutNow);
   assert.equal(await linkOf(b), null);
+});
+
+test("pressed on the account page itself, the header's “Sign out” link only changes the address, and the question still opens", async () => {
+  const w = world();
+  const { b } = await setUpReader(w);
+  const page = await openPage(b);
+  await synced(page);
+  assert.equal(page.button(WORDS.signOutConfirm), null);
+  // What a browser does for a link to this same page: the address gains the mark, and the page hears of it.
+  const pressLink = () => {
+    window.happyDOM.setURL(`${w.service.pageOrigin}/account/#sign-out`);
+    window.dispatchEvent(new Event("hashchange"));
+  };
+  pressLink();
+  await page.shows(WORDS.signOutLinked);
+  assert.ok(page.button(WORDS.signOutConfirm));
+  assert.equal(window.location.hash, "");
+  // A second press while the question is open asks nothing twice.
+  pressLink();
+  assert.equal(page.root.querySelectorAll(".account__confirm").length, 1);
 });
 
 test("deleting from a computer that holds the key happens at once, and the notebook stays in the browser", async () => {

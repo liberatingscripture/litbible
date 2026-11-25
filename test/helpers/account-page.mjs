@@ -87,15 +87,22 @@ export async function use(b) {
 /**
  * Opens an account page in `b` (and makes it the live browser). `kind` is
  * the page ("account", "delete", "connect"); `open` the switch's value;
- * `hash` what the address carries after its `#`.
+ * `hash` what the address carries after its `#`; `heading` the page's own
+ * h1 above the box, as account.astro draws it.
  */
-export async function openPage(b, { kind = "account", open = "preview", hash = "" } = {}) {
+export async function openPage(b, { kind = "account", open = "preview", hash = "", heading = null } = {}) {
   await use(b);
   resetDom(`${b.w.service.pageOrigin}/${kind === "delete" ? "delete-account" : kind === "connect" ? "account/connect" : "account"}/${hash}`);
   const root = document.createElement("div");
   root.setAttribute("data-account-page", kind);
   root.innerHTML = "<p>Accounts are not open yet.</p>";
   document.body.append(root);
+  if (heading) {
+    const h1 = document.createElement("h1");
+    h1.className = "account-page__title";
+    h1.textContent = heading;
+    root.before(h1);
+  }
   const page = {
     b,
     root,

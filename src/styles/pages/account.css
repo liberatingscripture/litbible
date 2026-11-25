@@ -335,6 +335,16 @@ html:not([data-account="open"]) [data-account-opened] {
   margin-top: 1rem;
 }
 
+/* The sync's status line (src/styles/desk-sync.css) names itself "Sync." On this page it sits
+   under a heading that says the same, so its own label is not drawn; it still names the group. */
+[data-account-page] .desk-sync__label {
+  display: none;
+}
+
+[data-account-page] .desk-sync {
+  margin-bottom: 0;
+}
+
 /* Printing the recovery code: the code and its two sentences, and nothing else. */
 @media print {
   html[data-account-print="code"] .account__actions,

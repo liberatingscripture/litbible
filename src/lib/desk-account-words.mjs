@@ -46,7 +46,8 @@ const BROWSERS = [
   [/\bOPR\//, "Opera"],
   [/\bFirefox\/|\bFxiOS\//, "Firefox"],
   [/\bChrome\/|\bCriOS\//, "Chrome"],
-  [/\bSafari\//, "Safari"],
+  // Every WebKit and Chromium browser ends its line with "Safari/"; only Safari itself says "Version/" before it.
+  [/\bVersion\/[\d.]+ (?:Mobile\/\w+ )?Safari\//, "Safari"],
 ];
 const SYSTEMS = [
   [/\biPhone\b/, "iPhone"],
@@ -205,6 +206,13 @@ export const WORDS = Object.freeze({
     "The notebook in this browser was syncing with a different account’s notebook. If you go on, it joins this account’s notebook instead, and the notes in this browser are added to it.",
   joinOtherYes: "Join this notebook",
   joined: "This computer has joined your notebook.",
+  /* Starting a new notebook, for a reader with no way left to open the old one */
+  joinCant: "I can’t do any of these",
+  replaceTitle: "Start a new notebook",
+  replaceLede:
+    "If you have lost every device and have no passkey or recovery code that opens your notebook, no one can open it, and we can’t either. You can start a new notebook in its place. The request waits seven days, and any device that can still open the old notebook can cancel it. After that, come back to this page to set the new one up, and the notebook in this browser goes into it.",
+  replaceAsk: "Ask to start a new notebook",
+  replaceAsked: "Your request is recorded. Nothing changes for seven days.",
   startAgain: "Start again",
   tryAgain: "Try again",
   ok: "OK",
@@ -298,18 +306,25 @@ export function waitingWords(waiting, locale) {
   return `${who} to ${what}.${day ? ` It takes effect on ${day}.` : ""}`;
 }
 
-/** What a new device or a new way to open the notebook is announced as. `item` is one of `news()`'s (desk-account.mjs). */
-export function newsWords(item, locale) {
+/**
+ * What a new device or a new way to open the notebook is announced as. `item`
+ * is one of `news()`'s (desk-account.mjs); `own` is this device's id, so an
+ * approval given here says so (two computers often share a first name,
+ * "Chrome on Windows").
+ */
+export function newsWords(item, locale, { own = null } = {}) {
   const day = dayWords(item.added, locale);
   const when = day ? ` on ${day}` : "";
   if (item.what === "device") {
     const name = item.name ? `“${item.name}”` : "A device";
-    const how = item.how === "approval" ? (item.byName ? `, approved from “${item.byName}”` : ", approved from another device") : item.how === "recovery" ? ", with your recovery code" : item.how === "passkey" ? ", with your passkey" : "";
-    return `${name} joined your notebook${when}${how}.`;
+    // Each ending carries its own period: one that closes on a quoted name puts the period inside the quote.
+    const approved = own && item.by === own ? ", approved from this computer." : item.byName ? `, approved from “${item.byName}.”` : ", approved from another device.";
+    const how = item.how === "approval" ? approved : item.how === "recovery" ? ", with your recovery code." : item.how === "passkey" ? ", with your passkey." : ".";
+    return `${name} joined your notebook${when}${how}`;
   }
   const kind = item.kind === "recovery" ? "A new recovery code" : "A passkey that carries the key";
-  const by = item.byName ? ` from “${item.byName}”` : "";
-  return `${kind} was added to your notebook${when}${by}.`;
+  const by = item.byName ? ` from “${item.byName}.”` : ".";
+  return `${kind} was added to your notebook${when}${by}`;
 }
 
 /**

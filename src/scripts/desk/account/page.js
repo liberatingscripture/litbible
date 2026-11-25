@@ -97,7 +97,10 @@ export async function start({ root = document.querySelector("[data-account-page]
   const canPasskey = () => env.credentials != null || passkeysHere(win);
   const locale = env.locale;
   /** A screen's heading. On /delete-account/ the box sits under the page's own h2, so its headings are a level down. */
-  const title = (text) => h(kind === "delete" ? "h3" : "h2", { class: "account__title", text });
+  // A screen whose heading repeats the page's own (“Your account” under “Your account”) keeps it for a
+  // screen reader and for focus, and doesn't draw it twice.
+  const pageTitle = doc.querySelector(".account-page__title")?.textContent.trim() ?? null;
+  const title = (text) => h(kind === "delete" ? "h3" : "h2", { class: text === pageTitle ? "account__title sr-only" : "account__title", text });
 
   const ctx = { S, ui, db, door, call, env, win, doc, credentials, locale, title, refresh, route, signIn, showSignedOut, basicsParts, forget };
 
