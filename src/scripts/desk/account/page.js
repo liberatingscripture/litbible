@@ -96,8 +96,10 @@ export async function start({ root = document.querySelector("[data-account-page]
   const credentials = () => env.credentials ?? win.navigator.credentials;
   const canPasskey = () => env.credentials != null || passkeysHere(win);
   const locale = env.locale;
+  /** A screen's heading. On /delete-account/ the box sits under the page's own h2, so its headings are a level down. */
+  const title = (text) => h(kind === "delete" ? "h3" : "h2", { class: "account__title", text });
 
-  const ctx = { S, ui, db, door, call, env, win, doc, credentials, locale, refresh, route, signIn, showSignedOut, basicsParts, forget };
+  const ctx = { S, ui, db, door, call, env, win, doc, credentials, locale, title, refresh, route, signIn, showSignedOut, basicsParts, forget };
 
   /* ── The account, read ─────────────────────────────────────────────── */
 
@@ -124,13 +126,27 @@ export async function start({ root = document.querySelector("[data-account-page]
   /* ── Which screen ──────────────────────────────────────────────────── */
 
   async function route(note) {
-    if (S.connector && !S.session) {
-      if (kind === "delete") return showBasics(note);
-      return S.nb.showHome(ctx, note);
+    try {
+      if (S.connector && !S.session) {
+        if (kind === "delete") return await showBasics(note);
+        return await S.nb.showHome(ctx, note);
+      }
+      if (!S.session || !S.account) return showSignedOut(note);
+      if (S.nb && kind !== "delete") return await (S.account.notebook ? S.nb.showJoin(ctx) : S.nb.showSetup(ctx));
+      return showBasics(note);
+    } catch (error) {
+      // A screen that couldn't be drawn (no answer from the service, most often) is said, with a way to try again.
+      showProblem(error);
+      return undefined;
     }
-    if (!S.session || !S.account) return showSignedOut(note);
-    if (S.nb && kind !== "delete") return S.account.notebook ? S.nb.showJoin(ctx) : S.nb.showSetup(ctx);
-    return showBasics(note);
+  }
+
+  function showProblem(error) {
+    ui.show([title(kind === "delete" ? WORDS.deleteTitle : WORDS.basicsTitle), h("div", { class: "account__actions" }, button(ui, WORDS.tryAgain, async () => {
+      await refresh();
+      await route();
+    }, { kind: "primary" }))]);
+    ui.fail(error);
   }
 
   /* ── Signed out ────────────────────────────────────────────────────── */
@@ -171,9 +187,9 @@ export async function start({ root = document.querySelector("[data-account-page]
     const can = canPasskey();
     const check = h("div", { class: "account__check", hidden: true });
     const nodes = [
-      h("h2", { class: "account__title", text: WORDS.signInTitle }),
+      title(WORDS.signInTitle),
       note ? h("p", { class: "account__note", text: note }) : null,
-      h("p", { text: WORDS.signInLede }),
+      h("p", { text: kind === "delete" ? WORDS.deleteSignIn : WORDS.signInLede }),
     ];
     if (!can) {
       nodes.push(h("p", { class: "account__note", text: WORDS.noPasskeys }));
@@ -282,7 +298,7 @@ export async function start({ root = document.querySelector("[data-account-page]
     const again = (said) => showBasics(said);
     const { waiting, remove } = basicsParts(again);
     const way = S.session?.way?.kind;
-    const nodes = [h("h2", { class: "account__title", text: kind === "delete" ? WORDS.deleteTitle : WORDS.basicsTitle }), note ? h("p", { class: "account__note", text: note }) : null];
+    const nodes = [title(kind === "delete" ? WORDS.deleteTitle : WORDS.basicsTitle), note ? h("p", { class: "account__note", text: note }) : null];
     if (way) nodes.push(h("p", { text: signedInWords(way) }));
     if (kind !== "delete") {
       nodes.push(h("p", { text: a.notebook ? (desk ? WORDS.deskOffHasNotebook : WORDS.phoneHasNotebook) : WORDS.phoneNoNotebook }));
@@ -310,11 +326,7 @@ export async function start({ root = document.querySelector("[data-account-page]
     await refresh();
     await route();
   } catch (error) {
-    ui.show([
-      h("h2", { class: "account__title", text: WORDS.basicsTitle }),
-      button(ui, WORDS.tryAgain, () => win.location.reload(), { kind: "primary" }),
-    ]);
-    ui.fail(error);
+    showProblem(error);
   }
   return ctx;
 }

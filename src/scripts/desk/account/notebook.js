@@ -194,7 +194,7 @@ function showCode(ctx, { code, groups, after }) {
       win.print();
     });
     ui.show([
-      h("h2", { class: "account__title", text: WORDS.codeTitle }),
+      ctx.title(WORDS.codeTitle),
       h("p", { text: WORDS.codeLede }),
       h("p", { class: "account__code", "data-account-code": true, translate: "no", text }),
       h("div", { class: "account__actions" }, copy, print),
@@ -218,7 +218,7 @@ function showCode(ctx, { code, groups, after }) {
     );
     ui.show(
       [
-        h("h2", { class: "account__title", text: WORDS.codeCheckTitle }),
+        ctx.title(WORDS.codeCheckTitle),
         h("p", { text: WORDS.codeCheckLede }),
         h("div", { class: "account__fields" }, a.row, b.row),
         h("div", { class: "account__actions" }, finish, button(ui, WORDS.codeShowAgain, shown)),
@@ -323,7 +323,7 @@ export async function showSetup(ctx) {
   );
   const go = button(ui, WORDS.setupContinue, () => runSetup(ctx, form.querySelector("input:checked")?.value === "account" ? "account" : "device"), { kind: "primary" });
   ui.show([
-    h("h2", { class: "account__title", text: WORDS.setupTitle }),
+    ctx.title(WORDS.setupTitle),
     h("p", { text: WORDS.setupLede }),
     form,
     h("p", { class: "account__hint", text: WORDS.setupNext }),
@@ -489,7 +489,7 @@ function drawJoin(ctx, J, note) {
   ways.push(button(ui, WORDS.joinApprove, () => startApproval(ctx, J), { kind: J.ways.passkeys.length ? "quiet" : "primary" }));
   if (J.ways.recovery) ways.push(button(ui, WORDS.joinRecovery, () => drawRecovery(ctx, J)));
   ui.show([
-    h("h2", { class: "account__title", text: WORDS.joinTitle }),
+    ctx.title(WORDS.joinTitle),
     note ? h("p", { class: "account__note", text: note }) : null,
     h("p", { text: WORDS.joinLede }),
     h("div", { class: "account__actions account__actions--stack" }, ways),
@@ -621,7 +621,7 @@ export async function showHome(ctx, note) {
   const slot = h("div", { "data-desk-sync-slot": true, hidden: true });
   const end = section(WORDS.endTitle);
 
-  ui.show([h("h2", { class: "account__title", text: WORDS.homeTitle }), note ? h("p", { class: "account__note", text: note }) : null, stop, said, section(WORDS.syncTitle, slot), waiting, key, devices, recovery, ways, end]);
+  ui.show([ctx.title(WORDS.homeTitle), note ? h("p", { class: "account__note", text: note }) : null, stop, said, section(WORDS.syncTitle, slot), waiting, key, devices, recovery, ways, end]);
   doc.dispatchEvent(new CustomEvent(SLOT_EVENT));
   const alive = ui.live();
   const again = (text) => showHome(ctx, text);
@@ -813,7 +813,7 @@ export async function showHome(ctx, note) {
     const box = h("div", { class: "account__row" }, h("p", { text: has ? WORDS.recoveryHave : WORDS.recoveryNone }));
     const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: has ? WORDS.recoveryNew : WORDS.recoveryFirst });
     opener.addEventListener("click", () => {
-      if (has) return ask(box, opener, { ask: WORDS.recoveryNewAsk, yes: WORDS.recoveryNew, onYes: () => changeWithCode(newRecoveryCode, WORDS.keyChanged) });
+      if (has) return ask(box, opener, { ask: WORDS.recoveryNewAsk, yes: WORDS.recoveryNewYes, onYes: () => changeWithCode(newRecoveryCode, WORDS.keyChanged) });
       // A first code needs no change of key: a holder is added under the key there is.
       return ui.run(opener, async () => {
         const groups = groupsToAsk(random(ctx));

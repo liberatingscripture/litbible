@@ -43,6 +43,7 @@ export function h(tag, props = {}, ...kids) {
  */
 export function screens(root, { log = (...args) => console.error("LIT Bible account:", ...args) } = {}) {
   let turn = 0;
+  let shown = 0; // the loading line is the first, the page's first screen the second
   const alert = h("p", { class: "account__alert", role: "alert", hidden: true });
   const status = h("p", { class: "account__status", role: "status", hidden: true });
   const body = h("div", { class: "account__screen" });
@@ -59,7 +60,10 @@ export function screens(root, { log = (...args) => console.error("LIT Bible acco
       turn++;
       set(alert, "");
       body.replaceChildren(...[nodes].flat(Infinity).filter((node) => node != null && node !== false));
-      const target = focus ?? body.querySelector("h1, h2");
+      // The page's first screen leaves focus where the reader's browser put it: taking it on load would
+      // scroll /delete-account/ down to its box. Every screen after that starts at its heading.
+      shown += 1;
+      const target = focus ?? (shown > 2 ? body.querySelector(".account__title") : null);
       if (target) {
         if (!target.hasAttribute("tabindex") && !/^(BUTTON|INPUT|A|TEXTAREA|SELECT)$/.test(target.tagName)) target.setAttribute("tabindex", "-1");
         target.focus({ preventScroll: false });

@@ -144,6 +144,7 @@ export const WORDS = Object.freeze({
 
   /* Deleting */
   deleteTitle: "Delete your account",
+  deleteSignIn: "Sign in to the account you want to delete. Nothing is deleted until you choose “Delete account…” and confirm.",
   deleteOpen: "Delete account…",
   deleteAtOnce:
     "This deletes your account and the synced copy of your notebook now, for every device. It can’t be undone. The notebook on each of your devices stays where it is.",
@@ -244,6 +245,7 @@ export const WORDS = Object.freeze({
   recoveryHave: "You have a recovery code. If you’ve lost it, or someone else may have seen it, make a new one. The old code stops working.",
   recoveryNone: "Your notebook has no recovery code. Make one, so that you can open your notebook if you lose your devices.",
   recoveryNew: "Make a new recovery code",
+  recoveryNewYes: "Make the new code",
   recoveryFirst: "Make a recovery code",
   recoveryNewAsk: "The old code stops working, and your notebook’s key is changed. You’ll see the new code once, and type two of its groups back.",
   waysTitle: "Ways to sign in",
