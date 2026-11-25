@@ -16,18 +16,21 @@ export const REQUEST_TIMEOUT_MS = 45_000;
  * @param {{ service: string, token: () => string | null | Promise<string | null>,
  *   fetch?: typeof fetch, pageOrigin?: string, timeout?: number }} options
  *   `service` is the service's origin, checked here against the ones a page
- *   may talk to; `token` gives the session, or null when there is none
+ *   may talk to; `token` gives the session, or null when there is none.
+ *   `signIn: true` makes a carrier for the requests that begin a session
+ *   (`GET /sign-in` and the ones under "Signing in"): it has no session to
+ *   send, and sends none.
  * @returns {{ call: (method: string, path: string, body?: object) => Promise<{ status: number, body: object }> }}
  */
-export function createApi({ service, token, fetch: send = globalThis.fetch, pageOrigin = globalThis.location?.origin, timeout = REQUEST_TIMEOUT_MS }) {
+export function createApi({ service, token, signIn = false, fetch: send = globalThis.fetch, pageOrigin = globalThis.location?.origin, timeout = REQUEST_TIMEOUT_MS }) {
   const origin = allowedService(service, pageOrigin);
   if (!origin) throw new Error("desk-sync: not a service this page may sync with");
 
   return {
     async call(method, path, body) {
-      const session = await token();
+      const session = signIn ? null : await token();
       // No session on this computer: the same as the service ending it, and no request is made.
-      if (!session) return { status: 401, body: { error: "sign_in", reason: "none" } };
+      if (!signIn && !session) return { status: 401, body: { error: "sign_in", reason: "none" } };
       const control = new AbortController();
       const timer = setTimeout(() => control.abort(), timeout);
       let res;
@@ -36,7 +39,7 @@ export function createApi({ service, token, fetch: send = globalThis.fetch, page
         res = await send(`${origin}${path}`, {
           method,
           headers: {
-            Authorization: `Bearer ${session}`,
+            ...(session ? { Authorization: `Bearer ${session}` } : {}),
             ...(body === undefined ? {} : { "Content-Type": "application/json" }),
           },
           body: body === undefined ? undefined : JSON.stringify(body),

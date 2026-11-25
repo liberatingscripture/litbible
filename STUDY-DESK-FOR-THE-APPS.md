@@ -331,6 +331,14 @@ because nothing carried them there. This file is what carries them now.
     **The iOS builder's views on 74, 76, 77, and 82** are in the first
     entry below (2026-11-24). They are views, not BDR's word.
 
+17. **Every setup makes a recovery code** (asked 2026-11-24, in the
+    entry below with that heading; `STUDY-DESK-ENCRYPTION.md`, “Still
+    open,” 85). BVJ's
+    call, made without you: under “follows my account” the reader is no
+    longer asked whether they want a recovery code. One is made and shown
+    at every setup, and the two groups are typed back under both choices,
+    with no way to skip. **Say here whether the apps will do the same.**
+
 ## The list
 
 ### 2026-11-24, iOS's answers, from its code and a real iPhone
@@ -508,6 +516,33 @@ From the sync pass (`desk-sync-engine.mjs` and its tests):
   safe only with that guard.
 - **The session item records which service it is for**, so a preview
   session is never sent to production.
+
+### 2026-11-24, every setup makes a recovery code (step 4h, begun)
+
+**For BDR to confirm.** BVJ, on the website's setup screen as it was
+drawn with a box to tick: “Let's go ahead and give Google/Apple users a
+recovery key. They can just choose not to use it if they want. No need to
+offer the choice as a checkbox.”
+
+- **What changes for the apps**: the setup screen under “follows my
+  account” makes a recovery holder with the passkey holder and shows its
+  code, with no question first. It was “offered, not required” (BVJ,
+  2026-11-23; the spec's “Still open,” 3). Under “this device only”
+  nothing changes: the code was required already.
+- **What doesn't**: no request, answer, or word of the service, and
+  nothing in the reference or the vectors. `POST /notebook` still takes a
+  passkey holder alone, so a notebook without a recovery code can exist,
+  and “Add a recovery code” still has to be somewhere for it.
+- **The two groups are typed back under both choices.** Asked the same
+  day whether a reader under “follows my account” might go on without
+  them, BVJ said: “No, they shouldn't skip adding the two number groups.”
+  That is the spec's setup, step 5, unchanged.
+- **Also in step 4h so far, and nothing for you to change**: the website's
+  side of every flow is written and tested against the service's own code
+  (no page yet). The spec's “Changed in step 4h” has two things that
+  reading of the interface turned up, both already as the spec says them:
+  the order `DELETE /ways/<id>` checks in, and what `DELETE /waiting`
+  answers a session that could never have canceled.
 
 ### 2026-11-24, the website's connector is built (step 4g)
 

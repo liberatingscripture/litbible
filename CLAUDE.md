@@ -43,6 +43,7 @@ below unless it is already loaded.** Rules that keep this from decaying:
 | `src/scripts/desk/sheets/CLAUDE.md` | The Sheets (read the desk file too): the Sheets pane and its editor, the /sheets page, paper copies, Copy and Save as, present mode, templates, sharing, the print check, `src/lib/desk-sheet*.mjs` |
 | `src/scripts/desk/collections/CLAUDE.md` | Collections (D13): the record, its model, its page and ways in |
 | `src/scripts/desk/sync/CLAUDE.md` | Syncing the notebook (4g); `src/lib/desk-sync*.mjs` |
+| `src/scripts/desk/account/CLAUDE.md` | The account pages (4h): sign-in, passkeys, setup, joining, devices; `src/lib/desk-account*.mjs`, `desk-passkey.mjs` |
 | `src/lib/CLAUDE.md` | The module map of `src/lib/`; scripture reference linking (Sefaria, eBible), external links, Go deeper, the release notes page and feed |
 | `src/styles/CLAUDE.md` | CSS anywhere, including component `<style>` blocks: theming, the Display tray's settings, `--ch`, Greek and Hebrew fonts, the brand greens, the emblem, the LSC mark, focus rings |
 | `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |

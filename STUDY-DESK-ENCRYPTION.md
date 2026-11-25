@@ -668,7 +668,7 @@ separate from how the reader signs in, and it is made on every platform, not on 
 | What can open the notebook | Each device that has joined, a passkey, and the recovery code if the reader took one | Each device that has joined, and the recovery code |
 | A new device | Signs in and uses the passkey. No approval | Approved from a device that has the key, or takes the recovery code |
 | Every device lost | The passkey, on a new device signed in to the same Apple or Google account (or password manager) | The recovery code |
-| The recovery code | Offered, not required | Required |
+| The recovery code | Made at setup, for the reader to keep or not (BVJ, 2026-11-24; it was “offered, not required”) | Required |
 | A removed device | Locked out only once it no longer has the passkey | Locked out |
 | A person who gets into the reader’s Apple or Google account | Opens the notebook, if they get as far as its passkeys | Gets a session that can’t open it |
 
@@ -696,6 +696,13 @@ separate from how the reader signs in, and it is made on every platform, not on 
   and the recovery code is required.
 - **Every device announces a new holder**, as it does a new device: “A passkey can now open your
   notebook. Set up from [device] on [date].”
+- **Every setup makes a recovery code, under both choices** (BVJ, 2026-11-24, on seeing the
+  website’s setup screen drawn with a box to tick: “Let’s go ahead and give Google/Apple users a
+  recovery key. They can just choose not to use it if they want. No need to offer the choice as a
+  checkbox.” **For BDR to confirm**, “Still open,” 85). It replaces “offered, not required” under
+  “follows my account”: the reader is no longer asked whether they want one. Nothing in the
+  service or the reference changes, since a notebook with a passkey holder and no recovery
+  holder is still one the interface allows, and one set up before this may be such a notebook.
 
 ## Where a passkey can carry a key (checked 2026-11-23)
 
@@ -873,8 +880,9 @@ When a reader signs in and the account has no notebook yet, the device:
      prompt. Otherwise the reader makes a passkey now, which also becomes a way to sign in. If the
      passkey can’t hold the key (under “The passkey”), the device says so, and the recovery code
      below is required.
-   - **A recovery holder**, with its code: required under “this device only” and wherever no
-     passkey holder was made, and offered otherwise (“Add a recovery code”).
+   - **A recovery holder**, with its code, at every setup (BVJ, 2026-11-24, under “Where the key
+     lives”; until then it was offered, and made only if the reader said yes, wherever a passkey
+     holder was made).
 4. **Sends the service, in one request,** the notebook’s id, the hash of the key proof, its own
    device entry (its card and its sealed keyring), and each holder (its record, its card, and the
    keyring sealed to it). The service accepts this only while the account has no notebook, so two
@@ -898,8 +906,9 @@ code is shown:
 It says “synced notes” because a device’s own notebook and the reader’s exported file aren’t lost
 with the code (under “When a reader loses every device”).
 
-**For a reader who takes no recovery code**, a sentence to match (BVJ, 2026-11-23, as draft 2
-proposed it):
+**For a reader whose notebook has no recovery code**, a sentence to match (BVJ, 2026-11-23, as
+draft 2 proposed it). Since 2026-11-24 no setup leaves a reader without one, so this is for a
+notebook that was set up before then, wherever a client says what can open it:
 
 > Your passkey opens your notebook on a new device. If you lose your passkey and every device you
 > use with LIT, no one can open your synced notes, not even LIT.
@@ -2620,6 +2629,25 @@ change of key and the reseal, deletions each way, a session ended by the service
 device joining again by approval. **The deployed preview was not called.** What that run did not
 reach is listed under step 4g in `STUDY-DESK.md`.
 
+## Changed in step 4h
+
+Step 4h is the website’s account pages, begun 2026-11-24 and not finished. **No request, answer,
+size, or word of the interface has changed, and nothing under `workers/notebook-service/` has been
+touched.** So far it has built the website’s side of every flow in this file as code with no
+page (`src/lib/desk-passkey.mjs`, `desk-account-session.mjs`, and `desk-account.mjs`), and its
+tests run against the service’s own code, so they are a second reading of “The service’s
+interface” by a client. Two things that reading turned up, both as this file already says them
+and worth a client’s notice:
+
+- **`DELETE /ways/<id>` checks the last way in before it checks a passkey that holds the key.**
+  A reader whose only way in is the passkey that holds the key is told `last_way`, and
+  `passkey_holds_key` only once there is a second way in.
+- **`DELETE /waiting` from a session that is neither open nor the one that asked is `not_open`
+  even when nothing is waiting.** `gone` is for a session that could have canceled.
+
+**One decision changed** (BVJ, 2026-11-24): every setup makes a recovery code (“Where the key
+lives,” and “Still open,” 85). This section grows as the pages are built.
+
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
@@ -2628,7 +2656,8 @@ day and said yes to all nine**, so 1 to 15 now wait on BDR alone:
 
 1. Passkeys carry the key at launch, and are part of the launch.
 2. The reader’s choice of where the key lives, on every platform, with “follows my account” first.
-3. A recovery code offered where a passkey holds the key, and required elsewhere.
+3. A recovery code offered where a passkey holds the key, and required elsewhere. **Changed by
+   BVJ on 2026-11-24: made at every setup, with no question (85).**
 4. The signing key: P-256, in the card, unchecked in version 1.
 5. Two groups typed back, seven days, the second way in, `deletedAt` kept.
 6. BVJ’s side builds the service, and the apps review it.
@@ -3106,3 +3135,17 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     BDR**: should a client only say it, or stop syncing until the clock is right, and will the
     apps say it too? **BVJ, 2026-11-24: “Ask BDR,” so this is BDR’s to answer.** The website
     says it and syncs on until then.
+85. **Every setup makes a recovery code.** BVJ, 2026-11-24, on the website’s setup screen as
+    step 4h drew it: “Let’s go ahead and give Google/Apple users a recovery key. They can just
+    choose not to use it if they want. No need to offer the choice as a checkbox.” So under
+    “follows my account” the recovery holder is made with the passkey holder, and its code is
+    shown, with no question first; this changes item 3, and “Where the key lives” and “Setting
+    up the first device” now say it. BVJ’s Claude reads “Google/Apple users” as the readers
+    under “follows my account,” which `STUDY-DESK.md` describes as the key following “their
+    Apple or Google account”; under “this device only” the code was required already. **For BDR
+    to confirm**, since it changes each app’s setup screen: one step fewer to ask, one code more
+    to show. **The two groups are typed back under both choices** (BVJ, the same day, asked
+    whether a reader under “follows my account” might go on without them: “No, they shouldn’t
+    skip adding the two number groups”). So “They can just choose not to use it” is about
+    whether the reader ever uses the code, not about confirming it: every reader is shown one
+    and proves they kept it, as “Setting up the first device,” step 5, already says.

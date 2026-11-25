@@ -85,7 +85,12 @@
                      #   the loop; desk-sync-link, what says a browser
                      #   is linked, which imports nothing;
                      #   desk-sync-status, the status line's words; see
-                     #   src/scripts/desk/sync/CLAUDE.md); the scrub a fetched
+                     #   src/scripts/desk/sync/CLAUDE.md) and its account
+                     #   (desk-passkey, a passkey's two ceremonies, which
+                     #   imports nothing; desk-account-session, what needs
+                     #   no key; desk-account, what touches the notebook's
+                     #   key; see src/scripts/desk/account/CLAUDE.md);
+                     #   the scrub a fetched
                      #   page's parts get before a pane imports them
                      #   (desk-inert); finding a pinned
                      #   footnote again (desk-footnotes); the notebook page

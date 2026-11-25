@@ -5106,8 +5106,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      or it **stays only on each device** (a new device is approved from
      one that has the key, or takes the recovery code). "Follows my
      account" is shown first and recommended.
-   - **A recovery code** is offered to a reader whose passkey carries the
-     key and required where none can. It is shown once, with the sentence
+   - **A recovery code** is made at every setup (BVJ, 2026-11-24; until
+     then it was offered to a reader whose passkey carries the key and
+     required where none can). It is shown once, with the sentence
      BVJ approved, and the reader types two of its six groups back.
    - **A list of devices**, with removing one, which gives the notebook a
      new key. Under "follows my account" a removed device that still holds
@@ -5707,6 +5708,31 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      device was added, a request is waiting). **Account pages work on every
      device** (audit C1), so what a phone gets, without the desk, is
      settled here. Every new storage key is named on /privacy.
+     **Begun 2026-11-24; the flows are built, and no page is.** What
+     exists: a passkey's two ceremonies (`src/lib/desk-passkey.mjs`);
+     signing in, the account, its ways in, deleting, and the seven days
+     (`desk-account-session.mjs`); and everything that touches the key
+     (`desk-account.mjs`): setup under either choice, joining by passkey,
+     by recovery code, and by approval from either side, the lists with
+     each card opened, renaming, removing a device, a first and a new
+     recovery code, turning “follows my account” on and off, and signing
+     a device out. **Tested against the service's own code**: the root
+     suite now runs `workers/notebook-service/src/` in Node on a real
+     SQLite database with the real migrations, with the service's
+     software passkey behind a browser's `navigator.credentials`
+     (`src/scripts/desk/account/CLAUDE.md`, "Testing"), so neither side's
+     checks are written out a second time. **Not verified**: nothing here
+     has met a real browser, a real passkey, or the deployed preview, and
+     Sign in with Apple and with Google have only their requests written.
+     **The screens wait on BVJ**: a mock of every screen and twelve
+     choices, each with Claude's pick, went to BVJ on 2026-11-24. One is
+     BVJ's own idea of that day, “Sign in” in the header (on /desk, with
+     the header's tools), which Claude would make the main way in.
+     **One is decided: every setup makes a recovery code**, with no box
+     to tick (BVJ, 2026-11-24; under “Decisions,” 2026-11-23, where the
+     earlier call is, and the spec's “Still open,” 85). The rest are
+     not. Still to build: the pages, the service's half of Turnstile, the
+     notices, and the status on /desk.
    - **4i. Enforcing the full content security policy** (1–2). It is
      report-only today. Review a week of its reports, then enforce it
      before sign-in ships, since the page will hold a credential to a
@@ -8420,7 +8446,14 @@ confirm**, since BDR was not part of this exchange:
   that still holds the synced passkey.
 - **A recovery code is offered to a reader with a passkey, not required**
   (“Yes to offering an optional recovery code”). It is required only where
-  no passkey can carry the key.
+  no passkey can carry the key. **Changed by BVJ on 2026-11-24**, on
+  seeing step 4h's setup screen drawn with a box to tick: “Let's go ahead
+  and give Google/Apple users a recovery key. They can just choose not to
+  use it if they want. No need to offer the choice as a checkbox.” So
+  every setup makes one, with no question (the spec's “Still open,” 85,
+  for BDR to confirm). And the two groups are typed back under both
+  choices: “No, they shouldn't skip adding the two number groups” (BVJ,
+  the same day).
 - **Device signatures: reserve now, enforce later** (7; BVJ's words). Each
   device makes its signing key at launch and keeps the public half in its
   card; nothing checks it until a later version, so turning signatures on

@@ -69,7 +69,9 @@ each one cheap to change: one constant, one function, one place.
    `desk/first-stage.js` import `start.js`, dynamically, and only after
    reading a link from the notebook. Nothing else imports anything here
    statically, `desk-sync-link.mjs` imports nothing, and `desk-sync.css` is
-   only ever imported `?inline`. `test/desk-sync-gate.test.js` holds each.
+   only ever imported `?inline`. `test/desk-sync-gate.test.js` holds each,
+   and holds `src/lib/desk-account.mjs` (the account's key flows, step 4h)
+   the same way, since it brings the encryption with it.
    After a change to what imports what, build and check that no page
    reaches the sync's chunk without a link.
 3. **The queue is a difference, not a list** (`desk-sync.mjs`'s header).
@@ -150,6 +152,10 @@ and `LinkRefused`; `connector.js` documents each method of the connector
   random histories, the connector in a happy-dom page (the real store and
   the real sync storage over `fake-indexeddb`, timers fired by hand), the
   status line and the notice, and the gate.
+- **The account's tests run against the service's own code instead**
+  (`test/helpers/real-notebook-service.mjs`;
+  `src/scripts/desk/account/CLAUDE.md`, "Testing"). Use that for a flow,
+  and the stand-in below for a service that has to break at an exact point.
 - **The stand-in service is `test/helpers/fake-notebook-service.mjs`.** It
   repeats the real service's checks, words, and order by hand, so **a change
   to `workers/notebook-service/src/rows.js`, `session.js`, or `check.js`
