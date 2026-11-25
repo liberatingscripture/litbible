@@ -5711,11 +5711,12 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      report-only today. Review a week of its reports, then enforce it
      before sign-in ships, since the page will hold a credential to a
      reader's notes (review finding 11).
-     **Somewhere for it to report to: built 2026-11-24, its Worker deployed
-     2026-11-25, and the week starts the day the header change merges.**
-     Until now the policy named no address and nothing received a report,
-     so there was no week to review. Enforcing is still to do, after the
-     week and 4h's pages.
+     **Somewhere for it to report to: built 2026-11-24, and live
+     2026-11-25, when its Worker was deployed and the header change
+     merged. The week of reports is 2026-11-25 through 2026-12-01.**
+     Until then the policy named no address and nothing received a
+     report, so there was no week to review. Enforcing is still to do,
+     after the week and 4h's pages.
      - **BVJ chose, 2026-11-24: "A: new Worker, counts."** Reports go to
        LIT's own Cloudflare, to a small Worker of their own
        (`workers/csp-reports/`, at `https://litbible.net/csp-report`) that
@@ -5728,14 +5729,16 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        path, asking file, and browser family, with a count. No address,
        no user agent, no query string, no extension's id. /privacy has a
        new paragraph, "Security reports."
-     - **Claude's choices, for BVJ to change**: counts are deleted after
-       30 days; both policies report, the enforced one too, since a block
-       there is a real break (each row says which); the Worker stores no
-       log at all, because Cloudflare's documentation doesn't say what a
-       stored log line carries; D1 over Analytics Engine, which would need
-       a new API token to read and keeps data three months with no earlier
-       delete; 64 KB a post, 120 posts a minute from one address, 5,000
-       reports a day; and /privacy's effective date is left as it was.
+     - **Claude's choices, which BVJ kept (2026-11-25: "Go with your
+       choices as they are")**: counts are deleted after 30 days; both
+       policies report, the enforced one too, since a block there is a
+       real break (each row says which); the Worker stores no log at all,
+       because Cloudflare's documentation doesn't say what a stored log
+       line carries; D1 over Analytics Engine, which would need a new API
+       token to read and keeps data three months with no earlier delete;
+       64 KB a post, 120 posts a minute from one address, 5,000 reports a
+       day; and /privacy's effective date is left as it was (BVJ, the
+       same day: the page "is going to be updated soon anyway").
      - **What the browsers' documentation says** (MDN's compatibility
        data, read 2026-11-24): `report-uri` works everywhere and is
        deprecated; `report-to` with `Reporting-Endpoints` is Chrome and
@@ -5743,13 +5746,16 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        that knows it ignores `report-uri`. So each policy carries both,
        and the Worker reads both shapes. The rules are in
        `public/CLAUDE.md`.
-     - **The week starts the day both are live.** The Worker has been,
-       since 2026-11-25: BVJ said "Yes, deploy it" that day, and the
-       database, its tables, and the Worker were made by the steps in its
-       README, "One-time setup." What is left is the header change
-       merging, since `_headers` does nothing off the deployed site.
-       **Write the merge's date here: it is the week's first day.** Read
-       the week with `npm run summary` in `workers/csp-reports/`.
+     - **The week is 2026-11-25 through 2026-12-01**, in UTC days, as the
+       Worker counts them. Both halves went live on 2026-11-25. BVJ said
+       "Yes, deploy it," and the database, its tables, and the Worker
+       were made by the steps in its README, "One-time setup." Then BVJ
+       said to merge the header change ("merge with admin bypass when
+       green"), since `_headers` does nothing off the deployed site. The
+       first day is a part of one: the headers went live in its
+       afternoon. Read the week on or after 2026-12-02, with
+       `npm run summary -- --from 2026-11-25 --to 2026-12-01` in
+       `workers/csp-reports/`.
      - **A week is a thin sample here.** The site had about 27 page views
        a day in a browser (BVJ's Cloudflare numbers, 2026-11-24; the rest
        of its 17,000 requests are bots, the apps, and files). Reports
@@ -5773,7 +5779,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        check's and not a reader's. **Not verified**: the daily run that
        deletes old counts (its first is 04:41 UTC on 2026-11-26),
        Cloudflare's own limiter under load, and a browser's own report
-       arriving, which needs the headers live on litbible.net.
+       arriving and being counted, which the first reading of the summary
+       after the merge will show.
      - **First gaps, seen in that browser on the preview before any report
        was counted**: `/support/` loads stylesheets from
        `https://secure.givelively.org` and `https://fonts.googleapis.com`

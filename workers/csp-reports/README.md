@@ -8,9 +8,9 @@ the policy's list is checked first.
 
 **Status: deployed 2026-11-25**, on BVJ's go-ahead that day, and checked at
 its real address (see "One-time setup," which is now the record of what was
-done and the way to do it again from nothing). It counts nothing from the
-site until `public/_headers` with the reporting directives is live on
-litbible.net.
+done and the way to do it again from nothing). The site's headers have
+named it since the same day, when `public/_headers` gained the reporting
+directives, so the first day of counts is 2026-11-25.
 
 ## What it is for
 
