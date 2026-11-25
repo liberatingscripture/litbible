@@ -96,6 +96,21 @@ export async function start({ root = document.querySelector("[data-account-page]
   }
 
   doc.documentElement.setAttribute("data-account", "open");
+  /**
+   * Draws the header's account entry again. desk-gate.js draws it where the stamp was there before
+   * paint; on the visit that opens accounts it wasn't, and the entry would keep its room and show
+   * nothing. notebook.js calls this too, when it links this browser or stops syncing in it.
+   */
+  const header = () => {
+    if (!desk || !doc.querySelector("[data-account-entry]")) return;
+    import("./header-entry.js").then(
+      (entry) => entry.start({ doc, idb }),
+      () => {
+        for (const entry of doc.querySelectorAll("[data-account-entry]:not([data-account-state])")) entry.setAttribute("data-account-state", "out");
+      },
+    );
+  };
+  header();
   const ui = screens(root, env.log ? { log: env.log } : {});
   ui.show(h("p", { class: "account__loading", text: WORDS.loading }));
 
@@ -116,7 +131,7 @@ export async function start({ root = document.querySelector("[data-account-page]
   const pageTitle = doc.querySelector(".account-page__title")?.textContent.trim() ?? null;
   const title = (text) => h(kind === "delete" ? "h3" : "h2", { class: text === pageTitle ? "account__title sr-only" : "account__title", text });
 
-  const ctx = { S, ui, db, door, call, env, win, doc, credentials, locale, title, refresh, route, signIn, showSignedOut, basicsParts, forget, providers, leaveFor };
+  const ctx = { S, ui, db, door, call, env, win, doc, credentials, locale, title, refresh, route, signIn, showSignedOut, basicsParts, forget, providers, leaveFor, header };
 
   /* ── The account, read ─────────────────────────────────────────────── */
 

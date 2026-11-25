@@ -105,8 +105,8 @@ test("the account page's own file brings no encryption: a phone that signs in lo
   assert.ok(seen.has("src/scripts/desk/sync/service.js") && seen.has("src/lib/desk-account-session.mjs"), "the walk follows the page's real imports");
   assert.deepEqual(
     imports(ACCOUNT_PAGE, DYNAMIC_IMPORT).sort(),
-    ["src/scripts/desk/account/notebook.js", "src/scripts/desk/account/turnstile.js"],
-    "and the two halves it loads on demand are these",
+    [HEADER_ENTRY, "src/scripts/desk/account/notebook.js", "src/scripts/desk/account/turnstile.js"],
+    "and what it loads on demand is these: the header's entry (a computer with the desk on), the half with the key, and the widget",
   );
 });
 

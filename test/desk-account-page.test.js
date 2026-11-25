@@ -218,6 +218,42 @@ test("a screen whose heading repeats the page's own is not drawn twice, and ever
   assert.deepEqual(headings(out), [[WORDS.signInTitle, false]]);
 });
 
+test("the header's entry follows the page: drawn on the visit that opens accounts, the button once the browser is linked, and “Sign in” again after signing out", async () => {
+  // Seen 2026-11-25: on the first visit with ?account=preview the stamp isn't there before paint, so
+  // desk-gate.js never drew the entry, and it kept its room in the header and showed nothing.
+  const w = world();
+  const b = browser(w);
+  const page = await openPage(b, { header: true });
+  const entry = document.querySelector("[data-account-entry]");
+  const shows = () => [entry.getAttribute("data-account-state"), entry.querySelector("[data-account-signin]").hidden, entry.querySelector("[data-account-button]").hidden];
+  await until(() => entry.getAttribute("data-account-state") === "out", "the entry drawn");
+  assert.deepEqual(shows(), ["out", false, true]);
+
+  await page.press(WORDS.create);
+  await page.shows(WORDS.setupTitle);
+  page.root.querySelector("#account-key-device").checked = true;
+  await page.press(WORDS.setupContinue);
+  await page.shows(WORDS.codeTitle);
+  await until(() => entry.getAttribute("data-account-state") === "in", "the account button, once the browser is linked");
+  assert.deepEqual(shows(), ["in", true, false]);
+  await saveCode(page);
+  await page.shows(WORDS.homeTitle);
+  await synced(page);
+
+  await page.press(WORDS.signOut);
+  await page.press(WORDS.signOutConfirm);
+  await page.shows(WORDS.signedOutNow);
+  await until(() => entry.getAttribute("data-account-state") === "out", "“Sign in” again");
+  assert.deepEqual(shows(), ["out", false, true]);
+});
+
+test("a phone's page draws no header entry: the header has none without the Study Desk", async () => {
+  const w = world();
+  await openPage(browser(w, { desk: false, userAgent: PHONE }), { header: true });
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(document.querySelector("[data-account-entry]").hasAttribute("data-account-state"), false);
+});
+
 /* ── A second device ────────────────────────────────────────────────────── */
 
 test("a second computer with the same passkey opens the notebook as it signs in, and the first is told once", async () => {

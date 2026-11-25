@@ -128,6 +128,7 @@ export async function leave(ctx) {
   S.link = null;
   S.joining = false;
   S.replace = false;
+  ctx.header?.(); // “Sign in” again
 }
 
 /* ── Keeping what a step must not lose ──────────────────────────────────── */
@@ -156,6 +157,7 @@ async function linkUp(ctx, { device, held, carry }) {
   S.passkey = null;
   S.joining = false;
   S.replace = false;
+  ctx.header?.(); // the account button, now that this browser is linked
 }
 
 /* ── A passkey, asked for its PRF output alone ──────────────────────────── */

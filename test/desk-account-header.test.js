@@ -67,7 +67,7 @@ async function linked() {
     keyring: mine.keyring,
   });
   await until(() => state(connector) === "upToDate", "the notebook in step");
-  return { ...browser, ...parts, mine, connector };
+  return { ...browser, ...parts, mine, connector, store };
 }
 
 const key = (el, name) => el.dispatchEvent(new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true }));
@@ -126,6 +126,25 @@ test("a linked browser shows the account button, and its menu holds the status, 
   assert.equal(nav.menu.hidden, true);
   assert.equal(nav.button.getAttribute("aria-expanded"), "false");
   assert.equal(actions.menu.hidden, true);
+});
+
+test("the entry can be drawn again: the menu is wired once, and stopping the sync puts “Sign in” back", async () => {
+  // The account page draws it again when it opens accounts, links the browser, or stops syncing in it.
+  const { nav, store } = await linked();
+  assert.equal(await start(), "in");
+  assert.equal(await start(), "in");
+  nav.button.click();
+  assert.equal(nav.menu.hidden, false, "one press opens it: a second wiring would have opened and shut it");
+  assert.equal(nav.button.getAttribute("aria-expanded"), "true");
+
+  await sync.unlink({ store });
+  assert.equal(await start(), "out");
+  assert.equal(nav.el.getAttribute("data-account-state"), "out");
+  assert.equal(nav.link.hidden, false);
+  assert.equal(nav.button.hidden, true);
+  assert.equal(nav.menu.hidden, true, "an open menu is shut with its button");
+  assert.equal(nav.button.getAttribute("aria-expanded"), "false");
+  assert.equal(nav.el.style.minWidth, "");
 });
 
 test("the menu's keys: the arrows open it and move among its items, Escape returns to the button, and a press elsewhere closes it", async () => {

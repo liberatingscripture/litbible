@@ -90,14 +90,22 @@ export async function use(b) {
  * `hash` what the address carries after its `#`; `heading` the page's own
  * h1 above the box, as account.astro draws it.
  * `env` adds to what the page is handed (`providerClients`, `go`).
+ * `header` draws the header's account entry above the page.
  */
-export async function openPage(b, { kind = "account", open = "preview", hash = "", heading = null, env: more = {} } = {}) {
+export async function openPage(b, { kind = "account", open = "preview", hash = "", heading = null, header = false, env: more = {} } = {}) {
   await use(b);
   resetDom(`${b.w.service.pageOrigin}/${kind === "delete" ? "delete-account" : kind === "connect" ? "account/connect" : "account"}/${hash}`);
   const root = document.createElement("div");
   root.setAttribute("data-account-page", kind);
   root.innerHTML = "<p>Accounts are not open yet.</p>";
   document.body.append(root);
+  if (header) {
+    // The header's account entry, as SiteHeader.astro draws it (test/desk-account-header.test.js holds the two together).
+    const entry = document.createElement("span");
+    entry.setAttribute("data-account-entry", "");
+    entry.innerHTML = '<a href="/account/" data-account-signin>Sign in</a><button type="button" aria-expanded="false" data-account-button hidden>Account</button><div data-account-menu hidden><div data-desk-sync-slot hidden></div><a href="/account/">Account and devices</a><a href="/account/#sign-out">Sign out</a></div>';
+    root.before(entry);
+  }
   if (heading) {
     const h1 = document.createElement("h1");
     h1.className = "account-page__title";

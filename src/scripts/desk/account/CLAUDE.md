@@ -3,8 +3,10 @@
 > Part of this repo's Claude docs; the index is in the root `CLAUDE.md`.
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory. It governs the website's account code wherever it
-> lives: `src/lib/desk-account.mjs`, `src/lib/desk-account-session.mjs`,
-> `src/lib/desk-passkey.mjs`, their tests, and the pages when they exist.
+> lives: the modules listed under "Where the code is," the three pages
+> (`src/pages/account.astro`, `account/connect.astro`, the box on
+> `delete-account.astro`), `src/styles/pages/account.css`, the header's
+> account entry, and their tests.
 > Accounts are part of the Study Desk's sync, so **`src/scripts/desk/CLAUDE.md`
 > and `src/scripts/desk/sync/CLAUDE.md` apply here too**. The service is
 > `workers/notebook-service/` (`workers/CLAUDE.md`), and both sides are built
@@ -12,12 +14,27 @@
 
 ## Where it stands
 
-The plan's step 4h (`STUDY-DESK.md`, "Order of work," 4), begun 2026-11-24.
-**The flows are built and tested; no page is.** Nothing imports the three
-modules below but their tests, so no reader downloads them and nothing has
-changed on the site. The screens wait on BVJ's choices (a mock of every
-screen went to BVJ that day); this file gains their rules as they are
-built.
+The plan's step 4h (`STUDY-DESK.md`, "Order of work," 4), built 2026-11-24
+and 25. **The pages are built and closed**: no reader sees an account until
+one browser opens them with `?account=preview` (rule 11). What was and was
+not seen in a real browser is under step 4h in `STUDY-DESK.md`. Not built:
+the notices anywhere but the account's home, and the final words of the
+first-time choice (step 4j). Sign in with Apple and with Google are built
+and off (rule 19). The Turnstile check's half on the service is its own
+pull request.
+
+## Routes
+
+| Route | File | What it is |
+|---|---|---|
+| `/account/` | `account.astro` | Every screen: signed out, setup, the recovery code, opening the notebook, the home, the basics on a phone |
+| `/account/connect/` | `account/connect.astro` | Where a link that carries an approval code lands (`#a=<16 characters>`, the QR code's content). The same page code, with the code read and taken out of the address first |
+| `/delete-account/` | `delete-account.astro` | The public page (in the sitemap, as the stores require), with a box that signs in and deletes or asks to; the box is `data-account-opened` and hidden unless accounts are open |
+
+`/account/` and `/account/connect/` are noindex, out of the sitemap (an
+`account` rule in `astro.config.mjs`) and Pagefind, and show one line
+without the switch. The announcement popover stays off all three
+(`src/components/CLAUDE.md`, "The announcement popover").
 
 ## Where the code is
 
@@ -33,6 +50,28 @@ built.
   device, a new recovery code, "this device only"), signing a device out.
   A model: no state, no storage, no DOM. It is handed the service (`call`)
   and what the device holds, and hands back what the device must keep.
+- `src/lib/desk-account-words.mjs`: **every word the pages say**, the
+  switch's key and values, what a device is first called (`deviceName`),
+  and the sentence for each failure (`failureWords`). It imports nothing.
+  `test/desk-account-words.test.js` holds every sentence to the site's
+  conventions, so a new sentence goes in `WORDS` or a function there,
+  never in a page.
+- `src/lib/desk-account-providers.mjs`: the website's half of Sign in with
+  Apple and with Google (rule 19). It imports nothing.
+- `src/scripts/account-gate.js`: shared reader code, the three pages' only
+  static script. It reads the switch and imports the page dynamically.
+- `src/scripts/desk/account/page.js`: what works on any device and holds no
+  key (signing in, making an account, the basics, the request that waits,
+  deleting, signing out, the providers). **It imports no encryption.**
+  `ui.js` is what its screens are built from; `turnstile.js` loads
+  Cloudflare's widget only when the service names a site key and the reader
+  has pressed "Create an account."
+- `src/scripts/desk/account/notebook.js`: everything with the key (setup,
+  the recovery code, opening the notebook, the home and its sections,
+  linking the sync). `page.js` imports it dynamically, only with
+  `data-desk="on"`.
+- `src/scripts/desk/account/header-entry.js`: "Sign in" in the header, and
+  the account button with its menu (rule 17). `desk-gate.js` imports it.
 - `src/scripts/desk/sync/service.js` carries the requests. `signIn: true`
   makes a carrier with no session, for the requests that begin one.
 

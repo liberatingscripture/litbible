@@ -38,8 +38,14 @@ const parts = (entry) => ({
 /** What the arrows move among: the menu's links and buttons that show and can be used. */
 const itemsOf = (menu) => [...menu.querySelectorAll("a, button")].filter((el) => el.closest("[hidden]") == null && el.getAttribute("aria-disabled") !== "true");
 
+/** The entries whose menu is wired: once each, however often they are drawn. */
+const wired = new WeakSet();
+
 /**
  * Draws each entry for this browser, and wires the menu where there is one.
+ * It can be called again: the account page does when it opens accounts in a
+ * browser for the first time (no stamp before paint, so desk-gate.js never
+ * called this), and when it links the browser or stops syncing in it.
  *
  * @param {{ doc?: Document, idb?: IDBFactory }} [env]
  * @returns {Promise<"in" | "out" | null>} which the header shows; null where the page has no entry
@@ -55,18 +61,31 @@ export async function start({ doc = globalThis.document, idb = globalThis.indexe
   }
 
   for (const entry of entries) {
-    const { link, button } = parts(entry);
+    const { link, button, menu } = parts(entry);
     if (linked && link && button) {
-      // The button is narrower than the words. The entry keeps their width, so the tools beside it stay where they were painted.
-      const width = entry.getBoundingClientRect?.().width ?? 0;
-      if (width) entry.style.minWidth = `${Math.ceil(width)}px`;
+      if (button.hidden) {
+        // The button is narrower than the words. The entry keeps their width, so the tools beside it stay where they were painted.
+        const width = entry.getBoundingClientRect?.().width ?? 0;
+        if (width) entry.style.minWidth = `${Math.ceil(width)}px`;
+      }
       link.hidden = true;
       button.hidden = false;
       setTip(button, "Account");
+    } else if (link && button) {
+      // Signed out of a browser that was linked when the page drew: the words again, and the menu shut.
+      link.hidden = false;
+      button.hidden = true;
+      button.setAttribute("aria-expanded", "false");
+      if (menu) menu.hidden = true;
+      entry.style.minWidth = "";
     }
     entry.setAttribute("data-account-state", linked ? "in" : "out");
   }
-  if (linked) wire(entries, doc);
+  const fresh = linked ? entries.filter((entry) => !wired.has(entry)) : [];
+  if (fresh.length) {
+    for (const entry of fresh) wired.add(entry);
+    wire(fresh, doc);
+  }
   return linked ? "in" : "out";
 }
 
