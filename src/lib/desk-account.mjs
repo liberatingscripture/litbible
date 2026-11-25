@@ -187,8 +187,10 @@ const codeOf = (holders) => holders.find((holder) => holder.code)?.code ?? null;
  * passkey that syncs and gave a PRF output, or null; `recovery` is whether
  * to make a recovery code, which is required when there is no passkey.
  *
- * `keep({ code })` is called with a new recovery code before the request is
- * sent, to store it where a setup cut short can show it again.
+ * `keep({ code, notebook, held })` is called before the request is sent,
+ * with the new recovery code (or null) and the keyring it opens, so the
+ * page can store both where a setup cut short finds them: an answer that
+ * never arrived must not leave a notebook whose key and code no one holds.
  *
  * Returns { held, kid, lists, code, holders }: the keyring to link the
  * browser with, and the code to show now that the request is accepted.
@@ -202,7 +204,7 @@ export async function setUp({ call, device, passkey = null, recovery = true, kee
   if (passkey) holders.push(await makeHolder(held, { kind: "passkey", ...passkey }, { now, random }));
   if (recovery) holders.push(await makeHolder(held, { kind: "recovery" }, { now, random }));
   const code = codeOf(holders);
-  if (code) await keep?.({ code, notebook: held.notebook });
+  await keep?.({ code, notebook: held.notebook, held });
   const answer = await must(
     call,
     "POST",

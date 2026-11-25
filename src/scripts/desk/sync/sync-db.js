@@ -20,12 +20,23 @@
 //         "told"    { state, at }: the stop the reader was last told of
 //                   ("signedOut", say) and when, so the next page doesn't say
 //                   it again (./stopped-notice.js)
+//         "account" the account page's own sign-in while this browser is
+//                   signed in and not linked (mid-setup, or a phone that asked
+//                   to delete its account): { v, service, token, expires, way,
+//                   rpId }, and during a setup the device's keys, the keyring
+//                   sealed to them, and the recovery code sealed to them
+//                   (../account/notebook.js). Gone once the browser is linked
+//         "code"    a recovery code not yet confirmed, sealed to this
+//                   device's own key, with the two groups to ask back
+//         "seen"    the ids of the devices and holders this device has told
+//                   its reader about (../account/notebook.js)
 //   rows  one entry for each row, by record id (src/lib/desk-sync.mjs)
 //   held  rows kept until they can be read or their time comes
 //
 // The loop writes "meta", `rows`, and `held` together, in one transaction
 // (`write`), and nothing else writes them. "token" and "device" are written
-// by whoever signs the reader in (step 4h) through the connector.
+// by whoever signs the reader in (step 4h) through the connector, and the
+// last three are the account page's alone.
 
 import { SYNC_DB } from "../../../lib/desk-sync-link.mjs";
 

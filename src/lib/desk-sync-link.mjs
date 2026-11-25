@@ -105,9 +105,19 @@ export function readLink(value) {
  *
  * @param {{ idb: IDBFactory, timeout?: number }} options
  */
-export function peekLinked({ idb, timeout = 3000 }) {
+export const peekLinked = (options) => peekLink(options).then((link) => link != null);
+
+/**
+ * The link itself, read the same way, or null: what the account page needs
+ * to know which service this browser is linked to before it loads anything.
+ *
+ * @param {{ idb: IDBFactory, timeout?: number }} options
+ * @returns {Promise<{ v: 1, link: string, notebook: string, service: string, since: string | null } | null>}
+ */
+export function peekLink({ idb, timeout = 3000 }) {
   return new Promise((resolve) => {
     let done = false;
+    const none = null;
     const finish = (answer, db = null) => {
       try {
         db?.close();
@@ -119,30 +129,30 @@ export function peekLinked({ idb, timeout = 3000 }) {
       clearTimeout(timer);
       resolve(answer);
     };
-    const timer = setTimeout(() => finish(false), timeout);
+    const timer = setTimeout(() => finish(none), timeout);
     let open;
     try {
       open = idb.open("lit-desk");
     } catch {
-      finish(false);
+      finish(none);
       return;
     }
     // No notebook yet: creating one here would leave an empty database without the store's tables.
     open.onupgradeneeded = () => open.transaction.abort();
     open.onerror = (e) => {
       e?.preventDefault?.();
-      finish(false);
+      finish(none);
     };
     open.onsuccess = () => {
       const db = open.result;
-      if (done) return finish(false, db);
+      if (done) return finish(none, db);
       try {
-        if (!db.objectStoreNames.contains("meta")) return finish(false, db);
+        if (!db.objectStoreNames.contains("meta")) return finish(none, db);
         const req = db.transaction("meta", "readonly").objectStore("meta").get(SYNC_META);
-        req.onsuccess = () => finish(readLink(req.result) != null, db);
-        req.onerror = () => finish(false, db);
+        req.onsuccess = () => finish(readLink(req.result), db);
+        req.onerror = () => finish(none, db);
       } catch {
-        finish(false, db);
+        finish(none, db);
       }
     };
   });

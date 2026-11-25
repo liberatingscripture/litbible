@@ -24,10 +24,11 @@ const STATIC_IMPORT = /^\s*(?:import|export)\s[^;]*?\sfrom\s+["'](\.[^"']+)["']|
 const DYNAMIC_IMPORT = /\bimport\(\s*["'](\.[^"']+)["']\s*\)/g;
 
 /**
- * What only a syncing browser may download. The account's key flows
- * (desk-account.mjs, step 4h) are held the same way: they bring the
- * encryption with them, and no page reaches them yet. When the account
- * page is built its own dynamic import is a third way in, listed below.
+ * What only a syncing browser may download. The account pages (step 4h,
+ * src/scripts/desk/account/) and the account's key flows (desk-account.mjs)
+ * are held the same way: they bring the encryption with them. Their way in
+ * is a third dynamic import, of the account page from its own gate
+ * (src/scripts/account-gate.js), listed below.
  */
 const GATED_LIBS = new Set([
   "src/lib/desk-account.mjs",
@@ -37,9 +38,11 @@ const GATED_LIBS = new Set([
   "src/lib/desk-sync-status.mjs",
   "src/styles/desk-sync.css",
 ]);
-const isGated = (f) => f.startsWith("src/scripts/desk/sync/") || GATED_LIBS.has(f);
+const isGated = (f) => f.startsWith("src/scripts/desk/sync/") || f.startsWith("src/scripts/desk/account/") || GATED_LIBS.has(f);
 const LINK = "src/lib/desk-sync-link.mjs";
 const WAY_IN = "src/scripts/desk/sync/start.js";
+const ACCOUNT_GATE = "src/scripts/account-gate.js";
+const ACCOUNT_PAGE = "src/scripts/desk/account/page.js";
 
 function files(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -72,7 +75,7 @@ test("nothing outside the sync imports it statically", () => {
   assert.deepEqual(broken, [], `a reader who isn't syncing would download:\n  ${broken.join("\n  ")}`);
 });
 
-test("the only way in is a dynamic import of start.js, from the two files that read the link first", () => {
+test("the only ways in are a dynamic import of start.js, from the two files that read the link first, and of the account page, from its gate", () => {
   const ways = [];
   for (const file of ALL) {
     if (isGated(file)) continue;
@@ -80,10 +83,29 @@ test("the only way in is a dynamic import of start.js, from the two files that r
       if (isGated(to)) ways.push(`${file} -> ${to}`);
     }
   }
-  assert.deepEqual(ways.sort(), [`src/scripts/desk/first-stage.js -> ${WAY_IN}`, `src/scripts/desk/store.js -> ${WAY_IN}`]);
+  assert.deepEqual(ways.sort(), [`${ACCOUNT_GATE} -> ${ACCOUNT_PAGE}`, `src/scripts/desk/first-stage.js -> ${WAY_IN}`, `src/scripts/desk/store.js -> ${WAY_IN}`]);
   for (const file of ["src/scripts/desk/first-stage.js", "src/scripts/desk/store.js"]) {
     assert.ok(imports(file, STATIC_IMPORT).includes(LINK), `${file} reads the link with ${LINK}`);
   }
+});
+
+test("the account page's own file brings no encryption: a phone that signs in loads the basics alone", () => {
+  // Everything page.js reaches by static imports. The half that touches a key (notebook.js) is a dynamic import of its own.
+  const seen = new Set();
+  const walk = (file) => {
+    if (seen.has(file)) return;
+    seen.add(file);
+    for (const to of imports(file, STATIC_IMPORT)) walk(to);
+  };
+  walk(ACCOUNT_PAGE);
+  const heavy = [...seen].filter((f) => GATED_LIBS.has(f) || /\/(start|connector|status-line|stopped-notice)\.js$/.test(f) || f.endsWith("/account/notebook.js") || f.endsWith("/desk/store.js"));
+  assert.deepEqual(heavy, [], `the account's basics would download: ${heavy.join(", ")}`);
+  assert.ok(seen.has("src/scripts/desk/sync/service.js") && seen.has("src/lib/desk-account-session.mjs"), "the walk follows the page's real imports");
+  assert.deepEqual(
+    imports(ACCOUNT_PAGE, DYNAMIC_IMPORT).sort(),
+    ["src/scripts/desk/account/notebook.js", "src/scripts/desk/account/turnstile.js"],
+    "and the two halves it loads on demand are these",
+  );
 });
 
 test("what says a browser is linked imports nothing, so reading it costs a reader nothing", () => {

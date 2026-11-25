@@ -8,7 +8,7 @@
 //
 // What the account pages use:
 //
-//   linkNotebook({ store, service, token, notebook, device, keyring, replace })
+//   linkNotebook({ store, service, token, notebook, device, keyring, replace, carry })
 //       After sign-in, and after this device has set the notebook up or
 //       joined it: keeps the session and the device's keys, links this
 //       browser to the account's notebook, and starts syncing. The first
@@ -43,6 +43,9 @@ let current = null;
 let env = {};
 
 const sameLink = (a, b) => a && b && a.link === b.link;
+
+/** What `linkNotebook` writes beside a new link when the account page hands it over. */
+const CARRIED = ["code", "seen"];
 
 async function stopCurrent() {
   const was = current;
@@ -159,10 +162,12 @@ export class LinkRefused extends Error {
  *   pairs, the private halves not extractable; `keyring` the notebook's
  *   keyring, opened (this device made it, or was given it and has checked
  *   where it came from). `replace: true` is the reader's yes to leaving the
- *   notebook this browser was linked to before.
+ *   notebook this browser was linked to before. `carry` is what the account
+ *   page keeps beside the link from its first moment (./sync-db.js: "code",
+ *   a recovery code not yet confirmed, and "seen"); nothing else is taken.
  * @returns {Promise<object>} the connector
  */
-export function linkNotebook({ store, service, token, notebook, device, keyring, replace = false }) {
+export function linkNotebook({ store, service, token, notebook, device, keyring, replace = false, carry = null }) {
   return inTurn(async () => {
     const origin = allowedService(service, env.pageOrigin ?? globalThis.location?.origin);
     if (!origin) throw new LinkRefused("service");
@@ -181,7 +186,8 @@ export function linkNotebook({ store, service, token, notebook, device, keyring,
       const sealed = await sealKeyring({ keyring, recipientPublic: device.key.public });
       const id = (env.randomUUID ?? (() => globalThis.crypto.randomUUID()))();
       await db.clear();
-      await db.set({ link: id, token, device: { id: device.id, key: device.key, sign: device.sign ?? null } });
+      const kept = Object.fromEntries(CARRIED.filter((key) => carry?.[key] != null).map((key) => [key, carry[key]]));
+      await db.set({ ...kept, link: id, token, device: { id: device.id, key: device.key, sign: device.sign ?? null } });
       await db.write({
         meta: { notebook, cursor: 0, highest: keyring.current, resealed: 0, sealed: { enc: toBase64url(sealed.enc), ct: toBase64url(sealed.ct) } },
       });

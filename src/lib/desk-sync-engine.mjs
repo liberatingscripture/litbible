@@ -67,13 +67,10 @@ import {
   summarize,
 } from "./desk-sync.mjs";
 
-/** Thrown by `api.call` when the service can't be reached at all. */
-export class Offline extends Error {
-  constructor(message = "the notebook service can't be reached", options) {
-    super(message, options);
-    this.name = "Offline";
-  }
-}
+// Thrown by `api.call` when the service can't be reached at all. In a file of
+// its own so the carrier loads without this one (desk-sync-offline.mjs).
+import { Offline } from "./desk-sync-offline.mjs";
+export { Offline };
 
 /** Ends a pass with the state the reader is shown. */
 export class Halt extends Error {
