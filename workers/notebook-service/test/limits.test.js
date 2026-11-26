@@ -36,18 +36,28 @@ const PUSH = configured("PUSH_LIMIT");
 // since the deploy workflow runs this suite first.
 //
 // So every test here starts with room to finish inside one window: when less
-// than ROOM_MS is left of the current one, it waits for the next to begin.
-// A run meets that wait about one time in six, and once at most.
+// than its own timeout and a second is left of the current one, it waits for
+// the next to begin. The room is the test's own timeout, because Vitest stops
+// a test there, so a test that starts with that much left can't cross an edge.
+// Raise a test's timeout and its room grows with it; never give a test more
+// time without the room. A run meets that wait about two times in five (the
+// two slow tests below need SLOW_MS), and once at most.
 
 /** The shortest of the periods: an edge of a longer one is an edge of the shortest too (each divides 60). */
 const WINDOW_MS = Math.min(SIGN_IN.period, REQUEST.period, PUSH.period) * 1000;
-/** Longer than a test may take (Vitest stops one at five seconds), so a test that starts with this much room can't cross an edge. */
-const ROOM_MS = 6000;
+/**
+ * The timeout of the two tests that send REQUEST_LIMIT's 1,200 requests. On
+ * CI they took 1.2 to 3.3 seconds, and 5.3 once (2026-11-26, a slow runner),
+ * past Vitest's default of five, so they need more time than the rest.
+ */
+const SLOW_MS = 15_000;
 
-beforeEach(async () => {
+beforeEach(async ({ task }) => {
+  // A runner that stopped saying a test's timeout would leave no room at all.
+  expect(task.timeout).toBeGreaterThan(0);
   const left = WINDOW_MS - (Date.now() % WINDOW_MS);
-  if (left < ROOM_MS) await new Promise((resolve) => setTimeout(resolve, left + 100));
-}, ROOM_MS + 5000);
+  if (left < task.timeout + 1000) await new Promise((resolve) => setTimeout(resolve, left + 100));
+}, SLOW_MS + 6000);
 
 /** Sends `send` until it is refused, at most `most` times. Returns how many were answered before the refusal, and the refusal. */
 async function until(send, most) {
@@ -202,14 +212,14 @@ describe("the limit on every other request", () => {
     expect(refused.body).toMatchObject({ error: "slow_down", retry: 60 });
     // The session itself is untouched, and works from another address.
     expect((await call("GET", "/account", { token })).status).toBe(200);
-  });
+  }, SLOW_MS);
 
   it("still lets that address begin a sign-in: the two are counted apart", async () => {
     const ip = address();
     await until(() => call("GET", "/", from(ip)), REQUEST.limit + 1);
     expect((await call("GET", "/", from(ip))).status).toBe(429);
     expect((await call("POST", "/sign-in/passkey/options", from(ip))).status).toBe(200);
-  });
+  }, SLOW_MS);
 });
 
 describe("what a limit never does", () => {
