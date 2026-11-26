@@ -391,6 +391,18 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-25, Turnstile is on in the preview
+
+The check of 2026-11-24 (the entry below headed “Turnstile before a new
+account”) is configured on `notebook-preview.litbible.net`: BVJ made the
+widget and set its secret. **Nothing changes for an app**, which sends no
+`Origin`. What an app's session may notice: `GET /sign-in` now carries
+`turnstile`, the widget's site key, to be ignored; and a test client that
+sends an `Origin` header to `POST /sign-in/new-passkey/options` without a
+token is now refused `not_allowed` (rule `turnstile`). Production has
+neither yet. Full text: `workers/notebook-service/README.md`, “Turnstile
+before a new account.”
+
 ### 2026-11-25, the website says a waiting request and a new device on the page being read
 
 **Nothing you call changed**: no request, answer, size, or word, and no
@@ -657,7 +669,8 @@ yes to Turnstile on the website's sign-in page (the spec's “Still open,”
 
 - **What changes, and only where a deployment holds both
   `TURNSTILE_SITE_KEY` and the secret `TURNSTILE_SECRET`** (neither the
-  preview nor production does yet): `GET /sign-in` gains `turnstile`, the
+  preview nor production does yet; the preview does since 2026-11-25, the
+  entry above): `GET /sign-in` gains `turnstile`, the
   widget's site key; and `POST /sign-in/new-passkey/options` from a
   request with an `Origin` header must carry `{ "turnstile": "<token>" }`.
   A missing or refused token is `not_allowed` by the rule `turnstile`;

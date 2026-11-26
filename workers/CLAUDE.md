@@ -89,12 +89,7 @@ since 2026-11-23 and holding test data alone. **Production is prepared and
 not deployed** (step 4f, 2026-11-24: `env.production` in `wrangler.jsonc`
 with a placeholder database id, and two workflow jobs that are off).
 **The website's connector is built (step 4g, 2026-11-24;
-`src/scripts/desk/sync/CLAUDE.md`)** and changed nothing here. Two
-sentences of this package's README are stale since then ("Nothing in the
-website imports the service," and "The website's own Content Security
-Policy doesn't name this origin yet"): they were left because any change
-in this package redeploys the preview, so correct them with the next
-change that has to. **The root suite also runs this package's own code**
+`src/scripts/desk/sync/CLAUDE.md`)** and changed nothing here. **The root suite also runs this package's own code**
 (step 4h; `test/helpers/real-notebook-service.mjs`): `src/` in Node on
 `node:sqlite` with the real migrations, and `test/authenticator.js` as the
 website's tests' passkey. So `src/` must go on importing nothing outside
@@ -160,8 +155,11 @@ work," "Production," and what each later step plugs in and where), and
     both `TURNSTILE_SITE_KEY` (a variable) and `TURNSTILE_SECRET` (a
     secret) are set**, and checks only a request with an `Origin` (a
     browser's), so the apps pass unchecked until they attest (the spec's
-    "Still open," 86). Only Cloudflare's published dummy keys go in the
-    repo; the check runs before a challenge is written. A "no" from
+    "Still open," 86). **Both are set on the preview since 2026-11-25**
+    (BVJ's widget, for `litbible.net` alone), and the secret is in its
+    `secrets.required`; production has neither. No secret goes in the
+    repo: the site key is public, and the tests use Cloudflare's published
+    dummy keys. The check runs before a challenge is written. A "no" from
     siteverify for the deployment's own reason (a secret it doesn't know)
     is `provider`, never the reader's `not_allowed`.
   - **The Android origins in `wrangler.jsonc` and the certificates in

@@ -4,8 +4,9 @@
 // OFF UNTIL IT IS CONFIGURED. The check is on only where the deployment
 // holds both TURNSTILE_SITE_KEY (a variable, public: a browser shows the
 // widget with it) and TURNSTILE_SECRET (a Wrangler secret). With either
-// missing, nothing here changes any answer. No key or secret is written in
-// this repository; the tests use Cloudflare's published dummy keys.
+// missing, nothing here changes any answer. No secret is written in this
+// repository (the preview's site key, which is public, is in wrangler.jsonc);
+// the tests use Cloudflare's published dummy keys.
 //
 // Where it is on:
 //   - GET /sign-in carries `turnstile`, the site key, so the website knows

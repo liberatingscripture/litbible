@@ -95,6 +95,13 @@ describe("production", () => {
     for (const env of [preview, production]) expect(env.vars.TURNSTILE_SECRET).toBeUndefined();
     expect(raw).not.toMatch(/TURNSTILE_SECRET"\s*:/);
   });
+
+  it("turns Turnstile on in the preview alone (2026-11-25): its site key, and its secret required", () => {
+    expect(preview.vars.TURNSTILE_SITE_KEY).toMatch(/^0x4[A-Za-z0-9_-]{10,}$/);
+    expect(preview.secrets.required).toContain("TURNSTILE_SECRET");
+    // Production takes both when it is deployed (README, "Production").
+    expect(production.vars.TURNSTILE_SITE_KEY).toBeUndefined();
+  });
 });
 
 describe("what both environments must have, each written out (a named environment inherits none of it)", () => {
@@ -119,7 +126,7 @@ describe("the preview", () => {
   it("is the only environment with the preview's way in, and requires its secret to deploy", () => {
     expect(preview.vars.ENVIRONMENT).toBe("preview");
     expect(preview.vars.PREVIEW_SIGN_IN).toBe("on");
-    expect(preview.secrets).toEqual({ required: ["PREVIEW_SECRET"] });
+    expect(preview.secrets).toEqual({ required: ["PREVIEW_SECRET", "TURNSTILE_SECRET"] });
   });
 });
 

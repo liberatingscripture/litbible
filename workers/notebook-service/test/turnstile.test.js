@@ -3,7 +3,9 @@
 //
 // The keys below are Cloudflare's published dummy keys for testing, not
 // LIT's: the site key and secret that always pass, and the secret that
-// always fails. No real key is written anywhere in this repository. Nothing
+// always fails. No real secret is written anywhere in this repository. The
+// preview's own site key is in wrangler.jsonc (public by design), so each
+// test here sets both of the two itself (`NEITHER` clears them). Nothing
 // here reaches the network: fetch() is replaced for each test with a
 // stand-in for siteverify, as test/idp.js does for Apple and Google.
 import { env } from "cloudflare:workers";
@@ -16,6 +18,8 @@ import { SITEVERIFY } from "../src/turnstile.js";
 const SITE_KEY = "1x00000000000000000000AA";
 const SECRET = "1x0000000000000000000000000000000AA";
 const ON = { TURNSTILE_SITE_KEY: SITE_KEY, TURNSTILE_SECRET: SECRET };
+/** The two cleared, whatever the preview's configuration sets. */
+const NEITHER = { TURNSTILE_SITE_KEY: undefined, TURNSTILE_SECRET: undefined };
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
 
 let world;
@@ -50,7 +54,7 @@ const challenges = async () => (await env.DB.prepare("SELECT COUNT(*) AS n FROM 
 describe("configuration", () => {
   it("is off with neither, with the site key alone, and with the secret alone: GET /sign-in has no member", async () => {
     for (const more of [{}, { TURNSTILE_SITE_KEY: SITE_KEY }, { TURNSTILE_SECRET: SECRET }, { TURNSTILE_SITE_KEY: " ", TURNSTILE_SECRET: SECRET }]) {
-      const answer = await must("GET", "/sign-in", { env: more });
+      const answer = await must("GET", "/sign-in", { env: { ...NEITHER, ...more } });
       expect(Object.keys(answer), JSON.stringify(Object.keys(more))).toEqual(["time", "ways"]);
     }
   });
@@ -64,7 +68,7 @@ describe("configuration", () => {
 
   it("while off, a browser's request needs no token and no body, and siteverify is never asked", async () => {
     for (const more of [{}, { TURNSTILE_SITE_KEY: SITE_KEY }, { TURNSTILE_SECRET: SECRET }]) {
-      const { status, body } = await call("POST", "/sign-in/new-passkey/options", { headers: { origin: ORIGIN }, env: more });
+      const { status, body } = await call("POST", "/sign-in/new-passkey/options", { headers: { origin: ORIGIN }, env: { ...NEITHER, ...more } });
       expect(status).toBe(200);
       expect(body.publicKey.challenge).toBeTypeOf("string");
     }
