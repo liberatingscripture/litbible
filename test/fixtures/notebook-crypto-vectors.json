@@ -5474,6 +5474,36 @@
     }
    },
    {
+    "why": "a grant whose card names another signing key than this device's",
+    "given": {
+     "code": "9ca3dae5e4f4cd8cb483",
+     "device": {
+      "id": "5bb6d271-acb1-4ff8-969f-b0c71fa05691",
+      "key": {
+       "d": "24b5defeea81303a42406473aa6eb18c988cf4c0e5d60be53cdd99774fb6bf76",
+       "public": "046d5a22a1ff5685e67eefa116761a7e0f654636e9eab72e4b4e78c1ffcbd493c366f20c8821786fc3a40b8def488145b2113bbf28f85f98bbe22d23ca001de4b6"
+      },
+      "sign": {
+       "d": "5a9fddbbdeb03aa2429646d62c2aeb3faf975986b11ae41822c33aec683b7974",
+       "public": "04e08788b40596ff88b1767750cbc92cb2a81c8b36bf5a5537acacf462c8c2b5eb7fdd1fcc3bd55c94d0bb9db12cfa4a09c0759aa680776534bf1efa28c25295fd"
+      }
+     },
+     "grant": {
+      "kid": 2,
+      "enc": "045fcd6f081c4d2843d8f1b9d71c970e28cd05591cae5fd1a29f7cdb5982322f2317033a6d9c15e076c59920f281b68ac6ef49c3c452dc4d4c087b952944305292",
+      "ciphertext": "46406426ce75c320edbaed753fa56f10811dbe2ae51bab87dd6b37eeb25439cd2b2bf03713b4dc870c39684850cbb7dbd96d754f35c1b83ad5e4ac964584b7b6c12ea2fc5fc16ac0d2578df0168d8c00a2f7c5ef233cee4e8115ad664f2ea016828b61f552c63c55bcbdaeb1e2c3357343eb7ad253b9cdb668ce33145ee6698ed4547cfd30caa68191c1f615700e1d1dfb56c66cb37ac6aa106a6fd4341945d2cd9f7da4165355c5a98ecde30ca3e06c553ff9252014f1e39b73cbd6364bc0306301369ea20b0d239dee8d02e7e42d92754d3e0211e2ba5b1b4c47b6536234faa122f3175e94efa1ad55",
+      "card": {
+       "nonce": "7176ecc5e58270614a732e5c",
+       "ciphertext": "288356d3c9fd1778dd2bfe7b97cf67335e2a529bc6d96e24ef160a4b9f95a3bde8549506b7e5d8553caa87a0ce20b58ba7be79f67f51c7b96691a143b4c300669a63805391ca76bf1e9da9d7cbf0f8afb378389d70e693fda8139a9a53348d7d61172064bb65bdb062ad396b193a65e71151f5439b1256442c548a72e2fb9a6cf39903d80d2c8f271263a9ae97a2f731d8017f535c4f498de81ac943e6237b547dd4a06763841f79a4b0bedba9f6a12cb529c1b1105e715d7caf93667470c771156bf349093931cdbde518448386d0494c6e14fe3e504bc6e50b6f668b110c6721161569aa717978d6d6729edcf1f6e8c1f309619053d9f253e41937af58e4db89494aca04819498d1962ded1b91626dd38fbac6c119a7bf043408eb3b22"
+      },
+      "mac": "6edcfc8e1929804d3a35d0fd8c4259d7cf939ce02ac468ad81f0927b58df0131"
+     }
+    },
+    "expected": {
+     "refused": "card"
+    }
+   },
+   {
     "why": "a grant whose card was sealed for another device's id",
     "given": {
      "code": "9ca3dae5e4f4cd8cb483",

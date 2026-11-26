@@ -1028,6 +1028,13 @@ async function approvalGroup() {
     await refuseGrant("a grant whose card names another device key than this device's", { ...grant, card });
   }
   {
+    // The right device key, but another signing key: the card is the approver's word for who signs this device's records.
+    const other = c.deviceCard({ public: asked.public, sign: keyPair("approval intruder signing key").public, name: asked.model, platform: asked.platform, added: DEVICE_ADDED });
+    const n = nonce("approval other signing key card");
+    const card = await c.sealDeviceCard({ notebookKey: c.keyOf(held, 2), kid: 2, notebook, deviceId: device.id, card: other, nonce: n });
+    await refuseGrant("a grant whose card names another signing key than this device's", { ...grant, card });
+  }
+  {
     const n = nonce("approval misplaced card");
     const card = await c.sealDeviceCard({
       notebookKey: c.keyOf(held, 2), kid: 2, notebook, deviceId: uuid("approval another device"),
