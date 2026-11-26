@@ -13,6 +13,15 @@ items that evening (`STUDY-DESK.md`, “Decisions,” 2026-11-23). This draft wr
 adds the service’s interface, and ends with what changed and what is still open. It is step 4a of
 the plan in `STUDY-DESK.md`, “Order of work,” 4.
 
+**Changed on 2026-11-26, and not yet written in: a spare key by default.** BVJ chose BDR’s level 2
+(`STUDY-DESK.md`, “Decisions,” 2026-11-26): the service keeps a spare key to each notebook and hands
+it to the reader’s signed-in devices, and “End-to-end encryption” is each reader’s option, inside
+which “follows my account,” “this device only,” and the recovery code work as this draft says. Draft
+3 writes it in (the plan’s step SK1; the reference and vectors version 5 are SK2, both in
+`STUDY-DESK.md`, “Order of work,” 4, “The spare key”). Until then this draft stays as it is, and so
+describes what will be the option. Two lines of the decided list below are changed by it, and so
+are “Still open,” 1 to 3 and 85.
+
 **Writing the reference meant reading every sentence here as code, and some said less than code
 needs.** Each such place now says what the reference does, in its own section; “Changed in step
 4b” lists them all, and the ones that were a choice are under “Still open,” 22 to 30, with one
@@ -51,9 +60,10 @@ another, and what the service checks along the way. Nothing here changes a recor
 
 **Decided by BDR and BVJ together, and taken as given:**
 - **Plan C, with end-to-end encryption at launch** (2026-11-23). Shipping sync without it is not a
-  fallback (BDR’s proposal, §8).
+  fallback (BDR’s proposal, §8). **Changed 2026-11-26**: a spare key by default (above).
 - **The privacy page may say only that “LIT holds your notes encrypted and can’t read them”** (BDR,
-  2026-10-07), so LIT must hold nothing that opens them.
+  2026-10-07), so LIT must hold nothing that opens them. **Changed 2026-11-26**: BDR’s level 2
+  relaxes it (above).
 - **Sign in with Apple, with Google, or with a passkey.** No passwords and no codes by email.
 - **The envelope**: the service keeps a record’s id, revision, edit time, and deletion time in the
   clear and everything else encrypted, and all merging happens on devices (`STUDY-DESK.md`, “To

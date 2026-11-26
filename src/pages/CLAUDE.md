@@ -10,7 +10,10 @@ They are the LIT Bible's policy for the website, both apps, and the
 optional account, and every word is BVJ's once approved; the app sections
 of `/privacy` are BDR's to correct. Step 4j of the Study Desk's plan wrote
 the account parts (`STUDY-DESK.md`, step 4j, with BVJ's decisions of
-2026-11-25). Five things to keep:
+2026-11-25). **BVJ chose a spare key by default on 2026-11-26**
+(`STUDY-DESK.md`, "Decisions"), so the account parts change with the
+plan's step SK5; until then they describe end-to-end encryption for every
+reader. Six things to keep:
 
 1. **A change to `/privacy` files an issue on the LSC site's repository**
    (`.github/workflows/apps-mirror-notify.yml`): LSC reviews its own
@@ -34,6 +37,14 @@ the account parts (`STUDY-DESK.md`, step 4j, with BVJ's decisions of
    carries the counts' retention (`test/csp-reporting.test.js`). `/terms/`
    uses `/privacy`'s stylesheets as they are, as `/delete-account/` does,
    and the app announcement stays off both (`announcement-gate.js`).
+6. **No lawyer for now** (BVJ, 2026-11-26). A question that would go to a
+   lawyer (the wording of a promise, a law that may apply, what the stores
+   ask) gets a thorough research pass by Fable instead, and Fable's
+   recommendation is followed, BVJ "acknowledging we understand that it
+   can't give lawyer-level advice." The questions are one list, in
+   `STUDY-DESK.md`, "Order of work," 4, "The lawyer questions, for Fable";
+   a new one gets a line there. A pull request that rests on one says it is
+   Fable's research, not legal advice.
 
 ## The podcast page (`found-in-translation-podcast.astro`)
 
