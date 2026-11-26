@@ -392,6 +392,8 @@ test("“Show a code instead”: the new device types the code, and the question
 
   const page1 = await openPage(first.b);
   await synced(page1);
+  // The button is drawn with the home's lists, which can come after the sync is in step.
+  await page1.shows(WORDS.showCode);
   await page1.press(WORDS.showCode);
   await page1.shows(WORDS.showCodeLede);
   const code = page1.root.querySelector(".account__code--short").textContent;
