@@ -15,7 +15,7 @@ import "../styles/v2/privacy.css";
       "@type": "WebPage",
       "name": "LIT Bible Privacy Policy",
       "url": "https://litbible.net/privacy/",
-      "dateModified": "2026-11-25",
+      "dateModified": "2026-11-26",
       "description": "The LIT Bible privacy policy. Your reading life is your own. Reading needs no account, the site and apps keep what you create on your device, and an optional account syncs your notebook locked with a key we never have.",
       "isPartOf": {
         "@type": "WebSite",
@@ -36,7 +36,20 @@ import "../styles/v2/privacy.css";
       <div class="privacy-header__inner">
         <h1 id="privacy-title" class="privacy-title">Privacy Policy</h1>
         <p class="privacy-effective">
-          Effective date: <time datetime="2026-11-25">November 25, 2026</time>
+          Effective date: <time datetime="2026-11-26">November 26, 2026</time>
+        </p>
+        {/* The "what changed" line src/pages/CLAUDE.md rule 4 promises; it
+            comes off after 2026-12-26, 30 days from the later date. */}
+        <p class="privacy-effective privacy-changed">
+          <strong>What changed</strong> on
+          <time datetime="2026-11-25">November 25, 2026</time>: this policy
+          now describes the optional LIT Bible account (not open yet) and what
+          it keeps, the security reports your browser may send, how to ask
+          what we hold wherever you live, and a minimum age for an account.
+          Our <a href="/terms/">Terms of Use</a> are new the same day. On
+          <time datetime="2026-11-26">November 26, 2026</time>: we named the
+          other companies’ players and giving form on two of our pages, and
+          made four account details exact.
         </p>
         <p class="privacy-lede">
           The LIT Bible is built on a simple principle: your reading life is
@@ -86,8 +99,10 @@ import "../styles/v2/privacy.css";
             record of where you connect from.
           </li>
           <li>
-            There are no ads, nothing tracks you across sites, and nothing is
-            sold.
+            There are no ads, we don’t track you across sites, and nothing is
+            sold. Two pages show other companies’ players or a giving form,
+            which follow their own privacy policies (see
+            <a href="#privacy-external-links">External links</a>).
           </li>
         </ul>
       </section>
@@ -136,9 +151,9 @@ import "../styles/v2/privacy.css";
           </li>
         </ul>
         <p>
-          The contact and subscribe forms, and “Create an account,” are
-          protected from spam by Cloudflare Turnstile, a privacy-preserving
-          alternative to CAPTCHAs that does not track you across sites. On the
+          The contact and subscribe forms, and “Create an account” on the
+          website, are protected from spam by Cloudflare Turnstile, a
+          privacy-preserving alternative to CAPTCHAs that does not track you across sites. On the
           subscribe form, Turnstile runs in “invisible” mode: it verifies you
           silently in the background, with nothing to click or solve. When you
           create an account, the notebook service asks Cloudflare to confirm
@@ -316,7 +331,8 @@ import "../styles/v2/privacy.css";
           of your notebook is sent, your device locks it with a key that only
           your devices have. We never have that key, so we can’t read your
           notebook, and neither can Cloudflare or anyone who gets into our
-          systems. Your devices’ names are locked the same way.
+          systems. Your devices’ names are locked the same way once a device
+          has joined.
         </p>
         <p><strong>Signing in:</strong></p>
         <ul>
@@ -331,9 +347,9 @@ import "../styles/v2/privacy.css";
             in on Apple’s or Google’s own page, under their privacy policies.
             We ask them for no name and no email address, and keep only the
             account id they give us for you. For Sign in with Apple we also
-            keep a token Apple issues, encrypted in our database, so that we
-            can tell Apple to end the connection when you remove that way in
-            or delete your account.
+            keep a token Apple issues, which we can read, so that we can tell
+            Apple to end the connection when you remove that way in or delete
+            your account. It opens nothing in your notebook.
           </li>
         </ul>
         <p>
@@ -352,7 +368,8 @@ import "../styles/v2/privacy.css";
         <ul>
           <li>
             the account’s id, and for each way you sign in, a passkey’s public
-            key and id or the account id Apple or Google gives us;
+            key and id, whether it syncs between your devices, and the use
+            count it reports, or the account id Apple or Google gives us;
           </li>
           <li>
             each signed-in session: how it signed in, when, and when it ends
@@ -370,6 +387,12 @@ import "../styles/v2/privacy.css";
           <li>
             whether a recovery code or a passkey can open your notebook, and
             which device added it;
+          </li>
+          <li>
+            while a new device waits to be approved, for up to ten minutes:
+            its kind (iPhone or iPad, Android, or website) and its model, such
+            as “iPhone 15” or, on the website, its browser and system, such as
+            “Chrome on Windows”;
           </li>
           <li>
             while it waits, a request to delete your account or to start a
@@ -390,9 +413,11 @@ import "../styles/v2/privacy.css";
           name, your email address, a password, your reading history, or your
           settings. The service doesn’t keep or log the address your requests
           come from: Cloudflare counts requests by address for one minute, to
-          slow down floods, and that count is all. The service’s own log of
+          slow down floods, and that count is all. The service’s own line for
           each request says when, which kind of request, whether it worked,
-          and how long it took, and nothing about who asked.
+          and how long it took, and nothing about who asked. Those lines
+          aren’t stored: we see them only as they happen, when we watch for a
+          fault.
         </p>
         <p>
           <strong>What can still be seen.</strong> Like any website,
@@ -409,7 +434,8 @@ import "../styles/v2/privacy.css";
           </li>
           <li>
             a deleted record: a locked copy in your notebook’s trash for 30
-            days, so you can restore it; after that only a locked note that it
+            days, so you can restore it; after that, the next of your devices
+            to open your notebook replaces it with only a locked note that it
             was deleted, so your other devices delete it too;
           </li>
           <li>
@@ -425,12 +451,12 @@ import "../styles/v2/privacy.css";
             days, then it is carried out, unless it is canceled;
           </li>
           <li>
-            request counts by address: one minute; the service’s log lines: up
-            to seven days;
+            request counts by address: one minute;
           </li>
           <li>
             our database’s backup history: up to 30 days, which can hold a
-            deleted account, still locked, until it ages out.
+            deleted account until it ages out; the notebook in it stays
+            locked.
           </li>
         </ul>
         <p>
@@ -521,6 +547,15 @@ import "../styles/v2/privacy.css";
       <section aria-labelledby="privacy-external-links">
         <h2 id="privacy-external-links" class="v2-rule">External links</h2>
         <p>
+          Two pages also show other companies’ content inside the page: the
+          <a href="/found-in-translation-podcast/">podcast page</a> plays the
+          latest episodes in YouTube, Spotify, and Apple Podcasts players, and
+          the <a href="/support/">Support page</a> shows Give Lively’s giving
+          form. Your browser contacts those companies when the player or form
+          loads, before you press play or give, and they may set cookies or
+          record the visit under their own privacy policies.
+        </p>
+        <p>
           The website and app include links to external services. Following
           these links subjects you to those third parties’ privacy policies.
           The LIT Bible team does not track whether you visit these pages or
@@ -606,10 +641,11 @@ import "../styles/v2/privacy.css";
           with Apple or Google if you choose to sign in with them.
         </p>
         <p>
-          <strong>Do Not Track:</strong> the site and the apps don’t track you
-          across other sites and show no ads, so there is nothing for a
-          browser’s Do Not Track signal to turn off, and the site works the
-          same with it on or off.
+          <strong>Do Not Track:</strong> we don’t track you across other sites
+          and show no ads, and the site works the same with the signal on or
+          off. The players and the giving form described under
+          <a href="#privacy-external-links">External links</a> follow their
+          own companies’ policies, including on Do Not Track.
         </p>
       </section>
 

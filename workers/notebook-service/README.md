@@ -628,9 +628,18 @@ how many requests it carried out, held, or failed on, and how many rows it
 swept, as counts. **No body, key proof, session token, id, account, or
 address a request came from reaches a log**, and no name or email address is stored
 anywhere: a way to sign in is kept as the provider's own account id, and the
-preview's as a made-up label. Cloudflare's own per-request log (which would
-record each address) is turned off in `wrangler.jsonc`
-(`observability.logs.invocation_logs`). `test/http.test.js` checks the lines.
+preview's as a made-up label. `test/http.test.js` checks the lines.
+
+**None of it is stored** (`observability.enabled: false` in `wrangler.jsonc`,
+held by `test/config.test.js`; BVJ, 2026-11-26, Study Desk Audit 9's decision
+4). Watch the lines live with `npx wrangler tail --env preview`. Workers Logs
+was on until then, and one stored event BVJ read from the preview's dashboard
+showed why it can't be: beside the service's own line Cloudflare keeps the
+Worker's name and version, its own request, ray, trace, and span ids, and the
+request's method, **full URL, and path**, which for `/devices/:id`,
+`/ways/:id`, `/approvals/:id`, and `GET /devices?device=` carry an id. It held
+no IP address and no header. `/privacy` says the lines aren't stored; turning
+stored logs back on is a change to that page first.
 
 ## The account work (step 4f)
 
@@ -827,8 +836,8 @@ something on Cloudflare or GitHub.
    request 10 ms of CPU, which may cut off a large push, and keeps Time
    Travel's history for 7 days instead of 30. The deletion page tells
    readers 30 days. Two more reasons, from Cloudflare's pages as read on
-   2026-11-24. **On Free a database gets 100,000 rows written a day, and
-   then every query fails until midnight UTC**: one address beginning
+   2026-11-24. **On Free the account gets 100,000 rows written a day, shared
+   by every database on it, and then every query fails until midnight UTC**: one address beginning
    sign-ins at the limit (60 a minute, each a challenge written and later
    deleted, which D1 counts as at least four rows) would spend that within
    about seven hours, and nobody could sync for the rest of the day. And

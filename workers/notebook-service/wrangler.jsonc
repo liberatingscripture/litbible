@@ -29,15 +29,15 @@
   // service answers on its own address or not at all.
   "workers_dev": false,
   "preview_urls": false,
-  "observability": {
-    "enabled": true,
-    "logs": {
-      // The platform's own line for each request holds the address that was
-      // asked for, ids and all. The service writes its own line instead, with
-      // the route as it is written in src/index.js and nothing from the request.
-      "invocation_logs": false
-    }
-  },
+  // NO STORED LOGS, on purpose (BVJ, 2026-11-26, Study Desk Audit 9's
+  // decision 4). The service writes its own line for each request, with the
+  // route as it is written in src/index.js and nothing from the request, but
+  // a stored Workers Logs event carries the request's full URL beside it
+  // (read from the preview's dashboard that day), and /devices/:id,
+  // /approvals/:id, /ways/:id, and ?device= put an id in the URL. /privacy
+  // says the lines aren't stored. `npx wrangler tail --env preview` shows them
+  // live. Both environments inherit this; test/config.test.js holds it off.
+  "observability": { "enabled": false },
 
   "env": {
     // Deploys as the Worker "litbible-notebook-preview".

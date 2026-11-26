@@ -119,6 +119,15 @@ Losing this account is the worst case — it holds five distinct things:
    new **Managed**-mode widgets for hostname `litbible.net`, paste the new
    site keys into those two pages, and re-set the two secrets.
 
+**The account is on Workers Free** (BVJ, 2026-11-25, Study Desk Audit 9's
+decision 1). The Free limits are the **account's**, shared by every Worker
+and database on it: 100,000 D1 rows written a day, 50 queries per
+request, Time Travel back 7 days, and Workers Logs kept 3 days. So a flood
+of the notebook preview can also stop the policy report Worker's counts for
+the rest of that day. Production's entry below says it should run on
+Workers Paid ($5 a month), which raises each of those; when the account
+moves, record it here and set a billing notification in the dashboard.
+
 ### The notebook service's preview (deployed 2026-11-23)
 
 The Study Desk's sync service (`workers/notebook-service/`; the plan's step

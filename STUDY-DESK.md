@@ -6200,12 +6200,29 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      paragraph limiting liability; governing law and the courts; whether
      the sign-in page's sentence is enough assent; whether a passkey's
      credential id is "personal data" under Oregon's act; and the state
-     app-store laws (the apps').
+     app-store laws (the apps'). **Study Desk Audit 9 added ten** (its
+     Appendix H, "what a lawyer should look at"; BVJ, 2026-11-26: keep them
+     here in one list): who licenses and who contracts (the license on
+     `/read` is in BVJ's name, the Terms' party is the Collective); whether
+     the liability limit reaches BDR and contractors, with no carve-out,
+     indemnity, severability, or assignment clause; assent by use, and the
+     apps' sign-in, which shows no Terms line; notice of a change by a line
+     on the page and in the apps alone; suspending or closing an account
+     with no notice or appeal, and the 90 days' carve-out for "a law";
+     whether sealed notes the service can't read are sensitive data
+     (religious belief) under Oregon, Colorado, and similar acts; the
+     embedded players and Do Not Track; the worldwide "ask what we hold,"
+     with no response time, no way to identify an account from a message,
+     and no lawful basis, transfer note (US hosting), or complaint route
+     for the EU (LP9-9); a parent's right to delete a child's account that
+     can't be found; and Apple's standard license agreement and Play's
+     Families rules.
 
-     **Not verified**: the service's log lines kept "up to seven days" is
-     Cloudflare's Workers Logs retention on the paid plan as Claude knows
-     it, not read from the dashboard; and the pages were checked in a
-     build, not by BVJ in a browser.
+     **Not verified, then checked** (2026-11-26): the account is on Workers
+     Free, so Workers Logs kept 3 days, and one stored event BVJ read held
+     the request's full URL beside the service's own line, so stored logs
+     were turned off (Audit 9's decision 4, under "Decisions"). The pages
+     were checked in a build, not by BVJ in a browser.
    - **4k. Notes from the Greek** (1). A note started from the Greek tab
      or pane is an ordinary note on its verse, with the selected Greek in
      its body. No change to the format. After 4d.
@@ -8629,6 +8646,72 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-11-26 (Study Desk Audit 9: BVJ's decisions)
+
+Study Desk Audit 9 (`STUDY-DESK-AUDIT-9.md`, PR #715) ended with 15
+numbered decisions for BVJ and BDR, Tier 2 rows naming BVJ, and owner
+questions in its appendices. BVJ answered them in one session, a few at a
+time, from Claude's plain-text recommendations. Each line here is BVJ's
+answer; the audit's "Findings by area" carries each finding's state.
+
+- **Decision 1, the Workers plan: Free** (“We're on the free plan.”).
+  Recorded in `DISASTER-RECOVERY.md` with what Free means: the D1 writes,
+  queries, Time Travel (7 days), and Workers Logs (3 days) are the
+  account's, so a flood of the preview can also stop the policy report
+  Worker's counts for a day.
+- **Decision 3, LP9b-1, the tracking sentence: the words now, the players
+  later** (“go with your recommendations”). `/privacy` says “we don’t track
+  you across sites” and names, under External links, the podcast page's
+  YouTube, Spotify, and Apple Podcasts players and the Support page's Give
+  Lively form, which may set cookies under their own policies; Do Not Track
+  points to them. Whether YouTube moves to its no-cookie address, or each
+  player loads on a press, is left for later.
+- **Decision 4, LP9b-4, the service's stored logs: off** (“All as
+  recommended”). BVJ read one stored Workers Logs event from the preview on
+  2026-11-26: beside the service's own line it held the Worker's name and
+  version, Cloudflare's request, ray, trace, and span ids, and the request's
+  method, full URL, and path, with no IP address and no header. Four routes
+  put an id in the URL, so `observability.enabled` is now false, as the CSP
+  Worker has it; live tailing still works. `/privacy` says the lines aren't
+  stored, and drops “up to seven days.” Only BVJ and BDR can read the
+  dashboard (BVJ), which made it a question of the words, not a leak.
+- **LP9b-2, -3, -5, -8, and LP9b-10: four account sentences made exact**
+  (“go with your recommendations”): Apple's token is readable to the
+  service and opens nothing in the notebook; a device waiting to be
+  approved shows its kind and model, plain, for up to ten minutes (on the
+  website its browser and system), and a passkey's syncs flag and use count
+  are listed; Turnstile guards “Create an account” on the website; the next
+  device to open the notebook replaces a 30-day trash copy with its
+  tombstone; and the backup history holds a deleted account whose notebook
+  stays locked.
+- **Decision 11, LP9b-7: a “What changed” line** (“go with your
+  recommendations”), under the effective date, naming the 2026-11-25
+  rewrite and this correction. The correction is treated as material: the
+  effective date moves to the day it lands, and the line comes off 30 days
+  after (`src/pages/CLAUDE.md`, rule 4). `/terms/` now promises the same
+  30 days. The apps' What's New note is BDR's (`STUDY-DESK-FOR-THE-APPS.md`).
+- **LP9b-6: the spec's two “not even that there was one” sentences** take
+  the 30 days of backup history (“as recommended”).
+- **Decision 12, LP9-9 and LP9b-9: the lawyer's list, and the license's
+  reach** (“All as recommended”). The audit's ten points join step 4j's
+  “For a lawyer” list. The license on `/read` now names the book
+  introductions, glossary, and articles beside the text and footnotes, so
+  the Terms' “under the same license” is true; whose license it is stays on
+  the lawyer's list.
+- **Decision 13, the desk's words** (“All as recommended”): the sign-out
+  sentence says a notebook whose key is “This device only” needs the
+  recovery code or another device to sync again (AC9-3); the backup
+  reminder stays on for a synced reader and says “to a file” (UX9b-2); the
+  Notebook panel's Settings tab gets one quiet line to `/account/` while
+  accounts are open and the browser isn't synced (UX9b-4); “this browser”
+  is where the notebook is kept, “this computer” only a saved file or the
+  hardware, and “device” only “This device only” and the account's devices
+  (CP9-1); and “Set up an account” loses its ellipsis (UX9b-7).
+- **Added from the appendices**: Rename says its result like every other
+  account action, and the screen's heading keeps focus (AC9-2, “All as
+  recommended”); and pages stop shipping developer comments, now rather
+  than at launch (CP9-4, the same).
 
 ### 2026-11-23 (the call with BDR: plan C, and sync on February 10)
 

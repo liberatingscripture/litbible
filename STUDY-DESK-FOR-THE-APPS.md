@@ -440,6 +440,32 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-26, `/privacy` corrected, and the service stores no logs (Audit 9)
+
+**Nothing you call changed**: no request, answer, size, word, or format
+point. BVJ's decisions from Study Desk Audit 9, with what touches the apps
+**for BDR to act on**:
+
+- **Please carry a What's New note in the next builds** (a suggested
+  wording, yours to change): “We updated our
+  privacy policy on November 26, 2026: it now names the players and giving
+  form other companies show on two of our web pages, and it is more exact
+  about what the optional account keeps.” (Rule of 2026-11-25: a material
+  change is noted in What's New; the page shows its own “What changed” line
+  until 2026-12-26.)
+- **The service's plain fields on `/privacy` now list everything the store
+  forms need**: a passkey's syncs flag and use count, and a device waiting
+  to be approved, its platform and model, for up to ten minutes (the
+  `platform` and `model` of `POST /approvals`). Decision 9 of the audit
+  (the stores' forms) is BDR's and can be answered from that list.
+- **The service stores no log lines** (`observability.enabled: false`). A
+  stored Workers Logs event carried the request's full URL, and
+  `/devices/:id`, `/approvals/:id`, and `/ways/:id` put an id there. Watch
+  the preview live with `npx wrangler tail --env preview` (BDR can't from
+  the Actions workflow; ask BVJ). Nothing the apps send changes.
+
+Full text: `STUDY-DESK.md`, “Decisions,” 2026-11-26.
+
 ### 2026-11-25, the privacy page, the Terms of Use, and the first-time choice (step 4j)
 
 **Nothing you call changed**: no request, answer, size, word, or format
