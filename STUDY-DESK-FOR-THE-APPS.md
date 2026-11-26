@@ -853,13 +853,13 @@ is the website's to weigh.
 From the crypto (`desk-crypto.mjs`):
 1. `TextDecoder` drops a leading byte order mark, and iOS matches; the
    spec doesn't say so.
-   - **Taken** (#PR): one sentence in “Opening” (check 6) says what both
+   - **Taken** (#728): one sentence in “Opening” (check 6) says what both
      clients already do, for every sealed JSON, and an `open` case begins
      with the mark (vectors version 4).
 2. `JSON.parse` takes a lone UTF-16 surrogate in a `\u` escape, which a
    Swift string can't hold, so iOS refuses it as `json`. The spec could
    say no record, card, or keyring carries one.
-   - **Taken** (#PR): the spec says no record, card, holder record, or
+   - **Taken** (#728): the spec says no record, card, holder record, or
      keyring holds one (“Fixed choices”), the reference refuses one as
      `json` in every sealer and on every opening, and vectors cover each
      kind. **What happens to text a reader types on the website:** a note
@@ -876,7 +876,7 @@ From the crypto (`desk-crypto.mjs`):
      word the website chooses, so neither can hold one.
 3. A holder record whose `public` isn't `d`'s own isn't in the vectors.
    iOS refuses it (`record`), and any mismatched key pair as `privateKey`.
-   - **Taken** (#PR): `readHolderRecord` checks the pair at check 2 and
+   - **Taken** (#728): `readHolderRecord` checks the pair at check 2 and
      refuses `record`, as iOS does, by signing with `d` and verifying with
      `public`. Each holder group has two cases: another pair's public key,
      and `d`'s point with `y` negated.
@@ -885,7 +885,7 @@ From the crypto (`desk-crypto.mjs`):
    one. iOS now compares bytes. A vector with canonically equivalent ids
    and object keys would catch this on every client; Android should check
    it in Kotlin.
-   - **Taken** (#PR): an `openRefused` case whose ids differ only by the
+   - **Taken** (#728): an `openRefused` case whose ids differ only by the
      Kelvin sign (U+212A) against `K` (row ids are printable ASCII, so
      that is the one way to make the pair), refused as `fields`, and an
      `open` case with two canonically equivalent member names, both kept.
@@ -966,18 +966,18 @@ From the service and the website's fake:
       table says.
 17. The `platform` and `model` limits count UTF-16 units, not characters.
     iOS matches; the spec could say which.
-    - **Taken** (#PR): that sentence is in “How values are spelled.”
+    - **Taken** (#728): that sentence is in “How values are spelled.”
 
 From the sync pass (`desk-sync-engine.mjs` and its tests):
 18. `openSession` keeps another notebook's keyring in memory after
     refusing it, so the next pass skips the check. iOS holds a keyring
     only once it passes.
-    - **Taken** (#PR): `openSession` holds the keyring only once the check
+    - **Taken** (#728): `openSession` holds the keyring only once the check
       passes, and a test swaps the kept keyring for another notebook's
       and sees two passes refuse it and seal nothing.
 19. `adopt` checks nothing while no keyring is in memory. iOS also
     refuses a `kid` below the highest one stored.
-    - **Taken** (#PR): with no keyring in memory, `adopt` also refuses a
+    - **Taken** (#728): with no keyring in memory, `adopt` also refuses a
       `current` below `meta.highest` (`backward`), with a test after a
       change of key and a reload.
 20. `rowSize` counts UTF-16 units against a limit in bytes; they agree
