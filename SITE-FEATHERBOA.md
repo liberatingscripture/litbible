@@ -193,6 +193,72 @@ then puts boxes in the box, so it takes the boxes away. BVJ took it
     public opening). Still open there (2026-11-23): whether a beta stage is
     left if the opening and sync land on the same day.
 
+## Sizes, space, and the measure (decided 2026-11-26)
+
+Design Directions' proposal 4: a short list of sizes, one spacing scale, and
+fixed column widths. Its reason: today sizes and gaps are chosen page by
+page, and with a scale, two people (or two Claude sessions) building two
+pages arrive at the same rhythm without talking. BVJ took it with the
+reading sizes refit for Source Sans 3 (“Take it, refit”).
+
+### Ten sizes, each with a job
+
+| Size | Face, weight, size / line height | Its job |
+|------|----------------------------------|---------|
+| Headline | Fraunces 300 to 800, 56 to 104 / 0.95 | The front door only, one per screen |
+| Title | Fraunces 400, 48 to 62 / 1.0 | The name of a book or a page |
+| Heading | Fraunces 500, 28 / 1.15 | Sections of an article, a sheet's title |
+| Subhead | Fraunces 500, 21 / 1.2 | Panel and pane titles |
+| Scripture | Source Sans 3 400, refit (the proposal: 20 / 1.62) | Scripture at the reader's size M; S, L, and XL still scale it |
+| Text | Source Sans 3 400, refit (the proposal: 17 / 1.6) | Articles, introductions, footnotes at full length, the reader's notes |
+| Margin | Source Sans 3 400, refit (the proposal: 15 / 1.5) | Notes beside a line, list rows in the Study Desk |
+| Label | Atkinson Hyperlegible Next 600, 14.5 / 1.4 | Every button, tab, and menu row |
+| Small label | Atkinson Hyperlegible Next 600, 12.5 / 1.4 | Counts, dates, captions. Nothing is smaller |
+| Verse number | Atkinson Hyperlegible Next 600, 0.56 of the text | Grows and shrinks with the text size |
+
+- **The three reading sizes are refit for Source Sans 3.** The proposal chose
+  them for Literata. Source Sans 3's small letters are shorter, so the same
+  numbers would look smaller: Text at 17 would look like Inter at about 15,
+  smaller than articles are today. Each is set so its small letters stand
+  as tall as the proposal drew them, measured when it is built, as "Type"
+  found 20.2px; the line heights are checked with them.
+- **Verse numbers are Atkinson** at 0.56 of the text, in deep green with no
+  underline ("Color").
+
+### One spacing scale
+
+Every gap, padding, and margin is one of nine steps: **4, 8, 12, 16, 24, 32,
+48, 64, 96**. Nothing is 10, 14, or 18 pixels “because it looked right that
+afternoon.”
+
+### Three columns, always the same widths
+
+On a computer the reading page is a **220** quiet side, a **660** text
+column, and a **320** margin. The text column never gets wider; on a bigger
+screen only the outer space grows. The proposal's 660 gives about 68
+characters in Literata at the default size, inside the 45 to 75 that
+typographers and Bible publishers agree on; in Source Sans 3 it is measured
+again, through `--ch` ("Type"). Larger text sizes shorten the count, which
+is what a reader who chose them wants.
+
+| Screen | Text | Notes and footnotes | Navigation |
+|--------|------|---------------------|------------|
+| Phone, under 700 | Full width, 24 at each side | A sheet from the bottom | One row on top, a bar at the thumb |
+| Tablet, 700 to 1099 | 660, centered | A panel that slides over the right edge | The full header |
+| Computer, 1100 and up | 660 | The 320 margin, beside the line | The full header and the place line |
+| Study, 1100 and up | Two panes share what is left | The companion pane | A 236 sidebar that never moves |
+
+Proposals 11 (the margin), 15 (the phone), and 21 (one workspace) draw these
+rows in full.
+
+### Targets and figures
+
+- **Anything pressed is 36px tall with a mouse, 44 on touch**, and 32 only
+  inside the Study sidebar. The smallest today is 24 (the proposal's count).
+- **Old-style figures in running text, lining figures in the interface**
+  (counts and dates, which align in columns). The proposal named Literata's;
+  whether Source Sans 3's served file carries both is open.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -203,7 +269,9 @@ then puts boxes in the box, so it takes the boxes away. BVJ took it
   choices are Atkinson Next and OpenDyslexic.
 - **What else names Inter**: the margin notes' Plain face, and the verse
   image's wordmark and address.
-- **Whether Source Sans 3 has the SBLGNT's text-critical signs.**
+- **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
+  whether its served file has old-style figures ("Sizes, space, and the
+  measure").
 - **Where the Study Desk's stage badge goes** ("Surfaces," above).
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
