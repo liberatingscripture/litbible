@@ -67,6 +67,16 @@ npx wrangler rollback --env production --message "why"
 **A rollback returns the code in seconds and never touches the database.**
 A migration is never undone, and every migration is written to work with
 the version before it, so rolling back one version is always safe.
+Production's rollback waits for no reviewer: it has an environment of its
+own (`notebook-production-rollback`), so BDR can run it alone.
+
+**Then switch deploys off (3) before anything merges.** A merge that
+touches the package deploys `main`, which is the code you just rolled back
+from. A rollback waits in a queue apart from the deploys, so a merge can't
+cancel one that is waiting, but a merge can still land after it. The switch
+stops rollbacks too, so turn it on again to roll back further. Once the fix
+is merged, turn it on and run the workflow's deploy by hand, since the
+merge itself deployed nothing.
 
 Then check: `npm run check:production -- https://notebook.litbible.net`, or
 for the preview, `npm run walkthrough -- https://notebook-preview.litbible.net`.

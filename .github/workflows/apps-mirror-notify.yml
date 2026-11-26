@@ -41,6 +41,12 @@ on:
         required: false
         default: ""
 
+# The workflow's own GitHub token reads and nothing more: every job here
+# installs packages, and none pushes with it (BVJ, 2026-11-26; Study Desk
+# Audit 9, SEC9-6). For the same reason a checkout keeps no token on disk.
+permissions:
+  contents: read
+
 jobs:
   notify:
     runs-on: ubuntu-latest
@@ -53,8 +59,9 @@ jobs:
       # diffed by their last commit only, found nothing, and skipped the
       # notification. Every run was green and LSC heard nothing for a week.
       # The pack is ~50 MB and this job only runs when a watched path changes.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Collect what changed

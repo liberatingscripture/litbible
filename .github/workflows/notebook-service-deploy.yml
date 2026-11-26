@@ -14,8 +14,10 @@
 #     workflow" on `main` with environment `production`, by a person;
 #   - they are skipped unless the repository variable
 #     NOTEBOOK_PRODUCTION_DEPLOYS is "on", which it is not;
-#   - they read their token from a GitHub environment of their own,
-#     `notebook-production`, which doesn't exist until BVJ makes it;
+#   - they read their token from GitHub environments of their own,
+#     `notebook-production` (the deploy, with BVJ as a required reviewer)
+#     and `notebook-production-rollback` (no reviewer, so BDR can roll back
+#     alone), which don't exist until BVJ makes them;
 #   - the deploy refuses to start while wrangler.jsonc still holds the
 #     placeholder for production's database id.
 # Whether and when to turn production on is BVJ's (README, "Production").
@@ -37,8 +39,10 @@
 #   - for production, when BVJ decides: a GitHub environment named
 #     `notebook-production`, limited to `main`, with BVJ as a required
 #     reviewer, holding CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID of its
-#     own; and the repository variables NOTEBOOK_PRODUCTION_DEPLOYS = on and
-#     NOTEBOOK_PRODUCTION_URL (production's address).
+#     own; a second, `notebook-production-rollback`, limited to `main` with
+#     no reviewer, holding the same two; and the repository variables
+#     NOTEBOOK_PRODUCTION_DEPLOYS = on and NOTEBOOK_PRODUCTION_URL
+#     (production's address).
 # An environment's branch limit is what keeps its token out of a workflow
 # pushed on any other branch: don't store these as plain repository secrets.
 #
@@ -76,27 +80,39 @@ on:
 permissions:
   contents: read
 
-# One deploy or rollback at a time for each deployment, in the order they
-# were asked for. A push has no inputs, and is always the preview's.
-concurrency:
-  group: notebook-service-${{ inputs.environment || 'preview' }}
-  cancel-in-progress: false
+# Each job's queue is set on the job (`concurrency` below), never here: a
+# deploy and a rollback of one deployment wait in different queues, so a
+# merge that arrives while a rollback is waiting can't cancel it (GitHub
+# keeps one waiting run in a queue and cancels the older). One deploy at a
+# time for each deployment, and one rollback.
+#
+# WHY TESTING AND DEPLOYING ARE TWO JOBS (BVJ, 2026-11-26; Study Desk Audit 9,
+# SEC9-2). Steps of one job share the machine's files, and `npm ci` lets any
+# of the package's dependencies run its own install script, so code from any
+# of them could change what a later step runs before that step gets the
+# Cloudflare token. So the tests run in a job with no secret at all, and each
+# job that holds the token starts on a fresh machine, installs with
+# `--ignore-scripts` (wrangler needs none), and runs only wrangler and this
+# repository's own scripts. The actions are pinned by commit, which
+# Dependabot's `github-actions` stream keeps moving.
 
 jobs:
-  deploy:
+  # The service's own tests, with no environment and no secret. Every deploy
+  # needs it; a rollback doesn't, since it puts back code that already ran.
+  test:
     if: >-
-      vars.NOTEBOOK_PREVIEW_DEPLOYS == 'on' &&
       github.ref == 'refs/heads/main' &&
-      (github.event_name == 'push' || (inputs.action == 'deploy' && inputs.environment == 'preview'))
+      (github.event_name == 'push' || inputs.action == 'deploy')
     runs-on: ubuntu-latest
-    environment: notebook-preview
     defaults:
       run:
         working-directory: workers/notebook-service
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -109,10 +125,37 @@ jobs:
       - name: Run the service's tests
         run: npm test
 
+  deploy:
+    needs: test
+    if: >-
+      vars.NOTEBOOK_PREVIEW_DEPLOYS == 'on' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || (inputs.action == 'deploy' && inputs.environment == 'preview'))
+    runs-on: ubuntu-latest
+    environment: notebook-preview
+    concurrency:
+      group: notebook-service-deploy-preview
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: workers/notebook-service
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # No npm cache here: the test job may have written it.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies, running no package's scripts
+        run: npm ci --ignore-scripts
+
       # Migrations first: a migration must work with the code already deployed
       # (README, "Migrations"), so the gap between these two steps is safe.
       # The Cloudflare token is given to the steps that call Cloudflare and to
-      # no other: `npm ci` and the tests above never see it.
+      # no other.
       - name: Apply D1 migrations
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -128,7 +171,8 @@ jobs:
       # The same walkthrough the tests run, against the deployed service. It
       # runs when the variable NOTEBOOK_PREVIEW_URL is set, and then it needs
       # the preview's own secret stored as NOTEBOOK_PREVIEW_SECRET: set the two
-      # together. With neither, a deploy doesn't check itself.
+      # together. With neither, a deploy doesn't check itself. It imports this
+      # repository's files and Node's own modules, no package.
       - name: Check the deployed service
         if: ${{ vars.NOTEBOOK_PREVIEW_URL != '' }}
         env:
@@ -145,20 +189,23 @@ jobs:
       inputs.action == 'rollback'
     runs-on: ubuntu-latest
     environment: notebook-preview
+    concurrency:
+      group: notebook-service-rollback-preview
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: workers/notebook-service
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: workers/notebook-service/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies, running no package's scripts
+        run: npm ci --ignore-scripts
 
       - name: Versions before
         env:
@@ -192,6 +239,7 @@ jobs:
   # ── Production. Prepared in step 4f, off, and never run. ──────────────────
   # By hand only: there is no `push` in either condition below.
   deploy-production:
+    needs: test
     if: >-
       vars.NOTEBOOK_PRODUCTION_DEPLOYS == 'on' &&
       github.ref == 'refs/heads/main' &&
@@ -200,23 +248,23 @@ jobs:
       inputs.action == 'deploy'
     runs-on: ubuntu-latest
     environment: notebook-production
+    concurrency:
+      group: notebook-service-deploy-production
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: workers/notebook-service
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: workers/notebook-service/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run the service's tests
-        run: npm test
+      - name: Install dependencies, running no package's scripts
+        run: npm ci --ignore-scripts
 
       # The database is BVJ's to make, and its id is committed like the
       # preview's. Until it is, nothing below may run.
@@ -249,6 +297,11 @@ jobs:
           NOTEBOOK_URL: ${{ vars.NOTEBOOK_PRODUCTION_URL }}
         run: npm run check:production
 
+  # Production's rollback has an environment of its own,
+  # `notebook-production-rollback`, limited to `main` and with no required
+  # reviewer, so BDR can roll production back alone when BVJ can't be reached
+  # (BVJ, 2026-11-26; Study Desk Audit 9, SV9-2). A rollback only puts back an
+  # earlier version of the code. The deploy's environment keeps its reviewer.
   rollback-production:
     if: >-
       vars.NOTEBOOK_PRODUCTION_DEPLOYS == 'on' &&
@@ -257,21 +310,24 @@ jobs:
       inputs.environment == 'production' &&
       inputs.action == 'rollback'
     runs-on: ubuntu-latest
-    environment: notebook-production
+    environment: notebook-production-rollback
+    concurrency:
+      group: notebook-service-rollback-production
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: workers/notebook-service
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: workers/notebook-service/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies, running no package's scripts
+        run: npm ci --ignore-scripts
 
       - name: Versions before
         env:

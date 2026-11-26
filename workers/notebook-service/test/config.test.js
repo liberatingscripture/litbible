@@ -153,4 +153,48 @@ describe("the deploy workflow", () => {
     expect(previewJob).not.toContain("--env production");
     expect(previewJob).toContain("--env preview");
   });
+
+  // Audit 9, SEC9-2, SV9-2, and SV9-3 (BVJ, 2026-11-26).
+  const JOBS = ["test", "deploy", "rollback", "deploy-production", "rollback-production"];
+  /** One job's text, from its key to the next job's. */
+  function job(name) {
+    const start = workflow.indexOf(`\n  ${name}:\n`);
+    expect(start, name).toBeGreaterThan(-1);
+    const rest = workflow.slice(start + 1);
+    const next = rest.slice(1).search(/\n  [a-z-]+:\n/);
+    return next === -1 ? rest : rest.slice(0, next + 1);
+  }
+
+  it("tests in a job with no secret, and deploys from an install that runs no package's scripts", () => {
+    expect(job("test")).not.toContain("secrets.");
+    expect(job("test")).not.toContain("environment:");
+    expect(job("test")).toContain("npm test");
+    for (const name of JOBS.slice(1)) {
+      const text = job(name);
+      expect(text, name).toContain("npm ci --ignore-scripts");
+      expect(text, name).not.toMatch(/npm ci\s*\n/);
+      expect(text, name).not.toContain("npm test");
+    }
+    expect(job("deploy")).toContain("needs: test");
+    expect(job("deploy-production")).toContain("needs: test");
+  });
+
+  it("rolls production back from an environment of its own, and every rollback in a queue apart from the deploys", () => {
+    expect(job("deploy-production")).toMatch(/environment: notebook-production\n/);
+    expect(job("rollback-production")).toMatch(/environment: notebook-production-rollback\n/);
+    const group = (name) => /concurrency:\n\s+group: (\S+)/.exec(job(name))?.[1];
+    const groups = JOBS.slice(1).map(group);
+    expect(groups.every(Boolean)).toBe(true);
+    expect(new Set(groups).size).toBe(groups.length);
+    // No queue for the whole workflow, which would put a rollback behind a deploy again.
+    expect(workflow.slice(0, workflow.indexOf("\njobs:\n"))).not.toMatch(/^concurrency:/m);
+  });
+
+  it("pins every action by its commit, and keeps no token on disk after a checkout", () => {
+    const uses = [...workflow.matchAll(/uses: (\S+)/g)].map((m) => m[1]);
+    expect(uses.length).toBeGreaterThan(0);
+    for (const action of uses) expect(action).toMatch(/^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/);
+    const checkouts = workflow.match(/uses: actions\/checkout@/g).length;
+    expect(workflow.match(/persist-credentials: false/g)?.length).toBe(checkouts);
+  });
 });
