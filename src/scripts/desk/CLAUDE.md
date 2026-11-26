@@ -36,6 +36,7 @@ nowhere.
 | `STUDY-DESK-AUDIT-6.md` | **Audit 6** (2026-11-08): repeats Audit 5 (`SH6`) and Audits 1 to 3 (`SEC6`, `DI6`, `NB6`, `DK6`, `GK6`, `LG6`; `VER6`). |
 | `STUDY-DESK-AUDIT-7.md` | **Audit 7, scoped: the tours** (2026-11-09; `TR7`), and the third, the Sheets tour (E63). |
 | `STUDY-DESK-AUDIT-8.md` | **Audit 8, the final full audit** (2026-11-09): fourteen auditors (`DI8`, `SEC8`, `SH8`, `NB8`, `DK8`, `GK8`, `XA8`, `LG8`, `CP8`, `MH8`, `GF8a` to `GF8c`, `LV8`; `VER8`), then a spot-check of Audits 1 to 7 and the E log (`PC8A` to `PC8C`). |
+| `STUDY-DESK-AUDIT-9.md` | **Audit 9, scoped: plan C's accounts and sync** (2026-11-25): PRs #680 to #714 (`SEC9`, `SV9`, `SY9`, `AC9`, `LP9`, `COH9`, `DOC9`, and others; `VER9`, `VER9b`). |
 
 **Each full audit of the Study Desk is its own file** (BVJ, 2026-11-05):
 findings with their own IDs and statuses, never added to `STUDY-DESK.md` or
