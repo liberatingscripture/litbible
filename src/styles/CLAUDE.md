@@ -466,6 +466,11 @@
   window, and tab opened**: E159's sweep of empty pages missed the
   collections page's buttons and the Highlight swatches (E169). The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
+- **Featherboa replaces the four kinds** (`SITE-FEATHERBOA.md`, "Controls"
+  and "Surfaces"; decided, not built): filled, tinted, plain (words and an
+  icon, no box until pointed at, which E159 allows on purpose), and red
+  words, with no shadow on a button at rest. Until it is built, the rules
+  above hold.
 
 ## The restyle and Site 2.0
 

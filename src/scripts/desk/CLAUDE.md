@@ -498,7 +498,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      heading for the reader's notes, This verse's subhead too (Audit 8); the
      margin's switch and its region are "Notes in the margin." **The
      /notebook page is "My Notebook"**
-     wherever it is named (E70, BVJ 2026-11-10).
+     wherever it is named (E70, BVJ 2026-11-10). Featherboa drops "My"
+     (`SITE-FEATHERBOA.md`, "Controls": "Notebook" and "Notes"); until it
+     is built, the names here hold.
      **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
      "the notebook preview"), and a reader works "in the Study Desk," never
      "on" it (BVJ, 2026-11-11, E105; "on the Study Desk page" is the page,

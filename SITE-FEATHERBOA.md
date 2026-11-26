@@ -259,6 +259,81 @@ rows in full.
   (counts and dates, which align in columns). The proposal named Literata's;
   whether Source Sans 3's served file carries both is open.
 
+## Controls (decided 2026-11-26)
+
+Design Directions' proposal 5, "One grammar for every control": how a label
+is written, how an icon is drawn and when it may stand alone, and how loud a
+button may be, each decided once. BVJ took it (“Take it”), with the
+workspace's name left for proposal 21.
+
+### Labels
+
+- **Verb, then thing**: “Add note,” “Copy verse,” “Print sheet.”
+- **Sentence case.** Capitals only for the names of places (the Notebook,
+  Sheets, Collections).
+- **An ellipsis only when the command needs more from the reader** before it
+  acts: “Add to sheet…,” “Share….”
+- **One name per thing, and no “My.”** Inside the Study Desk everything is
+  the reader's.
+- **No articles**: “Add note,” not “Add a note.”
+
+The renames the proposal draws:
+
+| Today | Featherboa |
+|-------|------------|
+| Notebook, My Notebook, the Notebook, My Notes | **Notebook** (the place), **Notes** (what is in it) |
+| Sheets, My sheets, Sheets page | **Sheets** |
+| Add a note, Add bookmark, Add a bookmark that moves | **Add note**, **Add bookmark** |
+| Open in Study Desk, Edit in Study Desk, Open the Study Desk | One label; the proposal's is "Open in Desk," and the name waits for proposal 21 |
+| “Show” (four different controls) | **View** for what a page displays, **Filter** for lists |
+| Display settings, Display, Display options | **Display** |
+| Stay here, Stop following | One switch: **Follow reading** |
+| Layout…, Make this pane wider | A layout switch in view, and dragging the divider |
+
+- **This reverses “My Notes” and “My Notebook.”** BVJ chose “My Notes” for
+  every label and heading about the reader's notes (2026-10-26, BA138 and
+  BA139, with Audit 8) and “My Notebook” for the /notebook page (E70,
+  2026-11-10); `src/scripts/desk/CLAUDE.md` holds both until Featherboa is
+  built. **“Notes” is the reader's, and “footnotes” the translation's**, so
+  the two words are never used for each other.
+- **The workspace's name waits for proposal 21** (“One workspace”). The
+  proposal says “Desk” (“Open in Desk,” and Desk among the places);
+  until 21 decides, labels keep “Study Desk.”
+
+### Icons
+
+**One set**, in place of the sixteen scattered today: drawn on a 24-pixel
+grid with a 1.5-pixel stroke and round ends, sized to sit beside its label.
+**Typed glyphs (× ‹ › ▾) stop standing in for icons.** An icon may stand
+alone only if it is one of five everyone knows: **search, close, back,
+forward, and more**. Every other icon keeps its word. The set the proposal
+draws: Read, Notebook, Sheet, Collection, Highlight, Note, Bookmark, Copy,
+Share, Print, Layout, New, Search, Close, Back, More.
+
+### Emphasis: four levels
+
+| Level | For |
+|-------|-----|
+| **Filled** (deep green) | The one main action. A view may use it once |
+| **Tinted** | The usual next step |
+| **Plain**: words and an icon, no box until pointed at | Everything else; most commands on a tool surface |
+| **Red words** | Deleting. Never filled |
+
+Its reason: when every button is equally raised, the eye has to read all of
+them to find the one; a ladder lets a reader find the main thing without
+reading.
+
+- **This replaces the Study Desk's four kinds of button** (E126, BVJ
+  2026-11-12: primary, ordinary, toggle, and quiet or glyph), whose ordinary
+  button is raised with a shadow at rest; "Surfaces" already took the
+  shadow off.
+- **It relaxes E159 for plain commands, on purpose** (BVJ, 2026-11-18: no
+  button the color of what lies behind it). E159 was about a box that can't
+  be seen against its background; a plain command has no box to lose, as
+  menu items and quiet links (left alone by E159) have none. Their words,
+  icon, and hover fill carry them, and the keyboard's focus ring is
+  unchanged. A tinted or filled button still never matches its background.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -273,6 +348,8 @@ rows in full.
   whether its served file has old-style figures ("Sizes, space, and the
   measure").
 - **Where the Study Desk's stage badge goes** ("Surfaces," above).
+- **The workspace's name**, “Study Desk” or the proposal's “Desk”
+  ("Controls," above; proposal 21).
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
 
