@@ -175,7 +175,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| SEC9-1 | **Medium** | Medium | Open (its point 4, focus on the question, done in #716) |  | A link carrying an approval code, opened on a computer that holds the notebook, fills in “Add a device” and presses Continue by itself, and the question it lands on lacks the spec’s “approve only a device you are holding,” so one keypress can hand a stolen sign-in the whole keyring |
+| SEC9-1 | **Medium** | Medium | Fixed (#720; its point 4, focus on the question, in #716) |  | A link carrying an approval code, opened on a computer that holds the notebook, fills in “Add a device” and presses Continue by itself, and the question it lands on lacks the spec’s “approve only a device you are holding,” so one keypress can hand a stolen sign-in the whole keyring |
 | SEC9-2 | **Medium** | Medium | Open |  | The preview’s deploy job runs `npm ci` (install scripts on) and `npm test` in the same job and workspace as the steps that hold a Cloudflare token reaching every Worker and D1 database on the account, production’s included once it exists |
 | SEC9-3 | (in SV9-1) | Medium | Open |  | No per-account storage limit (the same fault as SV9-1) |
 | SEC9-4 | **Low** | Low | Open | gate | The policy step 4i plans to enforce keeps `'unsafe-inline'` in `script-src`; enforce it without that before accounts open, as the plan already says the full policy comes before sign-in |
@@ -209,7 +209,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 |---|---|---|---|---|---|
 | SY9-1 | **Low** | Medium | Fixed (#716) |  | One failed notebook read in the engine’s scan drops the touched ids, so an edit waits, with the status saying “up to date,” until the next page load’s full scan |
 | SY9-2 | **Low** | Low | Fixed (#716) |  | The fake service the website’s tests use differs from the real one: the order of its checks, `what: "body"`, a token the real service would refuse, `rev` on replace |
-| SY9b-2 | **Low** | Low | Open |  | “Stop syncing” and sign-out don’t stop a pass already running: it can still merge, write sync state, and push |
+| SY9b-2 | **Low** | Low | Fixed (#720) |  | “Stop syncing” and sign-out don’t stop a pass already running: it can still merge, write sync state, and push |
 | SY9b-3 | **Low** | Low | Open | BDR | With clocks an hour or a day apart, about a quarter of fuzzed histories revive a deletion or bury a restore; the format’s warning names only lost edits |
 | SY9b-4 | **Low** | Low | Open |  | A refusal the engine doesn’t know is retried for ever behind one quiet line, with no notice |
 | SY9b-5 | **Nit** | Low | Open |  | A visible tab’s 60 s poll cuts the backoff short (the `slow_down` half can’t happen today) |
@@ -272,7 +272,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| COH9-1 | **Medium** | Medium | Open | BDR | “Sign out” fails (`not_allowed`, `own_device`) on a computer that was removed and signed in again, or whose notebook was replaced, because the session has no device; `DELETE /session` would work, and the spec steers an app to the request that fails |
+| COH9-1 | **Medium** | Medium | Fixed (#720) | BDR | “Sign out” fails (`not_allowed`, `own_device`) on a computer that was removed and signed in again, or whose notebook was replaced, because the session has no device; `DELETE /session` would work, and the spec steers an app to the request that fails |
 | COH9-2 | **Nit** | Low | Open |  | The `POST /holders` row names no refusal word for a passkey that already holds the key |
 | COH9-3 | (in SY9-2) | Nit | Open (the fake's half fixed in #716; the spec's order and `what` remain) |  | Size before padding, and `too_large`’s `what` |
 
