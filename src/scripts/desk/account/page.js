@@ -333,6 +333,9 @@ export async function start({ root = document.querySelector("[data-account-page]
       mayCancel
         ? button(ui, WORDS.cancelRequest, async () => {
             await cancelWaiting(call);
+            // A syncing browser's status line and its notice on other pages say the request from what the
+            // last pass heard, which can be fifteen minutes old: a pass now hears that it is gone.
+            S.connector?.syncNow?.();
             await refresh();
             await after(WORDS.canceled);
           })

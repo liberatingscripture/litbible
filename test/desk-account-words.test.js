@@ -121,3 +121,11 @@ test("a request that waits says who asked and when it takes effect", () => {
   assert.equal(waitingWords(null, "en-US"), null);
   assert.equal(waitingWords({ what: "something" }, "en-US"), null);
 });
+
+test("a notice on a reading page writes the day its own way, and the rest of the sentence is the account page's", () => {
+  const item = { what: "device", name: "Chrome on a Mac", how: "recovery", by: null, byName: null, added: "2026-11-25T18:00:00Z" };
+  const day = (iso) => `the day of ${iso.slice(0, 10)}`;
+  assert.equal(newsWords(item, "en-US", { day }), "“Chrome on a Mac” joined your notebook on the day of 2026-11-25, with your recovery code.");
+  assert.equal(newsWords({ what: "holder", kind: "passkey", byName: null, added: "2026-11-25T18:00:00Z" }, "en-US", { day }), "A passkey that carries the key was added to your notebook on the day of 2026-11-25.");
+  assert.equal(newsWords(item, "en-US"), "“Chrome on a Mac” joined your notebook on November 25, 2026, with your recovery code.", "the account page's own day is unchanged");
+});

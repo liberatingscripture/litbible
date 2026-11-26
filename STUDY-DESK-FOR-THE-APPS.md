@@ -382,8 +382,49 @@ because nothing carried them there. This file is what carries them now.
        no email address. Write the two ids under ask 12; they go into
        the service's variables and into
        `src/lib/desk-account-providers.mjs`.
+20. **Where each app tells its reader of a waiting request and of a new
+    device** (asked 2026-11-25, the first entry below). The website now
+    says both on whatever page is being read, not only on its account
+    page. Will each app do the same outside its account screen, and
+    when: the next time it opens, the next time it syncs? The service
+    sends no push for either, so a device hears only when it asks.
 
 ## The list
+
+### 2026-11-25, the website says a waiting request and a new device on the page being read
+
+**Nothing you call changed**: no request, answer, size, or word, and no
+file under `workers/` is touched. It is a choice about a client's
+screens, made by BVJ for the website on 2026-11-25 and **for BDR to
+confirm** for the apps (ask 20 above).
+
+- **Why**: a request to delete the account or replace its notebook waits
+  seven days so the reader can cancel it, which protects them only if a
+  device of theirs says so before the days are up. A device that joins
+  can read the whole notebook at once, with no wait, so hearing of it
+  soon is the only defense. Until now the website said both only on its
+  account page, which a reader rarely opens.
+- **A request that waits** (`waiting` in `GET /account`, with `mine`
+  false) is told the way a stopped sync is: a dot on the Notebook's tab
+  and buttons and on the header's account button, and a notice with the
+  sentence and one button that opens the account page, where it can be
+  canceled. Once for each request, and again each day while it waits.
+  The asking session (`mine`) is told nothing more than its own account
+  page shows.
+- **A device or a way in that is new** (`GET /devices`, against the ids
+  this browser has already told its reader about) gets a dot on the
+  account button and the notice once, with “Review” and “OK.” A device
+  this computer approved is not announced on it.
+- **The website asks `GET /devices` at most every fifteen minutes for a
+  browser** for this, by whichever page is open, where before only the
+  account page asked. The waiting request costs no request: each pass
+  already asks `GET /account`.
+- **Seen from your side**: a device you add or a request you make from a
+  session without the key now shows on the reader's computer on their
+  next page, within fifteen minutes for a device. Worth knowing when you
+  test against an account a browser is also syncing.
+- The full text is `src/scripts/desk/sync/CLAUDE.md`, rule 11, and
+  `STUDY-DESK.md`, “Order of work,” 4h.
 
 ### 2026-11-25, the website's account pages are built (step 4h)
 

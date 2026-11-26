@@ -29,33 +29,15 @@
 // decide about a replaced notebook. Another pass would only end the same way.
 //
 // The wording and the day are Claude's, and BVJ said yes to both (2026-11-24).
+//
+// The dot, the bar's loading, and the rule for when the bar may come up are
+// ./notice-parts.js's, shared with the account's notices (./account-notice.js).
 
 import { SLOT_EVENT } from "../../../lib/desk-sync-link.mjs";
-import { ACCOUNT_PAGE, STOPPED_WORDS, needsReader, shouldTell, statusWords } from "../../../lib/desk-sync-status.mjs";
+import { ACCOUNT_PAGE, needsReader, shouldTell, statusWords } from "../../../lib/desk-sync-status.mjs";
+import { STOPPED_ATTR, WAIT_MS, WAIT_TIMES, barFree, loadBar, markDots } from "./notice-parts.js";
 
-/** On `<html>` while the sync is stopped and needs the reader. */
-export const STOPPED_ATTR = "data-desk-sync";
-
-// What carries the dot (the backup reminder's places, reminder.js).
-const DOT_TARGETS = [
-  ".desk-tab",
-  "button[data-desk-toggle]",
-  '.desk-panel__tabs [data-tab="settings"]',
-  ".desk-title__button",
-  "[data-desk-notebook-item]",
-  ".site-header__account-btn", // the header's account button (step 4h), whose menu holds the status line
-].join(", ");
-
-/** How long the bar waits for a tour, a print or another notice to be over, and how many times. */
-const WAIT_MS = 5000;
-const WAIT_TIMES = 24;
-
-async function loadBar(doc) {
-  const bar = await import("../undo-bar.js");
-  // The bar is drawn by desk.css, which a page still in its first stage hasn't loaded (reminder.js).
-  if (!doc.querySelector("style[data-desk]")) (await import("../boot.js")).addDeskStyle();
-  return bar;
-}
+export { STOPPED_ATTR };
 
 /**
  * @param {{ status: () => object, subscribe: (fn: (s: object) => void) => () => void }} connector
@@ -79,7 +61,6 @@ export function mountStoppedNotice(connector, env) {
     log = (...args) => console.error("Study Desk sync:", ...args),
   } = env;
   if (!doc?.documentElement) return () => {};
-  const root = doc.documentElement;
 
   let off = false;
   let ui = null; // undo-bar.js, once it was needed
@@ -90,30 +71,10 @@ export function mountStoppedNotice(connector, env) {
   let timer = null;
   let waits = 0;
 
-  function paint(stopped) {
-    if (stopped) root.setAttribute(STOPPED_ATTR, "stopped");
-    else root.removeAttribute(STOPPED_ATTR);
-    for (const el of doc.querySelectorAll(DOT_TARGETS)) {
-      if (stopped) {
-        if (!el.hasAttribute("aria-description")) el.setAttribute("aria-description", STOPPED_WORDS);
-      } else if (el.getAttribute("aria-description") === STOPPED_WORDS) {
-        el.removeAttribute("aria-description");
-      }
-    }
-  }
+  const paint = (stopped) => markDots(doc, "stopped", stopped);
 
   /** May the bar come up now? */
-  function free() {
-    if (root.hasAttribute("data-desk-tour") || doc.querySelector("[data-sheet-page]")) return false;
-    let params = null;
-    try {
-      params = new URLSearchParams(win?.location?.search ?? "");
-    } catch {
-      /* no address to read */
-    }
-    if (params && (params.has("desk-tour") || params.has("sheet-tour") || params.has("print"))) return false;
-    return !ui?.barShowing();
-  }
+  const free = () => barFree({ doc, win, ui });
 
   function later() {
     if (off || timer || waits >= WAIT_TIMES) return;

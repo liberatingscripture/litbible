@@ -35,6 +35,7 @@ import { sealKeyring, toBase64url } from "../../../lib/desk-crypto.mjs";
 import { SYNC_META, allowedService, makeLink, readLink } from "../../../lib/desk-sync-link.mjs";
 import { createConnector } from "./connector.js";
 import { mountStatusLines } from "./status-line.js";
+import { mountAccountNotice } from "./account-notice.js";
 import { mountStoppedNotice } from "./stopped-notice.js";
 import { openSyncDb } from "./sync-db.js";
 
@@ -101,9 +102,11 @@ async function startNow({ store }) {
     const connector = await createConnector({ store, db: mine.db, link, env });
     const offLine = mountStatusLines(connector, env);
     const offNotice = mountStoppedNotice(connector, { ...env, db: mine.db });
+    const offAccount = mountAccountNotice(connector, { ...env, db: mine.db });
     mine.unmount = () => {
       offLine();
       offNotice();
+      offAccount();
     };
     return connector;
   })();

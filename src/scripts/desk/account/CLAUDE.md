@@ -17,9 +17,11 @@
 The plan's step 4h (`STUDY-DESK.md`, "Order of work," 4), built 2026-11-24
 and 25. **The pages are built and closed**: no reader sees an account until
 one browser opens them with `?account=preview` (rule 11). What was and was
-not seen in a real browser is under step 4h in `STUDY-DESK.md`. Not built:
-the notices anywhere but the account's home, and the final words of the
-first-time choice (step 4j). Sign in with Apple and with Google are built
+not seen in a real browser is under step 4h in `STUDY-DESK.md`. **A
+request that waits and a device that joined are also said on the page
+being read** (BVJ, 2026-11-25), by the sync's own code:
+`src/scripts/desk/sync/CLAUDE.md`, rule 11. Not built: the final words of
+the first-time choice (step 4j). Sign in with Apple and with Google are built
 and off (rule 19). **The choices Claude made while building are BVJ's
 now** (2026-11-25, “yes” to each of the eight listed under step 4h): the
 header's tiles, its “Sign out,” and “Account” in the phone menu (rule
@@ -165,7 +167,9 @@ without the switch. The announcement popover stays off all three
     that may come back to cancel), with `setup` inside it while a setup's
     request is out; `code` (a new recovery code sealed to this device's
     key, until two groups are typed back); `seen` (which devices and ways
-    this browser has told its reader about); and `provider` (rule 19). **A
+    this browser has told its reader about, written by the home's “OK”
+    and by the same “OK” on the sync's notice,
+    `src/scripts/desk/sync/CLAUDE.md`, rule 11); and `provider` (rule 19). **A
     setup whose answer never arrived is finished on the next visit with the
     same code** (`resumeSetup`), and one the service never received is
     dropped and starts over. Nothing of a passkey's PRF output is stored.
