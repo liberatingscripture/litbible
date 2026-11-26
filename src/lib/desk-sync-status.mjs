@@ -55,9 +55,10 @@ export function shouldTell(told, state, nowMs) {
 
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
-/** "about 2 hours", "about 12 minutes", "about 3 days". */
+/** "about 2 hours", "about 12 minutes", "about an hour" (55 to 65 minutes), "about 3 days". */
 export function roughly(ms) {
   const minutes = Math.round(Math.abs(ms) / 60_000);
+  if (minutes >= 55 && minutes <= 65) return "about an hour";
   if (minutes < 90) return `about ${plural(Math.max(1, minutes), "minute")}`;
   const hours = Math.round(minutes / 60);
   if (hours < 36) return `about ${plural(hours, "hour")}`;
@@ -125,7 +126,7 @@ export function statusWords(status, format = {}) {
       if (pending > 0) detail.push(`${plural(pending, "change")} will sync then. They are saved on this computer.`);
       break;
     case "full":
-      // The account's ceiling (BVJ, 2026-11-26; drafted by Claude, for BVJ to approve). Nothing a
+      // The account's ceiling (BVJ, 2026-11-26, who approved these words). Nothing a
       // timer can't retry, so it isn't one of the stops that need the reader.
       line = "Your account is full, so changes made here aren’t syncing. They are saved in this browser.";
       if (status.limits) detail.push(`An account can hold up to ${ceilingWords(status.limits)}.`);

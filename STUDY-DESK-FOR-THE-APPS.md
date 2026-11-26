@@ -481,8 +481,8 @@ decision 2 and SEC9's question 2, built in `workers/notebook-service/` (migratio
   service's side can be built to match.
 
 **For BDR**: will each app handle the full account as the website does,
-and what will it say to its reader? (The website's words are drafted for
-BVJ in `src/lib/desk-sync-status.mjs`.) Full text:
+and what will it say to its reader? (The website's words, which BVJ
+approved, are in `src/lib/desk-sync-status.mjs`.) Full text:
 `STUDY-DESK-ENCRYPTION.md`, “Changed in Audit 9: the service’s limits.”
 
 ### 2026-11-26, `/privacy` corrected, and the service stores no logs (Audit 9)

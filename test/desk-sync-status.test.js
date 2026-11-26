@@ -99,7 +99,7 @@ test("a full account says what it holds, that the changes wait in this browser, 
   assert.equal(words.line, "Your account is full, so changes made here aren’t syncing. They are saved in this browser.");
   assert.deepEqual(words.detail, [
     "An account can hold up to 100,000 entries and 100 MB.",
-    "3 changes will wait here. Sync will try again in about 60 minutes. Choose “Reconnect” to try now.",
+    "3 changes will wait here. Sync will try again in about an hour. Choose “Reconnect” to try now.",
   ]);
   assert.equal(words.action, "Reconnect");
   assert.equal(words.ok, false);
@@ -108,7 +108,7 @@ test("a full account says what it holds, that the changes wait in this browser, 
     "1 change will wait here. Sync will try again in about 10 minutes. Choose “Reconnect” to try now.",
   ]);
   // A refusal that named no ceiling says none, and nothing waiting says so by leaving the count out.
-  assert.deepEqual(statusWords(status("full")).detail, ["Sync will try again in about 60 minutes. Choose “Reconnect” to try now."]);
+  assert.deepEqual(statusWords(status("full")).detail, ["Sync will try again in about an hour. Choose “Reconnect” to try now."]);
   // A wait the timer settles, like the limiter's: never one of the stops that need the reader, and never a notice.
   assert.equal(needsReader("full"), false);
   assert.equal(shouldTell(undefined, "full", Date.now()), false);
@@ -123,6 +123,9 @@ test("the limiter's wait is said in round words", () => {
   assert.match(statusWords(status("slowed", { retry: 30 })).line, /try again in about 1 minute\./);
   assert.match(statusWords(status("slowed", { retry: 600 })).line, /about 10 minutes\./);
   assert.equal(roughly(89 * 60_000), "about 89 minutes");
+  assert.equal(roughly(60 * 60_000), "about an hour");
+  assert.equal(roughly(54 * 60_000), "about 54 minutes");
+  assert.equal(roughly(66 * 60_000), "about 66 minutes");
   assert.equal(roughly(2 * 60 * 60_000), "about 2 hours");
   assert.equal(roughly(-3 * 24 * 60 * 60_000), "about 3 days");
 });

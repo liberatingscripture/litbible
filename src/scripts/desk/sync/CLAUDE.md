@@ -74,7 +74,7 @@ each one cheap to change: one constant, one function, one place.
      sends no rows; its passes still pull and send removals, end "full" with
      what waits counted, and "Reconnect" tries at once. It is not in
      `needsReader` (no dot, no notice): the status line says it. The words
-     are Claude's draft, for BVJ to approve.
+     are BVJ's (2026-11-26).
    - **A row is removed from the service only on evidence** (rule 4 in
      `desk-sync.mjs`). A record missing from this browser is fetched again,
      never deleted for every device.
