@@ -76,9 +76,15 @@ export function deviceName(userAgent) {
 /** The longest name a device may be given here. */
 export const NAME_MAX = 60;
 
-/** A typed device name, trimmed and cut to what a card keeps; null when nothing is left. */
+/**
+ * A typed device name, trimmed and cut to what a card keeps; null when nothing is left.
+ * A lone surrogate is dropped (one pasted, or half of a pair the cut split), since a card
+ * holding one is refused when it is sealed (`json`); with the `u` flag a whole pair never
+ * matches. The cut counts UTF-16 units, as the field's maxlength does.
+ */
 export function cleanName(typed) {
-  const name = String(typed ?? "").replace(/\s+/g, " ").trim().slice(0, NAME_MAX);
+  const tidy = String(typed ?? "").replace(/[\uD800-\uDFFF]/gu, "").replace(/\s+/g, " ").trim();
+  const name = tidy.slice(0, NAME_MAX).replace(/[\uD800-\uDBFF]$/, "").trim();
   return name || null;
 }
 

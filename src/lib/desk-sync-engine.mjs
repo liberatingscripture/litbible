@@ -318,8 +318,9 @@ export function createSyncEngine({
   async function openSession() {
     if (!keyring) {
       if (!meta.sealed) throw new Halt("cantOpen", { reason: "noKeyring" });
+      let opened;
       try {
-        keyring = await openKeyring({
+        opened = await openKeyring({
           recipient: device.key,
           enc: fromBase64url(meta.sealed.enc),
           ct: fromBase64url(meta.sealed.ct),
@@ -329,7 +330,9 @@ export function createSyncEngine({
         if (err instanceof Refusal) throw new Halt("cantOpen", { reason: "deviceKey", why: err.why });
         throw err;
       }
-      if (keyring.notebook !== meta.notebook) throw new Halt("cantOpen", { reason: "keyring", why: "notebook" });
+      // Held only once it names this link's notebook: one kept after failing would skip the check next pass.
+      if (opened.notebook !== meta.notebook) throw new Halt("cantOpen", { reason: "keyring", why: "notebook" });
+      keyring = opened;
     }
     const answered = await request("GET", "/account");
     account = { waiting: answered.waiting ?? null, replaced: answered.replaced ?? null, expires: answered.session?.expires ?? null };
@@ -777,6 +780,8 @@ export function createSyncEngine({
       await load();
       if (keyring) checkKeyring({ held: keyring, highest: Math.max(meta.highest, keyring.current), incoming });
       if (incoming.notebook !== meta.notebook) throw new Refusal("notebook");
+      // With no keyring in memory (a page just loaded), the highest this link has accepted still holds.
+      if (incoming.current < meta.highest) throw new Refusal("backward");
       const sealed = await sealKeyring({ keyring: incoming, recipientPublic: device.key.public });
       // A stopped engine takes nothing: it is checked again before anything changes (save checks too).
       alive();

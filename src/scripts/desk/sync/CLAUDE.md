@@ -120,7 +120,11 @@ each one cheap to change: one constant, one function, one place.
 8. **The key is the reference's business** (`src/lib/desk-crypto.mjs`). A
    keyring from the service is checked against the one held before it is
    used (`checkKeyring`), a wrong proof is never sent twice, and
-   `linkNotebook` refuses a private key that can be read out.
+   `linkNotebook` refuses a private key that can be read out. **A keyring
+   is held in memory only once every check on it has passed** (the one this
+   browser kept, at `openSession`, included), since a held keyring is what
+   the next pass checks against; and **one handed to `adopt` with none held
+   is still refused below `meta.highest`** (iOS's answers, 18 and 19).
 9. **The service's row wins an exact tie** (`SERVICE_WINS_TIE`). It is the
    format's proposal of step 4d, not a decision; keep it one constant.
 10. **BVJ said yes to the words as written** (2026-11-24), and to the dot

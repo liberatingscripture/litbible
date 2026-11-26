@@ -251,6 +251,16 @@ the website; Android may take Tink or write HKDF and HPKE on the platform’s pr
   string the one way and refuses any other spelling**: padding, `+` or `/`, any other character, a
   length no byte string encodes to, and leftover bits that aren’t zero. Ids and times are the
   strings the record carries, byte for byte.
+- **No sealed JSON holds a lone surrogate** (vectors version 4). A record, a card, a holder
+  record, and a keyring are JSON in UTF-8, and UTF-8 has no form for half of a UTF-16 surrogate
+  pair. JSON’s `\u` escape can still write one (`\ud800`), which JavaScript’s `JSON.parse` takes
+  and a Swift string can’t hold. So a client refuses to seal JSON with a lone surrogate in it, in
+  a string or a member’s name, written raw or as an escape, and refuses one when it opens: both
+  are `json`. A pair written as two escapes (`🙏`) is one character, and is fine.
+- **Ids and member names are compared code unit for code unit, never after Unicode
+  normalization** (vectors version 4). Two spellings that are canonically equivalent (“café” with
+  `é` as one code point, and with `e` and a combining accent) are two names, and two ids. Swift’s
+  `==` on strings treats them as equal, so a Swift client compares their bytes.
 - **“Lines”**: where a step authenticates several values together (an AAD or an HMAC’s input), it
   joins their UTF-8 bytes with one line feed (`0x0A`) between each and none at the end. No value may
   contain a line feed; a client refuses to seal one that does. Two things follow, and both are in
@@ -540,7 +550,8 @@ this order, and stops at the first failure:
    account’s notebook; for a passkey, `credential` the id of the passkey that just answered,
    compared as bytes. Its keys have their shapes too: `d` a private scalar (32 bytes, 1 or more,
    and less than the curve’s order), `public` a point, and the anchor a `kid` of 1 or more with a
-   32-byte key.
+   32-byte key. **And `public` is `d`’s own public key** (vectors version 4), or the record is
+   refused as `record`.
 3. **The keyring sealed to the holder opens** with `d`, and passes the keyring’s own checks.
 4. **The keyring names the record’s notebook and holds the anchor’s key**, with the same `kid` and
    the same bytes.
@@ -551,11 +562,14 @@ the keyring is the newest, which is the gap described under “An older copy,”
 **A client can say which check stopped it**, since the first means something a reader can act on
 (a wrong code) and the others don’t. The vectors give the number of the check with each refusal.
 
-**One thing no vector tests: a record whose `public` isn’t `d`’s own public key.** Only a device
-that had the secret can have written it, so it is a client’s bug and never an attack, and platforms
-notice at different moments: WebCrypto when it takes the key or when the keyring doesn’t open
-(HPKE binds the recipient’s public key), CryptoKit not at all, since it works the public key out
-from `d`.
+**Why a client checks the pair itself.** Only a device that had the secret can have written a
+record whose `public` isn’t `d`’s own, so it is a client’s bug and never an attack. But platforms
+notice at different moments, or not at all: WebCrypto when it takes the key, or when the keyring
+doesn’t open (HPKE binds the recipient’s public key); CryptoKit never, since it works the public
+key out from `d`. So each client checks at step 2, and every client refuses alike. Working the
+public key out from `d` and comparing bytes is one way. The reference, which WebCrypto can’t do
+that with, signs a fixed message with `d` and verifies it with `public`. The vectors refuse
+another pair’s public key and `d`’s own point with `y` negated, which a check of `x` alone passes.
 
 #### The recovery code
 
@@ -847,8 +861,14 @@ this order, and a row is refused at the first that fails:
    bytes, at least 256 and at most `MAX_RECORD_BYTES`. The service makes this check too; a client
    makes it for itself and doesn’t open a row that fails it, even one whose seal would hold.
 5. The seal opens.
-6. The opened bytes, with the spaces at their end removed, are well-formed UTF-8 and a JSON object.
-7. The record agrees with the plain fields: the same `id`, byte for byte; the same `modified`; and
+6. The opened bytes, with the spaces at their end removed, are well-formed UTF-8 and a JSON object
+   with no lone surrogate (under “Fixed choices”). **A byte order mark (`EF BB BF`) at the start
+   is dropped before the JSON is read**, as the website’s `TextDecoder` does and iOS matches; no
+   client writes one. The same holds for every sealed JSON here: a card, a holder record, and a
+   keyring.
+7. The record agrees with the plain fields: the same `id`, byte for byte, with no normalization (a
+   row whose `id` has `K` and a record whose `id` has the Kelvin sign, U+212A, which normalizes to
+   `K`, disagree); the same `modified`; and
    for a trash record the same `deletedAt`, while any other record’s row has none. A row that
    carries a `deletedAt` for a record that isn’t trash is refused, and so is a trash record’s row
    without one.
@@ -1408,6 +1428,13 @@ A card or a keyring in a request carries no `kid` of its own: it is sealed under
 `kid` (in a change of key, the next one). In an answer each carries the `kid` it was sealed under,
 as `{ "kid", "nonce", "ct" }` and `{ "kid", "enc", "ct" }`. A holder’s record has none, since it is
 sealed under the holder’s own secret.
+
+**A limit in characters counts UTF-16 code units** (JavaScript’s `length`, Swift’s `utf16.count`),
+as the service counts them (`needText` in `workers/notebook-service/src/check.js`) and iOS
+matches, so a character outside the Basic Multilingual Plane, such as most emoji, counts as two.
+It matters for `platform` and `model`, which may hold any text; every other value counted in
+characters is ASCII by its form. The record format counts its anchor text’s offsets the same way
+(`STUDY-DESK-FORMAT.md`, “Anchor text”).
 
 **Limits.** A notebook has at most 100 devices and 20 holders, and at most 3 approvals in progress.
 One `POST /rows` carries at most 500 rows, to put and to remove together. One page of `GET /rows`
@@ -2253,16 +2280,16 @@ that by opening it again. Each group says what it tests:
 | `keyProof` | a notebook key | the proof, and the hash the service stores |
 | `recoveryCode`, `approvalCode` | bytes; typed forms (lowercase, spaces, `O`, `I`, `L`; a tab, line breaks, dashes, no-break and zero width spaces, and every removed character at once; an underscore, a full stop, a fullwidth digit, a look-alike letter, `U`, too few and too many characters); for the recovery code, groups typed back | the text; the bytes, or the refusal and why; whether a typed group matches |
 | `base64url` | byte strings of several lengths; text with padding, `+`, `/`, a space, an impossible length, leftover bits | the text; refused |
-| `seal` | a record’s serialized text, a notebook key, `kid`, nonce | the row, the AAD (as text and as bytes), the padded length, the ciphertext, exactly. Records of several kinds, a trash record, text beyond ASCII, a record that takes no padding, one record written with its keys in another order; refused: a record whose `id` holds a line feed |
-| `open` | the rows `seal` made, and rows a client must also accept (times written two ways for one instant, a `null` `deletedAt`, an older `kid` the device still holds) | the record |
-| `openRefused` | a row with one byte or one plain field changed, the wrong key, a wrong length, bytes that aren’t JSON, a record whose `id`, `modified`, or `deletedAt` disagrees with the plain fields, an unknown `v`, a `kid` not held | a refusal, which, and whether it means “aside” |
+| `seal` | a record’s serialized text, a notebook key, `kid`, nonce | the row, the AAD (as text and as bytes), the padded length, the ciphertext, exactly. Records of several kinds, a trash record, text beyond ASCII, a record that takes no padding, one record written with its keys in another order; refused: a record whose `id` holds a line feed, and one with a lone surrogate |
+| `open` | the rows `seal` made, and rows a client must also accept (times written two ways for one instant, a `null` `deletedAt`, an older `kid` the device still holds, bytes that begin with a byte order mark, an emoji written as two `\u` escapes, two member names that are canonically equivalent) | the record |
+| `openRefused` | a row with one byte or one plain field changed, the wrong key, a wrong length, bytes that aren’t JSON, a lone surrogate (high, low, a pair reversed, in a member’s name), a record whose `id`, `modified`, or `deletedAt` disagrees with the plain fields (an `id` canonically equivalent but not the same included), an unknown `v`, a `kid` not held | a refusal, which, and whether it means “aside” |
 | `padding` | lengths around each multiple of 256, and at both ends | the padded length and the ciphertext’s; refused: 0, and one byte past the ceiling |
-| `keyring` | valid and invalid keyrings (a `kid` missing from 1 to `current`, one repeated, a short key, an unknown `lit` or `v`); for a device holding given keys, keyrings from the service that drop a key, change a key’s bytes, name another notebook, or go backward | accepted, or the refusal and why |
+| `keyring` | valid and invalid keyrings (a `kid` missing from 1 to `current`, one repeated, a short key, an unknown `lit` or `v`, a lone surrogate); for a device holding given keys, keyrings from the service that drop a key, change a key’s bytes, name another notebook, or go backward | accepted, or the refusal and why |
 | `hpkeOpen` | a private key and its public key, `enc`, a ciphertext; the same with a byte changed, the wrong recipient, an `enc` off the curve | the keyring, with the shared secret, key, and nonce along the way; refused |
-| `card` | a notebook key, a card with `public` and `sign`, its AAD fields; a card with a field this version doesn’t know, sealed again under a new key; cards a client won’t write | the sealed card; refused under another device’s id, another notebook, another `kid`, and as a holder’s card; the unknown field still there |
+| `card` | a notebook key, a card with `public` and `sign`, its AAD fields; a card with a field this version doesn’t know, sealed again under a new key; cards a client won’t write | the sealed card; refused under another device’s id, another notebook, another `kid`, as a holder’s card, and with a lone surrogate in its name; the unknown field still there |
 | `holderCard` | a notebook key, a holder card of each kind, its AAD fields | the sealed card; refused under another holder’s id, and as a device card |
 | `prf` | the fixed input | its bytes, its base64url (as Android’s request JSON carries it), and the hashed form the standard sends to the passkey; a passkey response with `prf.results`, and the same response as it may be sent to the service |
-| `passkeyHolder` | a PRF output, a nonce, a holder record, the keyring sealed to it | the passkey key; the sealed record and its opening; the keyring accepted. Refused, with the check that stops it: the wrong PRF output; a record of the other kind or another id; a `credential` that isn’t the passkey that answered; a keyring that lacks the anchor’s key, holds other bytes for it, or names another notebook |
+| `passkeyHolder` | a PRF output, a nonce, a holder record, the keyring sealed to it | the passkey key; the sealed record and its opening; the keyring accepted. Refused, with the check that stops it: the wrong PRF output; a record of the other kind or another id; a `credential` that isn’t the passkey that answered; a `public` that isn’t `d`’s (another pair’s, and `d`’s with `y` negated); a lone surrogate; a keyring that lacks the anchor’s key, holds other bytes for it, or names another notebook |
 | `recoveryHolder` | a code, a nonce, a holder record, the keyring sealed to it | the same, from the code key |
 | `approval` | a code, a request with both public keys, a grant | the approval id and both MACs, with each MAC’s input as text; the grant accepted. Refused: a key, the model, the device id, or the MAC of the request changed; `enc`, the ciphertext, the `kid`, or the MAC of the grant changed; a grant whose `kid` isn’t its keyring’s; a card for another device, or one naming another device key or another signing key |
 | `signingKey` | a P-256 signing key pair; a message and its signature as `r ‖ s`; the same signature in DER | the public key as `sign` carries it; the signature verified; a changed byte refused; each form converted to the other; DER that isn’t strict refused |
@@ -2286,7 +2313,6 @@ signs, it verifies.
   service (step 4c). The vectors give the proof and its hash, and the rows a service must accept.
 - **Randomness.** The file fixes every random input. That a client’s own nonces, keys, and codes
   come from the platform’s random source is for its own review.
-- **A holder record whose `public` isn’t `d`’s** (under “Holders”).
 
 ## Departures from earlier documents
 
@@ -2825,6 +2851,25 @@ and all four are “Still open,” 92, for BDR to confirm.
 
 What did not change: every other request, answer, word, and size; the limits on beginning a
 sign-in (60) and on everything else (1,200); and the sizes of a row and a request.
+
+## Changed for iOS’s answers (vectors version 4)
+
+iOS’s builder found these while building its client (`STUDY-DESK-FOR-THE-APPS.md`, 2026-11-24,
+“iOS’s answers,” points 1 to 4 and 17). iOS already does each; this spec, the reference, and the
+vectors now say so, and `vectorsVersion` is 4. **No request, answer, or word of the service
+changed.**
+
+1. **A leading byte order mark is dropped before sealed JSON is read** (“Opening,” check 6).
+2. **No sealed JSON holds a lone surrogate**, raw or as a `\u` escape, in a string or a member’s
+   name: a client refuses to seal one and refuses one on opening, both as `json` (“Fixed
+   choices”). The reference refused neither before, so the website could have sealed a record no
+   Swift client could open.
+3. **A holder record’s `public` must be `d`’s own**, checked at step 2 and refused as `record`
+   (“Holders”). Until now the reference left it to the platform.
+4. **Ids and member names are compared without normalization** (“Fixed choices”; “Opening,” check
+   7), with vectors that hold canonically equivalent spellings apart.
+5. **A limit in characters counts UTF-16 code units** (“How values are spelled”), as the service
+   always has.
 
 ## Still open
 
@@ -3420,3 +3465,10 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     empty account. (d) **Turnstile now checks where its token was made**; the apps send no token
     and see no change. **For BDR**: will each app handle (a) as the website does, and what will it
     say to its reader?
+93. **Vectors version 4, from iOS’s answers** (“Changed for iOS’s answers”). iOS raised each point
+    and already does it, so nothing here is for iOS. **For BDR, Android’s half**: run version 4.
+    Two of its checks aren’t a Kotlin default. A Kotlin string holds a lone surrogate as
+    JavaScript’s does, so refusing one is a check of its own, when sealing and when opening. And a
+    holder record’s `public` is checked against `d` at step 2, not left to the platform’s key
+    import. Kotlin’s `==` on strings compares code units, so ids are already compared without
+    normalization.
