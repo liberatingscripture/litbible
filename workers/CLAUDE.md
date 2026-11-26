@@ -47,10 +47,13 @@ week, stopping it).
   line live.
 - **Every answer has an empty body, and a counted, dropped, or capped post
   is answered alike.** Anyone can post here; nothing posted comes back.
-- **The day's cap (`DAILY_CAP`) is checked and written as one batch**, each
-  statement carrying the same condition and the day's total moved last
-  (`src/store.js`). It is what keeps a flood from spending D1's daily
-  writes, which the notebook service's database shares on Workers Free.
+- **The cap is per UTC hour (`HOURLY_CAP`, 208; a day is 24 of them, 4,992,
+  under 5,000), checked and written as one batch**, each statement carrying
+  the same condition and the hour's total moved last (`src/store.js`). It is
+  what keeps a flood from spending D1's daily writes, which the notebook
+  service's database shares on Workers Free, and an hour is the most one
+  sender can spoil. The `days` table is keyed by hour (`2026-11-24T13`); the
+  counts stay by day.
 - **The address is in five places**, and `KEEP_DAYS` is the privacy page's
   "30 days": the root's `test/csp-reporting.test.js` holds both, and holds
   the policy to reporting both ways (`public/CLAUDE.md`).

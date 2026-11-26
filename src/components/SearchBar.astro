@@ -34,9 +34,9 @@ const glossaryTerms = Object.fromEntries(
 >
   <label class="sr-only" for="site-search-input">Search</label>
 
-  <!-- wrap input + button in a form so mobile can submit -->
+  {/* wrap input + button in a form so mobile can submit */}
   <form class="searchbar__form" data-searchbar-form role="search">
-    <!-- Input wrap lets us overlay “ghost” autocomplete INSIDE the input -->
+    {/* Input wrap lets us overlay “ghost” autocomplete INSIDE the input */}
     <div class="searchbar__input-wrap">
       <input
         id="site-search-input"
@@ -47,7 +47,7 @@ const glossaryTerms = Object.fromEntries(
         spellcheck="false"
       />
 
-      <!-- One-option predictive “ghost” topic suggestion -->
+      {/* One-option predictive “ghost” topic suggestion */}
       <div class="searchbar__ghost" data-ghost hidden aria-hidden="true">
         <span class="searchbar__ghost-typed" data-ghost-typed></span><span
           class="searchbar__ghost-rest"
@@ -55,7 +55,7 @@ const glossaryTerms = Object.fromEntries(
       </div>
     </div>
 
-    <!-- Mobile/tablet submit button -->
+    {/* Mobile/tablet submit button */}
     <button class="searchbar__submit" type="submit" aria-label="Search">
       <svg
         class="btn-icon"
@@ -175,7 +175,7 @@ const glossaryTerms = Object.fromEntries(
   </script>
 </div>
 
-<!-- IMPORTANT: this CSS must be GLOBAL because search results are injected via innerHTML -->
+{/* IMPORTANT: this CSS must be GLOBAL because search results are injected via innerHTML */}
 <style is:global>
   /* (UNCHANGED CSS - keep exactly what you already have) */
   .sr-only {
