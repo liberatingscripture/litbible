@@ -14,7 +14,7 @@ import "./helpers/browser-env.mjs";
 
 const { CHROME, PHONE, SAFARI_MAC, browser, openPage, saveCode, synced, until, use, world } = await import("./helpers/account-page.mjs");
 const { WORDS, SWITCH_KEY, SWITCH_VALUES, renamedWords, signOutAsk } = await import("../src/lib/desk-account-words.mjs");
-const { SYNC_META, readLink } = await import("../src/lib/desk-sync-link.mjs");
+const { peekLink } = await import("../src/lib/desk-sync-link.mjs");
 const { openSyncDb } = await import("../src/scripts/desk/sync/sync-db.js");
 const { openStore } = await import("../src/scripts/desk/store.js");
 const { fakeCredentials } = await import("./helpers/fake-credentials.mjs");
@@ -33,12 +33,12 @@ async function kept(b, key) {
   }
 }
 
-/** The link in a browser's notebook, or null. */
-async function linkOf(b) {
-  await use(b);
-  const store = await openStore({ ctx: CTX });
-  return readLink(await store.getMeta(SYNC_META));
-}
+/**
+ * The link in a browser's notebook, or null, read from its storage alone: a
+ * page still open in that browser keeps its connector running (a stopped
+ * one sends nothing more, so its page's requests would fail; Audit 9, SY9b-2).
+ */
+const linkOf = (b) => peekLink({ idb: b.idb });
 
 /** A reader with an account and a synced notebook, set up on a computer. Returns the page on its home, and the code. */
 async function setUpReader(w, { follows = false, b = browser(w) } = {}) {

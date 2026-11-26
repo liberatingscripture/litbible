@@ -45,6 +45,12 @@
 // by whoever signs the reader in (step 4h) through the connector; "account"
 // and "code" are the account page's alone, "seen" is the account page's and
 // the notice's, and "asked" and "news" are the notice's.
+//
+// A HANDLE THAT WAS CLOSED STAYS CLOSED (Audit 9, SY9b-2): after `close()`
+// every call rejects, so nothing of a stopped sync writes here again (it
+// once opened the database anew, and wrote after "Stop syncing" cleared it).
+// A connection the browser takes away (another tab deleting the database, or
+// a newer page upgrading it) is not a close: the next call opens it again.
 
 import { SYNC_DB } from "../../../lib/desk-sync-link.mjs";
 
@@ -89,6 +95,8 @@ function open(idb) {
 export async function openSyncDb({ idb = globalThis.indexedDB } = {}) {
   if (!idb) throw new Error("desk-sync: IndexedDB isn't available");
   let db = null;
+  let closed = false;
+  const refused = () => new Error("desk-sync: the sync's storage was closed");
   const connect = async () => {
     const conn = await open(idb);
     // Another tab deleting the database (signing out) or a newer page upgrading it waits for this one to let go.
@@ -96,22 +104,31 @@ export async function openSyncDb({ idb = globalThis.indexedDB } = {}) {
       conn.close();
       if (db === conn) db = null;
     };
+    // Closed while this one was opening: it goes too.
+    if (closed) {
+      conn.close();
+      throw refused();
+    }
     db = conn;
     return conn;
   };
   await connect();
-  const conn = async () => db ?? connect();
+  /** A transaction on the open connection, opened again if the browser took it away. Refused once closed. */
+  const begin = async (stores, mode) => {
+    if (closed) throw refused();
+    return (db ?? (await connect())).transaction(stores, mode);
+  };
 
   return {
     /** One value from `kv`. */
     async get(key) {
-      const tx = (await conn()).transaction(KV, "readonly");
+      const tx = await begin(KV, "readonly");
       return request(tx.objectStore(KV).get(key));
     },
 
     /** Several values from `kv`, read together. */
     async getAll(keys) {
-      const tx = (await conn()).transaction(KV, "readonly");
+      const tx = await begin(KV, "readonly");
       const store = tx.objectStore(KV);
       const values = await Promise.all(keys.map((key) => request(store.get(key))));
       return Object.fromEntries(keys.map((key, i) => [key, values[i]]));
@@ -119,7 +136,7 @@ export async function openSyncDb({ idb = globalThis.indexedDB } = {}) {
 
     /** Writes values to `kv` together. A value of `undefined` removes its key. Never "meta": that is `write`'s. */
     async set(values) {
-      const tx = (await conn()).transaction(KV, "readwrite");
+      const tx = await begin(KV, "readwrite");
       const done = committed(tx);
       const store = tx.objectStore(KV);
       for (const [key, value] of Object.entries(values)) {
@@ -132,7 +149,7 @@ export async function openSyncDb({ idb = globalThis.indexedDB } = {}) {
 
     /** The loop's state, as the engine reads it (src/lib/desk-sync-engine.mjs, `state`). */
     async read() {
-      const tx = (await conn()).transaction([KV, ROWS, HELD], "readonly");
+      const tx = await begin([KV, ROWS, HELD], "readonly");
       const [meta, rows, held] = await Promise.all([
         request(tx.objectStore(KV).get("meta")),
         request(tx.objectStore(ROWS).getAll()),
@@ -143,7 +160,7 @@ export async function openSyncDb({ idb = globalThis.indexedDB } = {}) {
 
     /** Commits the loop's state: meta, entries, and kept rows, all or none. */
     async write({ meta, rows, held }) {
-      const tx = (await conn()).transaction([KV, ROWS, HELD], "readwrite");
+      const tx = await begin([KV, ROWS, HELD], "readwrite");
       const done = committed(tx);
       try {
         if (meta) tx.objectStore(KV).put(meta, "meta");
@@ -167,13 +184,15 @@ export async function openSyncDb({ idb = globalThis.indexedDB } = {}) {
 
     /** Empties every table: the keys, the session, and the loop's state. The notebook is not touched. */
     async clear() {
-      const tx = (await conn()).transaction([KV, ROWS, HELD], "readwrite");
+      const tx = await begin([KV, ROWS, HELD], "readwrite");
       const done = committed(tx);
       for (const name of [KV, ROWS, HELD]) tx.objectStore(name).clear();
       await done;
     },
 
+    /** Lets go of the database for good: every call after this rejects, and nothing opens it again. */
     close() {
+      closed = true;
       db?.close();
       db = null;
     },
