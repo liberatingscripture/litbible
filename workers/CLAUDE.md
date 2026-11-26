@@ -220,7 +220,8 @@ work," "Production," and what each later step plugs in and where), and
   edit one that has been applied; add the next numbered file.
 - **`.github/workflows/notebook-service-deploy.yml` is ON for the preview
   (since 2026-11-23), and off for production. A merge to `main` that
-  touches this package deploys the preview**: tests, migrations, deploy,
+  touches this package deploys the preview**: tests (in a job with no
+  secret), then, from an install that runs no scripts, migrations, deploy,
   then the walkthrough against it. So
   a change here is live minutes after it merges, and a migration in it is
   applied for good. The workflow is also the way BDR rolls back, from the
