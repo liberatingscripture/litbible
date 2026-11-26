@@ -118,7 +118,9 @@
   Justify under it, theme, and a "View" group whose desk switches merge into
   one "Your marks," and moves the rest, the Keyboard switch and "Reset
   widths" among them, out of the tray: `SITE-FEATHERBOA.md`, "Display";
-  until it is built, this holds.) There is **one
+  its verse-numbers switch becomes "Verse and chapter numbers" and hides
+  the chapters' headings too, as a desk pane's does: "A whole book"; until
+  it is built, this holds.) There is **one
   panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Six rules:

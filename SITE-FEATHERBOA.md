@@ -608,6 +608,8 @@ working; the margin footnote is the new behavior.
   measure"), about 70 characters a line in the 660 column. The proposal
   drew a book face at 20 pixels.
 - **The chapter number is a drop numeral in LIT Green**, as in the apps.
+  Proposal 14 retired it: where chapters read on, each has a heading that
+  names it ("A whole book").
 - **Verse numbers and footnote letters are deep green, with no underline**
   ("Color"), where the proposal drew small gray figures and small italics.
   **Footnote letters stand upright**: italics read worse for dyslexic
@@ -939,7 +941,9 @@ widths (“Keep dragging”).
   It is "Your," not the proposal's "My" (“2, yes”): it sits beside the
   translation's own marks, so it needs a word for whose, and "Your" is what
   the margin's notes say ("Your note · verse 5"). The finer choices (only
-  highlights, say) are in All settings.
+  highlights, say) are in All settings. **"Verse numbers" became "Verse and
+  chapter numbers"** with proposal 14, the desk's own name for its pane's
+  switch, since it hides the chapters' headings too ("A whole book").
 - **"All settings →"** at the tray's foot.
 - **"Show the Notebook" is the Notebook button itself**, on the place line,
   and **the notes' lettering is gone** with Playpen Sans ("The reading
@@ -1031,7 +1035,15 @@ settled the rest point by point.
 
 ### Between chapters
 
-- **Only the next chapter's heading** (“1, yes”). The footnote list and Go
+- **Only the next chapter's heading** (“1, yes”), **set close, as the desk's
+  text pane sets it** (BVJ: “I'd rather not have such a big gap between
+  chapters. I was imagining it laid out closer to how the LIT Pane does
+  it.”). In the mock it was "James 2" in Fraunces at about 23 pixels, 32
+  pixels below the last line and with no rule under it: 88 pixels from one
+  chapter's last line to the next one's first, against 141 for the first
+  drawing, which had a rule and more space. **The drop numeral goes** (“Yes,
+  all three”): the heading names every chapter, so the numeral said the
+  same thing twice ("The reading page"). The footnote list and Go
   deeper leave the reading flow on the screen. The list stays in the page
   for printing, and both stay for readers without JavaScript and for the
   desk, which reads them from the chapter's page (`desk/chapter-page.js`).
@@ -1040,11 +1052,27 @@ settled the rest point by point.
   the chapter's Go deeper rows; a margin footnote's "In the notes ↓" opens
   the Footnotes tab at its note. The panel is the desk's, so where they
   live on a phone or tablet is drawn with proposal 15.
-- **"Go deeper" on each chapter's heading is open.** BVJ asked for “a ‘go
-  deeper’ control somewhere more visible that takes the user to it on the
-  tab”; Claude proposed it at the heading's right end, opening This verse at
-  "This chapter." BVJ: “maybe. I'd have to see it to decide for sure.” It
-  waits for a mock.
+- **"Go deeper" sits at the right end of each chapter's heading**, and
+  opens the Notebook on This verse, scrolled to "This chapter" for that
+  chapter. BVJ asked for “a ‘go deeper’ control somewhere more visible that
+  takes the user to it on the tab,” then wanted to see it first; a mock of
+  James 1 running into James 2 drew three places for it: the heading, the
+  place line (one button for the chapter in view), and the margin beside
+  the chapter's start (with what is there: "1 episode · 16 key terms ·
+  Introduction"). BVJ: “the heading definitely looks the best,” and took
+  it with the close break (“Yes, all three”). It names its chapter by where
+  it sits, adds no height, and works the same at every width, where the
+  margin's needs a margin and the place line's was crowding the line.
+- **The Verse and chapter numbers switch hides the headings too** (BVJ:
+  “Maybe the option to toggle the verse/chapter numbers (which would
+  include headings) is enough of a solution there,” then “Yes, all
+  three”), as the desk's text pane's switch already does (E108). With it
+  off, the chapters run on with an ordinary paragraph's gap, as one long
+  passage; the headings stay for screen readers and come back into view
+  when a keyboard reaches them, as on the desk. Go deeper hides with its
+  heading and stays in This verse, and the place line and the progress
+  line still say where the reader is. The switch takes the desk's name
+  ("Display," below).
 - **Footnote letters start again each chapter**, as today, and the
   Footnotes tab lists the chapter in view (“d, yes”).
 - **A chapter still being translated loads as the desk's text pane loads
@@ -1098,8 +1126,6 @@ with the bar.
 - **The rest of the two proposals, and every page**, each decided again
   (above), with 2.0's decision beside the proposals'.
 - **What becomes of Site 2.0's code** behind `data-restyle`.
-- **"Go deeper" on each chapter's heading**, to decide from a mock ("A
-  whole book").
 - **/read as the full-size picker, and the License page**, each drawn as a
   page ("Finding a passage"), with /read's lede that names the unfinished
   texts.
