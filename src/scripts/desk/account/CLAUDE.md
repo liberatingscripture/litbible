@@ -258,7 +258,12 @@ without the switch. The announcement popover stays off all three
     on load scrolled `/delete-account/` to its box. A heading that repeats
     the page's own h1 is kept for a screen reader and not drawn. A button
     is busy (`aria-disabled`), never `disabled`, while its step runs. A
-    step that waited checks `ui.live()` before it draws.
+    step that waited checks `ui.live()` before it draws. **An “Are you
+    sure” is `confirmBox`, shown with `focusConfirm`** (Audit 9, AC9-1):
+    focus goes to its question, never to the button that does it; the
+    group is named by the question and that button described by it;
+    Escape is Cancel, and neither cancels while the step runs. Cancel
+    puts focus back where the reader asked.
 19. **Sign in with Apple and with Google are built and off**
     (`desk-account-providers.mjs`'s header is the account of it). A
     provider is offered only when the service lists it **and**

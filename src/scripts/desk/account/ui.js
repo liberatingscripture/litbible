@@ -123,16 +123,43 @@ export function field(label, { id, hint, ...props } = {}) {
   return { row, input };
 }
 
-/** A step the reader is asked to confirm, in place: the question, a button that does it, and Cancel. */
+let asked = 0;
+
+/**
+ * A step the reader is asked to confirm, in place: the question, a button
+ * that does it, and Cancel. The group is named by its question and the yes
+ * button described by it, so a screen reader says what the button does
+ * with it; Escape anywhere in the box is Cancel. Neither cancels while the
+ * yes step runs, since that step can't be called back. Show it with
+ * `focusConfirm`, never by focusing its first button (Audit 9, AC9-1).
+ */
 export function confirmBox(ui, { ask, yes, kind = "primary", onYes, onCancel }) {
-  const box = h("div", { class: "account__confirm", role: "group" }, h("p", { text: ask }));
+  const id = `account-confirm-${++asked}`;
+  const box = h("div", { class: "account__confirm", role: "group", "aria-labelledby": id }, h("p", { id, class: "account__confirm-ask", tabindex: "-1", text: ask }));
+  const doIt = button(ui, yes, onYes, { kind, "aria-describedby": id });
   const cancel = h("button", { type: "button", class: "account__button account__button--quiet", text: WORDS.cancel });
-  cancel.addEventListener("click", () => {
+  const dismiss = () => {
+    if (doIt.getAttribute("aria-disabled") === "true") return;
     box.remove();
     onCancel?.();
+  };
+  cancel.addEventListener("click", dismiss);
+  box.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || e.defaultPrevented) return;
+    e.preventDefault();
+    dismiss();
   });
-  box.append(h("div", { class: "account__actions" }, button(ui, yes, onYes, { kind }), cancel));
+  box.append(h("div", { class: "account__actions" }, doIt, cancel));
   return box;
+}
+
+/**
+ * Focus for a confirm box just shown in `within`: its question, so the
+ * reader hears what is asked before reaching the button that does it, and a
+ * keyboard's next Tab is that button.
+ */
+export function focusConfirm(within) {
+  within.querySelector(".account__confirm-ask")?.focus();
 }
 
 /** A section of the account's home: a heading, then its parts. */

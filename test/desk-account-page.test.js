@@ -379,6 +379,7 @@ test("removing a device changes the key; the removed computer says so and joins 
   const kidBefore = page1.ctx.S.account.kid;
   await page1.press(WORDS.remove);
   assert.ok(page1.has("Remove “Safari on Mac” from your notebook?"));
+  assert.match(document.activeElement?.textContent ?? "", /^Remove “Safari on Mac” from your notebook\? /, "focus is on the question, not on Remove (AC9-1)");
   await page1.press(WORDS.removeYes);
   await page1.shows(WORDS.keyChanged);
   await synced(page1);
@@ -765,6 +766,34 @@ test("deleting from a computer that holds the key happens at once, and the noteb
   // The passkey is still in the password manager, and opens nothing.
   await page.press(WORDS.signInPasskey);
   assert.match(page.alert(), /doesn’t belong to an account here/);
+});
+
+test("an “Are you sure” is named by its question, which takes focus before its button, and Escape is Cancel (Audit 9, AC9-1)", async () => {
+  const w = world();
+  const { page, b } = await setUpReader(w);
+  const escape = (el) => el.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+  for (const [open, yes, ask] of [
+    [WORDS.deleteOpen, WORDS.deleteNow, WORDS.deleteAtOnce],
+    [WORDS.signOut, WORDS.signOutConfirm, WORDS.signOutLinked],
+  ]) {
+    await page.press(open);
+    const box = page.root.querySelector(".account__confirm");
+    const question = document.getElementById(box.getAttribute("aria-labelledby"));
+    assert.equal(question?.textContent, ask, "the group is named by its question");
+    assert.equal(page.button(yes).getAttribute("aria-describedby"), question.id, "and the button that does it is described by it");
+    assert.equal(document.activeElement === question, true, "focus is on the question, not on the button");
+
+    // While the step runs, Escape can't call it back, so it does nothing.
+    page.button(yes).setAttribute("aria-disabled", "true");
+    escape(question);
+    assert.equal(box.isConnected, true);
+    page.button(yes).removeAttribute("aria-disabled");
+
+    escape(question);
+    assert.equal(box.isConnected, false, "Escape closes it, as Cancel does");
+    assert.equal(document.activeElement === page.button(open), true, "and focus is back on the button that asked");
+  }
+  assert.ok(await linkOf(b), "nothing was deleted, and the browser still syncs");
 });
 
 test("the box on /delete-account/ signs in and deletes, and offers nothing else", async () => {

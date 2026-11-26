@@ -234,10 +234,14 @@ what the sync leaves to the reader:
   and the stand-in below for a service that has to break at an exact point.
 - **The stand-in service is `test/helpers/fake-notebook-service.mjs`.** It
   repeats the real service's checks, words, and order by hand, so **a change
-  to `workers/notebook-service/src/rows.js`, `session.js`, or `check.js`
-  needs the same change there**, or these tests pass against a service that
-  no longer exists. `sync-rig.mjs` makes devices; `sync-browser.mjs` makes
-  the page.
+  to `workers/notebook-service/src/rows.js`, `session.js`, `account.js`,
+  `http.js`, or `check.js` needs the same change there**, or these tests
+  pass against a service that no longer exists. Its header says what it
+  leaves out. `test/desk-sync-fake-service.test.js` sends the same requests
+  to it and to the service's own code where the order of checks decides the
+  answer (no session, a session not open, a body too large) and fails where
+  they part (Audit 9, SY9-2); a refusal the stand-in learns joins its cases.
+  `sync-rig.mjs` makes devices; `sync-browser.mjs` makes the page.
 - **End to end is a real browser against `wrangler dev`**, in
   `workers/notebook-service/` with a `.dev.vars` made for this machine
   (never the deployed preview's secret). The local service answers CORS for
