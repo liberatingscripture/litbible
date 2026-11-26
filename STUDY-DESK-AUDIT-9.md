@@ -219,8 +219,8 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
 | AC9-1 | **Medium** | Medium | Fixed (#716) |  | The “Are you sure” box (delete the account, remove a device, sign out) is an unnamed group, focus lands on the destructive button, and its question isn’t tied to it, so a screen reader hears only the button |
-| AC9-2 | **Low** | Medium | Fixed (this PR) |  | After Rename the home is redrawn with nothing said; other actions say their result next in reading order (rule 18) |
-| AC9-3 | **Low** | Medium | Fixed (this PR) | 4j | Signing out of a one-device notebook means the recovery code to get back, and the sign-out sentence (`signOutLinked`) doesn’t say so; #713 added context elsewhere (“Your passkey only signs you in,” the help page), not this sentence |
+| AC9-2 | **Low** | Medium | Fixed (#719) |  | After Rename the home is redrawn with nothing said; other actions say their result next in reading order (rule 18) |
+| AC9-3 | **Low** | Medium | Fixed (#719) | 4j | Signing out of a one-device notebook means the recovery code to get back, and the sign-out sentence (`signOutLinked`) doesn’t say so; #713 added context elsewhere (“Your passkey only signs you in,” the help page), not this sentence |
 | AC9-4 | **Low** | Low | Open |  | The reason “Follows my account” is unavailable isn’t tied to the disabled radio |
 | AC9-5 | **Low** | Low | Open |  | Two passkeys give two buttons named “Remove Passkey” |
 | AC9-6 | **Low** | Low | Open |  | The printed recovery code is set in a serif (print.css wins over the monospace) |
@@ -230,8 +230,8 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | AC9-10 | **Nit** | Nit | Open |  | The status dot vanishes on hover of the header’s account button (not under Site 2.0) |
 | AC9-11 | **Nit** | Nit | Open |  | The stop sentence shows twice on the account home |
 | LV9-1 | (in AC9-1) | Medium | Fixed (#716) |  | Confirmed live |
-| LV9-2 | (in AC9-2) | Medium | Fixed (this PR) |  | Confirmed live |
-| LV9-3 | (in AC9-3) | Medium | Fixed (this PR) |  | Confirmed live |
+| LV9-2 | (in AC9-2) | Medium | Fixed (#719) |  | Confirmed live |
+| LV9-3 | (in AC9-3) | Medium | Fixed (#719) |  | Confirmed live |
 | LV9-4 | **Low** | Low | Open |  | Showing a code for the new device removes the pressed button, and nothing moves focus to the code or says it |
 | LV9-5 | (in AC9-5) | Low | Open |  | Same-named Remove buttons |
 | LV9-6 | **Nit** | Low | Open |  | A removed device first reads “sign in again” before it learns it was removed (true for what it knows then) |
@@ -288,7 +288,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | DOC9-6 | **Low** | Low | Open |  | The account file says /delete-account/ is in the sitemap; the config takes it out |
 | DOC9-7 | **Nit** | Low | Open |  | The spec’s “a minute before `due` or twenty minutes after” reads like a window; it illustrates “until it is carried out” |
 | DOC9-8 | **Low** | Low | Open |  | The spec’s front matter and “Order of work” stop at 4g |
-| DOC9-9 | (in CP9-1) | Low | Fixed (this PR) |  | One thing, several names |
+| DOC9-9 | (in CP9-1) | Low | Fixed (#719) |  | One thing, several names |
 | DOC9-10 | **Nit** | Low | Open |  | A root rule stated without the account gate’s exception |
 | DOC9-11 | **Low** | Low | Open |  | Smaller stale sentences (sync rule 2 and a static import, STUDY-DESK.md’s size, ask 4) |
 | DOC9-12 | **Nit** | Nit | Open |  | The spec reads item 51 as decided where it isn’t |
@@ -300,7 +300,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| CP9-1 | **Low** | Low | Fixed (this PR) | 4j? | The notebook’s place is “this computer,” “this browser,” and “this device”; #713 added more of each |
+| CP9-1 | **Low** | Low | Fixed (#719) | 4j? | The notebook’s place is “this computer,” “this browser,” and “this device”; #713 added more of each |
 | CP9-2 | *False positive* | Nit |  |  | Straight apostrophes in developer strings no reader sees |
 | CP9-3 | *False positive* | Nit |  |  | The app popover’s list has its Oxford comma (“notes and highlights” is one item) |
 | CP9-4 | **Nit** | Low | Open |  | Every page carries about 8 KB of HTML comments (3 KB compressed), most from before the window; the repo is public, so nothing leaks |
@@ -332,12 +332,12 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| UX9b-2 | **Low** | Low | Fixed (this PR) |  | The backup reminder still says “You haven’t backed up your notebook yet” to a synced reader while the Settings line beside it says “Not backed up to a file yet” (`first-use.js:433` against `:438`) |
+| UX9b-2 | **Low** | Low | Fixed (#719) |  | The backup reminder still says “You haven’t backed up your notebook yet” to a synced reader while the Settings line beside it says “Not backed up to a file yet” (`first-use.js:433` against `:438`) |
 | UX9b-3 | **Low** | Low | Open |  | A browser whose link remains but can no longer sync (removed, or on another notebook) is still told “It syncs with your account” and shown no card; read, not run against a service |
-| UX9b-4 | **Nit** | Low | Fixed (this PR) |  | A reader who answered “this browser” has no way to an account from the Notebook panel (the header’s “Sign in” is one) |
+| UX9b-4 | **Nit** | Low | Fixed (#719) |  | A reader who answered “this browser” has no way to an account from the Notebook panel (the header’s “Sign in” is one) |
 | UX9b-5 | **Nit** | Nit | Open |  | A first write in the same tick as the page opening nudges a linked reader |
 | UX9b-6 | **Nit** | Nit | Open |  | The first stage’s `desk-reminder.mjs` gained two functions it never uses (about 1 KB of source) |
-| UX9b-7 | **Nit** | Nit | Fixed (this PR) |  | “Set up an account…” is a link with an ellipsis beside a bordered button: it reads as secondary, and the ellipsis promises a dialog where it opens a page |
+| UX9b-7 | **Nit** | Nit | Fixed (#719) |  | “Set up an account…” is a link with an ellipsis beside a bordered button: it reads as secondary, and the ellipsis promises a dialog where it opens a page |
 
 ### PR #714
 
