@@ -161,8 +161,8 @@ export function statusWords(status, format = {}) {
   if (typeof status?.clock === "number" && Math.abs(status.clock) >= CLOCK_NOTICE_MS) {
     detail.push(
       status.clock > 0
-        ? `This computer’s clock is ${roughly(status.clock)} ahead. Until it is set right, changes made here can replace later ones from your other devices.`
-        : `This computer’s clock is ${roughly(status.clock)} behind. Until it is set right, changes made here can lose to earlier ones from your other devices.`,
+        ? `This computer’s clock is ${roughly(status.clock)} ahead. Until it is set right, what you change or delete here can override newer changes from your other devices.`
+        : `This computer’s clock is ${roughly(status.clock)} behind. Until it is set right, what you change or restore here can be overridden by older changes from your other devices.`,
     );
   }
   const asked = waitingSentence(status?.account?.waiting, format);

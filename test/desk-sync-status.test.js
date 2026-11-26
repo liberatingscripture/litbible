@@ -129,8 +129,8 @@ test("what couldn't be synced is listed under the line, each kind in its own sen
 
 test("a clock five minutes off is said, with which way it errs", () => {
   assert.deepEqual(statusWords(status("upToDate", { clock: CLOCK_NOTICE_MS - 1 })).detail, []);
-  assert.match(statusWords(status("upToDate", { clock: CLOCK_NOTICE_MS })).detail[0], /clock is about 5 minutes ahead\. Until it is set right, changes made here can replace later ones/);
-  assert.match(statusWords(status("upToDate", { clock: -2 * 60 * 60_000 })).detail[0], /clock is about 2 hours behind\. Until it is set right, changes made here can lose to earlier ones/);
+  assert.match(statusWords(status("upToDate", { clock: CLOCK_NOTICE_MS })).detail[0], /clock is about 5 minutes ahead\. Until it is set right, what you change or delete here can override newer changes from your other devices\.$/);
+  assert.match(statusWords(status("upToDate", { clock: -2 * 60 * 60_000 })).detail[0], /clock is about 2 hours behind\. Until it is set right, what you change or restore here can be overridden by older changes from your other devices\.$/);
 });
 
 test("a deletion or a replacement that is waiting is said, with who asked and when it takes effect", () => {
