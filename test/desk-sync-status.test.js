@@ -11,12 +11,23 @@ import assert from "node:assert/strict";
 
 import {
   CLOCK_NOTICE_MS,
+  NEWS_EVERY_MS,
+  NEWS_WORDS,
+  REVIEW_WORDS,
   STOPPED_WORDS,
   TELL_AGAIN_MS,
+  WAITING_WORDS,
   needsReader,
+  newsCheckDue,
+  newsOutside,
+  noticeDay,
   roughly,
   shouldTell,
+  shouldTellWaiting,
   statusWords,
+  waitingKey,
+  waitingOutside,
+  waitingSentence,
   worthSaying,
 } from "../src/lib/desk-sync-status.mjs";
 
@@ -171,4 +182,83 @@ test("a stop is told once, again for another stop, and again a day later", () =>
   assert.equal(shouldTell({ state: "signedOut", at: "yesterday" }, "signedOut", at), true);
   assert.equal(shouldTell(undefined, "offline", at), false, "a state that mends itself is never a notice");
   assert.equal(shouldTell(undefined, "upToDate", at), false);
+});
+
+/* ── The account's notices, outside the account page ────────────────────── */
+
+const asked = (extra = {}) => ({ what: "delete", asked: "2026-11-25T18:00:00.000Z", due: "2026-12-02T18:00:00.000Z", platform: "web", through: "passkey", mine: false, ...extra });
+
+test("a request that waits is one sentence, the status line's own and the notice's", () => {
+  assert.equal(waitingSentence(asked(), format), "Someone signed in to your account asked to delete your account. It takes effect on December 1.");
+  assert.equal(waitingSentence(asked({ what: "replace", mine: true }), format), "You asked to replace your account’s notebook. It takes effect on December 1.");
+  assert.equal(waitingSentence(asked()), "Someone signed in to your account asked to delete your account.", "with no way to write a day, the day is left out");
+  assert.equal(waitingSentence(null, format), null);
+  assert.equal(waitingSentence(asked({ what: "rename" }), format), null, "a kind of request this page doesn't know says nothing");
+  // The status line says the same sentence, word for word.
+  assert.deepEqual(statusWords(status("upToDate", { account: { waiting: asked() } }), format).detail, [waitingSentence(asked(), format)]);
+});
+
+test("a waiting request is this page's to tell unless this browser's sign-in made it, or the sync is stopped", () => {
+  const waiting = asked();
+  assert.equal(waitingOutside(status("upToDate", { account: { waiting } })), waiting);
+  assert.equal(waitingOutside(status("offline", { account: { waiting } })), waiting, "what the last pass heard still stands");
+  assert.equal(waitingOutside(status("upToDate", { account: { waiting: asked({ mine: true }) } })), null, "its reader made it here");
+  assert.equal(waitingOutside(status("upToDate", { account: { waiting: asked({ what: "rename" }) } })), null);
+  assert.equal(waitingOutside(status("upToDate", { account: { waiting: null } })), null);
+  assert.equal(waitingOutside(status("upToDate")), null);
+  assert.equal(waitingOutside(undefined), null);
+  for (const state of STATES.filter(needsReader)) {
+    assert.equal(waitingOutside(status(state, { account: { waiting } })), null, `${state}: the stop is what the page says`);
+  }
+});
+
+test("a waiting request is told once, again for another request, and again a day later", () => {
+  const at = Date.parse("2026-11-25T12:00:00.000Z");
+  const key = waitingKey(asked());
+  assert.notEqual(key, waitingKey(asked({ what: "replace" })));
+  assert.notEqual(key, waitingKey(asked({ asked: "2026-11-26T09:00:00.000Z" })), "the same kind of request, asked again, is a new one");
+  assert.equal(shouldTellWaiting(undefined, key, at), true);
+  assert.equal(shouldTellWaiting({ key, at }, key, at + 60_000), false);
+  assert.equal(shouldTellWaiting({ key: "replace:x", at }, key, at + 60_000), true);
+  assert.equal(shouldTellWaiting({ key, at }, key, at + TELL_AGAIN_MS), true);
+  assert.equal(shouldTellWaiting({ key, at }, key, at - 60_000), true, "a clock set back doesn't silence it");
+  assert.equal(shouldTellWaiting({ key, at: "yesterday" }, key, at), true);
+});
+
+test("who can open the notebook is read to see what is new at most every fifteen minutes", () => {
+  const at = Date.parse("2026-11-25T12:00:00.000Z");
+  assert.equal(NEWS_EVERY_MS, 15 * 60_000);
+  assert.equal(newsCheckDue(undefined, at), true);
+  assert.equal(newsCheckDue({ at, unseen: [], told: [] }, at + NEWS_EVERY_MS - 1), false);
+  assert.equal(newsCheckDue({ at, unseen: [], told: [] }, at + NEWS_EVERY_MS), true);
+  assert.equal(newsCheckDue({ at, unseen: [], told: [] }, at - 1), true, "a clock set back doesn't put it off");
+  assert.equal(newsCheckDue({ at: "noon" }, at), true);
+});
+
+test("a device this computer approved isn't news on its reading pages; everything else the account's home says is", () => {
+  const items = [
+    { what: "device", id: "d2", how: "approval", by: "me" },
+    { what: "device", id: "d3", how: "approval", by: "d2" },
+    { what: "device", id: "d4", how: "recovery", by: null },
+    { what: "device", id: "d5", how: "passkey", by: null },
+    { what: "holder", id: "h1", kind: "recovery", by: "d2" },
+  ];
+  assert.deepEqual(newsOutside(items, "me").map((item) => item.id), ["d3", "d4", "d5", "h1"]);
+  assert.deepEqual(newsOutside(items, "someone-else").map((item) => item.id), ["d2", "d3", "d4", "d5", "h1"]);
+});
+
+test("a notice's day leaves this year out, and keeps the number on its month's line", () => {
+  const nowMs = Date.parse("2026-11-25T12:00:00.000Z");
+  assert.equal(noticeDay("2026-12-02T18:00:00.000Z", { locale: "en-US", nowMs }), "December\u00a02");
+  assert.equal(noticeDay("2027-01-03T18:00:00.000Z", { locale: "en-US", nowMs }), "January\u00a03, 2027");
+  assert.equal(noticeDay("2025-03-09T18:00:00.000Z", { locale: "en-US", nowMs }), "March\u00a09, 2025");
+  assert.equal(noticeDay("", { locale: "en-US", nowMs }), "");
+  assert.equal(noticeDay("not a day", { locale: "en-US", nowMs }), "");
+});
+
+test("the notices' own words follow the site's conventions", () => {
+  for (const words of [WAITING_WORDS, NEWS_WORDS, REVIEW_WORDS]) {
+    assert.ok(words.length > 0);
+    assert.doesNotMatch(words, /["'\u2014]/, `${words}: curly quotes only, and no em dash`);
+  }
 });

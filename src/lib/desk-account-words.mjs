@@ -317,10 +317,11 @@ export function waitingWords(waiting, locale) {
  * What a new device or a new way to open the notebook is announced as. `item`
  * is one of `news()`'s (desk-account.mjs); `own` is this device's id, so an
  * approval given here says so (two computers often share a first name,
- * "Chrome on Windows").
+ * "Chrome on Windows"). `day` writes the day in place of `dayWords`: the
+ * notice on a reading page leaves the year out (sync/account-notice.js).
  */
-export function newsWords(item, locale, { own = null } = {}) {
-  const day = dayWords(item.added, locale);
+export function newsWords(item, locale, { own = null, day: write = null } = {}) {
+  const day = write ? write(item.added) : dayWords(item.added, locale);
   const when = day ? ` on ${day}` : "";
   if (item.what === "device") {
     const name = item.name ? `“${item.name}”` : "A device";

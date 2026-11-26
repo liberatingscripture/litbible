@@ -165,14 +165,92 @@ export function statusWords(status, format = {}) {
         : `This computer’s clock is ${roughly(status.clock)} behind. Until it is set right, changes made here can lose to earlier ones from your other devices.`,
     );
   }
-  const asked = status?.account?.waiting;
-  if (asked && (asked.what === "delete" || asked.what === "replace")) {
-    const what = asked.what === "delete" ? "delete your account" : "replace your account’s notebook";
-    const who = asked.mine ? "You asked" : "Someone signed in to your account asked";
-    const due = asked.due && format.day ? ` It takes effect on ${format.day(asked.due)}.` : "";
-    detail.push(`${who} to ${what}.${due}`);
-  }
+  const asked = waitingSentence(status?.account?.waiting, format);
+  if (asked) detail.push(asked);
   return { line, detail, action, busy, ok };
+}
+
+/* ── The account's notices, on whatever page the reader is on ───────────── */
+
+// A request to delete the account or replace its notebook waits seven days so
+// that a reader's devices can say so, and a device that joins can read the
+// whole notebook at once. Both were only on the account's home, which a
+// reader has to go looking for. So each is told where the reader is (BVJ,
+// 2026-11-25, of Claude's mock and picks: "Go with all your recommendations
+// and choices"); src/scripts/desk/sync/account-notice.js draws them.
+
+/** What the dot means for a request that waits, and for a device or a way in that is new, to a screen reader. */
+export const WAITING_WORDS = "A request is waiting on your account";
+export const NEWS_WORDS = "New on your account";
+
+/** The one button both notices share: it opens the account page, where the request can be canceled and a device removed. */
+export const REVIEW_WORDS = "Review";
+
+/**
+ * A request that waits, in a sentence: the status line's own, and the
+ * notice's. `asked` is the service's `{ what, due, mine }`; `format.day`
+ * writes its day, and with none the day is left out. Null for no request.
+ */
+export function waitingSentence(asked, format = {}) {
+  if (!asked || (asked.what !== "delete" && asked.what !== "replace")) return null;
+  const what = asked.what === "delete" ? "delete your account" : "replace your account’s notebook";
+  const who = asked.mine ? "You asked" : "Someone signed in to your account asked";
+  const due = asked.due && format.day ? ` It takes effect on ${format.day(asked.due)}.` : "";
+  return `${who} to ${what}.${due}`;
+}
+
+/**
+ * The waiting request this page has to tell its reader of, or null: one that
+ * this browser's own sign-in didn't make (its reader knows), and never while
+ * the sync is stopped, when the stop is what the page says.
+ */
+export function waitingOutside(status) {
+  const asked = status?.account?.waiting;
+  if (!asked || asked.mine || (asked.what !== "delete" && asked.what !== "replace")) return null;
+  return needsReader(status.state) ? null : asked;
+}
+
+/** What one waiting request is remembered by: a second request is a new thing to say. */
+export const waitingKey = (asked) => `${asked.what}:${asked.asked ?? asked.due ?? ""}`;
+
+/**
+ * Whether to put the notice up for a waiting request: when this browser
+ * hasn't said this one, or said it a day ago, as a stop is said. `told` is
+ * what was kept the last time (`{ key, at }`), or nothing.
+ */
+export function shouldTellWaiting(told, key, nowMs) {
+  if (!told || told.key !== key || !Number.isFinite(told.at)) return true;
+  return nowMs - told.at >= TELL_AGAIN_MS || nowMs < told.at;
+}
+
+/** How often a syncing browser reads who can open its notebook, to see what is new: as often as a pass asks the account. */
+export const NEWS_EVERY_MS = 15 * 60_000;
+
+/** Whether that read is due. `kept` is what the last one left (`{ at, unseen, told }`), or nothing. */
+export function newsCheckDue(kept, nowMs) {
+  if (!kept || !Number.isFinite(kept.at)) return true;
+  return nowMs - kept.at >= NEWS_EVERY_MS || nowMs < kept.at;
+}
+
+/**
+ * What is news on a page that isn't the account's: everything the account's
+ * home would announce (`news` in desk-account.mjs) but a device this very
+ * computer approved, which its reader did here a moment ago. `own` is this
+ * device's id.
+ */
+export const newsOutside = (items, own) => items.filter((item) => !(item.what === "device" && item.how === "approval" && item.by === own));
+
+/**
+ * A day as a notice writes it: "December 2", with the year only when it isn't
+ * this one. The number keeps to its month's line, so a narrow bar never ends
+ * a line on "December" and starts the next with "2."
+ */
+export function noticeDay(iso, { locale, nowMs = Date.now() } = {}) {
+  const date = new Date(iso);
+  if (!iso || Number.isNaN(date.getTime())) return "";
+  const sameYear = date.getFullYear() === new Date(nowMs).getFullYear();
+  const words = new Intl.DateTimeFormat(locale, { month: "long", day: "numeric", ...(sameYear ? {} : { year: "numeric" }) }).format(date);
+  return words.replace(/ (?=\d)/, " ");
 }
 
 function replacedWords(replaced, format) {

@@ -92,17 +92,21 @@
 }
 
 /* The dot that says the sync has stopped and needs the reader
-   (sync/stopped-notice.js stamps <html data-desk-sync="stopped">): the dot a
+   (sync/notice-parts.js stamps <html data-desk-sync="stopped">): the dot a
    backup that is due shows, in the same places (desk-tab.css and desk.css,
-   [data-desk-due]), and on the header's account button (step 4h). The
-   minimized tab is positioned already. In forced
+   [data-desk-due]), and on the header's account button (step 4h). A request
+   that waits on the account takes the same dot to the same places
+   (data-desk-account="waiting"), and a device or a way in the reader hasn't
+   been told of puts it on the account button alone (data-desk-account="news";
+   sync/account-notice.js). The minimized tab is positioned already. In forced
    colors, Highlight, since a background alone draws nothing there. */
-html[data-desk-sync="stopped"] :is([data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn) {
+html:is([data-desk-sync="stopped"], [data-desk-account="waiting"]) :is([data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn),
+html[data-desk-account="news"] .site-header__account-btn {
   position: relative;
 }
 
-html[data-desk-sync="stopped"] :is(.desk-tab, [data-desk-toggle])::after,
-html[data-desk-sync="stopped"] :is(.desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after {
+html:is([data-desk-sync="stopped"], [data-desk-account="waiting"]) :is(.desk-tab, [data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after,
+html[data-desk-account="news"] .site-header__account-btn::after {
   content: "";
   position: absolute;
   top: 5px;
@@ -113,13 +117,15 @@ html[data-desk-sync="stopped"] :is(.desk-panel__tabs [data-tab="settings"], .des
   background: var(--green-text);
 }
 
-html[data-desk-sync="stopped"] :is(.desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after {
+html:is([data-desk-sync="stopped"], [data-desk-account="waiting"]) :is(.desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after,
+html[data-desk-account="news"] .site-header__account-btn::after {
   top: 3px;
   right: 3px;
 }
 
 @media (forced-colors: active) {
-  html[data-desk-sync="stopped"] :is(.desk-tab, [data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after {
+  html:is([data-desk-sync="stopped"], [data-desk-account="waiting"]) :is(.desk-tab, [data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after,
+  html[data-desk-account="news"] .site-header__account-btn::after {
     forced-color-adjust: none;
     background: Highlight;
   }

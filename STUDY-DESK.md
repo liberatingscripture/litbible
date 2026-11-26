@@ -5893,6 +5893,54 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      window, which is the shift every visit over a network had before.
      Not tried against the deployed preview again: that go-ahead was for
      one run.
+     **A request that waits and a device that joined are now said on
+     the page being read** (BVJ, 2026-11-25). Claude mocked where the
+     two notices would show outside the account's home, three ways for
+     the first and two for the second, and BVJ answered: “Go with all
+     your recommendations and choices for the mockup.” So: **a request
+     to delete the account or replace its notebook is told as a stopped
+     sync is told**, the dot in every place a stop's goes and the
+     notice bar with the sentence and one button, “Review,” once and
+     again each day while it waits; **a device that joined, or a new
+     way to open the notebook, puts a dot on the header's account button
+     alone and the bar once**, with “Review” and “OK,” where “OK” marks
+     it seen as the account page's does. With them, from the mock: the
+     button's word, “Review,” which opens the account page; a request or
+     a join made from this computer isn't announced on it; never over a
+     tour, a print, a sheet's page, or the account pages; and phones
+     unchanged. The rules are `src/scripts/desk/sync/CLAUDE.md`, rule
+     11. **What it costs**: nothing for the request, which every pass
+     already hears; for a new device, one request (`GET /devices`) at
+     most every fifteen minutes for a browser, where before only the
+     account page asked. **Claude's, which BVJ has not seen**: what a
+     screen reader hears on a dotted button (“A request is waiting on
+     your account,” “New on your account”), the fifteen minutes, and
+     that “Cancel the request” now asks for a pass, so no page goes on
+     saying a request that is gone (the status line did, for up to
+     fifteen minutes). **Not built**: a line in the account's menu
+     saying what the dot on its button stands for (the mock's other way
+     for a new device), so once the bar is closed the dot's words are a
+     screen reader's alone until the account page is opened. **Seen in
+     headless Chrome the same day**, the built site against
+     `wrangler dev` (42 checks): another computer joined with the
+     recovery code, and the first's next chapter showed the bar
+     (“‘Safari on Mac’ joined your notebook on November 25, with your
+     recovery code.”) and the dot on the account button, with one
+     request; closed without an answer, the next chapter showed the dot
+     alone and asked nothing; the account page's “OK” ended it; a third
+     computer's join was answered with the bar's own “OK,” after which
+     the account's home had nothing new to say; a sign-in without the
+     key asked to replace the notebook, and the first computer's next
+     chapter showed that bar (“It takes effect on December 2.”) and the
+     dot on the account button and the Notebook's tab; “Review” opened
+     the account page; the next chapter, Read View, /desk, and /sheets
+     carried the dot with no second bar; and “Cancel the request” took
+     the dot off that page at once and off the next chapter. (The rig
+     moved the browser's note of its last read sixteen minutes back to
+     see the second join, since it can't wait fifteen.) **Only in
+     tests**: the bar's second showing a day later, the request this
+     sign-in made, a device this computer approved, a stop outranking
+     both, and waiting behind a tour or another notice.
      **Not seen, and not to be assumed**: an operating system's own
      passkey prompt (Windows Hello, Touch ID) or a password manager's; a
      passkey that syncs between two real devices and carries the key to
@@ -5913,7 +5961,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **What is left of 4h**: Turnstile's widget and its secret, which
      are BVJ's to make and set (the service's half is built and stays off
      until both are there), and then a look at the widget on the sign-in
-     page; the notices anywhere but the account's home; a try from
+     page; a try from
      `litbible.net` itself, now that the pages are merged, which is the first
      real `litbible.net` passkey and the first time the content security
      policy's headers meet these pages; and real browsers and devices

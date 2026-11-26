@@ -46,7 +46,9 @@ each one cheap to change: one constant, one function, one place.
 - `src/lib/desk-sync-status.mjs`: every sentence the reader sees.
 - Here: `start.js` (the one way in, and what step 4h calls), `connector.js`
   (which tab syncs, and when a pass runs), `service.js` (one request),
-  `sync-db.js` (the sync's storage), `status-line.js`, `stopped-notice.js`.
+  `sync-db.js` (the sync's storage), `status-line.js`, `stopped-notice.js`,
+  `account-notice.js` (rule 11), and `notice-parts.js` (the dot and the bar
+  the two notices share).
 
 ## The rules
 
@@ -119,6 +121,61 @@ each one cheap to change: one constant, one function, one place.
     site's conventions (`test/desk-sync-status.test.js` checks curly quotes
     and no em dashes), and every sentence for a stop says the notebook is
     still on this computer. A new sentence is a new thing to show BVJ.
+11. **Two things about the account are said on the page being read, not
+    only on the account's home** (BVJ, 2026-11-25, of Claude's mock of
+    where they would show: “Go with all your recommendations and choices
+    for the mockup”). `account-notice.js` mounts beside the stopped notice;
+    its rules and words are in `desk-sync-status.mjs`, and the dot and the
+    bar are `notice-parts.js`, shared with the stop's.
+    - **A request that waits** (to delete the account, or to replace its
+      notebook) **is told as a stop is told**: the dot in every place a
+      stop's goes (`<html data-desk-account="waiting">`), and the notice
+      bar with the status line's own sentence and one button, “Review,”
+      once for each request and again a day later for as long as it waits.
+      The seven days protect a reader only if their devices say so. It
+      costs no request: every pass already asks the account.
+    - **A device that joined, or a new way to open the notebook** (a
+      recovery code, a passkey that carries the key) **puts a dot on the
+      header's account button alone** (`data-desk-account="news"`) and the
+      bar once, with “Review” and “OK.” A device that joins can read the
+      whole notebook at once, with no wait, so hearing of it soon is the
+      only defense. **“OK” is the account home's own “OK”**: it writes the
+      same `seen` value. A bar closed without an answer is not put up
+      again, and the dot stays until either “OK.”
+    - **“Review” opens the account page**, where the request is canceled
+      or the device removed. The bar never does either itself.
+    - **Not announced here**: a request this browser's own sign-in made
+      (`mine`), and a device this computer approved, since the reader did
+      both on this computer. **Never over a tour, a print, a sheet's own
+      page, or another notice** (`barFree`, the stop's rule), and never on
+      the account pages, which say both themselves. A phone has none of it.
+    - **One painter owns every dot** (`markDots`): the two attributes the
+      stylesheet draws from, and what each dotted button says to a screen
+      reader, the most pressing reason first (a stop, then a request that
+      waits, then what is new). A new reason for a dot goes through it, or
+      two notices write over each other's `aria-description`.
+    - **What is new costs a request of its own, `GET /devices`, at most
+      every fifteen minutes for a browser** (`NEWS_EVERY_MS`, as often as
+      a pass asks the account), from whichever page is open when it falls
+      due, and once more on a page that finds something found earlier and
+      never said (it was found under a tour, or on a sheet's page). The
+      names are read with the notebook's key and kept in memory only:
+      storage holds ids and times (`asked` and `news`, in `sync-db.js`'s
+      header and on `/privacy`). **The account's model and its words are
+      imported when a read is due, never with the page**
+      (`test/desk-sync-gate.test.js`): `desk-account.mjs` is every key
+      flow the account has.
+    - **“Cancel the request” on the account page asks for a pass**
+      (`syncNow`), so the status line and this notice hear at once that
+      the request is gone. Without it they went on saying it for up to
+      fifteen minutes.
+    - **Claude's, which BVJ has not seen**: what a screen reader hears on
+      a dotted button (“A request is waiting on your account,” “New on
+      your account”), the fifteen minutes, and the minute a failed read
+      waits before the next. **Not built**: a line in the account menu
+      saying what the dot on its button stands for (the mock's 2B, which
+      BVJ didn't take), so once the bar is closed the dot's words are a
+      screen reader's alone until the account page is opened.
 
 ## A place for the status line
 
@@ -166,7 +223,10 @@ what the sync leaves to the reader:
   rows that can't be read, a restored service), seeded property tests over
   random histories, the connector in a happy-dom page (the real store and
   the real sync storage over `fake-indexeddb`, timers fired by hand), the
-  status line and the notice, and the gate.
+  status line and the notice, and the gate. The account's notices
+  (`test/desk-sync-account-notice.test.js`) are driven both ways: one
+  status at a time with a hand-made connector, and whole flows against
+  the service's own code.
 - **The account's tests run against the service's own code instead**
   (`test/helpers/real-notebook-service.mjs`;
   `src/scripts/desk/account/CLAUDE.md`, "Testing"). Use that for a flow,

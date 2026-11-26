@@ -29,14 +29,22 @@
 //         "code"    a recovery code not yet confirmed, sealed to this
 //                   device's own key, with the two groups to ask back
 //         "seen"    the ids of the devices and holders this device has told
-//                   its reader about (../account/notebook.js)
+//                   its reader about (../account/notebook.js, and "OK" on
+//                   ./account-notice.js's notice)
+//         "asked"   { key, at }: the waiting request the reader was last told
+//                   of on a reading page, and when (./account-notice.js)
+//         "news"    { at, unseen, told }: when who can open the notebook was
+//                   last read to see what is new, the ids found that aren't
+//                   in "seen" yet, and those of them the notice has said.
+//                   Ids and times only: no name is kept
 //   rows  one entry for each row, by record id (src/lib/desk-sync.mjs)
 //   held  rows kept until they can be read or their time comes
 //
 // The loop writes "meta", `rows`, and `held` together, in one transaction
 // (`write`), and nothing else writes them. "token" and "device" are written
-// by whoever signs the reader in (step 4h) through the connector, and the
-// last three are the account page's alone.
+// by whoever signs the reader in (step 4h) through the connector; "account"
+// and "code" are the account page's alone, "seen" is the account page's and
+// the notice's, and "asked" and "news" are the notice's.
 
 import { SYNC_DB } from "../../../lib/desk-sync-link.mjs";
 

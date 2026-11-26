@@ -100,7 +100,7 @@ test("the account page's own file brings no encryption: a phone that signs in lo
     for (const to of imports(file, STATIC_IMPORT)) walk(to);
   };
   walk(ACCOUNT_PAGE);
-  const heavy = [...seen].filter((f) => GATED_LIBS.has(f) || /\/(start|connector|status-line|stopped-notice)\.js$/.test(f) || f.endsWith("/account/notebook.js") || f.endsWith("/desk/store.js"));
+  const heavy = [...seen].filter((f) => GATED_LIBS.has(f) || /\/(start|connector|status-line|stopped-notice|account-notice|notice-parts)\.js$/.test(f) || f.endsWith("/account/notebook.js") || f.endsWith("/desk/store.js"));
   assert.deepEqual(heavy, [], `the account's basics would download: ${heavy.join(", ")}`);
   assert.ok(seen.has("src/scripts/desk/sync/service.js") && seen.has("src/lib/desk-account-session.mjs"), "the walk follows the page's real imports");
   assert.deepEqual(
@@ -125,11 +125,33 @@ test("what says a browser is linked imports nothing, so reading it costs a reade
 test("the walk sees the sync's own files and follows real imports", () => {
   assert.ok(ALL.includes(WAY_IN));
   const fromStart = imports(WAY_IN, STATIC_IMPORT);
-  for (const part of ["src/scripts/desk/sync/connector.js", "src/scripts/desk/sync/status-line.js", "src/scripts/desk/sync/stopped-notice.js", "src/scripts/desk/sync/sync-db.js", "src/lib/desk-crypto.mjs"]) {
+  for (const part of ["src/scripts/desk/sync/connector.js", "src/scripts/desk/sync/status-line.js", "src/scripts/desk/sync/stopped-notice.js", "src/scripts/desk/sync/account-notice.js", "src/scripts/desk/sync/sync-db.js", "src/lib/desk-crypto.mjs"]) {
     assert.ok(fromStart.includes(part), `start.js imports ${part}`);
   }
   assert.ok(imports("src/scripts/desk/sync/status-line.js", STATIC_IMPORT).includes("src/styles/desk-sync.css"), "the stylesheet's ?inline import is followed");
   assert.ok(imports("src/scripts/desk/sync/connector.js", STATIC_IMPORT).includes("src/lib/desk-sync-engine.mjs"));
+});
+
+test("the account's notice brings the account's model only when it reads who can open the notebook", () => {
+  // A syncing browser runs the notice on every desk page. The model (every key flow the account has) and the
+  // account's words are loaded for the one read every fifteen minutes, never with the page.
+  const NOTICE = "src/scripts/desk/sync/account-notice.js";
+  const seen = new Set();
+  const walk = (file) => {
+    if (seen.has(file)) return;
+    seen.add(file);
+    for (const to of imports(file, STATIC_IMPORT)) walk(to);
+  };
+  walk(NOTICE);
+  const heavy = [...seen].filter((f) => f === "src/lib/desk-account.mjs" || f === "src/lib/desk-account-words.mjs" || f.includes("/desk/account/"));
+  assert.deepEqual(heavy, [], `the notice would load with the page: ${heavy.join(", ")}`);
+  assert.deepEqual(
+    imports(NOTICE, DYNAMIC_IMPORT).sort(),
+    ["src/lib/desk-account-words.mjs", "src/lib/desk-account.mjs"],
+    "and what it loads on demand is the model and its words",
+  );
+  assert.ok(imports("src/scripts/desk/sync/stopped-notice.js", STATIC_IMPORT).includes("src/scripts/desk/sync/notice-parts.js"), "both notices share one dot and one bar");
+  assert.ok(imports(NOTICE, STATIC_IMPORT).includes("src/scripts/desk/sync/notice-parts.js"));
 });
 
 test("the stylesheet is only ever imported inline, so no page's own stylesheet gathers it", () => {
