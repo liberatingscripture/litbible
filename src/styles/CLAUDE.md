@@ -10,7 +10,9 @@
   reader-selectable accessibility fonts, OpenDyslexic and Atkinson
   Hyperlegible Next (the latter variable, via `@fontsource-variable`), set from
   the Display tray. Playpen Sans (variable) is the Study Desk's margin-note
-  face, loaded only by the desk. All of them load Latin only; Greek and Hebrew
+  face, loaded only by the desk (Featherboa drops it, and the notes follow
+  the Display face: `SITE-FEATHERBOA.md`, "The reading page"; until it is
+  built, this holds). All of them load Latin only; Greek and Hebrew
   letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
   by character range (see "Greek and Hebrew letters," below).
   **Featherboa changes the faces** (BVJ, 2026-11-26; decided, not built):

@@ -581,6 +581,156 @@ already defines).
 
 Home's "Continue" row is drawn with the front page, last.
 
+## The reading page (decided 2026-11-26)
+
+Design Directions' proposal 10, "The reading page: a printed page that is
+not pretending." The chapter page is the site, and should feel like opening
+a well-made reader's Bible: a book face, a true measure, quiet numbers, and
+margins that do work. No paper texture, no page curl, no card; the craft is
+in the typesetting. BVJ took it fitted to what was already decided (“Yes,
+take it, fitted”), worked three points through, and added a Justify switch;
+the points left over were then put one by one (“Take 1-6,” “Yes”), and the
+Study Desk's Reading layout retires with them (“Retire it”). It is built
+mostly as styles on today's markup, and every Display setting keeps
+working; the margin footnote is the new behavior.
+
+### The page
+
+- **Scripture in Source Sans 3** at its refit size ("Sizes, space, and the
+  measure"), about 70 characters a line in the 660 column. The proposal
+  drew a book face at 20 pixels.
+- **The chapter number is a drop numeral in LIT Green**, as in the apps.
+- **Verse numbers and footnote letters are deep green, with no underline**
+  ("Color"), where the proposal drew small gray figures and small italics.
+  **Footnote letters stand upright**: italics read worse for dyslexic
+  readers ("Type"), and the green already sets them apart.
+- **No sheet**: the text sits on the page ("Surfaces").
+- **The way on at the foot is large type in deep green** (“John 2 →,”
+  with "Luke 24" back), since it can be pressed; the proposal drew it in
+  ink. Site 2.0 had made Next the one green filled button (BVJ); here it is
+  green as type.
+
+### The margin
+
+Footnotes and the reader's notes share the 320 margin, one place for
+everything about a line.
+
+- **A footnote opens in the margin when its letter is pressed, one at a
+  time**, as today's popover does over the text (BVJ, asking, and
+  confirmed by the proposal: "A footnote opens beside its line instead of
+  in a popover over the text"). Another letter swaps it; ×, Escape, or a
+  press elsewhere closes it.
+- **The opened footnote floats over the reader's notes beside its line**
+  (BVJ: “Sitting on top of them? I think so. There needs to be a very
+  clear distinction.” Then “Record it,” over pushing the notes down,
+  which would move every note below and jump them back on closing). It
+  has "Surfaces"' one shadow and 10-pixel corner, which mean exactly this:
+  it floats over the page and will go away.
+- **It shows the whole note, right there** (BVJ: “Long footnotes should be
+  able to be viewed in full right there, not navigating to the bottom of
+  the page. Bottom of the page navigation should be an option, but not
+  the only way to view it.”). Taller than the window, it stops at the
+  window's edge and scrolls inside itself, as menus do (E179). At its foot,
+  "In the notes ↓" goes to its entry in the list at the chapter's end, the
+  other way to read it. The proposal's "Read the whole note →" is not
+  used.
+- **The reader's notes lie flat on the page, on a pale sunshine tint with a
+  sunshine bar down the left edge**, headed "Your note · verse 5," with
+  their marker's dot when they have a label. In the proposal a note was
+  “marked in sunshine” by only a yellow hairline above it, against the
+  footnote's green one, in the same face, size, and ink (BVJ: “What does
+  ‘marked in sunshine’ actually look like?”). So the two differ by
+  floating against flat, printed against tinted, and a letter against
+  “Your note,” never by color alone (BVJ took this look with the points
+  below: “Take 1-6”). They stack beside their lines as today (five on a
+  line, then "N more notes").
+- **Playpen Sans goes** (BVJ: “I think we can do away with the Playpen
+  Sans”), and the notes' "Plain" setting with it. **The reader's notes
+  follow the reader's Display face** at the Margin size, like everything
+  else (Source Sans 3 by default, or Atkinson or OpenDyslexic), so a reader
+  who picks OpenDyslexic has it in their notes too. The site keeps three
+  faces.
+- **Without a margin**, the popover is the fallback and shows the whole
+  note, with the same "In the notes ↓". On a phone, footnotes and notes
+  open as a sheet from the bottom (proposal 15).
+
+### The page's controls
+
+One line under the header says where the reader is, and each part of it is
+a picker: "John" lists the books, "Chapter 1" the chapters. Previous and
+next are plain arrows there, and large type at the foot.
+
+**The line's right end loses "Switch to Read View" and keeps "Open in
+Study Desk"** (BVJ, “Yes,” and “Read View pages are being retired”). Read
+View retires at launch (BVJ, 2026-10-21; `STUDY-DESK-FIXES.md`, E8), so its
+pill goes with it; the Study Desk's way in stays in the line until proposal
+21 names the workspace. The proposal's line drew neither, only the arrows
+and "Notebook" (proposal 11).
+
+**The phone's bar is decided with proposal 15** (The phone), where the
+phone is drawn whole (“Take 1-6”). The proposal moves it to the bottom, at
+the thumb (Back, Search, Notes, Next), hiding while the reader scrolls
+down; today's is one row at the top (audit F3, owner 2026-09-28), and F3
+stands until then.
+
+### A Justify switch
+
+BVJ's addition: “a justified margins toggle, like we did for the Reading
+layout in /desk.” Taken with “Take 1-6”:
+
+- **One switch, "Justify," in the Display tray**, placed with proposal 13.
+- **It brings hyphenation with it**, as /desk's rule does (E106): justified
+  text without hyphenation opens wide gaps between words at a 70-character
+  line.
+- **E106's exceptions stay**: poetry, OpenDyslexic and Atkinson, and a
+  column under 22em are never justified.
+- **It is off by default.** The British Dyslexia Association's style guide,
+  which "Type" leans on, recommends left-aligned text, since justifying
+  spreads the gaps between words unevenly. A reader who wants the look of a
+  printed Bible turns it on.
+- **It reaches the Study Desk's LIT panes too**, like the face and the
+  size, since it replaces E106 there (below): it is typography, not one of
+  the marks each pane keeps.
+
+### The Reading layout retires
+
+/desk's Reading layout (E8) goes (BVJ, “Retire it”). Claude had first
+recommended that Reading follow the Justify switch like every Display
+setting; BVJ: “By its very nature, it has its own default settings. If we
+don't want that, then there's no point in having it at all,” and asked
+whether to give it its own remembered settings or retire it, since one
+pane does the same. Claude recommended retiring it:
+
+- **What Reading did, the desk already does.** Its LIT pane scrolls the
+  whole New Testament, the reason Read View retires (BVJ, 2026-10-21), so
+  one pane reads a whole book. And every LIT pane keeps its own marks
+  (E108: "Show ▾" on its bar, saved with the pane in the layout, out of
+  Chapter View's reach), so a pane whose marks are set once stays that
+  way. Reading's only difference was its starting point, marks off and the
+  prose justified, and the Justify switch now gives every reader the
+  second.
+- **It cost a layer of rules of its own**: the mark that tells it from One
+  pane (E107), turning the marks off and restoring only those on leaving
+  (BVJ, 2026-11-04; DK3-2, LV3-2), the undo bar naming them, and the
+  `&layout=reading` arrival (E114). Remembering its own settings would
+  have added a third set, beside the page's and each pane's, and a reader
+  would have to know which a switch changes.
+- **Featherboa's plain page is quieter than the one Reading was built
+  for**: small deep-green numbers and footnotes only on a press (above),
+  and proposal 13's one "My marks" switch, still on the H key.
+
+So the Layout window loses its "Reading" row; E106's justification of
+Reading alone becomes the Justify switch everywhere; and the links that
+stood for Read View (the search's second jump and the picker's footer,
+E114) open the desk at the passage like every other link into it, keeping
+the reader's own layout (BVJ, 2026-11-02: a link never forces an
+arrangement). Their words are settled with proposals 12 and 16.
+
+Proposal 14 ("A whole book: a switch, not a second site") argues against
+Read View's retirement, with a Chapter / Whole book switch on the reading
+page. It is decided there; Claude's view is that either answer leaves
+Reading redundant.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -589,8 +739,8 @@ Home's "Continue" row is drawn with the front page, last.
 - **Fraunces's settings** (above).
 - **The Display tray's faces.** Its Default is Inter today; the other two
   choices are Atkinson Next and OpenDyslexic.
-- **What else names Inter**: the margin notes' Plain face, and the verse
-  image's wordmark and address.
+- **What else names Inter**: the verse image's wordmark and address (the
+  margin notes' Plain face goes with Playpen Sans, "The reading page").
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
   whether its served file has old-style figures ("Sizes, space, and the
   measure").

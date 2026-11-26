@@ -384,7 +384,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      anchor reader all read the verses off the page. Their face is Playpen
      Sans (`desk.css`; see `src/styles/CLAUDE.md`), or
      Inter on "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
-     `html[data-font]`. Bookmarks show in the same `<aside>` as a red mark
+     `html[data-font]`. Featherboa drops Playpen Sans and "Plain": the notes
+     take the Display face, on a sunshine tint (`SITE-FEATHERBOA.md`, "The
+     reading page"); until it is built, this holds. Bookmarks show in the same `<aside>` as a red mark
      (gold if they stay put; see "Bookmarks, and Continue reading"), with their
      own switch (`data-desk-bookmarks`).
      **A stack of notes on one line shows five** (GF8b-6, BVJ, 2026-11-10):
@@ -954,7 +956,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
        active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
        arrangement or kind goes there, never in the page.
-     - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02): "Reading" is the
+     - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02). Featherboa
+       retires the Reading layout, with its marks rule, E106, E107 and
+       `&layout=reading`; Justify becomes a Display switch
+       (`SITE-FEATHERBOA.md`, "The reading page"). Until it is built, the
+       rules here hold. "Reading" is the
        first row of the Layout window, one LIT pane (`readingLayout`); it is
        One pane's shape, told apart by the layout's `reading` mark (E107; BVJ,
        2026-11-12), which only that row sets and `settleActive` drops, so one

@@ -500,7 +500,10 @@ notice there or nowhere.
     the passage instead (`/desk/?place=john-3:16&layout=reading`, a book at
     chapter 1; E114, BVJ 2026-11-12), and its label says so. Both build it
     with `readingJumpLink` in `search-core.js`, which reads `deskEnabled()`;
-    the chapter picker's footer writes the same address inline.
+    the chapter picker's footer writes the same address inline. Featherboa
+    retires the Reading layout, so these open the desk at the passage
+    alone, without `&layout=reading` (`SITE-FEATHERBOA.md`, "The reading
+    page"); until it is built, this holds.
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the
