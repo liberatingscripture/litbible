@@ -388,8 +388,84 @@ because nothing carried them there. This file is what carries them now.
     page. Will each app do the same outside its account screen, and
     when: the next time it opens, the next time it syncs? The service
     sends no push for either, so a device hears only when it asks.
+21. **The privacy page's app parts, the stores' forms, and the age laws,
+    before either app ships sync** (asked 2026-11-25, the first entry
+    below). The privacy page now describes accounts, and the policy must
+    be live before either app ships sync (A6). Four things, answered by
+    number here:
+    1. **The app sections of `/privacy`** (`src/pages/privacy.astro`) are
+       yours to correct. “Your reading data (app)” now says that with an
+       account a locked copy of notes, highlights, and bookmarks syncs and
+       the reading position doesn't: true for each app? “Third-party
+       software (app)” is unchanged; once an app syncs it needs a sentence
+       for its sign-in (Claude's guess: AuthenticationServices on iOS,
+       Credential Manager on Android). “Changes to this policy” now
+       promises a note in the apps' What's New, not Translation Updates
+       (BVJ, 2026-11-25: “‘What's New’ is correct, not ‘Translation Updates’, BDR should confirm.”).
+    2. **The stores' forms.** Claude's reading of the stores' own pages
+       (2026-11-25; not legal advice). *App Store privacy labels*:
+       Identifiers, User ID (the account's id and a passkey's or Apple's
+       or Google's id), collected, linked to the person, for app
+       functionality, not for tracking; and User Content, Other User
+       Content (the locked notebook), since Apple's page has no rule for
+       end-to-end encrypted data that Claude could find: declaring it,
+       for app functionality, is the cautious answer, and it's your call.
+       *Google Play's Data safety*: Personal info, User IDs, collected,
+       optional, for account management and app functionality, not shared
+       (Cloudflare is a service provider); the notebook itself is exempt
+       as end-to-end encrypted and unreadable by us, but re-read Play's
+       live page for its exact conditions; encrypted in transit, yes; a
+       way to delete, in the app and at
+       `https://litbible.net/delete-account/`.
+    3. **The age.** Accounts are for 13 and older, or older where a
+       country's law sets a higher age (BVJ, 2026-11-25). Check each app's
+       declared audience against that (Play's target audience and Families
+       policy; Apple's age rating). Research for BVJ the same day found
+       duties on app developers in the state app-store laws, which are
+       yours to read, with a lawyer if BVJ wants one: **Texas SB 2420** is
+       in effect pending appeal (its injunction was stayed by the Fifth
+       Circuit in mid-2026) and asks a developer to tell the stores before
+       a significant change, such as a new kind of data collected, which
+       adding accounts may be; **California AB 1043**, from 2027-01-01,
+       asks a developer to request the system's age signal at download and
+       launch and treats it as knowing the reader's age; Utah's duties
+       begin 2027-05-06 and Louisiana's 2027-07-01. A summary is in the
+       website's step 4j record (`STUDY-DESK.md`); the full report, with
+       its sources, is outside the repo, and BVJ can share it.
+    4. **The Terms of Use** (`https://litbible.net/terms/`). Will each app
+       name them where an account is created, as the website does (“Creating
+       an account means you agree to the Terms of Use and are old enough to
+       have one,” with the link, beside the button)? And does the iOS app
+       use Apple's standard license agreement, which the terms assume?
 
 ## The list
+
+### 2026-11-25, the privacy page, the Terms of Use, and the first-time choice (step 4j)
+
+**Nothing you call changed**: no request, answer, size, word, or format
+point, and nothing under `workers/` is touched. It is the words accounts
+need before they open, decided by BVJ on 2026-11-25, with what touches
+the apps **for BDR to confirm**:
+
+- **`/privacy` has an “Accounts and sync” section**, live now and saying
+  accounts are not open yet: what the service keeps and can read, what it
+  keeps locked, what we never have, how long each thing is kept, and
+  deleting. It also gains “In short” and “Your choices” (Do Not Track among
+  them). The app sections are ask 21's.
+- **A new page, `/terms/`, the Terms of Use**, in the footer beside
+  Privacy: the Liberating Scripture Collective is the party, accounts are
+  for 13 and older (or older where a country's law says so), the account
+  service gives at least 90 days' notice before it ends, and Oregon law
+  governs.
+- **The setup screen's two choices keep their titles** (“Follows my
+  account,” “This device only”), and each body gains a sentence on what
+  the passkey can do: “Anyone who can use your passkey can open it too.”
+  and “Your passkey only signs you in.” An app that words its own setup
+  may want the same.
+- **A policy change is noted in the apps' What's New**
+  (BVJ, 2026-11-25: “‘What's New’ is correct, not ‘Translation Updates’, BDR should confirm.”).
+
+Full text: `STUDY-DESK.md`, step 4j.
 
 ### 2026-11-25, Turnstile is on in the preview
 

@@ -96,8 +96,9 @@ means each of these, in one change:
 5. The pages' preview copy and loading/off pairs (`desk.astro`,
    `notebook.astro`, `sheets.astro`, `desk/help.astro` and their page CSS).
    The "off" note must still say something true for no-JS and phones.
-6. `/privacy`'s notebook paragraph ("Readers who switch on the notebook, a
-   preview…") and whether to bump its effective date.
+6. `/privacy`'s notebook paragraph ("Readers who switch on the Study Desk,
+   a preview…") and whether to bump its effective date. Its account
+   section's launch edits are the account file's (rule 11).
 7. Indexing: `/notebook` and `/sheets` stay noindex; `/desk` and the help page
    are a decision (`robotsNoindex`, the sitemap filter in `astro.config.mjs`).
 8. `PROSE_NOTES` in `desk-frame.js` (re-exported by `desk/page-kind.js`)
@@ -784,8 +785,17 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        code (`test/desk-commands-window.test.js` holds it).
      - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
        `desk/tour.js`): the "Your notebook is kept in this browser" card, a
-       statement with a reminder checkbox and "Got it" until phase 4 gives a
-       second place to choose (BVJ, 2026-11-07, FU4-1; `localStorage['lit-desk-home']`), the foot's Safari
+       statement with a reminder checkbox and "Got it" (BVJ, 2026-11-07,
+       FU4-1; `localStorage['lit-desk-home']`). **Where accounts are open it
+       asks instead** (step 4j, BVJ 2026-11-25): "Where should your notebook
+       be kept?", with "Keep it in this browser" (the stored answer) and a
+       link, "Set up an account…"; no account is plainly a choice. Its words
+       are `CARD_WORDS` in `desk-first-use.mjs`. **A browser that syncs sees
+       neither form and isn't nudged**, and every sentence about where the
+       notebook is kept has a form for it (the tour's `kept` step's `linked`
+       body, `savedLine`'s `linked`, `notebookIntro`, `backupLede`;
+       `test/desk-first-use-linked.test.js`), so a new such sentence needs
+       one too. Then the foot's Safari
        line, and the tour (`lit-desk-tour`, which also holds the offer's
        markers: `later:<date>` and `never`). **The card is pointed to, never
        opened onto the reader** (E74, BVJ 2026-11-10): the first record a visit
