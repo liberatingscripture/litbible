@@ -20,7 +20,13 @@ one browser opens them with `?account=preview` (rule 11). What was and was
 not seen in a real browser is under step 4h in `STUDY-DESK.md`. Not built:
 the notices anywhere but the account's home, and the final words of the
 first-time choice (step 4j). Sign in with Apple and with Google are built
-and off (rule 19). The Turnstile check is built on both sides and off: the
+and off (rule 19). **The choices Claude made while building are BVJ's
+now** (2026-11-25, “yes” to each of the eight listed under step 4h): the
+header's tiles, its “Sign out,” and “Account” in the phone menu (rule
+17), a heading not drawn twice (rule 18), no announcement here
+(“Routes”), “approved from this computer,” the one press of rule 20,
+and rule 21's three seconds. The Turnstile check is built on both sides
+and off: the
 service asks for it only once BVJ has made a widget and set its site key
 and secret (`workers/CLAUDE.md`, “The notebook service”), and no widget
 has been seen on the sign-in page.
@@ -202,8 +208,9 @@ without the switch. The announcement popover stays off all three
       wasn't there before paint, so `desk-gate.js` never drew the entry (a
       linked browser with the switch off).
     - **Both buttons are tiles**, as the search and Aa buttons are, and
-      joined to `restyle.css`'s ordinary list (Claude's choice: green text
-      beside the green “Read” read as a second primary).
+      joined to `restyle.css`'s ordinary list (Claude's choice, which BVJ
+      kept, 2026-11-25: green text beside the green “Read” read as a
+      second primary).
 18. **One screen at a time, and its heading takes focus** (`screens` in
     `ui.js`), except the page's first, which leaves focus alone: taking it
     on load scrolled `/delete-account/` to its box. A heading that repeats
@@ -240,7 +247,8 @@ without the switch. The announcement popover stays off all three
     step as the three (`settle` in `showHome`), so neither ever moves down
     the page under a reader. Four things to keep:
     - **The wait has an end**, `REST_WAIT_MS` (three seconds; Claude's
-      number), because signing out and deleting are down there. Past it the
+      number, which BVJ kept, 2026-11-25), because signing out and
+      deleting are down there. Past it the
       rest shows and moves once when the lists come. A stop, or a state
       with no pass running (offline, slowed, a pass that failed), settles
       at once, since no list is coming.
