@@ -178,7 +178,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | SEC9-1 | **Medium** | Medium | Open (its point 4, focus on the question, done in #716) |  | A link carrying an approval code, opened on a computer that holds the notebook, fills in “Add a device” and presses Continue by itself, and the question it lands on lacks the spec’s “approve only a device you are holding,” so one keypress can hand a stolen sign-in the whole keyring |
 | SEC9-2 | **Medium** | Medium | Open |  | The preview’s deploy job runs `npm ci` (install scripts on) and `npm test` in the same job and workspace as the steps that hold a Cloudflare token reaching every Worker and D1 database on the account, production’s included once it exists |
 | SEC9-3 | (in SV9-1) | Medium | Open |  | No per-account storage limit (the same fault as SV9-1) |
-| SEC9-4 | **Low** | Low | Open | gate | The policy step 4i plans to enforce keeps `'unsafe-inline'` in `script-src`; enforce it without that before accounts open, as the plan already says the full policy comes before sign-in |
+| SEC9-4 | **Low** | Low | Decided: hashes in place of `'unsafe-inline'` in step 4i (BVJ, 2026-11-26) | gate | The policy step 4i plans to enforce keeps `'unsafe-inline'` in `script-src`; enforce it without that before accounts open, as the plan already says the full policy comes before sign-in |
 | SEC9-5 | (in SV9-12) | Low | Open |  | Anyone can post CSP reports; a forged origin can top the week’s list |
 | SEC9-6 | **Low** | Low | Open |  | `ci.yml` sets no `permissions`, and the repository’s default workflow token is write |
 | SEC9-7 | **Nit** | Nit | Open |  | Five small, harmless departures from WebAuthn Level 3 (a missing user handle, `fmt` not matched by name, non-minimal encodings) |
