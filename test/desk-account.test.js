@@ -376,6 +376,9 @@ test("approval: the new computer shows the code, the one with the notebook grant
   assert.equal(found.request.model, "Safari on an iPad");
   assert.equal(found.request.platform, "web");
   assert.equal(found.granted, false);
+  // When and how the request was made, for the question (Audit 9, SEC9-1).
+  assert.equal(found.asked.through, "passkey");
+  assert.ok(Date.parse(found.asked.time) - Date.parse(found.asked.created) < 60_000, JSON.stringify(found.asked));
   await account.grant({ call: reader.call, held: reader.held, found });
 
   const accepted = await account.acceptApproval({ call: second.call, device, asked });
@@ -697,6 +700,34 @@ test("signing out removes the device's entry and session, and nothing else", asy
   const lists = await account.readLists({ call: reader.call, held: reader.held });
   assert.deepEqual(lists.devices.map((entry) => entry.id), [reader.device.id]);
   assert.equal(lists.kid, 1, "the key didn't change");
+});
+
+test("a session attached to no device signs out by ending the session (Audit 9, COH9-1)", async () => {
+  const w = world();
+  const reader = await setUpReader(w, { follows: false });
+  const requests = (from) => w.sent.slice(from).map((request) => `${request.method} ${request.path}`);
+
+  // The same reader signs in again: a session that belongs to no device entry, as on a browser
+  // that was removed, or whose notebook was replaced, and that signed in again. The service
+  // refuses the device's removal as own_device, and the end of the session follows.
+  const again = await signIn(w, reader.browser);
+  let from = w.sent.length;
+  assert.deepEqual(await account.signOutDevice({ call: again.call, device: reader.device }), { lists: null });
+  assert.deepEqual(requests(from), [`DELETE /devices/${reader.device.id}`, "DELETE /session"]);
+  await refused(() => session.readAccount(again.call), "sign_in");
+
+  // Told it is not attached, it sends the end of the session alone.
+  const third = await signIn(w, reader.browser);
+  from = w.sent.length;
+  assert.deepEqual(await account.signOutDevice({ call: third.call, device: reader.device, attached: false }), { lists: null });
+  assert.deepEqual(requests(from), ["DELETE /session"]);
+  await refused(() => session.readAccount(third.call), "sign_in");
+  // And again, from a session already ended: as good as done.
+  assert.deepEqual(await account.signOutDevice({ call: third.call, device: null, attached: false }), { lists: null });
+
+  // The reader's own device was never touched.
+  const lists = await account.readLists({ call: reader.call, held: reader.held });
+  assert.deepEqual(lists.devices.map((entry) => entry.id), [reader.device.id]);
 });
 
 test("a signed-in session that never joined ends with the session alone", async () => {

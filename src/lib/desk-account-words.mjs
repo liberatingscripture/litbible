@@ -262,6 +262,10 @@ export const WORDS = Object.freeze({
   addDeviceYes: "Add device",
   addDeviceDone: "Added. It can take a moment to show on the new device.",
   addDeviceNone: "No device is waiting with that code. Check the code, and that it hasn’t run out.",
+  /* Audit 9, SEC9-1 (BVJ, 2026-11-26): a link's code is never filled in here, and the question says what to approve */
+  addDeviceLink: "This browser already has your notebook, so a code from a link isn’t filled in. Type the code the new device is showing.",
+  addDeviceHolding: "Approve only a device you’re holding that is showing this code now.",
+  addDeviceHoldingShown: "Approve only a device you’re holding, where you just entered or scanned this code.",
   showCode: "Show a code for the new device instead",
   showCodeLede: "On the new device, sign in, choose to join by approval, and enter this code or scan it. The code works for 10 minutes.",
   recoveryTitle: "Recovery code",
@@ -288,11 +292,6 @@ export const WORDS = Object.freeze({
   stopJoinNew: "Join the new notebook",
   stopLeave: "Stop syncing in this browser",
   stopLeaveNote: "Syncing stops here. Your notebook stays in this browser.",
-
-  /* The page that takes a scanned code */
-  connectTitle: "Add a device",
-  connectLede: "This link carries a code from a device that wants to join your notebook.",
-  connectGo: "Continue to your account",
 });
 
 /** "Type groups 2 and 5." */
@@ -315,6 +314,34 @@ export const removeAsk = (name) =>
 
 /** “Add “Pixel 9” (Android) to your notebook?” */
 export const addAsk = (model, platform) => `Add “${model || "a new device"}” (${platformWords(platform)}) to your notebook?`;
+
+/**
+ * “Asked 1 minute ago, signed in with a passkey.” `asked` is findRequest's
+ * { created, through, time }, all three the service's: the minutes are
+ * counted on its clock, so this device's clock can't make a request look
+ * new. "" when the service didn't say when.
+ */
+export function askedWords(asked) {
+  const at = Date.parse(asked?.created ?? "");
+  const now = Date.parse(asked?.time ?? "");
+  if (!Number.isFinite(at) || !Number.isFinite(now)) return "";
+  const minutes = Math.max(0, Math.floor((now - at) / 60_000));
+  const when = minutes === 0 ? "just now" : `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+  const how = SIGNED_IN_WITH[asked?.through];
+  return `Asked ${when}${how ? `, signed in with ${how}` : ""}.`;
+}
+
+/**
+ * The whole question before a device is added (Audit 9, SEC9-1; BVJ,
+ * 2026-11-26): what is asking, when and how it asked, and the spec's rule
+ * to approve only a device the reader is holding. `shown` is true where this
+ * browser showed the code and the new device entered it, false where the
+ * reader typed the code the new device shows.
+ */
+export function addQuestion(found, { shown = false } = {}) {
+  const parts = [addAsk(found?.request?.model, found?.request?.platform), askedWords(found?.asked), shown ? WORDS.addDeviceHoldingShown : WORDS.addDeviceHolding];
+  return parts.filter(Boolean).join(" ");
+}
 
 /** The line under a device's name. */
 export function deviceLine({ platform, added, own, locale }) {

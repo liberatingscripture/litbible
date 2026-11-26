@@ -60,7 +60,7 @@ import { addPasskeyWay, askToReplace, endSession, must, readAccount, removeWay }
 import {
   CONNECT_PATH,
   WORDS,
-  addAsk,
+  addQuestion,
   cleanName,
   codeGroupLabel,
   dayWords,
@@ -634,6 +634,13 @@ function stopPart(ctx, status) {
   else actions.push(button(ui, WORDS.stopJoin, () => rejoin(false), { kind: "primary" }));
   actions.push(
     button(ui, WORDS.stopLeave, async () => {
+      // The session ends first, so it isn't left alive on the service, held by no one (SY9b-2; BVJ,
+      // 2026-11-26). It is worth one try and no more: offline, or already signed out, syncing stops here all the same.
+      try {
+        await endSession(S.connector.call);
+      } catch {
+        /* best effort */
+      }
       await leave(ctx);
       await ctx.forget();
       ctx.showSignedOut(WORDS.stopLeaveNote);
@@ -712,9 +719,12 @@ export async function showHome(ctx, note) {
           yes: WORDS.signOutConfirm,
           onYes: async () => {
             const device = connector.device();
+            // Removed, or on a notebook that was replaced: this browser's entry is gone, so its session
+            // belongs to no device, and only ending the session works (COH9-1).
+            const state = connector.status()?.state;
+            const attached = state !== "removed" && state !== "otherNotebook";
             try {
-              if (device) await signOutDevice({ call: connector.call, device });
-              else await endSession(connector.call);
+              await signOutDevice({ call: connector.call, device, attached });
             } catch (error) {
               // An entry or a sign-in the service no longer has is as good as signed out; anything else is tried again.
               if (!(error instanceof AccountRefusal) || !(error.is("sign_in") || error.is("gone") || error.is("not_found"))) throw error;
@@ -820,15 +830,20 @@ export async function showHome(ctx, note) {
     devices.replaceChildren(devices.firstChild, list, add);
   };
 
-  /** "Add a device": the code the new device shows is typed here, or this one shows a code for it. */
+  /**
+   * "Add a device": the code the new device shows is typed here, or this one shows a code for it.
+   * `note` is said above the field and describes it: a link's code is never filled in here (SEC9-1).
+   */
   let stopShown = null;
-  const drawAdd = (add, typed = "") => {
+  const drawAdd = (add, { note = null } = {}) => {
     stopShown?.();
-    const entry = field(WORDS.addDeviceLabel, { id: "account-add-code", maxlength: "24", value: typed });
-    const confirm = (found) => {
+    const entry = field(WORDS.addDeviceLabel, { id: "account-add-code", maxlength: "24" });
+    const said = note ? h("p", { id: "account-add-note", class: "account__note", text: note }) : null;
+    if (said) entry.input.setAttribute("aria-describedby", "account-add-note");
+    const confirm = (found, { shown = false } = {}) => {
       add.replaceChildren(
         confirmBox(ui, {
-          ask: addAsk(found.request.model, found.request.platform),
+          ask: addQuestion(found, { shown }),
           yes: WORDS.addDeviceYes,
           onYes: async () => {
             await grant({ call: connector.call, held: H.held, found });
@@ -872,7 +887,7 @@ export async function showHome(ctx, note) {
             if (error instanceof AccountStop && error.why === "approvalGone") return false; // not asked yet
             throw error;
           }
-          confirm(found);
+          confirm(found, { shown: true });
           return true;
         },
         (error) => {
@@ -880,7 +895,8 @@ export async function showHome(ctx, note) {
         },
       );
     });
-    add.replaceChildren(h("h3", { class: "account__subhead", text: WORDS.addDevice }), h("p", { class: "account__hint", text: WORDS.addDeviceLede }), entry.row, h("div", { class: "account__actions" }, find, show));
+    add.replaceChildren(h("h3", { class: "account__subhead", text: WORDS.addDevice }), h("p", { class: "account__hint", text: WORDS.addDeviceLede }), said, entry.row, h("div", { class: "account__actions" }, find, show));
+    return entry.input;
   };
 
   const drawRecovery = () => {
@@ -992,11 +1008,15 @@ export async function showHome(ctx, note) {
       if (!alive()) return;
       if (!needsReader(connector.status()?.state)) for (const part of needOpen) part.hidden = false;
       settle();
+      // A link's code on a browser that already has the notebook (SEC9-1; BVJ, 2026-11-26). A computer
+      // can't scan, so a link reaches it only by being sent or pasted, which is how a stolen sign-in
+      // would ask for the keyring: the code is dropped, and the reader types the one the new device shows.
       if (S.pendingCode) {
-        const typed = S.pendingCode;
         S.pendingCode = null;
-        drawAdd(devices.querySelector(".account__add"), typed);
-        devices.querySelector(".account__add button")?.click();
+        const add = devices.querySelector(".account__add");
+        const input = add ? drawAdd(add, { note: WORDS.addDeviceLink }) : null;
+        add?.scrollIntoView?.({ block: "center" });
+        input?.focus();
       }
     } catch (error) {
       // Not open yet (the first pass hasn't proved the key): the next status tries again.

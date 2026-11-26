@@ -246,11 +246,12 @@ describe("GET /approvals/<id>", () => {
   it("answers the request as posted, with grant null", async () => {
     const { account } = await setUp();
     const asking = await approvalRequest(account);
+    const before = new Date().toISOString();
     const posted = await ask(asking);
     const res = await show(asking.device.token, asking.id);
     expect(res.status).toBe(200);
     expect(Object.keys(res.body)).toEqual(["time", "approval"]);
-    expect(Object.keys(res.body.approval)).toEqual(["id", "device", "platform", "model", "public", "sign", "mac", "expires", "grant"]);
+    expect(Object.keys(res.body.approval)).toEqual(["id", "device", "platform", "model", "public", "sign", "mac", "created", "through", "expires", "grant"]);
     expect(res.body.approval).toEqual({
       id: asking.id,
       device: asking.body.device,
@@ -259,9 +260,23 @@ describe("GET /approvals/<id>", () => {
       public: asking.body.public,
       sign: asking.body.sign,
       mac: asking.body.mac,
+      created: res.body.approval.created,
+      through: "preview",
       expires: posted.body.expires,
       grant: null,
     });
+    // When it was asked, by the service's clock: ten minutes before it runs out (Audit 9, SEC9-1).
+    expect(res.body.approval.created >= before.slice(0, 19)).toBe(true);
+    expect(Date.parse(posted.body.expires) - Date.parse(res.body.approval.created)).toBe(10 * 60 * 1000);
+  });
+
+  it("names the way in of the session that asked, and null once that session has ended", async () => {
+    const { approver, asking } = await asked();
+    expect((await show(approver.token, asking.id)).body.approval.through).toBe("preview");
+    await must("DELETE", "/session", { token: asking.device.token });
+    const after = (await show(approver.token, asking.id)).body.approval;
+    expect(after.id).toBe(asking.id);
+    expect(after.through).toBeNull();
   });
 
   it("is readable by an open session of the account, as the approver reads it", async () => {

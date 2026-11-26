@@ -10,7 +10,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  NAME_MAX, SWITCH_KEY, SWITCH_VALUES, WORDS, addAsk, cleanName, deviceLine, deviceName, failureWords, newsWords, platformWords,
+  NAME_MAX, SWITCH_KEY, SWITCH_VALUES, WORDS, addAsk, addQuestion, askedWords, cleanName, deviceLine, deviceName, failureWords, newsWords, platformWords,
   readSwitchParam, removeAsk, renamedWords, signOutAsk, signedInWords, waitingWords, wayWords,
 } from "../src/lib/desk-account-words.mjs";
 
@@ -31,6 +31,12 @@ function everySentence() {
   const said = Object.values(WORDS);
   said.push(signOutAsk("device"), signOutAsk("account"), signOutAsk(null), renamedWords("Study laptop"));
   said.push(removeAsk("Chrome on Windows"), removeAsk(null), addAsk("Pixel 9", "android"), addAsk("", "web"));
+  for (const through of ["passkey", "apple", "google", "preview", null]) {
+    for (const created of ["2026-11-26T10:00:00Z", "2026-11-26T09:59:00Z", "2026-11-26T09:52:00Z"]) {
+      const found = { request: { model: "Pixel 9", platform: "android" }, asked: { created, through, time: "2026-11-26T10:00:30Z" } };
+      said.push(askedWords(found.asked), addQuestion(found), addQuestion(found, { shown: true }));
+    }
+  }
   said.push(deviceLine({ platform: "web", added: "2026-11-24T10:00:00Z", own: true, locale: "en-US" }));
   for (const what of ["delete", "replace"]) for (const mine of [true, false]) said.push(waitingWords({ what, mine, due: "2026-12-01T10:00:00Z" }, "en-US"));
   for (const how of ["approval", "recovery", "passkey", "setup"]) {
@@ -130,6 +136,26 @@ test("a device that joined is announced with how, and an approval given here say
   assert.equal(newsWords({ ...item, byName: null }, "en-US", { own: "d2" }), "“Chrome on Windows” joined your notebook on November 25, 2026, approved from another device.");
   assert.equal(newsWords({ ...item, how: "recovery" }, "en-US"), "“Chrome on Windows” joined your notebook on November 25, 2026, with your recovery code.");
   assert.equal(newsWords({ ...item, name: null, how: "passkey" }, "en-US"), "A device joined your notebook on November 25, 2026, with your passkey.");
+});
+
+test("SEC9-1: the approval question says when and how the request was made, and to approve only a device in hand", () => {
+  const asked = (created, through) => ({ created, through, time: "2026-11-26T10:00:30Z" });
+  assert.equal(askedWords(asked("2026-11-26T10:00:00Z", "passkey")), "Asked just now, signed in with a passkey.");
+  assert.equal(askedWords(asked("2026-11-26T09:59:00Z", "apple")), "Asked 1 minute ago, signed in with Apple.");
+  assert.equal(askedWords(asked("2026-11-26T09:52:00Z", "preview")), "Asked 8 minutes ago, signed in with the preview’s sign-in.");
+  // The session that asked has ended, or a way the words don't know: when alone.
+  assert.equal(askedWords(asked("2026-11-26T09:52:00Z", null)), "Asked 8 minutes ago.");
+  assert.equal(askedWords(asked("2026-11-26T09:52:00Z", "other")), "Asked 8 minutes ago.");
+  // A clock running ahead of the service's never says “in the future.”
+  assert.equal(askedWords(asked("2026-11-26T10:05:00Z", "passkey")), "Asked just now, signed in with a passkey.");
+  // An answer without the times (an older service) says nothing of them.
+  assert.equal(askedWords({ through: "passkey" }), "");
+  assert.equal(askedWords(undefined), "");
+
+  const found = { request: { model: "Safari on Mac", platform: "web" }, asked: asked("2026-11-26T10:00:00Z", "passkey") };
+  assert.equal(addQuestion(found), `${addAsk("Safari on Mac", "web")} Asked just now, signed in with a passkey. ${WORDS.addDeviceHolding}`);
+  assert.equal(addQuestion(found, { shown: true }), `${addAsk("Safari on Mac", "web")} Asked just now, signed in with a passkey. ${WORDS.addDeviceHoldingShown}`);
+  assert.equal(addQuestion({ request: found.request }), `${addAsk("Safari on Mac", "web")} ${WORDS.addDeviceHolding}`);
 });
 
 test("a request that waits says who asked and when it takes effect", () => {
