@@ -121,8 +121,9 @@ Design Directions' proposal 2, "Green is ink, not paint": every color has
 one job, and color comes off everything that has none. Its reason: when
 green means "press here," a reader learns it in one page; when it is also
 the background, the arrows, the verse numbers, and the footnote letters, it
-means nothing. BVJ took it ("take it for everything else") but for the two
-points below.
+means nothing. BVJ took it ("take it for everything else"), with verse
+numbers and footnote letters kept green, bookmarks kept red, and the cream
+left for proposal 3.
 
 | Color | Its one job |
 |-------|-------------|
@@ -130,8 +131,8 @@ points below.
 | Ink `#1D231C` | All text. Grays are ink at 78% and 66%, never a separate gray |
 | LIT Green `#209D50` | The mark: the emblem, the chapter numeral, "you are here," one band on the front page. Never behind small text |
 | Deep green `#0F6B33` | What can be pressed: links, and the one filled button on a view |
-| Sunshine `#FFD23F` | The reader's own: highlights, notes, bookmarks. No longer a bar over titles |
-| Red `#B3261E` | Deleting and errors, nothing else |
+| Sunshine `#FFD23F` | The reader's own. No longer a bar over titles. The proposal names highlights, notes, and bookmarks, but bookmarks stay red and the note icons keep their own colors (below) |
+| Red `#B3261E` | Deleting and errors, and bookmarks (below) |
 | /apps' cobalt, red, and forest | Front-page feature panels only, never in reading or study |
 
 - **Links stay green, in deep green** (BVJ: “Links should stay green,” “the
@@ -144,14 +145,18 @@ points below.
 - **The cream is set aside for proposal 3.** Proposal 2 retires it as a page
   color ("Paper: the page, everywhere"), but that belongs with proposal 3's
   question about the sheet and the cream.
-- **Bookmarks need new colors.** Their marks are red today (gold when they
-  stay put); red is now only for deleting and errors, and the reader's own
-  things are sunshine. Decided with the Notebook (proposal 22).
-- **Open: verse numbers and footnote letters.** Both open something today
-  (the verse menu, the footnote) and are green, the numbers underlined.
-  Proposal 10 draws verse numbers as “small gray figures” that “still open
-  the verse menu; they stop looking like links,” and proposal 2 takes green
-  off footnote letters too. That changes how they look, not what they do.
+- **Bookmarks stay red, and the note icons keep their own colors** (BVJ:
+  “Bookmarks can stay red. The note icons have their own color scheme.”).
+  The proposal makes red only for deleting and errors and gives the reader's
+  own things to sunshine; BVJ kept both as they are today.
+- **Verse numbers and footnote letters are deep green, with no underline**
+  (BVJ, “Deep green, no underline”), since both can be pressed (the verse
+  menu, the footnote). This departs from the proposal, which draws verse
+  numbers as “small gray figures” that “still open the verse menu; they
+  stop looking like links” (proposal 10) and takes green off footnote
+  letters (proposal 2). Kept green, the rule has no exception: what can be
+  pressed is deep green, and nothing else is. Dropping the underline keeps
+  most of the quiet the proposal wanted.
 
 ## Open
 
