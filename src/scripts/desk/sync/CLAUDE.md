@@ -127,7 +127,7 @@ each one cheap to change: one constant, one function, one place.
     with a notice once for each stop and again a day later. They follow the
     site's conventions (`test/desk-sync-status.test.js` checks curly quotes
     and no em dashes), and every sentence for a stop says the notebook is
-    still on this computer. A new sentence is a new thing to show BVJ.
+    still in this browser. A new sentence is a new thing to show BVJ.
 11. **Two things about the account are said on the page being read, not
     only on the account's home** (BVJ, 2026-11-25, of Claude's mock of
     where they would show: “Go with all your recommendations and choices
@@ -214,12 +214,12 @@ what the sync leaves to the reader:
 - **The step behind "Reconnect."** For a reader who is signed out, removed,
   on another notebook, or without keys, the account's home offers the real
   step: sign in again (`setSession`), or join again (`linkNotebook`), each
-  beside "Stop syncing on this computer" (`unlink`).
+  beside "Stop syncing in this browser" (`unlink`).
 - **The reader's yes for `replace: true`.** A browser linked to another
   notebook is refused unless the caller passes it; the one place that does
   is "Join the new notebook" (the account file's rule 15).
 - **Several sentences on the desk become false in a linked browser**
-  ("kept in this browser," "never leaves this computer"); the list is under
+  ("kept in this browser," "never leaves this browser"); the list is under
   step 4g in `STUDY-DESK.md`. One is changed (`keptLine` in
   `desk-reminder.mjs`: "Kept in this browser and in your account."); the
   rest are step 4j's.

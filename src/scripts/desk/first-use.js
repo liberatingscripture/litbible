@@ -39,9 +39,9 @@
 // links (BA34).
 
 import {
-  ACCOUNT_HREF, BACKUP_HREF, CARD_WORDS, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, HOME_KEY, REMIND_KEY, SAFARI_LINE,
+  ACCOUNT_HREF, ACCOUNT_LINE, BACKUP_HREF, CARD_WORDS, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, HOME_KEY, REMIND_KEY, SAFARI_LINE,
   SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
-  backedUpSaid, isDesktopSafari, keptLine, readHome, reminderState,
+  accountLineShown, backedUpSaid, isDesktopSafari, keptLine, readHome, reminderState,
   localDay, parseTourState, savedLine, tourOffer, wantsReminder, withLater, withNever, withOffered,
 } from "../../lib/desk-first-use.mjs";
 import { SYNC_META, readLink } from "../../lib/desk-sync-link.mjs";
@@ -350,6 +350,11 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   const safariLine = el("p", "desk-home__safari");
   safariLine.hidden = !safari;
   if (safari) safariLine.append(`${SAFARI_LINE} `, link(BACKUP_HREF, "Back up your notebook"));
+  // A way to an account from the backup group (UX9b-4; BVJ, 2026-11-26): one
+  // quiet line, only while accounts are open and this browser doesn't sync.
+  const accountLine = el("p", "desk-home__account");
+  accountLine.append(link(ACCOUNT_HREF, ACCOUNT_LINE));
+  accountLine.hidden = true;
 
   // The notice (mock B, E113): a tinted group at the top of "Keep and print"
   // while a backup is due and not put off for a week. The checkbox lives here
@@ -397,7 +402,7 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
 
   // Without a notebook, only the links (`hidden` wouldn't do for the remind
   // box: .desk-setting sets its display).
-  if (canKeep) foot.append(remindLabel, kept, safariLine);
+  if (canKeep) foot.append(remindLabel, kept, safariLine, accountLine);
   foot.append(links);
 
   let seq = 0;
@@ -423,10 +428,11 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
     if (mine !== seq) return;
     linked = nowLinked;
     drawCard();
+    accountLine.hidden = !accountLineShown(accountsOpen(), linked);
     const now = new Date();
     let putOff = null;
     try { putOff = localStorage.getItem(REMIND_KEY); } catch (_) {}
-    const state = reminderState({ home, ...facts, putOff, now });
+    const state = reminderState({ home, ...facts, putOff, now, linked });
     // Due and not put off for a week: the notice, with the checkbox inside it.
     notice.hidden = !state.dots;
     if (state.dots) {

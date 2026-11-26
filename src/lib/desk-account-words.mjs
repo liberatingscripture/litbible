@@ -151,8 +151,9 @@ export const WORDS = Object.freeze({
   deskOffHasNotebook: "Your account has a synced notebook. To open it here, turn on the Study Desk in this browser.",
   signOut: "Sign out",
   signOutBasics: "Signing out ends this sign-in. Nothing in your account changes.",
-  signOutLinked: "Signing out stops syncing on this computer and takes it off your notebook’s devices. Your notebook stays in this browser.",
-  signOutConfirm: "Sign out of this computer",
+  signOutLinked: "Signing out stops syncing here and takes this browser off your notebook’s devices. Your notebook stays in this browser.",
+  signOutDeviceOnly: "To sync here again, you’ll need your recovery code or approval from another of your devices.",
+  signOutConfirm: "Sign out of this browser",
   cancel: "Cancel",
 
   /* Deleting */
@@ -171,7 +172,7 @@ export const WORDS = Object.freeze({
 
   /* Setup */
   setupTitle: "Set up your synced notebook",
-  setupLede: "Your notebook is locked with a key before it leaves this computer. Choose where that key lives.",
+  setupLede: "Your notebook is locked with a key before it leaves this browser. Choose where that key lives.",
   followTitle: "Follows my account",
   followBody:
     "Your passkey carries the key. Sign in on a new device with the same passkey, and your notebook opens there. Anyone who can use your passkey can open it too.",
@@ -198,13 +199,13 @@ export const WORDS = Object.freeze({
   codeFinish: "Finish",
   codeWrong: "That doesn’t match the code. Check what you saved and try again.",
   codeDone: "Your recovery code is saved.",
-  codeUnreadable: "This computer can’t show the recovery code again. Make a new one below, so that you have one saved.",
+  codeUnreadable: "This browser can’t show the recovery code again. Make a new one below, so that you have one saved.",
 
   /* Joining */
-  joinTitle: "Open your notebook on this computer",
-  joinLede: "Your account already has a synced notebook. This computer needs the notebook’s key before it can open it.",
+  joinTitle: "Open your notebook in this browser",
+  joinLede: "Your account already has a synced notebook. This browser needs the notebook’s key before it can open it.",
   joinPasskey: "Use my passkey",
-  joinPasskeyNo: "That passkey can’t open your notebook on this computer. Try one of the other ways.",
+  joinPasskeyNo: "That passkey can’t open your notebook in this browser. Try one of the other ways.",
   joinApprove: "Approve from another device",
   joinApproveLede:
     "On a device that already has your notebook, open your account (in the app: Settings, then Account), choose “Add a device,” and enter this code or scan it. The code works for 10 minutes.",
@@ -219,7 +220,7 @@ export const WORDS = Object.freeze({
   joinOther:
     "The notebook in this browser was syncing with a different account’s notebook. If you go on, it joins this account’s notebook instead, and the notes in this browser are added to it.",
   joinOtherYes: "Join this notebook",
-  joined: "This computer has joined your notebook.",
+  joined: "This browser has joined your notebook.",
   /* Starting a new notebook, for a reader with no way left to open the old one */
   joinCant: "I can’t do any of these",
   replaceTitle: "Start a new notebook",
@@ -247,13 +248,13 @@ export const WORDS = Object.freeze({
   keyChanged: "Done. Your notebook’s key was changed.",
   keyNowAccount: "Done. Your passkey now carries the key.",
   devicesTitle: "Devices",
-  thisComputer: "This computer",
+  thisComputer: "This browser",
   rename: "Rename",
-  renameLabel: "This computer’s name",
+  renameLabel: "This browser’s name",
   save: "Save",
   remove: "Remove",
   removeYes: "Remove device",
-  unknownDevice: "A device this computer can’t read. It is removed the next time the key changes.",
+  unknownDevice: "A device this browser can’t read. It is removed the next time the key changes.",
   addDevice: "Add a device",
   addDeviceLede: "On the new device, sign in and choose to join by approval. Then enter the code it shows.",
   addDeviceLabel: "The code the new device shows",
@@ -285,8 +286,8 @@ export const WORDS = Object.freeze({
   stopSignIn: "Sign in again",
   stopJoin: "Join again",
   stopJoinNew: "Join the new notebook",
-  stopLeave: "Stop syncing on this computer",
-  stopLeaveNote: "Syncing stops on this computer. Your notebook stays in this browser.",
+  stopLeave: "Stop syncing in this browser",
+  stopLeaveNote: "Syncing stops here. Your notebook stays in this browser.",
 
   /* The page that takes a scanned code */
   connectTitle: "Add a device",
@@ -296,6 +297,17 @@ export const WORDS = Object.freeze({
 
 /** "Type groups 2 and 5." */
 export const codeGroupLabel = (group) => `Group ${group}`;
+
+/**
+ * The sign-out box's sentence (AC9-3; BVJ, 2026-11-26). Where the notebook's
+ * key does not follow the account (`where` is "device", from whereKeyLives),
+ * no passkey can open it again here, so the box says what coming back takes.
+ * @param {"account" | "device" | null} [where]
+ */
+export const signOutAsk = (where) => (where === "device" ? `${WORDS.signOutLinked} ${WORDS.signOutDeviceOnly}` : WORDS.signOutLinked);
+
+/** What Rename says once the name is kept (AC9-2): the name as it was cleaned and saved. */
+export const renamedWords = (name) => `Renamed to “${name}.”`;
 
 /** “Remove “Chrome on Windows” from your notebook? …” */
 export const removeAsk = (name) =>
@@ -335,7 +347,7 @@ export function newsWords(item, locale, { own = null, day: write = null } = {}) 
   if (item.what === "device") {
     const name = item.name ? `“${item.name}”` : "A device";
     // Each ending carries its own period: one that closes on a quoted name puts the period inside the quote.
-    const approved = own && item.by === own ? ", approved from this computer." : item.byName ? `, approved from “${item.byName}.”` : ", approved from another device.";
+    const approved = own && item.by === own ? ", approved from this browser." : item.byName ? `, approved from “${item.byName}.”` : ", approved from another device.";
     const how = item.how === "approval" ? approved : item.how === "recovery" ? ", with your recovery code." : item.how === "passkey" ? ", with your passkey." : ".";
     return `${name} joined your notebook${when}${how}`;
   }
@@ -366,7 +378,7 @@ export function failureWords(error) {
       case "noRecovery":
         return "This notebook has no recovery code. Use one of the other ways.";
       case "holderBroken":
-        return "That way of opening your notebook didn’t pass this computer’s checks, so nothing was kept. Try one of the other ways.";
+        return "That way of opening your notebook didn’t pass this browser’s checks, so nothing was kept. Try one of the other ways.";
       case "approvalGone":
         return WORDS.joinGone;
       case "approvalForged":
@@ -374,9 +386,9 @@ export function failureWords(error) {
       case "holderNeeded":
         return "That would leave nothing that can open your notebook, so nothing was changed.";
       case "behind":
-        return "Your notebook’s key was changed on another device. Wait for this computer to sync, and then try again.";
+        return "Your notebook’s key was changed on another device. Wait for this browser to sync, and then try again.";
       default:
-        return "This computer couldn’t do that safely, so nothing was changed.";
+        return "This browser couldn’t do that safely, so nothing was changed.";
     }
   }
   if (name === "AccountRefusal") {
@@ -387,7 +399,7 @@ export function failureWords(error) {
     if (is("not_allowed", "last_way")) return WORDS.wayLast;
     if (is("not_allowed", "passkey_holds_key")) return WORDS.wayHolds;
     if (is("exists", "waiting")) return "A request is already waiting on this account.";
-    if (is("already_set_up")) return "Your account already has a notebook, so this computer will join it instead.";
+    if (is("already_set_up")) return "Your account already has a notebook, so this browser will join it instead.";
     if (is("sign_in")) return "Your sign-in ended. Sign in again, and then try once more.";
     if (is("wrong_proof") || is("old_key") || is("lists_changed")) return "Something about your notebook changed on another device just now. Try again.";
     if (is("gone")) return "That is no longer there. Nothing was changed.";

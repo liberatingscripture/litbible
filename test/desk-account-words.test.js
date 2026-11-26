@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 
 import {
   NAME_MAX, SWITCH_KEY, SWITCH_VALUES, WORDS, addAsk, cleanName, deviceLine, deviceName, failureWords, newsWords, platformWords,
-  readSwitchParam, removeAsk, signedInWords, waitingWords, wayWords,
+  readSwitchParam, removeAsk, renamedWords, signOutAsk, signedInWords, waitingWords, wayWords,
 } from "../src/lib/desk-account-words.mjs";
 
 const UA = {
@@ -29,6 +29,7 @@ const UA = {
 /** Every sentence the module can say: the table, and each function over every case it words. */
 function everySentence() {
   const said = Object.values(WORDS);
+  said.push(signOutAsk("device"), signOutAsk("account"), signOutAsk(null), renamedWords("Study laptop"));
   said.push(removeAsk("Chrome on Windows"), removeAsk(null), addAsk("Pixel 9", "android"), addAsk("", "web"));
   said.push(deviceLine({ platform: "web", added: "2026-11-24T10:00:00Z", own: true, locale: "en-US" }));
   for (const what of ["delete", "replace"]) for (const mine of [true, false]) said.push(waitingWords({ what, mine, due: "2026-12-01T10:00:00Z" }, "en-US"));
@@ -105,11 +106,27 @@ test("the switch reads “preview,” “local,” and “off,” and nothing el
   assert.equal(readSwitchParam(undefined), null);
 });
 
-test("a device that joined is announced with how, and an approval given here says “this computer”", () => {
+test("AC9-3: the sign-out sentence adds how to come back only where the key does not follow the account", () => {
+  const add = "To sync here again, you’ll need your recovery code or approval from another of your devices.";
+  assert.equal(signOutAsk("account"), WORDS.signOutLinked);
+  assert.equal(signOutAsk(null), WORDS.signOutLinked);
+  assert.equal(signOutAsk("device"), WORDS.signOutLinked + " " + add);
+  assert.equal(WORDS.signOutLinked, "Signing out stops syncing here and takes this browser off your notebook’s devices. Your notebook stays in this browser.");
+});
+
+test("AC9-2: Rename says its result, the period inside the closing curly quote", () => {
+  assert.equal(renamedWords("Study laptop"), "Renamed to “Study laptop.”");
+});
+
+test("CP9-1: no sentence here calls the place the notebook is kept “this computer”", () => {
+  for (const text of everySentence()) assert.doesNotMatch(text, /this computer|your computer/i, text);
+});
+
+test("a device that joined is announced with how, and an approval given here says “this browser”", () => {
   const item = { what: "device", name: "Chrome on Windows", how: "approval", by: "d1", byName: "Chrome on Windows", added: "2026-11-25T10:00:00Z" };
   assert.equal(newsWords(item, "en-US"), "“Chrome on Windows” joined your notebook on November 25, 2026, approved from “Chrome on Windows.”");
   // Two computers often share a first name, so the one that approved names itself.
-  assert.equal(newsWords(item, "en-US", { own: "d1" }), "“Chrome on Windows” joined your notebook on November 25, 2026, approved from this computer.");
+  assert.equal(newsWords(item, "en-US", { own: "d1" }), "“Chrome on Windows” joined your notebook on November 25, 2026, approved from this browser.");
   assert.equal(newsWords({ ...item, byName: null }, "en-US", { own: "d2" }), "“Chrome on Windows” joined your notebook on November 25, 2026, approved from another device.");
   assert.equal(newsWords({ ...item, how: "recovery" }, "en-US"), "“Chrome on Windows” joined your notebook on November 25, 2026, with your recovery code.");
   assert.equal(newsWords({ ...item, name: null, how: "passkey" }, "en-US"), "A device joined your notebook on November 25, 2026, with your passkey.");

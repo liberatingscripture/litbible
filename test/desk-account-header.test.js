@@ -265,7 +265,7 @@ test("when the sync has stopped, the button says so, and the menu holds the reas
 
   nav.button.focus();
   key(nav.button, "ArrowDown");
-  assert.match(nav.slot.querySelector(".desk-sync__line").textContent, /^You’ve been signed out\. Your notebook is still on this computer/);
+  assert.match(nav.slot.querySelector(".desk-sync__line").textContent, /^You’ve been signed out\. Your notebook is still in this browser/);
   const again = nav.slot.querySelector(".desk-sync__again");
   assert.equal(again.hidden, false);
   assert.equal(again.textContent, "Reconnect");

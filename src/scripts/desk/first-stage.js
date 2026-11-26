@@ -78,7 +78,12 @@ function beginReminder(where) {
   import("./reminder.js")
     .then(({ startReminder }) => startReminder({
       surface: "reading",
-      getFacts: () => peekReminder({ idb: indexedDB, now: new Date() }),
+      // The link only changes the reminder's words (UX9b-2); peekLinked is
+      // light and already loaded here for the sync.
+      getFacts: async () => {
+        const facts = await peekReminder({ idb: indexedDB, now: new Date() });
+        return facts ? { ...facts, linked: await peekLinked({ idb: indexedDB }) } : facts;
+      },
     }))
     .catch((err) => console.error("Study Desk: the backup reminder didn’t start", err));
 }

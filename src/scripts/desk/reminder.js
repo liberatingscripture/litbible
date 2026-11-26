@@ -23,6 +23,7 @@ import {
   HOME_KEY, REMIND_KEY, TOMORROW_SAID, WEEK_SAID,
   backedUpSaid, putOffValue, readLastExport, reminderState, remindersOffSaid,
 } from "../../lib/desk-reminder.mjs";
+import { readLink, SYNC_META } from "../../lib/desk-sync-link.mjs";
 import { announce, barShowing, hideUndo, showChoices, showNotice } from "./undo-bar.js";
 
 /** Fired on `document` whenever what the reminder shows may have changed (first-use.js redraws its notice). */
@@ -78,8 +79,9 @@ export function paintDots(scope = document) {
 
 /**
  * The facts the rules need, from a notebook the page already has open (the
- * Settings notice and /desk): `{ lastExport, hasRecords, oldest }`, or null
- * when it can't tell. `oldest` is the oldest live record's `created`.
+ * Settings notice and /desk): `{ lastExport, hasRecords, oldest, linked }`, or
+ * null when it can't tell. `oldest` is the oldest live record's `created`;
+ * `linked` is whether the browser syncs (the reminder's words differ, UX9b-2).
  */
 export async function factsFromStore(store) {
   try {
@@ -92,7 +94,9 @@ export async function factsFromStore(store) {
       if (typeof r.created === "string" && (oldest === null || r.created < oldest)) oldest = r.created;
     }
     const lastExport = readLastExport(await store.getMeta?.("lastExport"));
-    return { lastExport, hasRecords, oldest };
+    let linked = false;
+    try { linked = readLink(await store.getMeta?.(SYNC_META)) != null; } catch (_) {}
+    return { lastExport, hasRecords, oldest, linked };
   } catch (_) {
     return null;
   }
@@ -108,6 +112,7 @@ function compute(facts, now) {
     hasRecords: facts.hasRecords,
     putOff: readKey(REMIND_KEY),
     now,
+    linked: facts.linked === true,
   });
 }
 

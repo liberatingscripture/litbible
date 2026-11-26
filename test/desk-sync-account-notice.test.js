@@ -366,12 +366,12 @@ test("closed without an answer, the bar is not put up again; the dot stays until
   assert.equal(r.reads, 2);
 });
 
-test("a device this computer approved isn't news here, and one another device approved is", async () => {
+test("a device this browser approved isn't news here, and one another device approved is", async () => {
   const r = rig({ lists: withJoin({ how: "approval", by: ME }) });
   const page = r.page();
   await until(() => r.reads === 1, "the read");
   await settled();
-  assert.equal(page.bar.shown.length, 0, "its reader approved it on this computer");
+  assert.equal(page.bar.shown.length, 0, "its reader approved it in this browser");
   assert.equal(html().hasAttribute(ACCOUNT_ATTR), false);
 
   r.lists = {

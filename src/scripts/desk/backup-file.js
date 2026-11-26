@@ -18,7 +18,7 @@ export const FORMATS = [
     id: "backup",
     label: "Full backup (JSON)",
     button: "Download a full backup",
-    about: "Everything the notebook keeps, exactly as it is, for restoring it completely. Merge it into a notebook on another computer or browser, or into this one.",
+    about: "Everything the notebook keeps, exactly as it is, for restoring it completely. Merge it into a notebook in another browser, or into this one.",
     make: toBackupJson,
     type: "application/json;charset=utf-8",
   },

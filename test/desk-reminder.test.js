@@ -47,6 +47,16 @@ test("the message counts days, or says there has been no backup", () => {
   assert.equal(reminderText(null, NOW), "You haven’t backed up your notebook yet.");
 });
 
+test("UX9b-2: where the notebook syncs, the reminder names the file", () => {
+  assert.equal(reminderText(ago(9), NOW, { linked: true }), "It’s been 9 days since you backed up your notebook to a file.");
+  assert.equal(reminderText(ago(1), NOW, { linked: true }), "It’s been 1 day since you backed up your notebook to a file.");
+  assert.equal(reminderText(null, NOW, { linked: true }), "You haven’t backed up your notebook to a file yet.");
+  assert.equal(reminderText(null, NOW, { linked: false }), "You haven’t backed up your notebook yet.");
+  const facts = { ...base, lastExport: ago(9) };
+  assert.equal(reminderState({ ...facts, linked: true }).text, "It’s been 9 days since you backed up your notebook to a file.");
+  assert.equal(reminderState(facts).text, "It’s been 9 days since you backed up your notebook.");
+});
+
 test("a put-off lasts until tomorrow, or a week", () => {
   const tomorrow = JSON.parse(putOffValue("tomorrow", NOW));
   assert.equal(tomorrow.kind, "tomorrow");

@@ -4,7 +4,7 @@
 // step 4g): a sentence for every state a pass can end in, the lines under
 // it, and when a stop is said aloud. Two of BVJ's standing requirements are
 // held here in words: no state that stops the sync is silent, and each one
-// says the notebook is still on this computer.
+// says the notebook is still in this browser.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -76,9 +76,9 @@ test("every state has a sentence, and only a pass in flight or one in step has n
   assert.equal(statusWords(status("somethingNew")).action, "Reconnect");
 });
 
-test("every state that stops the sync says the notebook is still on this computer", () => {
+test("every state that stops the sync says the notebook is still in this browser", () => {
   for (const state of ["offline", "signedOut", "removed", "otherNotebook", "noKeys", "cantOpen", "error"]) {
-    assert.match(statusWords(status(state)).line, /on this computer/, state);
+    assert.match(statusWords(status(state)).line, /in this browser/, state);
   }
 });
 
@@ -89,7 +89,7 @@ test("what waits is counted, in the singular and the plural", () => {
   assert.match(statusWords(status("signedOut", { pending: 2 })).line, /2 changes will sync after you sign in again\./);
   assert.equal(statusWords(status("syncing", { pending: 4 })).line, "Syncing 4 changes.");
   assert.equal(statusWords(status("syncing")).line, "Syncing.");
-  assert.deepEqual(statusWords(status("removed", { pending: 1 })).detail, ["1 change made here will sync once this computer joins your notebook again."]);
+  assert.deepEqual(statusWords(status("removed", { pending: 1 })).detail, ["1 change made here will sync once this browser joins your notebook again."]);
   assert.match(statusWords(status("cantOpen")).detail[0], /^It will sync once/);
 });
 
@@ -133,7 +133,7 @@ test("the limiter's wait is said in round words", () => {
 test("a replaced notebook says when, from where, and how it was signed in", () => {
   const replaced = { when: "2026-11-20T00:00:00.000Z", platform: "ios", through: "apple" };
   const line = statusWords(status("otherNotebook", { replaced }), format).line;
-  assert.match(line, /was replaced on December 1 from an iPhone or iPad, signed in with Apple, so this computer isn’t syncing\./);
+  assert.match(line, /was replaced on December 1 from an iPhone or iPad, signed in with Apple, so this browser isn’t syncing\./);
   assert.match(line, /nothing in it was changed\.$/);
   assert.match(statusWords(status("otherNotebook", { replaced: { platform: "telegraph" } })).line, /was replaced, so/, "a platform this code doesn't know is left out");
 });
@@ -141,11 +141,11 @@ test("a replaced notebook says when, from where, and how it was signed in", () =
 test("what couldn't be synced is listed under the line, each kind in its own sentence", () => {
   const detail = statusWords(status("upToDate", { problems: { stuck: 1, blocked: 1, unread: 1, aside: 1, ahead: 1 } })).detail;
   assert.equal(detail.length, 5);
-  assert.match(detail[0], /^1 entry couldn’t be sent to your account\. It is still in your notebook on this computer\.$/);
+  assert.match(detail[0], /^1 entry couldn’t be sent to your account\. It is still in this browser’s notebook\.$/);
   assert.match(detail[1], /^1 change from another device is dated later than this computer’s clock/);
   assert.match(detail[2], /^1 change made here is waiting behind an entry/);
   assert.match(detail[3], /^1 entry in your account was written by a newer version of LIT Bible/);
-  assert.match(detail[4], /^1 entry in your account couldn’t be read on this computer and was left as it is\.$/);
+  assert.match(detail[4], /^1 entry in your account couldn’t be read in this browser and was left as it is\.$/);
   const many = statusWords(status("upToDate", { problems: { stuck: 2, unread: 2 } })).detail;
   assert.match(many[0], /^2 entries couldn’t be sent to your account\. They are still/);
   assert.match(many[1], /were left as they are\.$/);
@@ -259,7 +259,7 @@ test("who can open the notebook is read to see what is new at most every fifteen
   assert.equal(newsCheckDue({ at: "noon" }, at), true);
 });
 
-test("a device this computer approved isn't news on its reading pages; everything else the account's home says is", () => {
+test("a device this browser approved isn't news on its reading pages; everything else the account's home says is", () => {
   const items = [
     { what: "device", id: "d2", how: "approval", by: "me" },
     { what: "device", id: "d3", how: "approval", by: "d2" },

@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import "./helpers/browser-env.mjs";
 
 const { CHROME, PHONE, SAFARI_MAC, browser, openPage, saveCode, synced, until, use, world } = await import("./helpers/account-page.mjs");
-const { WORDS, SWITCH_KEY, SWITCH_VALUES } = await import("../src/lib/desk-account-words.mjs");
+const { WORDS, SWITCH_KEY, SWITCH_VALUES, renamedWords, signOutAsk } = await import("../src/lib/desk-account-words.mjs");
 const { SYNC_META, readLink } = await import("../src/lib/desk-sync-link.mjs");
 const { openSyncDb } = await import("../src/scripts/desk/sync/sync-db.js");
 const { openStore } = await import("../src/scripts/desk/store.js");
@@ -390,15 +390,15 @@ test("removing a device changes the key; the removed computer says so and joins 
   const page2 = await openPage(second);
   await synced(page2, "signedOut");
   await page2.shows("You’ve been signed out.");
-  assert.ok(page2.has("Your notebook is still on this computer"));
+  assert.ok(page2.has("Your notebook is still in this browser"));
   assert.deepEqual(page2.labels().slice(0, 2), [WORDS.stopSignIn, WORDS.stopLeave]);
   assert.equal(page2.has(WORDS.devicesTitle) && !page2.root.querySelector(".account__section [hidden]"), false, "nothing that needs the key is offered meanwhile");
   await until(() => page2.root.querySelector(".account__rest")?.hidden === false, "what is under the lists to show at once, since no list is coming while the stop stands");
   await page2.press(WORDS.stopSignIn);
   // ...and signed in again, it learns it is no longer one of the notebook's devices.
   await synced(page2, "removed");
-  await page2.shows("This computer was removed from your notebook’s devices");
-  assert.ok(page2.has("Your notebook is still on this computer."));
+  await page2.shows("This browser was removed from your notebook’s devices");
+  assert.ok(page2.has("Your notebook is still in this browser."));
   assert.deepEqual(page2.labels().slice(0, 2), [WORDS.stopJoin, WORDS.stopLeave]);
   // The passkey that just signed it in carries the key, so joining again asks for nothing more.
   await page2.press(WORDS.stopJoin);
@@ -451,11 +451,11 @@ test("a reader with no way left asks to start a new notebook; the old computer i
   page1 = await openPage(first.b);
   await synced(page1, "otherNotebook");
   await page1.shows("Your account’s notebook was replaced");
-  assert.ok(page1.has("The notebook on this computer is still here, and nothing in it was changed."));
+  assert.ok(page1.has("The notebook in this browser is still here, and nothing in it was changed."));
   assert.deepEqual(page1.labels().slice(0, 2), [WORDS.stopJoinNew, WORDS.stopLeave]);
   assert.equal((await linkOf(first.b)).notebook, oldNotebook, "nothing moves until the reader says so");
 
-  // “Join the new notebook” is the reader's yes: the new code opens it, and what this computer held goes in.
+  // “Join the new notebook” is the reader's yes: the new code opens it, and what this browser held goes in.
   page1 = await openPage(first.b);
   await synced(page1, "otherNotebook");
   await page1.press(WORDS.stopJoinNew);
@@ -487,7 +487,7 @@ test("a request to start a new notebook can be canceled by the sign-in that aske
   assert.ok(page2.has(WORDS.joinTitle), "the reader is still on the ways to open the notebook");
 });
 
-test("“Stop syncing on this computer” ends the link from a stop, and keeps the notebook in the browser", async () => {
+test("“Stop syncing in this browser” ends the link from a stop, and keeps the notebook in the browser", async () => {
   const w = world();
   const first = await setUpReader(w, { follows: true });
   const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
@@ -573,7 +573,7 @@ test("where the key lives can be switched both ways", async () => {
   await page.shows(WORDS.keyAccount);
 });
 
-test("this computer can be renamed, and the name is cut to what a card keeps", async () => {
+test("this browser can be renamed, and the name is cut to what a card keeps", async () => {
   const w = world();
   const { page } = await setUpReader(w);
   await page.press(WORDS.rename);
@@ -582,11 +582,27 @@ test("this computer can be renamed, and the name is cut to what a card keeps", a
   await page.shows("The office computer x");
   const shown = page.root.querySelector(".account__item-name").textContent;
   assert.equal(shown.length, 60);
+  // AC9-2: Rename says its result in the status line, with the name as it was kept.
+  assert.ok(page.has(renamedWords(shown)), "the new name is said");
+  assert.ok(page.has(`Renamed to “${shown}.”`));
+});
+
+test("AC9-3: the sign-out question says what coming back takes only where the key does not follow the account", async () => {
+  const device = await setUpReader(world());
+  await device.page.press(WORDS.signOut);
+  assert.ok(device.page.has(WORDS.signOutLinked));
+  assert.ok(device.page.has(WORDS.signOutDeviceOnly), "This device only: the recovery code or another device is how it comes back");
+  assert.ok(device.page.has("To sync here again, you’ll need your recovery code or approval from another of your devices."));
+
+  const follows = await setUpReader(world(), { follows: true });
+  await follows.page.press(WORDS.signOut);
+  assert.ok(follows.page.has(WORDS.signOutLinked));
+  assert.equal(follows.page.has(WORDS.signOutDeviceOnly), false, "the passkey carries the key: nothing is added");
 });
 
 /* ── Signing out, and deleting ──────────────────────────────────────────── */
 
-test("signing out takes this computer off the notebook and keeps the notebook in the browser", async () => {
+test("signing out takes this browser off the notebook and keeps the notebook in the browser", async () => {
   const w = world();
   const { page, b } = await setUpReader(w);
   const { createRecord } = await import("../src/lib/desk-records.mjs");
@@ -774,7 +790,7 @@ test("an “Are you sure” is named by its question, which takes focus before i
   const escape = (el) => el.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
   for (const [open, yes, ask] of [
     [WORDS.deleteOpen, WORDS.deleteNow, WORDS.deleteAtOnce],
-    [WORDS.signOut, WORDS.signOutConfirm, WORDS.signOutLinked],
+    [WORDS.signOut, WORDS.signOutConfirm, signOutAsk("device")],
   ]) {
     await page.press(open);
     const box = page.root.querySelector(".account__confirm");

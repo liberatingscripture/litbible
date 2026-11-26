@@ -83,7 +83,7 @@ export function savedLine(lastExport, now, { linked = false } = {}) {
 export function notebookIntro(linked) {
   return linked
     ? "Everything the notebook keeps in this browser, in Bible order. It syncs with your account, locked with a key we never have."
-    : "Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you back it up.";
+    : "Everything the notebook keeps in this browser, in Bible order. It never leaves this browser unless you back it up.";
 }
 
 /**
@@ -113,12 +113,18 @@ export function reminderDue({ home, lastExport, oldest = null, now, hasRecords }
   return age !== null && age >= REMIND_AFTER_DAYS;
 }
 
-/** What the reminder says: "It’s been 9 days since you backed up your notebook." */
-export function reminderText(lastExport, now) {
+/**
+ * What the reminder says: "It’s been 9 days since you backed up your
+ * notebook." Where the notebook also syncs, the line names the file, as
+ * `savedLine` does (UX9b-2; BVJ, 2026-11-26): the account's copy is not a backup.
+ * @param {{ linked?: boolean }} [opts] whether this browser's notebook syncs with an account
+ */
+export function reminderText(lastExport, now, { linked = false } = {}) {
   const days = daysSince(readLastExport(lastExport), now);
+  const what = linked ? "backed up your notebook to a file" : "backed up your notebook";
   return days === null
-    ? "You haven’t backed up your notebook yet."
-    : `It’s been ${plural(days, "day")} since you backed up your notebook.`;
+    ? `You haven’t ${what} yet.`
+    : `It’s been ${plural(days, "day")} since you ${what}.`;
 }
 
 /* ── Putting the reminder off ─────────────────────────────────────── */
@@ -157,14 +163,14 @@ export function readPutOff(raw, now) {
  * any put-off to pass; the dots and the Settings notice go only for "Not this
  * week", and stay through "Remind me tomorrow".
  */
-export function reminderState({ home, lastExport, oldest = null, hasRecords, putOff = null, now }) {
+export function reminderState({ home, lastExport, oldest = null, hasRecords, putOff = null, now, linked = false }) {
   const due = reminderDue({ home, lastExport, oldest, now, hasRecords });
   const held = due ? readPutOff(putOff, now) : null;
   return {
     due,
     bar: due && !held,
     dots: due && held?.kind !== "week",
-    text: reminderText(lastExport, now),
+    text: reminderText(lastExport, now, { linked }),
     putOff: held,
   };
 }
