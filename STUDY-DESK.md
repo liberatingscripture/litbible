@@ -8660,6 +8660,22 @@ answer; the audit's "Findings by area" carries each finding's state.
   queries, Time Travel (7 days), and Workers Logs (3 days) are the
   account's, so a flood of the preview can also stop the policy report
   Worker's counts for a day.
+- **Decision 2, SV9-1 (with SEC9-3): what one account may store** (“15.1,
+  yes / 15.2, yes / 15.3 yes / 15.4 no”). An account holds at most 100,000
+  rows and 100 MB of sealed rows, and a push that would pass either is
+  refused whole, as a named error the apps must handle; uploads
+  (`POST /rows`) get a limit of their own, 120 a minute from one address,
+  beside the 1,200 every request shares; and the hourly run deletes an
+  account that never set up a notebook, has no live session, and was made
+  more than 30 days ago, which `/privacy` says. For BDR to confirm (the
+  spec's “Still open,” 92). **Workers Paid before production is declined
+  for now**: “We won't need paid for quite some time. We have about 500
+  total app users and 25 daily site visitors. Insist BDR build the apps
+  side requiring the apps to prove they're real.” So the service stays on
+  Free, where a sender with many addresses can still use up a day's
+  writes, and the protection BVJ chose for that is the apps proving they
+  are the apps (App Attest on iOS, Play Integrity on Android), which BVJ
+  requires of BDR before accounts open (the spec's “Still open,” 86).
 - **Decision 3, LP9b-1, the tracking sentence: the words now, the players
   later** (“go with your recommendations”). `/privacy` says “we don’t track
   you across sites” and names, under External links, the podcast page's
@@ -8700,6 +8716,15 @@ answer; the audit's "Findings by area" carries each finding's state.
   `DELETE /session`, and a refusal of `DELETE /devices/<id>` as
   `own_device` falls back to it. The service is unchanged. For BDR to
   confirm.
+- **Decision 8, SV9-4 and SV9-5: the emergency stop** (“17, yes”). The
+  service is stopped by removing its custom domain in the dashboard, and
+  started again by adding it back: no code, about a minute, and every
+  notebook stays on its devices, which show “offline.” The runbook says
+  how, with the query that finds the largest accounts and how to delete
+  one in pieces. BVJ tries the stop once on the preview, telling BDR first
+  in case the apps are testing against it. The ceiling (decision 2) keeps
+  any account's delete inside D1's 30 seconds; the runbook's manual route
+  stays as the backup.
 - **Decision 11, LP9b-7: a “What changed” line** (“go with your
   recommendations”), under the effective date, naming the 2026-11-25
   rewrite and this correction. The correction is treated as material: the
@@ -8735,6 +8760,18 @@ answer; the audit's "Findings by area" carries each finding's state.
   signing out** (LV9's question 1, the same): signing in is the account,
   and the notebook then asks for the recovery code or another device, as
   the sign-out sentence now says (decision 13).
+- **Turnstile checks the site** (SEC9's question 2, “16, yes”): the
+  service refuses a token whose `hostname`, in Cloudflare's answer, isn't
+  one of the hosts it already accepts as an `Origin`; `action` isn't
+  checked, since there is one use. The apps are unaffected.
+- **The policy report counter's cap is spread over the day** (SV9-12,
+  “18, yes”): 24 hourly allowances in place of one daily 5,000, so a
+  flood blanks an hour, not a day. BVJ deploys it by hand
+  (`npm run deploy` in `workers/csp-reports`).
+- **No copy of the service's data outside Cloudflare** (SV9's question 4,
+  “19, yes”): every notebook also lives on its reader's devices, so losing
+  the account loses no notes, and another copy would be another place
+  holding everyone's sealed data. Recorded in `DISASTER-RECOVERY.md`.
 
 ### 2026-11-23 (the call with BDR: plan C, and sync on February 10)
 
