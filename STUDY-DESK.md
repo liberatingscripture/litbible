@@ -6294,6 +6294,56 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      which is what the vectors are for; and the desk's opening shares the
      date.
 
+   **Before accounts open** (BVJ, 2026-11-26, Audit 9's DOC9-3, “as
+   recommended”). Everything that must be true before anyone but BVJ and
+   BDR can make an account, in one place: what, whose, where it is
+   tracked, and where it stands. Rule 11 in
+   `src/scripts/desk/account/CLAUDE.md` (the change that opens them) and
+   the service's README, “Production,” point here. Mark a line done here,
+   with its date, when it is; a new gate gets a line.
+   - **The full content security policy, enforced** (BVJ's side; 4i).
+     Each inline script allowed by its hash, never `'unsafe-inline'`, at
+     least on the account and Study Desk pages (SEC9-4), and the Turnstile
+     widget seen working on the sign-in page under it. Waits on the week
+     of reports, 2026-11-25 to 2026-12-01.
+   - **The notebook service in production** (BVJ; the service's README,
+     “Production”). Its database, with the id committed; the Workers plan,
+     Free (decided: Audit 9's decisions 1 and 2); and two GitHub
+     environments, `notebook-production` with BVJ as its reviewer and
+     `notebook-production-rollback` with none (SV9-2). Prepared, not
+     deployed.
+   - **Turnstile in production** (BVJ; the same section). The site key in
+     `wrangler.jsonc` and its secret, as the preview has had since
+     2026-11-25 (LP9b-5). Not set.
+   - **The emergency stop, tried once on the preview** (BVJ, telling BDR
+     first; the runbook's “Switch the service off,” decision 8). Not yet
+     tried.
+   - **The apps prove they are the apps** (BDR; the spec's “Still open,”
+     86): App Attest on iOS and Play Integrity on Android, which BVJ
+     requires before accounts open in the apps (decision 2). Not built.
+   - **Both stores' privacy forms** (BDR; decision 9, and
+     `STUDY-DESK-FOR-THE-APPS.md`): the plain fields declared as
+     collected, and the notebook as end-to-end encrypted. Not filed.
+   - **The apps' What's New note on the new policy** (BDR; ask 21, and
+     decision 11). Not yet.
+   - **A line for each of iOS's 22 points and three key-storage points**
+     (BVJ's side, BDR on key storage; decision 10, DOC9-1), before the
+     format freezes on December 24.
+   - **Apple and Google** (BDR's identifiers, then the settings; the
+     spec's “Still open,” 90), or a decision to open with passkeys alone.
+     Built and off.
+   - **Audit 9's gates** (`STUDY-DESK-AUDIT-9.md`, “Findings by area,” the
+     rows marked “gate”), each fixed or with its line above: SEC9-4 is the
+     policy's, and LP9b-5 is Turnstile's.
+   - **The private beta, on real devices, with nothing left from it that
+     stops the opening** (all three; 4l). Not started.
+   - **The opening change itself, last** (Claude, on BVJ's word; rule 11):
+     the switch and its key, the words 4j wrote for “not open yet” and
+     both pages' effective dates, `/delete-account/`'s box, the header,
+     whether `/account/` stays noindex and whether `/delete-account/`
+     rejoins the sitemap (DOC9-6), and the production service's origin in
+     `SERVICES`.
+
    **As it stood before 2026-11-23**: Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
    2026-10-09) are in. Under both plans: a sync loop on 1a's merge engine, one source
@@ -8752,6 +8802,19 @@ answer; the audit's "Findings by area" carries each finding's state.
   in case the apps are testing against it. The ceiling (decision 2) keeps
   any account's delete inside D1's 30 seconds; the runbook's manual route
   stays as the backup.
+- **Decision 9, LP9-6 and LP9b-3: the stores' privacy forms are BDR's**
+  (“27 to 32 as recommended”). Both stores' forms declare the service's
+  plain fields as collected (the account and its ways in, device ids,
+  times, and a waiting device's model and platform), linked to the
+  account and never used for tracking, and the notebook as end-to-end
+  encrypted, answered from `/privacy`'s “What the service keeps, and can
+  read,” before accounts open in either app. Asked of BDR in
+  `STUDY-DESK-FOR-THE-APPS.md`.
+- **Decision 10, DOC9-1: a line for each of iOS's points** (the same).
+  One pass before the format freezes on December 24 gives each of the 22
+  points and three key-storage points iOS sent (#701) a line: taken, and
+  where; not taken, and why; or BDR's. BVJ's side writes it from COH9's
+  table; the key-storage points are BDR's.
 - **Decision 11, LP9b-7: a “What changed” line** (“go with your
   recommendations”), under the effective date, naming the 2026-11-25
   rewrite and this correction. The correction is treated as material: the
@@ -8775,6 +8838,21 @@ answer; the audit's "Findings by area" carries each finding's state.
   is where the notebook is kept, “this computer” only a saved file or the
   hardware, and “device” only “This device only” and the account's devices
   (CP9-1); and “Set up an account” loses its ellipsis (UX9b-7).
+- **Decision 14, SY9b-3: clocks far apart** (“27 to 32 as recommended”).
+  The merge rule stays. `STUDY-DESK-FORMAT.md`'s warning names a deletion
+  undone and a restore buried beside the lost edit, and the sync status's
+  clock sentence says the same: ahead, “Until it is set right, what you
+  change or delete here can override newer changes from your other
+  devices.”; behind, “…what you change or restore here can be overridden
+  by older changes from your other devices.” For BDR to confirm, since
+  the apps keep the same rule.
+- **Decision 15, TQ9-1 and TQ9-2: the tests that come first** (the same).
+  TQ9-1's nonce tests landed in #716. For TQ9-2, each of the two guards
+  against a hostile service (the signing-key check in `acceptGrant`, and
+  `checkKeyring`'s “every key we hold”) gets a test seen to fail with the
+  guard taken out, and the vectors gain “a card naming another signing
+  key,” which holds both apps to the spec's step 6; BDR is told when it
+  lands, since it changes the vectors file.
 - **Added from the appendices**: Rename says its result like every other
   account action, and the screen's heading keeps focus (AC9-2, “All as
   recommended”); and pages stop shipping developer comments, now rather
@@ -8801,10 +8879,10 @@ answer; the audit's "Findings by area" carries each finding's state.
   holding everyone's sealed data. Recorded in `DISASTER-RECOVERY.md`.
 - **The workflows' GitHub token reads only** (SEC9-6, the same): `ci.yml`
   and the apps' mirror workflow ask for `contents: read`, and a checkout
-  that never pushes keeps no token on disk; BVJ also sets the
-  repository's default to read (Settings, Actions, General, Workflow
-  permissions). The release notes workflow asks for write itself and
-  pushes with its own token.
+  that never pushes keeps no token on disk; BVJ set the repository's
+  default to read the same day (Settings, Actions, General, Workflow
+  permissions; “Item 22 done”). The release notes workflow asks for write
+  itself and pushes with its own token.
 - **Production rolls back without a reviewer** (SV9-2 and SV9-3, the
   same): production's rollback has an environment of its own,
   `notebook-production-rollback`, limited to `main` with no required
@@ -8816,6 +8894,16 @@ answer; the audit's "Findings by area" carries each finding's state.
 - **The enforced policy drops `'unsafe-inline'`** (SEC9-4, the same):
   in step 4i each inline script is allowed by its hash instead, at least
   on the account and Study Desk pages, as a gate before accounts open.
+- **One “Before accounts open” list** (DOC9-3, “27 to 32 as
+  recommended”), in the Phase 4 plan (“Order of work,” 4, after “What it
+  waits on”): each gate with its owner, where it is tracked, and its
+  state. The account file's rule 11 and the service's README point to it.
+- **A refusal sync doesn't know asks the reader after five failed passes**
+  (SY9b-4, the same). Sync goes on retrying behind it, and the notice
+  says: “Sync keeps running into a problem, so changes made here aren’t
+  syncing. They are saved in this browser.”, then “It will keep trying.”
+  and a request to tell us on the Contact page, naming the service's word
+  for the refusal (“too_large,” for one).
 
 ### 2026-11-23 (the call with BDR: plan C, and sync on February 10)
 

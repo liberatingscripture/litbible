@@ -889,7 +889,9 @@ Said plainly, since this step leans on three vendors' rules (2026-11-24):
 
 **Prepared in step 4f. Not deployed, and not to be until BVJ says so.** No
 session creates anything on Cloudflare without BVJ's word in that session
-(`workers/CLAUDE.md`).
+(`workers/CLAUDE.md`). Production is one line of the Study Desk's “Before
+accounts open” list (`STUDY-DESK.md`, “Order of work,” 4), which names
+everything else that must be true before readers can make an account.
 
 **What is ready, in this repository:**
 

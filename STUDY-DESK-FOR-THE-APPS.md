@@ -501,8 +501,17 @@ point. BVJ's decisions from Study Desk Audit 9, with what touches the apps
 - **The service's plain fields on `/privacy` now list everything the store
   forms need**: a passkey's syncs flag and use count, and a device waiting
   to be approved, its platform and model, for up to ten minutes (the
-  `platform` and `model` of `POST /approvals`). Decision 9 of the audit
-  (the stores' forms) is BDR's and can be answered from that list.
+  `platform` and `model` of `POST /approvals`).
+- **Please answer both stores' privacy forms from that list before
+  accounts open in either app** (BVJ, 2026-11-26, the audit's decision 9:
+  “as recommended”). Declare the plain fields as collected: the account
+  and its ways in, device ids, times, and a waiting device's model and
+  platform, each linked to the account and none used for tracking.
+  Declare the notebook as end-to-end encrypted. “No data collected” ends
+  with accounts, as the 2026-11-23 call said (its item A6). This is a
+  line of the website's “Before accounts open” list (`STUDY-DESK.md`,
+  “Order of work,” 4), with App Attest and Play Integrity (the spec's
+  “Still open,” 86) and the What's New note above.
 - **The service stores no log lines** (`observability.enabled: false`). A
   stored Workers Logs event carried the request's full URL, and
   `/devices/:id`, `/approvals/:id`, and `/ways/:id` put an id there. Watch
