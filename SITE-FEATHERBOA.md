@@ -334,6 +334,59 @@ reading.
   icon, and hover fill carry them, and the keyboard's focus ring is
   unchanged. A tinted or filled button still never matches its background.
 
+## The kit (decided 2026-11-26)
+
+Design Directions' proposal 6, "The kit: every control, in every state":
+the whole set, drawn once, in each state a reader can meet. **If a screen
+needs something that is not in the kit, that is a design conversation
+before it is a line of code.** Its reason: today the same job (a small plain
+command) is drawn at least four ways across the Study Desk, the header, and
+the reading page. BVJ took it with unavailable controls kept legible (“Take
+it, legible”).
+
+**Ten controls, five states.** The controls: filled, tinted, plain,
+destructive, icon alone, field, checkbox, switch, tabs, and list row. The
+states: at rest, pointed at, pressed or on, keyboard focus, and unavailable.
+They live in one small stylesheet of control classes shared by the header,
+the reading page, and the Study Desk, in place of rules repeated in
+`global.css`, `restyle.css`, and `desk.css`.
+
+### What the states say
+
+- **Pointed at** is one step stronger, with no movement and no shadow (no
+  lift on hover, as the Study Desk's ordinary button has today).
+- **On** is a fill or a green underline plus a heavier weight, so it never
+  depends on color alone.
+- **Focus** is the same 2-pixel green ring everywhere, set 2 pixels off the
+  control (`--focus-ring`, as today).
+- **Unavailable stays legible** (BVJ, “Take it, legible”), where the
+  proposal draws it faded and saying why when pointed at. It keeps today's
+  rule (`src/styles/CLAUDE.md`, "The Study Desk's buttons"): its fill stays,
+  its words stand at 4.5:1 or more on every surface (a mock's faded 62%
+  failed), and it is never faded with `opacity`. Its reason is given where
+  a keyboard or a finger reaches it too, as menus give theirs today (beside
+  the line, and to screen readers), since nothing points at a control that
+  can't be focused.
+
+### Choosing between look-alikes
+
+- **Tabs** change what a pane shows. **A switch** turns one thing on at
+  once. **A checkbox** is for a list of things to tick, then act on.
+- **Today's green-filled pills** (“John 1 / Everything,” Theme, Text size)
+  become tabs or a plain row of choices.
+- **This settles E160** (BVJ, 2026-11-18, open until now: whether a chosen
+  segment and a lone toggle that is on share one look). They do: on is a
+  fill or a green underline with a heavier weight.
+
+### Shapes
+
+**Everything pressed has 6-pixel corners. The only round things are
+switches, color dots, and the emblem.** This changes E141 (BVJ, 2026-11-17:
+a rounded rectangle is a button, a pill is a chip in a set, a circle is a
+mark on the page): chips take the 6-pixel corner too, and a real switch
+(“Follow reading,” in place of the Stay here toggle) is the one round
+control.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again

@@ -101,7 +101,10 @@ holds the inventory, the pairs, the two files in step and reduced motion.
    is** (E141; BVJ, 2026-11-17): a rounded rectangle is a button, the lock
    and a lone switch included, so **Pin, Stay here, and Show sources are
    never a pill or a circle**; a pill is a chip in a set; a circle is a
-   mark on the page (a margin note's).
+   mark on the page (a margin note's). Featherboa gives everything pressed,
+   chips included, a 6-pixel corner and makes a switch the one round
+   control (`SITE-FEATHERBOA.md`, "The kit"); until it is built, this
+   holds.
 4. **Quiet** (links: Labels…, Stop following, Verse N, Show the note, Take
    the Sheets tour, Clear checks) and **glyph** buttons (‹ › × ▾ +, the grip)
    keep their own looks, save This verse's Previous and Next, which are

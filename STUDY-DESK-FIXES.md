@@ -4445,7 +4445,11 @@ says so; where BVJ was wondering, nothing is decided.)
   color: `.desk-seg` in the desk, the Display tray's `font-tray__seg`, and
   the glossary's `category-toggle`. A lone toggle button that is on is
   sunk, with a text-green edge and words (E126). Whether the two shapes
-  should share one look is BVJ's call. Status: open, for BVJ.
+  should share one look is BVJ's call. Status: answered for Featherboa
+  (BVJ, 2026-11-26; `SITE-FEATHERBOA.md`, "The kit"): one look, a fill or a
+  green underline with a heavier weight, and the green-filled segments
+  become tabs or a plain row of choices. Not built; today's two looks stand
+  until it is.
 - **E161, rough spot: a row's reference link runs to its buttons.** BVJ,
   2026-11-18, on D13's second draft: “the whole row after the verse or
   title link is a button/activates the link. Should it be that way, or
