@@ -5796,7 +5796,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          Signed in, it is a small account button whose menu holds the
          sync's status, “Account and devices,” and “Sign out.” The
          Settings tab's status line stays.
-     **Choices Claude made while building, none of them BVJ's yet**:
+     **Choices Claude made while building, each of which BVJ kept
+     (2026-11-25: “yes” to all seven here, and to the three-second
+     wait under “The home now fills from the top down,” below)**:
      the header's two buttons are tiles like Search and Aa, since green
      words beside the green “Read” read as a second primary; “Sign out”
      in the header's menu goes to the account page, which asks first, so
@@ -5880,7 +5882,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      under the three sections is drawn at once and held back, then shown
      in the same step as they are, so neither it nor they ever move. The
      header's “Sign out” question waits for that step too. The wait has
-     an end, three seconds (Claude's number, for BVJ to change), since
+     an end, three seconds (Claude's number, which BVJ kept that day:
+     “yes”), since
      signing out and deleting are down there; a stop, or a sync with no
      pass running, ends it at once. Three tests drive it with the
      lists' answer held. **Seen in headless Chrome the same day**,
