@@ -437,8 +437,37 @@ because nothing carried them there. This file is what carries them now.
        an account means you agree to the Terms of Use and are old enough to
        have one,” with the link, beside the button)? And does the iOS app
        use Apple's standard license agreement, which the terms assume?
+22. **What each app counts in a record's lengths** (asked 2026-11-26, the
+    first entry below). The format now names the unit of each limit
+    (`STUDY-DESK-FORMAT.md`, “Fields every record carries,” “How a length
+    is counted”), as the website counts it, **for BDR to confirm**. For
+    each app, please say what it counts today for a bookmark's label, a
+    label's name, and a note's body (code points, UTF-16 units, graphemes,
+    or bytes), and whether it can count as the format says.
 
 ## The list
+
+### 2026-11-26, the format says how a length is counted
+
+**No vector and no rule of the website changed; the format now says what
+the website already did.** The format's limits said “characters” without
+saying which. `STUDY-DESK-FORMAT.md`, “Fields every record carries,” now
+has “How a length is counted,” **for BDR to confirm**:
+
+- **A field's limit in characters counts code points**: a bookmark's
+  `label` (40), a label's `name`, a sheet's `title`, `subtitle`, prompts,
+  and `hintText`, and a collection's `name`, `description`, and heading
+  `text`. In Swift that is `unicodeScalars.count`, not `count` (which
+  counts graphemes); in Kotlin, `codePointCount`. A bookmark whose label
+  is 40 emoji is valid, and an app counting UTF-16 units would refuse it.
+- **A note's `body` counts UTF-16 code units**, at most 65,536 (the
+  format's “64 KB” is that count, not bytes).
+- **Anchor text counts UTF-16 code units**, as it always said.
+- **Sizes are bytes of the record's JSON in UTF-8**: 1 MB a record, 512
+  KB a sheet or a collection.
+
+**For iOS and Android**: “Waiting to hear from the apps,” 22, asks what
+each counts today.
 
 ### 2026-11-26, vectors version 4: iOS's points 1 to 4 and 17 are in the spec
 
