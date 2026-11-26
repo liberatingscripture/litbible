@@ -142,9 +142,9 @@ left for proposal 3.
   home page's chat bubbles.
 - **Unchanged**: the four highlighter colors and the six note markers (the
   reader's own labels), and dark mode's near-black page.
-- **The cream is set aside for proposal 3.** Proposal 2 retires it as a page
-  color ("Paper: the page, everywhere"), but that belongs with proposal 3's
-  question about the sheet and the cream.
+- **The cream goes**, with proposal 3 ("Surfaces," below). Proposal 2
+  retires it as a page color ("Paper: the page, everywhere"); it was left
+  for proposal 3's question about the sheet and the cream.
 - **Bookmarks stay red, and the note icons keep their own colors** (BVJ:
   “Bookmarks can stay red. The note icons have their own color scheme.”).
   The proposal makes red only for deleting and errors and gives the reader's
@@ -158,6 +158,41 @@ left for proposal 3.
   pressed is deep green, and nothing else is. Dropping the underline keeps
   most of the quiet the proposal wanted.
 
+## Surfaces (decided 2026-11-26)
+
+Design Directions' proposal 3, "One field, and a shadow only on what
+floats." Its reason: the sheet-on-cream look puts every page in a box and
+then puts boxes in the box, so it takes the boxes away. BVJ took it
+(“Otherwise, take it”), with the stage badge kept (below).
+
+- **The page is the paper** (`#FAFAF8`, from "Color" above). The cream
+  (`#E1DFD9`) and the sheet laid on it go. This reverses Site 2.0's cream
+  everywhere, scripture "on a sheet," and the page frame with the Marks
+  (`SITE-2.0.md`).
+- **Things are set apart by space first, a hairline second, and a tint
+  third.**
+- **Two corner radii**: 6px on what is pressed, 10px on what floats. The
+  proposal counts 14 different values today.
+- **One shadow, and it means one thing**: this floats over the page and will
+  go away. Menus, popovers, and dialogs have it; nothing else does.
+- **No ornament**: the sunshine bar over titles (gone already under
+  "Color"), the Marks, and the emblem watermark (Site 2.0's 404 and forms).
+- **The stage badge stays while the Study Desk is in a stage** (BVJ: “The
+  preview badge shouldn't go while it's still a preview. It's not a
+  decoration. It's information.”). The proposal counts it as ornament and
+  drops it, then keeps it once at the foot of the Study sidebar
+  (proposal 9). Today it is the "Preview" badge on the Notebook's heading,
+  its word read from `DESK_STAGE` in `src/lib/desk-first-use.mjs`.
+  - **Where it goes is open**, since the format is changing (BVJ). It is
+    decided with the workspace (proposals 9 and 21); proposal 9's place is
+    one option.
+  - **Its word**: BVJ, “maybe, since it's moving into beta rather than mere
+    preview, it should evolve to a beta label.” That is already the plan in
+    `STUDY-DESK.md` ("Launching": an invite-only preview, a public beta, then
+    the full launch, the label turning from “preview” to “beta” at the
+    public opening). Still open there (2026-11-23): whether a beta stage is
+    left if the opening and sync land on the same day.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -169,6 +204,7 @@ left for proposal 3.
 - **What else names Inter**: the margin notes' Plain face, and the verse
   image's wordmark and address.
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs.**
+- **Where the Study Desk's stage badge goes** ("Surfaces," above).
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
 

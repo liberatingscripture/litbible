@@ -343,7 +343,7 @@ Area files list their own key modules; these are the cross-cutting ones.
 | `GLOSSARY-CANDIDATES.md` | Glossary candidates deliberately not included or deferred, and why. Read it before proposing a "next term" |
 | `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-*.md` | The Study Desk's planning record, its Phase 5 log (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits. Grep, never read whole |
 | `API-2-FORMAT.md` | The content API, version 2, beside version 1; opens with the manifest rule that protects installed apps |
-| `SITE-FEATHERBOA.md` | Site Design: Featherboa, the next design, which replaces Site 2.0: BVJ's decisions as they are made (type so far) and what is open. Read it before a design or font change |
+| `SITE-FEATHERBOA.md` | Site Design: Featherboa, the next design, which replaces Site 2.0: BVJ's decisions as they are made, and what is open. Read it before a design or font change |
 | `SITE-2.0.md` | Site 2.0 (replaced by Featherboa; built behind `data-restyle`, not launched): the plan, its ground rules, every page's decision, the launch steps |
 | `IMAGE-CREDITS.md` | Source, creator and terms of every image by others; a new stock image gets a row |
 | `DISASTER-RECOVERY.md` | Every dashboard and secret behind the deploy (names only), the DNS inventory, the from-zero redeploy. Update it when an integration, secret, or DNS record changes |
