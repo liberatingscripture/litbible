@@ -312,3 +312,13 @@ without the switch. The announcement popover stays off all three
   closes and nothing else could sign in to delete it. **Wait for the
   home's lists, not only for “in sync”**: the three sections that need
   their own requests are drawn a moment later over a network.
+- **And from `litbible.net` itself**, the same way and on the same
+  go-ahead: the pages at `https://litbible.net` with `?account=preview`,
+  and `litbible.net` as the relying party wherever the rig names one.
+  It is the only run in which the site's headers meet these pages.
+  **Keep the run out of the site's numbers**: block
+  `*cloudflareinsights.com*` and `*/csp-report*` in each device
+  (`Network.setBlockedURLs`), so test visits are not in the analytics
+  and the policy's week of reports counts readers only, and record
+  violations in the run instead (a `securitypolicyviolation` listener
+  added to every new document, and the protocol's `Log.entryAdded`).
