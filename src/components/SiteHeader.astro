@@ -369,9 +369,12 @@ const SIZE_OPTIONS = [
       document. data-font is in that guard because the Display tray announces
       a font change by a synthetic resize, which leaves the width alone. The
       observer is on the row, whose width follows the window, where the
-      title's own stays put while it shows the short text. The Study Desk's
-      header carries no long title and no script. test/header-title.test.js
-      runs this text. */}
+      title's own stays put while it shows the short text. One thing changes
+      the title's room without changing the row: the account's entry going
+      from "Sign in" to its narrower button, or back, after the page has
+      painted (rare: desk/account/header-entry.js says when, with
+      lit:header-tools). The Study Desk's header carries no long title and
+      no script. test/header-title.test.js runs this text. */}
   {!deskTitle && (
     <script is:inline>
       (() => {
@@ -424,6 +427,7 @@ const SIZE_OPTIONS = [
         }
         if (window.ResizeObserver) new ResizeObserver(later).observe(row);
         window.addEventListener("resize", later, { passive: true });
+        document.addEventListener("lit:header-tools", again);
       })();
     </script>
   )}

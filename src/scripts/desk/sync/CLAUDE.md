@@ -169,8 +169,9 @@ each one cheap to change: one constant, one function, one place.
       (`syncNow`), so the status line and this notice hear at once that
       the request is gone. Without it they went on saying it for up to
       fifteen minutes.
-    - **Claude's, which BVJ has not seen**: what a screen reader hears on
-      a dotted button (“A request is waiting on your account,” “New on
+    - **Claude's, which BVJ approved** (2026-11-25: “I approve your
+      choices that were still unconfirmed.”): what a screen reader hears
+      on a dotted button (“A request is waiting on your account,” “New on
       your account”), the fifteen minutes, and the minute a failed read
       waits before the next. **Not built**: a line in the account menu
       saying what the dot on its button stands for (the mock's 2B, which

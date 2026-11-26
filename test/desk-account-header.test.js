@@ -21,7 +21,7 @@ import { STOPPED_WORDS } from "../src/lib/desk-sync-status.mjs";
 
 const { openStore } = await import("../src/scripts/desk/store.js");
 const sync = await import("../src/scripts/desk/sync/start.js");
-const { start } = await import("../src/scripts/desk/account/header-entry.js");
+const { LAST_ATTR, LAST_KEY, TOOLS_EVENT, start } = await import("../src/scripts/desk/account/header-entry.js");
 
 const ctx = () => ({ client: "test-web", contentVersion: "2026.11.24" });
 const state = (connector) => connector.status().state;
@@ -41,6 +41,9 @@ function header() {
       </div>
     </span>`;
   document.body.innerHTML = `<header class="site-header">${entry("nav")}${entry("actions")}</header><button id="elsewhere" type="button">Elsewhere</button>`;
+  // A new page in a browser that has never shown the account button: no note, and no stamp from it.
+  localStorage.removeItem(LAST_KEY);
+  document.documentElement.removeAttribute(LAST_ATTR);
   const [nav, actions] = [...document.querySelectorAll("[data-account-entry]")].map((el) => ({
     el,
     link: el.querySelector("[data-account-signin]"),
@@ -144,7 +147,77 @@ test("the entry can be drawn again: the menu is wired once, and stopping the syn
   assert.equal(nav.button.hidden, true);
   assert.equal(nav.menu.hidden, true, "an open menu is shut with its button");
   assert.equal(nav.button.getAttribute("aria-expanded"), "false");
-  assert.equal(nav.el.style.minWidth, "");
+});
+
+/** Counts how often the header's title is asked to fit itself again while `fn` runs. */
+async function toldWhile(fn) {
+  let told = 0;
+  const hear = () => told++;
+  document.addEventListener(TOOLS_EVENT, hear);
+  try {
+    await fn();
+  } finally {
+    document.removeEventListener(TOOLS_EVENT, hear);
+  }
+  return told;
+}
+
+test("the entry is as wide as what it shows: the button never keeps the words' width (E231)", async () => {
+  const { nav, actions } = await linked();
+  // A layout, which happy-dom has none of: "Sign in" is 79px wide.
+  for (const entry of [nav, actions]) entry.el.getBoundingClientRect = () => ({ width: 79 });
+  assert.equal(await start(), "in");
+  for (const entry of [nav, actions]) {
+    assert.equal(entry.el.style.minWidth, "", "no width is fixed on the entry, so the tools sit beside the button");
+    assert.equal(entry.el.getAttribute("style"), null);
+  }
+});
+
+test("a linked browser leaves a note of what its header showed, for the next page's first paint; signing out takes it away", async () => {
+  const { store } = await linked();
+  assert.equal(localStorage.getItem(LAST_KEY), null);
+  assert.equal(await start(), "in");
+  assert.equal(localStorage.getItem(LAST_KEY), "in");
+  assert.equal(document.documentElement.getAttribute(LAST_ATTR), "in", "and the stamp on this page follows it");
+
+  await sync.unlink({ store });
+  assert.equal(await start(), "out");
+  assert.equal(localStorage.getItem(LAST_KEY), null);
+  assert.equal(document.documentElement.hasAttribute(LAST_ATTR), false);
+});
+
+test("a browser with no account leaves no note", async () => {
+  freshBrowser();
+  header();
+  assert.equal(await start(), "out");
+  assert.equal(localStorage.getItem(LAST_KEY), null);
+  assert.equal(document.documentElement.hasAttribute(LAST_ATTR), false);
+});
+
+test("the title is fitted again only when the tools moved after they were painted", async () => {
+  // No note, and the browser is linked: the page held the words' room, and the button is narrower.
+  const { store } = await linked();
+  assert.equal(await toldWhile(() => start()), 1, "the first page after a browser is linked");
+  assert.equal(await toldWhile(() => start()), 0, "drawn again with nothing changed");
+
+  // The next page: the stamp said “in” before paint, the entry isn't drawn yet, and the notebook agrees.
+  for (const entry of document.querySelectorAll("[data-account-entry]")) entry.removeAttribute("data-account-state");
+  assert.equal(document.documentElement.getAttribute(LAST_ATTR), "in");
+  assert.equal(await toldWhile(() => start()), 0, "the room was right from the first paint: nothing moved");
+
+  // Signed out in another tab: this page's stamp said “in,” and the notebook says otherwise.
+  await sync.unlink({ store });
+  for (const entry of document.querySelectorAll("[data-account-entry]")) entry.removeAttribute("data-account-state");
+  assert.equal(await toldWhile(() => start()), 1, "the words are wider than the room that was held");
+  assert.equal(await toldWhile(() => start()), 0);
+});
+
+test("a browser that keeps no local storage still gets its entry", async () => {
+  const { nav } = await linked();
+  const blocked = { setItem() { throw new Error("blocked"); }, removeItem() { throw new Error("blocked"); } };
+  assert.equal(await start({ storage: blocked }), "in");
+  assert.equal(nav.button.hidden, false);
+  assert.equal(await start({ storage: null }), "in");
 });
 
 test("the menu's keys: the arrows open it and move among its items, Escape returns to the button, and a press elsewhere closes it", async () => {
@@ -211,4 +284,18 @@ test("SiteHeader.astro's entry has the parts this module reads, in both copies",
   // check:links holds a fragment to an element on the page it names, so the page's sheet carries the id.
   const page = readFileSync(new URL("../src/pages/account.astro", import.meta.url), "utf8");
   assert.equal(page.split('id="sign-out" data-account-page="account"').length - 1, 1, "“Sign out” lands on the account page's sheet");
+});
+
+test("the note is read before paint under the same name, and the stylesheet holds the button's room from it", () => {
+  const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
+  const layout = read("../src/layouts/Layout.astro");
+  assert.ok(layout.includes(`s.getItem('${LAST_KEY}')==='in')d.setAttribute('${LAST_ATTR}','in')`), "Layout.astro's pre-paint script stamps the note");
+  const css = read("../src/styles/global.css");
+  const before = `html[${LAST_ATTR}="in"] .site-header__account:not([data-account-state])`;
+  assert.match(css, new RegExp(`${before.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\.site-header__account-link \\{\\s*display: none;`), "the words give up their room");
+  assert.match(css, new RegExp(`${before.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\.site-header__account-btn \\{\\s*display: inline-flex;`), "and the button, still hidden, takes its own");
+  assert.doesNotMatch(read("../src/scripts/desk/account/header-entry.js"), /style\.minWidth/, "nothing fixes the entry's width");
+  // The two that speak of the tools' width by name, since neither can import the entry's module.
+  assert.ok(read("../src/components/SiteHeader.astro").includes(`document.addEventListener("${TOOLS_EVENT}", again);`), "the title's script hears it");
+  assert.ok(read("../src/scripts/desk-gate.js").includes(`new CustomEvent("${TOOLS_EVENT}")`), "and the gate says it when the entry's script fails to load");
 });
