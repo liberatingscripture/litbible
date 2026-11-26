@@ -1058,6 +1058,56 @@ test("a device that keeps its highest accepted `current` apart is held to it", a
   assert.equal((await refusalOf(() => c.checkKeyring({ held: two, incoming: one })))?.why, "backward");
 });
 
+test("no sealer seals a lone surrogate, written as an escape or raw, and a pair seals and opens (iOS's answers, point 2)", async () => {
+  const notebook = c.newId();
+  const K = c.randomBytes(32);
+  const ring = c.firstKeyring(notebook, K);
+  const lone = "Who is \ud800 here?";
+  const paired = "Amen 🙏";
+  const added = "2026-11-26T12:00:00.000Z";
+  const note = (body) => ({ id: c.newId(), modified: added, kind: "note", body });
+  const why = async (fn) => (await refusalOf(fn))?.why;
+  const key = await c.generateKeyPair();
+  const sign = (await c.generateKeyPair()).public;
+
+  // A record given as an object (JSON.stringify writes \ud800), and as text holding the raw code unit.
+  assert.equal(await why(() => c.sealRecord({ record: note(lone), notebookKey: K, kid: 1 })), "json");
+  assert.equal(await why(() => c.sealRecord({ text: JSON.stringify(note("X")).replace("X", lone), notebookKey: K, kid: 1 })), "json");
+  // The cards, a holder's record, and a keyring (whose only text is its notebook's id).
+  const deviceId = c.newId();
+  const holderId = c.newId();
+  assert.equal(await why(() => c.sealDeviceCard({ notebookKey: K, kid: 1, notebook, deviceId, card: c.deviceCard({ public: key.public, sign, name: lone, platform: "web", added }) })), "json");
+  assert.equal(await why(() => c.sealHolderCard({ notebookKey: K, kid: 1, notebook, holderId, card: c.holderCard({ public: key.public, kind: "recovery", name: lone, added }) })), "json");
+  const record = c.holderRecord({ notebook, kind: "recovery", id: holderId, d: key.d, public: key.public, anchor: { kid: 1, key: K } });
+  assert.equal(await why(() => c.sealHolderRecord({ secretKey: c.randomBytes(32), record: { ...record, note: lone } })), "json");
+  assert.equal(await why(() => c.sealKeyring({ keyring: { ...ring, notebook: lone }, recipientPublic: key.public })), "json");
+
+  // A pair is one character: a record and a card holding one seal and open whole.
+  const row = await c.sealRecord({ record: note(paired), notebookKey: K, kid: 1 });
+  assert.equal((await c.openRow({ row, keyring: ring })).record.body, paired);
+  const card = await c.sealDeviceCard({ notebookKey: K, kid: 1, notebook, deviceId, card: c.deviceCard({ public: key.public, sign, name: paired, platform: "web", added }) });
+  assert.equal((await c.openDeviceCard({ notebookKey: K, kid: 1, notebook, deviceId, ...card })).card.name, paired);
+});
+
+test("a holder's record whose public key isn't its private key's is refused at check 2, `record` (iOS's answers, point 3)", async () => {
+  const notebook = c.newId();
+  const K = c.randomBytes(32);
+  const ring = c.firstKeyring(notebook, K);
+  const key = await c.generateKeyPair();
+  const other = await c.generateKeyPair();
+  const id = c.newId();
+  const secretKey = c.randomBytes(32);
+  const open = async (pub) => {
+    const record = c.holderRecord({ notebook, kind: "recovery", id, d: key.d, public: pub, anchor: { kid: 1, key: K } });
+    const sealed = await c.sealHolderRecord({ secretKey, record });
+    return c.openHolder({ secretKey, kind: "recovery", id, notebook, sealed, keyring: await c.sealKeyring({ keyring: ring, recipientPublic: key.public }) });
+  };
+  assert.equal(c.keyringText((await open(key.public)).keyring), c.keyringText(ring));
+  const refusal = await refusalOf(() => open(other.public));
+  assert.equal(refusal?.why, "record");
+  assert.equal(refusal?.check, 2);
+});
+
 test("the reference is pure: WebCrypto alone, no imports, no storage, no network", () => {
   const source = read("../src/lib/desk-crypto.mjs");
   assert.doesNotMatch(source, /^\s*import\s/m, "no import statements");

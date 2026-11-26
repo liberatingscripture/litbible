@@ -101,6 +101,15 @@ test("a typed name is trimmed and cut to what a card keeps", () => {
   assert.equal(cleanName("x".repeat(200)).length, NAME_MAX);
 });
 
+test("a name cut at the limit never keeps half of an emoji, which no card may carry", () => {
+  // 59 units, then a two-unit emoji: the cut falls inside it.
+  assert.equal(cleanName(`${"x".repeat(NAME_MAX - 1)}🙂 more`), "x".repeat(NAME_MAX - 1));
+  assert.equal(cleanName(`${"x".repeat(NAME_MAX - 2)}🙂 more`), `${"x".repeat(NAME_MAX - 2)}🙂`);
+  // One pasted on its own goes too.
+  assert.equal(cleanName("Pixel \ud800 phone"), "Pixel phone");
+  assert.equal(cleanName("\udc00"), null);
+});
+
 test("the switch reads “preview,” “local,” and “off,” and nothing else", () => {
   assert.equal(SWITCH_KEY, "lit-desk-account");
   assert.deepEqual([...SWITCH_VALUES], ["preview", "local"]);

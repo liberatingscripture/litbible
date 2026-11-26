@@ -912,3 +912,42 @@ test("a keyring handed to the engine is checked like one from the service", asyn
   await assert.rejects(() => a.engine.adopt({ ...a.by.keyring, keys: [{ kid: 1, key: ref.randomBytes(32) }] }), (err) => err.why === "keyChanged");
   assert.deepEqual(a.engine.keyring(), a.by.keyring);
 });
+
+test("a kept keyring that names another notebook is never held, so every pass refuses it (iOS's answers, point 18)", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  a.note();
+  await a.sync();
+  const sent = posts(service, a).length;
+  // What this browser kept is now another notebook's keyring, sealed to its own key, and the page loads again.
+  const other = await ref.sealKeyring({ keyring: ref.firstKeyring(ref.newId(), ref.randomBytes(32)), recipientPublic: a.by.key.public });
+  a.state.kept.meta.sealed = { enc: ref.toBase64url(other.enc), ct: ref.toBase64url(other.ct) };
+  a.reload();
+  a.note("written after the swap");
+  // The session is still open on the service, so a keyring held after failing would skip every check next pass.
+  for (const pass of ["first", "second"]) {
+    const status = await a.sync();
+    assert.equal(status.state, "cantOpen", pass);
+    assert.equal(status.reason, "keyring", pass);
+    assert.equal(status.why, "notebook", pass);
+    assert.equal(a.engine.keyring(), null, `${pass}: it holds nothing`);
+  }
+  assert.equal(posts(service, a).length, sent, "nothing was sealed with it");
+});
+
+test("a keyring handed to a page just loaded is held to the highest this link accepted (iOS's answers, point 19)", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  await a.sync();
+  const first = a.by.keyring;
+  await changeKey(service, a.by, { kept: [a.by] });
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.equal(a.state.kept.meta.highest, 2);
+  // A reload holds no keyring in memory, so only what was written down can refuse the old one.
+  a.reload();
+  await assert.rejects(() => a.engine.adopt(first), (err) => err.why === "backward");
+  assert.equal(a.engine.keyring(), null, "it took nothing");
+  assert.equal(a.state.kept.meta.highest, 2);
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.equal(a.engine.keyring().current, 2);
+});

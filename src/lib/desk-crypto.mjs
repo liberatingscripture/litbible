@@ -26,7 +26,7 @@
 export const CRYPTO_VERSION = 1;
 
 /** The committed vectors' own version: it moves whenever a value in the file does. */
-export const CRYPTO_VECTORS_VERSION = 3;
+export const CRYPTO_VECTORS_VERSION = 4;
 
 export const KEY_BYTES = 32;
 export const NONCE_BYTES = 12;
@@ -81,7 +81,7 @@ export const REFUSALS = Object.freeze({
   missingKey: "a row sealed under a kid the keyring doesn't hold",
   length: "a ciphertext whose length isn't a padded record's: a multiple of 256 bytes, plus the tag",
   seal: "a seal that doesn't open: the wrong key, or a changed byte, nonce, tag, or AAD field",
-  json: "opened bytes that aren't the UTF-8 JSON object they should be",
+  json: "bytes that aren't the UTF-8 JSON object they should be, or JSON with a lone surrogate in a string, opened or about to be sealed",
   fields: "a record whose id, modified, or deletedAt disagrees with the row's plain fields",
   kids: "a keyring whose kids aren't exactly the whole numbers from 1 to current, each once",
   keySize: "a keyring key that isn't 32 bytes of base64url",
@@ -89,7 +89,7 @@ export const REFUSALS = Object.freeze({
   backward: "a keyring whose current is lower than the highest this device has accepted",
   keyChanged: "a keyring that lacks a key this device holds, or holds other bytes for it",
   card: "a card a client won't write (a field missing or of the wrong kind), or a grant's card that doesn't open for this device or doesn't name its keys",
-  record: "a holder record that isn't what it should be: lit, v, kind, id, or the shape of its keys",
+  record: "a holder record that isn't what it should be: lit, v, kind, id, the shape of its keys, or a public key that isn't its private key's",
   credential: "a passkey holder's record that names another passkey than the one that answered",
   anchor: "a holder's keyring that lacks the anchor's key, or holds other bytes for it",
   mac: "an approval MAC that doesn't verify",
@@ -151,7 +151,11 @@ export function utf8(text) {
   return encoder.encode(text);
 }
 
-/** Bytes as text; refuses anything that isn't well-formed UTF-8. */
+/**
+ * Bytes as text; refuses anything that isn't well-formed UTF-8. A leading
+ * byte order mark is dropped (TextDecoder's default, ignoreBOM false), as
+ * the spec's "Opening" says every client does before reading the JSON.
+ */
 export function fromUtf8(bytes) {
   try {
     return new TextDecoder("utf-8", { fatal: true }).decode(u8(bytes));
@@ -800,6 +804,37 @@ export function sameInstant(a, b) {
 
 const isObject = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
 
+/** A UTF-16 surrogate that isn't half of a pair: with the `u` flag a pair reads as one code point, outside this range. */
+const LONE_SURROGATE = /[\uD800-\uDFFF]/u;
+
+/**
+ * True when no string in a parsed JSON value, member name or value, holds a
+ * lone surrogate. JSON.parse takes one from a \u escape (\ud800 alone), and
+ * no other client can hold it: a Swift string can't, and UTF-8 has no form
+ * for it. A pair written as two escapes is one character and passes.
+ */
+function noLoneSurrogate(value) {
+  const pending = [value];
+  while (pending.length) {
+    const v = pending.pop();
+    if (typeof v === "string") {
+      if (LONE_SURROGATE.test(v)) return false;
+    } else if (typeof v === "object" && v !== null) {
+      for (const key of Object.keys(v)) {
+        if (LONE_SURROGATE.test(key)) return false;
+        pending.push(v[key]);
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * JSON text as an object, or `json`: text that isn't JSON, JSON that isn't
+ * an object, or a lone surrogate in any string of it. Every opening reads
+ * through this, and every sealer checks its text with it first, so nothing
+ * this client seals is something another client must refuse.
+ */
 function parseObject(text) {
   let value;
   try {
@@ -807,7 +842,8 @@ function parseObject(text) {
   } catch {
     return refuse("json");
   }
-  return isObject(value) ? value : refuse("json", "not an object");
+  if (!isObject(value)) refuse("json", "not an object");
+  return noLoneSurrogate(value) ? value : refuse("json", "a lone surrogate");
 }
 
 /** The plain fields a record's row carries: id, modified, and, on a trash record only, deletedAt. */
@@ -824,11 +860,15 @@ function plainFields(record) {
  * adds. `text` is the record as this client serializes it (JSON); when it is
  * left out the website's own form is used, JSON.stringify(record). The bytes
  * sealed are `text`'s, so another client's key order or spacing is its own.
+ * Text no client can read back (a lone surrogate) is refused as `json`, and
+ * the record stays on this device.
  */
 export async function sealRecord({ record, text, notebookKey, kid, nonce = randomBytes(NONCE_BYTES) }) {
   const json = text ?? JSON.stringify(record);
   if (typeof json !== "string") refuse("json", "a record's text");
-  const plain = plainFields(record ?? parseObject(json));
+  // Read back as an opening reads it: a lone surrogate, as an escape or raw, is refused here and not sent.
+  const parsed = parseObject(json);
+  const plain = plainFields(record ?? parsed);
   const row = { v: 1, ...plain, kid };
   const aad = rowAad(row);
   const ct = await aesGcmSeal(await recordKey(notebookKey), nonce, aad, padRecord(utf8(json)));
@@ -961,7 +1001,10 @@ export function checkKeyring({ held, highest = held.current, incoming }) {
 
 /** Seals a keyring to a device's or a holder's public key: HPKE, `info` "lit-notebook/1 keyring", an empty AAD. */
 export async function sealKeyring({ keyring: held, recipientPublic, ephemeral }) {
-  return hpkeSeal({ recipientPublic, info: LABELS.keyring, plaintext: utf8(keyringText(held)), ephemeral });
+  const text = keyringText(held);
+  // As every sealer does: what the recipient can't read back (a lone surrogate) is refused here.
+  parseObject(text);
+  return hpkeSeal({ recipientPublic, info: LABELS.keyring, plaintext: utf8(text), ephemeral });
 }
 
 /** Opens a sealed keyring and applies the keyring's own checks. Trusting it is the caller's: checkKeyring, an approval, or a holder's anchor. */
@@ -1025,6 +1068,7 @@ const holderCardAad = ({ notebook, kid, holderId }) => lines(LABELS.holderCard, 
 async function sealCardText(aad, { notebookKey, card, text, nonce }) {
   const json = text ?? JSON.stringify(card);
   if (typeof json !== "string") refuse("card");
+  parseObject(json);
   return { nonce: Uint8Array.from(nonce), ct: await aesGcmSeal(await cardKey(notebookKey), nonce, aad, utf8(json)) };
 }
 
@@ -1142,12 +1186,33 @@ const holderAad = (kind, id) => lines(LABELS.holder, kind, id);
  */
 export async function sealHolderRecord({ secretKey, record, text, nonce = randomBytes(NONCE_BYTES) }) {
   const json = text ?? JSON.stringify(record);
-  const fields = record ?? parseObject(json);
+  const parsed = parseObject(json);
+  const fields = record ?? parsed;
   const key = sized(secretKey, KEY_BYTES, "a holder's secret key");
   return { nonce: Uint8Array.from(nonce), ct: await aesGcmSeal(key, nonce, holderAad(fields.kind, fields.id), utf8(json)) };
 }
 
-function readHolderRecord(text, { kind, id, notebook, credential }) {
+/**
+ * True when `pub` is the public half of the scalar `d`. WebCrypto can't
+ * work a public key out from a private one, and a platform may import a
+ * mismatched pair without a word (Node refuses one, browsers are untried),
+ * so the two are tried together: a signature made with `d` that `pub`
+ * verifies. It checks the whole point, so a `pub` with the right x and the
+ * other y fails too. The signature is made here, never leaves, and is
+ * thrown away, so using the agreement key to sign once tells no one anything.
+ */
+async function isPairOf(d, pub) {
+  try {
+    const signer = await subtle().importKey("jwk", privateJwk({ d, public: pub }), ECDSA, false, ["sign"]);
+    const verifier = await subtle().importKey("raw", u8(pub), ECDSA, false, ["verify"]);
+    const message = utf8(LABELS.holder);
+    return await subtle().verify(ECDSA_SHA256, verifier, await subtle().sign(ECDSA_SHA256, signer, message), message);
+  } catch {
+    return false;
+  }
+}
+
+async function readHolderRecord(text, { kind, id, notebook, credential }) {
   const record = parseObject(text);
   if (record.lit !== "holder" || record.v !== 1 || record.kind !== kind || record.id !== id) refuse("record");
   if (record.notebook !== notebook) refuse("notebook");
@@ -1173,6 +1238,8 @@ function readHolderRecord(text, { kind, id, notebook, credential }) {
   if (!isP256Scalar(d) || !pub || anchorKey.length !== KEY_BYTES || !Number.isSafeInteger(anchorKid) || anchorKid < 1) {
     refuse("record", "its keys");
   }
+  // Its own pair, checked here as iOS checks it, so every client refuses it at check 2 with one word.
+  if (!(await isPairOf(d, pub))) refuse("record", "its public key isn't its private key's");
   return { record, key: { d, public: pub }, anchor: { kid: anchorKid, key: anchorKey } };
 }
 
@@ -1183,8 +1250,9 @@ function readHolderRecord(text, { kind, id, notebook, credential }) {
  * 1. The record opens under the key made from the secret, with the AAD made
  *    from the kind and id the service gave (`seal`: the code is wrong, or
  *    this passkey doesn't open this notebook).
- * 2. The record is what it should be (`record`), for the account's notebook
- *    (`notebook`) and, for a passkey, the passkey that answered (`credential`).
+ * 2. The record is what it should be (`record`, its `public` the public half
+ *    of its `d` included), for the account's notebook (`notebook`) and, for
+ *    a passkey, the passkey that answered (`credential`).
  * 3. The keyring sealed to the holder opens with the record's private key
  *    and passes the keyring's own checks.
  * 4. The keyring names the record's notebook (`notebook`) and holds the

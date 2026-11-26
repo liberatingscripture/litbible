@@ -440,6 +440,47 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-26, vectors version 4: iOS's points 1 to 4 and 17 are in the spec
+
+**`vectorsVersion` is 4, and nothing you call changed.** Five of iOS's
+points (“iOS's answers,” 2026-11-24, below) are now in
+`STUDY-DESK-ENCRYPTION.md`, the reference, and
+`notebook-crypto-vectors.json`. **iOS already does each one**, so its
+runner should pass version 4 unchanged. **Android: please run it**, and
+see the spec's “Still open,” 93, for the two checks Kotlin doesn't make
+by default. No existing case changed. New cases sit among the old ones,
+so a runner that numbers cases sees later ones move.
+
+- **A leading byte order mark (`EF BB BF`) is dropped** before sealed
+  JSON is read (“Opening,” check 6): one new `open` case.
+- **No sealed JSON holds a lone surrogate**, raw or as a `\u` escape, in
+  a string or a member's name. Refuse to seal one, and refuse one when
+  opening, both as `json` (“Fixed choices”). New cases: `seal` (a body
+  with `\ud800`), `openRefused` (a lone high, a lone low, a pair
+  reversed, one in a member's name), `keyring.parse`, `card` (a device
+  card's name), and both holder groups (check 2). One `open` case accepts
+  an emoji written as two escapes.
+- **A holder record's `public` must be `d`'s own**, refused at check 2 as
+  `record` (“Holders”). Two new cases in each holder group: another
+  pair's public key, and `d`'s point with `y` negated, which a check of
+  `x` alone passes.
+- **Ids and member names are never normalized** (“Fixed choices”;
+  “Opening,” check 7). `openRefused` has a row whose `id` has `K` and a
+  record whose `id` has the Kelvin sign (U+212A), refused as `fields`.
+  `open` has a record with two member names that are canonically
+  equivalent (“café” two ways), which keeps both. Read the vectors file
+  itself without normalizing it.
+- **A limit in characters counts UTF-16 code units** (“How values are
+  spelled”), as the service always has.
+
+The website's own sync pass changed too (points 18 and 19; no format
+change). A keyring kept on the device is held only once it names the
+link's notebook, and a keyring handed to a page just loaded is refused
+when its `current` is below the highest the link has accepted.
+
+Full text: `STUDY-DESK-ENCRYPTION.md`, “Changed for iOS’s answers
+(vectors version 4).”
+
 ### 2026-11-26, clocks far apart, a new refused card, and a failure that asks for help (Audit 9)
 
 **Nothing you call changed**; three things for BDR to take or leave, each
@@ -812,36 +853,43 @@ is the website's to weigh.
 From the crypto (`desk-crypto.mjs`):
 1. `TextDecoder` drops a leading byte order mark, and iOS matches; the
    spec doesn't say so.
-   - **Not taken yet** (the website's, before the freeze): the spec is
-     still silent. One sentence in “Opening” would say what both clients
-     already do: a leading byte order mark is dropped before the JSON is
-     read (`fromUtf8`, `src/lib/desk-crypto.mjs`).
+   - **Taken** (#728): one sentence in “Opening” (check 6) says what both
+     clients already do, for every sealed JSON, and an `open` case begins
+     with the mark (vectors version 4).
 2. `JSON.parse` takes a lone UTF-16 surrogate in a `\u` escape, which a
    Swift string can't hold, so iOS refuses it as `json`. The spec could
    say no record, card, or keyring carries one.
-   - **Not taken yet** (the website's, before the freeze), and wider than
-     the spec: the reference accepts one on opening and can seal one
-     (`JSON.stringify` writes it as a `\u` escape, and nothing in
-     `desk-crypto.mjs` refuses it), so a record the website writes could
-     fail on iOS. The fix is the sentence, a `json` refusal in the
-     reference when sealing and opening, and a vector.
+   - **Taken** (#728): the spec says no record, card, holder record, or
+     keyring holds one (“Fixed choices”), the reference refuses one as
+     `json` in every sealer and on every opening, and vectors cover each
+     kind. **What happens to text a reader types on the website:** a note
+     body, a label, or any other field of a record that holds one is
+     refused when sealed, so that record stays in the browser and isn't
+     sent (marked stuck, `seal:json`), the rest go up, and the status
+     line says “1 entry couldn’t be sent to your account. It is still in
+     this browser’s notebook.” Typing rarely makes one; an imported file
+     with a `\ud800` escape can. A device's name was the one place the
+     website could make one itself: cutting a typed name at 60 UTF-16
+     units could split an emoji, and `cleanName`
+     (`src/lib/desk-account-words.mjs`) now drops the half. A first name
+     comes from the browser's user agent, and a holder card's name is a
+     word the website chooses, so neither can hold one.
 3. A holder record whose `public` isn't `d`'s own isn't in the vectors.
    iOS refuses it (`record`), and any mismatched key pair as `privateKey`.
-   - **Not taken yet** (the website's, before the freeze): no vector yet,
-     and the reference leaves the check to the platform's key import
-     (`agreementKey`, refused as `privateKey`; Node 24 refuses, browsers
-     untried). A vector must name one word, so Claude recommends checking
-     the pair in `readHolderRecord` and refusing `record`, as iOS does.
+   - **Taken** (#728): `readHolderRecord` checks the pair at check 2 and
+     refuses `record`, as iOS does, by signing with `d` and verifying with
+     `public`. Each holder group has two cases: another pair's public key,
+     and `d`'s point with `y` negated.
 4. **“The same id, byte for byte.”** Swift's `==` treats “é” written two
    ways as equal, so a first Swift build let two different ids pass as
    one. iOS now compares bytes. A vector with canonically equivalent ids
    and object keys would catch this on every client; Android should check
    it in Kotlin.
-   - **Not taken yet** (the website's, before the freeze): the spec already
-     says “the same `id`, byte for byte” (“Opening,” 7), but no vector has
-     canonically equivalent ids or object keys
-     (`test/fixtures/notebook-crypto-vectors.json`). Adding one changes
-     the vectors file, so it gets an entry here.
+   - **Taken** (#728): an `openRefused` case whose ids differ only by the
+     Kelvin sign (U+212A) against `K` (row ids are printable ASCII, so
+     that is the one way to make the pair), refused as `fields`, and an
+     `open` case with two canonically equivalent member names, both kept.
+     The spec says no client normalizes (“Fixed choices”).
 5. CryptoKit's `HPKE` can't be handed a sender key, so iOS runs the
    fixed-key vectors through a small hand-written key schedule, proven by
    the CFRG vectors and RFC 9180, A.3.1.
@@ -918,26 +966,20 @@ From the service and the website's fake:
       table says.
 17. The `platform` and `model` limits count UTF-16 units, not characters.
     iOS matches; the spec could say which.
-    - **Not taken yet** (the website's, before the freeze): one sentence
-      in “How values are spelled” that a limit in characters counts UTF-16
-      code units, as the service does (`needText`, `check.js`), iOS
-      matches, and the format counts offsets (`STUDY-DESK-FORMAT.md`).
+    - **Taken** (#728): that sentence is in “How values are spelled.”
 
 From the sync pass (`desk-sync-engine.mjs` and its tests):
 18. `openSession` keeps another notebook's keyring in memory after
     refusing it, so the next pass skips the check. iOS holds a keyring
     only once it passes.
-    - **Not taken yet** (the website's; no format change): `openSession`
-      still sets `keyring` before the notebook check
-      (`src/lib/desk-sync-engine.mjs`); hold it only once the check
-      passes, as iOS does. Latent: it needs another notebook's sealed
-      keyring in this link's storage.
+    - **Taken** (#728): `openSession` holds the keyring only once the check
+      passes, and a test swaps the kept keyring for another notebook's
+      and sees two passes refuse it and seal nothing.
 19. `adopt` checks nothing while no keyring is in memory. iOS also
     refuses a `kid` below the highest one stored.
-    - **Not taken yet** (the website's; no format change): with no keyring
-      in memory, `adopt` checks only the notebook id. It should also
-      refuse a `current` below the highest stored (`meta.highest`), as
-      iOS does.
+    - **Taken** (#728): with no keyring in memory, `adopt` also refuses a
+      `current` below `meta.highest` (`backward`), with a test after a
+      change of key and a reload.
 20. `rowSize` counts UTF-16 units against a limit in bytes; they agree
     only while a row's JSON is ASCII. iOS counts bytes.
     - **Not taken**: every member of a row is ASCII (an id is printable

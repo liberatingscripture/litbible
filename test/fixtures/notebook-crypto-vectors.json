@@ -3,7 +3,7 @@
  "spec": "STUDY-DESK-ENCRYPTION.md",
  "specDraft": 2,
  "version": 1,
- "vectorsVersion": 3,
+ "vectorsVersion": 4,
  "generatedBy": "npm run build:notebook-crypto-vectors (scripts/build-notebook-crypto-vectors.mjs)",
  "conventions": [
   "Byte strings are lowercase hex. The exceptions are inside text the spec itself defines: a `plaintext` or `text` (JSON as it is sealed) carries its byte strings in base64url, as do a MAC's `macInput` and the passkey responses under `prf`.",
@@ -13,7 +13,8 @@
   "A keyring, where it is an expected value, is `{ notebook, current, keys: [{ kid, key }] }` with the keys in hex, newest first. Compare by kid, not by order.",
   "`refused` is one of the words under `refusals`. A client need not use the words, but it must refuse every case marked so, and where the spec treats two refusals differently (`aside`, a holder's `check`), it must tell them apart.",
   "HPKE and ECDSA cases run in the opening and the verifying direction. The sender's one-use key (`ephemeral`) and the signing number are given for a client that can fix them.",
-  "Times are the format's: UTC with Z. Ids are UUIDs in lowercase with hyphens."
+  "Times are the format's: UTC with Z. Ids are UUIDs in lowercase with hyphens, but for one row's id under `openRefused`, which says so.",
+  "Text is compared code point for code point, never after Unicode normalization: “é” as one code point and as e with a combining accent are two strings, and so are K and the Kelvin sign (U+212A). Read this file with a JSON reader that keeps them apart. A \\u escape inside a `plaintext` or `text` is part of the JSON to be read."
  ],
  "refusals": {
   "bytes": "a byte string of the wrong length: a key, a nonce, a code, a MAC, or a PRF output",
@@ -31,7 +32,7 @@
   "missingKey": "a row sealed under a kid the keyring doesn't hold",
   "length": "a ciphertext whose length isn't a padded record's: a multiple of 256 bytes, plus the tag",
   "seal": "a seal that doesn't open: the wrong key, or a changed byte, nonce, tag, or AAD field",
-  "json": "opened bytes that aren't the UTF-8 JSON object they should be",
+  "json": "bytes that aren't the UTF-8 JSON object they should be, or JSON with a lone surrogate in a string, opened or about to be sealed",
   "fields": "a record whose id, modified, or deletedAt disagrees with the row's plain fields",
   "kids": "a keyring whose kids aren't exactly the whole numbers from 1 to current, each once",
   "keySize": "a keyring key that isn't 32 bytes of base64url",
@@ -39,7 +40,7 @@
   "backward": "a keyring whose current is lower than the highest this device has accepted",
   "keyChanged": "a keyring that lacks a key this device holds, or holds other bytes for it",
   "card": "a card a client won't write (a field missing or of the wrong kind), or a grant's card that doesn't open for this device or doesn't name its keys",
-  "record": "a holder record that isn't what it should be: lit, v, kind, id, or the shape of its keys",
+  "record": "a holder record that isn't what it should be: lit, v, kind, id, the shape of its keys, or a public key that isn't its private key's",
   "credential": "a passkey holder's record that names another passkey than the one that answered",
   "anchor": "a holder's keyring that lacks the anchor's key, or holds other bytes for it",
   "mac": "an approval MAC that doesn't verify",
@@ -1327,11 +1328,23 @@
     "expected": {
      "refused": "lineFeed"
     }
+   },
+   {
+    "why": "a record whose body holds a lone surrogate, written \\ud800 as JSON.stringify writes one, is refused: a Swift string can't hold it and UTF-8 has no form for it, so no client could open the record",
+    "given": {
+     "notebookKey": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c",
+     "kid": 1,
+     "nonce": "a77c7fd4512b0ad918de9c12",
+     "plaintext": "{\"id\":\"5901a13c-84da-42e8-b56b-5ae91f93f8a8\",\"kind\":\"note\",\"schema\":1,\"created\":\"2026-11-23T18:35:09.978Z\",\"modified\":\"2026-11-23T18:35:09.978Z\",\"client\":\"web/2026.11\",\"contentVersion\":\"v20261123.5d2c847d\",\"labels\":[],\"bookKey\":\"john\",\"chapter\":3,\"verse\":16,\"endVerse\":17,\"marker\":\"question\",\"body\":\"Who is \\ud800 here?\"}"
+    },
+    "expected": {
+     "refused": "json"
+    }
    }
   ]
  },
  "open": {
-  "about": "Opening a row on a device that holds `keys`: the record, compared as JSON. The first cases are the rows `seal` made. `text` is the opened plaintext with its padding removed.",
+  "about": "Opening a row on a device that holds `keys`: the record, compared as JSON. The first cases are the rows `seal` made. `text` is the opened plaintext with its padding removed, and a leading byte order mark with it.",
   "cases": [
    {
     "why": "the row that seal made: a note, sealed under the first key",
@@ -1901,11 +1914,139 @@
       "label": "Morning reading"
      }
     }
+   },
+   {
+    "why": "a record whose bytes begin with a byte order mark (EF BB BF): the mark is dropped before the JSON is read, and `text` is without it",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "3a514676-0d89-4a3f-b218-eb2b830f3cdf",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "827cac86dbc1a7411a69503b",
+      "ct": "bfa891f1c86f7164f1892b73ff5c68b59833fcb00f0f5e55edeae60521353b94e732b461dae7d7ea7dda99af18809e74b5f87db0981416e5df42be935f2fc10d75b0575726332f6540df0c5f6ff1bf57c19a7998f3d104a4204efebfe16b471b0facc52bfb705cdc589fa56be754718e928145b1c9b26e07556dcb788609ca67bdbe89e7382c55fbb201328f5a663faf2310a4e16e414f78d161bad669afa885d0f22ef64ed6ee24ad9fbe5333095e83690a73f9372169755dbbd30b0509cfd056fba09a5793f6373910ffcefb2b64995c5973d6457439996b7f628742c79dc98b9a56ee80b923c5691b6d0363347fde60949b56f5d928880bdeb8688ab1190202df48a882618715b48c18daca3e7adaa8589066f14316a3a8aca278a2e1a6383f977226bf16cda43def2057349bcbb897da0af8d89cdb4f77240fb8e06b45fafeda4a8ad6d43c718ea3edf520339f73b0001eca60f49f29513c93b57687d1a79416fd90bfdaab18dfc017f69f54abedcd5cfa436ede0dcce3468e205c0efe96acf386388f93644bd041606393db5a83c3e3282552c042ae0c33b9f19e135ba9dad64d8fb1d6ae9577e48eb6680c5d7189a4b97615fc8882342ff5a137ef8303b778b5b501aa76d60ee3d2f8953422e99c162731cec44107b5518547340638145f7f0f29532c1493fd332e313298cf1e8a402ebbadadd7f755dcc2c07addae0430f22323f64667a5474e703f49d00140"
+     }
+    },
+    "expected": {
+     "text": "{\"id\":\"3a514676-0d89-4a3f-b218-eb2b830f3cdf\",\"kind\":\"note\",\"schema\":1,\"created\":\"2026-11-23T18:35:09.978Z\",\"modified\":\"2026-11-23T18:35:09.978Z\",\"client\":\"web/2026.11\",\"contentVersion\":\"v20261123.5d2c847d\",\"labels\":[],\"bookKey\":\"john\",\"chapter\":3,\"verse\":16,\"endVerse\":17,\"marker\":\"question\",\"body\":\"Who is the whole world here?\"}",
+     "record": {
+      "id": "3a514676-0d89-4a3f-b218-eb2b830f3cdf",
+      "kind": "note",
+      "schema": 1,
+      "created": "2026-11-23T18:35:09.978Z",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "client": "web/2026.11",
+      "contentVersion": "v20261123.5d2c847d",
+      "labels": [],
+      "bookKey": "john",
+      "chapter": 3,
+      "verse": 16,
+      "endVerse": 17,
+      "marker": "question",
+      "body": "Who is the whole world here?"
+     }
+    }
+   },
+   {
+    "why": "an emoji written as two \\u escapes, a high surrogate then a low one (\\ud83d\\ude4f): together they are one character, 🙏, and the record opens",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "7510fe09-4eec-4532-91ee-939ccd1530d5",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "97c4c4190835cdd6db089b49",
+      "ct": "dcd52c9c1d23fcd3ceaea41b2dc677edbccebcfb4ce475f7b46714380084d5f3cad06a4939c729aaa00334dabe4f842bfbad6a5e0eeed269298e7c89f4d0caaa7dacc76c3d7a59f916eda884862cc1607cf0a361f35132eae5a6dd7fbcd4e6e942d27f5227ba44a1de6b3bc35a86043f8e8a261b7244a30d967d5c3502d199c39b4c92a13594796b15545ebd1456b7abc1eb7a90822a735ad8b2c39fc9ffbf1b15d56de0c4d888f1dd25e43e72f8c2698f1dd89fe69582440e271612ccb07e7565ebe92f7c9ae64ce8063c7cd46f3289608ef9e2332e8cefaefef0919a310967f5c7f61fbda4ba4552998674346ec2e2b8f90703163595df10f097524e4ab654f9f8649d4c8b48b42cb0cfc7d7ffd19c84847b1e807c82a4057d9d926f4f999a2f393767a484af730ade0b3b29ec0a1065636c6ffd3ef6b1065a8875f448cc08802d79bbee9d36019b2fa4d6478d519a54471bdd4ddda1cea53ac30553b6f6fb2f05eb599f7726895f8bbce882dd200d77fa81f80f99d701e061418cf8437ba7a4f0e91ec61afe409618a10a04ec618baad8cd40cdce006621352a73401a9726fe60f11131da77618b57ff61ae603cf4e34f69fdc5cb2a93af3d0515255c2b7a34b550e559b542a09742f5c86b2bddd6fa96747246bbd8e997ec9af116aedf2b3b77081979ed6a43bd9231df2781482a6b554f7de924dd0d562ce904633c4ba3337e0d7b0a3cd79b025b334bba572dd7"
+     }
+    },
+    "expected": {
+     "text": "{\"id\":\"7510fe09-4eec-4532-91ee-939ccd1530d5\",\"kind\":\"note\",\"schema\":1,\"created\":\"2026-11-23T18:35:09.978Z\",\"modified\":\"2026-11-23T18:35:09.978Z\",\"client\":\"web/2026.11\",\"contentVersion\":\"v20261123.5d2c847d\",\"labels\":[],\"bookKey\":\"john\",\"chapter\":3,\"verse\":16,\"endVerse\":17,\"marker\":\"question\",\"body\":\"Amen \\ud83d\\ude4f\"}",
+     "record": {
+      "id": "7510fe09-4eec-4532-91ee-939ccd1530d5",
+      "kind": "note",
+      "schema": 1,
+      "created": "2026-11-23T18:35:09.978Z",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "client": "web/2026.11",
+      "contentVersion": "v20261123.5d2c847d",
+      "labels": [],
+      "bookKey": "john",
+      "chapter": 3,
+      "verse": 16,
+      "endVerse": 17,
+      "marker": "question",
+      "body": "Amen 🙏"
+     }
+    }
+   },
+   {
+    "why": "two member names that are canonically equivalent (“café” with é as one code point, and with e and a combining accent): they are two names, the record has both members, and neither is a repeat of the other",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "9e1dd403-e009-49bf-bee0-8d8fb6c35750",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "6abcd9ba347adea71ae665a9",
+      "ct": "7f2b01f8cd83e40ec0b585f218122207feeabf63ab0ae3c0ef2d7f2f66fd411f30c2424b85a68b58b967b8f356bd2764fb83670d54ed8f06663c2f15b9468d984d6469a4123f0435ace63ac88a9cd0b41f245e5b223ddf8ec28063c9084079b1abd8e73d3141c102a4a91afb85dbb36686ccfc64dc3bfb9b8c8242d19ea7904e7166bacebdaa38d3f20c693a9d04ed68ae999349e7d1a74aeada8264872297001a097ac3f1fa4df9d831562b729b66bb9e77437e94275af163f9606f5f3a01639c1316c1f8198f32404d9045108bee90487603f2277eaa49a4608d03cf0afcdc38408b410266704875f787b3bb45c8ae6da903eec8df2e4752f52fd43d4ed548091f778bd17cd99ed98eceb898b866b79337989805d048b7990acfa0d05f1691c213d2efdfd1f366369b9cfbf346e5c089bbbbf5439f8491830953734ad4265a6d430408302605dceb9914656816c62cb44aeaf20de347914373209f05e28ee029b17f149d698c9cb85dfd97121479a8ffa7dab6b051232aead4fa38f2040ec407e92b9411f78b32b8bfa2dcc15dcdc0a81d4a61d313a8db577dc0c130a0d6aa9ed7911e506d29c6d771d46cafb1d01122f27a2fa57951f2e35ce5004c8ecda2588e5043a30e2cb286d8cf532dac0704175b078a1a7cb5f7637066c5c7ffc04bbde8ebfbea3e2ccff73abed2bb2ea9b0bb53deddcd484163cd3329ee2709538a24b106efad792373090b7e7194dd8189"
+     }
+    },
+    "expected": {
+     "text": "{\"id\":\"9e1dd403-e009-49bf-bee0-8d8fb6c35750\",\"kind\":\"note\",\"schema\":1,\"created\":\"2026-11-23T18:35:09.978Z\",\"modified\":\"2026-11-23T18:35:09.978Z\",\"client\":\"web/2026.11\",\"contentVersion\":\"v20261123.5d2c847d\",\"labels\":[],\"bookKey\":\"john\",\"chapter\":3,\"verse\":16,\"endVerse\":17,\"marker\":\"question\",\"body\":\"Who is the whole world here?\",\"café\":\"é as one code point\",\"café\":\"e and a combining accent\"}",
+     "record": {
+      "id": "9e1dd403-e009-49bf-bee0-8d8fb6c35750",
+      "kind": "note",
+      "schema": 1,
+      "created": "2026-11-23T18:35:09.978Z",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "client": "web/2026.11",
+      "contentVersion": "v20261123.5d2c847d",
+      "labels": [],
+      "bookKey": "john",
+      "chapter": 3,
+      "verse": 16,
+      "endVerse": 17,
+      "marker": "question",
+      "body": "Who is the whole world here?",
+      "café": "é as one code point",
+      "café": "e and a combining accent"
+     }
+    }
    }
   ]
  },
  "openRefused": {
-  "about": "Rows that must not be accepted, each with one thing wrong. `aside: true` (an unknown `v`, or a `kid` the device doesn't hold) means keep the row aside and fetch the keyring; every other refusal means skip the row, keep the device's own copy, and report it. No refusal ever deletes anything. The checks run in this order: the row's version, its kid, its own fields, the ciphertext's length, the seal, the JSON, and last the record's fields against the plain ones.",
+  "about": "Rows that must not be accepted, each with one thing wrong. `aside: true` (an unknown `v`, or a `kid` the device doesn't hold) means keep the row aside and fetch the keyring; every other refusal means skip the row, keep the device's own copy, and report it. No refusal ever deletes anything. The checks run in this order: the row's version, its kid, its own fields, the ciphertext's length, the seal, the JSON (a lone surrogate in any string of it included), and last the record's fields against the plain ones, the id byte for byte.",
   "cases": [
    {
     "why": "one byte of the ciphertext changed",
@@ -2396,6 +2537,33 @@
     }
    },
    {
+    "why": "the record's own id is the row's with its K written as the Kelvin sign (U+212A): canonically equivalent, so a comparison that normalizes calls them one id, but they are not the same bytes (this row's id is printable ASCII and not a UUID)",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "K901a13c-84da-42e8-b56b-5ae91f93f8a8",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "85cf3f40a6ab62886bb4615e",
+      "ct": "313fe026a1a96439681d1ea0b96e5abd3aa687cdce217d6edc28a67057775c5fc26b63bef2c1ad34d53941c53abdcab2d4a98eb733c931a48132746ef06dd037b0dafe24e45ffff975802384b2b5c3faf40d8614c8154bde42eb06a63a7db3ad33bf84f745d01e4668fd1e57b6f4797e76884ce893b1b6b84f61b617c2d8d01ff7618c34a9a96d13af52a20a372a50c6b1ee5803c012e37af79f79997c2b36fbfa4ac8cade3f2f8b29f1d826e1dfb4cf3301d969fb4767ba54c64014a73a882c01575cd6de00c47e70ce20f0afe068757d1b7f9035b623e7536311a5abd0e40cd87e9804aa974c670b5b8842d1e856d03fb027eabac508d16c687386daef3a0cd3e2ccb00951cacc32764b4b84db377ffe3dbbc346ffc66606e678c2aef416b063e03a4f9a40495f3a535500b54712998a5bb640bc6aee6d4264d838e92b91573008d0a3bdfe3020700eb31f8ebd2855b84d4fb434f1608fa53511575a6e4107e50f17d159676403f12068c6bf465d48b84af511d9316fa4bafee46545c7e3a74fbedd6fc72c4faafc84f3cb0227b3126503057d96cf57b8a2ace9d7e43c3fac282fec39eeee54726a2abdce03185be364186e5e21cf2a35a62e121e03c2bcc7b52d2dbbc543e5802553d74607ceb61a2e9facc9ef2ec885e2fdc213ba7f1f18285e092948db22fcffc4c01fed1566c8bc7f62651fd1f2b6f6d0f57f50ae85e7b38b554b6ea28442e74e6961d532be4b"
+     }
+    },
+    "expected": {
+     "refused": "fields",
+     "aside": false
+    }
+   },
+   {
     "why": "the record's own modified disagrees with the plain field",
     "given": {
      "keys": [
@@ -2720,6 +2888,114 @@
      "refused": "json",
      "aside": false
     }
+   },
+   {
+    "why": "a lone high surrogate in the body, written \\ud800: no client can hold it",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "5901a13c-84da-42e8-b56b-5ae91f93f8a8",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "3ba0a09a9f6e74fe18f3250a",
+      "ct": "a705bc5f248d1a00431842767ec19884277c7d031d7d02ac67a3117e739b45edef4133ea1350ff25f09301b1419ab95d76298a376333f2c284f44fcf092e66fdfeb0861a2cbeb2e2da1d092264365dddce387fd1c4cf1cdc6eeeb9cfd7986c164e5a3698131c2238abe7e30bad971b8a2e525af5f50b18aa02b1800e23bf65f11635ef421a4dcd2aecf1c5975265af958c487da2fdbd42fb8db82779dd0a0adb47d03fba03d73124036d897337b0678d074f7929974df62fe58ead287a585daa92cba655272e68efbe1520f741fdb43a3bf6d68664daf96f6e2a6c2fb00ac1fc801ac6e918dc9573565dcddcf7e17f42362bb8d15af6d09160681e6d777320d52f24986286c30ecfd4dbb602bbed7b04d7b295b07c4eb5cc979ec21c40eccb8c816e6f555a992832d56e64eb5edc07e61a31d5c0e6b3b0e68684f1b20f80997846bc3f63188422ebc2729cbd56077e51599f2d428a4ef08d2b577ce2189a68cacf205ad19a4e7a28dc19977636e6e3ea240d71429b59775b89e1346bbe74553ac835d3beafc492fa1e7288fe1d0157ae63ffa03ad807d8cdcdfd6953ace8a1f66fa284206dd92facef4044aa33958f4cfdf50fb93880eec18b867f6cc0f912ba9a38ef3bcdbbb59fc498b0d43db8ddad7e5dab9d950f99cc1f331ca4d8918c69808167627020cfc612a84c061659919011d831d4b4b0895ad0cfcde78e45ee9e3ce20b6aa51b74366f60831bf7ce4d9f"
+     }
+    },
+    "expected": {
+     "refused": "json",
+     "aside": false
+    }
+   },
+   {
+    "why": "a lone low surrogate in the body, written \\udc00: no client can hold it",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "5901a13c-84da-42e8-b56b-5ae91f93f8a8",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "8b1a905ba3327e0c354d3c3b",
+      "ct": "657fe131710afc8cfa457d38418364383dd51fda4e4a1082d4148f793e0f30ec3bfde85ec25807c2db0ddcb2441ab0c083198c9511695c83d3ee969d2095e4659f7753d774b883514c81289ae030d59549af2f089fd6d79d4ba8ce8c2c351d845f5730985befd416ac84a6f4a0f84818877c3fde57cf7f5878d8b01997bdcaf409977071a5eb05bc5f7f6f4940a3dbcf297430c5a4f758cbee70bc04ab42beb0aa99678cb5da8318a00fff8aa41e26016167b68be4b753e23dac1b30a15b1e92186fc3f329bac87e93e907203243c8401784d8060189f91607f32345cd5e1b77127a020898d0563d130d244c6dc5d926694294c1b27ffe0ebc0eeec4642e727cc68dd8d1fc668a7c0ec06340643b3880e5ebe99a102c5728de3e037b10398bd185ddc4425a3566ec85fca1ef50fbca82c98b0fe022ce06b957846e9aa1c0516b1ebe339bb8f6e4160727cca4a44c4653f90b20c051b4abbfc7048a0d4febdb28a2cc4b0045c6ac31bfb65e84db2ceddcc14ba409a6d075717aa4c5a1585ed35857128da6e76d45a795d6fddf48ba31c5fad67c9b3c6950db15a1b7cbf06c535c929a67b4870e2bc0075ef05a9d5cee31940acda87336713854381c16d885d99c538ce750f251a40833ae060ab6ee40d38b3bc9485e0156b6c96ca144bbc1d46da59a11451f31524d322cb649884fac8e28e1521b4cdd7ae38a9fbf9fec6722eb739ed0fbf37f1ee98af957600716e797"
+     }
+    },
+    "expected": {
+     "refused": "json",
+     "aside": false
+    }
+   },
+   {
+    "why": "a pair written the wrong way round, low then high (\\ude4f\\ud83d): two lone surrogates: no client can hold it",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "5901a13c-84da-42e8-b56b-5ae91f93f8a8",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "e0ca4b5b46323e1fb826f256",
+      "ct": "c797ea57361ec46800d9fbdc49711c9b1224db1db5354f0815663686172d82019236c6b7241491bfabc90b3fb1741b85c14780a1dcd5c0b9770f3fee965ef1f0f58661384e28b5d0cc84f159f25d675c10e6b92d8efa6dd48310f43bee42a4a6be35184c310da13936be02962301827846edf6fec776bdf8fe6f56a2b58f5b7f5851032ed7a1cb5cddd0d29ca5280598f1e7dbd911f5365624c2faf55b59a26fd9ec6e200f3053bb0b6e986364a5067daeb118d153f207460894d9d12e45aa0706a1c25c5a3178e2a0fb2059d5646701950124110305a273ec92f086b1f0c414f8cde5c6ca0c870bf0758690386bd270e6f5a2073baa9736c555cb2b79e6bd7e15aaeafd596cd0ccdf8c9b533a8aabb97acf98447680163c5f12eeb59abcc251a836e11b7445807d7d4879d71d8f4c352f7d2c31d976010cb60857928f1b20cb60e1f95ef3d1e6b2563f36708ae90881cd4a0ff5e8e51ae9c151dda590dea42013bb939431c8525f57777365b5400e15191856476acabfaaa9167f6060ba32edd366d303cb2be8c4c3685d31d09b205554f1189616733663ca2ee4a804c14a03e42c3eec35dcfb6fc7ad85055f26f5ae8a5b8cdd3ae8f35de158684aa1b3a51de77518e37d827da734cdad0c3febf468c879e19d30fb99335e7a7d0cdc6f816619816c00260a5cdfe55150efc339cdd9e313a2ae30fa86e461242c22aede82bc52661a60a6fc5507dea859db5a2088ea"
+     }
+    },
+    "expected": {
+     "refused": "json",
+     "aside": false
+    }
+   },
+   {
+    "why": "a lone surrogate in a member's name, written \\ud800",
+    "given": {
+     "keys": [
+      {
+       "kid": 2,
+       "key": "68cd869b337945f80455f975ebc76003440d05aaa47806d56fdd214e2c65038b"
+      },
+      {
+       "kid": 1,
+       "key": "d281296695b5a0628cad242af0d7922c0a24932de7a086e49ef8f0ead2ec222c"
+      }
+     ],
+     "row": {
+      "v": 1,
+      "id": "5901a13c-84da-42e8-b56b-5ae91f93f8a8",
+      "modified": "2026-11-23T18:35:09.978Z",
+      "kid": 2,
+      "nonce": "1c23258bc6ae19cce8c8977c",
+      "ct": "12088f55e324befb508b0fed2895673620b1bd67ac07ab4f7cfdae55bd58ca0cbea536a12e14bf6652b0e31472cd2208cbc029a2e9550c54799c8459416fb147fa592b903ee3a80315dfb624b9bca62d80ff88bf3ac36818fa2da44ee8d1ce4d90324df2d1cc0199f63780a5c4a3b527d53ac0d5ed3f04d26fb7e8f35f7c2e3c9ecdf9085fa9a761748ef6c7193cfdc84fe21f0757f8cc89f55c8189a648beac1a086428732b1076b600ce784927b82d1eafbf120733f7039d0f25709d15dfdc823faa583bf429013aad51f246b90e8554b5eee00e103e68487434d39e1e641a0895988445bce421d8f86f21ef1437a5c0deedaebc009867b875d8b3bf8649d6ef65f30e84b3863f632cfd8fef72f4d5c7d05a420e14b8d9b46912fe5274a51310ddab0bb6034dcd2569d5dede8329a4cad57f133b4870a5e9767528444db881c940ac9268d03b7dac5068073ba282ec0a0b342548becdce4437578b4e3f1fba610e873f75e564f20779681d69f0d9325b3e0eeeb404f509940d2b8f15c843c398f41e375425373d24939ddedc49b96bb6c52d51195daa44e1082938d8377801c8989d47850144cb347d7b2b62fb637c94c61f2715b022b77f91ba531ac24e26a55d68c6e4765794e9ceba12ad6b3a990927b51c0f9634fbe8bd39a7ed335d2769189a9b0ea1ac50efe7d8c1abf780cd2a7d4848fb3c3e094e1ad08dbbf773cbc2a728ae7ad4e924d3a600fe333277e9"
+     }
+    },
+    "expected": {
+     "refused": "json",
+     "aside": false
+    }
    }
   ]
  },
@@ -2943,7 +3219,7 @@
   ]
  },
  "keyring": {
-  "about": "`parse` is the keyring's own checks, on the JSON a sealed keyring opens to: `lit` and `v` known (`version`), the kids exactly the whole numbers from 1 to `current`, each once (`kids`), every key 32 bytes of base64url (`keySize`). `accept` is what a device that already holds a keyring (`held`: its notebook, the highest `current` it has accepted, and its keys) asks of one taken from the service: the same notebook (`notebook`), a `current` no lower than the highest accepted (`backward`), and every key it holds with the same bytes (`keyChanged`). A keyring that drops a held key is either malformed or lower, so it is refused by `parse` or as `backward`.",
+  "about": "`parse` is the keyring's own checks, on the JSON a sealed keyring opens to: a JSON object with no lone surrogate (`json`), `lit` and `v` known (`version`), the kids exactly the whole numbers from 1 to `current`, each once (`kids`), every key 32 bytes of base64url (`keySize`). `accept` is what a device that already holds a keyring (`held`: its notebook, the highest `current` it has accepted, and its keys) asks of one taken from the service: the same notebook (`notebook`), a `current` no lower than the highest accepted (`backward`), and every key it holds with the same bytes (`keyChanged`). A keyring that drops a held key is either malformed or lower, so it is refused by `parse` or as `backward`.",
   "parse": [
    {
     "why": "a first keyring: one key, kid 1",
@@ -3184,6 +3460,15 @@
     "why": "JSON that isn't an object",
     "given": {
      "text": "[]"
+    },
+    "expected": {
+     "refused": "json"
+    }
+   },
+   {
+    "why": "a lone surrogate (\\udc00) in a field this version doesn't know: no client can hold it",
+    "given": {
+     "text": "{\"lit\":\"keyring\",\"v\":1,\"notebook\":\"85439787-e718-4867-9e6e-4e272ada576e\",\"current\":2,\"keys\":[{\"kid\":2,\"key\":\"KJ3rq855keNyS3_NKqS1A0Pq-2_2CeDEpDo36UR51hI\"},{\"kid\":1,\"key\":\"MhJ5FySSW4k_-DrTs3oCdMYbqTJRfRUv16QrWfwCHdM\"}],\"note\":\"\\udc00\"}"
     },
     "expected": {
      "refused": "json"
@@ -3716,6 +4001,20 @@
     }
    },
    {
+    "why": "a card that opens, whose name holds a lone surrogate (written \\ud800): no client can hold it, so the card is refused as one that doesn't open",
+    "given": {
+     "notebookKey": "e72d81f33c5442b339b394e67c8c5edf52153666df6f14ee957157ade502e3cd",
+     "kid": 1,
+     "notebook": "5e791d53-9909-46a7-b60c-c0600796c5f9",
+     "deviceId": "ee3d6100-7729-4aba-96e2-757918a69310",
+     "nonce": "5e76cf65ae6180db8d00514a",
+     "ciphertext": "f2e427d77b7800e0e32ee0b636f96b6bc5faef16ce4b8a35fecf412fd430577a413369b58f6e366360968224dea796df82b29645419db856f196586d05481aca88dfee72fe6988a5bb3e2f4a5ce86480b60a9d904883f9bf333a345c3924e12bf420e7bca3448d2d17e952f4513f57803e56f4bda8b7c078c2f189d88625e871e908b28d8ddbb384f2d48086e7560d7345e44d3a9a03e75fa575d3efa000d15340ba4dd0d00b3c31ce46ad464fd1b80c14da34180047481b133f2a87bb1915db7a9af07238861d6c4dfc455f124b60181af21f5c5fa28d3da13da3fca62102deef466665e0242cc06c864afdaa05a953e8d11cfdbe5dafcc75138b5e1a1dc6445964f7050c4a42a7a8bc507a68938b7e21cd0e4c2a7311d25a26c63897dc636c510e24"
+    },
+    "expected": {
+     "refused": "json"
+    }
+   },
+   {
     "why": "a card that opens, whose `sign` is not a point: version 1 refuses no card for its signing key, so it opens, with no signing key to show",
     "given": {
      "notebookKey": "e72d81f33c5442b339b394e67c8c5edf52153666df6f14ee957157ade502e3cd",
@@ -4049,7 +4348,7 @@
   ]
  },
  "passkeyHolder": {
-  "about": "The passkey key is HKDF(the PRF's 32 bytes, lit-notebook/1 passkey, 32 bytes). `answered` is the credential id of the passkey that just answered. `service` is what the service hands a device that asks to come in through the holder: its kind, id, and the notebook's id in plain, the sealed record (AES-256-GCM under the secret's key, with the AAD lines lit-holder/1, the kind, and the id), and the keyring sealed to the holder's public key with HPKE. The four checks run in order and stop at the first failure; a refusal's `check` says which: 1, the record opens; 2, the record is what it should be; 3, the sealed keyring opens with the record's private key and passes the keyring's own checks; 4, the keyring names the record's notebook and holds the anchor's key with the same bytes. `plaintext` is the record's JSON, with its byte strings in base64url as the spec says; `holderKey` is the holder's key pair in hex.",
+  "about": "The passkey key is HKDF(the PRF's 32 bytes, lit-notebook/1 passkey, 32 bytes). `answered` is the credential id of the passkey that just answered. `service` is what the service hands a device that asks to come in through the holder: its kind, id, and the notebook's id in plain, the sealed record (AES-256-GCM under the secret's key, with the AAD lines lit-holder/1, the kind, and the id), and the keyring sealed to the holder's public key with HPKE. The four checks run in order and stop at the first failure; a refusal's `check` says which: 1, the record opens; 2, the record is what it should be, its `public` the public half of its `d` included; 3, the sealed keyring opens with the record's private key and passes the keyring's own checks; 4, the keyring names the record's notebook and holds the anchor's key with the same bytes. `plaintext` is the record's JSON, with its byte strings in base64url as the spec says; `holderKey` is the holder's key pair in hex.",
   "cases": [
    {
     "why": "a device comes in with the passkey: the PRF's 32 bytes make the passkey key, the record opens, and the keyring sealed to the holder is accepted by its anchor",
@@ -4411,6 +4710,87 @@
     }
    },
    {
+    "why": "the record opens, and its `public` is another key's: a valid point, but not the public half of its `d`",
+    "given": {
+     "secret": {
+      "prf": "632ebabc8bd214197e471a44d768a772d464d948cce5878a801eac1dd5c2f409"
+     },
+     "answered": "567885e454d3340ceb83eb8f4514ec7571deada1",
+     "service": {
+      "kind": "passkey",
+      "id": "99105c9b-0142-44f7-a70b-7cdcf3ccd87e",
+      "notebook": "9701ebe1-2eba-4613-9a2a-718bee501c6b",
+      "credential": "567885e454d3340ceb83eb8f4514ec7571deada1",
+      "record": {
+       "nonce": "9c80c888d698b1980fe12647",
+       "ciphertext": "471299846c0ed4ed6b92318f387b375573c5f9864d6a0dda35453e95ca6b46cabf9843b24eaae6bc070f0b608669a2a1864a00d274c95406806c7313d0275db71b6f856c2e82e879755babfae28412ba636fe0574bc2ce5770e7c13277246aae97553756964aae0f5df203d9c98338044f296a280c02c4a1eb1fb217dd4f54197a2799e1455b1ff4fca54943fca5194ef841e0ee323d3d7b791cff10912e4842959c4dffbedae555c30da3bbae454020b8760e298f6840436fce01a1de13ff565d5f6294df97b95dad2768ce864b6d657331558143c1a588a52cfeb55b9b2c6df0a80fe9257da6cf9d77478ea98eab1bdf79a1240f0b3bc9464e5245ca94801b57dff07445a2ab00431c010d91946b4da7237d3a47e93e320a76efd70335fb189baa2dae8562508d84293264af990889adac50503e12b52751e713a7c1bc56fe08beb32b810c194a5d5c23b0311edadfd17e39f909e4edb2ccb3e3ae32803c707c06fa0ad52afcc53bfd9312ecd9740e1364615d53e4b36babc14e6509039aebb3acd25f5ad1e6736156553e3fd0ba853090644b973a0112cc13e438"
+      },
+      "keyring": {
+       "enc": "0403ce347a16185905ada58e3b758ea0606b3fc04a74248801f230b76aced86637366ad1cceb1c2600b5bec1b0b1abf46232725924a470555c3a1e975d9328b5e6",
+       "ciphertext": "30200ff32760a0070cd33d530781edff702cd27cc34532cbb3fd1577ccfe503e744188c1acb32d5e682b07d331a8b8c3bec10876bf9d136b5e3a3aea78bed00f1d1c04f30f130824553e9926eee2acaef1993672582e1d7b376c844d22a5417c6e4b77912aedb85639029e549e353959579b700e93804cb555937d62cb3767c767e9b5ef8121186cff99c7b34433f9f074f3a4d857e5f5f3692a582bd4af123c9bb12b10baa3859c75f896a8679d33b3617aa9e8b604f21e407cfd5c4fc694b04d9cf17be160bc7db01fe111d6194f1733330c6dd5ffac50d7b2b5da1339b036ed35618c592c6ed080c4"
+      }
+     }
+    },
+    "expected": {
+     "refused": "record",
+     "check": 2
+    }
+   },
+   {
+    "why": "the record opens, and its `public` has its `d`'s x with the other y (the point's negative): a check of x alone would pass it",
+    "given": {
+     "secret": {
+      "prf": "632ebabc8bd214197e471a44d768a772d464d948cce5878a801eac1dd5c2f409"
+     },
+     "answered": "567885e454d3340ceb83eb8f4514ec7571deada1",
+     "service": {
+      "kind": "passkey",
+      "id": "99105c9b-0142-44f7-a70b-7cdcf3ccd87e",
+      "notebook": "9701ebe1-2eba-4613-9a2a-718bee501c6b",
+      "credential": "567885e454d3340ceb83eb8f4514ec7571deada1",
+      "record": {
+       "nonce": "20fdf41029f8b003b9f0b8da",
+       "ciphertext": "985a81e5410bbd4ebe425b88204b542998d45514a5cc73199fda77ccd6df255064640d3c785d8bf21ed36a4a494fb772765885679e8445af59158b14f1c49002d3cb782cb6c50f490080d0bb384a7147723418d27eff6733e8b5dd6a05fe21f81c49e1303aea5f85afd056a71910405dfbfeacd03eb303ec88243059d008286fc2a3a6f6d50548589e42a653eaf830bf63ff15c04427a389cd412ff190934b4add6a4b950e7a0ecf3d8ea4cdba40d660749ce5754f0e0cbd3a2fa2ff22039f92f5e0fce5882e99088f8c28c3176ec569fbbbf0570ed789529ad6775e42d474118437d124c0d9f31f2163a46f9c0a16c46bba9407c013d19cf537a46718676e27883cefc32cdd469d3545f3fe271e05bddb15a7b273982fbfc26b5f09d933d7880a4c3406dce1e2acde9a11014affc544d73573c2a9f6f24a400983a06283da8506d2003080da9daae9858fc44493afe790f689bb0efb86bdc896d1860c90fc5aecb0c6a7439f345197a98039106532f6f0a3bfe13b789ed240dea4dde0e13089b501484fd8bc5a9900fcaec6f8d9babd35707233a004398cd67ff248"
+      },
+      "keyring": {
+       "enc": "0403ce347a16185905ada58e3b758ea0606b3fc04a74248801f230b76aced86637366ad1cceb1c2600b5bec1b0b1abf46232725924a470555c3a1e975d9328b5e6",
+       "ciphertext": "30200ff32760a0070cd33d530781edff702cd27cc34532cbb3fd1577ccfe503e744188c1acb32d5e682b07d331a8b8c3bec10876bf9d136b5e3a3aea78bed00f1d1c04f30f130824553e9926eee2acaef1993672582e1d7b376c844d22a5417c6e4b77912aedb85639029e549e353959579b700e93804cb555937d62cb3767c767e9b5ef8121186cff99c7b34433f9f074f3a4d857e5f5f3692a582bd4af123c9bb12b10baa3859c75f896a8679d33b3617aa9e8b604f21e407cfd5c4fc694b04d9cf17be160bc7db01fe111d6194f1733330c6dd5ffac50d7b2b5da1339b036ed35618c592c6ed080c4"
+      }
+     }
+    },
+    "expected": {
+     "refused": "record",
+     "check": 2
+    }
+   },
+   {
+    "why": "the record opens, and holds a lone surrogate (written \\ud800) in a field this version doesn't know",
+    "given": {
+     "secret": {
+      "prf": "632ebabc8bd214197e471a44d768a772d464d948cce5878a801eac1dd5c2f409"
+     },
+     "answered": "567885e454d3340ceb83eb8f4514ec7571deada1",
+     "service": {
+      "kind": "passkey",
+      "id": "99105c9b-0142-44f7-a70b-7cdcf3ccd87e",
+      "notebook": "9701ebe1-2eba-4613-9a2a-718bee501c6b",
+      "credential": "567885e454d3340ceb83eb8f4514ec7571deada1",
+      "record": {
+       "nonce": "05c988faea9a62669d8cdc73",
+       "ciphertext": "38e5d05eb6dca26ba7bb3e22f486ee1fb790318713158bc0c4124bb536b70beed960a4a5ed8bc8d8a206eee1bdb48527885a9d8813b70263fe62be662e2ce72d7a4870b0734ab21b6167ea0aa68def4dfa8ac3c641c30d02800fbb801f76a3fd21bccf3b323cd0ea4f63efeaeb556e0e1450672d911742e556d64d4ad17222c22ba691041fb88e3dd7d1c9220eaaac4de751a60d45c33fbd5bbc72905aee1839473d24beac7bfe1f2b32f7fb07350003fa08e1d3e69f36038ec7058113b93272e27f03010e307ab8efa9e4fafd0ab1606d451dc0a878d1a4acb90a2b7acb8f8d71b7490eaf86eb82a3bbb43d13240f382a2cb4983b1285e584e302cc1d0030536af1682fbd7af08e7597939a7a521127a384698b1edb8dcbfd059106068054f39dc11c3c7d8415be468d0bac0adf72c7aade6703e4b0497de83273d82181aa792a7cfecc2fb7fe54bce75d3d84087747ab1cb1297334c0e2f03578cc01a42c81f419b7b3aebbbfb172f663cdf170aba67fc794fa80f87dd2da55f9f0aa9336d7d0c9da9707ea2feae682540cb7e28d196c7cdffd2fd0d2272e2491dbad134b6da074625cc2d6c25f1355f4df"
+      },
+      "keyring": {
+       "enc": "0403ce347a16185905ada58e3b758ea0606b3fc04a74248801f230b76aced86637366ad1cceb1c2600b5bec1b0b1abf46232725924a470555c3a1e975d9328b5e6",
+       "ciphertext": "30200ff32760a0070cd33d530781edff702cd27cc34532cbb3fd1577ccfe503e744188c1acb32d5e682b07d331a8b8c3bec10876bf9d136b5e3a3aea78bed00f1d1c04f30f130824553e9926eee2acaef1993672582e1d7b376c844d22a5417c6e4b77912aedb85639029e549e353959579b700e93804cb555937d62cb3767c767e9b5ef8121186cff99c7b34433f9f074f3a4d857e5f5f3692a582bd4af123c9bb12b10baa3859c75f896a8679d33b3617aa9e8b604f21e407cfd5c4fc694b04d9cf17be160bc7db01fe111d6194f1733330c6dd5ffac50d7b2b5da1339b036ed35618c592c6ed080c4"
+      }
+     }
+    },
+    "expected": {
+     "refused": "json",
+     "check": 2
+    }
+   },
+   {
     "why": "the record's `credential` is not the passkey that answered",
     "given": {
      "secret": {
@@ -4575,7 +4955,7 @@
   ]
  },
  "recoveryHolder": {
-  "about": "The code key is HKDF(the code's 15 bytes, lit-notebook/1 recovery, 32 bytes). `typed` is the code as the reader types it. `service` is what the service hands a device that asks to come in through the holder: its kind, id, and the notebook's id in plain, the sealed record (AES-256-GCM under the secret's key, with the AAD lines lit-holder/1, the kind, and the id), and the keyring sealed to the holder's public key with HPKE. The four checks run in order and stop at the first failure; a refusal's `check` says which: 1, the record opens; 2, the record is what it should be; 3, the sealed keyring opens with the record's private key and passes the keyring's own checks; 4, the keyring names the record's notebook and holds the anchor's key with the same bytes. `plaintext` is the record's JSON, with its byte strings in base64url as the spec says; `holderKey` is the holder's key pair in hex.",
+  "about": "The code key is HKDF(the code's 15 bytes, lit-notebook/1 recovery, 32 bytes). `typed` is the code as the reader types it. `service` is what the service hands a device that asks to come in through the holder: its kind, id, and the notebook's id in plain, the sealed record (AES-256-GCM under the secret's key, with the AAD lines lit-holder/1, the kind, and the id), and the keyring sealed to the holder's public key with HPKE. The four checks run in order and stop at the first failure; a refusal's `check` says which: 1, the record opens; 2, the record is what it should be, its `public` the public half of its `d` included; 3, the sealed keyring opens with the record's private key and passes the keyring's own checks; 4, the keyring names the record's notebook and holds the anchor's key with the same bytes. `plaintext` is the record's JSON, with its byte strings in base64url as the spec says; `holderKey` is the holder's key pair in hex.",
   "cases": [
    {
     "why": "a device comes in with the recovery code: its 15 bytes make the code key, the record opens, and the keyring sealed to the holder is accepted by its anchor",
@@ -4921,6 +5301,84 @@
     },
     "expected": {
      "refused": "record",
+     "check": 2
+    }
+   },
+   {
+    "why": "the record opens, and its `public` is another key's: a valid point, but not the public half of its `d`",
+    "given": {
+     "secret": {
+      "code": "b62a9a1c5a88a63737f055f0d18601",
+      "typed": "PRN9-M72T-H2K3-EDZG-AQRD-31G1"
+     },
+     "service": {
+      "kind": "recovery",
+      "id": "e0290713-e4b4-4631-8a95-56a410c1d2a7",
+      "notebook": "db8b18cc-14ba-40c3-8fdf-2788eb999335",
+      "record": {
+       "nonce": "261882949144e2cc45f8a828",
+       "ciphertext": "097dfbdda88599e55f4994255de3708751b23e8096ab7c4798efb9f77f3a5eb17fa1f6cc85ce92fdabe67d064d557c55db9c94686de73cb102d81b76e6e531680f1b403147da42508f993ccaca6abaa254f657b309d7c17423f0f5e4918be39180d297edbb2be24144662c549fdc7e8963d0572ccfd0dfa56911d063245d0fbdfb554fc6f07eb4762a4300f7f16320f294a87db502afe9b741f5ef9578440adc51c99ff4c54c3a8329fa89b15d8eab474b51aba155db6554ec653c22ab5fdef1c8e4a345f2a1621eba1c0a4fef2e5c5489ff1f63b9c8daf5d405e1ff55b5967b8d9fc85a001ad9e5ad6e97e876e0f50fd8c2b666ba14993ffec636d55d7795d83bfa67f6e5ef9fd5fd5c9a73e599c177375e800e1b36b681cf70f740b2a5c9d9be1ad0e591a459b934f2b4757b586ea5608ff37ed6939616fcd51671fc5658221a3c21209d0e2506bde7f5296be867e0bf63fe424eaddda26a7301378123b4749e9a2d04bd71cc0905eabb680f6baba268ba"
+      },
+      "keyring": {
+       "enc": "0421796456843cb77bed2aa3531cb3ed576630c2d3412a5440a606bf553066d71f8b1a049b6d3efec5ba4840929ccd204f791d999adaf1cd190d05a83915256370",
+       "ciphertext": "c1838d91bcbdca4eb6b0b3591ec6690ba1a4a1a29c3e275de3f3db16dc35dacb5b5e44742be909323931dd94d8902365b9f8a3bae892e5017c46ad8d88a54991c6d69b5998a79ef21a7faa7e6aa502f682f826c01662c180b9788b76e8fa9e4cbe01b2721d9b45dccbbf5d07ff758b36cdbc41e377181533e5ec9edadb9e46d2b90abe7342b45dcc3006be02438b94c05fe9e5dc1ccfc771f395f241c1fdf359eb83e6bbe5352ad87391637e2c39ebf9d1240da8b81516f512540a82dc4e4915db5b7f8ec4fa6a5f590a19008768f77897ca3bb5cd1c98070d417e3be0ade726a1df6ad7a7c0825f71bf"
+      }
+     }
+    },
+    "expected": {
+     "refused": "record",
+     "check": 2
+    }
+   },
+   {
+    "why": "the record opens, and its `public` has its `d`'s x with the other y (the point's negative): a check of x alone would pass it",
+    "given": {
+     "secret": {
+      "code": "b62a9a1c5a88a63737f055f0d18601",
+      "typed": "PRN9-M72T-H2K3-EDZG-AQRD-31G1"
+     },
+     "service": {
+      "kind": "recovery",
+      "id": "e0290713-e4b4-4631-8a95-56a410c1d2a7",
+      "notebook": "db8b18cc-14ba-40c3-8fdf-2788eb999335",
+      "record": {
+       "nonce": "adc77efff6c55521b610a925",
+       "ciphertext": "1c8942a159782549e82ee263f03fcce4450f0dc9ccf3a93525b9975adad0c7ec9b8a8b3394a2544a46d394937b3260713c9dd1876604a35dd705f72a54bd639b226588d36112f49702d41b6d349a628706682cc2e71ad578a43a634d021dc9e8246ec7d3b9501020891f8fe312acc196c5b2534733c62c2afbe5cfc1d06c9777a94d3219fc68bc4a10f4eee605fe39a4e93be279fbef0e4e6fc068c2067c451dc15efd2aff20162af78b2b7fc9ee5962c10d8e652fbf8df85dceb5bda2511aa09c6f97b0cf7a90c610c56ff2c554b1691f9880fba14dc693edbe0ab27b9a88d18fb71531fa37e4497578f86901e0070fbd1ac151552cd8b23a5fc88b923fddb52277ea7310692109602f57e4c0d0057bdaf0ae03cc7817bf9749dc883ff3c58cc61a544768d3db35f1a3c2e4f206f679174a6da029923a091c83cf94e1aa1d83e188f47254ec0bfba15594475a49407ebdb8e6685319e4485d083bc44c65283409c2ef3232f8b698f4a0f86b40697bc24a1b"
+      },
+      "keyring": {
+       "enc": "0421796456843cb77bed2aa3531cb3ed576630c2d3412a5440a606bf553066d71f8b1a049b6d3efec5ba4840929ccd204f791d999adaf1cd190d05a83915256370",
+       "ciphertext": "c1838d91bcbdca4eb6b0b3591ec6690ba1a4a1a29c3e275de3f3db16dc35dacb5b5e44742be909323931dd94d8902365b9f8a3bae892e5017c46ad8d88a54991c6d69b5998a79ef21a7faa7e6aa502f682f826c01662c180b9788b76e8fa9e4cbe01b2721d9b45dccbbf5d07ff758b36cdbc41e377181533e5ec9edadb9e46d2b90abe7342b45dcc3006be02438b94c05fe9e5dc1ccfc771f395f241c1fdf359eb83e6bbe5352ad87391637e2c39ebf9d1240da8b81516f512540a82dc4e4915db5b7f8ec4fa6a5f590a19008768f77897ca3bb5cd1c98070d417e3be0ade726a1df6ad7a7c0825f71bf"
+      }
+     }
+    },
+    "expected": {
+     "refused": "record",
+     "check": 2
+    }
+   },
+   {
+    "why": "the record opens, and holds a lone surrogate (written \\ud800) in a field this version doesn't know",
+    "given": {
+     "secret": {
+      "code": "b62a9a1c5a88a63737f055f0d18601",
+      "typed": "PRN9-M72T-H2K3-EDZG-AQRD-31G1"
+     },
+     "service": {
+      "kind": "recovery",
+      "id": "e0290713-e4b4-4631-8a95-56a410c1d2a7",
+      "notebook": "db8b18cc-14ba-40c3-8fdf-2788eb999335",
+      "record": {
+       "nonce": "26c198e7fddbc2a8f5dcd99d",
+       "ciphertext": "f7d973cd9f49b31e576402dd8bf242462da85d7ffd748b1e8d6a6ac095df8470982c126b099590f9e4117c7f6460ed1da3b803841b6a2890a151e2d63f5a08ad2232a098f42983817e518596a84d0096b3047ad92c3768e57fff3509b07baa8bf615e81070af457f98d667ad6871b92bf722e33dafe8a3f312373f6e061c0588c1abc1aabc006d81b906fa0070c0bcc2d17c3354ce7d2ceda870c93a8f02551fe5f79a9347a6eb173a7cf627e78cceac52033835be1b7a69081e2c91b822f0a72fa9de46e9c120ac935fa470f556c027707a8566795e247a56ff46b68a533767d3f132d2275250ac466193dfb9000ba3a20205413ee3f8bc269112e64877fba8e55d48216f8cf3987b2759fd87dd26add6a855547a5340222ef1d6fa362e6c4fd175c871a6f09a78115063cd828bda6d162dc9042a17cc34ff0a03c4944e4701ce2c91ee038f7514f8da47358ccbf8550e2927346b92d9f54ae813e3cc335dbe4dc75fca368ba81feca384d880b274b47ddd5fbcf9e10e38a87119f3c6de85b13598"
+      },
+      "keyring": {
+       "enc": "0421796456843cb77bed2aa3531cb3ed576630c2d3412a5440a606bf553066d71f8b1a049b6d3efec5ba4840929ccd204f791d999adaf1cd190d05a83915256370",
+       "ciphertext": "c1838d91bcbdca4eb6b0b3591ec6690ba1a4a1a29c3e275de3f3db16dc35dacb5b5e44742be909323931dd94d8902365b9f8a3bae892e5017c46ad8d88a54991c6d69b5998a79ef21a7faa7e6aa502f682f826c01662c180b9788b76e8fa9e4cbe01b2721d9b45dccbbf5d07ff758b36cdbc41e377181533e5ec9edadb9e46d2b90abe7342b45dcc3006be02438b94c05fe9e5dc1ccfc771f395f241c1fdf359eb83e6bbe5352ad87391637e2c39ebf9d1240da8b81516f512540a82dc4e4915db5b7f8ec4fa6a5f590a19008768f77897ca3bb5cd1c98070d417e3be0ade726a1df6ad7a7c0825f71bf"
+      }
+     }
+    },
+    "expected": {
+     "refused": "json",
      "check": 2
     }
    },

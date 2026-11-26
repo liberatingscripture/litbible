@@ -433,6 +433,13 @@ async function recordGroups() {
     given: { notebookKey: K1, kid: 1, nonce: nonce("seal line feed"), plaintext: withLineFeed },
     expected: await refused(() => c.sealRecord({ text: withLineFeed, notebookKey: K1, kid: 1, nonce: nonce("seal line feed") })),
   });
+  // Nor can a lone surrogate (iOS's answers, point 2): no client could read the record back.
+  const withLone = JSON.stringify({ ...NOTE, body: "Who is \ud800 here?" });
+  seal.push({
+    why: "a record whose body holds a lone surrogate, written \\ud800 as JSON.stringify writes one, is refused: a Swift string can't hold it and UTF-8 has no form for it, so no client could open the record",
+    given: { notebookKey: K1, kid: 1, nonce: nonce("seal lone surrogate"), plaintext: withLone },
+    expected: await refused(() => c.sealRecord({ text: withLone, notebookKey: K1, kid: 1, nonce: nonce("seal lone surrogate") })),
+  });
 
   // Rows a correct client accepts although their bytes differ from its own.
   const accept = async (why, spec) => {
@@ -457,6 +464,19 @@ async function recordGroups() {
   });
   await accept("an older key still opens what it sealed: a row under kid 1 on a device that holds kids 1 and 2", {
     plaintext: JSON.stringify(BOOKMARK), notebookKey: K1, kid: 1, iv: nonce("open old key"), id: BOOKMARK.id, modified: BOOKMARK.modified,
+  });
+  // iOS's answers, points 1, 2, and 4 (vectors version 4).
+  const marked = { ...NOTE, id: uuid("record byte order mark") };
+  await accept("a record whose bytes begin with a byte order mark (EF BB BF): the mark is dropped before the JSON is read, and `text` is without it", {
+    bytes: Uint8Array.from([0xef, 0xbb, 0xbf, ...c.utf8(JSON.stringify(marked))]), notebookKey: K2, kid: 2, iv: nonce("open byte order mark"), id: marked.id, modified: marked.modified,
+  });
+  const paired = { ...NOTE, id: uuid("record escaped pair"), body: "Amen PAIR" };
+  await accept("an emoji written as two \\u escapes, a high surrogate then a low one (\\ud83d\\ude4f): together they are one character, 🙏, and the record opens", {
+    plaintext: JSON.stringify(paired).replace("PAIR", "\\ud83d\\ude4f"), notebookKey: K2, kid: 2, iv: nonce("open escaped pair"), id: paired.id, modified: paired.modified,
+  });
+  const twoNames = { ...NOTE, id: uuid("record two names"), "café": "é as one code point", "café": "e and a combining accent" };
+  await accept("two member names that are canonically equivalent (“café” with é as one code point, and with e and a combining accent): they are two names, the record has both members, and neither is a repeat of the other", {
+    plaintext: JSON.stringify(twoNames), notebookKey: K2, kid: 2, iv: nonce("open two names"), id: twoNames.id, modified: twoNames.modified,
   });
 
   // Refusals. `aside` marks the two that mean "keep the row and fetch the keyring."
@@ -491,6 +511,14 @@ async function recordGroups() {
   await refuseRow("a kid the device doesn't hold: kept aside while the device fetches its keyring, never deleted", { ...good, kid: 3 });
   await refuseRow("a row version the client doesn't know: kept aside, never deleted", { ...good, v: 2 });
   await refuseRow("the record's own id disagrees with the plain field", await craftedRow({ ...base, plaintext: JSON.stringify({ ...NOTE, id: uuid("record inner id") }), iv: nonce("refused inner id") }));
+  {
+    // The row's id is printable ASCII, as the service requires; the record's own writes its K as the Kelvin sign.
+    const ascii = `K${NOTE.id.slice(1)}`;
+    await refuseRow(
+      "the record's own id is the row's with its K written as the Kelvin sign (U+212A): canonically equivalent, so a comparison that normalizes calls them one id, but they are not the same bytes (this row's id is printable ASCII and not a UUID)",
+      await craftedRow({ ...base, id: ascii, plaintext: JSON.stringify({ ...NOTE, id: `K${NOTE.id.slice(1)}` }), iv: nonce("refused kelvin id") }),
+    );
+  }
   await refuseRow("the record's own modified disagrees with the plain field", await craftedRow({ ...base, plaintext: JSON.stringify({ ...NOTE, modified: T2 }), iv: nonce("refused inner modified") }));
   await refuseRow("the record's modified differs from the plain field by a tenth of a millisecond (…09.9781Z)", await craftedRow({ ...base, plaintext: JSON.stringify({ ...NOTE, modified: "2026-11-23T18:35:09.9781Z" }), iv: nonce("refused inner fraction") }));
   await refuseRow("a trash record whose own deletedAt disagrees with the plain field", await craftedRow({ notebookKey: K2, kid: 2, id: TRASH.id, modified: TRASH.modified, deletedAt: T2, plaintext: JSON.stringify(TRASH), iv: nonce("refused inner deletedAt") }));
@@ -503,6 +531,14 @@ async function recordGroups() {
   await refuseRow("JSON that isn't an object: a list", await craftedRow({ ...base, plaintext: JSON.stringify([NOTE]), iv: nonce("refused list") }));
   await refuseRow("text that isn't JSON", await craftedRow({ ...base, plaintext: "id: " + NOTE.id, iv: nonce("refused not json") }));
   await refuseRow("bytes that aren't UTF-8", await craftedRow({ ...base, bytes: Uint8Array.from([0x7b, 0x22, 0xff, 0xfe, 0x22, 0x7d]), iv: nonce("refused not utf8") }));
+  for (const [why, body, label] of [
+    ["a lone high surrogate in the body, written \\ud800", "Who is \ud800 here?", "refused lone high"],
+    ["a lone low surrogate in the body, written \\udc00", "Who is \udc00 here?", "refused lone low"],
+    ["a pair written the wrong way round, low then high (\\ude4f\\ud83d): two lone surrogates", "Amen \ude4f\ud83d", "refused reversed pair"],
+  ]) {
+    await refuseRow(`${why}: no client can hold it`, await craftedRow({ ...base, plaintext: JSON.stringify({ ...NOTE, body }), iv: nonce(label) }));
+  }
+  await refuseRow("a lone surrogate in a member's name, written \\ud800", await craftedRow({ ...base, plaintext: JSON.stringify({ ...NOTE, "\ud800": 1 }), iv: nonce("refused lone name") }));
 
   return {
     seal: {
@@ -512,12 +548,12 @@ async function recordGroups() {
     },
     open: {
       about:
-        "Opening a row on a device that holds `keys`: the record, compared as JSON. The first cases are the rows `seal` made. `text` is the opened plaintext with its padding removed.",
+        "Opening a row on a device that holds `keys`: the record, compared as JSON. The first cases are the rows `seal` made. `text` is the opened plaintext with its padding removed, and a leading byte order mark with it.",
       cases: open,
     },
     openRefused: {
       about:
-        "Rows that must not be accepted, each with one thing wrong. `aside: true` (an unknown `v`, or a `kid` the device doesn't hold) means keep the row aside and fetch the keyring; every other refusal means skip the row, keep the device's own copy, and report it. No refusal ever deletes anything. The checks run in this order: the row's version, its kid, its own fields, the ciphertext's length, the seal, the JSON, and last the record's fields against the plain ones.",
+        "Rows that must not be accepted, each with one thing wrong. `aside: true` (an unknown `v`, or a `kid` the device doesn't hold) means keep the row aside and fetch the keyring; every other refusal means skip the row, keep the device's own copy, and report it. No refusal ever deletes anything. The checks run in this order: the row's version, its kid, its own fields, the ciphertext's length, the seal, the JSON (a lone surrogate in any string of it included), and last the record's fields against the plain ones, the id byte for byte.",
       cases: openRefused,
     },
   };
@@ -563,6 +599,7 @@ async function keyringGroup() {
   tryParse("no notebook", JSON.stringify({ lit: "keyring", v: 1, current: 1, keys: [{ kid: 1, key: b64(K[0]) }] }));
   tryParse("text that isn't JSON", "keyring");
   tryParse("JSON that isn't an object", "[]");
+  tryParse("a lone surrogate (\\udc00) in a field this version doesn't know: no client can hold it", doc({ note: "\udc00" }));
 
   const held = c.nextKeyring(c.firstKeyring(notebook, K[0]), K[1]);
   const mine = { notebook, highest: held.current, keys: fileKeys(held) };
@@ -591,7 +628,7 @@ async function keyringGroup() {
   );
   return {
     about:
-      "`parse` is the keyring's own checks, on the JSON a sealed keyring opens to: `lit` and `v` known (`version`), the kids exactly the whole numbers from 1 to `current`, each once (`kids`), every key 32 bytes of base64url (`keySize`). `accept` is what a device that already holds a keyring (`held`: its notebook, the highest `current` it has accepted, and its keys) asks of one taken from the service: the same notebook (`notebook`), a `current` no lower than the highest accepted (`backward`), and every key it holds with the same bytes (`keyChanged`). A keyring that drops a held key is either malformed or lower, so it is refused by `parse` or as `backward`.",
+      "`parse` is the keyring's own checks, on the JSON a sealed keyring opens to: a JSON object with no lone surrogate (`json`), `lit` and `v` known (`version`), the kids exactly the whole numbers from 1 to `current`, each once (`kids`), every key 32 bytes of base64url (`keySize`). `accept` is what a device that already holds a keyring (`held`: its notebook, the highest `current` it has accepted, and its keys) asks of one taken from the service: the same notebook (`notebook`), a `current` no lower than the highest accepted (`backward`), and every key it holds with the same bytes (`keyChanged`). A keyring that drops a held key is either malformed or lower, so it is refused by `parse` or as `backward`.",
     parse,
     accept,
   };
@@ -701,6 +738,15 @@ async function cardGroups() {
       why: "a card that opens, whose `public` is not a point on the curve: no keyring is ever sealed to it",
       given: { notebookKey: K1, kid: 1, notebook, deviceId, nonce: badNonce, ciphertext: badSealed.ct },
       expected: await refused(() => c.openDeviceCard({ notebookKey: K1, kid: 1, notebook, deviceId, ...badSealed })),
+    });
+    // A card a faulty client sealed with a lone surrogate in its name (sealed by hand: the reference refuses to).
+    const lone = JSON.stringify({ ...card, name: "Pixel \ud800" });
+    const loneNonce = nonce("card lone surrogate");
+    const loneCt = await gcmSeal(await hkdf(K1, c.LABELS.device), loneNonce, aad, c.utf8(lone));
+    cardCases.push({
+      why: "a card that opens, whose name holds a lone surrogate (written \\ud800): no client can hold it, so the card is refused as one that doesn't open",
+      given: { notebookKey: K1, kid: 1, notebook, deviceId, nonce: loneNonce, ciphertext: loneCt },
+      expected: await refused(() => c.openDeviceCard({ notebookKey: K1, kid: 1, notebook, deviceId, nonce: loneNonce, ct: loneCt })),
     });
     // A card whose `sign` is not a point still opens in version 1.
     const noSign = JSON.stringify({ ...card, sign: c.toBase64url(flip(signKey.public, 40)) });
@@ -928,6 +974,19 @@ async function holderGroup(kind) {
   await refuse("the record opens, with a `v` this client doesn't know", { s: await resealed({ v: 2 }, "record v2") });
   await refuse("the record opens, and is for another notebook than the account's", { s: await resealed({ notebook: uuid(`${tag} other notebook`) }, "record other notebook") });
   await refuse("the record opens, and its private key is 31 bytes", { s: await resealed({ d: c.toBase64url(key.d.subarray(0, 31)) }, "record short d") });
+  // iOS's answers, point 3 (vectors version 4): the record's two keys must be one pair.
+  await refuse("the record opens, and its `public` is another key's: a valid point, but not the public half of its `d`", {
+    s: await resealed({ public: c.toBase64url(keyPair(`${tag} another public key`).public) }, "record other public"),
+  });
+  {
+    const y = BigInt(`0x${c.toHex(key.public.subarray(33))}`);
+    const flipped = Uint8Array.from([...key.public.subarray(0, 33), ...toBytes(P - y)]);
+    if (!c.isP256Point(flipped)) throw new Error("build: the flipped point is off the curve");
+    await refuse("the record opens, and its `public` has its `d`'s x with the other y (the point's negative): a check of x alone would pass it", {
+      s: await resealed({ public: c.toBase64url(flipped) }, "record flipped public"),
+    });
+  }
+  await refuse("the record opens, and holds a lone surrogate (written \\ud800) in a field this version doesn't know", { s: await resealed({ note: "\ud800" }, "record lone surrogate") });
   if (passkey) {
     await refuse("the record's `credential` is not the passkey that answered", { answered: fixed(`${tag} another credential id`, 20) });
   }
@@ -947,7 +1006,7 @@ async function holderGroup(kind) {
     ? "The passkey key is HKDF(the PRF's 32 bytes, lit-notebook/1 passkey, 32 bytes). `answered` is the credential id of the passkey that just answered."
     : "The code key is HKDF(the code's 15 bytes, lit-notebook/1 recovery, 32 bytes). `typed` is the code as the reader types it.";
   return {
-    about: `${how} \`service\` is what the service hands a device that asks to come in through the holder: its kind, id, and the notebook's id in plain, the sealed record (AES-256-GCM under the secret's key, with the AAD lines lit-holder/1, the kind, and the id), and the keyring sealed to the holder's public key with HPKE. The four checks run in order and stop at the first failure; a refusal's \`check\` says which: 1, the record opens; 2, the record is what it should be; 3, the sealed keyring opens with the record's private key and passes the keyring's own checks; 4, the keyring names the record's notebook and holds the anchor's key with the same bytes. \`plaintext\` is the record's JSON, with its byte strings in base64url as the spec says; \`holderKey\` is the holder's key pair in hex.`,
+    about: `${how} \`service\` is what the service hands a device that asks to come in through the holder: its kind, id, and the notebook's id in plain, the sealed record (AES-256-GCM under the secret's key, with the AAD lines lit-holder/1, the kind, and the id), and the keyring sealed to the holder's public key with HPKE. The four checks run in order and stop at the first failure; a refusal's \`check\` says which: 1, the record opens; 2, the record is what it should be, its \`public\` the public half of its \`d\` included; 3, the sealed keyring opens with the record's private key and passes the keyring's own checks; 4, the keyring names the record's notebook and holds the anchor's key with the same bytes. \`plaintext\` is the record's JSON, with its byte strings in base64url as the spec says; \`holderKey\` is the holder's key pair in hex.`,
     cases,
   };
 }
@@ -1567,7 +1626,8 @@ export async function buildVectors() {
       "A keyring, where it is an expected value, is `{ notebook, current, keys: [{ kid, key }] }` with the keys in hex, newest first. Compare by kid, not by order.",
       "`refused` is one of the words under `refusals`. A client need not use the words, but it must refuse every case marked so, and where the spec treats two refusals differently (`aside`, a holder's `check`), it must tell them apart.",
       "HPKE and ECDSA cases run in the opening and the verifying direction. The sender's one-use key (`ephemeral`) and the signing number are given for a client that can fix them.",
-      "Times are the format's: UTC with Z. Ids are UUIDs in lowercase with hyphens.",
+      "Times are the format's: UTC with Z. Ids are UUIDs in lowercase with hyphens, but for one row's id under `openRefused`, which says so.",
+      "Text is compared code point for code point, never after Unicode normalization: “é” as one code point and as e with a combining accent are two strings, and so are K and the Kelvin sign (U+212A). Read this file with a JSON reader that keeps them apart. A \\u escape inside a `plaintext` or `text` is part of the JSON to be read.",
     ],
     refusals: c.REFUSALS,
     labels: c.LABELS,
