@@ -68,6 +68,13 @@ each one cheap to change: one constant, one function, one place.
      2026-11-24), which names the real step; for every other stop it asks
      for another pass. A new state that needs the reader goes in that set
      and gets a sentence that says where the notebook is.
+   - **A full account is a wait, not a loop** (the service's ceiling of
+     100,000 rows and 100 MB; BVJ, 2026-11-26). The push the ceiling refuses
+     is refused whole, so for `FULL_WAIT_MS` (an hour) after it the engine
+     sends no rows; its passes still pull and send removals, end "full" with
+     what waits counted, and "Reconnect" tries at once. It is not in
+     `needsReader` (no dot, no notice): the status line says it. The words
+     are Claude's draft, for BVJ to approve.
    - **A row is removed from the service only on evidence** (rule 4 in
      `desk-sync.mjs`). A record missing from this browser is fetched again,
      never deleted for every device.

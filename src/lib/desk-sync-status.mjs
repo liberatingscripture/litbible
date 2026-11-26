@@ -64,6 +64,12 @@ export function roughly(ms) {
   return `about ${plural(Math.round(hours / 24), "day")}`;
 }
 
+/** The account's ceiling in words: "100,000 entries and 100 MB" (decimal megabytes, as the service counts them). */
+function ceilingWords({ rows, bytes }) {
+  const mb = Math.round((bytes / 1_000_000) * 10) / 10;
+  return `${plural(rows, "entry", "entries").replace(/^\d+/, rows.toLocaleString("en-US"))} and ${mb.toLocaleString("en-US")} MB`;
+}
+
 /** What waits, as the end of a sentence: "3 changes will sync", "1 change will sync", "your changes will sync". */
 const waiting = (pending) => (pending > 0 ? `${plural(pending, "change")} will sync` : "your changes will sync");
 
@@ -117,6 +123,15 @@ export function statusWords(status, format = {}) {
     case "slowed":
       line = `Sync is paused for a moment because it made too many requests. It will try again in ${roughly((status.retry ?? 60) * 1000)}.`;
       if (pending > 0) detail.push(`${plural(pending, "change")} will sync then. They are saved on this computer.`);
+      break;
+    case "full":
+      // The account's ceiling (BVJ, 2026-11-26; drafted by Claude, for BVJ to approve). Nothing a
+      // timer can't retry, so it isn't one of the stops that need the reader.
+      line = "Your account is full, so changes made here aren’t syncing. They are saved in this browser.";
+      if (status.limits) detail.push(`An account can hold up to ${ceilingWords(status.limits)}.`);
+      detail.push(
+        `${pending > 0 ? `${plural(pending, "change")} will wait here. ` : ""}Sync will try again in ${roughly((status.retry ?? 3600) * 1000)}. Choose “Reconnect” to try now.`,
+      );
       break;
     case "removed":
       line = "This computer was removed from your notebook’s devices, so it isn’t syncing. Your notebook is still on this computer.";
