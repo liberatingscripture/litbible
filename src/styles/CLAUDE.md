@@ -13,6 +13,11 @@
   face, loaded only by the desk. All of them load Latin only; Greek and Hebrew
   letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
   by character range (see "Greek and Hebrew letters," below).
+  **Featherboa changes the faces** (BVJ, 2026-11-26; decided, not built):
+  Fraunces for headings, Source Sans 3 for reading text and its Greek,
+  Atkinson Hyperlegible Next for controls, and the same on paper
+  (`SITE-FEATHERBOA.md`, "Type"). Until it is built, the faces above are the
+  site's.
 - **Theming (light/dark) is a dual mechanism.** Dark-mode tokens are declared
   twice — `@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) … }`
   (follow the OS) and `:root[data-theme="dark"] … }` (explicit override) — in
@@ -510,7 +515,8 @@
   Check a change against the computed styles of every control on each page,
   in both themes and at a phone's width, before trusting a screenshot.
 - **Site 2.0's page layouts live in `src/styles/v2/`, behind the same
-  stamp** (BVJ, 2026-11-17; `SITE-2.0.md` is the plan and its ground rules).
+  stamp** (BVJ, 2026-11-17; `SITE-2.0.md` is the plan and its ground rules;
+  Featherboa, `SITE-FEATHERBOA.md`, replaces it).
   `v2/base.css` (tokens `--v2-*`, the sheet, the Marks, the quiet label, the
   watermark, the page frame) loads after `restyle.css` in Layout.astro; each
   page's `v2/<page>.css` is imported by that page after its own styles.

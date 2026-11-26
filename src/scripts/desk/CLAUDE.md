@@ -136,7 +136,8 @@ means each of these, in one change:
 15. **Site 2.0** (BVJ, 2026-11-17) rides the same stamp as item 14: its
     page layouts in `src/styles/v2/`, its `data-v1` and `data-v2` markup,
     and four small modules that check the stamp. The steps are in
-    `SITE-2.0.md`, "At launch."
+    `SITE-2.0.md`, "At launch." Featherboa (`SITE-FEATHERBOA.md`) replaces
+    2.0, and how it launches is still open.
 
 After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
 `lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere; the

@@ -614,7 +614,10 @@ my notebook"**. Twelve things to know:
   Site 2.0 removed it from the site's styles): the sheet's title (24pt), Key
   terms, the answer key's title and references and the passage's reference
   are all the paper's own Crimson Text, so none falls back to Georgia. Bold is
-  set on each, since the restyle gives a heading 600. The print block's
+  set on each, since the restyle gives a heading 600. **Featherboa reverses
+  this** (BVJ, 2026-11-26; decided, not built): paper takes the screen's
+  faces, Fraunces headings and Source Sans 3 text (`SITE-FEATHERBOA.md`,
+  "Type"). Until it is built, the rule here holds. The print block's
   Fraunces rule is left holding only the leader's own **Display** text style
   (`data-font="display"`, a stored value of the sheet's format, so it can't be
   removed; its look is in `desk-sheet-view.css`), because a font named there
