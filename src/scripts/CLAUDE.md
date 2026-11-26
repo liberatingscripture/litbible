@@ -374,7 +374,10 @@ License page of their own, forwarding /read's old anchors:
   font prints as chosen), 12pt times the Display tray's text size, with the
   header, tools bar, Previous/Next, panels and Read View's toolbar gone.
   The footnotes stay the endnote list they are on screen, and the SBLGNT
-  notice still prints after the text on all three. `PrintCredit.astro` adds the
+  notice still prints after the text on all three. (Where Featherboa's
+  chapters read on into each other, a print is still one chapter with its
+  notes, the chapter in view: `SITE-FEATHERBOA.md`, "A whole book"; until it
+  is built, this holds.) `PrintCredit.astro` adds the
   notice and the page's address ("litbible.net/john-3") at the end; it is a
   `hidden` element the stylesheet reveals, so no screen or screen reader ever
   meets it. Most rules are `!important` because page and component styles
@@ -613,6 +616,9 @@ License page of their own, forwarding /read's old anchors:
   `rel="prev"` / `rel="next"`, the neighboring `#ch-N` in Read View, or on
   /desk a `lit:desk-chapter` event that `desk-page.js` answers by pressing the
   passage bar's arrow of the pane holding focus, else the leading LIT pane).
+  Featherboa keeps them where chapters read on into each other: they go to
+  the start of the neighboring chapter, loading it first
+  (`SITE-FEATHERBOA.md`, "A whole book").
   `h` is the Study Desk's "Hide my marks" and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
   stays out of this file.

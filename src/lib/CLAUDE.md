@@ -306,7 +306,12 @@
 - **"Go deeper" closes every published chapter** (audit X3, owner
   2026-09-28): `GoDeeper.astro`, right after Previous/Next and above the
   notes, with one row per kind that has something (Listen, Read, Key terms,
-  Book), so a chapter never shows an empty row. Everything is worked out at
+  Book), so a chapter never shows an empty row. (Featherboa takes it, and the
+  footnote list, off the screen where chapters read on into each other: on a
+  computer they are the Notebook's This verse and Footnotes tabs, and both
+  stay in the page for readers without JavaScript and for the desk, which
+  reads them there; `SITE-FEATHERBOA.md`, "A whole book." Until it is built,
+  this holds.) Everything is worked out at
   build (`go-deeper-data.ts`, with the pure rules in `go-deeper.mjs`):
   - **Listen** takes the episodes whose **title** names the chapter
     (`episodeChapters` in `podcast-feed-core.ts`: "Matthew 14 & 15",

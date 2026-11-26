@@ -1134,7 +1134,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The LIT pane scrolls the whole New Testament**, a chapter fetched
        as the reader nears it (`src/lib/desk-corpus.mjs`: a run of drafts in
        one book is one stub, from the draft list `desk.astro` writes at
-       build). Its text is the page's own with every id prefixed by pane and
+       build). Featherboa's reading page will load chapters on this way,
+       drafts as these stubs (`SITE-FEATHERBOA.md`, "A whole book").
+       Its text is the page's own with every id prefixed by pane and
        chapter (`src/lib/desk-lit-text.mjs`), which
        `test/desk-anchor-dom.test.js` sweeps as a third view; **a new
        render-time change to the chapter text must pass that sweep too.** A

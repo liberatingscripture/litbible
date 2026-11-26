@@ -274,7 +274,10 @@ the sitemap filter live in `astro.config.mjs`.
   **Read View gets what serves reading a book straight through** (display
   settings, the selection panel and its handouts, keeping and restoring a
   place, print, focus mode), and **a tool about a verse or a word goes in
-  Chapter View only** unless the owner decides otherwise.
+  Chapter View only** unless the owner decides otherwise. Featherboa
+  replaces the pair with one reading page whose chapters read on into each
+  other (`SITE-FEATHERBOA.md`, "A whole book"); until it is built, this
+  holds.
   Call them "Chapter View" and "Read View" in anything a reader sees; with
   the Study Desk preview on, labels say "Scripture page(s)" instead (E130),
   the public name from launch. Older records use older names: "Study View"

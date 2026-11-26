@@ -32,7 +32,9 @@
   toward the app popover's `lit_pv` gate (`src/components/CLAUDE.md`, "One announcement popover at a time"), could
   open the popover in a page nobody has seen yet, and may log an analytics visit
   for a chapter nobody opened. None of those scripts check
-  `document.prerendering`.
+  `document.prerendering`. Featherboa loads the next and previous chapters
+  into the page itself as the reader nears them (`SITE-FEATHERBOA.md`, "A
+  whole book"); until it is built, this holds.
 - **A page with its own search box can still give the header a search
   button** (Site 2.0; BVJ, 2026-11-17: "The header can have a search button
   so that a non-article-defaulted option is available"). `SearchBar` can be

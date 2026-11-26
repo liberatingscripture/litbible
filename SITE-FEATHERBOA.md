@@ -616,7 +616,9 @@ working; the margin footnote is the new behavior.
 - **The way on at the foot is large type in deep green** (“John 2 →,”
   with "Luke 24" back), since it can be pressed; the proposal drew it in
   ink. Site 2.0 had made Next the one green filled button (BVJ); here it is
-  green as type.
+  green as type. Since proposal 14 chapters read on into each other, so it
+  shows at the book's end, and at each chapter's foot without JavaScript
+  ("A whole book").
 
 ### The margin
 
@@ -641,7 +643,9 @@ everything about a line.
   window's edge and scrolls inside itself, as menus do (E179). At its foot,
   "In the notes ↓" goes to its entry in the list at the chapter's end, the
   other way to read it. The proposal's "Read the whole note →" is not
-  used.
+  used. Since proposal 14 the list is off the screen where chapters read
+  on, and "In the notes ↓" opens the Notebook's Footnotes tab at the note
+  ("A whole book").
 - **The reader's notes lie flat on the page, on a pale sunshine tint with a
   sunshine bar down the left edge**, headed "Your note · verse 5," with
   their marker's dot when they have a label. In the proposal a note was
@@ -735,10 +739,10 @@ E114) open the desk at the passage like every other link into it, keeping
 the reader's own layout (BVJ, 2026-11-02: a link never forces an
 arrangement). Their words are settled with proposals 12 and 16.
 
-Proposal 14 ("A whole book: a switch, not a second site") argues against
+Proposal 14 ("A whole book: a switch, not a second site") argued against
 Read View's retirement, with a Chapter / Whole book switch on the reading
-page. It is decided there; Claude's view is that either answer leaves
-Reading redundant.
+page. BVJ decided it another way: every chapter reads on into the next ("A
+whole book"), which leaves Reading as redundant as before.
 
 ## Beside scripture: the verse menu and the Notebook (decided 2026-11-26)
 
@@ -858,8 +862,8 @@ Pressing the book's name in the place line, or G as now, opens one panel:
 - **Drafts as today**: a book or chapter still being translated is dimmed
   and still opens (its page shows how far along it is), now with the words
   "in progress" beside it.
-- **"Read the whole book" is decided with proposal 14**, which is about
-  exactly that, since Read View and the Reading layout both retire.
+- **No "Read the whole book" row**: since proposal 14 every chapter reads
+  on into the next ("A whole book").
 
 Keys stay: G opens the picker, / opens Search, and the arrows turn the
 chapter. The phone's picker is drawn with proposal 15.
@@ -971,11 +975,131 @@ widths" to All settings. Decided (“Keep dragging”):
   is the local reset BVJ asked for, and the widths are kept only for the
   visit anyway.
 
+## A whole book: continuous chapters (decided 2026-11-26)
+
+Design Directions' proposal 14, "A whole book: a switch, not a second site."
+Read View, a whole book on one page, lives at its own address with its own
+toolbar; the proposal makes it one switch on the reading page, "Chapter |
+Whole book | Focus," with a title page, the chapter numbers as green
+numerals in the text, and a thin progress line under the place line. Read
+View retires at launch (BVJ, 2026-10-21; `STUDY-DESK-FIXES.md`, E8), which
+BVJ reaffirmed at proposal 10, so Claude recommended holding to that and
+sending "Read the whole book" to the Study Desk's text pane. BVJ took
+another angle: “retire chapter view. The main reason to keep it was to have
+all the footnotes in one place. The footnotes tab now does that. The more
+recent addition is the ‘Go deeper’ section. The this verse tab handles
+that.” Of the two ways to build that, BVJ chose “Continuous chapters,” then
+settled the rest point by point.
+
+### Chapters that read on
+
+- **Every chapter keeps its address and opens as itself** (`/luke-3`,
+  `/luke-3#v16`). With JavaScript the page doesn't stop at the chapter's
+  end: the next chapter loads below as the reader nears it, and the previous
+  one above when they scroll up, as the desk's text pane does today
+  (`src/lib/desk-corpus.mjs`, `desk/lit-pane.js`). The place line and the
+  address follow the chapter in view, and Continue reading keeps following
+  the verse at the reading line, which is the proposal's "returning reopens
+  where the reader stopped."
+- **It needs no Study Desk**, so phones and tablets read straight through
+  too. Without JavaScript a page is one chapter, with the way on at its
+  foot.
+- **The address changes without adding to the browser's history** (“b,
+  yes”): Back leaves the book for wherever the reader came from, rather
+  than stepping back a chapter at a time.
+- **The place line's arrows still step through chapters** (“a, yes,” asked
+  as “with the arrow buttons in the places bar still able to skip through
+  chapters?”): ‹ › go to the start of the previous or next chapter, loading
+  it first if it isn't on the page, and so do ← → and [ ].
+- **Previous and Next in large type** ("The reading page") appear at the
+  book's end ("John 1 →" after Luke 24) and, without JavaScript, at each
+  chapter's foot.
+- **Why not one page per book**, the other build. The chapter addresses
+  are on every verse link already out there (shares, release notes,
+  emails, the Collective's site, and each verse image, which prints
+  "litbible.net/john-3"), and the apps' link files open `/<book>-*` in an
+  installed app (`public/CLAUDE.md`); a book page would need a forwarding
+  script for them and an app release from BDR. Luke with its notes would be
+  about 1.1 MB, against about 150 KB for a chapter (the 2026-11-16 build;
+  Read View's Luke, with no notes, is 450 KB). Link previews and search
+  entries stay one per chapter. The book page's only gain was the
+  whole-book browser tools (Ctrl+F, Read Aloud, page translation, printing
+  a book), which BVJ let go on 2026-11-02 (E8).
+- **What either build costs**: every tool on the page works across
+  chapters (the verse menu, footnotes, key terms, and the Study Desk's marks
+  and margin notes), as they already do in the desk's text pane.
+
+### Between chapters
+
+- **Only the next chapter's heading** (“1, yes”). The footnote list and Go
+  deeper leave the reading flow on the screen. The list stays in the page
+  for printing, and both stay for readers without JavaScript and for the
+  desk, which reads them from the chapter's page (`desk/chapter-page.js`).
+  Where the Notebook panel runs (a computer with the Study Desk), they are
+  its Footnotes tab and This verse's "This chapter," which already shows
+  the chapter's Go deeper rows; a margin footnote's "In the notes ↓" opens
+  the Footnotes tab at its note. The panel is the desk's, so where they
+  live on a phone or tablet is drawn with proposal 15.
+- **"Go deeper" on each chapter's heading is open.** BVJ asked for “a ‘go
+  deeper’ control somewhere more visible that takes the user to it on the
+  tab”; Claude proposed it at the heading's right end, opening This verse at
+  "This chapter." BVJ: “maybe. I'd have to see it to decide for sure.” It
+  waits for a mock.
+- **Footnote letters start again each chapter**, as today, and the
+  Footnotes tab lists the chapter in view (“d, yes”).
+- **A chapter still being translated loads as the desk's text pane loads
+  it** (“c”): a run of drafts in one book is one entry, headed "Luke 23–24"
+  (or "Acts" when the whole book is in draft), saying the chapters are still
+  being translated. Its line about the Greek stays, pointing to the
+  Notebook's Greek tab where the panel runs (BVJ: “the Greek tab is still
+  relevant here”), since the desk shows the Greek of draft chapters (BVJ,
+  2026-10-13). A draft asked for by name, from the picker or its address,
+  still opens its own page ("Finding a passage").
+
+### The progress line
+
+**Kept** (BVJ: “Keep the progress line if possible”): a thin green line
+along the place line's bottom edge, in place of its border, so it adds no
+height. It fills as the reader moves through the book, measured in verses,
+so a long chapter counts for more. The place line names the chapter, so
+screen readers skip the line. Where it goes on a phone is proposal 15's,
+with the bar.
+
+### The rest of the proposal
+
+- **Printing stays one chapter with its notes**, the chapter in view (“3,
+  yes”).
+- **"Read the whole book," the switch, and the title page aren't needed**
+  (“4, yes”): any chapter reads on.
+- **The introduction keeps its own page** (`/mark-intro`; BVJ: “go with
+  your recommendation”), with "Introduction to Mark →" at the top of
+  chapter 1 and the picker's row under the chapter grid ("Finding a
+  passage"); the introduction ends with "Mark 1 →" into the text. On the
+  screen above chapter 1 it would be several screens to scroll past (Mark's
+  is about 550 words, Romans' about 1,200); folded open in place it would
+  sit between the reader and chapter 1, and on two pages, so the site's
+  search and search engines would find it twice. Its own page keeps its
+  address, which search's "Book introductions," Go deeper's "Book" row, and
+  the apps open.
+- **Focus retires** (BVJ: “I'm thinking we can probably retire ‘focus’”;
+  Claude agreed): neither Read View's (every paragraph but the one being
+  read dimmed) nor the proposal's (the header and place line fading).
+  /privacy's line about it goes too.
+- **Read View still retires** as E8 planned, its addresses forwarding to
+  the chapters (`/read/<book>` to chapter 1, `#ch-N` to chapter N).
+- **One reading page replaces the owner's 2026-09-30 rule** that Chapter
+  View and Read View decide where a new tool goes (root `CLAUDE.md`, "Key
+  Conventions"): a tool about a verse or a word goes on the reading page,
+  which now reads straight through. Chapter View's name was already going
+  (E33).
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
   (above), with 2.0's decision beside the proposals'.
 - **What becomes of Site 2.0's code** behind `data-restyle`.
+- **"Go deeper" on each chapter's heading**, to decide from a mock ("A
+  whole book").
 - **/read as the full-size picker, and the License page**, each drawn as a
   page ("Finding a passage"), with /read's lede that names the unfinished
   texts.
