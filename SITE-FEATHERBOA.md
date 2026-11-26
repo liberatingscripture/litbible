@@ -141,7 +141,8 @@ left for proposal 3.
   buttons, and the accents sky and ocean (Site 2.0's), which leave with the
   home page's chat bubbles.
 - **Unchanged**: the four highlighter colors and the six note markers (the
-  reader's own labels), and dark mode's near-black page.
+  reader's own labels). Dark mode's page moves slightly, under "Night"
+  below.
 - **The cream goes**, with proposal 3 ("Surfaces," below). Proposal 2
   retires it as a page color ("Paper: the page, everywhere"); it was left
   for proposal 3's question about the sheet and the cream.
@@ -415,6 +416,52 @@ but together they give the site no physical character. BVJ took it as drawn
   no movement.
 - **Built as** four duration tokens and one easing token, then one pass
   through the stylesheets to point each transition at one of them.
+
+## Night (decided 2026-11-26)
+
+Design Directions' proposal 8, "Night: the same page, with the lamp off."
+People read scripture in bed; dark mode becomes a first-class page of its
+own, not an inverted copy: the same typesetting, and color used even more
+sparingly than by day. BVJ took it (“Take it”).
+
+- **The page is `#111411`**, a black with a little green in it, and **text
+  is `#ECEEE8`**, a soft white (15.9:1). Pure white on pure black glares and
+  makes letters seem to swell. Today's dark page is `#0E0E0F`, with
+  surfaces at `#161617` and text at `#F0F0F0` (`global.css`); one field
+  ("Surfaces") leaves one page color.
+- **Green lifts, sunshine dims.** LIT Green brightens to `#2DB463` at night,
+  so the chapter numeral and the "you are here" mark keep their strength. A
+  highlight becomes a low amber wash, with the words on it at 8:1. **Each of
+  the four highlighter colors gets such a night wash**, its words at 8:1 or
+  more; the proposal draws only the amber.
+- **Depth without shadows.** Shadows barely show on a dark page, so what
+  floats gets a slightly lighter surface and a hairline edge in place of
+  "Surfaces"' one shadow.
+- **Built as** the dark values in the token file, under the existing rule
+  that every dark style is written for both the device setting and the
+  reader's own switch.
+
+### Contrast, measured
+
+The proposal ran every text pairing through the WCAG formula, by day and by
+night. All need 4.5:1 save LIT Green, held to 3:1 because it marks and sets
+large type and never words.
+
+| Pairing | Used for | Day | Night |
+|---------|----------|-----|-------|
+| Ink on paper | Scripture, all body text | 15.4 | 15.9 |
+| Second ink on paper | Captions, secondary labels | 7.6 | 9.0 |
+| Third ink on paper | Counts, dates (and verse numbers in the proposal, which are deep green here: "Color") | 5.1 | 5.9 |
+| Third ink on the darkest tint | Counts in a selected sidebar row | 4.8 | 5.4 |
+| Deep green on paper | Links, plain green commands | 6.3 | 9.6 |
+| Label on the filled button | The one main action | 6.6 | 9.7 |
+| Ink on a highlight | Highlighted scripture | 13.3 | 8.1 |
+| Red on paper | Deleting, errors | 6.3 | 7.5 |
+| LIT Green on paper | The chapter numeral, the "you are here" line | 3.4 | 6.9 |
+
+The third ink was 3.3:1 by day in the proposal's first version and was
+darkened to 5.1. LIT Green by day is enough for a large numeral or a marker
+line and not for words, which is why green words are always the deep green.
 
 ## Open
 
