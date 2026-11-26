@@ -115,6 +115,44 @@ What each choice carries with it:
 5. “Same as the screen” for paper and the verse image.
 6. “Source Sans 3's Greek” for the Greek.
 
+## Color (decided 2026-11-26)
+
+Design Directions' proposal 2, "Green is ink, not paint": every color has
+one job, and color comes off everything that has none. Its reason: when
+green means "press here," a reader learns it in one page; when it is also
+the background, the arrows, the verse numbers, and the footnote letters, it
+means nothing. BVJ took it ("take it for everything else") but for the two
+points below.
+
+| Color | Its one job |
+|-------|-------------|
+| Paper `#FAFAF8` | The page |
+| Ink `#1D231C` | All text. Grays are ink at 78% and 66%, never a separate gray |
+| LIT Green `#209D50` | The mark: the emblem, the chapter numeral, "you are here," one band on the front page. Never behind small text |
+| Deep green `#0F6B33` | What can be pressed: links, and the one filled button on a view |
+| Sunshine `#FFD23F` | The reader's own: highlights, notes, bookmarks. No longer a bar over titles |
+| Red `#B3261E` | Deleting and errors, nothing else |
+| /apps' cobalt, red, and forest | Front-page feature panels only, never in reading or study |
+
+- **Links stay green, in deep green** (BVJ: “Links should stay green,” “the
+  dark green of the proposal”).
+- **No longer green**: the full green sections on Home, the round arrow
+  buttons, and the accents sky and ocean (Site 2.0's), which leave with the
+  home page's chat bubbles.
+- **Unchanged**: the four highlighter colors and the six note markers (the
+  reader's own labels), and dark mode's near-black page.
+- **The cream is set aside for proposal 3.** Proposal 2 retires it as a page
+  color ("Paper: the page, everywhere"), but that belongs with proposal 3's
+  question about the sheet and the cream.
+- **Bookmarks need new colors.** Their marks are red today (gold when they
+  stay put); red is now only for deleting and errors, and the reader's own
+  things are sunshine. Decided with the Notebook (proposal 22).
+- **Open: verse numbers and footnote letters.** Both open something today
+  (the verse menu, the footnote) and are green, the numbers underlined.
+  Proposal 10 draws verse numbers as “small gray figures” that “still open
+  the verse menu; they stop looking like links,” and proposal 2 takes green
+  off footnote letters too. That changes how they look, not what they do.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
