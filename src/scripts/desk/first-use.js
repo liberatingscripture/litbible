@@ -2,9 +2,9 @@
 //
 // The notebook's first use (STUDY-DESK.md D6, C18 and D8; phase 1d). Three
 // pieces, all built from the rules in src/lib/desk-first-use.mjs:
-//   - `card`, at the top of the My Notes tab: until the reader presses its
-//     "Got it", it says the notebook is kept in this browser and offers the
-//     backup reminder;
+//   - `card`, at the top of the My Notes tab: until the reader answers it,
+//     it says where the notebook is kept (or, where accounts are open, asks)
+//     and offers the backup reminder;
 //   - the tour offer, a window beside the panel (float-window.js) the first
 //     time the reader expands the Notebook with the card answered;
 //   - `foot`, in the panel's foot: where the notebook is kept and when it was
@@ -16,8 +16,13 @@
 //
 // The answer is a per-browser setting (localStorage['lit-desk-home'], absent
 // until answered), like the display settings: it never syncs. Both values
-// keep the notebook in this browser; one asks for the reminder. Saving into a chosen file waits on a
-// decision (T3), and accounts are not mentioned or promised.
+// keep the notebook in this browser; one asks for the reminder. Saving into a
+// chosen file waits on a decision (T3). The card has two forms (step 4j, BVJ
+// 2026-11-25; CARD_WORDS in desk-first-use.mjs): while accounts are closed,
+// the statement, which says an account is coming and isn't needed; where
+// they are open (html[data-account="open"]), the choice, whose second answer
+// is a link to the account pages. A browser whose notebook syncs shows
+// neither, and isn't nudged toward them.
 //
 // "The first time the reader opens the Notebook panel or uses a desk action":
 // the card is simply what My Notes shows until there is an answer, and the
@@ -34,7 +39,7 @@
 // links (BA34).
 
 import {
-  BACKUP_HREF, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, HOME_KEY, REMIND_KEY, SAFARI_LINE,
+  ACCOUNT_HREF, BACKUP_HREF, CARD_WORDS, DESK_TOUR_KEY, FEEDBACK_HREF, FEEDBACK_LABEL, HELP_HREF, HOME_KEY, REMIND_KEY, SAFARI_LINE,
   SHEET_TOUR_KEY, TOUR_KEY, WAYS_HREF,
   backedUpSaid, isDesktopSafari, keptLine, readHome, reminderState,
   localDay, parseTourState, savedLine, tourOffer, wantsReminder, withLater, withNever, withOffered,
@@ -51,6 +56,11 @@ export { DESK_TOUR_KEY, SHEET_TOUR_KEY, TOUR_KEY };
 export const COMMAND_EVENT = "lit:desk-command";
 
 /* ── What is kept in this browser ─────────────────────────────────── */
+
+/** Whether accounts are open in this browser: Layout.astro's pre-paint stamp (account-gate.js). */
+export function accountsOpen(doc = document) {
+  return doc.documentElement.getAttribute("data-account") === "open";
+}
 
 export function getHome() {
   try { return readHome(localStorage.getItem(HOME_KEY)); } catch (_) { return null; }
@@ -128,42 +138,69 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
 
   const card = el("div", "desk-home-wrap");
 
-  // A statement, not a question, while this browser is the only place to keep
-  // it (BVJ, 2026-11-07, Audit 4 FU4-1): it asked "Where should your notebook
-  // live?" with two answers that were the same place. Revisit it as a choice
-  // when phase 4 brings a second place. The checkbox writes `browser-remind`,
-  // so `lit-desk-home` keeps both its values.
+  /** The reminder's checkbox and its note, one for each form of the card. */
+  function remindPart(id) {
+    const remind = el("div", "desk-home-card__remind");
+    const label = el("label", "desk-setting");
+    const box = el("input", "desk-setting__input");
+    box.type = "checkbox";
+    label.append(box, el("span", "desk-setting__label", CARD_WORDS.remind));
+    const note = el("p", "desk-home-card__note", CARD_WORDS.remindNote);
+    note.id = id;
+    box.setAttribute("aria-describedby", note.id);
+    remind.append(label, note);
+    return { remind, box };
+  }
+
+  function cardTitle(text, id) {
+    const h = el("h3", "desk-home-card__title", text);
+    h.id = id;
+    h.tabIndex = -1;
+    return h;
+  }
+
+  // While accounts are closed, a statement, not a question, since this
+  // browser is the only place to keep it (BVJ, 2026-11-07, Audit 4 FU4-1:
+  // it asked "Where should your notebook live?" with two answers that were
+  // the same place). The checkbox writes `browser-remind`, so
+  // `lit-desk-home` keeps both its values.
+  const W = CARD_WORDS.closed;
   const choice = el("section", "desk-home-card");
   choice.setAttribute("aria-labelledby", "deskHomeTitle");
-  const choiceTitle = el("h3", "desk-home-card__title", "Your notebook is kept in this browser");
-  choiceTitle.id = "deskHomeTitle";
-  choiceTitle.tabIndex = -1;
-  choice.append(
-    choiceTitle,
-    el("p", "desk-home-card__lead", "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, the notebook is gone unless you have backed it up."),
-  );
-  const remind = el("div", "desk-home-card__remind");
-  const remindAskLabel = el("label", "desk-setting");
-  const remindAsk = el("input", "desk-setting__input");
-  remindAsk.type = "checkbox";
-  remindAskLabel.append(remindAsk, el("span", "desk-setting__label", "Remind me to back up my notebook"));
-  const remindNote = el("p", "desk-home-card__note", "The Notebook reminds you when it has been a week since your last backup.");
-  remindNote.id = "deskHomeRemindNote";
-  remindAsk.setAttribute("aria-describedby", remindNote.id);
-  remind.append(remindAskLabel, remindNote);
-  choice.append(remind);
+  const closedRemind = remindPart("deskHomeRemindNote");
+  choice.append(cardTitle(W.title, "deskHomeTitle"), el("p", "desk-home-card__lead", W.lead), closedRemind.remind);
   if (safari) choice.append(el("p", "desk-home-card__safari", SAFARI_LINE));
   const more = el("p", "desk-home-card__more");
-  more.append(
-    "Other ways to keep it, across your computers and the apps, are being planned. ",
-    link(WAYS_HREF, "Ways to keep your notebook"),
-  );
-  const done = el("button", "desk-home-card__choose desk-home-card__done", "Got it");
+  more.append(`${W.more} `, link(WAYS_HREF, CARD_WORDS.ways));
+  const done = el("button", "desk-home-card__choose desk-home-card__done", W.done);
   done.type = "button";
-  done.addEventListener("click", () => choose(remindAsk.checked ? "browser-remind" : "browser"));
+  done.addEventListener("click", () => choose(closedRemind.box.checked ? "browser-remind" : "browser"));
   choice.append(more, done);
 
-  card.append(choice);
+  // Where accounts are open, the choice phase 4 brings (step 4j, BVJ
+  // 2026-11-25). Keeping it in this browser is the answer stored; the
+  // account is a link, since setting one up happens on the account pages,
+  // and once this browser syncs the card goes.
+  const O = CARD_WORDS.open;
+  const ask = el("section", "desk-home-card desk-home-card--ask");
+  ask.setAttribute("aria-labelledby", "deskHomeAskTitle");
+  const openRemind = remindPart("deskHomeAskRemindNote");
+  const keepPart = el("div", "desk-home-card__option");
+  keepPart.append(el("p", "desk-home-card__lead", O.keepLead), openRemind.remind);
+  if (safari) keepPart.append(el("p", "desk-home-card__safari", SAFARI_LINE));
+  const keep = el("button", "desk-home-card__choose", O.keep);
+  keep.type = "button";
+  keep.addEventListener("click", () => choose(openRemind.box.checked ? "browser-remind" : "browser"));
+  keepPart.append(keep);
+  const accountPart = el("div", "desk-home-card__option");
+  const account = link(ACCOUNT_HREF, O.account);
+  account.classList.add("desk-home-card__account");
+  accountPart.append(el("p", "desk-home-card__lead", O.accountLead), account);
+  const askMore = el("p", "desk-home-card__more");
+  askMore.append(`${O.more} `, link(WAYS_HREF, CARD_WORDS.ways));
+  ask.append(cardTitle(O.title, "deskHomeAskTitle"), keepPart, accountPart, askMore);
+
+  card.append(choice, ask);
 
   /* ── The tour offer ───────────────────────────────────────────── */
 
@@ -273,8 +310,15 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
     if (e.detail?.id === "tour") offerWin.close("take");
   });
 
+  // Whether this browser's notebook syncs with an account, as `refresh` last
+  // read it. Until then it counts as not, so the card is where it always was.
+  let linked = false;
+
   function drawCard() {
-    choice.hidden = !canKeep || Boolean(getHome());
+    const unanswered = canKeep && !getHome() && !linked;
+    const open = accountsOpen();
+    choice.hidden = !unanswered || open;
+    ask.hidden = !unanswered || !open;
   }
 
   /** The reader's answer: kept, the card goes, and the tour is offered if it hasn't been. */
@@ -368,14 +412,17 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
     drawCard();
 
     const facts = (await factsFromStore(store)) ?? { lastExport: null, hasRecords: false, oldest: null };
-    // A notebook that syncs with an account is in two places, and the line says so (step 4h).
-    let linked = false;
+    // A notebook that syncs with an account is in two places, and the line
+    // says so (step 4h); the card has nothing to ask it (step 4j).
+    let nowLinked = false;
     try {
-      linked = readLink(await store.getMeta(SYNC_META)) != null;
+      nowLinked = readLink(await store.getMeta(SYNC_META)) != null;
     } catch (_) {
       /* the link couldn't be read: the line says what is certain */
     }
     if (mine !== seq) return;
+    linked = nowLinked;
+    drawCard();
     const now = new Date();
     let putOff = null;
     try { putOff = localStorage.getItem(REMIND_KEY); } catch (_) {}
@@ -388,7 +435,7 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
       kept.replaceChildren(keptLine(linked));
     } else {
       foot.insertBefore(remindLabel, foot.firstChild);
-      kept.replaceChildren(`${keptLine(linked)} ${savedLine(facts.lastExport, now)} `);
+      kept.replaceChildren(`${keptLine(linked)} ${savedLine(facts.lastExport, now, { linked })} `);
       if (facts.hasRecords) kept.append(quietBtn);
     }
   }
@@ -408,7 +455,7 @@ export function createFirstUse({ store, reveal = () => {}, panelEl = () => null,
   // no longer opens the panel itself (E74): that moved the text.
   let revealed = false;
   store?.onEntry(() => {
-    if (revealed || getHome()) return;
+    if (revealed || getHome() || linked) return;
     revealed = true;
     reveal();
   });

@@ -5591,7 +5591,7 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
        holds no record in the clear: a row from another device that
        can't be read or shown yet waits there sealed, as the service
        sent it. /privacy names it and says so; the account section is
-       still step 4j's to write.
+       still step 4j's to write (written 2026-11-25).
      - **Nothing reaches a reader.** The store and the first stage read
        the link, and only with one do they import the connector
        (`src/scripts/desk/sync/start.js`). `test/desk-sync-gate.test.js`
@@ -5810,7 +5810,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      share a first name; and “I can't do any of these” asks to start a
      new notebook with one press and no second question, because the
      request waits seven days and can be canceled. **The words of the
-     first-time choice are proposed, not final** (step 4j).
+     first-time choice are proposed, not final** (step 4j, which settled
+     them on 2026-11-25).
      **Sign in with Apple and with Google: the website's half is built,
      and off.** Each turns on when the service lists it and the website
      has its client id (`src/lib/desk-account-providers.mjs`). Neither
@@ -6107,6 +6108,101 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      age. The privacy page's account section comes from the spec's "What
      the service holds." BDR reviews the app parts. With it, the wording
      of the first-time choice (D6).
+     **Built 2026-11-25.** Claude drafted every page and sentence and put
+     them to BVJ as a private artifact, with nine decisions and a pick for
+     each. **BVJ answered the same day**: “1, yes 2, yes 3, yes 4, yes
+     5, yes 6, "What's New" is correct, not "Translation Updates", BDR
+     should confirm. 7, yes 8, the LSC's home state is Oregon, do extra
+     research about applicable state laws. 9, yes,” and thanked Claude for
+     the “Delete everything” fix and the three extra sentences. So:
+     1. **Accounts are for 13 and older, or older where a country's law
+        sets a higher age** for using an online service without a
+        parent's permission (up to 16 in parts of the EU). Nothing checks
+        an age, and the service keeps none. Reading, the apps, and a
+        notebook kept on a device have no age.
+     2. **Everything is live before accounts open, written to be true
+        today**: the privacy page and the terms say accounts are being
+        tested and not open yet. At launch that sentence comes out and the
+        dates move (the account file's rule 11).
+     3. **The Terms of Use are at `/terms/`**, in both footers right after
+        Privacy, linked from the privacy page, `/delete-account/`, and the
+        sign-in page's note under “Create an account,” which gains “Creating
+        an account means you agree to the Terms of Use and are old enough
+        to have one.” Indexed and in the sitemap, as `/privacy` is; no
+        announcement popover.
+     4. **The Liberating Scripture Collective is the party.**
+     5. **At least 90 days' notice** on the website and in the apps before
+        the account service ends, unless security or a law forces sooner.
+     6. **A policy change is noted in the apps' What's New**, for BDR to
+        confirm (`STUDY-DESK-FOR-THE-APPS.md`, ask 21), with a new date and
+        a line at the top of the page for 30 days.
+     7. **The privacy page opens with “In short.”**
+     8. **Oregon law governs**, LSC's home state. Claude's research the
+        same day (a Sonnet subagent, its full report with sources in the
+        session's shared notes as `step-4j-state-law-research.md`; read
+        through a summarizing fetch tool, so a statute is quoted "via
+        summary"; not legal advice) found: the Oregon Consumer Privacy Act
+        reaches nonprofits since 2025-07-01, but only at 100,000 Oregon
+        residents' data (or 25,000 with a quarter of revenue from selling
+        data), which the LIT is far below; the other states whose laws
+        reach nonprofits (Colorado, New Jersey, Delaware, Maryland,
+        Minnesota) have thresholds as far off; California's CCPA leaves
+        nonprofits out, and CalOPPA reaches "commercial" sites, so its
+        Do Not Track disclosure is carried anyway; Oregon enforces a
+        chosen law unless it offends a fundamental policy; the Ninth
+        Circuit binds a reader to terms named in plain words beside the
+        button that creates the account (Berman, 2022), which is how the
+        sign-in page names them; and the state app-store age laws (Texas
+        in effect, California from 2027-01-01, Utah and Louisiana in 2027)
+        put duties on the apps, which ask 21 hands to BDR.
+     9. **No changelog entry**: the release notes are drafted only from
+        chapters, intros, the glossary, and articles, so these files write
+        none and `release-notes-skip.md` is untouched.
+
+     **What was built**: `/privacy` (“In short,” the account bullet and
+     Turnstile at “Create an account,” the Study Desk paragraph true with
+     an account and naming “Delete in bulk” for the old “Delete
+     everything,” a new “Accounts and sync,” the app line and reading data
+     with an account, a new “Your choices,” “Children” by the minimum age,
+     and “Changes” by decision 6); `/terms/`; the help page's “Where your
+     notebook is kept,” with two new topics, “An account” and “Stopping, or
+     deleting an account”; and every sentence step 4g listed, plus three
+     more, now true linked or not and tested both ways
+     (`test/desk-first-use-linked.test.js`): the first-time card (closed
+     accounts: its last line becomes “An account that keeps it in step
+     across your devices is coming. You won’t need one.”; open accounts:
+     “Where should your notebook be kept?” with “Keep it in this browser”
+     and a link, “Set up an account…”; a browser that syncs sees neither
+     and isn't nudged), the nudge, the tour's “kept” step, the Settings
+     tab's line (“Not backed up to a file yet.” when linked), My
+     Notebook's first line and its backup section's lead, and the setup
+     screen's two choices (each body says what the passkey can do; the
+     titles stay).
+
+     **Added after BVJ's answers, then approved**: “Your choices” and “The
+     law that applies” came from the research, after the drafts BVJ
+     answered: the right to ask what we hold and to correct or delete it,
+     wherever one lives; nothing sold, used for ads, or profiled; a Do Not
+     Track sentence; and Oregon law, with the courts “in Oregon” (no
+     county: LSC's isn't in the repo). Shown on the drafts page under
+     “Since you answered,” **BVJ approved them as drafted the same day**:
+     “I approve the "Since you answered" parts.”
+
+     **Claude's choices, for BVJ to change**: the open card is a button and
+     a link, with the account the lesser of the two. The footer says
+     “Terms of Use.” The effective date is 2026-11-25 on both pages, to
+     move to the merge day if later.
+
+     **For a lawyer, if BVJ wants one**: the minimum age's wording; the
+     paragraph limiting liability; governing law and the courts; whether
+     the sign-in page's sentence is enough assent; whether a passkey's
+     credential id is "personal data" under Oregon's act; and the state
+     app-store laws (the apps').
+
+     **Not verified**: the service's log lines kept "up to seven days" is
+     Cloudflare's Workers Logs retention on the paid plan as Claude knows
+     it, not read from the dashboard; and the pages were checked in a
+     build, not by BVJ in a browser.
    - **4k. Notes from the Greek** (1). A note started from the Greek tab
      or pane is an ordinary note on its verse, with the selected Greek in
      its body. No change to the format. After 4d.

@@ -49,14 +49,14 @@ import { createPrintMenu } from "./print-menu.js";
 import { printPlain } from "./print-link.js";
 import { NO_CHAPTER_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
-import { createFirstUse } from "./first-use.js";
+import { accountsOpen, createFirstUse } from "./first-use.js";
 import { paintDots } from "./reminder.js";
 import { createMineTab } from "./tab-mine.js";
 import { notebookTab } from "./notebook-tab.js";
 import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 import { deskPlaceHref } from "../../lib/desk-passage.mjs";
-import { DESK_STAGE } from "../../lib/desk-first-use.mjs";
+import { DESK_STAGE, nudgeLine } from "../../lib/desk-first-use.mjs";
 import { SLOT_EVENT } from "../../lib/desk-sync-link.mjs";
 import { escapeHtml } from "./dom.js";
 import { busy, isBusy } from "./focus-keep.js";
@@ -442,7 +442,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     setTimeout(() => {
       if (shown() || barShowing()) return;
       // It opens on My Notes, where the card is, whatever tab was last open.
-      showUndo("Your notebook is kept in this browser. See how to back it up.", () => {
+      showUndo(nudgeLine(accountsOpen()), () => {
         selectTab("mine", { remember: false });
         if (panel.hidden) open(null);
         else expand();

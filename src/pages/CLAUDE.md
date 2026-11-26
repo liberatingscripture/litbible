@@ -4,6 +4,37 @@
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
 
+## The privacy page and the Terms of Use (`privacy.astro`, `terms.astro`)
+
+They are the LIT Bible's policy for the website, both apps, and the
+optional account, and every word is BVJ's once approved; the app sections
+of `/privacy` are BDR's to correct. Step 4j of the Study Desk's plan wrote
+the account parts (`STUDY-DESK.md`, step 4j, with BVJ's decisions of
+2026-11-25). Five things to keep:
+
+1. **A change to `/privacy` files an issue on the LSC site's repository**
+   (`.github/workflows/apps-mirror-notify.yml`): LSC reviews its own
+   policy by hand. It is not a mirror, so nothing copies the words. Say so
+   in the pull request.
+2. **Every fact about the account is one the notebook service does**:
+   what it keeps, how long, and deleting come from
+   `STUDY-DESK-ENCRYPTION.md` ("What the service holds," "Deleting the
+   account," "Waiting seven days," "Session lifetime") and the service's
+   README ("What is logged"). Change them together, as `/delete-account/`
+   does.
+3. **Both pages say accounts are not open yet** until they are; the launch
+   edits are listed in `src/scripts/desk/account/CLAUDE.md`, rule 11.
+4. **A material change moves the effective date** (and `dateModified` in
+   the JSON-LD), is said at the top of the page for 30 days, and is noted
+   in the apps' What's New (BVJ, 2026-11-25, for BDR to confirm). The
+   release notes never carry it: they are drafted from chapters, intros,
+   the glossary, and articles alone.
+5. **`/privacy` names every storage key the site writes**
+   (`test/desk-storage-keys.test.js`), and its security reports paragraph
+   carries the counts' retention (`test/csp-reporting.test.js`). `/terms/`
+   uses `/privacy`'s stylesheets as they are, as `/delete-account/` does,
+   and the app announcement stays off both (`announcement-gate.js`).
+
 ## The podcast page (`found-in-translation-podcast.astro`)
 
 `/podcast` redirects here. The "All Episodes" list is RSS-driven off the

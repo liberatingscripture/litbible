@@ -42,7 +42,8 @@ import { createTrashList } from "./trash-list.js";
 import { mountWhatsNew } from "./whats-new.js";
 import { planWrite, QUIET_KINDS } from "../../lib/desk-store-core.mjs";
 import { TRASH_DAYS } from "../../lib/desk-records.mjs";
-import { SLOT_EVENT } from "../../lib/desk-sync-link.mjs";
+import { SLOT_EVENT, SYNC_META, readLink } from "../../lib/desk-sync-link.mjs";
+import { notebookIntro } from "../../lib/desk-reminder.mjs";
 import { el } from "./dom.js";
 import { plural } from "./desk-text.js";
 
@@ -103,8 +104,18 @@ async function start() {
   initUndo();
   createHistory({ store, ctx });
 
+  // Whether this browser's notebook syncs with an account: the page's first
+  // line and its backup section say so (step 4j). Read before the page is
+  // drawn, so neither line changes under the reader.
+  let linked = false;
+  try {
+    linked = readLink(await store.getMeta(SYNC_META)) != null;
+  } catch (_) {
+    /* unread: the words for a notebook kept here alone */
+  }
+
   root.innerHTML = `
-    <p class="desk-np__intro">Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you back it up.</p>
+    <p class="desk-np__intro">${notebookIntro(linked)}</p>
     <div data-desk-sync-slot hidden></div>
     <nav class="desk-np__jump" aria-label="On this page">
       <a href="#continue">Continue reading</a>
@@ -190,7 +201,7 @@ async function start() {
   const trashBox = q("[data-np-trash-box]");
   const statusEl = q("[data-np-status]");
 
-  mountBackup(q("[data-np-backup]"), { store, ctx });
+  mountBackup(q("[data-np-backup]"), { store, ctx, linked });
   // The release notes that touched the reader's verses (B3), drawn and kept
   // up to date by whats-new.js.
   mountWhatsNew(q("[data-np-whats-new]"), { store });

@@ -161,7 +161,17 @@ without the switch. The announcement popover stays off all three
     `/delete-account/` and its rule in `account.css`, the header's rule
     (`html[data-desk][data-account="open"] .site-header__account` in
     `global.css`), whether `/account/` stays noindex, and the production
-    service's origin in `SERVICES`.
+    service's origin in `SERVICES`. **Step 4j's words go with it**
+    (2026-11-25): `/privacy`'s “Accounts are not open yet.” paragraph
+    under “Accounts and sync” and its “Until accounts open…” sentence,
+    `/terms/`' “Accounts are not open yet;” in “Accounts,” the help page's
+    “(being tested, and not open to everyone yet)” in three places and
+    “Accounts are being tested…” opening “An account,” the first-time
+    card's closed form (`CARD_WORDS.closed`, which says an account “is
+    coming”), and both pages' effective dates. **The card's open form
+    reads the same stamp** (`accountsOpen()` in `first-use.js`), so
+    whatever replaces the switch must still stamp `data-account="open"`
+    for every reader, or that function must change with it.
 12. **Split by the key, and a phone gets the basics** (BVJ, the same day).
     `page.js` runs on every device and holds no key. `notebook.js` loads
     only with `data-desk="on"`. So a phone or tablet can sign in, see or

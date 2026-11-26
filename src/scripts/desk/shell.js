@@ -178,7 +178,7 @@ async function start({ handOver }) {
   tryStart("the Greek link", () => initGreekLink({ panel }));
   tryStart("the notes on articles", () => initProseActions({ store, addNote }));
   // The tour (D8): started by the reader, never by itself (tour.js).
-  tryStart("the tour", () => createTour({ panel, canKeep: Boolean(store) }));
+  tryStart("the tour", () => createTour({ panel, canKeep: Boolean(store), store }));
   if (store) tryStart("the verse labels", () => createVerseLabels({ store }));
   // Painted on a Chapter View chapter or in Read View; after initNoteSettings,
   // so the switches are already on <html>.

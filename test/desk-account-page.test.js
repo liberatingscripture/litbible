@@ -90,6 +90,10 @@ test("signed out on a computer: two buttons, and that no account is needed is sa
     [...page.root.querySelectorAll(".account__aside a")].map((a) => a.getAttribute("href")),
     ["/desk/help/#ways-to-keep", "/desk/help/#copies"],
   );
+  // Under "Create an account," the Terms of Use, as a link (step 4j).
+  const hint = page.root.querySelector(".account__hint");
+  assert.ok(hint.textContent.includes(`${WORDS.createTermsBefore} ${WORDS.createTermsLink} ${WORDS.createTermsAfter}`), hint.textContent);
+  assert.equal(hint.querySelector("a")?.getAttribute("href"), "/terms/");
   assert.equal(document.documentElement.getAttribute("data-account"), "open");
   assert.notEqual(document.activeElement, page.root.querySelector("h2"), "the first screen doesn't take focus as the page loads");
   page.b.creds.next = { syncs: true, prf: false };

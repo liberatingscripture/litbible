@@ -1,0 +1,259 @@
+---
+// The Terms of Use (the Study Desk's step 4j; BVJ answered its decisions on
+// 2026-11-25): one agreement for the website, the apps, and the optional
+// account, written as plainly as the privacy page. Claude drafted it and it
+// is not legal advice; whether a lawyer reads it is BVJ's call, and the
+// parts worth a lawyer's time are listed under step 4j in STUDY-DESK.md.
+//
+// What BVJ decided: accounts are for 13 and older, or older where a
+// country's law sets a higher age (decision 1); the page is live before
+// accounts open, saying so (decision 2); the address is /terms/, in the
+// footer beside Privacy (decision 3); the Liberating Scripture Collective is
+// the party (decision 4); 90 days' notice before the account service ends
+// (decision 5); Oregon law governs (LSC's home state, decision 8), and BVJ
+// approved "The law that applies" as drafted from the research, with the
+// courts "in Oregon" and no county.
+//
+// AT LAUNCH, "Accounts are not open yet" comes out of "Accounts" and the
+// effective date moves (src/scripts/desk/account/CLAUDE.md, rule 11's list).
+// The license at /read#license-terms, not this page, governs copying the
+// translation; keep the two from contradicting each other.
+//
+// The privacy page's document column, used as it is (as /delete-account/
+// does). Nothing is added to that stylesheet for this page.
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/privacy.css";
+import "../styles/v2/privacy.css";
+---
+
+<Layout
+  title="Terms of Use | Liberation and Inclusion Translation"
+  description="The LIT Bible terms of use: the agreement for the website, the apps, and the optional account that syncs your notebook."
+  canonical="https://litbible.net/terms/"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "LIT Bible Terms of Use",
+      "url": "https://litbible.net/terms/",
+      "dateModified": "2026-11-25",
+      "description": "The LIT Bible terms of use: the agreement for the website, the apps, and the optional account that syncs your notebook.",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "LIT Bible",
+        "url": "https://litbible.net"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "LIT Bible",
+        "url": "https://litbible.net"
+      }
+    })} />
+  </Fragment>
+
+  <article class="privacy-page v2-frame" aria-labelledby="terms-title">
+
+    <header class="privacy-header v2-frame__head v2-bar">
+      <div class="privacy-header__inner">
+        <h1 id="terms-title" class="privacy-title">Terms of Use</h1>
+        <p class="privacy-effective">
+          Effective date: <time datetime="2026-11-25">November 25, 2026</time>
+        </p>
+        <p class="privacy-lede">
+          These terms are the agreement between you and the Liberating
+          Scripture Collective for using the LIT Bible website (litbible.net),
+          the LIT Bible apps for iOS and Android, and the optional LIT Bible
+          account. We have tried to write them as plainly as the rest of the
+          site. Our <a href="/privacy/">Privacy Policy</a> says what we collect
+          and keep.
+        </p>
+      </div>
+    </header>
+
+    <nav class="privacy-toc v2-frame__toc" data-v2 data-pagefind-ignore aria-label="On this page">
+      <p class="v2-label">On this page</p>
+      <ul>
+        <li><a href="#terms-who">Who we are</a></li>
+        <li><a href="#terms-reading">Reading and sharing the LIT</a></li>
+        <li><a href="#terms-notebook">Your notebook is yours</a></li>
+        <li><a href="#terms-accounts">Accounts</a></li>
+        <li><a href="#terms-fair">Using the service fairly</a></li>
+        <li><a href="#terms-ends">If the service changes or ends</a></li>
+        <li><a href="#terms-promises">No promises beyond these</a></li>
+        <li><a href="#terms-others">Other services</a></li>
+        <li><a href="#terms-law">The law that applies</a></li>
+        <li><a href="#terms-changes">Changes to these terms</a></li>
+        <li><a href="#terms-contact">Questions</a></li>
+      </ul>
+    </nav>
+
+    <div class="privacy-body v2-frame__text">
+
+      <section aria-labelledby="terms-who">
+        <h2 id="terms-who" class="v2-rule">Who we are</h2>
+        <p>
+          The LIT Bible is a project of the Liberating Scripture Collective
+          (“we”), a 501(c)(3) nonprofit. The website, the apps, and the
+          account are free. There are no ads and nothing to buy. Donations are
+          welcome and never required.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-reading">
+        <h2 id="terms-reading" class="v2-rule">Reading and sharing the LIT</h2>
+        <p>
+          Reading the LIT needs no account and has no age limit. The LIT text
+          and footnotes are licensed under CC BY-NC-ND 4.0, with further
+          permissions for church, study, and commercial use set out under
+          <a href="/read#license-terms">License and reuse</a>. Those terms,
+          not these, say how you may copy, print, and share the translation;
+          the book introductions, glossary, and articles are under the same
+          license. Material by others, such as the Greek text and its
+          lexicons, is used under its own terms, named where it appears.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-notebook">
+        <h2 id="terms-notebook" class="v2-rule">Your notebook is yours</h2>
+        <p>
+          What you write in the Study Desk or the apps (notes, highlights,
+          bookmarks, sheets, and collections) belongs to you, and we claim no
+          rights to it. Without an account it stays on your device. With an
+          account, we keep a locked copy only so that your devices can sync
+          it; we can’t read it, and we don’t use it for anything else. A sheet
+          you share travels in the link itself, not through us, so what you
+          share and with whom is up to you.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-accounts">
+        <h2 id="terms-accounts" class="v2-rule">Accounts</h2>
+        <ul>
+          <li>
+            <strong>An account is optional.</strong> You need one only to sync
+            your notebook between devices. Accounts are not open yet; these
+            terms apply to them when they do, and to anyone testing them now.
+          </li>
+          <li>
+            <strong>You must be at least 13 to create an account,</strong> or
+            older if the law where you live sets a higher age for using an
+            online service without a parent’s permission.
+          </li>
+          <li>
+            <strong>An account is for one person.</strong> Keep your passkey,
+            your devices, and your recovery code safe: anyone who has them can
+            open your notebook.
+          </li>
+          <li>
+            <strong>We can’t open your notebook, so we can’t recover
+            it.</strong> If you lose every device and have neither a passkey
+            that opens it nor your recovery code, no one can get the synced
+            copy back, including us. A backup file, or a notebook still on one
+            of your devices, is not affected.
+          </li>
+          <li>
+            <strong>You can stop at any time:</strong> stop syncing on a
+            computer, sign out, or delete your account (see
+            <a href="/delete-account/">Delete your account</a>). A request to
+            delete made from a sign-in that hasn’t opened your notebook waits
+            seven days, during which any of your devices can cancel it.
+            Deleting can’t be undone.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="terms-fair">
+        <h2 id="terms-fair" class="v2-rule">Using the service fairly</h2>
+        <p>
+          Please don’t try to get into anyone else’s account or notebook;
+          interfere with the website, the apps, or the account service, or
+          overload them; create accounts by automated means; or use the
+          account service to store anything but a notebook kept by the LIT
+          Bible apps or website. The service limits how often a device may
+          ask, and slows one that asks too often. We may suspend or close an
+          account used in these ways. Since we can’t read notebooks, we would
+          decide only from how the service is being used.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-ends">
+        <h2 id="terms-ends" class="v2-rule">If the service changes or ends</h2>
+        <p>
+          We may change the website, the apps, and the account service, and
+          add or remove features. If we decide to end the account service, we
+          will say so on the website and in the apps at least 90 days before
+          it ends, unless a security problem or a law requires us to act
+          sooner. Your notebook stays on each of your devices, where you can
+          keep using it and save it to a file. Since we keep no email address,
+          the website and the apps are where we can tell you.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-promises">
+        <h2 id="terms-promises" class="v2-rule">No promises beyond these</h2>
+        <p>
+          We offer the LIT Bible, the apps, and the account freely and as they
+          are. We work to keep your notebook safe and in step, but we can’t
+          promise that the website, the apps, or the account will always be
+          available or free of errors, or that nothing will ever be lost. Keep
+          a backup of anything you wouldn’t want to lose. To the fullest
+          extent the law allows, the Liberating Scripture Collective and its
+          volunteers and contributors are not liable for lost data or for any
+          indirect or consequential damages from your use of the website, the
+          apps, or the account. Some places don’t allow these limits, so they
+          may not all apply to you.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-others">
+        <h2 id="terms-others" class="v2-rule">Other services</h2>
+        <p>
+          Signing in with Apple or Google, a password manager that keeps your
+          passkey, the App Store and Google Play, Give Lively (donations), and
+          Brevo (the mailing list) are run by others under their own terms. If
+          you got an app from the App Store or Google Play, that store’s terms
+          apply to it too.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-law">
+        <h2 id="terms-law" class="v2-rule">The law that applies</h2>
+        <p>
+          The Liberating Scripture Collective is based in Oregon. These terms
+          are governed by the laws of the State of Oregon and of the United
+          States, without regard to rules that would apply another place’s
+          law. A dispute about them is for the state or federal courts in
+          Oregon, unless the law where you live lets you bring it there.
+          Nothing in these terms takes away a right that the law where you
+          live gives you and doesn’t let an agreement change.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-changes">
+        <h2 id="terms-changes" class="v2-rule">Changes to these terms</h2>
+        <p>
+          If we change these terms in a way that matters, we will update the
+          effective date, say what changed at the top of this page, and note
+          it in the apps. Using the account after a change takes effect means
+          you accept the new terms; if you don’t, you can delete your account
+          at any time.
+        </p>
+      </section>
+
+      <section aria-labelledby="terms-contact">
+        <h2 id="terms-contact" class="v2-rule">Questions</h2>
+        <p>
+          Write to us at <a href="/contact/">litbible.net/contact</a>.
+        </p>
+      </section>
+
+    </div>
+  </article>
+
+  <script>
+    // Site 2.0: marks the contents rail's current section (only with the
+    // restyle's stamp; see the module's header).
+    import "../scripts/v2-frame.js";
+  </script>
+</Layout>

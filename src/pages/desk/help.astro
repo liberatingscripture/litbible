@@ -104,6 +104,8 @@ const parts = [
     topics: [
       { id: "ways-to-keep", title: "Where your notebook is kept" },
       { id: "copies", title: "Backing up your notebook" },
+      { id: "account", title: "An account" },
+      { id: "account-stop", title: "Stopping, or deleting an account" },
       { id: "delete-everything", title: "The trash, and deleting everything" },
     ],
   },
@@ -178,7 +180,9 @@ const parts = [
               </ul>
               <p>
                 Everything you keep stays in your browser, on your computer.
-                Nothing is sent to the LIT Bible team or anywhere else, so
+                Unless you sync it with an account (being tested, and not open
+                to everyone yet), nothing is sent to the LIT Bible team or
+                anywhere else, so
                 <a href="#copies">back up your notebook</a> now and then. The Study Desk
                 is for computers.
               </p>
@@ -1333,11 +1337,25 @@ const parts = [
             <section class="nbhelp__topic" aria-labelledby="ways-to-keep">
               <h3 id="ways-to-keep">Where your notebook is kept</h3>
               <p>
-                <strong>In this browser.</strong> Your notebook is kept in this
-                browser, on this computer. Nothing is sent to the LIT Bible
-                team or anywhere else.
+                Your notebook can be kept in three places, and any of them
+                together:
               </p>
-              <p><strong>What can clear it:</strong></p>
+              <ul>
+                <li><strong>In this browser,</strong> always. Nothing leaves it
+                  unless you back it up or sync it.</li>
+                <li><strong>In a backup file</strong> on your own computer: the
+                  one copy that needs no browser, account, or key. See
+                  <a href="#copies">Backing up your notebook</a>.</li>
+                <li><strong>In your account</strong> (being tested, and not open
+                  to everyone yet), which keeps it in step across your devices,
+                  locked with a key we never have. See
+                  <a href="#account">An account</a>, below.</li>
+              </ul>
+              <p>
+                <strong>You don’t need an account.</strong> Everything in the
+                Study Desk works without one.
+              </p>
+              <p><strong>What can clear it from this browser:</strong></p>
               <ul>
                 <li>Clearing your browser’s data for this site.</li>
                 <li>Closing a private window.</li>
@@ -1350,15 +1368,10 @@ const parts = [
                   site. If you use Safari, back up your notebook now and then.</li>
               </ul>
               <p>
-                <strong>The safe way.</strong> A backup is a file on your own
-                computer, and it is the safe way to keep your notebook. When
-                you first use the notebook you can ask to be reminded to back
-                it up. You can change that in the Notebook’s Settings tab.
-              </p>
-              <p>
-                <strong>Other ways.</strong> Other ways to keep it, across your
-                computers and the apps, are being planned. Nothing here depends
-                on them.
+                <strong>The safe way.</strong> A backup file is the safe way to
+                keep your notebook, with or without an account. When you first
+                use the notebook you can ask to be reminded to back it up. You
+                can change that in the Notebook’s Settings tab.
               </p>
             </section>
 
@@ -1398,6 +1411,72 @@ const parts = [
                 reminders back on in the Notebook’s Settings tab on a Scripture
                 page.
               </p>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="account">
+              <h3 id="account">An account</h3>
+              <p>
+                Accounts are being tested and aren’t open to everyone yet. Once
+                you have one:
+              </p>
+              <ul>
+                <li><strong>Signing in.</strong> “Create an account” on the
+                  <a href="/account/">account page</a> makes a passkey, which
+                  your browser or password manager keeps. There is no password,
+                  and we don’t ask your name or email address. Signing in with
+                  Apple or Google is coming.</li>
+                <li><strong>Where the key lives.</strong> Your notebook is
+                  locked with a key before it leaves your computer, and you
+                  choose where that key can be opened. <em>Follows my
+                  account:</em> your passkey carries it, so signing in with the
+                  passkey on a new device opens your notebook there; anyone who
+                  can use your passkey can open it too. <em>This device
+                  only:</em> the key stays on the devices you add, and your
+                  passkey only signs you in. You can switch either way later on
+                  the account page.</li>
+                <li><strong>The recovery code.</strong> Setting up shows a
+                  recovery code once, and asks you to type two of its groups
+                  back. It opens your notebook if you lose your devices or your
+                  passkey. Keep it somewhere safe and private: we never see it,
+                  so we can’t send it to you.</li>
+                <li><strong>Another computer.</strong> Sign in there, then open
+                  your notebook with your passkey (under “Follows my account”),
+                  by approving it from a device that already has your notebook
+                  (a 16-character code or a QR code, good for 10 minutes), or
+                  with your recovery code. If none of those is left, you can ask
+                  to start a new notebook; the request waits seven days.</li>
+                <li><strong>Phones and tablets.</strong> Your notebook syncs
+                  with the LIT Bible apps as they add accounts. A phone’s or
+                  tablet’s browser can sign in, see or cancel a request, delete
+                  the account, and sign out, but never holds your notebook.</li>
+                <li><strong>What the account page shows:</strong> whether your
+                  notebook is in sync, where the key lives, your devices
+                  (rename or remove one; removing changes the key), your
+                  recovery code (make a new one), and your ways to sign in.</li>
+                <li><strong>What you’re told.</strong> A device that joins, a
+                  new way to open your notebook, and a request waiting on your
+                  account are each said on the page you’re reading, with a
+                  button to review it.</li>
+              </ul>
+            </section>
+
+            <section class="nbhelp__topic" aria-labelledby="account-stop">
+              <h3 id="account-stop">Stopping, or deleting an account</h3>
+              <ul>
+                <li><strong>Sign out:</strong> syncing stops on this computer,
+                  which leaves your notebook’s devices, and the notebook stays
+                  in this browser.</li>
+                <li><strong>Stop syncing on this computer:</strong> offered when
+                  this computer can no longer sync (signed out, removed, or on
+                  another notebook). The notebook stays in this browser.</li>
+                <li><strong>Delete your account:</strong> from a computer that
+                  holds your notebook’s key, at once; from a sign-in that hasn’t
+                  opened it, after seven days, during which every device that
+                  holds your notebook shows the request and can cancel it. The
+                  notebook stays on each of your devices.
+                  <a href="/delete-account/">Delete your account</a> says what
+                  is deleted and what stays.</li>
+              </ul>
             </section>
 
             <section class="nbhelp__topic" aria-labelledby="delete-everything">

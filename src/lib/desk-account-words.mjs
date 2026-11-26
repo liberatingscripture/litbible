@@ -8,10 +8,11 @@
 // no notebook can load them alone.
 //
 // THE WORDING IS CLAUDE'S PROPOSAL. BVJ chose the design on 2026-11-24 (the
-// screens, what each offers, and that "no account" is plainly an option);
-// the final words of the first-time choice ("Follows my account" or "This
-// device only") belong to the plan's step 4j. A new sentence here is a new
-// thing to show BVJ.
+// screens, what each offers, and that "no account" is plainly an option).
+// Step 4j settled the first-time choice's words (BVJ, 2026-11-25): the titles
+// "Follows my account" and "This device only" stay, each body says what the
+// passkey can do under it, and "Create an account" names the Terms of Use. A
+// new sentence here is a new thing to show BVJ.
 
 /* ── The switch ─────────────────────────────────────────────────────────── */
 
@@ -106,6 +107,8 @@ export function dayWords(iso, locale) {
 
 export const HELP_KEPT = "/desk/help/#ways-to-keep";
 export const HELP_COPIES = "/desk/help/#copies";
+/** The Terms of Use, named under "Create an account" (step 4j). */
+export const TERMS_HREF = "/terms/";
 export const ACCOUNT_PATH = "/account/";
 export const CONNECT_PATH = "/account/connect/";
 
@@ -126,10 +129,14 @@ export const WORDS = Object.freeze({
   providerCanceled: "The sign-in was closed before it finished. Nothing was changed.",
   createNote:
     "Creating an account makes a passkey, which your browser or password manager keeps for you. There is no password, and we don’t ask for your name or email address.",
+  /* One sentence after createNote, with the Terms of Use as its link (step 4j). */
+  createTermsBefore: "Creating an account means you agree to the",
+  createTermsLink: "Terms of Use",
+  createTermsAfter: "and are old enough to have one.",
   noPasskeys: "This browser can’t use passkeys, so it can’t sign in here. Try a current version of Chrome, Edge, Safari, or Firefox.",
   noAccountTitle: "You don’t need an account",
   noAccountBody:
-    "Your notebook works without one. It stays in this browser, and you keep it safe by saving a copy to a file, which you can bring back or merge on any computer.",
+    "Your notebook works without one. It stays in this browser, and you keep it safe by backing it up to a file, which you can merge into the notebook on any computer.",
   noAccountKept: "Where your notebook is kept",
   noAccountCopies: "Backing up your notebook",
   signedOutNow: "You’re signed out. Your notebook is still in this browser.",
@@ -166,10 +173,12 @@ export const WORDS = Object.freeze({
   setupTitle: "Set up your synced notebook",
   setupLede: "Your notebook is locked with a key before it leaves this computer. Choose where that key lives.",
   followTitle: "Follows my account",
-  followBody: "Your passkey carries the key. Sign in on a new device with the same passkey, and your notebook opens there.",
+  followBody:
+    "Your passkey carries the key. Sign in on a new device with the same passkey, and your notebook opens there. Anyone who can use your passkey can open it too.",
   followOff: "Your passkey can’t carry the key in this browser, so this choice isn’t offered here.",
   deviceTitle: "This device only",
-  deviceBody: "The key stays on the devices you add. A new device joins when one you already use approves it, or with your recovery code.",
+  deviceBody:
+    "The key stays on the devices you add. A new device joins when one you already use approves it, or with your recovery code. Your passkey only signs you in.",
   setupNext: "Either way, you’ll get a recovery code next.",
   setupContinue: "Continue",
   setupLegend: "Where the key lives",

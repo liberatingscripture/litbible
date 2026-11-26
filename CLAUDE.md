@@ -51,7 +51,7 @@ below unless it is already loaded.** Rules that keep this from decaying:
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
 | `src/components/CLAUDE.md` | The header's title swap (an inline script); the announcement popover |
 | `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
-| `src/pages/CLAUDE.md` | The podcast page's embeds; the 404 page's address guessing; measuring Read View |
+| `src/pages/CLAUDE.md` | The privacy page and the Terms of Use; the podcast page's embeds; the 404 page's address guessing; measuring Read View |
 | `scripts/CLAUDE.md` | The toolchain's pins (Node, Astro), commands run by hand, **the apps' sync contract**, the build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
 | `scripts/alignment-review/CLAUDE.md`, `scripts/alignment-words/CLAUDE.md` | Pointers to the alignment file |
@@ -227,7 +227,7 @@ workers/             # Cloudflare Workers, deployed separately, each with its ow
 | `/app-support` | `app-support.astro` | App support form (linked from the apps; `/app-support/thanks` is the no-JS success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here); read `src/pages/CLAUDE.md` before touching its embeds |
 | `/404` | `404.astro` | Not found; a guessable scripture address lands on its page |
-| others | `delete-account` (noindex; `workers/CLAUDE.md`, and its box, the account file's "Routes"), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy`, `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
+| others | `delete-account` (noindex; `workers/CLAUDE.md`, and its box, the account file's "Routes"), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy` and `terms` (`src/pages/CLAUDE.md`), `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
