@@ -37,6 +37,13 @@
   nothing loading), and don't skip a face `fonts.check()` calls loaded (a
   cached face reads so as soon as a layout has asked for it, before it can
   be drawn).
+  **It measures only when the row's width or the font changes, so
+  whatever changes the tools' width after the paint says so**:
+  `lit:header-tools` on `document`, and the script fits the title again at
+  once. One thing sends it today, the account's entry going from “Sign
+  in” to its narrower button or back (E231; rare, since the room is
+  normally right from first paint: `src/scripts/desk/account/CLAUDE.md`,
+  rule 17). A new control that changes width after the paint sends it too.
   `test/header-title.test.js` holds the script's place and runs its text.
   Check a change in headless Chrome by which title's text was painted
   (Element Timing on `.title-prefix` and `.title-alt`), in new tabs and

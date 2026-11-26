@@ -161,6 +161,19 @@ test("accounts opened in this browser are stamped before paint, on every device,
   assert.deepEqual(run({ stored: { "lit-desk-account": "yes" } }).attrs, {}, "only the two values the gate writes");
 });
 
+// The header's account button is narrower than "Sign in," and which of the two a browser gets
+// is read from its notebook after the page has painted. The entry's script keeps a note of what
+// it showed (lit-desk-account-last), and this script stamps it, so the row holds the right room
+// from first paint and nothing in it moves (E231).
+test("what the header showed last is stamped with accounts open, and never without", () => {
+  const open = { "lit-desk-account": "preview", "lit-desk-preview": "on" };
+  assert.deepEqual(run({ stored: { ...open, "lit-desk-account-last": "in" } }).attrs["data-account-last"], "in");
+  assert.equal("data-account-last" in run({ stored: open }).attrs, false, "no note: “Sign in”'s room");
+  assert.equal("data-account-last" in run({ stored: { ...open, "lit-desk-account-last": "out" } }).attrs, false, "only the one value the entry writes");
+  assert.equal("data-account-last" in run({ stored: { "lit-desk-preview": "on", "lit-desk-account-last": "in" } }).attrs, false, "accounts are closed here: no entry to hold room for");
+  assert.equal("data-account-last" in run({ href: "https://litbible.net/romans-8/?account=off", stored: { ...open, "lit-desk-account-last": "in" } }).attrs, false);
+});
+
 // D1 of the site style pass (E132): the rest of the site's new look follows the
 // same flag on every device, phones and tablets included, so it can be checked
 // there before launch, when the stamp and the old rules both go.

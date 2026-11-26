@@ -316,6 +316,27 @@ test("after that it measures only when the row’s width or the reader’s font 
   assert.equal(page.shows(), "long");
 });
 
+test("the account's entry changed width after the paint: the title is fitted again, though the row's width didn't change", async () => {
+  // “Sign in” gave way to the narrower account button (or the other way), which the row's own width never shows.
+  const page = mount({ room: LONG - 30 });
+  run();
+  await settle();
+  assert.equal(page.shows(), "short");
+  assert.equal(page.measured, 1);
+
+  page.room = LONG + 10; // the button is 40px narrower than the words
+  window.dispatchEvent(new Event("resize"));
+  await settle();
+  assert.equal(page.measured, 1, "a resize at the same width measures nothing");
+  document.dispatchEvent(new CustomEvent("lit:header-tools"));
+  assert.equal(page.shows(), "long", "at once, with no frame to wait for");
+  assert.equal(page.measured, 2);
+
+  page.room = LONG - 30; // signed out: the words are back
+  document.dispatchEvent(new CustomEvent("lit:header-tools"));
+  assert.equal(page.shows(), "short");
+});
+
 test("it watches the row, whose width follows the window", () => {
   mount({ room: LONG });
   run();

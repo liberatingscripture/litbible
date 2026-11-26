@@ -5984,6 +5984,44 @@ wording (E202).
   `data-account="open"` is stamped before paint, so the header's way in is
   drawn on that same visit. The rule is `src/scripts/desk/account/CLAUDE.md`,
   rule 11. Status: fixed (the pull request that adds this entry).
+- **E231, bug: a gap beside the header's account button.** BVJ,
+  2026-11-25, signed in on `litbible.net` with a real passkey made on a
+  Windows laptop: “The ‘Sign In’ Button became the account button, which
+  is great, except it's smaller, so it left a gap. Make it so that the
+  rest of the header scoots over to stay next to it.” The button (38px)
+  kept the words' width (72.7px) on purpose: which of the two a browser
+  gets is read from its notebook after the page has painted, and holding
+  the wider room kept the tools beside it from moving when it was drawn.
+  The entry is now as wide as what it shows, and the room is right from
+  the first paint instead. `header-entry.js` keeps a note of what it
+  showed (`localStorage['lit-desk-account-last']`, "in" or absent, named
+  on `/privacy`), `Layout.astro`'s pre-paint script stamps it as
+  `data-account-last="in"`, and `global.css` holds the button's room
+  where it says so, the words' otherwise. The note is a hint and nothing
+  more: what shows always comes from the notebook, and where the two
+  differ (linked, or signed out, in another tab) the tools move once,
+  the note is put right, and a `lit:header-tools` event has the header's
+  title fitted again, since its script measures only when the row's
+  width or the font changes. **The note is Claude's choice of means**
+  (BVJ asked for the gap closed; a new storage key wasn't put to BVJ
+  first): without it the nav, “Read,” and “Aa” would jump 35px on every
+  page a signed-in reader opens. Seen in headless Chrome, the built site
+  against `wrangler dev` on this machine (64 checks): signed out, “Sign
+  in” sits 8px from “Aa,” the row's own gap; on linking, the button took
+  the words' place and the row closed up to it; on `/`, `/about/`, a
+  chapter, `/glossary/`, `/read/`, and `/notebook/` the button is 8px
+  from “Aa,” the entry held 38px from the first frame, drawn or not,
+  “Aa” stayed where it was painted, and nothing overflows; the same at
+  twelve widths from 2200 to 760px, and in OpenDyslexic at six; signing
+  out put “Sign in” back and took the note away, and the next pages held
+  the words' room from the first frame; a wrong note (set by hand, at
+  three widths) was put right with one move of 35px and the title fitted
+  again; no error in the console. The title's short form, with the
+  entry: up to 1215px with “Sign in” and 1180px with the button on `/`
+  and a chapter (1260 and 1225px on `/about/`), sampled 5px apart down
+  to 1105px. Not seen: Safari, Firefox, and BVJ's own browser after the
+  fix. The rule is `src/scripts/desk/account/CLAUDE.md`, rule 17.
+  Status: fixed (the pull request that adds this entry).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
