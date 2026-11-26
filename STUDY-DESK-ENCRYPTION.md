@@ -1607,8 +1607,8 @@ POST /rows
   (`old_key`, and no row of the request is stored); a `kid` that isn’t a whole number of 1 or more,
   a `put` or `remove` that isn’t a list, an item that isn’t an object, a `remove` item whose `id`
   or `rev` isn’t in form, or one id named twice in the request (`bad_request`); more than 500 items
-  (`too_large`); and, once every row has been decided, a push that would take the account past its
-  ceiling (`too_large` with `what: "account"`, below).
+  (`too_large` with `what: "rows"` and `limit: 500`); and, once every row has been decided, a push
+  that would take the account past its ceiling (`too_large` with `what: "account"`, below).
 - **Writing, row by row.** Every other check is answered for that row alone, in the answer’s `put`
   and `remove`, in the request’s order, and a row that fails never holds back the rows beside it.
   `refused` names the first check that failed, in this order: `v`, `id`, `modified`, `deletedAt`,
@@ -2129,7 +2129,7 @@ there to save the client a request.
 | `passkey_refused` | 403 | `reason`, the check that failed (under “Signing in”) | A passkey’s answer didn’t pass. **Start the sign-in again** from new options; for `unknown`, the service has no such passkey |
 | `token_refused` | 403 | `reason`, the check that failed (under “Signing in”) | An identity token from Apple or Google, or Apple’s code, didn’t pass. **Start the sign-in again** |
 | `provider` | 502 | `which`: `apple`, `google`, or `turnstile` | Apple, Google, or Cloudflare’s Turnstile check (under “Signing in”) couldn’t be reached, or answered wrongly. Nothing was written. Try again later (for `turnstile`, with a new token) |
-| `too_large` | 413 | `limit`; or, for the account’s ceiling, `what: "account"` and `limits: { rows, bytes }` | **Too large**: a body over 4,194,304 bytes, or more than 500 rows in one request (`limit`). Or **the account is full** (`what: "account"`, under “Records”): nothing of the push was stored, and sending it again changes nothing until the account shrinks |
+| `too_large` | 413 | `limit`, and `what: "rows"` for too many rows; or, for the account’s ceiling, `what: "account"` and `limits: { rows, bytes }` | **Too large**: a body over 4,194,304 bytes (`limit` alone), or more than 500 rows in one request (`what: "rows"`, `limit`). Or **the account is full** (`what: "account"`, under “Records”): nothing of the push was stored, and sending it again changes nothing until the account shrinks |
 | `too_many` | 429 | `what`: `devices`, `holders`, `approvals`, or `ways`; `limit` | A list is full, or three approvals are in progress |
 | `slow_down` | 429 | `retry`, the seconds to wait; and the header `Retry-After` | This address has asked too often (under “How often a client may ask”). **Wait that long**, then send it again |
 | `busy` | 503 | | The notebook changed three times while the request was being checked, or a way in was removed while a sign-in through it was being checked. Send it again (a sign-in: start it again) |
@@ -2766,9 +2766,11 @@ and all four are “Still open,” 92, for BDR to confirm.
    either is refused whole as `too_large` with `what: "account"` and
    `limits: { "rows": 100000, "bytes": 100000000 }` (status 413). Nothing of it is stored. A push
    that shrinks the account, or keeps it the same, is never refused for it. **New to a client**:
-   the `what` and the `limits` members of `too_large`; until now `too_large` meant a request too
-   big, which a smaller request mends. This one isn’t mended by sending again: a client keeps its
-   changes, holds its rows back for a while, keeps pulling, and says the account is full.
+   `what: "account"` and the `limits` member of `too_large`. Until now `too_large` meant a request
+   too big (with `what: "rows"` when it had more than 500 rows, which the service always sent and
+   this spec now names), and a smaller request mends that. This one isn’t mended by sending again:
+   a client keeps its changes, holds its rows back for a while, keeps pulling, and says the account
+   is full.
 2. **`POST /rows` has a limit of its own: 120 in a minute from one address** (“How often a client
    may ask”), answered `slow_down` as the other two are, and counted under it alone. A client
    that already waits `retry` seconds on `slow_down` needs nothing new.

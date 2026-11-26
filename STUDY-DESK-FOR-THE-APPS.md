@@ -449,9 +449,10 @@ Audit 9, built in `workers/notebook-service/` (migration
 
 - **An account holds at most 100,000 rows and 100 MB** of sealed record (a
   row's `ct` as bytes). A push that would take it past either is **refused
-  whole**: status 413, `too_large` with two new members, `what: "account"`
-  and `limits: { "rows": 100000, "bytes": 100000000 }`. Nothing of it is
-  stored. **An app that reads every `too_large` as “send a smaller
+  whole**: status 413, `too_large` with `what: "account"` and a new member,
+  `limits: { "rows": 100000, "bytes": 100000000 }`. Nothing of it is
+  stored. (`what` was already sent as `"rows"` with more than 500 rows in
+  one request; the spec now names that too.) **An app that reads every `too_large` as “send a smaller
   request” would split the push and loop.** Instead: keep every change on
   the device, send no rows for a while (the website waits an hour, and
   tries at once when its reader asks), keep pulling, and tell the reader
