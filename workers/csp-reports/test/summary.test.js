@@ -67,7 +67,7 @@ describe("the page", () => {
       "Content security policy reports, 2026-11-25 to 2026-12-01 (7 days)",
       "",
       "60 reports counted, on 3 of the 7 days.",
-      "No day reached the cap of 5,000.",
+      "No hour reached the cap of 5,000.",
     ]);
   });
 
@@ -119,10 +119,23 @@ describe("the page", () => {
     expect(text).not.toContain("NOT SAID");
   });
 
-  it("says when a day came within one post of its cap, since that day's counts are then a floor", () => {
-    const capped = page(rows, { ...week, cap: 50 }, [{ day: "2026-11-25", n: 31 }, { day: "2026-11-27", n: 30 }, { day: "2026-11-30", n: 50 }]);
-    expect(capped).toContain("REACHED THE DAY'S CAP of 50 on 2026-11-25, 2026-11-30: that day's counts are a floor, not a total.");
-    expect(capped).not.toContain("No day reached");
+  it("names the hours that came within one post of the cap, since those hours' counts are a floor and the rest of the day is not", () => {
+    const hours = [{ day: "2026-11-25T03", n: 31 }, { day: "2026-11-25T04", n: 30 }, { day: "2026-11-25T14", n: 50 }, { day: "2026-11-30T23", n: 49 }];
+    const capped = page(rows, { ...week, cap: 50 }, hours);
+    expect(capped).toContain("REACHED THE HOUR'S CAP of 50 in the UTC hours starting 2026-11-25 03:00, 2026-11-25 14:00, 2026-11-30 23:00: those hours' counts are a floor, not a total. Every other hour counted in full.");
+    expect(capped).not.toContain("2026-11-25 04:00");
+    expect(capped).not.toContain("No hour reached");
+  });
+
+  it("says no hour reached the cap when none did", () => {
+    expect(page(rows, week, [{ day: "2026-11-25T03", n: 150 }])).toContain("No hour reached the cap of 5,000.");
+  });
+
+  it("holds a row keyed by a bare day (from before the hourly cap) to the old day's cap, not the hour's", () => {
+    const text = page(rows, { ...week, cap: 208, dayCap: 5000 }, [{ day: "2026-11-25", n: 4990 }, { day: "2026-11-26", n: 1000 }]);
+    expect(text).toContain("REACHED THE DAY'S CAP of 5,000 on 2026-11-25 (before the cap was hourly)");
+    expect(text).not.toContain("2026-11-26 ");
+    expect(text).not.toContain("HOUR'S CAP");
   });
 
   it("says what to check when nothing was counted, instead of calling the policy clean", () => {

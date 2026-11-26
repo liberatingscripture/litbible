@@ -66,7 +66,7 @@ Every answer has an empty body: nothing a sender posts is ever given back.
 
 | Status | When |
 |--------|------|
-| 204 | A post that was read, whether its reports were counted, dropped, or over the day's cap. The three are answered alike on purpose. |
+| 204 | A post that was read, whether its reports were counted, dropped, or over the hour's cap. The three are answered alike on purpose. |
 | 400 | Not JSON, not UTF-8, or empty |
 | 404 | Any path but `/csp-report` |
 | 405 | Any method but POST |
@@ -87,11 +87,19 @@ The address is public and takes posts from anyone.
 - **120 posts a minute from one address.** Cloudflare's limiter is
   approximate and counted separately in each of its locations; it slows a
   sender down and is not a wall.
-- **5,000 reports counted in one UTC day** (`DAILY_CAP`). After that, posts
-  are answered as before and write nothing. This is the limit that protects
-  the rest of the account: on the Workers Free plan every D1 database draws
-  on one allowance of 100,000 rows written a day, which the notebook
-  service's preview shares, and a full day here writes at most 10,000.
+- **208 reports counted in one UTC hour** (`HOURLY_CAP`), so a day counts at
+  most 4,992 (24 hours of 208, the largest whole share of 5,000). After an
+  hour's allowance is spent, posts are answered as before and write nothing
+  until the next hour starts, so a flood costs one hour and not the rest of
+  the day. A post that doesn't fit what is
+  left of its hour is dropped whole. This is the limit that protects the
+  rest of the account: on the Workers Free plan every D1 database draws on
+  one allowance of 100,000 rows written a day, which the notebook service's
+  preview shares, and a full day here writes at most about 10,000. The
+  allowance is kept in the `days` table, one row an hour, keyed like
+  `2026-11-26T13`; no schema changed, and the `counts` rows stay by day.
+  (Rows keyed by a bare day, from before the hourly cap, are left alone and
+  deleted with the rest after 30 days.)
 - **What no limit here can stop**: each post is one Worker request, and on
   Workers Free the account has 100,000 a day across every Worker. A flood
   aimed at this address spends them, exactly as one aimed at the contact
@@ -166,6 +174,12 @@ npm run summary -- --file week.json     # from kept rows: asks Cloudflare nothin
 It asks Cloudflare through Wrangler and the login it already has, with two
 SELECTs that change nothing. It is still a command against BVJ's account, so
 it is BVJ's to run or to say yes to.
+
+If an hour reached its cap, the page's first lines name it ("REACHED THE
+HOUR'S CAP ... in the UTC hours starting 2026-11-26 13:00"): that hour's
+counts are a floor, and every other hour counted in full, so one flooded
+hour no longer blanks a day. A flood from one sender also skews what the
+hour's list shows, so read a capped hour's lines with that in mind.
 
 The page has three parts: what would be blocked if the whole policy were
 enforced (the list to work through), what the enforced part already blocks,
