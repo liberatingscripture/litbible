@@ -94,6 +94,38 @@ at sync. It is far above every real limit, so a newer client's records are
 never touched by it, and a kept record is still never rewritten (SEC Q2,
 option B).
 
+**How a length is counted** (2026-11-26; what the website does, **for BDR
+to confirm**). This file counts in four units. Every client counts each one
+the same way, or a record one client accepts another refuses:
+
+- **A field's limit in characters counts code points** (Unicode scalar
+  values). These fields are a bookmark's `label` (40), a label's `name`
+  (200), a sheet's `title`, `subtitle`, and prompts (200 each), a blank's
+  `hintText` (100), and a collection's `name` (200), `description` (1,000),
+  and a heading's `text` (200). Count with JavaScript's
+  `Array.from(text).length`, Swift's `text.unicodeScalars.count`, or
+  Kotlin's `text.codePointCount(0, text.length)`. Never use Swift's
+  `count`, which counts graphemes. So “🙂” is one, and a family emoji built
+  from several joined code points is several. The website's checks count
+  this way (`chars` in `desk-records.mjs`, `desk-sheet-format.mjs`, and
+  `desk-collection-format.mjs`). Its forms may stop sooner, since HTML's
+  `maxlength` counts UTF-16 units; that only keeps a name inside the limit.
+  Its bookmark form cuts between graphemes, so no emoji is split
+  (`cleanBookmarkName`).
+- **A note's `body` counts UTF-16 code units**: at most 65,536
+  (`MAX_NOTE_BODY` in `desk-records.mjs`). The “64 KB” above is that count,
+  not a number of bytes.
+- **Anchor text counts UTF-16 code units**: its offsets, the 32 of
+  `prefix` and `suffix`, and the counts in “Finding a mark again” (“Anchor
+  text”).
+- **A size in KB or MB is bytes of the record's JSON in UTF-8**: a record's
+  1 MB (1,048,576 bytes), and a sheet's and a collection's 512 KB (524,288).
+
+The notebook service's own limits are counted in UTF-16 code units
+(`STUDY-DESK-ENCRYPTION.md`, “How values are spelled”). Those limits are on
+the service's requests, never on a record's fields, which the service can't
+read.
+
 A record about the text also carries **where**:
 
 | Field | Meaning |
@@ -1545,6 +1577,11 @@ and accounts would live under `/sheets/`, `/notebook/`, `/account/`.
   own under sync, and what two devices whose clocks differ then agree on
   ("Clocks"); the service row's fields ("How each store holds the
   records"); and the merge vectors' version 9.
+- **How a length is counted** ("Fields every record carries," 2026-11-26):
+  code points for a field's limit in characters, UTF-16 code units for a
+  note's body and for anchor text, and bytes of UTF-8 for sizes. That is
+  what the website does; **for BDR to confirm**, with what each app counts
+  today (`STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps," 22).
 - **Which device wins when two clocks are far apart** ("Clocks," "Two
   devices whose clocks differ"): the faster clock's edit, once the slower
   clock reaches its stamp, even over an edit made on the slower device in
