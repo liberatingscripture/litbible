@@ -130,11 +130,17 @@ without the switch. The announcement popover stays off all three
     opens them, `?account=off` closes them, and `?account=local` points a
     page served from this computer at `wrangler dev`. It is one stored
     value, `localStorage['lit-desk-account']`, named on `/privacy`.
-    `account-gate.js` reads it; `Layout.astro`'s pre-paint script stamps
-    `<html data-account="open">` from the same key, on every device
-    (`test/desk-prepaint.test.js`); `page.js` sets the stamp itself where it
-    opens (a first visit with the parameter, or a linked browser, which is
-    open whatever the switch says). **Opening accounts to everyone** is its
+    **The parameter works on every page, as `?desk=` does** (E230; BVJ
+    typed it on the home page, where nothing read it): `Layout.astro`'s
+    pre-paint script reads it, stores or clears the value, takes it out of
+    the address (once, where `?desk=` is there too), and stamps
+    `<html data-account="open">` from the key, on every device
+    (`test/desk-prepaint.test.js`). So the header's way in is drawn on the
+    visit that opens accounts, whatever page that is. `account-gate.js`
+    reads the stored choice on the account pages and keeps its own
+    `readSwitch` for a value the script doesn't know. `page.js` sets the
+    stamp itself for a linked browser, which is open whatever the switch
+    says. **Opening accounts to everyone** is its
     own change, apart from the Study Desk's launch: the switch and its key
     (`account-gate.js`, `SWITCH_KEY`, the pre-paint line, `/privacy`'s list
     item), the one-line notes on the two pages, `data-account-opened` on
@@ -191,9 +197,10 @@ without the switch. The announcement popover stays off all three
       (`src/components/CLAUDE.md`, “The header's title swap”), which costs
       the long title a band of widths: `/` and a chapter at 1100 and 1180px
       show “LIT Bible” with the entry and the long title without.
-    - **`start()` can be called again**, and the account page does: on the
-      visit that opens accounts (no stamp before paint, so `desk-gate.js`
-      never drew it), and when it links the browser or stops syncing.
+    - **`start()` can be called again**, and the account page does: when
+      it links the browser or stops syncing, and on a visit whose stamp
+      wasn't there before paint, so `desk-gate.js` never drew the entry (a
+      linked browser with the switch off).
     - **Both buttons are tiles**, as the search and Aa buttons are, and
       joined to `restyle.css`'s ordinary list (Claude's choice: green text
       beside the green “Read” read as a second primary).

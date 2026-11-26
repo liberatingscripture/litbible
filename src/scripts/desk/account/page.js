@@ -98,8 +98,8 @@ export async function start({ root = document.querySelector("[data-account-page]
   doc.documentElement.setAttribute("data-account", "open");
   /**
    * Draws the header's account entry again. desk-gate.js draws it where the stamp was there before
-   * paint; on the visit that opens accounts it wasn't, and the entry would keep its room and show
-   * nothing. notebook.js calls this too, when it links this browser or stops syncing in it.
+   * paint; where it wasn't (a linked browser with the switch off), the entry would keep its room and
+   * show nothing. notebook.js calls this too, when it links this browser or stops syncing in it.
    */
   const header = () => {
     if (!desk || !doc.querySelector("[data-account-entry]")) return;
