@@ -201,7 +201,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | SV9-9 | **Low** | Low | Open |  | Three queries can’t use their index, and `challenges.account` has none |
 | SV9-10 | **Low** | Low | Open |  | The runbook’s Turnstile rows are stale, and it doesn’t say whether a rollback restores an older secret |
 | SV9-11 | **Low** | Low | Open |  | Nothing holds applied migrations unedited or shows one is atomic; a few write paths have no race test |
-| SV9-12 | **Low** | Medium | Open |  | One address can fill the CSP Worker’s daily cap (5,000) in about two minutes, blanking a day of the week’s count, and a forged origin can top the list 4i works from |
+| SV9-12 | **Low** | Medium | Fixed (#721) |  | One address can fill the CSP Worker’s daily cap (5,000) in about two minutes, blanking a day of the week’s count, and a forged origin can top the list 4i works from |
 
 ### The website’s sync
 
@@ -303,7 +303,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | CP9-1 | **Low** | Low | Open | 4j? | The notebook’s place is “this computer,” “this browser,” and “this device”; #713 added more of each |
 | CP9-2 | *False positive* | Nit |  |  | Straight apostrophes in developer strings no reader sees |
 | CP9-3 | *False positive* | Nit |  |  | The app popover’s list has its Oxford comma (“notes and highlights” is one item) |
-| CP9-4 | **Nit** | Low | Open |  | Every page carries about 8 KB of HTML comments (3 KB compressed), most from before the window; the repo is public, so nothing leaks |
+| CP9-4 | **Nit** | Low | Fixed (#718) |  | Every page carries about 8 KB of HTML comments (3 KB compressed), most from before the window; the repo is public, so nothing leaks |
 | CP9-5 | *Deliberate (carries ORC-d)* | Low |  |  | `?account=preview` opens accounts from any page (BVJ’s switch, E230; KNOWN, the account file’s rule 11) |
 
 ### Performance

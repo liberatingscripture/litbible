@@ -124,7 +124,7 @@ const SIZE_OPTIONS = [
 
     {deskTitle && <h1 class="site-header__page-title">{deskTitle}</h1>}
 
-    <!-- Desktop nav -->
+    {/* Desktop nav */}
     {!deskTitle && (
     <nav class="site-nav" aria-label="Primary">
       <ul class="site-nav__list">
@@ -159,7 +159,7 @@ const SIZE_OPTIONS = [
 
         <li class="site-nav__cta-item">
           <a href="/read" class="site-header__cta" aria-label="Read the LIT"><span class="cta-hold">Read</span></a>
-          <!-- Desktop: search and Aa sit after READ -->
+          {/* Desktop: search and Aa sit after READ */}
           <div class="site-header__nav-tools">
             {headerSearch && (
               <a href="/search" class="site-header__search site-header__search--nav" data-search-toggle aria-label="Search">
@@ -445,12 +445,12 @@ const SIZE_OPTIONS = [
     </div>
   )}
 
-  <!-- No-JS navigation fallback. Under 1100px the real nav collapses to the
+  {/* No-JS navigation fallback. Under 1100px the real nav collapses to the
        JS-only overlay, whose toggle does nothing without JS. Render a plain
        nav row (only shown < 1101px, where .site-nav is hidden) and hide the
        JS-only toggles. Mirrors SiteFooter's noscript pattern: <style is:inline>
        with global selectors, since the styled elements are Astro-scoped.
-       Keep this link list in sync with the desktop nav above. -->
+       Keep this link list in sync with the desktop nav above. */}
   <noscript>
     <style is:inline>
       /* JS-only controls do nothing without JS — hide both toggles at every
@@ -492,8 +492,8 @@ const SIZE_OPTIONS = [
     </nav>
   </noscript>
 
-  <!-- Shared tray — position: fixed, placed by JS beside whichever button opened it
-       (the two header buttons, or Read View's toolbar Aa) -->
+  {/* Shared tray — position: fixed, placed by JS beside whichever button opened it
+       (the two header buttons, or Read View's toolbar Aa) */}
 
   <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
     <div class="font-tray__header">
@@ -628,7 +628,7 @@ const SIZE_OPTIONS = [
     </fieldset>
   </div>
 
-  <!-- Mobile overlay menu -->
+  {/* Mobile overlay menu */}
   <div class="menu-overlay" id="mobileMenu" aria-hidden="true">
     <div
       class="menu-overlay__panel"

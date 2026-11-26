@@ -10,7 +10,7 @@
 //
 // The address is public and takes posts from anyone, so:
 //   - nothing is ever echoed back: every answer has an empty body, and a
-//     post that was counted, dropped, or over the day's cap is answered
+//     post that was counted, dropped, or over the hour's cap is answered
 //     alike (204), so the answer tells a sender nothing;
 //   - a post is at most MAX_BODY_BYTES, checked while it is read and not by
 //     what it claims;
@@ -21,7 +21,7 @@
 
 import { MAX_BODY_BYTES, PATH, RETRY_SECONDS, answer, isReportType, readText } from "./http.js";
 import { group, trim } from "./report.js";
-import { DAILY_CAP, count, dayOf, prune } from "./store.js";
+import { HOURLY_CAP, count, dayOf, hourOf, prune } from "./store.js";
 
 /**
  * One line of fixed words for a failure, and nothing from the request. The
@@ -50,10 +50,10 @@ async function allowed(env, request) {
   }
 }
 
-/** The day's cap: DAILY_CAP, or the environment's own number where it gives a whole one (the tests do). */
+/** The hour's cap: HOURLY_CAP, or the environment's own number where it gives a whole one (the tests do). */
 function capOf(env) {
-  const given = Number(env.DAILY_CAP);
-  return Number.isInteger(given) && given > 0 ? given : DAILY_CAP;
+  const given = Number(env.HOURLY_CAP);
+  return Number.isInteger(given) && given > 0 ? given : HOURLY_CAP;
 }
 
 async function handle(request, env) {
@@ -77,7 +77,7 @@ async function handle(request, env) {
   }
 
   const groups = group(trim(parsed, { site: env.SITE_ORIGIN, userAgent: request.headers.get("user-agent") }));
-  if (groups.length > 0) await count(env.DB, dayOf(Date.now()), groups, capOf(env));
+  if (groups.length > 0) await count(env.DB, hourOf(Date.now()), groups, capOf(env));
   return answer(204);
 }
 

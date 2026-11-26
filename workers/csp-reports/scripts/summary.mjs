@@ -24,13 +24,15 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { MAX_REPORTS } from "../src/report.js";
-import { DAILY_CAP } from "../src/store.js";
+import { HOURLY_CAP } from "../src/store.js";
 import { summarize } from "../src/summary.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const packageDir = path.resolve(here, "..");
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const DAY_MS = 24 * 60 * 60 * 1000;
+// The cap on a whole day before it was split by the hour: rows of `days` keyed by a bare day are held to it.
+const LEGACY_DAY_CAP = 5000;
 
 function fail(message) {
   console.error(message);
@@ -93,10 +95,10 @@ if (file) {
   ({ rows, days } = JSON.parse(readFileSync(path.resolve(file), "utf8")));
   if (!Array.isArray(rows) || !Array.isArray(days)) fail(`${file} is not a file this script saved.`);
   rows = rows.filter((row) => row.day >= from && row.day <= to);
-  days = days.filter((day) => day.day >= from && day.day <= to);
+  days = days.filter((day) => day.day >= from && day.day <= `${to}T99`);
 } else {
   rows = select(`SELECT day, disposition, directive, blocked, page, source, browser, n FROM counts WHERE day BETWEEN '${from}' AND '${to}'`, local);
-  days = select(`SELECT day, n FROM days WHERE day BETWEEN '${from}' AND '${to}' ORDER BY day`, local);
+  days = select(`SELECT day, n FROM days WHERE day BETWEEN '${from}' AND '${to}T99' ORDER BY day`, local);
 }
 
 if (save) {
@@ -104,4 +106,4 @@ if (save) {
   console.error(`Rows saved to ${path.resolve(save)}`);
 }
 
-console.log(summarize(rows, days, { from, to, cap: DAILY_CAP, perPost: MAX_REPORTS }));
+console.log(summarize(rows, days, { from, to, cap: HOURLY_CAP, perPost: MAX_REPORTS, dayCap: LEGACY_DAY_CAP }));
