@@ -20,6 +20,7 @@
 // the page, and the reminder, can say how long ago it was.
 
 import { describeLastExport, planChanges, planOpen, sameOpen } from "../../lib/desk-export.mjs";
+import { backupLede } from "../../lib/desk-reminder.mjs";
 import { planWrite } from "../../lib/desk-store-core.mjs";
 import { FORMATS, LAST_EXPORT_KEY, saveFile } from "./backup-file.js";
 import { undoEntry } from "./history.js";
@@ -34,12 +35,14 @@ const MAX_FILE_BYTES = 50_000_000;
  * Build the section's contents inside `el`.
  *
  * @param {HTMLElement} el
- * @param {{ store: object, ctx: () => { client: string, contentVersion: string } }} options
+ * @param {{ store: object, ctx: () => { client: string, contentVersion: string }, linked?: boolean }} options
+ *   `linked`: this browser's notebook syncs with an account, which the
+ *   section's first line says (step 4j).
  */
-export function mountBackup(el, { store, ctx }) {
+export function mountBackup(el, { store, ctx, linked = false }) {
   el.innerHTML = `
     <h2 class="desk-np__h2" id="deskBackupTitle">Back up your notebook</h2>
-    <p>A backup is a file you keep yourself. Your notebook stays in this browser, and a browser can lose it, so back up your notebook now and then.</p>
+    <p>${backupLede(linked)}</p>
     <p class="desk-backup__last" data-backup-last></p>
     <ul class="desk-backup__formats" data-backup-main></ul>
     <h3 class="desk-np__h3" id="deskOtherTitle">Other formats</h3>

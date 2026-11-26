@@ -62,10 +62,40 @@ export function keptLine(linked) {
   return linked ? "Kept in this browser and in your account." : "Kept in this browser.";
 }
 
-/** The Settings tab's plain statement of when a backup was last made. */
-export function savedLine(lastExport, now) {
+/**
+ * The Settings tab's plain statement of when a backup was last made. Where
+ * the notebook also syncs, "backed up" alone would read as the account's copy
+ * standing behind (step 4j, BVJ 2026-11-25), so the line names the file.
+ * @param {{ linked?: boolean }} [opts] whether this browser's notebook syncs with an account
+ */
+export function savedLine(lastExport, now, { linked = false } = {}) {
   const days = daysSince(readLastExport(lastExport), now);
-  return days === null ? "Not backed up yet." : `Last backed up ${agoPhrase(days)}.`;
+  const what = linked ? "backed up to a file" : "backed up";
+  return days === null ? `Not ${what} yet.` : `Last ${what} ${agoPhrase(days)}.`;
+}
+
+/**
+ * The first line of My Notebook (notebook-page.js). Unlinked it says the
+ * notebook never leaves the computer; in a browser that syncs, that would be
+ * false (step 4g's list; the words are step 4j's, BVJ 2026-11-25).
+ * @param {boolean} linked
+ */
+export function notebookIntro(linked) {
+  return linked
+    ? "Everything the notebook keeps in this browser, in Bible order. It syncs with your account, locked with a key we never have."
+    : "Everything the notebook keeps in this browser, in Bible order. It never leaves this computer unless you back it up.";
+}
+
+/**
+ * The lead of My Notebook's "Back up your notebook" (export-import.js). A
+ * backup file stays the one copy that needs nothing else, with an account or
+ * without (step 4j, BVJ 2026-11-25).
+ * @param {boolean} linked
+ */
+export function backupLede(linked) {
+  return linked
+    ? "A backup is a file you keep yourself. Your account keeps a synced copy too, but a file is the one copy that needs no browser, account, or key, so back up your notebook now and then."
+    : "A backup is a file you keep yourself. Your notebook stays in this browser, and a browser can lose it, so back up your notebook now and then.";
 }
 
 /**

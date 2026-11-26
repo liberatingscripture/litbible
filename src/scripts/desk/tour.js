@@ -54,6 +54,7 @@ import { readingSurface } from "../desk-frame.js";
 import { WAYS_HREF, parseTourState, planTour, withSeen, TOUR_STEPS } from "../../lib/desk-first-use.mjs";
 import { NOTE_GAP, NOTE_LINES, marginMode, noteWidth } from "../../lib/desk-notes.mjs";
 import { COMMAND_EVENT, getTourRaw, saveTourList } from "./first-use.js";
+import { SYNC_META, readLink } from "../../lib/desk-sync-link.mjs";
 import { glyph } from "./glyphs.js";
 import { editorHolds, setEditorPreview } from "./note-editor.js";
 import { pageChapter } from "./page.js";
@@ -87,15 +88,30 @@ function viewOfPage() {
  * @param {{ panel: { el: HTMLElement, open: Function, close: Function,
  *   isOpen: () => boolean, showTab: (id: string, opts?: object) => boolean,
  *   showGreekWord: Function | null, snapshot: () => object, restore: (s: object) => void },
- *   canKeep?: boolean }} options
+ *   canKeep?: boolean, store?: object | null }} options
  *   `canKeep` is false where this browser keeps no notebook: the steps about
  *   marking the text and keeping it are left out, since there they don't work
- *   (BA34).
+ *   (BA34). `store` says whether the notebook syncs with an account, which
+ *   the "kept" step's words follow (step 4j).
  */
-export function createTour({ panel, canKeep = true }) {
+export function createTour({ panel, canKeep = true, store = null }) {
   const runner = createTourRunner();
   let state = { verse: null, snap: null };
   const view = viewOfPage();
+
+  // Read ahead, since a tour starts at once: a browser is linked on the
+  // account pages, so reading it as the page opens and on coming back to the
+  // window is enough.
+  let linked = false;
+  const readLinked = async () => {
+    try {
+      linked = readLink(await store?.getMeta(SYNC_META)) != null;
+    } catch (_) {
+      /* unread: the words for a notebook kept here alone */
+    }
+  };
+  readLinked();
+  window.addEventListener("focus", readLinked);
 
   // What a step opened, to undo before the next step and at the end.
   const later = (fn) => runner.later(fn);
@@ -414,6 +430,7 @@ export function createTour({ panel, canKeep = true }) {
     runner.start({
       steps,
       view,
+      linked,
       act: (step, { live = () => true } = {}) => STEPS[step.id]?.(live) ?? null,
       more: (step) => (step.id === "kept" ? { href: WAYS_HREF, text: "Ways to keep your notebook" } : null),
       afterUndo: () => {

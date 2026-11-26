@@ -21,7 +21,7 @@
 // way, rpId }` in the same database under "account". Nothing of a passkey's
 // PRF output is ever kept: it stays in memory for the one step that uses it.
 
-import { ACCOUNT_PATH, HELP_COPIES, HELP_KEPT, WORDS, signedInWords, waitingWords } from "../../../lib/desk-account-words.mjs";
+import { ACCOUNT_PATH, HELP_COPIES, HELP_KEPT, TERMS_HREF, WORDS, signedInWords, waitingWords } from "../../../lib/desk-account-words.mjs";
 import {
   AccountRefusal,
   addProviderWay,
@@ -290,7 +290,18 @@ export async function start({ root = document.querySelector("[data-account-page]
           kind === "delete" ? null : button(ui, WORDS.create, () => signUp(check)),
         ),
       );
-      if (kind !== "delete") nodes.push(check, h("p", { class: "account__hint", text: WORDS.createNote }));
+      if (kind !== "delete") {
+        nodes.push(
+          check,
+          h(
+            "p",
+            { class: "account__hint" },
+            `${WORDS.createNote} ${WORDS.createTermsBefore} `,
+            h("a", { href: TERMS_HREF, text: WORDS.createTermsLink }),
+            ` ${WORDS.createTermsAfter}`,
+          ),
+        );
+      }
     }
     // Apple and Google take their place under the passkey once each is on; they need no passkey.
     const others = h("div", { class: "account__actions", hidden: true });

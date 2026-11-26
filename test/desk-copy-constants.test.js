@@ -39,7 +39,8 @@ test("the help page reads the trash's days from TRASH_DAYS (CP3-6)", () => {
 
 test("the backup reminder's \"a week\" is REMIND_AFTER_DAYS", () => {
   assert.equal(REMIND_AFTER_DAYS, 7);
-  assert.match(read("src/scripts/desk/first-use.js"), /been a week since your last backup/);
+  // The first-time card's words live with its rules (CARD_WORDS, step 4j).
+  assert.match(read("src/lib/desk-first-use.mjs"), /been a week since your last backup/);
 });
 
 test("the Greek command line's \"Up to four words\" is MAX_TERMS", () => {

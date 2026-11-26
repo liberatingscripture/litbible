@@ -2975,6 +2975,24 @@ ol.footnotes[data-desk-fn-pills] {
   margin-top: 10px;
 }
 
+/* Where accounts are open, the card asks (step 4j): two answers, each its
+   words and then its control, a hairline between them. Keeping it here is a
+   button; the account is a link to the account pages. */
+.desk-home-card__option {
+  padding: 10px 0;
+  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
+}
+
+.desk-home-card__option:first-of-type {
+  padding-top: 2px;
+  border-top: 0;
+}
+
+.desk-home-card__account {
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  font-weight: 600;
+}
+
 .desk-home-card__choose,
 .desk-tour__next,
 .desk-tour__back {

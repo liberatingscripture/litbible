@@ -9,9 +9,12 @@
 // cards and the foot is src/scripts/desk/first-use.js, and the tour's is
 // src/scripts/desk/tour.js.
 //
-// Until an account or file option is decided (T3, plan A or C), the choice has
-// two answers and neither mentions sync: the notebook stays in this browser,
-// with or without a reminder to back up now and then.
+// The choice's answers are still two, and both keep the notebook in this
+// browser, with or without a reminder to back up now and then: an account is
+// not an answer stored here but a way out to the account pages, and a browser
+// whose notebook syncs never sees the card (step 4j, BVJ 2026-11-25). Its
+// words are CARD_WORDS, in two forms: while accounts are closed, and where
+// they are open.
 
 import { MAX_PANES } from "./desk-layout.mjs";
 import { numberWord } from "./desk-wording.mjs";
@@ -25,6 +28,48 @@ export const BACKUP_HREF = "/notebook/#backup";
 export const HELP_HREF = "/desk/help/";
 export const WAYS_HREF = "/desk/help/#ways-to-keep";
 export const CONTACT_HREF = "/contact/";
+/** Where the first-time card's "Set up an account…" goes. */
+export const ACCOUNT_HREF = "/account/";
+
+/**
+ * The first-time card's words (D6; step 4j, BVJ 2026-11-25). `closed` is the
+ * statement it has been since BVJ's 2026-11-07 call (Audit 4, FU4-1), while
+ * accounts are closed; `open` is the choice, where they are open
+ * (html[data-account="open"]), and it keeps BVJ's rule that no account at
+ * all is plainly an option. In both, keeping the notebook in this browser is
+ * the answer the card stores; "Set up an account…" is a link. A browser that
+ * syncs never shows the card, so neither form has to be true there.
+ */
+export const CARD_WORDS = Object.freeze({
+  closed: Object.freeze({
+    title: "Your notebook is kept in this browser",
+    lead: "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, the notebook is gone unless you have backed it up.",
+    more: "An account that keeps it in step across your devices is coming. You won’t need one.",
+    done: "Got it",
+  }),
+  open: Object.freeze({
+    title: "Where should your notebook be kept?",
+    keepLead: "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, it is gone unless you have backed it up.",
+    keep: "Keep it in this browser",
+    accountLead: "Your notebook stays in this browser and syncs across your devices, locked with a key we never have.",
+    account: "Set up an account…",
+    more: "You don’t need an account, and you can stop using one at any time.",
+  }),
+  remind: "Remind me to back up my notebook",
+  remindNote: "The Notebook reminds you when it has been a week since your last backup.",
+  ways: "Ways to keep your notebook",
+});
+
+/**
+ * What the bar says the first time a visit writes something while the card is
+ * unanswered (panel.js's nudge, E74). It never shows in a browser that syncs.
+ * @param {boolean} accountsOpen whether accounts are open in this browser
+ */
+export function nudgeLine(accountsOpen) {
+  return accountsOpen
+    ? "Your notebook is kept in this browser. Choose where to keep it."
+    : "Your notebook is kept in this browser. See how to back it up.";
+}
 
 /**
  * Which stage the Study Desk is in, as a reader is told (STUDY-DESK.md, Phase
@@ -255,13 +300,23 @@ export const TOUR_STEPS = [
     body: {
       default:
         "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last backed it up.",
+      // In a browser that syncs, "nothing is sent anywhere" is false (step
+      // 4g's list; these words are step 4j's, BVJ 2026-11-25).
+      linked:
+        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser and synced with your account, locked with a key we never have. The Settings tab says whether it is in sync, and when you last backed it up to a file.",
     },
   },
 ];
 
-/** The wording of a step for this view: "study", "read" or "prose". */
-export function stepBody(step, view) {
-  const b = step.body;
+/**
+ * The wording of a step for this view: "study", "read" or "prose". A step
+ * with a `linked` wording takes it in a browser whose notebook syncs with an
+ * account, whatever the view.
+ * @param {{ linked?: boolean }} [opts]
+ */
+export function stepBody(step, view, { linked = false } = {}) {
+  const { linked: whenLinked, ...b } = step.body;
+  if (linked && whenLinked) return whenLinked;
   return b[view] ?? b.default ?? Object.values(b)[0] ?? "";
 }
 

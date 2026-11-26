@@ -65,15 +65,17 @@ export function createTourRunner() {
    *   act: (step: object, { live }: { live: () => boolean }) => Promise<object | null>,
    *   finish?: () => void | Promise<void>, afterUndo?: () => void,
    *   more?: (step: object) => ({ href: string, text: string, external?: boolean } | null),
-   *   returnTo?: HTMLElement | null, returnFallback?: () => (HTMLElement | null) }} options
-   *   `steps` is a planned tour (`planTour`). `view` picks a step's wording.
+   *   returnTo?: HTMLElement | null, returnFallback?: () => (HTMLElement | null), linked?: boolean }} options
+   *   `steps` is a planned tour (`planTour`). `view` picks a step's wording,
+   *   and `linked` (this browser's notebook syncs with an account) the
+   *   wording of a step that has one for that (stepBody).
    *   `afterUndo` runs after each step's `later` functions. `more` gives a
    *   step's link under its words, if it has one.
    *   `returnFallback` names where focus goes at the end when `returnTo` is
    *   gone or hidden by then (a button in a window the tour closed, or in a
    *   panel it folded away), so focus never drops to the page (LV3-4).
    */
-  function start({ steps, view = null, act, finish = () => {}, afterUndo = () => {}, more = () => null, returnTo = null, returnFallback = null }) {
+  function start({ steps, view = null, act, finish = () => {}, afterUndo = () => {}, more = () => null, returnTo = null, returnFallback = null, linked = false }) {
     if (run || !steps.length) return false;
     // A bar that stays (a layout's Undo, the backup reminder) closes first, and
     // before focus is noted, so focus in it goes back to where it was.
@@ -83,6 +85,7 @@ export function createTourRunner() {
     run = {
       steps,
       view,
+      linked,
       act,
       finish,
       afterUndo,
@@ -241,7 +244,7 @@ export function createTourRunner() {
     const card = run.card;
     card.querySelector(".desk-tour__count").textContent = `${step.partName} · Step ${step.number} of ${step.of}`;
     card.querySelector(".desk-tour__title").textContent = step.title;
-    card.querySelector(".desk-tour__body").textContent = stepBody(step, run.view);
+    card.querySelector(".desk-tour__body").textContent = stepBody(step, run.view, { linked: run.linked });
     const extra = run.more(step);
     const moreEl = card.querySelector(".desk-tour__more");
     moreEl.hidden = !extra;
