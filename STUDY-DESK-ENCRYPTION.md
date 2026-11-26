@@ -963,7 +963,12 @@ Two devices signed in to the same account: the new one, without the key, and one
    The platform is the card’s word (`ios`, `android`, or `web`) and the model is the name the card
    will start with. Neither may hold a line feed, as for any line.
 4. **The approving device** finds the request by its id, checks its MAC, and asks the reader “Add
-   [model] to your notebook?” The screen says to approve only a device the reader is holding.
+   [model] to your notebook?” **The question also says when the request was made and how the
+   session that made it signed in** (the answer’s `created` and `through`, read against its
+   `time`: “Asked 2 minutes ago, signed in with a passkey.”), and **to approve only a device the
+   reader is holding**: where the new device shows the code, one showing this code now; where the
+   approving device showed it, one where the reader just entered or scanned it (Audit 9, SEC9-1;
+   BVJ, 2026-11-26).
 5. **On yes, it posts a grant**: it seals its keyring to the new device’s public key (HPKE, `info`
    `lit-notebook/1 keyring`, an empty AAD), writes the new device’s card (the model as its name, the
    platform, and both public keys from the request, with `added` its own time now), and sends the
@@ -1016,7 +1021,11 @@ after a link’s `#`, in a request.
 The recommended shape (the exact address is settled with the service, in step 4c):
 `https://litbible.net/account/connect/#a=<16 characters>`. BDR’s proposal has the apps claim
 `/account/` (§6b), so the phone’s camera opens the app, and the app takes its part from its own
-state: holding the keyring, it approves; without one, it asks to join. The website’s “Connect your
+state: without the keyring, it asks to join with that code. **Holding the keyring, it never acts
+on a code from a link** (Audit 9, SEC9-1; BVJ, 2026-11-26): it drops the code and asks the reader
+to type the one the new device is showing. A link can be sent by anyone, and a device that looked
+the code up would put “Add [model] to your notebook?” before a reader who asked for nothing; a
+code typed from the other screen proves the reader is holding both. The website’s “Connect your
 phone” (the proposal, §6b), which adds a single-use sign-in code to the same link, is held until
 after February 10 (`STUDY-DESK.md`, “Order of work,” 4).
 
@@ -1458,9 +1467,15 @@ DELETE /session
   `credential` and `syncs` are a passkey’s only. No account id from Apple or Google is ever
   answered. A way in’s `id` is what `DELETE /ways/<id>` names (under “Ways to sign in”). They are
   listed oldest first.
-- **`DELETE /session`** is how a device that never joined the notebook signs out: a reader who
-  signed in and went no further. A device that has joined signs out with `DELETE /devices/<id>`,
-  which removes its entry and sealed keyring too (under “Devices and holders”).
+- **`DELETE /session`** is how a session attached to no device signs out (`session.device` is
+  null): a reader who signed in and went no further, and a device that was removed, or whose
+  notebook was replaced, and signed in again. A session attached to a device signs out with
+  `DELETE /devices/<id>`, which removes its entry and sealed keyring too (under “Devices and
+  holders”). **Where that is refused by the rule `own_device`, the device sends
+  `DELETE /session` instead** (Audit 9, COH9-1), so signing out never fails for the session’s
+  state. **Stopping syncing ends the session too** (Audit 9, SY9b-2): a device whose reader stops
+  syncing without signing out sends `DELETE /session` first, and a failure of that request
+  doesn’t hold up the stop.
 - **`waiting`** is the request to delete the account or replace the notebook that is waiting its
   seven days, or `null` (under “Waiting seven days”). **Every session of the account is answered
   it**, open or not, so that every device of the reader’s can show it. `mine` is true for the
@@ -1545,7 +1560,8 @@ POST /holders         { "lists": 10, "kid": 2, "holder": <a holder in full> }
 - **`seen`** is when a session open on that device last made a request, written at most once an
   hour.
 - **`PUT`’s `keyring` may be left out** (a rename). A session attached to another device, or to
-  none, is refused by the rule `own_device`.
+  none, is refused by the rule `own_device`, for `PUT` and for `DELETE` alike. A device signing
+  out from such a session ends it with `DELETE /session` (under “The account”).
 - **`DELETE` needs no open session**, so a device that never caught up with a change of key can
   still sign out. If its entry is already gone (another device removed it), its sessions are ended
   and the version doesn’t move.
@@ -1658,7 +1674,7 @@ POST /rows
 | Request | From | The service checks | Then |
 |---|---|---|---|
 | `POST /approvals` with the approval’s id, the device’s id, platform, model, both public keys, and the MAC | signed in, not open | the account has a notebook; the id is 32 hex characters and unused; the device id has no entry; a small limit on approvals in progress | Kept for ten minutes |
-| `GET /approvals/<id>` | signed in | nothing more | The request, and the grant if there is one |
+| `GET /approvals/<id>` | signed in | nothing more | The request, when it was made and how the session that made it signed in, and the grant if there is one |
 | `POST /approvals/<id>/grant` with `kid`, the card, `enc`, the ciphertext, and the MAC | open | the approval exists, is in time, and has no grant; `kid` is current | The grant is kept, with the device it came from |
 | `POST /approvals/<id>/accept` with `kid` and the key proof | the session that made the request | a grant exists; `kid` is current and is the grant’s; the proof; the device id has no entry | The device is listed, with the grant’s card and keyring, as added by the granting device. The version moves. The session is open. The approval is deleted |
 
@@ -1671,7 +1687,8 @@ POST /approvals
   → { "id": "<32 hex>", "expires": "<time, ten minutes on>" }
 
 GET /approvals/<32 hex>
-  → { "approval": { "id", "device", "platform", "model", "public", "sign", "mac", "expires",
+  → { "approval": { "id", "device", "platform", "model", "public", "sign", "mac",
+                    "created": "<time>", "through": "passkey" or null, "expires",
                     "grant": null
                           or { "kid", "card": { "nonce", "ct" }, "keyring": { "enc", "ct" },
                                "mac", "by": "<the granting device's id>" } } }
@@ -1692,6 +1709,11 @@ POST /approvals/<32 hex>/accept     { "kid": 2, "proof": "<32 bytes>" }
 - **An approval belongs to its account.** A session of another account is told `gone` for the same
   id, as it is for one that ran out or never was.
 - **A second grant is `exists`.** Of two devices granting at once, one is answered.
+- **`created`** is when the request was made, and **`through`** the `kind` of the way in of the
+  session that made it (`passkey`, `apple`, `google`; on the preview, also `preview`), or `null`
+  once that session has ended. The approving device shows both, against the answer’s `time`, so a
+  reader can tell a request they didn’t make (Audit 9, SEC9-1). Neither is under the MAC: the
+  service could misstate them, as it could leave a request out, and the code still guards the keys.
 - **Accept is for the session that asked**, by its token and nothing in the request. Any other is
   refused by the rule `requester`; one sent before there is a grant, by the rule `no_grant`.
 
@@ -2755,6 +2777,26 @@ changed:
    `test/turnstile.test.js`; the website already sends the token where `GET /sign-in` names a
    key (`src/lib/desk-account-session.mjs`).
 
+## Changed in Audit 9
+
+Study Desk Audit 9 (`STUDY-DESK-AUDIT-9.md`, 2026-11-25) read plan C’s accounts and sync, and BVJ
+decided its open items on 2026-11-26 (`STUDY-DESK.md`, “Decisions,” that day). **One answer has
+grown, and nothing else in the interface has changed here** (1); the service’s limits, decided the
+same day, are the next section. The rest is what a client does, so each app has the same to build;
+each is **for BDR to confirm** (“Still open,” 91):
+
+1. **`GET /approvals/<id>` answers `created` and `through`** (SEC9-1): when the request was made,
+   and how the session that made it signed in, `null` once that session has ended. Worked out from
+   the session as the answer is made, so no column was added and no migration.
+2. **The approving device says when, how, and to approve only a device in hand** (“By approval,”
+   step 4), and **one holding the keyring never acts on a link’s code** (“The link”). Both answer
+   SEC9-1: a reader could approve a stranger’s request whose code reached them in a link.
+3. **Signing out falls back to `DELETE /session`** where `DELETE /devices/<id>` is refused by the
+   rule `own_device` (COH9-1), which every session of a removed or replaced device that signed in
+   again was. `own_device` is now named for `DELETE` as well as `PUT`.
+4. **Stopping syncing ends the session** (SY9b-2), so a browser that stops leaves no session behind
+   on the service.
+
 ## Changed in Audit 9: the service’s limits
 
 BVJ’s decisions of 2026-11-26 on Study Desk Audit 9 (SV9-1, SEC9-3, and SEC9’s question 2),
@@ -3312,8 +3354,9 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     for the new device instead” on one that has the notebook). Reading one, the page at that
     address takes `#a=` followed by 16 to 24 characters of the code’s alphabet and hyphens, takes
     it out of the address before anything else runs, never sends it, and then uses it for what
-    this browser can do: with the notebook, it fills in “Add a device” and asks the reader to say
-    yes to the device named; without one, it asks to join with that code after sign-in. A
+    this browser can do: without the notebook, it asks to join with that code after sign-in; with
+    it, it drops the code and asks for the one the new device shows to be typed (Audit 9, SEC9-1;
+    BVJ, 2026-11-26: before that it filled the code in and asked the reader to say yes). A
     computer has no camera to count on, so the website never scans: it types. **For BDR to
     confirm**: that an app which scans this link reads the code the same way and takes its part
     from its own state, and that a QR code an app shows carries the same link.
@@ -3322,7 +3365,7 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     also the first name on its device card, which the reader can change (BVJ, 2026-11-24). The
     approving device shows it with the platform: “Add “Chrome on Windows” (Website) to your
     notebook?” Two computers therefore often share a first name until one is renamed; the
-    website’s own notice of an approval says “approved from this computer” for that reason. **For
+    website’s own notice of an approval says “approved from this browser” for that reason. **For
     BDR**: what will each app send as `model`, and will its list show the website’s name as
     written?
 89. **A device whose account was deleted says only that it was signed out.** Deleting an account
@@ -3352,6 +3395,14 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     `id_token`, are from their documentation. **For BDR to confirm**: the two ids, the two return
     addresses, and that asking for no email address suits the apps’ own use of the same account
     (the service keeps none either way).
+91. **Audit 9’s three client changes** (“Changed in Audit 9,” 2 to 4; BVJ, 2026-11-26). **For BDR
+    to confirm**, since each is something an app builds too: (a) the approval question says when
+    the request was made and how its session signed in, from the answer’s `created` and `through`,
+    and says to approve only a device in hand; (b) a device that holds the keyring never acts on a
+    code from a link, and asks for it typed; (c) signing out sends `DELETE /session` where the
+    session is attached to no device, or where `DELETE /devices/<id>` is refused `own_device`, and
+    stopping syncing ends the session. An app opened by a scanned link (87) that holds the keyring
+    drops the code, as the website does.
 92. **The service’s limits, from Audit 9** (BVJ’s decisions of 2026-11-26; “Changed in Audit 9:
     the service’s limits”). **For BDR to confirm**, and three of the four ask something of the
     apps. (a) **A new refusal**: a push that would take an account past 100,000 rows or 100 MB is

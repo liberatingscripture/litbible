@@ -162,7 +162,8 @@ export function mountStoppedNotice(connector, env) {
     try {
       await once(status);
     } catch (err) {
-      log("the notice that the sync stopped couldn’t be shown", err);
+      // Taken off meanwhile, as the sync stopped: its storage is closed and refuses, which is no fault.
+      if (!off) log("the notice that the sync stopped couldn’t be shown", err);
     } finally {
       working = false;
     }

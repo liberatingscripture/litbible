@@ -286,21 +286,36 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
     /**
      * A `fetch` for the connector's own carrier (src/scripts/desk/sync/service.js):
      * the same service, reached as HTTP. No connection is a TypeError, as a
-     * browser's is.
+     * browser's is. Its `signal` is honored as a browser honors it: aborted
+     * before the request goes, nothing is sent; aborted on the way (the
+     * connector stopping), the fetch fails at once with an AbortError while
+     * the request already sent goes on at the service, as it may on the real
+     * one.
      */
     async fetch(url, init = {}) {
+      const aborted = () => new DOMException("The operation was aborted.", "AbortError");
+      if (init.signal?.aborted) throw aborted();
       service.fetched.push({ url, init });
       const { pathname, search } = new URL(url);
       const token = BEARER.exec(init.headers?.Authorization ?? "")?.[1] ?? null;
-      let answered;
-      try {
-        answered = await service.api(token).call(init.method ?? "GET", pathname + search, init.body === undefined ? undefined : JSON.parse(init.body));
-      } catch (err) {
-        if (err instanceof Offline) throw new TypeError("Failed to fetch");
-        throw err;
-      }
-      const text = JSON.stringify(answered.body);
-      return { status: answered.status, ok: answered.status < 300, text: async () => text };
+      const answering = (async () => {
+        let answered;
+        try {
+          answered = await service.api(token).call(init.method ?? "GET", pathname + search, init.body === undefined ? undefined : JSON.parse(init.body));
+        } catch (err) {
+          if (err instanceof Offline) throw new TypeError("Failed to fetch");
+          throw err;
+        }
+        const text = JSON.stringify(answered.body);
+        return { status: answered.status, ok: answered.status < 300, text: async () => text };
+      })();
+      const signal = init.signal;
+      if (!signal) return answering;
+      return new Promise((resolve, reject) => {
+        const cut = () => reject(aborted());
+        signal.addEventListener("abort", cut, { once: true });
+        answering.then(resolve, reject).finally(() => signal.removeEventListener("abort", cut));
+      });
     },
 
     /** An `api` for the engine: call(method, path, body) → { status, body }. */

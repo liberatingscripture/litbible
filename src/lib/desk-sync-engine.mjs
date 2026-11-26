@@ -40,6 +40,13 @@
 // any of them: the spec's rule is that a device keeps its keys until the
 // reader signs it out.
 //
+// A STOP IS FINAL (Audit 9, SY9b-2). `stop()` is for a reader who stopped
+// syncing or signed out: from then on the engine makes no request, writes
+// nothing to the notebook or to its own state, and starts no pass. A pass
+// already running ends at its next request or write, and `stop()` resolves
+// once it has, so whoever clears the sync's storage after it clears the last
+// of it.
+//
 // THE ACCOUNT'S CEILING (BVJ, 2026-11-26; Audit 9, SV9-1). The service
 // refuses, whole, a push that would take the account past 100,000 rows or
 // 100 MB (`too_large`, `what: "account"`). Sending the same rows again would
@@ -105,6 +112,14 @@ class Refused extends Error {
   }
 }
 
+/** The engine was stopped: what follows a request or comes before a write goes no further. */
+class Stopped extends Error {
+  constructor() {
+    super("desk-sync: the sync was stopped");
+    this.name = "Stopped";
+  }
+}
+
 /** How many times one pass will fetch a new keyring and start again. */
 const MAX_CATCH_UPS = 3;
 /** How many times one pass will pull, merge, and push before it stops and lets the next pass go on. */
@@ -160,6 +175,7 @@ export function createSyncEngine({
   /** While a pull from 0 is checking which rows the service still has: the ids seen. */
   let auditing = null;
   let running = null;
+  let stopped = false;
   let failures = 0;
   /** While the account's ceiling holds rows back: { until, limits } (the header). */
   let full = null;
@@ -167,6 +183,11 @@ export function createSyncEngine({
   let status = { state: "starting", pending: 0, problems: {}, lastSynced: null, clock: null, account: null };
 
   const nowMs = () => Date.parse(now());
+
+  /** Goes no further once the engine is stopped. */
+  const alive = () => {
+    if (stopped) throw new Stopped();
+  };
 
   function publish(patch) {
     const unread = [...base.values()].filter((e) => e.held === "skip").length;
@@ -204,8 +225,9 @@ export function createSyncEngine({
     for (const hold of read.held ?? []) holds.set(hold.id, hold);
   }
 
-  /** Writes entries, held rows, and meta together, after putting them in memory. */
+  /** Writes entries, held rows, and meta together, after putting them in memory. A stopped engine writes nothing. */
   async function save({ entries = [], forget = [], hold = [], release = [], patch = null } = {}) {
+    alive();
     for (const entry of entries) base.set(entry.id, entry);
     for (const id of forget) base.delete(id);
     for (const h of hold) holds.set(h.id, h);
@@ -223,7 +245,10 @@ export function createSyncEngine({
 
   async function request(method, path, body) {
     for (let tries = 0; ; tries++) {
+      // Nothing is sent once the engine is stopped, and an answer that arrives after the stop is not read.
+      alive();
       const res = await api.call(method, path, body);
+      alive();
       const answered = res?.body && typeof res.body === "object" ? res.body : {};
       clock = clockOffset(answered.time, nowMs()) ?? clock;
       if (res?.status === 200 && typeof answered.error !== "string") return answered;
@@ -339,13 +364,18 @@ export function createSyncEngine({
       ...skipped.map(({ row, why }) => ({ row, how: "skip", why })),
     ];
     let planned = null;
+    alive();
     await notebook.change(
       async ({ all }) => {
-        planned = planIncoming(await all(), opened, { now: now(), also: unread.map((o) => o.row.id) });
+        const records = await all();
+        // Checked inside the notebook's own transaction, so a stop can't fall between it and the write.
+        if (stopped) return null;
+        planned = planIncoming(records, opened, { now: now(), also: unread.map((o) => o.row.id) });
         return planned.plan.put.length || planned.plan.remove.length ? planned.plan : null;
       },
       { record: false },
     );
+    if (!planned) throw new Stopped();
     if (scanned) {
       for (const r of planned.plan.put) local.set(r.id, await summarize(r));
       for (const id of planned.plan.remove) local.delete(id);
@@ -532,6 +562,8 @@ export function createSyncEngine({
       await settlePush(sent, await request("POST", "/rows", { put: sent.put.map((p) => p.row), remove: [] }));
     };
     for (const { id, rev } of holding ? [] : plan.put) {
+      // Sealing a large notebook takes a while: a stop ends it here, before the next request.
+      alive();
       const record = await notebook.get(id);
       if (!record) {
         touched.add(id);
@@ -636,6 +668,7 @@ export function createSyncEngine({
   async function run() {
     try {
       await load();
+      alive();
       // A pass that finds nothing to do leaves "up to date" on the screen: the status says "syncing"
       // only once a pull brings rows or a push has something to send.
       if (status.state !== "upToDate") publish({ state: "syncing" });
@@ -650,11 +683,16 @@ export function createSyncEngine({
           open = false;
         }
       }
-      failures = 0;
       if (done) await save({ patch: { lastSynced: now() } });
+      // Stopped while the last write was on its way: nothing is said (the catch below).
+      alive();
+      failures = 0;
       publish({ state: done ? "upToDate" : "syncing", again: !done });
     } catch (err) {
       open = false;
+      // Stopped (the request cut off, or the flag found): not a failure, and nothing more is read,
+      // counted, or said. Whoever stopped it is clearing what the sync kept.
+      if (stopped) return status;
       const known = err instanceof Halt || err instanceof Offline || err?.name === "Offline" || err instanceof Refused || err instanceof Behind;
       // Anything else may have left this memory ahead of what was written (a failed write of the
       // sync's own state): the next pass reads it again.
@@ -682,6 +720,7 @@ export function createSyncEngine({
 
   /** Counts what waits without a request, and publishes it: for a change made while nothing can be sent. */
   async function tally() {
+    if (stopped) return status;
     try {
       await load();
       await owed();
@@ -695,9 +734,11 @@ export function createSyncEngine({
   return {
     /**
      * One pass. Resolves to the status it ends with, never rejects. A pass
-     * asked for while one runs is that same pass.
+     * asked for while one runs is that same pass. A stopped engine starts
+     * none, and resolves to the status it has.
      */
     pass() {
+      if (stopped) return running ?? Promise.resolve(status);
       running ??= run().finally(() => {
         running = null;
       });
@@ -726,10 +767,13 @@ export function createSyncEngine({
      * that way: at rest there is only the sealed copy.
      */
     async adopt(incoming) {
+      alive();
       await load();
       if (keyring) checkKeyring({ held: keyring, highest: Math.max(meta.highest, keyring.current), incoming });
       if (incoming.notebook !== meta.notebook) throw new Refusal("notebook");
       const sealed = await sealKeyring({ keyring: incoming, recipientPublic: device.key.public });
+      // A stopped engine takes nothing: it is checked again before anything changes (save checks too).
+      alive();
       keyring = incoming;
       open = false;
       await save({ patch: { sealed: { enc: toBase64url(sealed.enc), ct: toBase64url(sealed.ct) }, highest: Math.max(meta.highest, incoming.current) } });
@@ -743,6 +787,17 @@ export function createSyncEngine({
       open = false;
       failures = 0;
       full = null;
+    },
+
+    /**
+     * Stops the engine for good (the reader stopped syncing, or signed out):
+     * no request, no write to the notebook or the sync's state, and no pass
+     * from here. Resolves to the status once the pass that was running, if
+     * any, has ended, which it does at its next request or write.
+     */
+    stop() {
+      stopped = true;
+      return running ?? Promise.resolve(status);
     },
 
     status: () => status,

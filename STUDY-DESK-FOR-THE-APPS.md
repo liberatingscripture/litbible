@@ -440,6 +440,41 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-26, the approval question, a link's code, and signing out (Audit 9)
+
+**One answer grew, and nothing else you call changed**: `GET
+/approvals/<id>` now carries `created` and `through` (live on the preview
+once this merges). BVJ's calls from Study Desk Audit 9, each **for BDR to
+confirm** (the spec's “Still open,” 91):
+
+- **The approving device says when and how the request was made, and to
+  approve only a device in hand** (decision 5, SEC9-1). The website asks:
+  “Add “Safari on Mac” (Website) to your notebook? Asked 2 minutes ago,
+  signed in with a passkey. Approve only a device you’re holding that is
+  showing this code now.” After “Show a code for the new device instead”
+  the last sentence is “Approve only a device you’re holding, where you
+  just entered or scanned this code.” `through` is the asking session's
+  way in (`passkey`, `apple`, `google`), or null once that session has
+  ended; then say when alone.
+- **A device that holds the keyring never acts on a code from a link**
+  (the same decision). Anyone can send a link, and looking its code up put
+  “Add … to your notebook?” before a reader who asked for nothing. The
+  website drops the code and asks for the one the new device shows, typed.
+  An app opened by a scanned link (the spec's 87) that holds the keyring
+  would do the same; one that is joining uses the code as before.
+- **Signing out never fails for the session's state** (decision 6,
+  COH9-1). A session attached to no device (`GET /account`'s
+  `session.device` is null: a device that was removed, or whose notebook
+  was replaced, and signed in again) signs out with `DELETE /session`.
+  Where `DELETE /devices/<id>` answers `not_allowed` with the rule
+  `own_device`, fall back to `DELETE /session`.
+- **Stopping syncing ends the session** (SY9b-2): send `DELETE /session`
+  first, and stop whatever it answers.
+
+Full text: `STUDY-DESK-ENCRYPTION.md`, “By approval,” “The link,” “The
+account,” and “Changed in Audit 9”; `STUDY-DESK.md`, “Decisions,”
+2026-11-26.
+
 ### 2026-11-26, the service's limits: a full account, a limit on pushes, and unused accounts (Audit 9)
 
 **One answer you can get is new.** BVJ's answers to Study Desk Audit 9's

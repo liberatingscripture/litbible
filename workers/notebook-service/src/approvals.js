@@ -16,10 +16,20 @@ import { insertDevice, moveLists, needRoomForDevice } from "./lists.js";
 
 export const APPROVAL_MINUTES = 10;
 
-/** The approval with this id, if it is this account's and still in time. Otherwise "gone". */
+/**
+ * The approval with this id, if it is this account's and still in time. Otherwise "gone".
+ * `through` is the way in of the session that asked, read from that session as it stands
+ * (null once it has ended), so the device asked to approve can say how the request was made
+ * (Audit 9, SEC9-1; BVJ, 2026-11-26).
+ */
 async function needApproval(env, auth, id, time) {
   if (!isApprovalId(id)) bad("id");
-  const approval = await env.DB.prepare("SELECT * FROM approvals WHERE account = ? AND id = ? AND expires > ?")
+  const approval = await env.DB.prepare(
+    `SELECT approvals.*,
+            (SELECT ways.kind FROM sessions JOIN ways ON ways.id = sessions.way AND ways.account = sessions.account
+              WHERE sessions.token_hash = approvals.session) AS through
+       FROM approvals WHERE account = ? AND id = ? AND expires > ?`,
+  )
     .bind(auth.account, id, time)
     .first();
   return approval ?? refuse(410, "gone", { what: "approval" });
@@ -101,6 +111,8 @@ export async function getApproval({ request, env, params }) {
       public: a.public,
       sign: a.sign,
       mac: a.mac,
+      created: a.created,
+      through: a.through ?? null,
       expires: a.expires,
       grant: a.granted_by
         ? {

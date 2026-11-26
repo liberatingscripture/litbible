@@ -44,7 +44,7 @@ choices in the notices that were still Claude's
 | Route | File | What it is |
 |---|---|---|
 | `/account/` | `account.astro` | Every screen: signed out, setup, the recovery code, opening the notebook, the home, the basics on a phone |
-| `/account/connect/` | `account/connect.astro` | Where a link that carries an approval code lands (`#a=<16 characters>`, the QR code's content). The same page code, with the code read and taken out of the address first |
+| `/account/connect/` | `account/connect.astro` | Where a link that carries an approval code lands (`#a=<16 characters>`, the QR code's content). The same page code, with the code read and taken out of the address first, and used only by a browser that is joining (rule 23) |
 | `/delete-account/` | `delete-account.astro` | The public page (in the sitemap, as the stores require), with a box that signs in and deletes or asks to; the box is `data-account-opened` and hidden unless accounts are open |
 
 `/account/` and `/account/connect/` are noindex, out of the sitemap (an
@@ -201,6 +201,13 @@ without the switch. The announcement popover stays off all three
     (the page hears `hashchange` too, since on the account page itself only
     the fragment changes). The page's sheet carries `id="sign-out"` for
     it, because `npm run check:links` fails a fragment with no element.
+    **Both end the service's session** (Audit 9; BVJ, 2026-11-26).
+    Signing out removes this browser's device entry only where the session
+    is attached to it: in the `removed` and `otherNotebook` stops it sends
+    `DELETE /session` alone (`attached: false`), and `signOutDevice` falls
+    back to the same where the service answers `own_device` (COH9-1).
+    “Stop syncing” sends `DELETE /session` first and stops whatever that
+    answers (SY9b-2), so no session is left behind on the service.
 15. **`replace: true` has one way to be said**: “Join the new notebook,” on
     a stop of `otherNotebook`. Nothing else sets `S.replace`, and it is
     cleared when a link is made or the reader leaves. The old browser's
@@ -319,6 +326,18 @@ without the switch. The announcement popover stays off all three
     your computer,” a clock), and **“device”** only in “This device only”
     and for the account's set (“your devices,” “Add a device,” a device
     card). A new sentence follows it.
+23. **An approval is said in full, and a link never asks it** (BVJ,
+    2026-11-26, Audit 9 decision 5, SEC9-1). The question
+    (`addQuestion`) names the device, says when the request was made and
+    how its session signed in (`askedWords`, from the answer's `created`
+    and `through` against its `time`), and says to approve only a device
+    in hand: one showing this code now, or, after “Show a code for the new
+    device instead,” one where the reader just entered or scanned it. **A
+    browser that holds the notebook never acts on a link's code**: the
+    code leaves the address as before, `loadLists` drops it, and “Add a
+    device” opens empty, focused, with a line asking for the code the new
+    device shows. Only a browser joining uses a link's code. Since a link
+    can be sent by anyone, keep it that way.
 
 ## Testing
 

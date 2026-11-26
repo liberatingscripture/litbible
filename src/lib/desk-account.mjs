@@ -329,9 +329,10 @@ export async function askToJoin({ call, device, code }) {
   return { id, macKey, expires: answer.expires };
 }
 
-async function readApproval(call, id) {
+async function readApproval(call, id, { withTime = false } = {}) {
   try {
-    return (await must(call, "GET", `/approvals/${id}`)).approval;
+    const answered = await must(call, "GET", `/approvals/${id}`);
+    return withTime ? { approval: answered.approval, time: answered.time ?? null } : answered.approval;
   } catch (error) {
     if (error instanceof AccountRefusal && error.is("gone")) throw new AccountStop("approvalGone", error);
     throw error;
@@ -340,13 +341,17 @@ async function readApproval(call, id) {
 
 /**
  * The device that has the key finds the request a code names and checks its
- * MAC (step 4). Returns { id, macKey, request, expires, granted }:
+ * MAC (step 4). Returns { id, macKey, request, expires, granted, asked }:
  * `request.model` and `request.platform` are what the reader is asked about
- * ("Add [model] to your notebook?"). Nothing is granted yet.
+ * ("Add [model] to your notebook?"), and `asked` is when and how the request
+ * was made, as the service says it: { created, through, time }, `time` being
+ * the service's clock at the answer, so the page can say "1 minute ago"
+ * whatever this device's clock says (Audit 9, SEC9-1). The three are plain
+ * and unchecked: the MAC covers none of them. Nothing is granted yet.
  */
 export async function findRequest({ call, code }) {
   const { id, macKey } = await approvalKeys(code);
-  const approval = await readApproval(call, id);
+  const { approval, time } = await readApproval(call, id, { withTime: true });
   let request;
   try {
     request = {
@@ -361,7 +366,8 @@ export async function findRequest({ call, code }) {
   } catch (error) {
     throw new AccountStop("approvalForged", error);
   }
-  return { id, macKey, request, expires: approval.expires, granted: approval.grant !== null };
+  const asked = { created: typeof approval.created === "string" ? approval.created : null, through: typeof approval.through === "string" ? approval.through : null, time: typeof time === "string" ? time : null };
+  return { id, macKey, request, expires: approval.expires, granted: approval.grant !== null, asked };
 }
 
 /**
@@ -644,13 +650,30 @@ export function removePasskeyHolder({ lists, holder, ...rest }) {
  * every session attached to it are removed, and the key doesn't change
  * (`DELETE /devices/<id>`). It needs no open session. A session the service
  * no longer knows is as good as signed out, and returns { lists: null }.
- * The caller then unlinks the browser; the notebook in it stays.
+ *
+ * A session attached to no device is ended instead (`DELETE /session`), and
+ * also returns { lists: null }: a device removed from the notebook, or one
+ * whose notebook was replaced, that the reader signed in to again holds such
+ * a session, and the service refuses it `DELETE /devices/<id>` with
+ * `not_allowed` `own_device` (Audit 9, COH9-1; BVJ, 2026-11-26). Pass
+ * `attached: false` where that is already known, and the doomed request is
+ * not sent. The caller then unlinks the browser; the notebook in it stays.
  */
-export async function signOutDevice({ call, device }) {
+export async function signOutDevice({ call, device, attached = true }) {
+  const endOnly = async () => {
+    try {
+      await must(call, "DELETE", "/session", undefined, "sign out");
+    } catch (error) {
+      if (!(error instanceof AccountRefusal && error.is("sign_in"))) throw error;
+    }
+    return { lists: null };
+  };
+  if (!attached || !device) return endOnly();
   try {
     return await must(call, "DELETE", `/devices/${device.id}`, undefined, "sign out");
   } catch (error) {
     if (error instanceof AccountRefusal && error.is("sign_in")) return { lists: null };
+    if (error instanceof AccountRefusal && error.is("not_allowed", "own_device")) return endOnly();
     throw error;
   }
 }

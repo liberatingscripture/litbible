@@ -14,7 +14,7 @@ import "./helpers/browser-env.mjs";
 
 const { CHROME, PHONE, SAFARI_MAC, browser, openPage, saveCode, synced, until, use, world } = await import("./helpers/account-page.mjs");
 const { WORDS, SWITCH_KEY, SWITCH_VALUES, renamedWords, signOutAsk } = await import("../src/lib/desk-account-words.mjs");
-const { SYNC_META, readLink } = await import("../src/lib/desk-sync-link.mjs");
+const { peekLink } = await import("../src/lib/desk-sync-link.mjs");
 const { openSyncDb } = await import("../src/scripts/desk/sync/sync-db.js");
 const { openStore } = await import("../src/scripts/desk/store.js");
 const { fakeCredentials } = await import("./helpers/fake-credentials.mjs");
@@ -33,12 +33,12 @@ async function kept(b, key) {
   }
 }
 
-/** The link in a browser's notebook, or null. */
-async function linkOf(b) {
-  await use(b);
-  const store = await openStore({ ctx: CTX });
-  return readLink(await store.getMeta(SYNC_META));
-}
+/**
+ * The link in a browser's notebook, or null, read from its storage alone: a
+ * page still open in that browser keeps its connector running (a stopped
+ * one sends nothing more, so its page's requests would fail; Audit 9, SY9b-2).
+ */
+const linkOf = (b) => peekLink({ idb: b.idb });
 
 /** A reader with an account and a synced notebook, set up on a computer. Returns the page on its home, and the code. */
 async function setUpReader(w, { follows = false, b = browser(w) } = {}) {
@@ -331,6 +331,9 @@ test("joining by approval: the new computer shows a code, and the one with the n
   page1.fill("account-add-code", code);
   await page1.press(WORDS.addDeviceFind);
   await page1.shows("Add “Safari on Mac” (Website) to your notebook?");
+  // When and how it was asked, and to approve only a device in hand (Audit 9, SEC9-1).
+  assert.ok(page1.has("Asked just now, signed in with a passkey."), page1.text().slice(0, 400));
+  assert.ok(page1.has(WORDS.addDeviceHolding));
   await page1.press(WORDS.addDeviceYes);
   await page1.shows(WORDS.addDeviceDone);
 
@@ -344,7 +347,7 @@ test("joining by approval: the new computer shows a code, and the one with the n
   assert.equal((await linkOf(second)).notebook, (await linkOf(first.b)).notebook);
 });
 
-test("a link that carries a code fills it in on the computer that has the notebook, and is taken out of the address", async () => {
+test("a link that carries a code is taken out of the address, and a browser that has the notebook asks for the code typed instead (Audit 9, SEC9-1)", async () => {
   const w = world();
   const first = await setUpReader(w);
   const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
@@ -353,12 +356,58 @@ test("a link that carries a code fills it in on the computer that has the notebo
   await page2.shows(WORDS.joinTitle);
   await page2.press(WORDS.joinApprove);
   await page2.shows(WORDS.joinWaiting);
-  const code = page2.root.querySelector(".account__code--short").textContent.replaceAll("-", "");
+  const code = page2.root.querySelector(".account__code--short").textContent;
 
-  const page1 = await openPage(first.b, { kind: "connect", hash: `#a=${code}` });
+  // The new device's own polling waits on its timers, so any lookup from here on is the first computer's.
+  const lookups = () => w.sent.filter((request) => request.method === "GET" && request.path.startsWith("/approvals/")).length;
+  const before = lookups();
+  const page1 = await openPage(first.b, { kind: "connect", hash: `#a=${code.replaceAll("-", "")}` });
   assert.equal(window.location.hash, "", "the code left the address before anything else ran");
   await synced(page1);
+  await page1.shows(WORDS.addDeviceLink);
+  await until(() => document.activeElement?.id === "account-add-code", "focus on the field the code is typed into");
+  assert.equal(document.activeElement.value, "", "the link's code is not filled in");
+  assert.equal(document.activeElement.getAttribute("aria-describedby"), "account-add-note");
+  assert.equal(page1.has("to your notebook?"), false, "no question was asked from the link");
+  assert.equal(lookups(), before, "the link's code was never looked up");
+
+  // Typed from the new device's screen, it works as always.
+  page1.fill("account-add-code", code);
+  await page1.press(WORDS.addDeviceFind);
   await page1.shows("Add “Safari on Mac” (Website) to your notebook?");
+  assert.ok(page1.has(WORDS.addDeviceHolding));
+});
+
+test("“Show a code instead”: the new device types the code, and the question says to approve only a device that did (Audit 9, SEC9-1)", async () => {
+  const w = world();
+  const first = await setUpReader(w);
+  // The new device signs in first: in this rig the browsers share one sync module, so the page
+  // that shows the code is opened last, and its sync is the live one.
+  const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
+  const page2 = await openPage(second);
+  await page2.press(WORDS.signInPasskey);
+  await page2.shows(WORDS.joinTitle);
+  await page2.press(WORDS.joinApprove);
+  await page2.shows(WORDS.joinWaiting);
+
+  const page1 = await openPage(first.b);
+  await synced(page1);
+  // The button is drawn with the home's lists, which can come after the sync is in step.
+  await page1.shows(WORDS.showCode);
+  await page1.press(WORDS.showCode);
+  await page1.shows(WORDS.showCodeLede);
+  const code = page1.root.querySelector(".account__code--short").textContent;
+
+  // The new device types the code it was shown.
+  page2.fill("account-join-code", code);
+  await page2.press(WORDS.setupContinue);
+
+  await first.b.timers.fire();
+  await until(() => page1.has(WORDS.addDeviceHoldingShown), "the question on the browser that showed the code");
+  assert.ok(page1.has("Add “Safari on Mac” (Website) to your notebook? Asked just now, signed in with a passkey."), page1.text().slice(0, 400));
+  assert.equal(page1.has(WORDS.addDeviceHolding), false, "not the sentence for a code the new device is showing");
+  await page1.press(WORDS.addDeviceYes);
+  await page1.shows(WORDS.addDeviceDone);
 });
 
 /* ── Devices, the recovery code, and where the key lives ────────────────── */
@@ -523,6 +572,58 @@ test("“Stop syncing in this browser” ends the link from a stop, and keeps th
   const again = await openPage(second);
   await again.shows(WORDS.signInPasskey);
   assert.equal(again.ctx.S.connector ?? null, null);
+});
+
+/** A second browser joins, is removed by the first, and signs in again: a live session that belongs to no device. */
+async function removedAndSignedIn(w) {
+  const first = await setUpReader(w, { follows: true });
+  const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
+  const joined = await openPage(second);
+  await joined.press(WORDS.signInPasskey);
+  await joined.shows(WORDS.joined);
+  await synced(joined);
+  const page1 = await openPage(first.b);
+  await synced(page1);
+  await page1.shows("Safari on Mac");
+  await page1.press(WORDS.ok);
+  await page1.press(WORDS.remove);
+  await page1.press(WORDS.removeYes);
+  await page1.shows(WORDS.keyChanged);
+  const page2 = await openPage(second);
+  await synced(page2, "signedOut");
+  await page2.press(WORDS.stopSignIn);
+  await synced(page2, "removed");
+  return { first, second, page2, token: await kept(second, "token") };
+}
+
+const deletes = (w, from) => w.sent.slice(from).filter((request) => request.method === "DELETE").map((request) => request.path);
+const sessionLives = async (w, token) =>
+  (await w.service.fetch(`${w.service.origin}/account`, { method: "GET", headers: { Authorization: `Bearer ${token}` } })).status !== 401;
+
+test("signing out of a browser that was removed and signed in again ends its session, with no failure (Audit 9, COH9-1)", async () => {
+  const w = world();
+  const { second, page2, token } = await removedAndSignedIn(w);
+  assert.ok(await sessionLives(w, token));
+  const from = w.sent.length;
+  await page2.press(WORDS.signOut);
+  await page2.press(WORDS.signOutConfirm);
+  await page2.shows(WORDS.signedOutNow);
+  assert.equal(page2.alert(), "", "no failure is said");
+  assert.deepEqual(deletes(w, from), ["/session"], "the session is ended itself; no device removal that would be refused");
+  assert.equal(await sessionLives(w, token), false);
+  assert.equal(await linkOf(second), null);
+});
+
+test("“Stop syncing in this browser” ends the session it had (Audit 9, SY9b-2)", async () => {
+  const w = world();
+  const { second, page2, token } = await removedAndSignedIn(w);
+  const from = w.sent.length;
+  await page2.press(WORDS.stopLeave);
+  await page2.shows(WORDS.stopLeaveNote);
+  assert.deepEqual(deletes(w, from), ["/session"]);
+  assert.equal(await sessionLives(w, token), false, "the service no longer knows the session");
+  assert.equal(await linkOf(second), null);
+  assert.equal(await kept(second, "token"), undefined);
 });
 
 test("a new recovery code is shown once and confirmed, and the old one opens nothing", async () => {
