@@ -6028,6 +6028,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Until then the policy named no address and nothing received a
      report, so there was no week to review. Enforcing is still to do,
      after the week and 4h's pages.
+     - **Without `'unsafe-inline'` in `script-src`** (BVJ, 2026-11-26;
+       Study Desk Audit 9, SEC9-4). With it, an injected inline script
+       would run and could use the session and device keys the policy is
+       there to protect. Each inline script (16 files carry them, four in
+       `Layout.astro` before paint) is allowed by its hash instead, at
+       least on `/account/`, `/account/connect/`, `/delete-account/`, and
+       the Study Desk's pages. Check the pinned Astro's support for
+       emitting hashes before writing them by hand.
      - **BVJ chose, 2026-11-24: "A: new Worker, counts."** Reports go to
        LIT's own Cloudflare, to a small Worker of their own
        (`workers/csp-reports/`, at `https://litbible.net/csp-report`) that
@@ -8667,8 +8675,17 @@ answer; the audit's "Findings by area" carries each finding's state.
   (`POST /rows`) get a limit of their own, 120 a minute from one address,
   beside the 1,200 every request shares; and the hourly run deletes an
   account that never set up a notebook, has no live session, and was made
-  more than 30 days ago, which `/privacy` says. For BDR to confirm (the
-  spec's “Still open,” 92). **Workers Paid before production is declined
+  more than 30 days ago, which `/privacy` says. An account emptied by a
+  replacement and not set up again is swept the same way, its 30 days
+  counted from the replacement (“Agree to the recommendations”: it holds
+  only its ways in, as a never-used one does). BVJ approved the words: the
+  `/privacy` line (“an account with no notebook in it, because one was
+  never set up or was replaced and not set up again: deleted by itself
+  once 30 days have passed since it was made or replaced and no one is
+  signed in to it”), and the status line's for a full account (“Your
+  account is full, so changes made here aren’t syncing. They are saved in
+  this browser.”, with the limits, what waits, and “about an hour”). For
+  BDR to confirm (the spec's “Still open,” 92). **Workers Paid before production is declined
   for now**: “We won't need paid for quite some time. We have about 500
   total app users and 25 daily site visitors. Insist BDR build the apps
   side requiring the apps to prove they're real.” So the service stays on
@@ -8716,6 +8733,16 @@ answer; the audit's "Findings by area" carries each finding's state.
   `DELETE /session`, and a refusal of `DELETE /devices/<id>` as
   `own_device` falls back to it. The service is unchanged. For BDR to
   confirm.
+- **Decision 7, SEC9-2: the deploy job and its token** (“Agree to the
+  recommendations”). Each deploy workflow tests in a job with no secrets,
+  and deploys from a fresh machine that installs without running any
+  package's install script (`npm ci --ignore-scripts`) and runs only
+  `wrangler`; the actions are pinned by commit, which Dependabot keeps
+  moving. **No separate Cloudflare account for the preview**: a Worker's
+  custom domain has to be on a domain in its own account, and the
+  preview's address is on litbible.net, so a second account would mean a
+  new address and a change in the apps. The preview's token still reaches
+  production's database once there is one; that is the cost accepted.
 - **Decision 8, SV9-4 and SV9-5: the emergency stop** (“17, yes”). The
   service is stopped by removing its custom domain in the dashboard, and
   started again by adding it back: no code, about a minute, and every
@@ -8772,6 +8799,23 @@ answer; the audit's "Findings by area" carries each finding's state.
   “19, yes”): every notebook also lives on its reader's devices, so losing
   the account loses no notes, and another copy would be another place
   holding everyone's sealed data. Recorded in `DISASTER-RECOVERY.md`.
+- **The workflows' GitHub token reads only** (SEC9-6, the same): `ci.yml`
+  and the apps' mirror workflow ask for `contents: read`, and a checkout
+  that never pushes keeps no token on disk; BVJ also sets the
+  repository's default to read (Settings, Actions, General, Workflow
+  permissions). The release notes workflow asks for write itself and
+  pushes with its own token.
+- **Production rolls back without a reviewer** (SV9-2 and SV9-3, the
+  same): production's rollback has an environment of its own,
+  `notebook-production-rollback`, limited to `main` with no required
+  reviewer, so BDR can roll back alone; a rollback only puts back an
+  earlier version of the code. Rollbacks run in their own queue, so a
+  merge can't cancel one, and the runbook says to switch deploys off
+  after rolling back. When BVJ sets production up, that is two
+  environments to make.
+- **The enforced policy drops `'unsafe-inline'`** (SEC9-4, the same):
+  in step 4i each inline script is allowed by its hash instead, at least
+  on the account and Study Desk pages, as a gate before accounts open.
 
 ### 2026-11-23 (the call with BDR: plan C, and sync on February 10)
 
