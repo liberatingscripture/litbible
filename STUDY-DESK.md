@@ -6179,15 +6179,19 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      screen's two choices (each body says what the passkey can do; the
      titles stay).
 
-     **Claude's choices, for BVJ to change**: “Your choices” and “The law
-     that applies” are new words from the research, not in the drafts BVJ
-     read: the right to ask what we hold and to correct or delete it,
+     **Added after BVJ's answers, then approved**: “Your choices” and “The
+     law that applies” came from the research, after the drafts BVJ
+     answered: the right to ask what we hold and to correct or delete it,
      wherever one lives; nothing sold, used for ads, or profiled; a Do Not
      Track sentence; and Oregon law, with the courts “in Oregon” (no
-     county: LSC's isn't in the repo). The open card is a button and a
-     link, with the account the lesser of the two. The footer says “Terms
-     of Use.” The effective date is 2026-11-25 on both pages, to move to
-     the merge day if later.
+     county: LSC's isn't in the repo). Shown on the drafts page under
+     “Since you answered,” **BVJ approved them as drafted the same day**:
+     “I approve the "Since you answered" parts.”
+
+     **Claude's choices, for BVJ to change**: the open card is a button and
+     a link, with the account the lesser of the two. The footer says
+     “Terms of Use.” The effective date is 2026-11-25 on both pages, to
+     move to the merge day if later.
 
      **For a lawyer, if BVJ wants one**: the minimum age's wording; the
      paragraph limiting liability; governing law and the courts; whether
