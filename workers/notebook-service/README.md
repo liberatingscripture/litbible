@@ -20,8 +20,9 @@ and with Google are built and off, and have never met either provider
 ("Apple and Google" below). Deleting an account, the requests that wait
 seven days, the hourly run, and the limits are built (step 4f, 2026-11-24;
 "The account work" below). **Production is prepared and not deployed**
-("Production" below): no reader's notebook is on any service yet. Nothing in
-the website imports the service (the website's connector is step 4g).
+("Production" below): no reader's notebook is on any service yet. The
+website's connector (step 4g) and account pages (step 4h) call it, and the
+check before a new account (Turnstile) is on here since 2026-11-25.
 
 **When it breaks, read `RUNBOOK.md`**, one page, in this directory.
 
@@ -89,8 +90,8 @@ what each must and must not have.
 | `APPLE_CLIENT_IDS` | variable, **not set** | The client ids an Apple identity token may be issued to (a bundle id, a Services ID), comma separated |
 | `APPLE_TEAM_ID`, `APPLE_KEY_ID` | variables, **not set** | The Apple developer team, and the id of its Sign in with Apple key |
 | `APPLE_PRIVATE_KEY` | Wrangler secret, **not set** | That key, the text of the `.p8` file. Sign in with Apple is off until all four of Apple's are set |
-| `TURNSTILE_SITE_KEY` | variable, **not set** | The site key of the notebook service's Turnstile widget. Public by design: `GET /sign-in` hands it to the website, which shows the widget with it ("Turnstile before a new account" below) |
-| `TURNSTILE_SECRET` | Wrangler secret, **not set** | That widget's secret key. The check is off until both this and the site key are set |
+| `TURNSTILE_SITE_KEY` | variable, **set in the preview** (2026-11-25), not in production | The site key of the notebook service's Turnstile widget. Public by design: `GET /sign-in` hands it to the website, which shows the widget with it ("Turnstile before a new account" below) |
+| `TURNSTILE_SECRET` | Wrangler secret, **set in the preview** (2026-11-25) and required there, not in production | That widget's secret key. The check is off until both this and the site key are set |
 
 No value of a secret is written in this repository, in a pull request, or in a
 conversation with an assistant. `DISASTER-RECOVERY.md` records names only.
@@ -281,9 +282,8 @@ To use another address, change `routes` in `env.preview`, and the address in
 `STUDY-DESK-ENCRYPTION.md` ("How a request is carried") and in
 `STUDY-DESK-FOR-THE-APPS.md`.
 
-The website's own Content Security Policy doesn't name this origin yet. The
-connector that calls it (step 4g) adds it to `connect-src` in
-`public/_headers`.
+The website's Content Security Policy names this origin in `connect-src`
+(`public/_headers`, since the connector, step 4g).
 
 ### Deploy again
 
@@ -466,9 +466,10 @@ address is read, stored, or logged.
 
 ## Turnstile before a new account
 
-**Built in step 4h (2026-11-24), and off until configured.** The design is
-Claude's, for BDR to confirm (the spec's "Still open," 86). Where the
-deployment holds both `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET`:
+**Built in step 4h (2026-11-24), and on in the preview since 2026-11-25**,
+when BVJ made the widget and set its secret; production has neither yet.
+The design is Claude's, for BDR to confirm (the spec's "Still open," 86).
+Where the deployment holds both `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET`:
 
 - `GET /sign-in` carries `turnstile`, the site key, and the website shows the
   widget on its sign-in page.
@@ -494,12 +495,19 @@ The secret goes to siteverify and nowhere else: it is in no answer and no
 log line (`test/turnstile.test.js`). The address a request came from is
 passed to siteverify as `remoteip`, as Cloudflare asks, and is not kept.
 
-**To turn it on** (BVJ's to do, since it changes the deployed service):
+**To turn it on** (BVJ's to do, since it changes the deployed service;
+done for the preview on 2026-11-25, and production takes the same two
+when it is deployed):
 
 1. In the Cloudflare dashboard, Turnstile, add a widget for the notebook
-   service, **Managed** mode, with the hostnames `litbible.net` and
-   `localhost` (the website and its dev server). It is a widget of its own,
-   apart from the two forms'.
+   service: Rest of World, **Managed** mode, no pre-clearance, with the
+   hostname `litbible.net` (which covers its subdomains). It is a widget of
+   its own, apart from the two forms'. **The dashboard didn't take
+   `localhost`** (2026-11-25), which Cloudflare advises against for a real
+   key anyway, so a new account can't be begun from the website's dev
+   server against the preview: the widget refuses that address. Signing
+   in from the dev server still works, and the dummy keys below serve a
+   local service.
 2. Put its site key in `env.preview.vars` as `TURNSTILE_SITE_KEY`, through a
    pull request (it is public, like the forms' keys in their pages).
 3. Set the secret once, typing it at Wrangler's own prompt:
@@ -896,9 +904,10 @@ Nothing below changes a request that exists; each adds beside it.
   BVJ's.
 - **Four things to see on the preview** once it is deployed there ("What to
   check on the preview after step 4f" above).
-- **Bot protection at sign-up**: the service's Turnstile check is built
-  (step 4h) and waits for BVJ's widget and secret ("Turnstile before a new
-  account" above); the apps' side waits on BDR.
+- **Bot protection at sign-up**: the service's Turnstile check is on in
+  the preview since 2026-11-25 ("Turnstile before a new account" above),
+  and production takes the same two when it is deployed; the apps' side
+  waits on BDR.
 - **Apple's revoke has never met Apple**, like the rest of Sign in with
   Apple. When the identifiers arrive, delete an Apple test account and see
   the app gone from the Apple Account's "Sign in with Apple" list.

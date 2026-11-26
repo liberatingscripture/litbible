@@ -5985,19 +5985,28 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      the second (DevTools can't copy a passkey's PRF secret, so in the
      rig a copied passkey opens nothing, which is the “can't open”
      path); Safari, Firefox, and a real phone; scanning the QR code;
-     the Turnstile widget and the real siteverify, which wait on a
-     widget and a secret only BVJ can make, and so the content security
-     policy with a widget on the page; and Apple and Google. Only in
+     the Turnstile widget and the real siteverify (configured on
+     2026-11-25, below, and not yet looked at), and so the content
+     security policy with a widget on the page; and Apple and Google. Only in
      tests, not in the browser: a
      notebook replaced after its seven days and “Join the new
      notebook”; “Stop syncing on this computer”; adding and removing a
      passkey; “Show a code for the new device instead”; a setup whose
      answer was lost.
-     **What is left of 4h**: Turnstile's widget and its secret, which
-     are BVJ's to make and set (the service's half is built and stays off
-     until both are there), and then a look at the widget on the sign-in
-     page; and real browsers and devices (4l), of which BVJ's passkey
-     of 2026-11-25 is the first use. **Known
+     **Turnstile, configured 2026-11-25**: BVJ made the notebook
+     service's own widget in the Cloudflare dashboard (Managed, for
+     `litbible.net`; the dashboard didn't take `localhost`, so a new
+     account can't be begun from the dev server against the preview) and
+     typed its secret at Wrangler's own prompt (`TURNSTILE_SECRET`, on the
+     preview). The site key went into `env.preview` with the secret
+     required there, so the merge that added it turned the check on.
+     Cloudflare's setup prompt for an existing widget was read: it has the
+     agent fetch the secret with Wrangler and pipe it in, which this
+     project's rule replaces (BVJ types it), and its page-side steps were
+     already built in 4h.
+     **What is left of 4h**: a look at the Turnstile widget on the
+     sign-in page, in the preview; and real browsers and devices (4l), of
+     which BVJ's passkey of 2026-11-25 is the first use. **Known
      limits**: a browser that was syncing one account's notebook and
      signs in to a different account is told its notebook “was
      replaced,” which is the right step and the wrong reason; a reader

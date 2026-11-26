@@ -20,7 +20,7 @@ The site is a static Astro build deployed to **Cloudflare Pages** on the
 `litbible.net` zone. One standalone **Cloudflare Worker**
 (`litbible-contact-form`) backs the two contact forms, delivering mail via
 **Cloudflare Email Routing's send binding**; bot protection is **Cloudflare
-Turnstile** (two widgets). Inbound litbible.net mail is **Google Workspace**
+Turnstile** (three widgets: the two forms' and the notebook service's). Inbound litbible.net mail is **Google Workspace**
 (MX points at Google, not Cloudflare). Off-Cloudflare: **GitHub** (repo +
 Actions + one PAT secret), **Brevo** (newsletter), **RedCircle** (podcast
 feed), **GiveLively** (donations). Everything else is in the repo.
@@ -36,7 +36,7 @@ exist and which *kind* of identity owns each.
 
 | Service | What it holds | Who logs in (specifics in the private doc) |
 |---------|---------------|--------------------------------------------|
-| Cloudflare | `litbible.net` zone (DNS), Pages project, the Worker, Email Routing (send-side), both Turnstile widgets | The primary admin identity |
+| Cloudflare | `litbible.net` zone (DNS), Pages project, the Worker, Email Routing (send-side), the three Turnstile widgets | The primary admin identity |
 | Google Workspace | litbible.net mail (the owner's mailbox; `contact@` sender identity's domain); admin console at admin.google.com | The primary admin identity (this *is* that account) |
 | Porkbun (registrar) | `litbible.net` registration | The owner's **personal** identity — a separate account, with the Porkbun password in *that* account's own manager |
 | GitHub | `liberatingscripture/litbible` repo, Actions, branch ruleset, `RELEASE_NOTES_PAT` + `LSC_SYNC_TOKEN` secrets | The primary admin identity |
@@ -171,12 +171,15 @@ breaks, the one-page protocol is `workers/notebook-service/RUNBOOK.md`.**
   those come from BDR's Apple developer account and Google Cloud project,
   which are two more dashboards this service will then depend on: record
   them here when they are in use.
-- **Turnstile before a new account (step 4h, 2026-11-24) is built and off.**
-  Turning it on adds a third Turnstile widget, the notebook service's own
-  (hostnames `litbible.net` and `localhost`), apart from the two forms'; its
-  site key as the variable `TURNSTILE_SITE_KEY` in `wrangler.jsonc`; and its
-  secret key as the Worker secret `TURNSTILE_SECRET` (the secrets table
-  below). With either missing the check is off. If the widget is lost, make
+- **Turnstile before a new account is on in the preview** (built in step
+  4h, 2026-11-24; configured 2026-11-25). It is a third Turnstile widget,
+  the notebook service's own, apart from the two forms': Managed, for the
+  hostname `litbible.net` alone (the dashboard didn't take `localhost`). Its
+  site key is the variable `TURNSTILE_SITE_KEY` in `env.preview` of
+  `wrangler.jsonc`, and its secret key the preview's Worker secret
+  `TURNSTILE_SECRET` (the secrets table below), which `secrets.required`
+  holds a deploy to. With either missing the check is off. Production has
+  neither yet. If the widget is lost, make
   a new one, put its site key in `wrangler.jsonc`, and re-set the secret.
 
 ### The notebook service's production (prepared 2026-11-24, NOT deployed)
@@ -382,7 +385,7 @@ deploy workflow on; the rest are not set yet:
 | `NOTEBOOK_PREVIEW_SECRET` | the same environment, optional | The same value as `PREVIEW_SECRET`, so that a deploy can run its own check against the preview. Change the two together. |
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | GitHub environment `notebook-production`, **which does not exist yet** (2026-11-24) | Production's own copy of the two above, for the workflow's production jobs. Made when BVJ decides to deploy production (the service's README, "Production," step 4): limit the environment to `main` and add BVJ as a required reviewer. The token may be a second one with the same four permissions, or the preview's. Same kill switch. |
 | `APPLE_PRIVATE_KEY` | Worker secret, **not yet set** (2026-11-24) | The Sign in with Apple key from BDR's Apple developer account: the whole text of its `.p8` file. Sign in with Apple stays off until it and its three variables are set (the service's README, "Apple and Google"). When it is: BVJ types it at Wrangler's own prompt, `npx wrangler secret put APPLE_PRIVATE_KEY --env preview`. The service uses it to sign the short-lived token Apple asks for when it trades a sign-in's code or revokes a refresh token, and for nothing else. If it leaks: revoke the key in the Apple developer account (Certificates, Identifiers & Profiles, Keys), make a new one, and set the new key and its `APPLE_KEY_ID`. Apple lets a key be downloaded once, so a lost file means a new key. |
-| `TURNSTILE_SECRET` | Worker secret of the notebook service, **not yet set** (2026-11-24) | The secret key of the notebook service's own Turnstile widget (not the /contact form's secret of the same name, which belongs to the forms' Worker). With its public partner, the variable `TURNSTILE_SITE_KEY`, it turns on the check before a new account (the service's README, "Turnstile before a new account"). When it is: BVJ types it at Wrangler's own prompt, `npx wrangler secret put TURNSTILE_SECRET --env preview`. If it leaks: rotate the secret in the widget's settings in the Turnstile dashboard and set the new one. |
+| `TURNSTILE_SECRET` | Worker secret of the notebook service's preview, **set 2026-11-25**, and required there; not set in production | The secret key of the notebook service's own Turnstile widget (not the /contact form's secret of the same name, which belongs to the forms' Worker). With its public partner, the variable `TURNSTILE_SITE_KEY`, it turns on the check before a new account (the service's README, "Turnstile before a new account"). BVJ typed it at Wrangler's own prompt, `npx wrangler secret put TURNSTILE_SECRET --env preview`; production takes the same when it is deployed. If it leaks: rotate the secret in the widget's settings in the Turnstile dashboard and set the new one. |
 
 The workflow is switched by two repository **variables** (not secrets):
 `NOTEBOOK_PREVIEW_DEPLOYS` (`on` to enable it; absent, both of its jobs are

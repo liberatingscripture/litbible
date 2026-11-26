@@ -27,11 +27,12 @@ now** (2026-11-25, “yes” to each of the eight listed under step 4h): the
 header's tiles, its “Sign out,” and “Account” in the phone menu (rule
 17), a heading not drawn twice (rule 18), no announcement here
 (“Routes”), “approved from this computer,” the one press of rule 20,
-and rule 21's three seconds. The Turnstile check is built on both sides
-and off: the
-service asks for it only once BVJ has made a widget and set its site key
-and secret (`workers/CLAUDE.md`, “The notebook service”), and no widget
-has been seen on the sign-in page. **BVJ made a real passkey on a Windows
+and rule 21's three seconds. **The Turnstile check is on in the
+preview** (2026-11-25: BVJ made the widget, for `litbible.net` alone, and
+set its secret; `workers/CLAUDE.md`, “The notebook service”), so “Create
+an account” shows the widget there, and not from the dev server, whose
+address the widget refuses. No widget has been seen on the sign-in page
+yet. **BVJ made a real passkey on a Windows
 laptop and signed in with it from `litbible.net`** (2026-11-25), the
 first outside the rig's virtual authenticator; what prompt made it isn't
 recorded. E231 came of it (rule 17). The same day BVJ approved the

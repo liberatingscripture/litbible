@@ -63,7 +63,16 @@
         // The preview only: the website's dev server, where a browser makes
         // the RP ID "localhost". Production never sets this, and the service
         // reads it only where ENVIRONMENT is "preview".
-        "PASSKEY_LOCAL_ORIGINS": "http://localhost:4321"
+        "PASSKEY_LOCAL_ORIGINS": "http://localhost:4321",
+
+        // Turnstile before a new account (src/turnstile.js; README, "Turnstile
+        // before a new account"): the site key of the notebook service's own
+        // widget, made by BVJ on 2026-11-25 for the hostname litbible.net
+        // (the dashboard didn't take localhost). Public by design: GET
+        // /sign-in hands it to the website. Its secret is the Wrangler secret
+        // TURNSTILE_SECRET, never written here; the check is on only where
+        // both are set.
+        "TURNSTILE_SITE_KEY": "0x4AAAAAAGTndtU2opdLCqsd"
 
         // Sign in with Apple and with Google are OFF: no client id is set
         // here, and none is guessed. They come from BDR's Apple developer
@@ -95,8 +104,8 @@
         // Every other request: 1,200 a minute from one address.
         { "name": "REQUEST_LIMIT", "namespace_id": "4102", "simple": { "limit": 1200, "period": 60 } }
       ],
-      // `wrangler deploy` refuses to deploy the preview until this secret is set.
-      "secrets": { "required": ["PREVIEW_SECRET"] }
+      // `wrangler deploy` refuses to deploy the preview until these secrets are set.
+      "secrets": { "required": ["PREVIEW_SECRET", "TURNSTILE_SECRET"] }
     },
 
     // Deploys as the Worker "litbible-notebook-production". NOT DEPLOYED, and
