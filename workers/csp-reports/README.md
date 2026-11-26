@@ -91,8 +91,7 @@ The address is public and takes posts from anyone.
   most 4,992 (24 hours of 208, the largest whole share of 5,000). After an
   hour's allowance is spent, posts are answered as before and write nothing
   until the next hour starts, so a flood costs one hour and not the rest of
-  the day (it used to be 5,000 for the whole day, first come, which one
-  sender could fill in about two minutes). A post that doesn't fit what is
+  the day. A post that doesn't fit what is
   left of its hour is dropped whole. This is the limit that protects the
   rest of the account: on the Workers Free plan every D1 database draws on
   one allowance of 100,000 rows written a day, which the notebook service's

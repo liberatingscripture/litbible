@@ -10,7 +10,7 @@
 //
 // The address is public and takes posts from anyone, so:
 //   - nothing is ever echoed back: every answer has an empty body, and a
-//     post that was counted, dropped, or over the day's cap is answered
+//     post that was counted, dropped, or over the hour's cap is answered
 //     alike (204), so the answer tells a sender nothing;
 //   - a post is at most MAX_BODY_BYTES, checked while it is read and not by
 //     what it claims;
