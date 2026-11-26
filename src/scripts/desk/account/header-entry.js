@@ -20,6 +20,19 @@
 // “Sign out” is a link to the account page, which asks first and says the
 // notebook stays in this browser: one place signs out.
 //
+// THE ENTRY IS AS WIDE AS WHAT IT SHOWS (E231; BVJ, 2026-11-25: with the
+// button holding “Sign in”'s width there was a gap beside it, and “the rest
+// of the header scoots over to stay next to it”). The button is narrower than
+// the words, and which of the two a browser gets is read from the notebook,
+// after the page has painted. So this module leaves a note of what it showed
+// (LAST_KEY, in local storage), Layout.astro's pre-paint script stamps it on
+// <html> (LAST_ATTR), and global.css holds the button's room from the first
+// paint where it says “in.” Nothing beside the entry moves on a page load,
+// in either case. The note is only that: what shows always comes from the
+// notebook. Where the two differ (another tab linked this browser, or signed
+// it out), the tools move once, the note is put right, and TOOLS_EVENT has
+// the header's title fitted again, since the room for it changed.
+//
 // The menu is a disclosure, as the header's Learn, Study, and About are
 // (src/scripts/header-menus.js): a button with aria-expanded over plain links
 // and at most one button. Arrow Down or Up on the button opens it at its
@@ -28,6 +41,23 @@
 
 import { SLOT_EVENT, peekLink } from "../../../lib/desk-sync-link.mjs";
 import { setTip } from "../../tip.js";
+
+/** What the header showed in this browser last: "in" while its notebook is linked to an account; absent otherwise. */
+export const LAST_KEY = "lit-desk-account-last";
+
+/** The same on `<html>`, stamped before paint by Layout.astro, which repeats the key since it can't import. */
+export const LAST_ATTR = "data-account-last";
+
+/** Sent on `document` when the header's tools changed width after they were painted (SiteHeader.astro's title script hears it). */
+export const TOOLS_EVENT = "lit:header-tools";
+
+function ownStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null; // storage is blocked: no note, and the tools move once on each page
+  }
+}
 
 const parts = (entry) => ({
   link: entry.querySelector("[data-account-signin]"),
@@ -47,10 +77,10 @@ const wired = new WeakSet();
  * browser for the first time (no stamp before paint, so desk-gate.js never
  * called this), and when it links the browser or stops syncing in it.
  *
- * @param {{ doc?: Document, idb?: IDBFactory }} [env]
+ * @param {{ doc?: Document, idb?: IDBFactory, storage?: Storage | null }} [env]
  * @returns {Promise<"in" | "out" | null>} which the header shows; null where the page has no entry
  */
-export async function start({ doc = globalThis.document, idb = globalThis.indexedDB } = {}) {
+export async function start({ doc = globalThis.document, idb = globalThis.indexedDB, storage = ownStorage() } = {}) {
   const entries = [...doc.querySelectorAll("[data-account-entry]")];
   if (!entries.length) return null;
   let linked = false;
@@ -60,14 +90,15 @@ export async function start({ doc = globalThis.document, idb = globalThis.indexe
     linked = false; // no notebook to read: “Sign in”
   }
 
+  const root = doc.documentElement;
+  const now = linked ? "in" : "out";
+  // What an entry not yet drawn has held room for since the first paint (global.css).
+  const stamped = root.getAttribute(LAST_ATTR) === "in" ? "in" : "out";
+  let moved = false;
   for (const entry of entries) {
     const { link, button, menu } = parts(entry);
+    if ((entry.getAttribute("data-account-state") ?? stamped) !== now) moved = true;
     if (linked && link && button) {
-      if (button.hidden) {
-        // The button is narrower than the words. The entry keeps their width, so the tools beside it stay where they were painted.
-        const width = entry.getBoundingClientRect?.().width ?? 0;
-        if (width) entry.style.minWidth = `${Math.ceil(width)}px`;
-      }
       link.hidden = true;
       button.hidden = false;
       setTip(button, "Account");
@@ -77,10 +108,20 @@ export async function start({ doc = globalThis.document, idb = globalThis.indexe
       button.hidden = true;
       button.setAttribute("aria-expanded", "false");
       if (menu) menu.hidden = true;
-      entry.style.minWidth = "";
     }
-    entry.setAttribute("data-account-state", linked ? "in" : "out");
+    entry.setAttribute("data-account-state", now);
   }
+
+  // The note for the next page's first paint, and the stamp kept in step with it.
+  try {
+    if (linked) storage?.setItem(LAST_KEY, "in");
+    else storage?.removeItem(LAST_KEY);
+  } catch {
+    /* storage is full or blocked: the next page moves its tools once */
+  }
+  if (linked) root.setAttribute(LAST_ATTR, "in");
+  else root.removeAttribute(LAST_ATTR);
+  if (moved) doc.dispatchEvent(new CustomEvent(TOOLS_EVENT));
   const fresh = linked ? entries.filter((entry) => !wired.has(entry)) : [];
   if (fresh.length) {
     for (const entry of fresh) wired.add(entry);

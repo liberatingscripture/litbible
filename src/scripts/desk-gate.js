@@ -65,14 +65,16 @@ export function loadShell(importer, stand = standDown) {
 // account button once this browser's notebook is linked. Only where accounts
 // are open in this browser (data-account, stamped before paint from
 // lit-desk-account; closed for everyone until launch). The entry stays hidden,
-// keeping its place, until this has read which of the two to show.
+// keeping the room of what it showed last (header-entry.js, LAST_KEY), until
+// this has read which of the two to show.
 if (document.documentElement.dataset.desk === "on" && document.documentElement.dataset.account === "open" && document.querySelector("[data-account-entry]")) {
   import("./desk/account/header-entry.js")
     .then((m) => m.start())
     .catch((err) => {
       console.error("Study Desk: the header’s account entry didn’t load", err);
-      // The plain link still works without the script.
+      // The plain link still works without the script. It may be wider than the room kept: the title is fitted again.
       for (const entry of document.querySelectorAll("[data-account-entry]")) entry.setAttribute("data-account-state", "out");
+      document.dispatchEvent(new CustomEvent("lit:header-tools"));
     });
 }
 

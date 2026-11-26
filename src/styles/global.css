@@ -1058,8 +1058,12 @@ html[data-desk] .site-nav__plain {
    groups fold away and the menu's "Account" takes over. The Study Desk's
    own header has no nav, so the actions' copy shows there at every width.
    The entry is drawn hidden until desk/account/header-entry.js has read
-   which of the two this browser gets (data-account-state), and it keeps the
-   link's width when the button takes its place, so nothing beside it moves. */
+   which of the two this browser gets (data-account-state). It is as wide as
+   what it shows, so the tools sit beside it with no gap (E231; BVJ,
+   2026-11-25), and until it is drawn it holds the room of what this browser
+   showed last: the button's where data-account-last says "in" (stamped
+   before paint from that module's note), the link's otherwise. So nothing
+   beside it moves when it is drawn. */
 .site-header__account {
   display: none;
   position: relative;
@@ -1069,6 +1073,14 @@ html[data-desk] .site-nav__plain {
 
 .site-header__account:not([data-account-state]) > * {
   visibility: hidden;
+}
+
+html[data-account-last="in"] .site-header__account:not([data-account-state]) .site-header__account-link {
+  display: none;
+}
+
+html[data-account-last="in"] .site-header__account:not([data-account-state]) .site-header__account-btn {
+  display: inline-flex;
 }
 
 .site-header__account-link {

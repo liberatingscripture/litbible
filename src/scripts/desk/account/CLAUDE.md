@@ -31,7 +31,12 @@ and rule 21's three seconds. The Turnstile check is built on both sides
 and off: the
 service asks for it only once BVJ has made a widget and set its site key
 and secret (`workers/CLAUDE.md`, “The notebook service”), and no widget
-has been seen on the sign-in page.
+has been seen on the sign-in page. **BVJ made a real passkey on a Windows
+laptop and signed in with it from `litbible.net`** (2026-11-25), the
+first outside the rig's virtual authenticator; what prompt made it isn't
+recorded. E231 came of it (rule 17). The same day BVJ approved the
+choices in the notices that were still Claude's
+(`src/scripts/desk/sync/CLAUDE.md`, rule 11).
 
 ## Routes
 
@@ -173,6 +178,9 @@ without the switch. The announcement popover stays off all three
     setup whose answer never arrived is finished on the next visit with the
     same code** (`resumeSetup`), and one the service never received is
     dropped and starts over. Nothing of a passkey's PRF output is stored.
+    The header's note of what it showed last (`lit-desk-account-last`,
+    rule 17) is a key of its own, since the pre-paint script reads it,
+    and `/privacy` names it too.
 14. **Signing out, deleting, and “Stop syncing on this computer” keep the
     notebook in the browser, and say so** (BVJ, the same day: no “erase it
     here too”). Signing out is asked first, in one place: the header's
@@ -195,18 +203,37 @@ without the switch. The announcement popover stays off all three
     accounts open; once the browser is linked, a small account button whose
     menu holds the sync's status (the status line's own slot), “Account and
     devices,” and “Sign out.” “Study Desk ▾” is unchanged. Under 760px it
-    is “Account” in the phone menu's Study group. Four things to keep:
+    is “Account” in the phone menu's Study group. Five things to keep:
     - **It reads only the link** (`peekLink`), so it brings no encryption
       and starts no sync, and `test/desk-sync-gate.test.js` holds its two
       imports. A reader signed in but not yet linked still sees “Sign in.”
     - **It is in the markup twice** (`SiteHeader.astro`: the nav's tools
       and the actions), as the search button is, and hidden by one rule in
       `global.css`. Until its state is known it keeps its room and shows
-      nothing, so the row never moves; linked, the button keeps the link's
-      width for the same reason. The title-fit script counts that room
-      (`src/components/CLAUDE.md`, “The header's title swap”), which costs
-      the long title a band of widths: `/` and a chapter at 1100 and 1180px
-      show “LIT Bible” with the entry and the long title without.
+      nothing, so the row never moves.
+    - **It is as wide as what it shows, and the room is right from the
+      first paint** (E231; BVJ, 2026-11-25: the button keeping the words'
+      width left a gap, and “the rest of the header scoots over to stay
+      next to it”). The button is narrower than “Sign in,” and which of
+      the two a browser gets is read after the page has painted. So
+      `header-entry.js` keeps a note of what it showed
+      (`localStorage['lit-desk-account-last']`, "in" or absent; the note
+      is Claude's choice of means), `Layout.astro`'s pre-paint script
+      stamps it as `data-account-last="in"`, and `global.css` holds the
+      button's room where it says so and the words' otherwise. **The note
+      is a hint: what shows always comes from the notebook.** Where the
+      two differ (linked, or signed out, in another tab), the tools move
+      once, the note is put right, and `lit:header-tools` on `document`
+      has the title fitted again (`src/components/CLAUDE.md`, “The
+      header's title swap”); `desk-gate.js` sends the same when the
+      entry's script fails to load and the plain link shows. Two of the
+      four files can't import, so `test/desk-account-header.test.js`
+      holds the key, the stamp, and the event to one name each. Never fix
+      a width on the entry. The title-fit script counts the entry's room,
+      which costs the long title some widths: measured 5px apart
+      (2026-11-25, down to 1105px), `/` and a chapter show “LIT Bible” up
+      to 1215px with “Sign in” and up to 1180px with the button
+      (`/about/`: 1260 and 1225px).
     - **`start()` can be called again**, and the account page does: when
       it links the browser or stops syncing, and on a visit whose stamp
       wasn't there before paint, so `desk-gate.js` never drew the entry (a

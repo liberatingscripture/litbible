@@ -5935,7 +5935,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      11. **What it costs**: nothing for the request, which every pass
      already hears; for a new device, one request (`GET /devices`) at
      most every fifteen minutes for a browser, where before only the
-     account page asked. **Claude's, which BVJ has not seen**: what a
+     account page asked. **Claude's, which BVJ approved** (2026-11-25:
+     “I approve your choices that were still unconfirmed.”): what a
      screen reader hears on a dotted button (“A request is waiting on
      your account,” “New on your account”), the fifteen minutes, and
      that “Cancel the request” now asks for a pass, so no page goes on
@@ -5964,8 +5965,22 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      tests**: the bar's second showing a day later, the request this
      sign-in made, a device this computer approved, a stop outranking
      both, and waiting behind a tour or another notice.
+     **A real passkey, 2026-11-25**: BVJ made one on a Windows laptop, on
+     `litbible.net`, and the header's “Sign in” became the account
+     button, which shows only once the browser is linked. It is the first
+     passkey made outside the rig's virtual authenticator. What made it
+     (Windows Hello, a password manager, a phone) isn't recorded, nor
+     which browser. **It showed a gap beside the button**, which had kept
+     the words' width, and BVJ asked that “the rest of the header scoots
+     over to stay next to it”: E231 in `STUDY-DESK-FIXES.md`, which has
+     what was seen. The entry is now as wide as what it shows, with the
+     room right from first paint by a note of what the header showed last
+     (`lit-desk-account-last`, a new key named on `/privacy`; the note is
+     Claude's choice of means). The rule is
+     `src/scripts/desk/account/CLAUDE.md`, rule 17.
      **Not seen, and not to be assumed**: an operating system's own
-     passkey prompt (Windows Hello, Touch ID) or a password manager's; a
+     passkey prompt (Windows Hello, Touch ID) or a password manager's,
+     beyond BVJ's one passkey above, whose prompt isn't recorded; a
      passkey that syncs between two real devices and carries the key to
      the second (DevTools can't copy a passkey's PRF secret, so in the
      rig a copied passkey opens nothing, which is the “can't open”
@@ -5981,17 +5996,18 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **What is left of 4h**: Turnstile's widget and its secret, which
      are BVJ's to make and set (the service's half is built and stays off
      until both are there), and then a look at the widget on the sign-in
-     page; and real browsers and devices (4l), which is where an
-     operating system's passkey prompt is first met. **Known
+     page; and real browsers and devices (4l), of which BVJ's passkey
+     of 2026-11-25 is the first use. **Known
      limits**: a browser that was syncing one account's notebook and
      signs in to a different account is told its notebook “was
      replaced,” which is the right step and the wrong reason; a reader
      signed in on a second computer who hasn't opened the notebook yet
      still sees “Sign in” in the header, since the header reads only
      whether the browser is linked; and with the header's entry there
-     the long title gives way to “LIT Bible” in two more bands of
-     window width (about 1100 and 1180px on the home page and a
-     chapter).
+     the long title gives way to “LIT Bible” over more of the window's
+     widths: up to 1215px with “Sign in” and 1180px with the account
+     button on the home page and a chapter (measured 5px apart,
+     2026-11-25), where 1180px showed the long title without the entry.
    - **4i. Enforcing the full content security policy** (1–2). It is
      report-only today. Review a week of its reports, then enforce it
      before sign-in ships, since the page will hold a credential to a
