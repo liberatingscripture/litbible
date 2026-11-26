@@ -40,6 +40,12 @@
   margin: 0 0 1rem;
 }
 
+/* The dated "what changed" line under the effective date (src/pages/CLAUDE.md, rule 4). */
+.privacy-changed {
+  letter-spacing: normal;
+  line-height: 1.5;
+}
+
 .privacy-lede {
   font-size: calc(clamp(1.1rem, 0.5vw + 1rem, 1.25rem) * var(--reading-scale, 1));
   line-height: calc(1.72 + var(--reading-leading-extra, 0));

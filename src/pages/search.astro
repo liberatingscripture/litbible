@@ -22,10 +22,10 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     </p>
   </header>
 
-  <!-- Site 2.0 (data-v2): the pane beside the results on a computer, rows
+  {/* Site 2.0 (data-v2): the pane beside the results on a computer, rows
        under the field on a phone. Empty here: v2-search.js moves today's sort,
        filters, and passage picker into it (never copies), and lists the
-       result groups. "Filters" and "Result groups" are BVJ's two new labels. -->
+       result groups. "Filters" and "Result groups" are BVJ's two new labels. */}
   <div class="v2-search__pane" slot="v2Pane" data-v2 data-v2-search-pane data-pagefind-ignore>
     <div class="v2-search__set" data-v2-search-sort></div>
     <div class="v2-search__set" role="group" aria-labelledby="v2-search-filters-label" data-v2-search-filters>
@@ -40,7 +40,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
   <section class="search-page" data-pagefind-ignore>
     <div class="search-meta">
-      <!-- Sort stays in a dedicated row so it never "wraps under" the status line -->
+      {/* Sort stays in a dedicated row so it never "wraps under" the status line */}
       <div class="search-meta__top">
         <div class="sort-wrap" aria-label="Sort results">
           <span class="sort-label v2-label">Sort by:</span>
@@ -69,7 +69,7 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
 
       <div class="search-meta__status">
         <div id="search-status" aria-live="polite"></div>
-        <!-- Jump links to each result group, filled by search.js -->
+        {/* Jump links to each result group, filled by search.js */}
         <nav class="search-jumps" id="search-jumps" aria-label="Result groups" hidden>
         </nav>
       </div>
@@ -77,12 +77,12 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
       <div class="search-active-filters" id="search-active-filters" hidden>
       </div>
 
-      <!-- Optional reference jump banner -->
+      {/* Optional reference jump banner */}
       <div class="search-ref" id="search-ref" data-search-ref hidden></div>
     </div>
 
-    <!-- Filled only with the Study Desk on: matches from the reader's own
-         notebook, searched in the browser (desk/notebook-search.js). -->
+    {/* Filled only with the Study Desk on: matches from the reader's own
+         notebook, searched in the browser (desk/notebook-search.js). */}
     <div class="group" id="group-notebook" tabindex="-1" hidden>
       <div class="group-title">My Notebook</div>
       <ol class="results" id="results-notebook"></ol>
@@ -113,8 +113,8 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
       <ol class="results" id="results-keyword"></ol>
     </div>
 
-    <!-- Filled only with the Study Desk preview on, and then alone: the verses
-         of a Greek word, each with its Greek and the LIT beneath. -->
+    {/* Filled only with the Study Desk preview on, and then alone: the verses
+         of a Greek word, each with its Greek and the LIT beneath. */}
     <div class="group" id="group-greek" tabindex="-1" hidden>
       <div class="group-title">Greek</div>
       <div class="greek-lemmas" id="greek-lemmas" hidden></div>
@@ -123,10 +123,10 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
         Exact form only
       </label>
       <ol class="results" id="results-greek"></ol>
-      <!-- Examples, or an error with its way out, where a Greek search has
-           nothing to list (search.js). -->
+      {/* Examples, or an error with its way out, where a Greek search has
+           nothing to list (search.js). */}
       <div class="greek-help" id="greek-help" hidden></div>
-      <!-- Who the Greek comes from (BA46): the Greek tab's names and links. -->
+      {/* Who the Greek comes from (BA46): the Greek tab's names and links. */}
       <p class="greek-credit">{SEARCH_CREDIT.map((p) =>
         typeof p === "string" ? p
         : isExternal(p.href) ? <a href={p.href} target="_blank" rel="noopener noreferrer">{p.text}</a>
@@ -134,8 +134,8 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
       )}</p>
     </div>
 
-    <!-- The one pager, for whichever group is paging: English verses, or the
-         Greek's when a Greek search is showing. -->
+    {/* The one pager, for whichever group is paging: English verses, or the
+         Greek's when a Greek search is showing. */}
     <nav class="pager" id="pager" aria-label="Search result pages" hidden>
     </nav>
   </section>

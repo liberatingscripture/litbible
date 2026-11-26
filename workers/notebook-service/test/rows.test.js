@@ -5,6 +5,7 @@ import { env } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
 import { call } from "./call.js";
 import { LIMITS } from "../src/check.js";
+import migration from "../migrations/0004_account_ceiling.sql?raw";
 import { approve, changeKey, must, newDevice, note, pull, push, ref, rowFor, setUp, trash } from "./notebook.js";
 
 const MAX_CT = LIMITS.maxRecordBytes + LIMITS.tagBytes; // 1,048,592
@@ -37,7 +38,10 @@ const get = (device, query = "") => call("GET", `/rows${query}`, { token: device
 const accountId = async (name) =>
   (await env.DB.prepare("SELECT account FROM ways WHERE kind = 'preview' AND subject = ?").bind(name).first()).account;
 
-/** Puts `count` rows straight into the database, revisions 1 to `count`, as small valid rows. */
+/**
+ * Puts `count` rows straight into the database, revisions 1 to `count`, as
+ * small valid rows, and moves the account's counts of its rows as a push would.
+ */
 async function insertMany(account, count, { kid = 1, ct = ctOf(MIN_CT) } = {}) {
   const id = await accountId(account);
   for (let from = 0; from < count; from += 100) {
@@ -51,7 +55,26 @@ async function insertMany(account, count, { kid = 1, ct = ctOf(MIN_CT) } = {}) {
     }
     await env.DB.batch(statements);
   }
-  await env.DB.prepare("UPDATE accounts SET rev = ? WHERE id = ?").bind(count, id).run();
+  await env.DB.prepare("UPDATE accounts SET rev = ?, row_count = row_count + ?, row_bytes = row_bytes + ? WHERE id = ?")
+    .bind(count, count, count * Math.floor((ct.length * 3) / 4), id)
+    .run();
+}
+
+/** The counts an account keeps of its rows, and the counts of the rows it holds, by the migration's own measure. */
+async function counted(account) {
+  const id = await accountId(account);
+  const kept = await env.DB.prepare("SELECT row_count AS rows, row_bytes AS bytes FROM accounts WHERE id = ?").bind(id).first();
+  const held = await env.DB.prepare("SELECT COUNT(*) AS rows, COALESCE(SUM(size * 3 / 4), 0) AS bytes FROM rows WHERE account = ?")
+    .bind(id)
+    .first();
+  return { kept: { rows: kept.rows, bytes: kept.bytes }, held: { rows: held.rows, bytes: held.bytes } };
+}
+
+/** Sets an account's counts straight, as if it held that much. */
+async function pretend(account, { rows, bytes }) {
+  await env.DB.prepare("UPDATE accounts SET row_count = COALESCE(?, row_count), row_bytes = COALESCE(?, row_bytes) WHERE id = ?")
+    .bind(rows ?? null, bytes ?? null, await accountId(account))
+    .run();
 }
 
 describe("GET /rows", () => {
@@ -329,6 +352,124 @@ describe("POST /rows, refusing the whole request", () => {
     const res = await post(stranger, [fake()]);
     expect(res.status).toBe(403);
     expect(res.body.error).toBe("not_open");
+  });
+});
+
+describe("POST /rows, the account's ceiling (BVJ, 2026-11-26)", () => {
+  const CEILING = { rows: 100_000, bytes: 100_000_000 };
+  /** A ct four blocks larger than the smallest: 1,296 bytes, tag included, which is what the account counts. */
+  const BIG = MIN_CT + 4 * LIMITS.padBlock;
+
+  it("is 100,000 rows and 100,000,000 bytes (decimal: 100 MB)", () => {
+    expect({ rows: LIMITS.accountRows, bytes: LIMITS.accountBytes }).toEqual(CEILING);
+  });
+
+  it("keeps the account's counts equal to what it holds, through puts, puts at a new size, trash, and removals", async () => {
+    const { account, device } = await setUp();
+    const expectHeld = async (rows, bytes) => {
+      const { kept, held } = await counted(account);
+      expect(held).toEqual({ rows, bytes });
+      expect(kept).toEqual(held);
+    };
+    await expectHeld(0, 0);
+
+    const [a, b, c] = [fake(), fake({ ct: ctOf(BIG) }), fake()];
+    const first = await post(device, [a, b, c]);
+    expect(first.status).toBe(200);
+    // Measured as sealed bytes, tag included: 272 + 1,296 + 272.
+    await expectHeld(3, MIN_CT + BIG + MIN_CT);
+
+    // Put again, larger and then smaller: the difference, and no new row.
+    expect((await post(device, [{ ...a, rev: first.body.put[0].rev, ct: ctOf(BIG) }])).status).toBe(200);
+    await expectHeld(3, BIG + BIG + MIN_CT);
+    const revB = first.body.put[1].rev;
+    const smaller = await post(device, [{ ...b, rev: revB, ct: ctOf(MIN_CT) }]);
+    await expectHeld(3, BIG + MIN_CT + MIN_CT);
+
+    // To the trash is a put like any other.
+    const trashed = await post(device, [{ ...c, rev: first.body.put[2].rev, deletedAt: "2026-11-26T00:00:00.000Z" }]);
+    expect(trashed.body.put[0].rev).toBeGreaterThan(0);
+    await expectHeld(3, BIG + MIN_CT + MIN_CT);
+
+    // A removal takes its row away; one of a row already gone, a conflict, and a refused row change nothing.
+    const removed = await post(device, [fake({ v: 2 }), { ...a, rev: 1 }], [{ id: b.id, rev: smaller.body.put[0].rev }, { id: "never-there", rev: 3 }]);
+    expect(removed.body.put.map((p) => p.refused ?? p.conflict)).toEqual(["v", "changed"]);
+    await expectHeld(2, BIG + MIN_CT);
+  });
+
+  it("refuses, whole, a push that would pass the most rows, and stores nothing of it", async () => {
+    const { account, device } = await setUp();
+    const before = await post(device, [fake()]);
+    await pretend(account, { rows: CEILING.rows - 2 });
+
+    const res = await post(device, [fake(), fake()], [{ id: before.body.put[0].id, rev: 99 }]);
+    // Two rows would end at the ceiling exactly; with the conflict, which removes nothing, still allowed.
+    expect(res.status).toBe(200);
+    expect((await counted(account)).kept.rows).toBe(CEILING.rows);
+
+    const over = await post(device, [fake()]);
+    expect(over.status).toBe(413);
+    expect(Object.keys(over.body)).toEqual(["time", "error", "message", "what", "limits"]);
+    expect(over.body).toMatchObject({ error: "too_large", what: "account", limits: CEILING });
+    expect((await counted(account)).kept.rows).toBe(CEILING.rows);
+    const pulled = await get(device);
+    expect(pulled.body.rows).toHaveLength(3);
+    // Refused whole: not even the account's revision moved.
+    expect((await env.DB.prepare("SELECT rev FROM accounts WHERE id = ?").bind(await accountId(account)).first()).rev).toBe(res.body.rev);
+  });
+
+  it("refuses, whole, a push that would pass the most bytes, a single good row with it", async () => {
+    const { account, device } = await setUp();
+    await pretend(account, { bytes: CEILING.bytes - MIN_CT });
+    // Exactly at the ceiling is allowed.
+    expect((await post(device, [fake()])).status).toBe(200);
+    expect((await counted(account)).kept.bytes).toBe(CEILING.bytes);
+    // One byte past it is not, and neither are the small rows beside the one that grows it.
+    const over = await post(device, [fake(), fake()]);
+    expect(over.status).toBe(413);
+    expect(over.body).toMatchObject({ error: "too_large", what: "account", limits: CEILING });
+    expect((await get(device)).body.rows).toHaveLength(1);
+  });
+
+  it("never refuses a push that shrinks the account or keeps it as it is, even one past the ceiling", async () => {
+    const { account, device } = await setUp();
+    const made = await post(device, [fake({ ct: ctOf(BIG) }), fake({ ct: ctOf(BIG) }), fake()]);
+    const [x, y, z] = made.body.put;
+    await pretend(account, { rows: CEILING.rows + 10, bytes: CEILING.bytes + 10_000 });
+
+    // The same size again; smaller; a removal; a new row in place of one removed.
+    expect((await post(device, [{ ...fake({ ct: ctOf(BIG) }), id: x.id, rev: x.rev }])).status).toBe(200);
+    expect((await post(device, [{ ...fake(), id: y.id, rev: y.rev }])).status).toBe(200);
+    expect((await post(device, [], [{ id: z.id, rev: z.rev }])).status).toBe(200);
+    const pulled = (await get(device)).body.rows;
+    const yNow = pulled.find((r) => r.id === y.id);
+    expect((await post(device, [fake()], [{ id: yNow.id, rev: yNow.rev }])).status).toBe(200);
+    expect((await counted(account)).kept).toEqual({ rows: CEILING.rows + 10 - 1, bytes: CEILING.bytes + 10_000 - (BIG - MIN_CT) - MIN_CT });
+
+    // Growing either count is still refused.
+    const grows = await post(device, [{ ...pulled.find((r) => r.id === x.id), ct: ctOf(BIG + LIMITS.padBlock) }]);
+    expect(grows.body).toMatchObject({ error: "too_large", what: "account" });
+  });
+
+  it("allows a row grown in place at the most rows, while the bytes have room", async () => {
+    const { account, device } = await setUp();
+    const [row] = (await post(device, [fake()])).body.put;
+    await pretend(account, { rows: CEILING.rows });
+    const grown = await post(device, [{ ...fake({ ct: ctOf(BIG) }), id: row.id, rev: row.rev }]);
+    expect(grown.status).toBe(200);
+    expect((await post(device, [fake()])).body.error).toBe("too_large");
+  });
+
+  it("counts rows put straight into the database by the migration's statement, as one already holding rows would be counted", async () => {
+    const backfill = /UPDATE accounts SET[\s\S]*?;/.exec(migration)[0];
+    const { account, device } = await setUp();
+    await post(device, [fake({ ct: ctOf(BIG) }), fake()]);
+    // As the preview stood before the migration: rows, and no counts.
+    await pretend(account, { rows: 0, bytes: 0 });
+    await env.DB.prepare(backfill).run();
+    const { kept, held } = await counted(account);
+    expect(kept).toEqual({ rows: 2, bytes: BIG + MIN_CT });
+    expect(kept).toEqual(held);
   });
 });
 

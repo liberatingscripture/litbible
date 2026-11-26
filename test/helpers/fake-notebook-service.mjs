@@ -31,7 +31,20 @@ import { Offline } from "../../src/lib/desk-sync-engine.mjs";
 
 const b64 = ref.toBase64url;
 
-const LIMITS = { rowsPerRequest: 500, pageRows: 500, pageChars: 4 * 1024 * 1024, bodyBytes: 4 * 1024 * 1024, maxRecordBytes: 1_048_576, tagBytes: 16, padBlock: 256 };
+const LIMITS = {
+  rowsPerRequest: 500,
+  pageRows: 500,
+  pageChars: 4 * 1024 * 1024,
+  bodyBytes: 4 * 1024 * 1024,
+  maxRecordBytes: 1_048_576,
+  tagBytes: 16,
+  padBlock: 256,
+  // The ceiling on an account (check.js; BVJ, 2026-11-26).
+  accountRows: 100_000,
+  accountBytes: 100_000_000,
+};
+/** The sealed bytes a well-formed ct spells, as rows.js counts a row toward the ceiling. */
+const sealedBytes = (ct) => Math.floor((ct.length * 3) / 4);
 /** A session token as the service reads one (session.js, BEARER): 32 bytes in base64url, 43 characters. */
 const BEARER = /^Bearer ([A-Za-z0-9_-]{43})$/i;
 const TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
@@ -95,8 +108,18 @@ const rowOut = (row) => ({
   ct: row.ct,
 });
 
+/** What an account holds, counted again from its rows: what the service's counts always equal. */
+function recount(account) {
+  account.rowCount = account.rows.size;
+  account.rowBytes = [...account.rows.values()].reduce((sum, row) => sum + sealedBytes(row.ct), 0);
+}
+
 export function createFakeService({ now = () => new Date().toISOString() } = {}) {
-  /** name → { notebook, kid, proofHash, lists, rev, rows: Map, devices: Map, waiting, replaced } */
+  /**
+   * name → { notebook, kid, proofHash, lists, rev, rows: Map, devices: Map, waiting, replaced, rowCount, rowBytes }.
+   * `rowCount` and `rowBytes` are the counts the ceiling reads; a test may set them, to stand an
+   * account near its ceiling without storing a hundred thousand rows, as the service's own tests do.
+   */
   const accounts = new Map();
   /** token → { account, device, openKid } */
   const sessions = new Map();
@@ -141,7 +164,19 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
 
     account(name) {
       if (!accounts.has(name)) {
-        accounts.set(name, { notebook: null, kid: 0, proofHash: null, lists: 0, rev: 0, rows: new Map(), devices: new Map(), waiting: null, replaced: null });
+        accounts.set(name, {
+          notebook: null,
+          kid: 0,
+          proofHash: null,
+          lists: 0,
+          rev: 0,
+          rows: new Map(),
+          devices: new Map(),
+          waiting: null,
+          replaced: null,
+          rowCount: 0,
+          rowBytes: 0,
+        });
       }
       return accounts.get(name);
     },
@@ -208,26 +243,40 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       const account = service.account(name);
       account.rev += 1;
       const stored = { deletedAt: null, ...row, rev: account.rev };
+      const held = account.rows.get(row.id);
       account.rows.set(row.id, stored);
+      if (!held) account.rowCount += 1;
+      account.rowBytes += sealedBytes(stored.ct ?? "") - (held ? sealedBytes(held.ct ?? "") : 0);
       return stored;
     },
 
-    /** The service restored from an older copy: every row written after `rev` is gone, and revisions go back. */
+    /** The service restored from an older copy: every row written after `rev` is gone, and revisions go back, and so do the counts. */
     goBack(name, rev) {
       const account = service.account(name);
       for (const [id, row] of account.rows) if (row.rev > rev) account.rows.delete(id);
       account.rev = rev;
+      recount(account);
     },
 
     /**
      * Replaces the account's notebook with none (what a carried-out "Start a
      * new notebook" leaves; carryOutReplace in waiting.js). The account's
      * revision counter is not reset, so the next notebook's rows never take a
-     * revision a device already pulled.
+     * revision a device already pulled. Its counts of its rows are.
      */
     replaceNotebook(name) {
       const account = service.account(name);
-      Object.assign(account, { notebook: null, kid: 0, proofHash: null, rows: new Map(), devices: new Map(), waiting: null, replaced: { when: now(), platform: "web", through: "passkey" } });
+      Object.assign(account, {
+        notebook: null,
+        kid: 0,
+        proofHash: null,
+        rows: new Map(),
+        devices: new Map(),
+        waiting: null,
+        replaced: { when: now(), platform: "web", through: "passkey" },
+        rowCount: 0,
+        rowBytes: 0,
+      });
       account.lists++;
       for (const s of sessions.values()) if (s.account === name) Object.assign(s, { device: null, openKid: 0, failures: 0 });
     },
@@ -426,36 +475,53 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       if (new Set(named).size !== named.length) bad("id");
       if (put.some((row) => row.kid !== account.kid)) refuse(409, "old_key", { kid: account.kid });
 
+      // Every item is decided against the rows as they stand, and nothing is stored until the
+      // ceiling has been checked (rows.js, store).
       let rev = account.rev;
+      let addRows = 0;
+      let addBytes = 0;
       const conflicts = [];
+      const stored = [];
       const putAnswers = put.map((row) => {
         const refused = refusedRow(row);
         if (refused) return { ...(typeof row.id === "string" ? { id: row.id } : {}), refused };
-        const stands = account.rows.get(row.id)?.rev ?? 0;
+        const held = account.rows.get(row.id);
+        const stands = held?.rev ?? 0;
         if (row.rev !== stands) {
           if (stands) conflicts.push(row.id);
           return { id: row.id, conflict: stands ? "changed" : "gone" };
         }
+        if (!held) addRows += 1;
+        addBytes += sealedBytes(row.ct) - (held ? sealedBytes(held.ct) : 0);
         rev += 1;
-        account.rows.set(row.id, { v: row.v, id: row.id, rev, modified: row.modified, deletedAt: row.deletedAt ?? null, kid: row.kid, nonce: row.nonce, ct: row.ct });
+        stored.push({ v: row.v, id: row.id, rev, modified: row.modified, deletedAt: row.deletedAt ?? null, kid: row.kid, nonce: row.nonce, ct: row.ct });
         return { id: row.id, rev };
       });
       const gone = [];
       const removeAnswers = remove.map((item) => {
-        const stands = account.rows.get(item.id)?.rev;
-        if (stands === undefined) return { id: item.id, removed: true };
-        if (item.rev !== stands) {
+        const held = account.rows.get(item.id);
+        if (held === undefined) return { id: item.id, removed: true };
+        if (item.rev !== held.rev) {
           conflicts.push(item.id);
           return { id: item.id, conflict: "changed" };
         }
         gone.push(item.id);
+        addRows -= 1;
+        addBytes -= sealedBytes(held.ct);
         return { id: item.id, removed: true };
       });
+      // The ceiling: refused whole when the push would end past either count and grows it.
+      if ((addRows > 0 && account.rowCount + addRows > LIMITS.accountRows) || (addBytes > 0 && account.rowBytes + addBytes > LIMITS.accountBytes)) {
+        refuse(413, "too_large", { what: "account", limits: { rows: LIMITS.accountRows, bytes: LIMITS.accountBytes } });
+      }
+      for (const row of stored) account.rows.set(row.id, row);
       if (gone.length) {
         rev += 1;
         for (const id of gone) account.rows.delete(id);
       }
       account.rev = rev;
+      account.rowCount += addRows;
+      account.rowBytes += addBytes;
       let chars = 0;
       for (const id of conflicts.sort((a, b) => account.rows.get(a).rev - account.rows.get(b).rev)) {
         const row = account.rows.get(id);

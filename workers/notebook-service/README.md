@@ -78,7 +78,7 @@ what each must and must not have.
 |---|---|---|
 | `DB` | D1 binding | The database. The preview's is named `litbible-notebook-preview`; production's is to be `litbible-notebook`, and doesn't exist yet |
 | `ENVIRONMENT` | variable | `preview` or `production`. The preview's way in works only where this says exactly `preview` |
-| `SIGN_IN_LIMIT`, `REQUEST_LIMIT` | rate limit bindings | How often one address may ask: 60 a minute to begin a sign-in, 1,200 a minute for everything else ("The account work" below). Each environment has its own two namespaces. A namespace id is a number we choose; it is no resource to create and no secret |
+| `SIGN_IN_LIMIT`, `PUSH_LIMIT`, `REQUEST_LIMIT` | rate limit bindings | How often one address may ask: 60 a minute to begin a sign-in, 120 a minute for `POST /rows` (BVJ, 2026-11-26, Audit 9), 1,200 a minute for everything else ("The account work" below). Each environment has its own three namespaces. A namespace id is a number we choose; it is no resource to create and no secret. **A missing binding answers "error" to every request**, so a deploy that drops one is seen at once |
 | the cron trigger | `triggers.crons` | `17 * * * *`: every hour, at seventeen past, the hourly run |
 | `PREVIEW_SIGN_IN` | variable | `on` on the preview, and set nowhere else |
 | `ALLOWED_ORIGINS` | variable | The origins a browser may call from, comma separated (the website, and its dev server) |
@@ -182,11 +182,16 @@ against a local D1 made from the real migrations.
   millisecond before it; and the Worker's own `scheduled` handler is run
   with the clock itself moved, so the path a real run takes is the one
   tested. Also what a run does when Apple is down, when one request fails,
-  and when more are due than one run takes; and the sweep.
+  and when more are due than one run takes; and the sweep, accounts never
+  set up among it.
+- `sweep-races.test.js`: the sweep of accounts never set up, where a
+  request meets it. Each condition in its deleting statements (no
+  notebook, old enough, no live session, no Apple token) was taken out in
+  turn, and a test here failed each time.
 - `waiting-races.test.js`: the account work where two requests meet, or a
   request and a run. Each condition in a statement of `src/waiting.js` was
   taken out in turn, and a test here failed each time.
-- `limits.test.js`: the two limits, against workerd's own local copy of
+- `limits.test.js`: the three limits, against workerd's own local copy of
   Cloudflare's rate limiting, with the numbers `wrangler.jsonc` gives. That
   local copy counts exactly, in windows aligned to the wall clock, so a
   burst that crossed the top of a minute was counted in two halves and never
@@ -197,7 +202,8 @@ against a local D1 made from the real migrations.
   server, a deploy on a push).
 - `races.test.js`: "checked and written as one step." Each test pauses one
   request right after a read, lets a second request finish, and lets the
-  first go on; it fails if the guard it is about is weakened.
+  first go on; it fails if the guard it is about is weakened. Among them,
+  two pushes meeting at the edge of the account's ceiling.
 
 **What the tests can't show**: anything about the real D1 over a network. That
 is what the walkthrough is for, after a deploy. Its eighth step pushes a row
@@ -265,7 +271,7 @@ so in that session.
 The account's plan matters in one way. On Workers Free a request gets 10 ms of
 CPU, which is enough for everything here but may cut off a push of several
 megabytes; on Workers Paid the limit is 30 seconds. The preview works on
-either. Production should be on Paid ("Production" below).
+either. Production stays on Free for now (BVJ; "Production" below).
 
 ### The address
 
@@ -485,6 +491,14 @@ Where the deployment holds both `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET`:
   `missing-input-secret`, `invalid-input-secret`, `bad-request`, or
   `internal-error` is `provider` too, and a mistyped secret never tells a
   reader their check failed.
+- **A token made on another site is refused** (BVJ, 2026-11-26, Audit 9):
+  siteverify's `hostname`, which Cloudflare documents as the hostname
+  where the challenge was served, must be the host of one of
+  `ALLOWED_ORIGINS`, compared whole and without regard to case. One
+  missing, not text, or anything else (a subdomain, a longer name that
+  begins the same) is `not_allowed` (`rule: "turnstile"`), as a bad token
+  is. Cloudflare's docs advise checking the `action` too where one is
+  set; the website sets none, so it is not checked.
 - **A request with no `Origin` is not checked.** Only a browser sends one,
   and the iOS and Android apps send none. So until the apps attest
   themselves (App Attest, Play Integrity: a question for BDR), a program can
@@ -531,8 +545,13 @@ TURNSTILE_SECRET=1x0000000000000000000000000000000AA
 That secret passes every token, including the dummy token
 `XXXX.DUMMY.TOKEN.XXXX`; `2x0000000000000000000000000000000AA` in its place
 fails every token, and the site key `2x00000000000000000000AB` shows a widget
-that always fails. A local server's siteverify call still goes to
-Cloudflare, so it needs a network.
+that always fails. **A dummy secret's answer names the hostname
+`example.com`**, whatever page made the token, so the check of where a
+token was made refuses it unless `.dev.vars` also adds that host to the
+origins: `ALLOWED_ORIGINS=https://litbible.net,http://localhost:4321,https://example.com`
+(locally only; the deployed values in `wrangler.jsonc` never name it). A
+local server's siteverify call still goes to Cloudflare, so it needs a
+network.
 
 ## Who can deploy and roll back
 
@@ -624,13 +643,22 @@ entry and production's.
 One line for each request: the time, the route as `src/index.js` writes it
 (`PUT /devices/:id`, never the address that was asked for), the status, the
 refusal's word, and how long it took. And one line for each hourly run:
-how many requests it carried out, held, or failed on, and how many rows it
-swept, as counts. **No body, key proof, session token, id, account, or
+how many requests it carried out, held, or failed on, how many rows it
+swept, and how many accounts never set up it deleted or held, as counts. **No body, key proof, session token, id, account, or
 address a request came from reaches a log**, and no name or email address is stored
 anywhere: a way to sign in is kept as the provider's own account id, and the
-preview's as a made-up label. Cloudflare's own per-request log (which would
-record each address) is turned off in `wrangler.jsonc`
-(`observability.logs.invocation_logs`). `test/http.test.js` checks the lines.
+preview's as a made-up label. `test/http.test.js` checks the lines.
+
+**None of it is stored** (`observability.enabled: false` in `wrangler.jsonc`,
+held by `test/config.test.js`; BVJ, 2026-11-26, Study Desk Audit 9's decision
+4). Watch the lines live with `npx wrangler tail --env preview`. Workers Logs
+was on until then, and one stored event BVJ read from the preview's dashboard
+showed why it can't be: beside the service's own line Cloudflare keeps the
+Worker's name and version, its own request, ray, trace, and span ids, and the
+request's method, **full URL, and path**, which for `/devices/:id`,
+`/ways/:id`, `/approvals/:id`, and `GET /devices?device=` carry an id. It held
+no IP address and no header. `/privacy` says the lines aren't stored; turning
+stored logs back on is a change to that page first.
 
 ## The account work (step 4f)
 
@@ -650,7 +678,9 @@ running them.
   account stays whole.
 - **The hourly run** (`src/scheduled.js`, the cron trigger) carries out at
   most 100 requests that are due, oldest first, then deletes sessions,
-  approvals, and sign-in challenges that ran out. A request it can't carry
+  approvals, and sign-in challenges that ran out, and then up to 100
+  accounts that never set up a notebook ("The service's limits, from Audit
+  9" below). A request it can't carry
   out is left for the next hour and never stops the others. **Read its log
   line** (`RUNBOOK.md`, "Reading the hourly line"): `held` above 0 for more
   than a few hours means Apple is refusing, and `failed` above 0 is a fault
@@ -706,6 +736,59 @@ of which the preview had.
    account stays, and `RUNBOOK.md` ("An account won't delete") has the way
    through.
 
+### The service's limits, from Audit 9 (2026-11-26)
+
+BVJ's decisions 1 to 4 of Study Desk Audit 9. What a client sees is in
+`STUDY-DESK-ENCRYPTION.md`, "Changed in Audit 9: the service's limits";
+this is what is particular to running them.
+
+- **A ceiling on each account: 100,000 rows and 100 MB of sealed record**
+  (`accountRows` and `accountBytes` in `LIMITS`, `src/check.js`). The counts
+  are kept on the account, `row_count` and `row_bytes` (migration
+  `0004_account_ceiling.sql`, which counts what each account already
+  holds), so a push never counts an account's rows to decide. `POST /rows`
+  moves them by its own difference in the same batch that stores its rows,
+  under the same guard on the account's `rev`: of two pushes that meet at
+  the edge, the second finds the revision moved, reads the counts again,
+  and is refused (`test/races.test.js`). A row's bytes are its `ct` as
+  bytes, measured from its text (`sealedBytes`, `src/rows.js`). A push that
+  would end past either count, having grown it, is refused whole; a push
+  that shrinks the account, or keeps it the same, never is. Replacing a
+  notebook sets both to 0. If they are ever doubted (after a rollback past
+  this version, above all), `RUNBOOK.md`, section 2, counts again.
+- **`POST /rows`: 120 a minute from one address** (`PUSH_LIMIT`), counted
+  under that limit alone, so a device that syncs often never spends the
+  1,200 its other requests share. A deployment without the binding answers
+  `error` to everything, as for the other two.
+- **Accounts never set up are deleted by the hourly run**
+  (`sweepUnused`, `src/scheduled.js`): an account with no notebook (`kid`
+  0), no session still live, and made more than 30 days ago
+  (`UNUSED_DAYS`), or replaced that long ago. Up to 100 a run
+  (`UNUSED_PER_RUN`), oldest first; a partial index (`accounts_no_notebook`)
+  keeps the search to accounts without a notebook. **The condition is in
+  the deleting statement itself**, so an account signed in to, set up, or
+  replaced after the run read it stays (`test/sweep-races.test.js`, which
+  failed with each condition taken out in turn). An account holding a
+  token from Apple is revoked first, one at a time, and stays while Apple
+  can't be reached or the deployment has no Apple key; the hourly line
+  counts it `accountsHeld`. Its session never lengthens (a session of an
+  account with no notebook isn't extended), so a reader who made a passkey
+  and never set up has 30 days from that sign-in, then about an hour.
+- **Turnstile checks the site its token was made on** ("Turnstile before a
+  new account" above).
+
+**What the merge deploys**: the preview workflow applies migration `0004`
+(two columns, counted from the rows there, and one index), then deploys the
+Worker with the third rate limit binding. A namespace id is no resource to
+make, so nothing is owed from BVJ first. **To see on the preview after it**:
+the walkthrough passes (the deploy runs it); the hourly line, watched live,
+carries `swept.accounts` and `swept.accountsHeld`; and the counts agree
+with the rows, which this answers `0` for:
+
+```bash
+npx wrangler d1 execute DB --env preview --remote --command "SELECT COUNT(*) FROM accounts a WHERE a.row_count != (SELECT COUNT(*) FROM rows r WHERE r.account = a.id)"
+```
+
 ### Bot protection at sign-up: assessed, and left for step 4h
 
 The plan asked this step what can be done before the website has a sign-in
@@ -731,8 +814,9 @@ page. **Nothing is built, and here is why.**
   - *Here, alone*: the hourly run could delete accounts that have no
     notebook and no session after some weeks. That bounds the clutter and
     stops nobody, and it would leave a real reader who made a passkey and
-    never set up with a passkey that signs in to nothing. Not built; it is
-    there if empty accounts ever pile up.
+    never set up with a passkey that signs in to nothing. **Built in Audit
+    9** (BVJ, 2026-11-26), at 30 days ("The service's limits, from Audit
+    9" below).
 - **So**: the limits are what there is until the check is configured.
   **BVJ said yes to Turnstile on the website's sign-in page (2026-11-24)**;
   step 4h built the widget's place on that page and the token's check
@@ -796,7 +880,9 @@ Said plainly, since this step leans on three vendors' rules (2026-11-24):
 
 **Prepared in step 4f. Not deployed, and not to be until BVJ says so.** No
 session creates anything on Cloudflare without BVJ's word in that session
-(`workers/CLAUDE.md`).
+(`workers/CLAUDE.md`). Production is one line of the Study Desk's “Before
+accounts open” list (`STUDY-DESK.md`, “Order of work,” 4), which names
+everything else that must be true before readers can make an account.
 
 **What is ready, in this repository:**
 
@@ -823,12 +909,14 @@ BDR's identifiers are configured, exactly as on the preview.
 **BVJ's steps, in order, when the day comes.** Each creates or changes
 something on Cloudflare or GitHub.
 
-1. **Decide the plan.** Production should be on Workers Paid: Free gives a
+1. **The plan: Free, for now** (BVJ, 2026-11-26, Audit 9's decision 2:
+   “We won't need paid for quite some time. We have about 500 total app
+   users and 25 daily site visitors.”). What Free costs: it gives a
    request 10 ms of CPU, which may cut off a large push, and keeps Time
    Travel's history for 7 days instead of 30. The deletion page tells
    readers 30 days. Two more reasons, from Cloudflare's pages as read on
-   2026-11-24. **On Free a database gets 100,000 rows written a day, and
-   then every query fails until midnight UTC**: one address beginning
+   2026-11-24. **On Free the account gets 100,000 rows written a day, shared
+   by every database on it, and then every query fails until midnight UTC**: one address beginning
    sign-ins at the limit (60 a minute, each a challenge written and later
    deleted, which D1 counts as at least four rows) would spend that within
    about seven hours, and nobody could sync for the rest of the day. And
@@ -836,7 +924,13 @@ something on Cloudflare or GitHub.
    due deletion takes at least two, so an hourly run with more than about
    two dozen due would stop short and skip that hour's sweep. The same
    holds for the preview on whichever plan the account has today; there
-   it would cost a day of testing.
+   it would cost a day of testing. What BVJ chose instead: the account's
+   ceiling and the limit on pushes (Audit 9), and **the apps proving they
+   are the apps before accounts open** (App Attest and Play Integrity; the
+   spec's “Still open,” 86), so a program can't make accounts without end
+   through the apps' door. Moving to Paid later is one change in the
+   dashboard's Workers plans ($5 a month); record it in
+   `DISASTER-RECOVERY.md`.
 2. **Make the database**: `npx wrangler d1 create litbible-notebook`. Choose
    the location when asked (the preview's is western North America). Put
    the `database_id` it prints into `env.production.d1_databases` in
@@ -886,7 +980,8 @@ Policy naming this origin in `connect-src`; the privacy page and terms (4j);
 and BDR's confirmation of the spec's open items.
 
 **A migration applied to production is applied for good**, and a rollback
-never undoes one. `migrations/0001` to `0003` are what the preview runs.
+never undoes one. `migrations/0001` to `0003` are what the preview runs;
+`0004` (Audit 9's ceiling) goes there with the merge that carries it.
 
 ## What is left, and where it plugs in
 

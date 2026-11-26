@@ -21,15 +21,20 @@ const ON = { TURNSTILE_SITE_KEY: SITE_KEY, TURNSTILE_SECRET: SECRET };
 /** The two cleared, whatever the preview's configuration sets. */
 const NEITHER = { TURNSTILE_SITE_KEY: undefined, TURNSTILE_SECRET: undefined };
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
+/** The host the widget is on: the host of the preview's ALLOWED_ORIGINS that is the site. */
+const SITE_HOST = new URL(ORIGIN).hostname;
 
 let world;
 
-/** Replaces fetch() with siteverify. `answer(form)` gives [status, body text]; `down` makes it fail as a network does. */
+/**
+ * Replaces fetch() with siteverify. `answer(form)` gives [status, body text]; `down` makes it fail as a network does.
+ * A good token is answered as one made on the site (`hostname`), which the preview's ALLOWED_ORIGINS lists.
+ */
 function standIn() {
   world = {
     calls: [],
     down: false,
-    answer: (form) => [200, JSON.stringify({ success: form.response === TOKEN, "error-codes": form.response === TOKEN ? [] : ["invalid-input-response"] })],
+    answer: (form) => [200, JSON.stringify(form.response === TOKEN ? { success: true, "error-codes": [], hostname: SITE_HOST } : { success: false, "error-codes": ["invalid-input-response"] })],
   };
   vi.stubGlobal("fetch", async (input, init = {}) => {
     const url = typeof input === "string" ? input : input.url;
@@ -156,6 +161,49 @@ describe("with the check on, a browser's request (it has an Origin)", () => {
       expect(await challenges()).toBe(before);
     });
   }
+
+  describe("the site the token was made on (BVJ, 2026-11-26)", () => {
+    /** Siteverify says yes, for a token made where `verdict` says. */
+    const yes = (verdict) => (world.answer = () => [200, JSON.stringify({ success: true, "error-codes": [], ...verdict })]);
+
+    for (const [what, verdict] of [
+      ["another site", { hostname: "example.com" }],
+      ["a host that only begins with the site's", { hostname: "litbible.net.example.com" }],
+      ["another host under the site's domain", { hostname: "notebook-preview.litbible.net" }],
+      ["no host at all", {}],
+      ["a host that isn't text", { hostname: ["litbible.net"] }],
+    ]) {
+      it(`refuses a good token made on ${what}, as a bad token is, and writes nothing`, async () => {
+        yes(verdict);
+        const before = await challenges();
+        const { status, body } = await asked({ turnstile: TOKEN });
+        expect(status).toBe(422);
+        expect(body).toMatchObject({ error: "not_allowed", rule: "turnstile" });
+        expect(await challenges()).toBe(before);
+      });
+    }
+
+    it("passes a token made on any host of the deployment's own origins, the dev server's included, in any case", async () => {
+      for (const hostname of ["litbible.net", "localhost", "LitBible.net"]) {
+        yes({ hostname });
+        expect((await asked({ turnstile: TOKEN })).status, hostname).toBe(200);
+      }
+    });
+
+    it("reads the hosts from the deployment's ALLOWED_ORIGINS, not from a list of its own", async () => {
+      yes({ hostname: "litbible.net" });
+      const elsewhere = { ALLOWED_ORIGINS: "https://example.com" };
+      // The request's Origin must be allowed too, or the browser would never see the answer; it is not what is checked.
+      expect((await asked({ turnstile: TOKEN }, { more: elsewhere })).body).toMatchObject({ error: "not_allowed", rule: "turnstile" });
+      yes({ hostname: "example.com" });
+      expect((await asked({ turnstile: TOKEN }, { more: elsewhere })).status).toBe(200);
+    });
+
+    it("does not check `action`", async () => {
+      yes({ hostname: "litbible.net", action: "something-else", cdata: "anything" });
+      expect((await asked({ turnstile: TOKEN })).status).toBe(200);
+    });
+  });
 
   it("is still not_allowed when siteverify names the token among its reasons", async () => {
     world.answer = () => [200, JSON.stringify({ success: false, "error-codes": ["timeout-or-duplicate"] })];

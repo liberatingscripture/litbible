@@ -42,8 +42,11 @@ describe("the top level", () => {
     expect(Object.keys(config.env).sort()).toEqual(["preview", "production"]);
   });
 
-  it("keeps Cloudflare's own per-request log off, which would record each address asked for", () => {
-    expect(config.observability.logs.invocation_logs).toBe(false);
+  it("stores no log: a stored event carries the address asked for, ids and all (Audit 9, decision 4)", () => {
+    expect(config.observability).toEqual({ enabled: false });
+    for (const [name, env] of Object.entries(config.env)) {
+      expect(env.observability, name).toBeUndefined();
+    }
   });
 
   it("is named by every npm script that reaches Cloudflare or a database", () => {
@@ -106,18 +109,21 @@ describe("production", () => {
 
 describe("what both environments must have, each written out (a named environment inherits none of it)", () => {
   for (const [name, env] of [["preview", preview], ["production", production]]) {
-    it(`${name}: the hourly trigger, and both limiters with the spec's numbers`, () => {
+    it(`${name}: the hourly trigger, and all three limiters with the spec's numbers`, () => {
       expect(env.triggers).toEqual({ crons: ["17 * * * *"] });
       expect(env.ratelimits.map((l) => [l.name, l.simple])).toEqual([
         ["SIGN_IN_LIMIT", { limit: 60, period: 60 }],
         ["REQUEST_LIMIT", { limit: 1200, period: 60 }],
+        // POST /rows (BVJ, 2026-11-26; Audit 9, SV9-1).
+        ["PUSH_LIMIT", { limit: 120, period: 60 }],
       ]);
     });
   }
 
   it("gives each limiter a namespace of its own, so the preview's traffic never counts against production's", () => {
     const ids = [...preview.ratelimits, ...production.ratelimits].map((l) => l.namespace_id);
-    expect(new Set(ids).size).toBe(4);
+    expect(ids).toHaveLength(6);
+    expect(new Set(ids).size).toBe(6);
     for (const id of ids) expect(id).toMatch(/^[1-9]\d*$/);
   });
 });

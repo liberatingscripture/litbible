@@ -103,15 +103,19 @@ function section(title, note, groups) {
 
 /**
  * The page. `rows` are the rows of `counts` and `days` the rows of `days`
- * for the stretch `from` to `to` (both days included); `cap` is the most a
- * day counts, and `perPost` the most one post can add, so a day within that
- * of its cap may have turned reports away.
+ * for the stretch `from` to `to` (both days included). A row of `days` is an
+ * hour's total, keyed 2026-11-24T13 (src/store.js), and an hour within
+ * `perPost` (the most one post can add) of `cap` (the most an hour counts)
+ * may have turned reports away. A row keyed by a bare day is from before the
+ * hourly cap and is held to `dayCap` (or `cap`, if none is given) instead.
  */
-export function summarize(rows, days, { from, to, cap, perPost }) {
+export function summarize(rows, days, { from, to, cap, perPost, dayCap = cap }) {
   const stretch = daysBetween(from, to);
   const counted = rows.reduce((sum, row) => sum + row.n, 0);
   const withReports = new Set(rows.map((row) => row.day));
-  const full = days.filter((day) => day.n > cap - perPost).map((day) => day.day);
+  const isHour = (key) => key.includes("T");
+  const fullHours = days.filter((row) => isHour(row.day) && row.n > cap - perPost).map((row) => `${row.day.replace("T", " ")}:00`);
+  const fullDays = days.filter((row) => !isHour(row.day) && row.n > dayCap - perPost).map((row) => row.day);
 
   const out = [`Content security policy reports, ${from} to ${to} (${plural(stretch.length, "day")})`, ""];
   if (counted === 0) {
@@ -127,11 +131,13 @@ export function summarize(rows, days, { from, to, cap, perPost }) {
   }
 
   out.push(`${plural(counted, "report")} counted, on ${withReports.size} of the ${plural(stretch.length, "day")}.`);
-  out.push(
-    full.length
-      ? `REACHED THE DAY'S CAP of ${cap.toLocaleString("en-US")} on ${full.join(", ")}: that day's counts are a floor, not a total.`
-      : `No day reached the cap of ${cap.toLocaleString("en-US")}.`,
-  );
+  if (fullHours.length) {
+    out.push(`REACHED THE HOUR'S CAP of ${cap.toLocaleString("en-US")} in the UTC hours starting ${fullHours.join(", ")}: those hours' counts are a floor, not a total. Every other hour counted in full.`);
+  }
+  if (fullDays.length) {
+    out.push(`REACHED THE DAY'S CAP of ${dayCap.toLocaleString("en-US")} on ${fullDays.join(", ")} (before the cap was hourly): that day's counts are a floor, not a total.`);
+  }
+  if (!fullHours.length && !fullDays.length) out.push(`No hour reached the cap of ${cap.toLocaleString("en-US")}.`);
 
   const groups = tally(rows);
   const own = groups.filter((group) => !group.extension);

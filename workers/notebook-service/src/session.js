@@ -94,7 +94,7 @@ export async function authenticate(request, env) {
   const tokenHash = await hashText(match[1]);
   const row = await env.DB.prepare(
     `SELECT s.account, s.way, s.device, s.open_kid, s.created, s.expires,
-            a.notebook, a.kid, a.proof_hash, a.lists, a.rev,
+            a.notebook, a.kid, a.proof_hash, a.lists, a.rev, a.row_count, a.row_bytes,
             d.id AS entry, d.seen
        FROM sessions s
        JOIN accounts a ON a.id = s.account
@@ -139,6 +139,9 @@ export async function authenticate(request, env) {
     proofHash: row.proof_hash,
     lists: row.lists,
     rev: row.rev,
+    /** What the account holds, as read with `rev` (src/rows.js keeps both, in the batch that moves it). */
+    rowCount: row.row_count,
+    rowBytes: row.row_bytes,
   };
 }
 

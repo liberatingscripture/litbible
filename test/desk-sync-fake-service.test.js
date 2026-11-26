@@ -56,6 +56,8 @@ function realWorld() {
   return {
     fetch: (path, init) => service.fetch(`${service.origin}${path}`, init),
     tokens: { none: null, empty: session("empty"), signedIn: session("reader"), open: session("reader", { device, openKid: 1 }) },
+    /** Stands the open account at these counts of its rows, as if it held that much. */
+    holding: (rows, bytes) => run("UPDATE accounts SET row_count = ?, row_bytes = ? WHERE id = 'reader'", rows, bytes),
   };
 }
 
@@ -66,6 +68,7 @@ async function fakeWorld() {
   return {
     fetch: (path, init) => service.fetch(`https://notebook.example${path}`, init),
     tokens: { none: null, empty: service.signIn("empty"), signedIn: service.signIn("reader"), open: reader.token },
+    holding: (rows, bytes) => Object.assign(service.account("reader"), { rowCount: rows, rowBytes: bytes }),
   };
 }
 
@@ -78,8 +81,15 @@ async function ask(world, who, method, path, body) {
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const answered = JSON.parse(await res.text());
-  const { error = null, what, limit, kid } = answered;
-  return { status: res.status, error, ...(what === undefined ? {} : { what }), ...(limit === undefined ? {} : { limit }), ...(kid === undefined || error === null ? {} : { kid }) };
+  const { error = null, what, limit, limits, kid } = answered;
+  return {
+    status: res.status,
+    error,
+    ...(what === undefined ? {} : { what }),
+    ...(limit === undefined ? {} : { limit }),
+    ...(limits === undefined ? {} : { limits }),
+    ...(kid === undefined || error === null ? {} : { kid }),
+  };
 }
 
 /** A body a little over the service's limit, still a JSON object. */
@@ -106,6 +116,34 @@ test("the stand-in answers as the service does where the order of checks decides
   // The answers themselves, so that a change to both at once is seen too.
   assert.deepEqual(await ask(real, "open", "POST", "/rows", oversized({ put: [], remove: [] })), { status: 413, error: "too_large", limit: BODY_LIMIT });
   assert.deepEqual(await ask(real, "signedIn", "POST", "/rows", oversized({ put: [], remove: [] })), { status: 403, error: "not_open", kid: 1 });
+});
+
+test("the stand-in holds the account's ceiling as the service does: the same refusal, and the same pushes let through", async () => {
+  const real = realWorld();
+  const fake = await fakeWorld();
+  let made = 0;
+  // A row that passes every check: the smallest padded record (256 bytes) and its tag, 272 bytes in all.
+  const row = () => ({ v: 1, id: `ceiling-${++made}`, rev: 0, modified: TIME, kid: 1, nonce: "A".repeat(16), ct: "A".repeat(363) });
+  const CEILING = { rows: 100_000, bytes: 100_000_000 };
+  const cases = [
+    ["one row's room, two new rows: refused whole", [CEILING.rows - 1, 0], [row(), row()]],
+    ["one row's room, one new row: stored", [CEILING.rows - 1, 0], [row()]],
+    ["at the most rows, one more: refused", [CEILING.rows, 0], [row()]],
+    ["271 bytes' room, a 272-byte row: refused", [0, CEILING.bytes - 271], [row()]],
+    ["272 bytes' room, a 272-byte row: stored", [0, CEILING.bytes - 272], [row()]],
+    ["past both already, nothing new: stored", [CEILING.rows + 5, CEILING.bytes + 5], []],
+  ];
+  for (const [name, [rows, bytes], put] of cases) {
+    real.holding(rows, bytes);
+    fake.holding(rows, bytes);
+    const body = { put, remove: [] };
+    const want = await ask(real, "open", "POST", "/rows", body);
+    const got = await ask(fake, "open", "POST", "/rows", body);
+    assert.deepEqual(got, want, name);
+  }
+  // The refusal itself, so that a change to both at once is seen too.
+  real.holding(CEILING.rows, 0);
+  assert.deepEqual(await ask(real, "open", "POST", "/rows", { put: [row()] }), { status: 413, error: "too_large", what: "account", limits: CEILING });
 });
 
 test("the stand-in's session tokens have the service's form, and a header that isn't one signs nothing in", async () => {
