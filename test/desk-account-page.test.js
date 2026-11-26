@@ -381,22 +381,25 @@ test("a link that carries a code is taken out of the address, and a browser that
 test("“Show a code instead”: the new device types the code, and the question says to approve only a device that did (Audit 9, SEC9-1)", async () => {
   const w = world();
   const first = await setUpReader(w);
-  const page1 = await openPage(first.b);
-  await synced(page1);
-  await page1.press(WORDS.showCode);
-  await page1.shows(WORDS.showCodeLede);
-  const code = page1.root.querySelector(".account__code--short").textContent;
-
+  // The new device signs in first: in this rig the browsers share one sync module, so the page
+  // that shows the code is opened last, and its sync is the live one.
   const second = browser(w, { creds: first.b.creds, userAgent: SAFARI_MAC });
   const page2 = await openPage(second);
   await page2.press(WORDS.signInPasskey);
   await page2.shows(WORDS.joinTitle);
   await page2.press(WORDS.joinApprove);
   await page2.shows(WORDS.joinWaiting);
+
+  const page1 = await openPage(first.b);
+  await synced(page1);
+  await page1.press(WORDS.showCode);
+  await page1.shows(WORDS.showCodeLede);
+  const code = page1.root.querySelector(".account__code--short").textContent;
+
+  // The new device types the code it was shown.
   page2.fill("account-join-code", code);
   await page2.press(WORDS.setupContinue);
 
-  await use(first.b);
   await first.b.timers.fire();
   await until(() => page1.has(WORDS.addDeviceHoldingShown), "the question on the browser that showed the code");
   assert.ok(page1.has("Add “Safari on Mac” (Website) to your notebook? Asked just now, signed in with a passkey."), page1.text().slice(0, 400));
