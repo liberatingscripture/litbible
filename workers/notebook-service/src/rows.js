@@ -6,6 +6,19 @@
 // each accepted row the account's next revision, and answers "what changed
 // since." Its checks on a row are of form alone: it can't open one, and it
 // applies no rule to a row's two times beyond their form.
+//
+// THE CEILING ON AN ACCOUNT (BVJ, 2026-11-26; Audit 9, SV9-1): at most
+// LIMITS.accountRows rows and LIMITS.accountBytes bytes of sealed records.
+// The account keeps both counts (`row_count`, `row_bytes`), and a push moves
+// them in the same guarded batch that writes its rows, by what it changes: a
+// new row adds itself, a row put again at a new revision adds the difference
+// in its size, and a removal takes its row away. A push that would end past
+// either ceiling, having grown it, is refused whole (`too_large`, `what:
+// "account"`), so one that only shrinks an account, or keeps it, is never
+// refused. The guard on `rev` is what makes the count exact under two pushes
+// at once: the one that read the counts first finds `rev` moved, reads them
+// again, and is refused (test/races.test.js). A replacement resets both
+// (src/waiting.js), and an account deleted takes them with it.
 
 import { answer, bad, refuse } from "./http.js";
 import { LIMITS, base64urlBytes, isCount, isObject, isRecordId, isTime, needArray, needDistinct } from "./check.js";
@@ -14,6 +27,16 @@ import { authenticate, changing, needOpen } from "./session.js";
 
 /** The longest a row's `ct` may be, as bytes: a padded record of the format's largest size, and the tag. */
 const MAX_CT_BYTES = LIMITS.maxRecordBytes + LIMITS.tagBytes;
+
+/**
+ * The sealed bytes a well-formed `ct` of this many characters spells: what
+ * base64urlBytes() gives, from a length alone. A stored row's `size` is that
+ * length, and a row to put has passed base64urlBytes() before it is counted.
+ */
+const sealedBytes = (chars) => Math.floor((chars * 3) / 4);
+
+/** What a refusal for the ceiling carries, so a client can say what the limits are. */
+const ACCOUNT_LIMITS = Object.freeze({ rows: LIMITS.accountRows, bytes: LIMITS.accountBytes });
 
 const COLUMNS = "id, rev, v, modified, deleted_at, kid, nonce, ct";
 
@@ -125,7 +148,8 @@ function parse(body) {
  * "old_key". Then each row is answered for itself, in the request's order:
  * stored with its new `rev`; refused, with the check that failed; or
  * "conflict," with the row as it stands. A row that fails never holds back
- * the ones beside it.
+ * the ones beside it. Then, if what would be stored passes the account's
+ * ceiling, the whole request is refused and nothing is stored (the header).
  */
 export function postRows({ request, env }) {
   return changing(request, env, parse, store, needOpen);
@@ -136,27 +160,33 @@ export function postRows({ request, env }) {
 
     const refusals = put.map(refusedRow);
     const ids = [...put.filter((_, i) => !refusals[i]).map((row) => row.id), ...remove.map((item) => item.id)];
+    /** id → { rev, size } of each row named that the service holds. */
     const current = new Map();
     if (ids.length) {
       const found = await env.DB.prepare(
-        "SELECT id, rev FROM rows WHERE account = ? AND id IN (SELECT value FROM json_each(?))",
+        "SELECT id, rev, size FROM rows WHERE account = ? AND id IN (SELECT value FROM json_each(?))",
       )
         .bind(auth.account, idList(ids))
         .all();
-      for (const { id, rev } of found.results) current.set(id, rev);
+      for (const { id, rev, size } of found.results) current.set(id, { rev, size });
     }
 
-    // Decide each item against what the service holds now.
+    // Decide each item against what the service holds now, and count what the account gains.
     let rev = auth.rev;
+    let addRows = 0;
+    let addBytes = 0;
     const statements = [];
     const conflicts = [];
     const putAnswers = put.map((row, i) => {
       if (refusals[i]) return { ...(typeof row.id === "string" ? { id: row.id } : {}), refused: refusals[i] };
-      const stands = current.get(row.id) ?? 0;
+      const held = current.get(row.id);
+      const stands = held?.rev ?? 0;
       if (row.rev !== stands) {
         if (stands) conflicts.push(row.id);
         return { id: row.id, conflict: stands ? "changed" : "gone" };
       }
+      if (!held) addRows += 1;
+      addBytes += sealedBytes(row.ct.length) - (held ? sealedBytes(held.size) : 0);
       rev += 1;
       statements.push(
         env.DB.prepare(
@@ -172,16 +202,27 @@ export function postRows({ request, env }) {
 
     const gone = [];
     const removeAnswers = remove.map((item) => {
-      const stands = current.get(item.id);
+      const held = current.get(item.id);
       // Already gone is what the device asked for.
-      if (stands === undefined) return { id: item.id, removed: true };
-      if (item.rev !== stands) {
+      if (held === undefined) return { id: item.id, removed: true };
+      if (item.rev !== held.rev) {
         conflicts.push(item.id);
         return { id: item.id, conflict: "changed" };
       }
       gone.push(item.id);
+      addRows -= 1;
+      addBytes -= sealedBytes(held.size);
       return { id: item.id, removed: true };
     });
+
+    // The ceiling: refused whole, before anything is written, when the push would end past either
+    // count and grows it. The counts are the ones read with `rev`, which the guard below holds.
+    if (
+      (addRows > 0 && auth.rowCount + addRows > LIMITS.accountRows) ||
+      (addBytes > 0 && auth.rowBytes + addBytes > LIMITS.accountBytes)
+    ) {
+      refuse(413, "too_large", { what: "account", limits: ACCOUNT_LIMITS });
+    }
     if (gone.length) {
       // A removal takes a revision too, so the guard below sees every write to the rows.
       rev += 1;
@@ -195,10 +236,15 @@ export function postRows({ request, env }) {
 
     if (statements.length) {
       await commit(env.DB, [
-        // The same key, and no row written since the revisions above were read.
+        // The same key, and no row written since the revisions, sizes, and counts above were read.
         guard(env.DB, auth.account, { kid: auth.kid, rev: auth.rev }),
         ...statements,
-        env.DB.prepare("UPDATE accounts SET rev = ? WHERE id = ?").bind(rev, auth.account),
+        env.DB.prepare("UPDATE accounts SET rev = ?, row_count = row_count + ?, row_bytes = row_bytes + ? WHERE id = ?").bind(
+          rev,
+          addRows,
+          addBytes,
+          auth.account,
+        ),
       ]);
     }
 

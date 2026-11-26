@@ -111,7 +111,9 @@ async function withSiteverify(run) {
     assert.equal(String(url), "https://challenges.cloudflare.com/turnstile/v0/siteverify");
     const form = Object.fromEntries(new URLSearchParams(init.body));
     asked.push(form);
-    return new Response(JSON.stringify({ success: form.response === DUMMY_TOKEN }), { status: 200 });
+    // A good token is one made on the site, which the service checks (BVJ, 2026-11-26).
+    const verdict = form.response === DUMMY_TOKEN ? { success: true, hostname: "litbible.net" } : { success: false };
+    return new Response(JSON.stringify(verdict), { status: 200 });
   };
   try {
     return await run(asked);

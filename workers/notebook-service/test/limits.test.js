@@ -1,5 +1,5 @@
-// How often a client may ask (src/limits.js): two limits, each counted by the
-// address a request comes from. The limiters here are the ones wrangler.jsonc
+// How often a client may ask (src/limits.js): three limits, each counted by
+// the address a request comes from. The limiters here are the ones wrangler.jsonc
 // declares, run by workerd's own local copy of Cloudflare's rate limiting, so
 // the numbers under test are the configured ones.
 //
@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import config from "../wrangler.jsonc?raw";
 import { RETRY_SECONDS, limitFor } from "../src/limits.js";
 import { SECRET, call, freshAccount } from "./call.js";
-import { must, signIn } from "./notebook.js";
+import { must, rowFor, setUp, signIn } from "./notebook.js";
 
 let n = 0;
 /** An address no other test here has used, so each test starts from a count of nothing. */
@@ -24,6 +24,7 @@ function configured(name) {
 }
 const SIGN_IN = configured("SIGN_IN_LIMIT");
 const REQUEST = configured("REQUEST_LIMIT");
+const PUSH = configured("PUSH_LIMIT");
 
 // THE LOCAL LIMITER COUNTS IN WINDOWS ALIGNED TO THE WALL CLOCK. workerd's
 // local copy keeps one count for a key and a period, and starts it again each
@@ -38,8 +39,8 @@ const REQUEST = configured("REQUEST_LIMIT");
 // than ROOM_MS is left of the current one, it waits for the next to begin.
 // A run meets that wait about one time in six, and once at most.
 
-/** The shorter of the two periods: an edge of the longer is an edge of the shorter too (10 divides 60). */
-const WINDOW_MS = Math.min(SIGN_IN.period, REQUEST.period) * 1000;
+/** The shortest of the periods: an edge of a longer one is an edge of the shortest too (each divides 60). */
+const WINDOW_MS = Math.min(SIGN_IN.period, REQUEST.period, PUSH.period) * 1000;
 /** Longer than a test may take (Vitest stops one at five seconds), so a test that starts with this much room can't cross an edge. */
 const ROOM_MS = 6000;
 
@@ -73,16 +74,68 @@ describe("which limit a request is counted under", () => {
     }
   });
 
+  it("counts POST /rows, and nothing else, under PUSH_LIMIT", () => {
+    expect(limitFor("POST /rows")).toBe("PUSH_LIMIT");
+    for (const route of ["GET /rows", "POST /notebook", "POST /key", "POST /rows/", "POST /rowsx"]) {
+      expect(limitFor(route), route).not.toBe("PUSH_LIMIT");
+    }
+  });
+
   it("counts everything else, a path that doesn't exist included, under REQUEST_LIMIT", () => {
-    for (const route of ["GET /", "GET /sign-in", "GET /account", "DELETE /account", "POST /rows", "POST /ways/passkey", "POST /preview/passkeys", undefined]) {
+    for (const route of ["GET /", "GET /sign-in", "GET /account", "DELETE /account", "GET /rows", "POST /ways/passkey", "POST /preview/passkeys", undefined]) {
       expect(limitFor(route), String(route)).toBe("REQUEST_LIMIT");
     }
   });
 
-  it("has the numbers the spec gives: 60 a minute to begin a sign-in, 1,200 a minute for the rest", () => {
+  it("has the numbers the spec gives: 60 a minute to begin a sign-in, 120 a minute to push, 1,200 a minute for the rest", () => {
     expect(SIGN_IN).toEqual({ limit: 60, period: 60 });
+    expect(PUSH).toEqual({ limit: 120, period: 60 });
     expect(REQUEST).toEqual({ limit: 1200, period: 60 });
     expect(RETRY_SECONDS).toBe(60);
+  });
+});
+
+describe("the push limit (BVJ, 2026-11-26)", () => {
+  it("answers slow_down, 429, with how long to wait, once one address has pushed the configured number of times", async () => {
+    const ip = address();
+    // Unsigned pushes are counted as well: the limit is checked before anything else is.
+    const { passed, refused } = await until(() => call("POST", "/rows", { ...from(ip), body: { put: [], remove: [] } }), PUSH.limit + 20);
+    expect(passed).toBe(PUSH.limit);
+    expect(refused.status).toBe(429);
+    expect(Object.keys(refused.body)).toEqual(["time", "error", "message", "retry"]);
+    expect(refused.body).toMatchObject({ error: "slow_down", retry: 60 });
+    expect(refused.headers.get("retry-after")).toBe("60");
+  });
+
+  it("counts a signed-in device's pushes, and writes nothing for a refused one", async () => {
+    const ip = address();
+    const { device } = await setUp();
+    const send = () => call("POST", "/rows", { token: device.token, ...from(ip), body: { put: [], remove: [] } });
+    const { passed } = await until(send, PUSH.limit + 5);
+    expect(passed).toBe(PUSH.limit);
+    const row = await rowFor(device.held);
+    const refused = await call("POST", "/rows", { token: device.token, ...from(ip), body: { put: [row], remove: [] } });
+    expect(refused.body.error).toBe("slow_down");
+    expect((await must("GET", "/rows", { token: device.token })).rows).toEqual([]);
+  });
+
+  it("leaves the same address's other requests alone: a device that pushed too much can still pull and read its account", async () => {
+    const ip = address();
+    const { device } = await setUp();
+    await until(() => call("POST", "/rows", { token: device.token, ...from(ip), body: { put: [], remove: [] } }), PUSH.limit + 1);
+    expect((await call("POST", "/rows", { token: device.token, ...from(ip), body: { put: [], remove: [] } })).status).toBe(429);
+    expect((await call("GET", "/rows", { token: device.token, ...from(ip) })).status).toBe(200);
+    expect((await call("GET", "/account", { token: device.token, ...from(ip) })).status).toBe(200);
+    expect((await call("POST", "/sign-in/passkey/options", from(ip))).status).toBe(200);
+  });
+
+  it("counts a push under PUSH_LIMIT alone, never under REQUEST_LIMIT as well", async () => {
+    const counted = [];
+    const spy = (name) => ({ limit: async () => (counted.push(name), { success: true }) });
+    const env = { SIGN_IN_LIMIT: spy("SIGN_IN_LIMIT"), PUSH_LIMIT: spy("PUSH_LIMIT"), REQUEST_LIMIT: spy("REQUEST_LIMIT") };
+    await call("POST", "/rows", { body: { put: [], remove: [] }, env });
+    await call("GET", "/rows", { env });
+    expect(counted).toEqual(["PUSH_LIMIT", "REQUEST_LIMIT"]);
   });
 });
 
@@ -206,15 +259,22 @@ describe("what a limit never does", () => {
 });
 
 describe("a deployment whose limiter is missing or broken", () => {
-  it("answers error to everything when a binding is missing, instead of running unlimited unnoticed", async () => {
+  it("answers error to everything when any one binding is missing, instead of running unlimited unnoticed", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const requests = [
+      ["GET", "/"],
+      ["POST", "/sign-in/passkey/options"],
+      ["POST", "/rows"],
+    ];
     try {
-      for (const [missing, path] of [["REQUEST_LIMIT", "/"], ["SIGN_IN_LIMIT", "/sign-in"]]) {
-        const method = path === "/" ? "GET" : "POST";
-        const res = await call(method, path === "/" ? "/" : "/sign-in/passkey/options", { env: { [missing]: undefined } });
-        expect([res.status, res.body.error], missing).toEqual([500, "error"]);
+      for (const missing of ["REQUEST_LIMIT", "SIGN_IN_LIMIT", "PUSH_LIMIT"]) {
+        // Every route, not only the ones counted under the missing limiter.
+        for (const [method, path] of requests) {
+          const res = await call(method, path, { env: { [missing]: undefined } });
+          expect([res.status, res.body.error], `${missing}: ${method} ${path}`).toEqual([500, "error"]);
+        }
       }
-      expect(error).toHaveBeenCalledTimes(2);
+      expect(error).toHaveBeenCalledTimes(9);
     } finally {
       error.mockRestore();
     }

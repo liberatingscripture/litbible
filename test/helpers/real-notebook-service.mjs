@@ -10,7 +10,7 @@
 //   - D1: a small wrapper over node:sqlite with D1's own calls (prepare,
 //     bind, first, all, run, batch). A batch is one transaction that rolls
 //     back whole, which is what the service's guard relies on.
-//   - The two rate limiters: bindings that always say yes.
+//   - The three rate limiters: bindings that always say yes.
 //   - crypto.subtle.timingSafeEqual, which only workerd has.
 //
 // It is the service as the PREVIEW configures it, without the preview's own
@@ -148,7 +148,7 @@ const PREVIEW = {
 export function realService({ origin = "https://notebook-preview.litbible.net", pageOrigin = "https://litbible.net", env: more = {} } = {}) {
   const sql = new DatabaseSync(":memory:");
   for (const migration of MIGRATIONS) sql.exec(migration);
-  const env = { DB: d1(sql), SIGN_IN_LIMIT: ALWAYS, REQUEST_LIMIT: ALWAYS, ...PREVIEW, ...more };
+  const env = { DB: d1(sql), SIGN_IN_LIMIT: ALWAYS, PUSH_LIMIT: ALWAYS, REQUEST_LIMIT: ALWAYS, ...PREVIEW, ...more };
 
   const service = {
     origin,

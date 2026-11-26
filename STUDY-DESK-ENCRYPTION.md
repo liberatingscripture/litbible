@@ -752,6 +752,7 @@ not rely on.**
 | Sessions: for each, which way in it came through, when, and whether it has proved the current key | plain | Yes |
 | A sign-in challenge, for at most five minutes | plain | Yes. It is 32 random bytes; it names no one, but the account a passkey is being added to |
 | The account’s current `kid`, the hash of that key’s proof, and a version of the lists below that every change to them moves | plain | Yes. The hash opens nothing |
+| How many rows the account holds, and how many bytes of sealed record they come to, kept for the account’s ceiling (under “Records”) | plain | Yes. They say how much a reader keeps, never what |
 | The device list: for each device its id, its card and the `kid` the card was sealed under, when it was added and how, when it was last seen | the card sealed, the rest plain | Only the dates and how each was added. Names and public keys are inside the cards |
 | The holder list: for each holder its id, its kind, a passkey holder’s credential id, its record, its card, when it was added and from which device | the record and the card sealed, the rest plain | Only that a recovery code or a given passkey can open the notebook |
 | A sealed keyring for each device and each holder | HPKE | No |
@@ -764,7 +765,9 @@ not rely on.**
 recovery code, a passkey’s secret, a device’s private key, a password, an email address, reading
 history, display settings, or analytics. **Nor the address a request came from**: it is counted by
 Cloudflare’s limiter for a minute (under “How often a client may ask”), and stored and logged by
-the service nowhere. **Nor anything of a deleted account**, not even that there was one.
+the service nowhere. **Nor anything of a deleted account**, not even that there was one, except in
+the database’s backup history, for up to 30 days, where the notebook stays locked (under “Deleting
+the account”).
 
 ## A record on the service
 
@@ -1237,6 +1240,18 @@ signed-in device:
   can take it back from the same device.
 - **An account that has no notebook yet is deleted at once**, from any signed-in session: there is
   nothing to protect, and no device that could cancel.
+- **An account that never sets up a notebook is deleted by the service itself** (BVJ,
+  2026-11-26; Audit 9, SEC9-3). Signing in makes an account before there is a notebook. The
+  hourly run deletes an account when all three hold at once: **it has no notebook; no session of
+  it is live; and it was made more than 30 days ago**, or, if its notebook was replaced, the
+  replacement was (that last clause is Claude’s reading, so a reader who starts a new notebook has
+  the same 30 days as a new account; for BVJ to confirm). A session of an account with no
+  notebook is never made longer, so it ends 30 days after the sign-in that made it, or at
+  sign-out: **the account goes within about an hour of the later of 30 days after it was made and
+  the end of its last session**. The run asks all three again in the statement that deletes, so
+  an account set up, signed in to, or replaced a moment before stays. Apple first, as for every
+  deletion: an account holding a refresh token from Apple stays, whole, while Apple can’t be told.
+  Signing in again afterward starts a new, empty account.
 - **The seven days are exact, and the deleting follows within about an hour.** A request falls due
   seven days to the millisecond after it was made. The service carries out what is due once an
   hour, and until it has, the request can still be canceled (under “Waiting seven days”).
@@ -1252,7 +1267,8 @@ signed-in device:
   Its own notebook stays, unless the reader also chooses to erase it there.
 - **Every other device** finds out when it next reaches the service, removes its keys and session,
   keeps its own notebook, and says so. What it is told is `sign_in`, the same word a session that
-  ran out gets: the service keeps nothing of a deleted account, not even that there was one. A
+  ran out gets: the service keeps nothing of a deleted account, not even that there was one, except
+  in the database’s backup history, for up to 30 days, where the notebook stays locked. A
   device that saw a request to delete waiting knows why; one that didn’t learns it when its reader
   signs in again and finds an empty account (“Still open,” 71).
 - **The reader’s passkey stays where they keep it**, since LIT can’t delete it. The device says so,
@@ -1591,7 +1607,8 @@ POST /rows
   (`old_key`, and no row of the request is stored); a `kid` that isn’t a whole number of 1 or more,
   a `put` or `remove` that isn’t a list, an item that isn’t an object, a `remove` item whose `id`
   or `rev` isn’t in form, or one id named twice in the request (`bad_request`); more than 500 items
-  (`too_large`).
+  (`too_large` with `what: "rows"` and `limit: 500`); and, once every row has been decided, a push
+  that would take the account past its ceiling (`too_large` with `what: "account"`, below).
 - **Writing, row by row.** Every other check is answered for that row alone, in the answer’s `put`
   and `remove`, in the request’s order, and a row that fails never holds back the rows beside it.
   `refused` names the first check that failed, in this order: `v`, `id`, `modified`, `deletedAt`,
@@ -1607,6 +1624,24 @@ POST /rows
   no row carries it, so `rev` numbers may skip.
 - **Revisions** go up by one for each stored row, in the request’s order, and the answer’s `rev`
   is the account’s last. Two pushes at once never share one.
+- **The account’s ceiling** (BVJ, 2026-11-26; Audit 9, SV9-1 and SEC9-3). An account holds at
+  most **100,000 rows** and **100,000,000 bytes** of sealed record (100 MB, in decimal megabytes).
+  A row’s bytes are its `ct` as bytes, tag included (the length base64url spells), so a row of the
+  smallest padded record counts 272 and one of the largest 1,048,592; its nonce, id, and times are
+  not counted. A trash record’s row counts as any row does, until it is removed. The service keeps
+  both counts with the account and moves them in the same step that stores a push: a new row adds
+  itself, a row put again adds the difference in its size, and a removal takes its row away.
+  **A push that would end past either count, having grown it, is refused whole**, after its rows
+  are decided and before any is stored: status 413,
+  `{ "error": "too_large", "what": "account", "limits": { "rows": 100000, "bytes": 100000000 } }`,
+  with no answer for each row. Nothing of it is stored and no revision moves. **A push that
+  shrinks the account or keeps it the same is never refused for the ceiling**, even one already
+  past it, so a client can always remove rows, and put a row again at no greater size. Two pushes
+  at once can’t both pass it: the one that read the counts first finds the revision moved, and is
+  checked again. **What a client does**: keep every change on the device; stop sending rows for a
+  while, since the same push would be refused again (the website waits an hour, and tries at once
+  when its reader asks); keep pulling; and tell the reader their account is full and their changes
+  are kept on the device.
 - **A device’s cursor after its own push** (step 4g, 2026-11-24; what the website does, and nothing
   the service asks). A row a device stored comes back in its next pull, since its `rev` is past the
   cursor. A device may step its cursor over the rows it just stored **only when their revisions
@@ -1732,20 +1767,25 @@ DELETE /waiting
 
 ### How often a client may ask
 
-The service counts requests **by the address they come from**, in two counts:
+The service counts requests **by the address they come from**, in three counts:
 
 | Count | What is counted | Limit for one address |
 |---|---|---|
 | Beginning a sign-in | every `POST` under `/sign-in/` (on the preview, also `POST /preview/session`) | 60 in a minute |
+| Pushing rows | `POST /rows` (BVJ, 2026-11-26; Audit 9, SV9-1) | 120 in a minute |
 | Everything else | every other request, with a session or without, a path that doesn’t exist included | 1,200 in a minute |
 
 A request over the limit is refused before anything is read or written: status 429,
 `{ "error": "slow_down", "retry": 60 }`, and the header `Retry-After: 60`. **A client waits that
-many seconds before it sends anything of that kind again**, and never retries in a loop. The two
-are counted apart, so an address that may not begin a sign-in still syncs.
+many seconds before it sends anything of that kind again**, and never retries in a loop. The
+three are counted apart, and a request is counted under one alone: an address that may not begin
+a sign-in still syncs, and one that has pushed too much still pulls and reads its account.
 
 - **The numbers are far above what a reader’s devices send.** A sign-in is two requests; a first
-  sync of 50,000 records is about a hundred. The 1,200 is sized so that people behind one address
+  sync of 50,000 records is about a hundred, most of them pushes of up to 500 rows each, so even
+  that fits in the 120 pushes of one minute. **`POST /rows` has a limit of its own** because it
+  is the one request that can write 500 rows and 4 MB at once, and so spends the database’s
+  writes fastest. The 1,200 is sized so that people behind one address
   (a household, a congregation on one network) don’t meet it. **The 60 is 30 sign-ins in a minute
   from one address**: a household never meets it, and a room of people asked to sign in together
   can, each refused device waiting its minute. Whether it should be higher is “Still open,” 68.
@@ -1840,8 +1880,14 @@ POST /sign-in/google        { "challenge": "<32 bytes>", "idToken": "<the token>
   `POST /sign-in/new-passkey/options` **from a request that carries an `Origin` header** must
   carry `turnstile`, the widget’s token, as text of 1 to 2,048 characters. The service asks
   Cloudflare’s siteverify about it (with the address the request came from) before a challenge
-  is made or anything is written, and after the limit on beginning a sign-in is counted. A
-  missing, malformed, or refused token is `not_allowed` by the rule `turnstile`; Cloudflare out
+  is made or anything is written, and after the limit on beginning a sign-in is counted. **The
+  token must have been made on the site** (BVJ, 2026-11-26; Audit 9, SEC9’s question 2):
+  siteverify’s answer names the host the widget was served on (`hostname`), and a token whose
+  host isn’t one of the hosts of the origins the deployment accepts from a browser (its CORS
+  list: `litbible.net`, and on the preview the website’s dev server, `localhost`) is refused as a
+  bad token is. `action` is not checked: there is one widget and one use. A
+  missing, malformed, or refused token, or one made on another site, is `not_allowed` by the
+  rule `turnstile`; Cloudflare out
   of reach, answering other than 200, answering something unreadable, or refusing for a reason
   that is the deployment’s own (a secret it doesn’t know, most of all) is `provider` with
   `which: "turnstile"`. A token is good once, so a client that is refused gets a new one from
@@ -2083,7 +2129,7 @@ there to save the client a request.
 | `passkey_refused` | 403 | `reason`, the check that failed (under “Signing in”) | A passkey’s answer didn’t pass. **Start the sign-in again** from new options; for `unknown`, the service has no such passkey |
 | `token_refused` | 403 | `reason`, the check that failed (under “Signing in”) | An identity token from Apple or Google, or Apple’s code, didn’t pass. **Start the sign-in again** |
 | `provider` | 502 | `which`: `apple`, `google`, or `turnstile` | Apple, Google, or Cloudflare’s Turnstile check (under “Signing in”) couldn’t be reached, or answered wrongly. Nothing was written. Try again later (for `turnstile`, with a new token) |
-| `too_large` | 413 | `limit` | **Too large**: a body over 4,194,304 bytes, or more than 500 rows in one request |
+| `too_large` | 413 | `limit`, and `what: "rows"` for too many rows; or, for the account’s ceiling, `what: "account"` and `limits: { rows, bytes }` | **Too large**: a body over 4,194,304 bytes (`limit` alone), or more than 500 rows in one request (`what: "rows"`, `limit`). Or **the account is full** (`what: "account"`, under “Records”): nothing of the push was stored, and sending it again changes nothing until the account shrinks |
 | `too_many` | 429 | `what`: `devices`, `holders`, `approvals`, or `ways`; `limit` | A list is full, or three approvals are in progress |
 | `slow_down` | 429 | `retry`, the seconds to wait; and the header `Retry-After` | This address has asked too often (under “How often a client may ask”). **Wait that long**, then send it again |
 | `busy` | 503 | | The notebook changed three times while the request was being checked, or a way in was removed while a sign-in through it was being checked. Send it again (a sign-in: start it again) |
@@ -2097,8 +2143,9 @@ has the key has no approval to ask for, and no notebook to replace), `requester`
 (a passkey’s response still carries the PRF’s output), `last_way` (the last way that can sign the
 reader in can’t be removed), and `passkey_holds_key` (remove the passkey as a holder first); and
 from step 4h `turnstile` (where the check is on, a browser’s request to begin a new account
-carried no Turnstile token, one that isn’t text of 1 to 2,048 characters, or one Cloudflare
-refused: get a new token from the widget and ask again).
+carried no Turnstile token, one that isn’t text of 1 to 2,048 characters, one Cloudflare
+refused, or, from Audit 9, one made on a host that isn’t the deployment’s own: get a new token
+from the widget and ask again).
 
 **“Conflict” is not a refusal**: it is one row’s answer inside a `POST /rows` that was answered
 200 (above). **“Waiting” is not a refusal either**: a request that must wait is answered 200 with
@@ -2708,6 +2755,35 @@ changed:
    `test/turnstile.test.js`; the website already sends the token where `GET /sign-in` names a
    key (`src/lib/desk-account-session.mjs`).
 
+## Changed in Audit 9: the service’s limits
+
+BVJ’s decisions of 2026-11-26 on Study Desk Audit 9 (SV9-1, SEC9-3, and SEC9’s question 2),
+built under `workers/notebook-service/` with migration `0004_account_ceiling.sql`. **Four
+changes, and one of them is a new refusal a client must handle**; each is in the section named,
+and all four are “Still open,” 92, for BDR to confirm.
+
+1. **A ceiling on each account: 100,000 rows and 100 MB** (“Records”). A push that would pass
+   either is refused whole as `too_large` with `what: "account"` and
+   `limits: { "rows": 100000, "bytes": 100000000 }` (status 413). Nothing of it is stored. A push
+   that shrinks the account, or keeps it the same, is never refused for it. **New to a client**:
+   `what: "account"` and the `limits` member of `too_large`. Until now `too_large` meant a request
+   too big (with `what: "rows"` when it had more than 500 rows, which the service always sent and
+   this spec now names), and a smaller request mends that. This one isn’t mended by sending again:
+   a client keeps its changes, holds its rows back for a while, keeps pulling, and says the account
+   is full.
+2. **`POST /rows` has a limit of its own: 120 in a minute from one address** (“How often a client
+   may ask”), answered `slow_down` as the other two are, and counted under it alone. A client
+   that already waits `retry` seconds on `slow_down` needs nothing new.
+3. **An account that never sets up a notebook is deleted** by the hourly run, once it has no
+   notebook, no live session, and is more than 30 days old (“Deleting the account”). A client
+   sees what it sees after any deletion: `sign_in`, and an empty new account on the next sign-in.
+4. **Turnstile checks where its token was made** (“Signing in”): a token whose `hostname` isn’t
+   one of the deployment’s own hosts is `not_allowed` by the rule `turnstile`, as a bad token is.
+   Only a browser sends a token, so the apps see no change.
+
+What did not change: every other request, answer, word, and size; the limits on beginning a
+sign-in (60) and on everything else (1,200); and the sizes of a row and a request.
+
 ## Still open
 
 **For BDR to confirm**, since each changes what the apps build. The first six are BVJ’s calls of
@@ -3024,8 +3100,9 @@ numbers go on from 58:
     congregation on one network, asked to sign in together, passes it. (c) Counting by address
     bounds what one address costs, not what a flood from many does. Each start of a sign-in writes
     a challenge that is deleted five minutes on, which D1 counts as at least four rows written. On
-    Workers Free a database gets 100,000 rows written a day and then refuses every query until
-    midnight UTC, so one address asking at the limit would stop all sync on such a database within
+    Workers Free the account (every database on it together) gets 100,000 rows written a day and
+    then refuses every query until midnight UTC, so one address asking at the limit would stop all
+    sync, and the policy report Worker's counts, on such an account within
     about seven hours. On Workers Paid the first 50 million a month are included, and one address
     at the limit all month is about 10 million. **My recommendation**: keep counting by address;
     put production on Workers Paid before any reader’s notebook is there (the service’s README
@@ -3222,7 +3299,12 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     Google’s Play Integrity, each a new member of the same request, which the service would then
     require of a request with no `Origin`. **For BDR**: will the apps attest at sign-up, and
     when? Until they do, the apps need change nothing: `GET /sign-in` may carry `turnstile`,
-    which they ignore. Neither key is set on any deployment yet.
+    which they ignore. Both keys are set on the preview (since 2026-11-25) and neither on
+    production. **BVJ requires the apps to attest before accounts open** (2026-11-26, Audit 9’s
+    decision 2, in place of moving to Workers Paid: “Insist BDR build the apps side requiring
+    the apps to prove they’re real.”): the service stays on Workers Free, where a program with
+    many addresses could otherwise spend a day’s writes through the apps’ door, and the ceiling
+    (92) bounds one account, not how many.
 87. **The link a QR code carries is `https://litbible.net/account/connect/#a=<16 characters>`,
     the code’s characters unbroken.** “The link” recommended this shape and left the exact
     address to be settled. The website’s account page shows it as a QR code beside the code in
@@ -3270,3 +3352,20 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     `id_token`, are from their documentation. **For BDR to confirm**: the two ids, the two return
     addresses, and that asking for no email address suits the apps’ own use of the same account
     (the service keeps none either way).
+92. **The service’s limits, from Audit 9** (BVJ’s decisions of 2026-11-26; “Changed in Audit 9:
+    the service’s limits”). **For BDR to confirm**, and three of the four ask something of the
+    apps. (a) **A new refusal**: a push that would take an account past 100,000 rows or 100 MB is
+    refused whole, `too_large` with `what: "account"` and `limits: { rows, bytes }`, status 413.
+    An app that reads every `too_large` as “send a smaller request” would split the push and be
+    refused again in a loop; it should keep its changes on the device, send no rows for a while
+    (the website waits an hour, and tries at once when its reader asks), keep pulling, and tell
+    the reader the account is full and nothing was lost. A push that only removes rows, or puts a
+    row again no larger, always goes through. (b) **`POST /rows` is limited to 120 in a minute
+    from one address**, beside the 1,200 every other request shares; `slow_down` as before. (c)
+    **The hourly run deletes an account that never set up a notebook** once it has no live
+    session and is more than 30 days old (or 30 days past its notebook’s replacement), revoking
+    Apple’s token first, as `/privacy` says. An app that signs a reader in and leaves the account
+    without a notebook for a month will find it gone, as after any deletion: `sign_in`, then a new
+    empty account. (d) **Turnstile now checks where its token was made**; the apps send no token
+    and see no change. **For BDR**: will each app handle (a) as the website does, and what will it
+    say to its reader?

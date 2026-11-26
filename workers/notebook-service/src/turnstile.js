@@ -24,6 +24,17 @@
 // Integrity), which is an open question with BDR ("Still open," 86). The
 // design is Claude's, for BDR to confirm.
 //
+// THE TOKEN MUST HAVE BEEN MADE ON THE SITE (BVJ, 2026-11-26; Audit 9,
+// SEC9's question 2). Siteverify's answer carries `hostname`, "Hostname
+// where the challenge was served," and Cloudflare's page advises checking it
+// (https://developers.cloudflare.com/turnstile/get-started/server-side-validation/,
+// "Response fields" and "Best practices"). A token whose hostname isn't one
+// of the hosts of the deployment's own ALLOWED_ORIGINS is refused as a bad
+// token is, so a widget's token earned on another site can't begin an
+// account here. `action` is not checked. Cloudflare's dummy secret answers
+// `example.com` for every token ("Testing"), so a local trial with the dummy
+// keys adds https://example.com to ALLOWED_ORIGINS in its .dev.vars (README).
+//
 // The secret goes to Cloudflare's siteverify and nowhere else: it is never
 // in an answer or a log line. The address a request comes from is passed to
 // siteverify as `remoteip`, as Cloudflare asks, and is not kept.
@@ -55,6 +66,23 @@ export const turnstileSiteKey = (env) => (turnstileOn(env) ? env.TURNSTILE_SITE_
  */
 const NOT_THE_TOKEN = new Set(["missing-input-secret", "invalid-input-secret", "bad-request", "internal-error"]);
 
+/** The hosts of the deployment's own origins (ALLOWED_ORIGINS, as src/index.js reads them for CORS). */
+function ownHosts(env) {
+  const hosts = new Set();
+  for (const item of String(env.ALLOWED_ORIGINS ?? "").split(",")) {
+    if (!item.trim()) continue;
+    try {
+      hosts.add(new URL(item.trim()).hostname);
+    } catch {
+      // Not an origin at all: no host of it is allowed.
+    }
+  }
+  return hosts;
+}
+
+/** True when siteverify's verdict says the token was made on one of the deployment's own hosts. */
+const madeHere = (env, verdict) => typeof verdict.hostname === "string" && ownHosts(env).has(verdict.hostname.toLowerCase());
+
 /**
  * Asks Cloudflare whether a token is good. Returns true or false; refuses
  * with `provider` (`which: "turnstile"`) when Cloudflare can't be reached,
@@ -63,7 +91,9 @@ const NOT_THE_TOKEN = new Set(["missing-input-secret", "invalid-input-secret", "
  * providerCheck). A verdict of "no" for a reason that isn't the token's
  * (`NOT_THE_TOKEN`: a wrong secret on this deployment, most of all) is that
  * refusal too, so a reader is never told their check failed when the
- * service is what is misconfigured.
+ * service is what is misconfigured. A "yes" for a token made on another
+ * host (or with no `hostname`) is false: the token's fault, not the
+ * service's.
  */
 async function siteverify(env, token, request) {
   const form = new URLSearchParams({ secret: env.TURNSTILE_SECRET.trim(), response: token });
@@ -89,7 +119,7 @@ async function siteverify(env, token, request) {
   if (!verdict.success && codes.some((code) => NOT_THE_TOKEN.has(code))) {
     return refuse(502, "provider", { which: "turnstile" });
   }
-  return verdict.success;
+  return verdict.success && madeHere(env, verdict);
 }
 
 /**
@@ -98,7 +128,8 @@ async function siteverify(env, token, request) {
  * is not read at all, as before the check existed. Otherwise it reads the
  * body (a request with none has no token) and refuses `not_allowed` by the
  * rule `turnstile` when the token is missing, not text of 1 to 2,048
- * characters, or refused by Cloudflare. Other members of the body are
+ * characters, refused by Cloudflare, or made on a host that isn't one of
+ * the deployment's own. Other members of the body are
  * ignored, as they were.
  */
 export async function needTurnstile(env, request) {

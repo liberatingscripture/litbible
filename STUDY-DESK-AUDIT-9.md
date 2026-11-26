@@ -177,8 +177,8 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 |---|---|---|---|---|---|
 | SEC9-1 | **Medium** | Medium | Open (its point 4, focus on the question, done in #716) |  | A link carrying an approval code, opened on a computer that holds the notebook, fills in “Add a device” and presses Continue by itself, and the question it lands on lacks the spec’s “approve only a device you are holding,” so one keypress can hand a stolen sign-in the whole keyring |
 | SEC9-2 | **Medium** | Medium | Open |  | The preview’s deploy job runs `npm ci` (install scripts on) and `npm test` in the same job and workspace as the steps that hold a Cloudflare token reaching every Worker and D1 database on the account, production’s included once it exists |
-| SEC9-3 | (in SV9-1) | Medium | Open |  | No per-account storage limit (the same fault as SV9-1) |
-| SEC9-4 | **Low** | Low | Open | gate | The policy step 4i plans to enforce keeps `'unsafe-inline'` in `script-src`; enforce it without that before accounts open, as the plan already says the full policy comes before sign-in |
+| SEC9-3 | (in SV9-1) | Medium | Fixed (#722) |  | No per-account storage limit (the same fault as SV9-1) |
+| SEC9-4 | **Low** | Low | Decided: hashes in place of `'unsafe-inline'` in step 4i (BVJ, 2026-11-26) | gate | The policy step 4i plans to enforce keeps `'unsafe-inline'` in `script-src`; enforce it without that before accounts open, as the plan already says the full policy comes before sign-in |
 | SEC9-5 | (in SV9-12) | Low | Open |  | Anyone can post CSP reports; a forged origin can top the week’s list |
 | SEC9-6 | **Low** | Low | Open |  | `ci.yml` sets no `permissions`, and the repository’s default workflow token is write |
 | SEC9-7 | **Nit** | Nit | Open |  | Five small, harmless departures from WebAuthn Level 3 (a missing user handle, `fmt` not matched by name, non-minimal encodings) |
@@ -190,18 +190,18 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| SV9-1 | **Medium** | High | Open | live | Nothing limits what one account, or the service, stores, and an account costs nothing to make (no `Origin` skips Turnstile, by design); reproduced locally: 20 of 20 junk pushes, 75 MB, no siteverify call. It can stop the preview and, on Workers Free, the account’s day of D1 writes |
+| SV9-1 | **Medium** | High | Fixed (#722; the apps' attestation is BDR's, “Still open,” 86) | live | Nothing limits what one account, or the service, stores, and an account costs nothing to make (no `Origin` skips Turnstile, by design); reproduced locally: 20 of 20 junk pushes, 75 MB, no siteverify call. It can stop the preview and, on Workers Free, the account’s day of D1 writes |
 | SV9-2 | **Low** | Medium | Open | gate | Production’s rollback job runs in the environment BVJ is to review, so BDR could not roll production back alone; set up the environment with that in mind |
 | SV9-3 | **Low** | Medium | Open |  | A queued rollback of the preview can be canceled by a later push (one concurrency group, one pending run) |
-| SV9-4 | **Low** | Medium | Open | gate | No way to switch the service off, or to find and remove one abusive account, in the runbook |
-| SV9-5 | **Low** | Medium | Open | gate | An account large enough that its delete or replace passes D1’s 30 seconds fails every hour (the runbook’s manual route covers it) |
-| SV9-6 | (in LP9b-4) | Medium | Open |  | Workers Logs is on for the service and off for the CSP Worker |
+| SV9-4 | **Low** | Medium | Fixed (#722; BVJ tries the stop on the preview) | gate | No way to switch the service off, or to find and remove one abusive account, in the runbook |
+| SV9-5 | **Low** | Medium | Fixed (#722, by the ceiling) | gate | An account large enough that its delete or replace passes D1’s 30 seconds fails every hour (the runbook’s manual route covers it) |
+| SV9-6 | (in LP9b-4) | Medium | Fixed (#717) |  | Workers Logs is on for the service and off for the CSP Worker |
 | SV9-7 | **Low** | Medium | Open | KNOWN | The hourly run’s query budget on Free, and a held request retried ahead of newer ones |
 | SV9-8 | **Low** | Low | Open |  | A token added between Apple’s revocation and the account’s deletion is deleted unrevoked (Apple is off) |
 | SV9-9 | **Low** | Low | Open |  | Three queries can’t use their index, and `challenges.account` has none |
 | SV9-10 | **Low** | Low | Open |  | The runbook’s Turnstile rows are stale, and it doesn’t say whether a rollback restores an older secret |
 | SV9-11 | **Low** | Low | Open |  | Nothing holds applied migrations unedited or shows one is atomic; a few write paths have no race test |
-| SV9-12 | **Low** | Medium | Open |  | One address can fill the CSP Worker’s daily cap (5,000) in about two minutes, blanking a day of the week’s count, and a forged origin can top the list 4i works from |
+| SV9-12 | **Low** | Medium | Fixed (#721) |  | One address can fill the CSP Worker’s daily cap (5,000) in about two minutes, blanking a day of the week’s count, and a forged origin can top the list 4i works from |
 
 ### The website’s sync
 
@@ -249,24 +249,24 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 |---|---|---|---|---|---|
 | LP9-1 | **High** | High | Fixed | 4j | /privacy said the apps keep everything on the device and the team can’t access it, with nothing about the service |
 | LP9-2 | **Low** | Medium | Fixed | 4j | The effective date hadn’t moved through five changes (the promised “what changed” line is LP9b-7) |
-| LP9-3 | **Medium** | Medium | Partly fixed | 4j | Turnstile on the new-account step wasn’t disclosed (now named; what remains is LP9b-5) |
+| LP9-3 | **Medium** | Medium | Partly fixed (#713, #717) | 4j | Turnstile on the new-account step wasn’t disclosed (now named; what remains is LP9b-5) |
 | LP9-4 | **Low** | Medium | Fixed | 4j | No retention was stated (now “until you delete them or the account”; sweeping idle accounts is BVJ’s call) |
-| LP9-5 | **Low** | Medium | Partly fixed | 4j | D1’s 30 days of history was on /delete-account/ only (now on /privacy; two spec sentences remain, LP9b-6) |
-| LP9-6 | **Medium** | Medium | Partly fixed | BDR | Neither store’s form can be answered “no data collected”; the plain fields are now on /privacy, the forms are BDR’s (ask 21), and LP9b-3’s fields are still missing |
-| LP9-7 | (in LP9b-4) | Medium | Open |  | Stored logs on |
+| LP9-5 | **Low** | Medium | Fixed (#713, #717) | 4j | D1’s 30 days of history was on /delete-account/ only (now on /privacy; two spec sentences remain, LP9b-6) |
+| LP9-6 | **Medium** | Medium | Decided: BDR declares the plain fields on both forms (decision 9) | BDR | Neither store’s form can be answered “no data collected”; the plain fields are now on /privacy, the forms are BDR’s (ask 21), and LP9b-3’s fields are still missing |
+| LP9-7 | (in LP9b-4) | Medium | Fixed (#717) |  | Stored logs on |
 | LP9-8 | **Low** | Low | Fixed | 4j | No minimum age (now 13, or the country’s higher age) |
-| LP9-9 | **Low** | Low | Partly fixed | 4j | No controller, lawful basis, rights, or processors (the Collective, the processors, and the rights are now named; lawful basis, transfers, and a complaint route are not) |
+| LP9-9 | **Low** | Low | Decided: for a lawyer (BVJ) | 4j | No controller, lawful basis, rights, or processors (the Collective, the processors, and the rights are now named; lawful basis, transfers, and a complaint route are not) |
 | LP9-10 | **Nit** | Low | Open |  | Nothing ties Google on to Apple on (Apple 4.8); recorded, only a config guard is missing |
-| LP9b-1 | **Medium** | Medium | Open | live | /privacy (new in #713) says “nothing tracks you across sites” and that Do Not Track has nothing to turn off, while the podcast page frames YouTube, Spotify, and Apple players and /support loads Give Lively on every visit |
-| LP9b-2 | **Low** | Medium | Open | gate | /privacy says Apple’s token is “encrypted in our database”; it is readable to the service (encrypted only at rest) |
-| LP9b-3 | **Low** | Medium | Open | gate | The “what the service keeps” list leaves out a waiting approval’s device model and platform, plain for up to ten minutes |
-| LP9b-4 | **Medium** | Medium | Open | live | /privacy now tells readers the service keeps “no record of where you connect from” and its log says “nothing about who asked,” but what Cloudflare’s Workers Logs stores beside a line has never been looked at, and the preview has stored logs on |
-| LP9b-5 | **Low** | Low | Open | gate | The page says making an account is Turnstile-protected; production sets no key yet, and an app’s request (no `Origin`) is never checked |
-| LP9b-6 | **Low** | Low | Open |  | Two spec sentences still say a deleted account leaves nothing, against the spec’s own 30 days of history |
-| LP9b-7 | **Low** | Low | Open |  | /privacy promises a “what changed” line for 30 days and a note in the apps’ What’s New; #713 added neither |
-| LP9b-8 | **Low** | Low | Open |  | “After 30 days only a locked note” depends on a client opening the notebook; the service never drops the copy itself |
-| LP9b-9 | **Low** | Low | Open |  | The Terms put the intros, glossary, and articles under a license page written for the text and footnotes |
-| LP9b-10 | **Nit** | Nit | Open |  | “Still locked” is true of the notebook in backup history, not of its plain fields |
+| LP9b-1 | **Medium** | Medium | Fixed (#717) | live | /privacy (new in #713) says “nothing tracks you across sites” and that Do Not Track has nothing to turn off, while the podcast page frames YouTube, Spotify, and Apple players and /support loads Give Lively on every visit |
+| LP9b-2 | **Low** | Medium | Fixed (#717) | gate | /privacy says Apple’s token is “encrypted in our database”; it is readable to the service (encrypted only at rest) |
+| LP9b-3 | **Low** | Medium | Fixed (#717) | gate | The “what the service keeps” list leaves out a waiting approval’s device model and platform, plain for up to ten minutes |
+| LP9b-4 | **Medium** | Medium | Fixed (#717) | live | /privacy now tells readers the service keeps “no record of where you connect from” and its log says “nothing about who asked,” but what Cloudflare’s Workers Logs stores beside a line has never been looked at, and the preview has stored logs on |
+| LP9b-5 | **Low** | Low | Partly fixed (#717) | gate | The page says making an account is Turnstile-protected; production sets no key yet, and an app’s request (no `Origin`) is never checked |
+| LP9b-6 | **Low** | Low | Fixed (#717) |  | Two spec sentences still say a deleted account leaves nothing, against the spec’s own 30 days of history |
+| LP9b-7 | **Low** | Low | Fixed (#717) |  | /privacy promises a “what changed” line for 30 days and a note in the apps’ What’s New; #713 added neither |
+| LP9b-8 | **Low** | Low | Fixed (#717) |  | “After 30 days only a locked note” depends on a client opening the notebook; the service never drops the copy itself |
+| LP9b-9 | **Low** | Low | Fixed (#717) |  | The Terms put the intros, glossary, and articles under a license page written for the text and footnotes |
+| LP9b-10 | **Nit** | Nit | Fixed (#717) |  | “Still locked” is true of the notebook in backup history, not of its plain fields |
 
 ### Coherence of the interfaces
 
@@ -280,9 +280,9 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| DOC9-1 | **Low** | Medium | Open | BDR | iOS’s 22 points and three key-storage points (#701) have no line each saying taken, not taken, or BDR’s; a triage before the December 24 freeze (COH9’s table has each point’s state in code) |
-| DOC9-2 | **Low** | Medium | Open |  | The spec and the service README say Free gives “a database” 100,000 rows written a day; Cloudflare says the allowance is the account’s |
-| DOC9-3 | **Low** | Medium | Partly fixed |  | No single list of what must be true before accounts open (#713 extended rule 11; Turnstile in production, the store forms, What’s New, and the CSP are still elsewhere) |
+| DOC9-1 | **Low** | Medium | Fixed (#725; the key-storage points are BDR's) | BDR | iOS’s 22 points and three key-storage points (#701) have no line each saying taken, not taken, or BDR’s; a triage before the December 24 freeze (COH9’s table has each point’s state in code) |
+| DOC9-2 | **Low** | Medium | Fixed (#717) |  | The spec and the service README say Free gives “a database” 100,000 rows written a day; Cloudflare says the allowance is the account’s |
+| DOC9-3 | **Low** | Medium | Fixed (#717) |  | No single list of what must be true before accounts open (#713 extended rule 11; Turnstile in production, the store forms, What’s New, and the CSP are still elsewhere) |
 | DOC9-4 | **Low** | Low | Open |  | Turnstile’s “off” wording survives in five places |
 | DOC9-5 | **Low** | Low | Open |  | Four places still say the deletion page can’t delete |
 | DOC9-6 | **Low** | Low | Open |  | The account file says /delete-account/ is in the sitemap; the config takes it out |
@@ -303,7 +303,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | CP9-1 | **Low** | Low | Fixed (#719) | 4j? | The notebook’s place is “this computer,” “this browser,” and “this device”; #713 added more of each |
 | CP9-2 | *False positive* | Nit |  |  | Straight apostrophes in developer strings no reader sees |
 | CP9-3 | *False positive* | Nit |  |  | The app popover’s list has its Oxford comma (“notes and highlights” is one item) |
-| CP9-4 | **Nit** | Low | Open |  | Every page carries about 8 KB of HTML comments (3 KB compressed), most from before the window; the repo is public, so nothing leaks |
+| CP9-4 | **Nit** | Low | Fixed (#718) |  | Every page carries about 8 KB of HTML comments (3 KB compressed), most from before the window; the repo is public, so nothing leaks |
 | CP9-5 | *Deliberate (carries ORC-d)* | Low |  |  | `?account=preview` opens accounts from any page (BVJ’s switch, E230; KNOWN, the account file’s rule 11) |
 
 ### Performance
