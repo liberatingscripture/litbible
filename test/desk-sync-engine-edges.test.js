@@ -384,6 +384,36 @@ test("a notebook emptied behind the desk's back is filled again from the service
   assert.equal(rowsOf(service, a).size, 20);
 });
 
+test("a read of the notebook that fails leaves the edit owed: a later pass sends it, with no reload", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  const b = await nextDevice(service, a);
+  const note = a.note("the first words");
+  await settleAll(service, [a, b]);
+  a.clock.tick();
+  await a.edit(note.id, { body: "the second words" });
+
+  // The browser's database refuses one read (a blocked upgrade, a closing connection; Audit 9, SY9-1).
+  const get = a.notebook.get;
+  let failing = 1;
+  a.notebook.get = async (id) => {
+    if (failing-- > 0) throw new Error("UnknownError: the database is closing");
+    return get(id);
+  };
+  const failed = await a.sync();
+  assert.equal(failed.state, "error");
+  assert.equal(failed.pending, 1, "the reader is told the edit waits");
+  assert.equal((await served(service, a)).find((r) => r.id === note.id).body, "the first words");
+
+  // The next pass, in the same page, reads the record again and sends it.
+  const status = await a.sync();
+  assert.equal(status.state, "upToDate");
+  assert.equal(status.pending, 0);
+  assert.equal((await served(service, a)).find((r) => r.id === note.id).body, "the second words");
+  await b.sync();
+  assert.equal((await b.notebook.get(note.id)).body, "the second words", "and another device has it");
+});
+
 test("a service restored from an older copy is given back what this device still holds", async () => {
   const service = createFakeService();
   const a = await firstDevice(service);
@@ -486,10 +516,98 @@ test("a request waiting on the account is read again within a quarter of an hour
   const service = createFakeService();
   const a = await firstDevice(service);
   assert.equal((await a.sync()).account.waiting, null);
-  const waiting = { what: "notebook", since: a.clock.now(), ready: "2026-12-01T12:00:00.000Z", from: { platform: "ios", through: "apple" } };
+  // The interface's shape (waitingOut, waiting.js): a request made on a phone, not by this browser.
+  const waiting = { what: "replace", asked: a.clock.now(), due: "2026-12-01T12:00:00.000Z", platform: "ios", through: "apple", mine: false };
   service.account(a.by.account).waiting = waiting;
   a.clock.tick(5 * 60_000);
   assert.equal((await a.sync()).account.waiting, null, "not asked again on every pass");
   a.clock.tick(11 * 60_000);
   assert.deepEqual((await a.sync()).account.waiting, waiting);
+});
+
+/* ── Guards no other test reaches (Audit 9, SY9b-1) ──────────────────── */
+
+test("a pull that finds the notebook on a newer key catches up in that pass: a device that only reads opens the new rows at once", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  const b = await nextDevice(service, a);
+  a.note("before the change");
+  await settleAll(service, [a, b]);
+  // B's account page changes the key and never tells B's engine. B's session is the one that changed it,
+  // so it stays open and the service answers B's pull; only the page's kid says B is behind.
+  await changeKey(service, b.by, { kept: [a.by, b.by] });
+  await a.sync();
+  const note = a.note("written under the new key");
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.equal(rowsOf(service, a).get(note.id).kid, 2);
+
+  const keyrings = () => service.calls.filter((c) => c.token === b.by.token && c.path.startsWith("/keyring")).length;
+  const fetched = keyrings();
+  const sent = posts(service, b).length;
+  const status = await b.sync();
+  assert.equal(status.state, "upToDate");
+  assert.equal(status.problems.aside, 0, "nothing waits for a key it could have fetched");
+  assert.equal(b.engine.keyring().current, 2);
+  assert.equal((await b.notebook.get(note.id)).body, "written under the new key");
+  assert.equal(keyrings() - fetched, 1, "one keyring fetched");
+  assert.equal(posts(service, b).length, sent, "and nothing sent: A had sealed every row again");
+});
+
+test("a kept row whose record has since moved on is let go, never merged again over the newer one", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  const b = await nextDevice(service, a);
+  const note = a.note("the first words");
+  await settleAll(service, [a, b]);
+  // The first row, as the service sends it.
+  const older = structuredClone(rowsOf(service, a).get(note.id));
+  delete older.deletedAt;
+  a.clock.tick(60_000);
+  await a.edit(note.id, { body: "the later words" });
+  await settleAll(service, [a, b]);
+  const entry = structuredClone(b.state.kept.rows.get(note.id));
+  assert.ok(entry.rev > older.rev);
+
+  // A hold on the first row, due now, beside an entry already past it. Today's engine leaves none (a pulled
+  // row replaces the hold on its record), so the test stands one there, as an older copy of the sync's
+  // state would, and B reloads.
+  b.state.kept.held.set(note.id, { id: note.id, why: "ahead", row: older, due: 0 });
+  b.reload();
+  const sent = posts(service, b).length;
+  const status = await b.sync();
+  assert.equal(status.state, "upToDate");
+  assert.equal(status.problems.ahead, 0);
+  assert.equal(b.state.kept.held.has(note.id), false, "the hold is let go");
+  assert.deepEqual(b.state.kept.rows.get(note.id), entry, "the entry stays on the newer row");
+  assert.equal((await b.notebook.get(note.id)).body, "the later words");
+  assert.equal(posts(service, b).length, sent, "and nothing is sent");
+});
+
+test("a pass told to catch up again and again stops after three catch-ups, in error, and the next pass goes on", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  a.note("before");
+  await a.sync();
+  const note = a.note("held back while the key keeps changing");
+  // The key changes again at every push, so every push is refused as old_key (a stand-in for a service
+  // that answers old_key for ever). The test stops a pass that has no bound, rather than hang.
+  let pushes = 0;
+  service.onCall = async (call) => {
+    if (!isPost(call, a)) return;
+    if (++pushes > 8) throw new Error("the pass did not stop");
+    await changeKey(service, a.by, { kept: [a.by] });
+  };
+  const keyrings = () => service.calls.filter((c) => c.token === a.by.token && c.path.startsWith("/keyring")).length;
+  const fetched = keyrings();
+  const status = await a.sync();
+  service.onCall = null;
+  assert.equal(status.state, "error");
+  assert.equal(status.reason, "behind");
+  assert.equal(pushes, 4, "the first push and one after each of three catch-ups");
+  assert.equal(keyrings() - fetched, 3);
+  assert.equal(status.pending, 1, "the note still waits");
+
+  // With the key still, the next pass catches up once more and sends it.
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.equal(rowsOf(service, a).get(note.id).kid, a.by.keyring.current);
 });

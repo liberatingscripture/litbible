@@ -91,7 +91,7 @@ import { needsReader, statusWords } from "../../../lib/desk-sync-status.mjs";
 import { qrSvg } from "../../../lib/qr-svg.mjs";
 import { deskCtx } from "../desk-ctx.js";
 import { linkNotebook, startSync, unlink } from "../sync/start.js";
-import { button, confirmBox, field, h, section } from "./ui.js";
+import { button, confirmBox, field, focusConfirm, h, section } from "./ui.js";
 
 /** The fixed PRF input, as a passkey prompt takes it. */
 export const prfBytes = async () => (await prfInput()).bytes;
@@ -724,7 +724,7 @@ export async function showHome(ctx, note) {
           onCancel: () => opener.focus(),
         }),
       );
-      out.querySelector(".account__confirm button")?.focus();
+      focusConfirm(out);
     });
     out.append(opener);
     end.replaceChildren(end.firstChild, out, ...(S.account && parts.remove ? [parts.remove] : []));
@@ -753,7 +753,7 @@ export async function showHome(ctx, note) {
   const ask = (holder, opener, options) => {
     if (holder.querySelector(".account__confirm")) return;
     holder.append(confirmBox(ui, { ...options, onCancel: () => opener.focus() }));
-    holder.querySelector(".account__confirm button")?.focus();
+    focusConfirm(holder);
   };
 
   const drawKey = () => {
@@ -832,10 +832,14 @@ export async function showHome(ctx, note) {
             await grant({ call: connector.call, held: H.held, found });
             await again(WORDS.addDeviceDone);
           },
-          onCancel: () => drawAdd(add),
+          // The question is gone with its Cancel, so focus goes back to the field it came from.
+          onCancel: () => {
+            drawAdd(add);
+            add.querySelector("input")?.focus();
+          },
         }),
       );
-      add.querySelector("button")?.focus();
+      focusConfirm(add);
     };
     const find = button(ui, WORDS.addDeviceFind, async () => {
       let code;

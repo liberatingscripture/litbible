@@ -4,10 +4,18 @@
 // suite (the real one runs in workerd, in its own package). It answers the
 // requests the website's connector sends (STUDY-DESK-ENCRYPTION.md, "The
 // service's interface": "The account," "Devices and holders" for the sealed
-// keyring, and "Records"), with the same words, statuses, shapes, sizes, and
-// order of checks as workers/notebook-service/src/rows.js, session.js, and
-// check.js. It is held to them by reading those files, and the connector is
-// held to the real service by the end-to-end run against `wrangler dev`.
+// keyring, and "Records"), meant to give the same words, statuses, shapes,
+// sizes, and order of checks as workers/notebook-service/src/rows.js,
+// session.js, account.js, http.js, and check.js on those five routes: the
+// session first, then what the route needs of it (`not_open`, `no_notebook`),
+// then the body's size, then its contents. Nothing holds it to them but
+// reading those files (Audit 9, SY9-2, found it had drifted), so a change
+// there needs the same change here. What it leaves out: the words of routes
+// it doesn't serve, the Content-Type check, the proof's form, the rate
+// limiter (`slowDown` stands in), and the busy retry inside the service
+// (`busy` stands in). The connector is held to the real service by the
+// end-to-end run against `wrangler dev`, and the account's tests run against
+// the service's own code (test/helpers/real-notebook-service.mjs).
 //
 // It can't open anything, like the real one: it keeps sealed rows and sealed
 // keyrings, and a hash of the key proof. What a test does on a device's side
@@ -24,6 +32,8 @@ import { Offline } from "../../src/lib/desk-sync-engine.mjs";
 const b64 = ref.toBase64url;
 
 const LIMITS = { rowsPerRequest: 500, pageRows: 500, pageChars: 4 * 1024 * 1024, bodyBytes: 4 * 1024 * 1024, maxRecordBytes: 1_048_576, tagBytes: 16, padBlock: 256 };
+/** A session token as the service reads one (session.js, BEARER): 32 bytes in base64url, 43 characters. */
+const BEARER = /^Bearer ([A-Za-z0-9_-]{43})$/i;
 const TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 const RECORD_ID = /^[\x20-\x7e]{1,64}$/;
 const BASE64URL = /^[A-Za-z0-9_-]*$/;
@@ -95,7 +105,6 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
   let busy = 0;
   let failing = 0;
   let lost = 0;
-  let tokens = 0;
   const service = {
     /** Every request, as { method, path, body, account }, in order. */
     calls: [],
@@ -137,10 +146,10 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       return accounts.get(name);
     },
 
-    /** A session for an account, signed in and no more. */
+    /** A session for an account, signed in and no more. Its token has the real one's form (createSession, session.js). */
     signIn(name) {
       service.account(name);
-      const token = `token-${++tokens}`;
+      const token = b64(ref.randomBytes(32));
       sessions.set(token, { account: name, device: null, openKid: 0 });
       return token;
     },
@@ -210,12 +219,17 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       account.rev = rev;
     },
 
-    /** Replaces the account's notebook with none (what a carried-out "Start a new notebook" leaves). */
+    /**
+     * Replaces the account's notebook with none (what a carried-out "Start a
+     * new notebook" leaves; carryOutReplace in waiting.js). The account's
+     * revision counter is not reset, so the next notebook's rows never take a
+     * revision a device already pulled.
+     */
     replaceNotebook(name) {
       const account = service.account(name);
-      Object.assign(account, { notebook: null, kid: 0, proofHash: null, rows: new Map(), devices: new Map(), rev: 0, replaced: { when: now(), platform: "web", through: "passkey" } });
+      Object.assign(account, { notebook: null, kid: 0, proofHash: null, rows: new Map(), devices: new Map(), waiting: null, replaced: { when: now(), platform: "web", through: "passkey" } });
       account.lists++;
-      for (const s of sessions.values()) if (s.account === name) Object.assign(s, { device: null, openKid: 0 });
+      for (const s of sessions.values()) if (s.account === name) Object.assign(s, { device: null, openKid: 0, failures: 0 });
     },
 
     /** Every request that came through `fetch` below, as { url, init }: what the browser's carrier sent. */
@@ -228,7 +242,7 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
     async fetch(url, init = {}) {
       service.fetched.push({ url, init });
       const { pathname, search } = new URL(url);
-      const token = /^Bearer (.+)$/.exec(init.headers?.Authorization ?? "")?.[1] ?? null;
+      const token = BEARER.exec(init.headers?.Authorization ?? "")?.[1] ?? null;
       let answered;
       try {
         answered = await service.api(token).call(init.method ?? "GET", pathname + search, init.body === undefined ? undefined : JSON.parse(init.body));
@@ -255,8 +269,7 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
           let status = 200;
           let answered;
           try {
-            if (text !== undefined && text.length > LIMITS.bodyBytes) refuse(413, "too_large", { what: "body", limit: LIMITS.bodyBytes });
-            answered = await route(token, method, path, sent);
+            answered = await route(token, method, path, sent, text === undefined ? 0 : new TextEncoder().encode(text).length);
           } catch (err) {
             if (!(err instanceof Refuse)) throw err;
             status = err.status;
@@ -288,7 +301,17 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
     return auth;
   }
 
-  async function route(token, method, fullPath, body) {
+  /**
+   * `size` is the body's length in bytes. As `changing` in session.js does,
+   * a route reads its body (`readBody`) only after the session and what the
+   * route needs of it, so a device behind a change of key is told
+   * "not_open" whatever it sent.
+   */
+  async function route(token, method, fullPath, body, size) {
+    // http.js, readJson: no `what`, only the limit (the rows' own limit is "rows", below).
+    const readBody = () => {
+      if (size > LIMITS.bodyBytes) refuse(413, "too_large", { limit: LIMITS.bodyBytes });
+    };
     if (slow > 0) {
       slow--;
       refuse(429, "slow_down", { retry: 60 });
@@ -330,6 +353,7 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       const auth = authenticate(token);
       const { account, session } = auth;
       if (account.kid === 0) refuse(409, "no_notebook");
+      readBody();
       if (body.kid !== account.kid) refuse(409, "old_key", { kid: account.kid });
       const given = b64(await ref.sha256(ref.fromBase64url(body.proof)));
       if (given !== account.proofHash) {
@@ -368,6 +392,7 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
 
     if (method === "POST" && path === "/rows") {
       const { account } = needOpen(authenticate(token));
+      readBody();
       if (!isObject(body)) bad("body");
       const put = body.put ?? [];
       const remove = body.remove ?? [];

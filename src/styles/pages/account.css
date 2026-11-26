@@ -45,7 +45,8 @@ html:not([data-account="open"]) [data-account-opened] {
   line-height: 1.25;
 }
 
-.account__title:focus {
+.account__title:focus,
+.account__confirm-ask:focus {
   outline: none;
 }
 

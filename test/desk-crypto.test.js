@@ -934,6 +934,74 @@ test("round trip: setup, a holder, an approval, and a change of key, all with ge
   assert.notEqual(x(await c.keyProof(K1)), x(await c.keyProof(c.keyOf(ring2, 2))));
 });
 
+test("every seal made without a nonce draws a fresh one: two seals of one input differ, and both open", async () => {
+  // Every production call leaves the nonce to the default, and the vectors pass one in, so only this
+  // holds the default: one nonce reused under one key would give the service the XOR of two cards and
+  // the means to forge one (Audit 9, TQ9-1). One case for each sealer that takes a nonce.
+  const added = "2026-11-25T12:00:00.000Z";
+  const notebook = c.newId();
+  const K1 = c.randomBytes(32);
+  const K2 = c.randomBytes(32);
+  const ring = c.firstKeyring(notebook, K1);
+  const deviceId = c.newId();
+  const deviceKey = await c.generateDeviceKey();
+  const signKey = await c.generateSigningKey();
+  const card = c.deviceCard({ public: deviceKey.public, sign: signKey.public, name: "Firefox on Windows", platform: "web", added });
+  const holderKey = await c.generateKeyPair();
+  const holderId = c.newId();
+  const holderCard = c.holderCard({ public: holderKey.public, kind: "recovery", name: "Recovery code", added });
+  const record = c.holderRecord({ notebook, kind: "recovery", id: holderId, d: holderKey.d, public: holderKey.public, anchor: { kid: 1, key: K1 } });
+  const secretKey = await c.codeKey(c.randomBytes(c.RECOVERY_CODE_BYTES));
+  const forHolder = await c.sealKeyring({ keyring: ring, recipientPublic: holderKey.public });
+  const deviceCard1 = await c.sealDeviceCard({ notebookKey: K1, kid: 1, notebook, deviceId, card, nonce: c.randomBytes(c.NONCE_BYTES) });
+  const holderCard1 = await c.sealHolderCard({ notebookKey: K1, kid: 1, notebook, holderId, card: holderCard, nonce: c.randomBytes(c.NONCE_BYTES) });
+  const { id, macKey } = await c.approvalKeys(c.randomBytes(c.APPROVAL_CODE_BYTES));
+  const asked = { deviceId, platform: "web", model: "Firefox on Windows", public: deviceKey.public, sign: signKey.public };
+  const request = { ...asked, mac: await c.approvalRequestMac({ macKey, id, ...asked }) };
+  const note = { id: "a", modified: added, body: "the same words, sealed twice" };
+
+  /** [name, seal with no nonce, what it sealed ({ nonce, ct }), open it] */
+  const cases = [
+    // A row carries its nonce and ciphertext as base64url.
+    ["sealRecord", () => c.sealRecord({ record: note, notebookKey: K1, kid: 1 }), (s) => ({ nonce: c.fromBase64url(s.nonce), ct: c.fromBase64url(s.ct) }), (s) => c.openRow({ row: s, keyring: ring })],
+    ["sealDeviceCard", () => c.sealDeviceCard({ notebookKey: K1, kid: 1, notebook, deviceId, card }), (s) => s, (s) => c.openDeviceCard({ notebookKey: K1, kid: 1, notebook, deviceId, ...s })],
+    ["sealHolderCard", () => c.sealHolderCard({ notebookKey: K1, kid: 1, notebook, holderId, card: holderCard }), (s) => s, (s) => c.openHolderCard({ notebookKey: K1, kid: 1, notebook, holderId, ...s })],
+    [
+      "resealDeviceCard",
+      () => c.resealDeviceCard({ from: { notebookKey: K1, kid: 1 }, to: { notebookKey: K2, kid: 2 }, notebook, deviceId, ...deviceCard1 }),
+      (s) => s,
+      (s) => c.openDeviceCard({ notebookKey: K2, kid: 2, notebook, deviceId, ...s }),
+    ],
+    [
+      "resealHolderCard",
+      () => c.resealHolderCard({ from: { notebookKey: K1, kid: 1 }, to: { notebookKey: K2, kid: 2 }, notebook, holderId, ...holderCard1 }),
+      (s) => s,
+      (s) => c.openHolderCard({ notebookKey: K2, kid: 2, notebook, holderId, ...s }),
+    ],
+    [
+      "sealHolderRecord",
+      () => c.sealHolderRecord({ secretKey, record }),
+      (s) => s,
+      (s) => c.openHolder({ secretKey, kind: "recovery", id: holderId, notebook, sealed: s, keyring: forHolder }),
+    ],
+    [
+      "makeGrant",
+      () => c.makeGrant({ macKey, id, request, keyring: ring, added }),
+      (g) => g.card,
+      (g) => c.acceptGrant({ macKey, id, grant: g, device: { id: deviceId, key: deviceKey, sign: signKey.public } }),
+    ],
+  ];
+  for (const [name, seal, sealed, open] of cases) {
+    const one = await seal();
+    const two = await seal();
+    assert.equal(sealed(one).nonce.length, c.NONCE_BYTES, name);
+    assert.notEqual(x(sealed(one).nonce), x(sealed(two).nonce), `${name}: a fresh nonce each time`);
+    assert.notEqual(x(sealed(one).ct), x(sealed(two).ct), `${name}: so a different ciphertext`);
+    await open(one);
+    await open(two);
+  }
+});
+
 /* ── Small rules the vectors lean on ─────────────────────────────────── */
 
 test("lines, kids, ids, and instants", async () => {

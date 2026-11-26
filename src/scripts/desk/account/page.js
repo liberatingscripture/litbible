@@ -41,7 +41,7 @@ import { passkeysHere } from "../../../lib/desk-passkey.mjs";
 import { SERVICES, allowedService, peekLink } from "../../../lib/desk-sync-link.mjs";
 import { createApi } from "../sync/service.js";
 import { openSyncDb } from "../sync/sync-db.js";
-import { button, confirmBox, h, screens } from "./ui.js";
+import { button, confirmBox, focusConfirm, h, screens } from "./ui.js";
 
 /** The code a scanned or followed link carries after its `#` (`#a=<16 characters>`), or null. Nothing after a `#` is ever sent. */
 export function codeInHash(hash) {
@@ -381,7 +381,7 @@ export async function start({ root = document.querySelector("[data-account-page]
           onCancel: () => opener.focus(),
         }),
       );
-      holder.querySelector(".account__confirm button")?.focus();
+      focusConfirm(holder);
     });
     holder.append(opener);
     if (kind !== "delete") holder.append(" ", h("a", { class: "account__more", href: "/delete-account/", text: WORDS.deleteMore }));

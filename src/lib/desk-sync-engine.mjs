@@ -390,21 +390,28 @@ export function createSyncEngine({
   async function scan() {
     const changed = touched;
     touched = new Set();
-    if (!scanned || changed.size > SCAN_ALL_OVER) {
-      const here = new Set();
-      for (const r of await notebook.all()) {
-        if (typeof r?.id !== "string") continue;
-        here.add(r.id);
-        if (!scanned || changed.has(r.id) || !local.has(r.id)) local.set(r.id, await summarize(r));
+    try {
+      if (!scanned || changed.size > SCAN_ALL_OVER) {
+        const here = new Set();
+        for (const r of await notebook.all()) {
+          if (typeof r?.id !== "string") continue;
+          here.add(r.id);
+          if (!scanned || changed.has(r.id) || !local.has(r.id)) local.set(r.id, await summarize(r));
+        }
+        for (const id of [...local.keys()]) if (!here.has(id)) local.delete(id);
+        scanned = true;
+        return;
       }
-      for (const id of [...local.keys()]) if (!here.has(id)) local.delete(id);
-      scanned = true;
-      return;
-    }
-    for (const id of changed) {
-      const r = await notebook.get(id);
-      if (r) local.set(id, await summarize(r));
-      else local.delete(id);
+      for (const id of changed) {
+        const r = await notebook.get(id);
+        if (r) local.set(id, await summarize(r));
+        else local.delete(id);
+      }
+    } catch (err) {
+      // A read that failed (a blocked or closing database) leaves the ids to read again, or an edit
+      // would wait unsent, with the status saying "up to date," until the next full scan (Audit 9, SY9-1).
+      for (const id of changed) touched.add(id);
+      throw err;
     }
   }
 
