@@ -155,7 +155,9 @@ without the switch. The announcement popover stays off all three
     `readSwitch` for a value the script doesn't know. `page.js` sets the
     stamp itself for a linked browser, which is open whatever the switch
     says. **Opening accounts to everyone** is its
-    own change, apart from the Study Desk's launch: the switch and its key
+    own change, apart from the Study Desk's launch, and the last line of
+    `STUDY-DESK.md`'s “Before accounts open” list (“Order of work,” 4),
+    which holds every gate before it: the switch and its key
     (`account-gate.js`, `SWITCH_KEY`, the pre-paint line, `/privacy`'s list
     item), the one-line notes on the two pages, `data-account-opened` on
     `/delete-account/` and its rule in `account.css`, the header's rule
