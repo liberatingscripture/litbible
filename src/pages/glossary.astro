@@ -217,7 +217,7 @@ const menuData = {
     })} />
   </Fragment>
   <div class="glossary-page">
-    <!-- PAGE HEADER (white background) -->
+    {/* PAGE HEADER (white background) */}
     <section class="glossary-hero" aria-labelledby="glossary-title">
       <div class="wrap">
         <h1 id="glossary-title" class="glossary-title v2-bar">Glossary</h1>
@@ -248,7 +248,7 @@ const menuData = {
           if you think I’ve missed any important ones!
         </p>
 
-        <!-- Sort toggle (inline, not sticky) -->
+        {/* Sort toggle (inline, not sticky) */}
         <div class="glossary-sort-toggle" data-pagefind-ignore>
           <span class="sort-by-label">Sort by</span>
           <div class="category-toggle" role="group" aria-label="Sort order by">
@@ -265,7 +265,7 @@ const menuData = {
           </div>
         </div>
 
-        <!-- Sticky jump dropdown -->
+        {/* Sticky jump dropdown */}
         <div class="glossary-toc" data-pagefind-ignore>
           <div class="glossary-toc__inner">
             <label class="sr-only" for="word-select">Jump to an entry</label>
@@ -305,14 +305,14 @@ const menuData = {
           </ul>
         </nav>
 
-        <!-- Menu data (generated at build time from glossary collection) -->
+        {/* Menu data (generated at build time from glossary collection) */}
         <script
           id="glossary-menu-data"
           type="application/json"
           set:html={JSON.stringify(menuData)}
         ></script>
 
-        <!-- Menu JS — reads from embedded JSON so new entries are automatic -->
+        {/* Menu JS — reads from embedded JSON so new entries are automatic */}
         <script type="module">
           document.addEventListener("DOMContentLoaded", () => {
             const glossary = JSON.parse(
@@ -394,19 +394,19 @@ const menuData = {
           });
         </script>
 
-        <!-- ENTRIES BLOCK -->
-        <!-- Layout puts data-pagefind-ignore on <body> for this page (since
+        {/* ENTRIES BLOCK */}
+        {/* Layout puts data-pagefind-ignore on <body> for this page (since
              it doesn't pass the `index` prop). The data-pagefind-body below
              opts this section back INTO the Pagefind index — removing either
-             attribute breaks glossary search. -->
+             attribute breaks glossary search. */}
         <section
           class="glossary-entries"
           data-pagefind-body
           data-pagefind-filter="type:glossary"
         >
-          <!-- Index-only surface: just enough for search. aria-hidden, since
+          {/* Index-only surface: just enough for search. aria-hidden, since
                a screen reader otherwise announces "Glossary glossary
-               Translation glossary…" before the first entry. -->
+               Translation glossary…" before the first entry. */}
           <div class="sr-only" aria-hidden="true">
             <span data-pagefind-meta="title">Glossary</span>
             <span data-pagefind-meta="type">glossary</span>
@@ -415,11 +415,11 @@ const menuData = {
             </span>
           </div>
 
-          <!-- Full-bleed notch block -->
+          {/* Full-bleed notch block */}
           <div class="entries-top" aria-hidden="true" data-pagefind-ignore>
           </div>
 
-          <!-- Cream panel starts here -->
+          {/* Cream panel starts here */}
           <div class="entries-panel">
             <div class="wrap entries-wrap">
               {entries.map(({ data, Content, bodyHtml }) => {

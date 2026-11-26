@@ -47,10 +47,13 @@ week, stopping it).
   line live.
 - **Every answer has an empty body, and a counted, dropped, or capped post
   is answered alike.** Anyone can post here; nothing posted comes back.
-- **The day's cap (`DAILY_CAP`) is checked and written as one batch**, each
-  statement carrying the same condition and the day's total moved last
-  (`src/store.js`). It is what keeps a flood from spending D1's daily
-  writes, which the notebook service's database shares on Workers Free.
+- **The cap is per UTC hour (`HOURLY_CAP`, 208; a day is 24 of them, 4,992,
+  under 5,000), checked and written as one batch**, each statement carrying
+  the same condition and the hour's total moved last (`src/store.js`). It is
+  what keeps a flood from spending D1's daily writes, which the notebook
+  service's database shares on Workers Free, and an hour is the most one
+  sender can spoil. The `days` table is keyed by hour (`2026-11-24T13`); the
+  counts stay by day.
 - **The address is in five places**, and `KEEP_DAYS` is the privacy page's
   "30 days": the root's `test/csp-reporting.test.js` holds both, and holds
   the policy to reporting both ways (`public/CLAUDE.md`).
@@ -122,10 +125,19 @@ work," "Production," and what each later step plugs in and where), and
   was read. A new write path that skips the guard is a race, whatever its
   tests say; `test/races.test.js` shows how to force one at an exact point,
   and each guard there was checked by weakening it and watching a test fail.
+- **An account's row counts (`row_count`, `row_bytes`) move only in the
+  batch that writes its rows**, under that batch's guard on `rev` (BVJ's
+  ceiling of 100,000 rows and 100 MB, Audit 9, 2026-11-26; migration
+  `0004`). A new path that adds, removes, or resizes rows without moving
+  them lets an account past its ceiling or refuses it early. A path that
+  deletes every row resets them (`carryOutReplace`).
 - **Nothing personal is stored or logged, and no body, key proof, or session
   token reaches a log.** One line a request, with the route's own pattern and
-  never the address asked for; Cloudflare's per-request log is off in
-  `wrangler.jsonc`. `test/http.test.js` holds the service to it.
+  never the address asked for; `test/http.test.js` holds the service to it.
+  **Workers Logs stays off** (`observability.enabled: false`; BVJ,
+  2026-11-26, Audit 9's decision 4), as for the CSP Worker: a stored event
+  carries the request's full URL, and four routes put an id in it. `/privacy`
+  says the lines aren't stored; `npx wrangler tail` shows them live.
 - **The preview's way in (`src/preview.js`) must stay unreachable in
   production**: routed only when the environment's own config says
   `PREVIEW_SIGN_IN` is `on`, names itself exactly `preview` (an allow-list),
@@ -161,7 +173,10 @@ work," "Production," and what each later step plugs in and where), and
     repo: the site key is public, and the tests use Cloudflare's published
     dummy keys. The check runs before a challenge is written. A "no" from
     siteverify for the deployment's own reason (a secret it doesn't know)
-    is `provider`, never the reader's `not_allowed`.
+    is `provider`, never the reader's `not_allowed`. **A token passes only
+    if siteverify's `hostname` is the host of one of `ALLOWED_ORIGINS`**,
+    whole (BVJ, 2026-11-26); `action` is not checked, since the website
+    sets none.
   - **The Android origins in `wrangler.jsonc` and the certificates in
     `public/.well-known/assetlinks.json` change together**; the root's
     `test/link-files.test.js` fails when they differ. Those two link
@@ -178,12 +193,17 @@ work," "Production," and what each later step plugs in and where), and
     its condition inside it** (still open, still waiting, still due).
     `test/waiting-races.test.js` forces each race, and each condition was
     checked by taking it out and watching a test fail. Do the same for a
-    new one.
+    new one. **The sweep of accounts never set up is held the same way**
+    (`sweepUnused`; no notebook, no live session, 30 days; BVJ,
+    2026-11-26): every condition is asked again inside the deleting
+    statement, and `test/sweep-races.test.js` failed with each taken out.
   - **A replaced notebook resets every session's proof.** The next
     notebook's first key is `kid` 1 again.
   - **The address a request comes from is never stored or logged.** It is
     the limiter's key, and is passed on to Turnstile's siteverify with a
-    token, and nothing else. A missing limiter binding answers
+    token, and nothing else. There are three limiters (sign-in starts,
+    `POST /rows`, everything else), each with its own namespace in each
+    environment (`test/config.test.js`). A missing limiter binding answers
     `error` to everything, on purpose.
   - **Production's config has no `PREVIEW_` anything**, and its workflow
     jobs never run on a push; `test/config.test.js` holds both. The top

@@ -505,6 +505,86 @@ Full text: `STUDY-DESK-ENCRYPTION.md`, “By approval,” “The link,” “The
 account,” and “Changed in Audit 9”; `STUDY-DESK.md`, “Decisions,”
 2026-11-26.
 
+### 2026-11-26, the service's limits: a full account, a limit on pushes, and unused accounts (Audit 9)
+
+**One answer you can get is new.** BVJ's answers to Study Desk Audit 9's
+decision 2 and SEC9's question 2, built in `workers/notebook-service/` (migration
+`0004_account_ceiling.sql`), made without BDR in the conversation and so
+**for BDR to confirm** (`STUDY-DESK-ENCRYPTION.md`, “Still open,” 92):
+
+- **An account holds at most 100,000 rows and 100 MB** of sealed record (a
+  row's `ct` as bytes). A push that would take it past either is **refused
+  whole**: status 413, `too_large` with `what: "account"` and a new member,
+  `limits: { "rows": 100000, "bytes": 100000000 }`. Nothing of it is
+  stored. (`what` was already sent as `"rows"` with more than 500 rows in
+  one request; the spec now names that too.) **An app that reads every `too_large` as “send a smaller
+  request” would split the push and loop.** Instead: keep every change on
+  the device, send no rows for a while (the website waits an hour, and
+  tries at once when its reader asks), keep pulling, and tell the reader
+  the account is full and nothing was lost. A push that only removes rows,
+  or puts a row again no larger, always goes through.
+- **`POST /rows` is limited to 120 in a minute from one address**, beside
+  the 1,200 every request shares. It answers `slow_down` with `retry`, as
+  before, so an app that already waits on `slow_down` needs nothing new.
+- **The hourly run deletes an account that never set up a notebook**, once
+  it has no live session and is more than 30 days old (or 30 days past its
+  notebook's replacement). Apple's token is revoked first, and the account
+  stays until Apple answers. An app that signs a reader in and leaves the
+  account without a notebook for a month will find it gone, as after any
+  deletion: `sign_in`, then a new empty account.
+- **Turnstile checks the site its token was made on.** The apps send no
+  token and see no change.
+- **BVJ requires the apps to prove they are the apps before accounts
+  open**: “Insist BDR build the apps side requiring the apps to prove
+  they're real.” BVJ chose this over moving to Workers Paid (“We won't need
+  paid for quite some time”). A request with no `Origin` skips Turnstile,
+  so today a program can make accounts through the apps' door without end;
+  the ceiling bounds one account, not how many. App Attest on iOS and Play
+  Integrity on Android, sent at sign-up, and required by the service of a
+  request with no `Origin` (the spec's “Still open,” 86). **This one is
+  not a question**: BDR, please say how and by when for each app, so the
+  service's side can be built to match.
+
+**For BDR**: will each app handle the full account as the website does,
+and what will it say to its reader? (The website's words, which BVJ
+approved, are in `src/lib/desk-sync-status.mjs`.) Full text:
+`STUDY-DESK-ENCRYPTION.md`, “Changed in Audit 9: the service’s limits.”
+
+### 2026-11-26, `/privacy` corrected, and the service stores no logs (Audit 9)
+
+**Nothing you call changed**: no request, answer, size, word, or format
+point. BVJ's decisions from Study Desk Audit 9, with what touches the apps
+**for BDR to act on**:
+
+- **Please carry a What's New note in the next builds** (a suggested
+  wording, yours to change): “We updated our
+  privacy policy on November 26, 2026: it now names the players and giving
+  form other companies show on two of our web pages, and it is more exact
+  about what the optional account keeps.” (Rule of 2026-11-25: a material
+  change is noted in What's New; the page shows its own “What changed” line
+  until 2026-12-26.)
+- **The service's plain fields on `/privacy` now list everything the store
+  forms need**: a passkey's syncs flag and use count, and a device waiting
+  to be approved, its platform and model, for up to ten minutes (the
+  `platform` and `model` of `POST /approvals`).
+- **Please answer both stores' privacy forms from that list before
+  accounts open in either app** (BVJ, 2026-11-26, the audit's decision 9:
+  “as recommended”). Declare the plain fields as collected: the account
+  and its ways in, device ids, times, and a waiting device's model and
+  platform, each linked to the account and none used for tracking.
+  Declare the notebook as end-to-end encrypted. “No data collected” ends
+  with accounts, as the 2026-11-23 call said (its item A6). This is a
+  line of the website's “Before accounts open” list (`STUDY-DESK.md`,
+  “Order of work,” 4), with App Attest and Play Integrity (the spec's
+  “Still open,” 86) and the What's New note above.
+- **The service stores no log lines** (`observability.enabled: false`). A
+  stored Workers Logs event carried the request's full URL, and
+  `/devices/:id`, `/approvals/:id`, and `/ways/:id` put an id there. Watch
+  the preview live with `npx wrangler tail --env preview` (BDR can't from
+  the Actions workflow; ask BVJ). Nothing the apps send changes.
+
+Full text: `STUDY-DESK.md`, “Decisions,” 2026-11-26.
+
 ### 2026-11-25, the privacy page, the Terms of Use, and the first-time choice (step 4j)
 
 **Nothing you call changed**: no request, answer, size, word, or format
@@ -628,6 +708,8 @@ means for the apps:
 
 ### 2026-11-24, iOS's answers, from its code and a real iPhone
 
+Triaged 2026-11-26 (Audit 9, decision 10): each point below has a line.
+
 **Facts from the iOS app, not decisions.** BDR's iOS Claude read the iOS
 code (`next` at `dd0cfb1`, the 2.2 TestFlight build, with every branch
 head, every release tag, and the history) against this repo's `main` at
@@ -730,77 +812,188 @@ is the website's to weigh.
 From the crypto (`desk-crypto.mjs`):
 1. `TextDecoder` drops a leading byte order mark, and iOS matches; the
    spec doesn't say so.
+   - **Not taken yet** (the website's, before the freeze): the spec is
+     still silent. One sentence in “Opening” would say what both clients
+     already do: a leading byte order mark is dropped before the JSON is
+     read (`fromUtf8`, `src/lib/desk-crypto.mjs`).
 2. `JSON.parse` takes a lone UTF-16 surrogate in a `\u` escape, which a
    Swift string can't hold, so iOS refuses it as `json`. The spec could
    say no record, card, or keyring carries one.
+   - **Not taken yet** (the website's, before the freeze), and wider than
+     the spec: the reference accepts one on opening and can seal one
+     (`JSON.stringify` writes it as a `\u` escape, and nothing in
+     `desk-crypto.mjs` refuses it), so a record the website writes could
+     fail on iOS. The fix is the sentence, a `json` refusal in the
+     reference when sealing and opening, and a vector.
 3. A holder record whose `public` isn't `d`'s own isn't in the vectors.
    iOS refuses it (`record`), and any mismatched key pair as `privateKey`.
+   - **Not taken yet** (the website's, before the freeze): no vector yet,
+     and the reference leaves the check to the platform's key import
+     (`agreementKey`, refused as `privateKey`; Node 24 refuses, browsers
+     untried). A vector must name one word, so Claude recommends checking
+     the pair in `readHolderRecord` and refusing `record`, as iOS does.
 4. **“The same id, byte for byte.”** Swift's `==` treats “é” written two
    ways as equal, so a first Swift build let two different ids pass as
    one. iOS now compares bytes. A vector with canonically equivalent ids
    and object keys would catch this on every client; Android should check
    it in Kotlin.
+   - **Not taken yet** (the website's, before the freeze): the spec already
+     says “the same `id`, byte for byte” (“Opening,” 7), but no vector has
+     canonically equivalent ids or object keys
+     (`test/fixtures/notebook-crypto-vectors.json`). Adding one changes
+     the vectors file, so it gets an entry here.
 5. CryptoKit's `HPKE` can't be handed a sender key, so iOS runs the
    fixed-key vectors through a small hand-written key schedule, proven by
    the CFRG vectors and RFC 9180, A.3.1.
+   - **Not taken**: nothing to take. It is a note on CryptoKit, and the
+     fixed-key cases pass.
 6. CryptoKit can't be handed an ECDSA nonce, so the `signingKey` vectors
    run in the verifying direction only, as the spec allows.
+   - **Not taken**: nothing to take. The spec allows it, as the point says.
 
 From the service and the website's fake:
 7. The fake hands out `"token-1"`, while `session.js`'s `BEARER` takes only
    43 base64url characters, so a client that checks a token's form can't
    use the fake.
+   - **Taken** (#716): the fake's tokens are 32 random bytes in base64url,
+     read with `BEARER`'s own pattern
+     (`test/helpers/fake-notebook-service.mjs`).
 8. The fake's `replaceNotebook` sets `rev` back to 0; `carryOutReplace`
    (`waiting.js`) leaves `accounts.rev` alone.
+   - **Taken** (#716): the fake's `replaceNotebook` keeps the revision
+     counter, as `carryOutReplace` does.
 9. `too_large` for a body: the fake adds `what: "body"`, and `readJson`
    (`http.js`) sends `{ limit }` only, as the spec's table has it. For
    rows, `rows.js` sends `what: "rows"`, which the table doesn't list.
+   - **Taken**: the fake's `too_large` for a body carries `limit` alone
+     (#716), and the spec's table names `what: "rows"` (#722, not yet
+     merged), beside its new `what: "account"`.
 10. `POST /session/proof`: the fake checks no form; `postProof`
     (`account.js`) checks the device id, `kid`, and a 32-byte proof first.
+    - **Not taken**: the fake's header names the proof's form as left
+      out. The website sends only a proof it computed, and the account's
+      flows run against the service's own code
+      (`test/helpers/real-notebook-service.mjs`).
 11. `GET /keyring`: the fake doesn't check that `device` is a UUID;
     `getKeyring` (`devices.js`) answers `bad_request` with
     `field: "device"`, which the spec's row doesn't list.
+    - **Not taken**: the refusal table's `bad_request` row covers every
+      route (“The request isn't in the form above”), and “Devices and
+      holders” gives `?device=<uuid>`. The website sends only its own
+      device's id, so the fake's missing check changes nothing.
 12. `GET /account`: the fake answers `ways: []` and a fixed `expires`.
+    - **Not taken**: the sync never reads `ways` or acts on `expires`, and
+      the account pages, which do, are tested against the service's own
+      code.
 13. The order of checks differs. The fake checks a body's size and its
     knobs before routing; the service counts the rate limit before routing
     and reads the body after the session checks. The fake has no
     Content-Type check, and `readJson` requires `application/json`.
+    - **Taken** in part (#716): the fake now checks the session, then what
+      the route needs of it, then the body's size, as the service does,
+      and `test/desk-sync-fake-service.test.js` sends the same requests
+      to both. **Not taken**: the Content-Type check, since the website's
+      carrier always sends `application/json` (`sync/service.js`).
 14. `previewPasskey` (`preview.js`) checks the body before the session
     (the preview only).
+    - **Not taken**: `POST /preview/passkeys` is the preview's alone, and
+      the order shows only to a malformed body from a session that isn't
+      open.
 15. One fault, two words: `POST /notebook/key` with a passkey that already
     holds the key answers `not_allowed` / `one_holder_per_passkey`
     (`key.js`), and `POST /holders` answers `exists` / `passkey`.
+    - **Not taken**, the two words stay: a setup or a change of key states
+      the whole holder list, so a passkey named twice breaks a rule
+      (`not_allowed`, as two recovery codes are `one_recovery`), while
+      `POST /holders` adds one to what is stored, where it is already
+      there (`exists`, as a second recovery code is `exists` /
+      `recovery`). **The spec's half is open** (Audit 9, COH9-2):
+      `POST /holders`' row names no word for it.
 16. A malformed id, two words: an approval's is `bad_request` / `id`
     (`approvals.js`), and a way's is `gone` / `way` (`ways.js`).
+    - **Not taken**: each follows the spec. An approval id has a form (32
+      lowercase hex characters, “By approval”), so a malformed one is
+      `bad_request`; a way's id has none (it is what `GET /account`
+      answered), so any id that isn't the account's is `gone`, as the
+      table says.
 17. The `platform` and `model` limits count UTF-16 units, not characters.
     iOS matches; the spec could say which.
+    - **Not taken yet** (the website's, before the freeze): one sentence
+      in “How values are spelled” that a limit in characters counts UTF-16
+      code units, as the service does (`needText`, `check.js`), iOS
+      matches, and the format counts offsets (`STUDY-DESK-FORMAT.md`).
 
 From the sync pass (`desk-sync-engine.mjs` and its tests):
 18. `openSession` keeps another notebook's keyring in memory after
     refusing it, so the next pass skips the check. iOS holds a keyring
     only once it passes.
+    - **Not taken yet** (the website's; no format change): `openSession`
+      still sets `keyring` before the notebook check
+      (`src/lib/desk-sync-engine.mjs`); hold it only once the check
+      passes, as iOS does. Latent: it needs another notebook's sealed
+      keyring in this link's storage.
 19. `adopt` checks nothing while no keyring is in memory. iOS also
     refuses a `kid` below the highest one stored.
+    - **Not taken yet** (the website's; no format change): with no keyring
+      in memory, `adopt` checks only the notebook id. It should also
+      refuse a `current` below the highest stored (`meta.highest`), as
+      iOS does.
 20. `rowSize` counts UTF-16 units against a limit in bytes; they agree
     only while a row's JSON is ASCII. iOS counts bytes.
+    - **Not taken**: every member of a row is ASCII (an id is printable
+      ASCII, the rest base64url, times, and numbers), so the count is in
+      bytes, and `BODY_BUDGET` (`src/lib/desk-sync.mjs`) leaves 194,304
+      bytes under the service's limit.
 21. `desk-sync-engine-edges.test.js` (“a request waiting on the
     account…”) builds `waiting` as `{what: "notebook", since, ready,
     from}`, which isn't the interface's shape (`what` is `delete` or
     `replace`, with `asked`, `due`, `platform`, `through`, and `mine`).
+    - **Taken** (#716): the test builds `waiting` in the interface's
+      shape.
 22. `request` accepts a 200 with no `time`; the iOS client treats that as
     a malformed answer.
+    - **Not taken**: the spec already puts `time` first in every answer
+      (“How a request is carried”), so the stricter client is within it
+      too. The website only skips that answer's clock reading, and an
+      answer that isn't a JSON object is already refused
+      (`sync/service.js`).
 
 **Key storage on iOS: three things the spec doesn't settle.**
 - **`sign_in` means two things** (71): a session that ran out, which
   should keep the device's keys, and an account deleted elsewhere, which
   should clear them. A client can't tell which from the word alone.
+  - **BDR's**: the website keeps the device's keys and notebook on every
+    `sign_in`, and hears of a deletion only at the next sign-in (“Still
+    open,” 71 and 89), since the service keeps no trace of a deleted
+    account. Clearing keys on the word would let the service lock a
+    reader out (the spec's “Removing a device, and changing the key”;
+    `src/scripts/desk/sync/CLAUDE.md`, rule 1), so that half is not
+    taken. Confirm iOS keeps them too, and answer 71 and ask 19.3 above.
+  - **For BVJ** (89, the words): should the sentence a device shows on
+    `sign_in` allow for an account deleted elsewhere? Claude's
+    recommendation: no, keep “You’ve been signed out.” It is true either
+    way; an account is deleted at once only from a device that holds the
+    key, and anyone else's request waits seven days where every device of
+    the reader's can see it; and “or your account was deleted” would
+    alarm every reader whose session simply ran out.
 - **The reinstall check needs a guard.** Before the first unlock after a
   restart, the marker in `UserDefaults` can read as missing, which looks
   like a fresh install, while a Keychain delete may still be allowed. iOS
   writes a probe item before it deletes anything; the spec's sentence is
   safe only with that guard.
+  - **BDR's**: the spec's iOS rule (“Where each client keeps its keys,”
+    iOS: with no marker on a first launch, the app removes the old keys
+    and session) still has no guard. Give the guard's words, and the
+    website puts them in the spec.
 - **The session item records which service it is for**, so a preview
   session is never sent to production.
+  - **BDR's**: the website already does the same. A linked browser's
+    session is used only under its link, which names one service
+    (`src/lib/desk-sync-link.mjs`, `sync/connector.js`), and an unlinked
+    sign-in is kept with its `service` and used only there
+    (`src/scripts/desk/account/page.js`). Say whether “Where each client
+    keeps its keys” should ask it of every client, so Android is held to
+    it too.
 
 ### 2026-11-24, Turnstile before a new account, on the service (step 4h)
 

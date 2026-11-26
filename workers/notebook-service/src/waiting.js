@@ -217,7 +217,8 @@ export async function carryOutDelete(env, account, time) {
 
 /**
  * Carries out a request to replace that is due at `time`: the notebook's
- * records, keys, lists, and approvals go; the account and its ways in stay;
+ * records, keys, lists, and approvals go, and the account's counts of its
+ * rows (src/rows.js) with them; the account and its ways in stay;
  * every session is signed in and no more; and POST /notebook works again.
  * Returns true if it was done, false if the request was canceled first.
  *
@@ -242,6 +243,7 @@ export async function carryOutReplace(env, account, time) {
       db.prepare(
         `UPDATE accounts
             SET notebook = NULL, kid = 0, proof_hash = NULL, lists = lists + 1, replaced = ?,
+                row_count = 0, row_bytes = 0,
                 replaced_platform = (SELECT platform FROM waiting WHERE account = accounts.id),
                 replaced_through = (SELECT through FROM waiting WHERE account = accounts.id)
           WHERE id = ?`,

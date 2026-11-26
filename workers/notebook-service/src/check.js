@@ -29,6 +29,11 @@ export const LIMITS = Object.freeze({
   rowsPerRequest: 500,
   pageRows: 500,
   pageChars: 4 * 1024 * 1024, // ciphertext in one page of rows, as text
+  // The ceiling on one account (BVJ, 2026-11-26; Audit 9, SV9-1): the rows it
+  // holds, and their sealed bytes, each row's ciphertext tag included, as
+  // base64urlBytes() measures it. 100 MB is decimal: 100,000,000 bytes.
+  accountRows: 100_000,
+  accountBytes: 100_000_000,
   // Sign-in (step 4e). Each is a ceiling well above what a platform sends.
   ways: 20, // ways in to one account
   challengeBytes: 32,

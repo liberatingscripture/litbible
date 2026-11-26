@@ -35,9 +35,10 @@
 // "removed" (this device has no keyring on the service any more),
 // "otherNotebook" (the account's notebook is not the one this browser was
 // linked to: replaced, or gone), "cantOpen" (the keyring or its proof didn't
-// pass), "slowed" (the limiter), "offline", and "error". A pass never deletes
-// a key, a session, or a record because of any of them: the spec's rule is
-// that a device keeps its keys until the reader signs it out.
+// pass), "slowed" (the limiter), "full" (the account's ceiling), "offline",
+// and "error". A pass never deletes a key, a session, or a record because of
+// any of them: the spec's rule is that a device keeps its keys until the
+// reader signs it out.
 //
 // A STOP IS FINAL (Audit 9, SY9b-2). `stop()` is for a reader who stopped
 // syncing or signed out: from then on the engine makes no request, writes
@@ -45,6 +46,15 @@
 // already running ends at its next request or write, and `stop()` resolves
 // once it has, so whoever clears the sync's storage after it clears the last
 // of it.
+//
+// THE ACCOUNT'S CEILING (BVJ, 2026-11-26; Audit 9, SV9-1). The service
+// refuses, whole, a push that would take the account past 100,000 rows or
+// 100 MB (`too_large`, `what: "account"`). Sending the same rows again would
+// only be refused again, so for FULL_WAIT_MS after that refusal a pass still
+// pulls, and still sends removals (which never grow an account), but sends
+// no rows: it ends "full", with what waits counted. Every change stays in
+// the notebook here, as it is. The first pass after the wait tries the rows
+// once more, and so does a pass the reader asks for ("Reconnect").
 
 import { CLOCK_TOLERANCE_MS } from "./desk-records.mjs";
 import {
@@ -118,6 +128,14 @@ const MAX_ROUNDS = 8;
 const SCAN_ALL_OVER = 200;
 /** How long the account's answer is trusted before a pass asks again (a waiting request shows there). */
 const ACCOUNT_EVERY_MS = 15 * 60_000;
+/** After the account's ceiling refused a push, how long passes send no rows (the header). */
+export const FULL_WAIT_MS = 60 * 60_000;
+
+/** The ceiling a refusal named, as { rows, bytes }, or null when it named none the status can use. */
+const limitsOf = (limits) =>
+  limits && Number.isSafeInteger(limits.rows) && limits.rows > 0 && Number.isSafeInteger(limits.bytes) && limits.bytes > 0
+    ? { rows: limits.rows, bytes: limits.bytes }
+    : null;
 
 const rowSize = (row) => JSON.stringify(row).length + 1;
 
@@ -161,6 +179,8 @@ export function createSyncEngine({
   let failures = 0;
   /** Passes in a row that ended in `error` for the same reason (a success, or another reason, starts it over): `streak` in the status, with `since` the time of the first of them (the engine's `now`, in ms), which gives `failingFor`. */
   let streak = { reason: null, count: 0, since: 0 };
+  /** While the account's ceiling holds rows back: { until, limits } (the header). */
+  let full = null;
   let counts = { pending: 0, blocked: 0, stuck: 0 };
   let status = { state: "starting", pending: 0, problems: {}, lastSynced: null, clock: null, account: null };
 
@@ -246,6 +266,11 @@ export function createSyncEngine({
         throw new Halt("slowed", { retry });
       }
       if (word === "not_open" || word === "old_key") throw new Behind();
+      // The account's ceiling: nothing of this push was stored, and the same push would be refused again.
+      if (word === "too_large" && answered.what === "account") {
+        full = { until: nowMs() + FULL_WAIT_MS, limits: limitsOf(answered.limits) };
+        throw new Halt("full", { limits: full.limits, retry: FULL_WAIT_MS / 1000 });
+      }
       throw new Refused(word, answered, res?.status);
     }
   }
@@ -525,7 +550,9 @@ export function createSyncEngine({
       await save({ entries: plan.missing.map((id) => ({ ...base.get(id), held: "skip" })) });
     }
     if (!plan.put.length && !plan.remove.length) return false;
-    if (status.state !== "syncing") publish({ state: "syncing" });
+    // The account's ceiling refused rows a moment ago: send what frees room, and hold the rows (the header).
+    const holding = holdingRows();
+    if (status.state !== "syncing" && (!holding || plan.remove.length)) publish({ state: "syncing" });
 
     let batch = [];
     let size = 0;
@@ -536,7 +563,7 @@ export function createSyncEngine({
       size = 0;
       await settlePush(sent, await request("POST", "/rows", { put: sent.put.map((p) => p.row), remove: [] }));
     };
-    for (const { id, rev } of plan.put) {
+    for (const { id, rev } of holding ? [] : plan.put) {
       // Sealing a large notebook takes a while: a stop ends it here, before the next request.
       alive();
       const record = await notebook.get(id);
@@ -567,7 +594,18 @@ export function createSyncEngine({
       const remove = plan.remove.slice(i, i + MAX_ROWS);
       await settlePush({ put: [], remove }, await request("POST", "/rows", { put: [], remove }));
     }
+    if (holding && plan.put.length) stillFull();
+    // Rows were sent and none was refused for the ceiling: the account has room again.
+    if (plan.put.length) full = null;
     return true;
+  }
+
+  /** True while the account's ceiling holds rows back (the header). */
+  const holdingRows = () => full !== null && nowMs() < full.until;
+
+  /** Ends the pass as "full", with how long until rows are tried again. */
+  function stillFull() {
+    throw new Halt("full", { limits: full.limits, retry: Math.max(1, Math.ceil((full.until - nowMs()) / 1000)) });
   }
 
   /**
@@ -579,6 +617,8 @@ export function createSyncEngine({
   async function reseal() {
     // A notebook still on its first key has nothing older to seal again.
     if (keyring.current <= 1 || meta.resealed >= keyring.current) return;
+    // Resealing puts rows again, and the ceiling is holding rows back.
+    if (holdingRows()) stillFull();
     let since = 0;
     let left = 0;
     for (;;) {
@@ -748,10 +788,11 @@ export function createSyncEngine({
     /** The keyring in memory, once a pass has opened it: what the account pages seal and open with. */
     keyring: () => keyring,
 
-    /** After a new session token: the next pass opens the session from the start. */
+    /** After a new session token, or the reader's "Reconnect": the next pass opens the session from the start, and tries rows the ceiling held back. */
     resume() {
       open = false;
       failures = 0;
+      full = null;
     },
 
     /**

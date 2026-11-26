@@ -35,7 +35,7 @@ import {
   worthSaying,
 } from "../src/lib/desk-sync-status.mjs";
 
-const STATES = ["starting", "syncing", "upToDate", "offline", "signedOut", "slowed", "removed", "otherNotebook", "noKeys", "cantOpen", "error"];
+const STATES = ["starting", "syncing", "upToDate", "offline", "signedOut", "slowed", "full", "removed", "otherNotebook", "noKeys", "cantOpen", "error"];
 const status = (state, extra = {}) => ({ state, pending: 0, problems: {}, lastSynced: null, clock: null, account: null, ...extra });
 const format = { time: () => "3:42 PM", day: () => "December 1" };
 
@@ -53,6 +53,7 @@ function everySentence() {
         { clock: -12 * 60_000 },
         { lastSynced: "2026-11-24T12:00:00.000Z" },
         { retry: 90 },
+        { limits: { rows: 100_000, bytes: 100_000_000 }, retry: 3600 },
         { replaced: { when: "2026-11-20T00:00:00.000Z", platform: "ios", through: "apple" } },
         { account: { waiting: { what: "delete", mine: true, due: "2026-12-01T00:00:00.000Z" } } },
         { account: { waiting: { what: "replace", mine: false, due: "2026-12-01T00:00:00.000Z" } } },
@@ -96,6 +97,26 @@ test("what waits is counted, in the singular and the plural", () => {
   assert.match(statusWords(status("cantOpen")).detail[0], /^It will sync once/);
 });
 
+test("a full account says what it holds, that the changes wait in this browser, and when sync tries again", () => {
+  const limits = { rows: 100_000, bytes: 100_000_000 };
+  const words = statusWords(status("full", { pending: 3, limits, retry: 3600 }));
+  assert.equal(words.line, "Your account is full, so changes made here aren’t syncing. They are saved in this browser.");
+  assert.deepEqual(words.detail, [
+    "An account can hold up to 100,000 entries and 100 MB.",
+    "3 changes will wait here. Sync will try again in about an hour. Choose “Reconnect” to try now.",
+  ]);
+  assert.equal(words.action, "Reconnect");
+  assert.equal(words.ok, false);
+  assert.deepEqual(statusWords(status("full", { pending: 1, limits, retry: 600 })).detail, [
+    "An account can hold up to 100,000 entries and 100 MB.",
+    "1 change will wait here. Sync will try again in about 10 minutes. Choose “Reconnect” to try now.",
+  ]);
+  // A refusal that named no ceiling says none, and nothing waiting says so by leaving the count out.
+  assert.deepEqual(statusWords(status("full")).detail, ["Sync will try again in about an hour. Choose “Reconnect” to try now."]);
+  // A wait the timer settles, like the limiter's: never one of the stops that need the reader, and never a notice.
+  assert.equal(needsReader("full"), false);
+  assert.equal(shouldTell(undefined, "full", Date.now()), false);
+});
 test("in step says when, if it is told how to write a time", () => {
   const at = { lastSynced: "2026-11-24T12:00:00.000Z" };
   assert.deepEqual(statusWords(status("upToDate", at), format).detail, ["Last synced at 3:42 PM."]);
@@ -106,6 +127,9 @@ test("the limiter's wait is said in round words", () => {
   assert.match(statusWords(status("slowed", { retry: 30 })).line, /try again in about 1 minute\./);
   assert.match(statusWords(status("slowed", { retry: 600 })).line, /about 10 minutes\./);
   assert.equal(roughly(89 * 60_000), "about 89 minutes");
+  assert.equal(roughly(60 * 60_000), "about an hour");
+  assert.equal(roughly(54 * 60_000), "about 54 minutes");
+  assert.equal(roughly(66 * 60_000), "about 66 minutes");
   assert.equal(roughly(2 * 60 * 60_000), "about 2 hours");
   assert.equal(roughly(-3 * 24 * 60 * 60_000), "about 3 days");
 });

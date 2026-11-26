@@ -1,14 +1,19 @@
 // How often a client may ask (STUDY-DESK-ENCRYPTION.md, "The service's
 // interface": "How often a client may ask").
 //
-// Two limits, both counted by the address a request comes from, with
+// Three limits, each counted by the address a request comes from, with
 // Cloudflare's rate limiting binding for Workers (`ratelimits` in
-// wrangler.jsonc):
+// wrangler.jsonc). A request is counted under one of them, never two:
 //
 //   SIGN_IN_LIMIT   the requests that begin a sign-in. They take no session,
 //                   and each writes a challenge or checks an answer, so they
 //                   are what a client with nothing to lose can ask without
 //                   end. The preview's own way in is counted with them.
+//   PUSH_LIMIT      POST /rows (BVJ, 2026-11-26; Audit 9, SV9-1): the one
+//                   request that can write 4 MB and 500 rows, so the one that
+//                   spends D1's writes fastest. Tighter than the rest, and
+//                   counted apart, so an address that has pushed too much can
+//                   still pull and read its account.
 //   REQUEST_LIMIT   every other request, with a session or without.
 //
 // The numbers are in wrangler.jsonc, beside the bindings, and in the spec.
@@ -34,8 +39,9 @@
 // safety rests on it: a session's wrong proofs are counted exactly, in the
 // database (src/session.js), and so are an account's approvals in progress.
 //
-// A deployment with a binding missing answers "error" to everything, loudly,
-// instead of running unlimited without anyone knowing. If the limiter itself
+// A deployment with any one binding missing answers "error" to everything,
+// loudly, instead of running unlimited without anyone knowing: every request
+// checks all three are there, not only its own. If the limiter itself
 // fails, the request goes through: the limiter is a brake, and a brake that
 // sticks must not stop the service.
 
@@ -45,15 +51,25 @@ import { refuse } from "./http.js";
 export const RETRY_SECONDS = 60;
 
 const SIGN_IN = /^POST \/(sign-in\/|preview\/session$)/;
+const PUSH = "POST /rows";
 
 /** Which limit a route is counted under. `route` is the route's name, or undefined for no such path. */
-export const limitFor = (route) => (route && SIGN_IN.test(route) ? "SIGN_IN_LIMIT" : "REQUEST_LIMIT");
+export function limitFor(route) {
+  if (route && SIGN_IN.test(route)) return "SIGN_IN_LIMIT";
+  if (route === PUSH) return "PUSH_LIMIT";
+  return "REQUEST_LIMIT";
+}
+
+/** Every limiter a deployment must have. Each request checks all of them, so one that is missing fails every route. */
+export const LIMITERS = Object.freeze(["SIGN_IN_LIMIT", "PUSH_LIMIT", "REQUEST_LIMIT"]);
 
 /** Refuses with "slow_down" when the caller's address has asked too often. */
 export async function limit(env, request, route) {
+  for (const needed of LIMITERS) {
+    if (typeof env[needed]?.limit !== "function") throw new Error(`no ${needed} binding`);
+  }
   const name = limitFor(route);
   const limiter = env[name];
-  if (!limiter || typeof limiter.limit !== "function") throw new Error(`no ${name} binding`);
   // Cloudflare sets this header itself on every request and overwrites one a client sends.
   const key = request.headers.get("cf-connecting-ip") ?? "none";
   let outcome;
