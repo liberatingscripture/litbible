@@ -17,8 +17,13 @@ behind it. Decisions are added as they are made. **Nothing here is built yet.**
   taking them one question at a time, and each answer gets a section here.
 - **Site 2.0** (`SITE-2.0.md`) was built and merged behind `data-restyle` on
   2026-11-17 and has not launched. Featherboa replaces it. Where the two
-  disagree, this file wins; which of 2.0's decisions carry over is open
-  (below).
+  disagree, this file wins.
+- **Site 2.0's decisions don't carry over by themselves: each is decided
+  again** (BVJ, 2026-11-26, “Decide each again,” asked whether they carry
+  over unless changed). A 2.0 decision holds for Featherboa only once a
+  section here says so; until then, 2.0's choice for a page is one option
+  beside the proposals'. Its code stays on `main` behind `data-restyle` until
+  Featherboa decides what becomes of it.
 
 ## Type (decided 2026-11-26)
 
@@ -99,9 +104,9 @@ What each choice carries with it:
 
 ## Open
 
-- **Which of Site 2.0's decisions carry into Featherboa**: all of them unless
-  a section here changes one, or each page decided again.
-- **The rest of the two proposals.**
+- **The rest of the two proposals, and every page**, each decided again
+  (above), with 2.0's decision beside the proposals'.
+- **What becomes of Site 2.0's code** behind `data-restyle`.
 - **Fraunces's settings** (above).
 - **The Display tray's faces.** Its Default is Inter today; the other two
   choices are Atkinson Next and OpenDyslexic.

@@ -2,7 +2,8 @@
 
 > **Replaced by Featherboa** (BVJ, 2026-11-26): `SITE-FEATHERBOA.md` is the
 > site's next design. This file stays the record of what 2.0 decided and
-> built behind `data-restyle`; where the two disagree, Featherboa wins.
+> built behind `data-restyle`. Its decisions don't carry over by themselves:
+> each is decided again there, and holds only once that file says so.
 
 The rest of litbible.net redrawn in the Study Desk's grammar: the cream page,
 content on sheets, the Marks, quiet controls. BVJ decided every page from
