@@ -32,6 +32,13 @@ export const NOT_THE_SITES = new Set([
   "resource",
 ]);
 
+/**
+ * Said before the lists whenever there are any: anyone can post to the
+ * address, so no line is proof that a reader's browser met it.
+ */
+export const FORGED =
+  "ANY LINE CAN BE FORGED, since anyone can post to the address. Add an origin to the policy only once it has been seen on that page in a real browser, never on this page's word alone.";
+
 /** How many pages, files, or browsers a line names before it says "and N more". */
 const SHOWN = 5;
 
@@ -138,6 +145,8 @@ export function summarize(rows, days, { from, to, cap, perPost, dayCap = cap }) 
     out.push(`REACHED THE DAY'S CAP of ${dayCap.toLocaleString("en-US")} on ${fullDays.join(", ")} (before the cap was hourly): that day's counts are a floor, not a total.`);
   }
   if (!fullHours.length && !fullDays.length) out.push(`No hour reached the cap of ${cap.toLocaleString("en-US")}.`);
+  // Study Desk Audit 9, SEC9-5: the Worker can't tell a browser's report from a made-up one.
+  out.push(FORGED);
 
   const groups = tally(rows);
   const own = groups.filter((group) => !group.extension);

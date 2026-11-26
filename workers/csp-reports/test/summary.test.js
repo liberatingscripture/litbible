@@ -1,7 +1,7 @@
 // The page a week of counts is read as (src/summary.js): grouped by rule and
 // by what was blocked, extensions apart from the site's own.
 import { describe, expect, it } from "vitest";
-import { NOT_THE_SITES, daysBetween, summarize, tally } from "../src/summary.js";
+import { FORGED, NOT_THE_SITES, daysBetween, summarize, tally } from "../src/summary.js";
 
 const row = (fields = {}) => ({ day: "2026-11-25", disposition: "report", directive: "connect-src", blocked: "https://api.stripe.com", page: "/support/", source: "https://secure.givelively.org", browser: "chromium", n: 1, ...fields });
 const week = { from: "2026-11-25", to: "2026-12-01", cap: 5000, perPost: 20 };
@@ -69,6 +69,16 @@ describe("the page", () => {
       "60 reports counted, on 3 of the 7 days.",
       "No hour reached the cap of 5,000.",
     ]);
+  });
+
+  it("says any line can be forged, right after the caps and before the list to work through (SEC9-5)", () => {
+    expect(text.split("\n")[4]).toBe(FORGED);
+    expect(FORGED).toContain("ANY LINE CAN BE FORGED");
+    expect(FORGED).toContain("seen on that page in a real browser");
+    const capped = page(rows, week, [{ day: "2026-11-25T03", n: 4990 }]);
+    expect(capped.indexOf(FORGED)).toBeGreaterThan(capped.indexOf("REACHED THE HOUR'S CAP"));
+    expect(capped.indexOf(FORGED)).toBeLessThan(capped.indexOf("1. WOULD BE BLOCKED"));
+    expect(page([], week, [])).not.toContain(FORGED);
   });
 
   it("has the site's own gaps first, then what is already blocked, then extensions", () => {
