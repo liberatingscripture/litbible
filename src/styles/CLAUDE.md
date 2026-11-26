@@ -114,7 +114,11 @@
   switch, which Chapter View alone shows; with the desk preview on, the tray's
   Show group also gains the desk's own switches, "My highlights" among them,
   injected by `desk/note-settings.js` and sharing the Notebook panel's stored
-  setting). There is **one
+  setting). (Featherboa keeps text, size as four steps, line spacing with
+  Justify under it, theme, and a "View" group whose desk switches merge into
+  one "Your marks," and moves the rest, the Keyboard switch and "Reset
+  widths" among them, out of the tray: `SITE-FEATHERBOA.md`, "Display";
+  until it is built, this holds.) There is **one
   panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Six rules:

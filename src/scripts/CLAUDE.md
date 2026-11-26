@@ -618,7 +618,9 @@ License page of their own, forwarding /read's old anchors:
   stays out of this file.
   They are on by default, with a Keyboard switch in the Display tray
   (`localStorage['lit-shortcuts'] = 'off'`; no attribute on `<html>`, since
-  nothing renders differently). **The switch is required, not a nicety**:
+  nothing renders differently; Featherboa moves it to an All settings page
+  every reader can reach from the tray, `SITE-FEATHERBOA.md`, "Display,"
+  and until it is built it stays in the tray). **The switch is required, not a nicety**:
   single-key shortcuts fire when a speech-recognition user dictates a word
   (WCAG 2.1.4). They stand down while the reader is typing or working a control
   that owns those keys (a radio group, a menu, a grid, a dialog, the picker's

@@ -320,7 +320,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `desk-margin.mjs`): kept in `sessionStorage` for the visit, stamped
      before first paint as `data-desk-widths` with `--desk-measure` and
      `--desk-width`, and global.css sets the column's measure and right
-     margin from them.
+     margin from them. Featherboa keeps this dragging, starting from its
+     220, 660, and 320 columns, holds the text column to 45 to 75
+     characters a line, and drops the tray's "Reset widths" for each line's
+     own reset (`SITE-FEATHERBOA.md`, "Display"); until it is built, this
+     holds.
      **Every line a reader can drag works one way, through `wireLine`**
      (`desk/line-menu.js`; XA8-1, WCAG 2.5.7; E189, BVJ 2026-11-19): the two
      margin lines, the floating notebook's edge, the Greek tab's line and

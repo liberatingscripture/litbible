@@ -242,6 +242,14 @@ typographers and Bible publishers agree on; in Source Sans 3 it is measured
 again, through `--ch` ("Type"). Larger text sizes shorten the count, which
 is what a reader who chose them wants.
 
+**These widths are where every page starts, not a limit** (BVJ, “Keep
+dragging,” with proposal 13). With the Study Desk on, the reader still drags
+the lines between the text, their notes' margin, and the Notebook (BVJ,
+2026-10-14; E189), and the text column drags only within 45 to 75
+characters a line, the range above. Taking this proposal had quietly fixed
+them, which neither the proposal nor Claude said at the time ("Display,"
+below).
+
 | Screen | Text | Notes and footnotes | Navigation |
 |--------|------|---------------------|------------|
 | Phone, under 700 | Full width, 24 at each side | A sheet from the bottom | One row on top, a bar at the thumb |
@@ -678,7 +686,8 @@ stands until then.
 BVJ's addition: “a justified margins toggle, like we did for the Reading
 layout in /desk.” Taken with “Take 1-6”:
 
-- **One switch, "Justify," in the Display tray**, placed with proposal 13.
+- **One switch, "Justify," in the Display tray**, directly under Line
+  spacing ("Display," below).
 - **It brings hyphenation with it**, as /desk's rule does (E106): justified
   text without hyphenation opens wide gaps between words at a 70-character
   line.
@@ -717,7 +726,7 @@ pane does the same. Claude recommended retiring it:
   would have to know which a switch changes.
 - **Featherboa's plain page is quieter than the one Reading was built
   for**: small deep-green numbers and footnotes only on a press (above),
-  and proposal 13's one "My marks" switch, still on the H key.
+  and proposal 13's one "Your marks" switch, still on the H key.
 
 So the Layout window loses its "Reading" row; E106's justification of
 Reading alone becomes the Justify switch everywhere; and the links that
@@ -805,7 +814,7 @@ menu's layout, and E112's order of the Notebook's rows.
 
   | In Settings today | Where it goes |
   |---|---|
-  | Show (the switches) | Display, where proposal 13 merges them into "My marks," still on the H key |
+  | Show (the switches) | Display, where proposal 13 merges them into "Your marks," still on the H key |
   | Where the notebook is kept | The panel's foot line, "Kept in this browser only. Back up…" |
   | My sheets, My collections | The header's Study menu and the footer's Study group, as today |
   | Print… (with notes, or with room to write) | The panel's title menu |
@@ -897,6 +906,71 @@ chapter. The phone's picker is drawn with proposal 15.
   passage picker feels... well, buried.” What search finds and how its
   results look is proposal 16's.
 
+## Display (decided 2026-11-26)
+
+Design Directions' proposal 13, "Display: the settings a reader changes, and
+a door to the rest." The "Aa" tray is one of the best things on the site,
+but with the Study Desk on it has become the place everything goes: 24
+controls, "Reset widths" and a lettering choice for notes among them. The
+proposal keeps the tray for what changes how the page reads and moves the
+rest to a settings page. BVJ took it (“1, yes ... 4, yes”), then settled the
+widths (“Keep dragging”).
+
+### The tray
+
+- **Text: Default, Atkinson, OpenDyslexic**, each set in its own face as
+  today. The default keeps the name "Default" (“1, yes”): the proposal's
+  "Book" named a book face, and the reading face is Source Sans 3.
+- **Size: four steps, drawn as a small A, four dots, and a large A** in
+  place of S, M, L, and XL, which are letters to decode. To a screen reader
+  they are four labeled choices (Small, Medium, Large, Extra large).
+- **Line spacing: Normal or Roomy**, then **Justify** directly under it,
+  since it is about how the lines sit (“3, yes”; the switch is "The reading
+  page"'s, off by default).
+- **Theme: Auto, Light, Dark** ("Night").
+- **View: Verse numbers, Footnote letters, Key terms, and Your marks.** The
+  heading is "View," not "Show," by "Controls"' renames. **"Your marks"**
+  merges today's My bookmarks, My highlights, Notes in the margin, and Hide
+  my marks into one switch, and H still flips it ("Hide your marks (H)").
+  It is "Your," not the proposal's "My" (“2, yes”): it sits beside the
+  translation's own marks, so it needs a word for whose, and "Your" is what
+  the margin's notes say ("Your note · verse 5"). The finer choices (only
+  highlights, say) are in All settings.
+- **"All settings →"** at the tray's foot.
+- **"Show the Notebook" is the Notebook button itself**, on the place line,
+  and **the notes' lettering is gone** with Playpen Sans ("The reading
+  page").
+
+No reader loses a setting.
+
+### All settings
+
+**One page every reader can reach from the tray, showing the Study Desk's
+parts only where it is on** (“4, yes”). The proposal put it "in Study," but
+it holds the keyboard-shortcuts switch, and shortcuts work for every reader,
+desk or not; that switch is required (WCAG 2.1.4, for speech-recognition
+users). Its other parts are the finer mark choices, backup, and a link to
+the account pages, which it doesn't replace (proposal 25).
+
+### Widths: dragging stays, and "Reset widths" goes
+
+BVJ: “'reset widths' needs to be available on the page that's being reset.
+In this artifact, is it undoing the ability to change column widths by
+dragging, etc.? If so, we should talk more.” It was: "Sizes, space, and the
+measure" fixed the three columns, while this proposal still moved "Reset
+widths" to All settings. Decided (“Keep dragging”):
+
+- **The reader still drags the reading page's lines** (the text column,
+  their notes' margin, the Notebook's edge), each with its menu of steps and
+  its own reset (BVJ, 2026-10-14; E189). The 220, 660, and 320 are where
+  every page starts.
+- **The text column drags only within 45 to 75 characters a line**, the
+  range proposal 4 cites, so lines can be shorter or a little longer but
+  never too long to read well.
+- **"Reset widths" leaves the tray and goes nowhere.** Each line's own menu
+  is the local reset BVJ asked for, and the widths are kept only for the
+  visit anyway.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -906,8 +980,6 @@ chapter. The phone's picker is drawn with proposal 15.
   page ("Finding a passage"), with /read's lede that names the unfinished
   texts.
 - **Fraunces's settings** (above).
-- **The Display tray's faces.** Its Default is Inter today; the other two
-  choices are Atkinson Next and OpenDyslexic.
 - **What else names Inter**: the verse image's wordmark and address (the
   margin notes' Plain face goes with Playpen Sans, "The reading page").
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
