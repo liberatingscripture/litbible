@@ -580,7 +580,12 @@ taken, and why.
 `.github/workflows/notebook-service-deploy.yml`.
 - *What it does when on*: a merge to `main` that touches this package runs
   the tests, applies migrations, deploys the preview, and runs the
-  walkthrough against it. From the Actions tab, "Notebook service" (named
+  walkthrough against it. The tests run in a job of their own with no
+  secret; the job that holds the Cloudflare token starts on a fresh machine,
+  installs with `npm ci --ignore-scripts`, and runs only wrangler and this
+  repository's scripts, so no dependency's install script runs beside the
+  token (BVJ, 2026-11-26; Audit 9, SEC9-2). Its actions are pinned by
+  commit. From the Actions tab, "Notebook service" (named
   "Notebook service (preview)" until step 4f), "Run workflow" on `main` with
   environment `preview` and action `rollback` returns the Worker to the
   version before the current one, or to a version ID given. Anyone with write
@@ -627,8 +632,12 @@ taken, and why.
   known.
 
 **Chosen: B** (BVJ, 2026-11-23), for the preview now. Production has its own
-two jobs and its own environment in the same workflow, prepared in step 4f
-and off ("Production" below). It gives BDR exactly the one power the role
+two jobs and its own two environments in the same workflow, prepared in step
+4f and off ("Production" below): the deploy's, with BVJ as a required
+reviewer, and the rollback's, `notebook-production-rollback`, with none, so
+BDR can roll production back alone (BVJ, 2026-11-26; Audit 9, SV9-2). A
+deploy and a rollback wait in separate queues, so a merge can't cancel a
+rollback that is waiting (SV9-3). It gives BDR exactly the one power the role
 calls for, and it leaves BVJ's account with one more narrow token instead of
 one more administrator.
 
@@ -955,6 +964,10 @@ something on Cloudflare or GitHub.
      it to `main`, **add yourself as a required reviewer** (so every
      production deploy waits for your click), and add the environment
      secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`;
+   - make a second environment, `notebook-production-rollback`, limited to
+     `main` with **no** required reviewer, holding the same two secrets.
+     The rollback job reads its token from there, so BDR can roll
+     production back when you can't be reached (BVJ, 2026-11-26);
    - add the repository variables `NOTEBOOK_PRODUCTION_DEPLOYS` = `on` and
      `NOTEBOOK_PRODUCTION_URL` = `https://notebook.litbible.net`;
    - Actions, "Notebook service," "Run workflow" on `main`, environment

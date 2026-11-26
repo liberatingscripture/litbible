@@ -51,11 +51,27 @@ secrets, so that a workflow pushed on another branch can't read the
 Cloudflare token. **Since step 4f (2026-11-24) the same file holds two
 production jobs, off and never run**: they run only from "Run workflow" with
 environment `production`, never on a push, only while
-`NOTEBOOK_PRODUCTION_DEPLOYS` is `on` (it is not set), and from an
-environment of their own, `notebook-production`, which BVJ has not made.
-The service's `test/config.test.js` fails if either gains a `push`
-condition. It deploys with the wrangler in the package's own lockfile,
-not with an action that brings its own. The other workflows (`ci.yml`,
+`NOTEBOOK_PRODUCTION_DEPLOYS` is `on` (it is not set), and from
+environments of their own, which BVJ has not made: `notebook-production`
+for the deploy, with BVJ as a required reviewer, and
+`notebook-production-rollback` for the rollback, with none, so BDR can roll
+back alone (BVJ, 2026-11-26; Study Desk Audit 9, SV9-2). **Tests and the
+Cloudflare token never share a job** (SEC9-2): the `test` job has no
+secret, and every job holding the token starts fresh, installs with
+`npm ci --ignore-scripts`, and runs only wrangler and the repository's own
+scripts. **A deploy and a rollback queue apart** (job-level `concurrency`,
+one group for each), so a merge can't cancel a waiting rollback (SV9-3).
+The service's `test/config.test.js` holds all three, and fails if either
+production job gains a `push` condition. It deploys with the wrangler in
+the package's own lockfile, not with an action that brings its own.
+**Every action is pinned by its commit**, with the version in a comment
+(`actions/checkout@<sha> # v7.0.1`); Dependabot's `github-actions` stream
+moves both (BVJ, 2026-11-26). **A workflow's own GitHub token reads only**:
+`ci.yml`, `apps-mirror-notify.yml`, and the deploy workflow say
+`permissions: contents: read`, and their checkouts keep no token on disk
+(`persist-credentials: false`); `release-notes.yml` asks for write itself
+and pushes with its own token (SEC9-6). A new workflow does the same. The
+other workflows (`ci.yml`,
 `release-notes.yml`, `apps-mirror-notify.yml`) never touch Cloudflare: the
 site deploys through the Pages project's own git connection. **The forms'
 Worker and the policy's report Worker have no workflow**: each deploys by
