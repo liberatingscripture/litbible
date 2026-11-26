@@ -20,8 +20,12 @@ is time to read this page. Don't hurry a fix into production.
 curl -s https://notebook-preview.litbible.net/     # or production's address
 ```
 
-- **`{"time":…,"service":"lit-notebook",…}`**: the Worker is up. Go to its
-  logs (dashboard: Workers & Pages, the Worker, Logs).
+- **`{"time":…,"service":"lit-notebook",…}`**: the Worker is up. Watch its
+  log live: `npx wrangler tail --env preview` (or `--env production`) from
+  this directory, or the dashboard's real-time log (Workers & Pages, the
+  Worker, Logs). **Nothing is stored** (BVJ, 2026-11-26), so a failure that
+  is over can't be read back: watch while it happens again, or while a
+  reader tries.
 - **No answer, or Cloudflare's own error page**: the Worker or its address
   is down. Check https://www.cloudflarestatus.com first. If Cloudflare is
   well, roll back (2).
@@ -104,8 +108,8 @@ Once an hour, at seventeen past, the service logs one line:
 {"job":"scheduled","deleted":0,"replaced":0,"canceled":0,"held":0,"failed":0,"more":false,"swept":{…}}
 ```
 
-- **No such line for two hours**: the cron trigger is gone. Dashboard:
-  the Worker, Settings, Trigger Events. Redeploy (the trigger is in
+- **No such line at seventeen past, watched live**: the cron trigger may
+  be gone. Dashboard: the Worker, Settings, Trigger Events. Redeploy (the trigger is in
   `wrangler.jsonc`). Nothing is lost meanwhile: requests that are due wait.
 - **`held` above 0, hour after hour**: an account that should be deleted is
   being kept because Apple won't take the revoke (5). A reader asked to be

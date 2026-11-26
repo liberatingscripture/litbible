@@ -23,7 +23,10 @@
   names the notebook service's two origins in `connect-src`, and a linked
   browser holds a session and device keys in IndexedDB. **Enforcing the
   full policy before sign-in ships is the plan's step 4i** (`STUDY-DESK.md`,
-  "Order of work," 4): review a week of reports first.
+  "Order of work," 4): review a week of reports first. **The enforced
+  `script-src` has no `'unsafe-inline'`** (BVJ, 2026-11-26; Study Desk
+  Audit 9, SEC9-4): each inline script is allowed by its hash, at least on
+  the account and Study Desk pages.
   **Both policies report to `https://litbible.net/csp-report`** (step 4i,
   2026-11-24), a Worker of our own that keeps counts and nothing about the
   reader (`workers/CLAUDE.md`, "The policy's report Worker"). Three more

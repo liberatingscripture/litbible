@@ -127,8 +127,11 @@ work," "Production," and what each later step plugs in and where), and
   and each guard there was checked by weakening it and watching a test fail.
 - **Nothing personal is stored or logged, and no body, key proof, or session
   token reaches a log.** One line a request, with the route's own pattern and
-  never the address asked for; Cloudflare's per-request log is off in
-  `wrangler.jsonc`. `test/http.test.js` holds the service to it.
+  never the address asked for; `test/http.test.js` holds the service to it.
+  **Workers Logs stays off** (`observability.enabled: false`; BVJ,
+  2026-11-26, Audit 9's decision 4), as for the CSP Worker: a stored event
+  carries the request's full URL, and four routes put an id in it. `/privacy`
+  says the lines aren't stored; `npx wrangler tail` shows them live.
 - **The preview's way in (`src/preview.js`) must stay unreachable in
   production**: routed only when the environment's own config says
   `PREVIEW_SIGN_IN` is `on`, names itself exactly `preview` (an allow-list),

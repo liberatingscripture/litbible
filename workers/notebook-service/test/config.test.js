@@ -42,8 +42,11 @@ describe("the top level", () => {
     expect(Object.keys(config.env).sort()).toEqual(["preview", "production"]);
   });
 
-  it("keeps Cloudflare's own per-request log off, which would record each address asked for", () => {
-    expect(config.observability.logs.invocation_logs).toBe(false);
+  it("stores no log: a stored event carries the address asked for, ids and all (Audit 9, decision 4)", () => {
+    expect(config.observability).toEqual({ enabled: false });
+    for (const [name, env] of Object.entries(config.env)) {
+      expect(env.observability, name).toBeUndefined();
+    }
   });
 
   it("is named by every npm script that reaches Cloudflare or a database", () => {

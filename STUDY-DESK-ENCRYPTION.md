@@ -764,7 +764,9 @@ not rely on.**
 recovery code, a passkey’s secret, a device’s private key, a password, an email address, reading
 history, display settings, or analytics. **Nor the address a request came from**: it is counted by
 Cloudflare’s limiter for a minute (under “How often a client may ask”), and stored and logged by
-the service nowhere. **Nor anything of a deleted account**, not even that there was one.
+the service nowhere. **Nor anything of a deleted account**, not even that there was one, except in
+the database’s backup history, for up to 30 days, where the notebook stays locked (under “Deleting
+the account”).
 
 ## A record on the service
 
@@ -1252,7 +1254,8 @@ signed-in device:
   Its own notebook stays, unless the reader also chooses to erase it there.
 - **Every other device** finds out when it next reaches the service, removes its keys and session,
   keeps its own notebook, and says so. What it is told is `sign_in`, the same word a session that
-  ran out gets: the service keeps nothing of a deleted account, not even that there was one. A
+  ran out gets: the service keeps nothing of a deleted account, not even that there was one, except
+  in the database’s backup history, for up to 30 days, where the notebook stays locked. A
   device that saw a request to delete waiting knows why; one that didn’t learns it when its reader
   signs in again and finds an empty account (“Still open,” 71).
 - **The reader’s passkey stays where they keep it**, since LIT can’t delete it. The device says so,
@@ -3024,8 +3027,9 @@ numbers go on from 58:
     congregation on one network, asked to sign in together, passes it. (c) Counting by address
     bounds what one address costs, not what a flood from many does. Each start of a sign-in writes
     a challenge that is deleted five minutes on, which D1 counts as at least four rows written. On
-    Workers Free a database gets 100,000 rows written a day and then refuses every query until
-    midnight UTC, so one address asking at the limit would stop all sync on such a database within
+    Workers Free the account (every database on it together) gets 100,000 rows written a day and
+    then refuses every query until midnight UTC, so one address asking at the limit would stop all
+    sync, and the policy report Worker's counts, on such an account within
     about seven hours. On Workers Paid the first 50 million a month are included, and one address
     at the limit all month is about 10 million. **My recommendation**: keep counting by address;
     put production on Workers Paid before any reader’s notebook is there (the service’s README

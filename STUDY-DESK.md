@@ -6028,6 +6028,14 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      Until then the policy named no address and nothing received a
      report, so there was no week to review. Enforcing is still to do,
      after the week and 4h's pages.
+     - **Without `'unsafe-inline'` in `script-src`** (BVJ, 2026-11-26;
+       Study Desk Audit 9, SEC9-4). With it, an injected inline script
+       would run and could use the session and device keys the policy is
+       there to protect. Each inline script (16 files carry them, four in
+       `Layout.astro` before paint) is allowed by its hash instead, at
+       least on `/account/`, `/account/connect/`, `/delete-account/`, and
+       the Study Desk's pages. Check the pinned Astro's support for
+       emitting hashes before writing them by hand.
      - **BVJ chose, 2026-11-24: "A: new Worker, counts."** Reports go to
        LIT's own Cloudflare, to a small Worker of their own
        (`workers/csp-reports/`, at `https://litbible.net/csp-report`) that
@@ -6200,12 +6208,29 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      paragraph limiting liability; governing law and the courts; whether
      the sign-in page's sentence is enough assent; whether a passkey's
      credential id is "personal data" under Oregon's act; and the state
-     app-store laws (the apps').
+     app-store laws (the apps'). **Study Desk Audit 9 added ten** (its
+     Appendix H, "what a lawyer should look at"; BVJ, 2026-11-26: keep them
+     here in one list): who licenses and who contracts (the license on
+     `/read` is in BVJ's name, the Terms' party is the Collective); whether
+     the liability limit reaches BDR and contractors, with no carve-out,
+     indemnity, severability, or assignment clause; assent by use, and the
+     apps' sign-in, which shows no Terms line; notice of a change by a line
+     on the page and in the apps alone; suspending or closing an account
+     with no notice or appeal, and the 90 days' carve-out for "a law";
+     whether sealed notes the service can't read are sensitive data
+     (religious belief) under Oregon, Colorado, and similar acts; the
+     embedded players and Do Not Track; the worldwide "ask what we hold,"
+     with no response time, no way to identify an account from a message,
+     and no lawful basis, transfer note (US hosting), or complaint route
+     for the EU (LP9-9); a parent's right to delete a child's account that
+     can't be found; and Apple's standard license agreement and Play's
+     Families rules.
 
-     **Not verified**: the service's log lines kept "up to seven days" is
-     Cloudflare's Workers Logs retention on the paid plan as Claude knows
-     it, not read from the dashboard; and the pages were checked in a
-     build, not by BVJ in a browser.
+     **Not verified, then checked** (2026-11-26): the account is on Workers
+     Free, so Workers Logs kept 3 days, and one stored event BVJ read held
+     the request's full URL beside the service's own line, so stored logs
+     were turned off (Audit 9's decision 4, under "Decisions"). The pages
+     were checked in a build, not by BVJ in a browser.
    - **4k. Notes from the Greek** (1). A note started from the Greek tab
      or pane is an ordinary note on its verse, with the selected Greek in
      its body. No change to the format. After 4d.
@@ -6268,6 +6293,56 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      4i comes before sign-in; three clients must agree byte for byte,
      which is what the vectors are for; and the desk's opening shares the
      date.
+
+   **Before accounts open** (BVJ, 2026-11-26, Audit 9's DOC9-3, “as
+   recommended”). Everything that must be true before anyone but BVJ and
+   BDR can make an account, in one place: what, whose, where it is
+   tracked, and where it stands. Rule 11 in
+   `src/scripts/desk/account/CLAUDE.md` (the change that opens them) and
+   the service's README, “Production,” point here. Mark a line done here,
+   with its date, when it is; a new gate gets a line.
+   - **The full content security policy, enforced** (BVJ's side; 4i).
+     Each inline script allowed by its hash, never `'unsafe-inline'`, at
+     least on the account and Study Desk pages (SEC9-4), and the Turnstile
+     widget seen working on the sign-in page under it. Waits on the week
+     of reports, 2026-11-25 to 2026-12-01.
+   - **The notebook service in production** (BVJ; the service's README,
+     “Production”). Its database, with the id committed; the Workers plan,
+     Free (decided: Audit 9's decisions 1 and 2); and two GitHub
+     environments, `notebook-production` with BVJ as its reviewer and
+     `notebook-production-rollback` with none (SV9-2). Prepared, not
+     deployed.
+   - **Turnstile in production** (BVJ; the same section). The site key in
+     `wrangler.jsonc` and its secret, as the preview has had since
+     2026-11-25 (LP9b-5). Not set.
+   - **The emergency stop, tried once on the preview** (BVJ, telling BDR
+     first; the runbook's “Switch the service off,” decision 8). Not yet
+     tried.
+   - **The apps prove they are the apps** (BDR; the spec's “Still open,”
+     86): App Attest on iOS and Play Integrity on Android, which BVJ
+     requires before accounts open in the apps (decision 2). Not built.
+   - **Both stores' privacy forms** (BDR; decision 9, and
+     `STUDY-DESK-FOR-THE-APPS.md`): the plain fields declared as
+     collected, and the notebook as end-to-end encrypted. Not filed.
+   - **The apps' What's New note on the new policy** (BDR; ask 21, and
+     decision 11). Not yet.
+   - **A line for each of iOS's 22 points and three key-storage points**
+     (BVJ's side, BDR on key storage; decision 10, DOC9-1), before the
+     format freezes on December 24.
+   - **Apple and Google** (BDR's identifiers, then the settings; the
+     spec's “Still open,” 90), or a decision to open with passkeys alone.
+     Built and off.
+   - **Audit 9's gates** (`STUDY-DESK-AUDIT-9.md`, “Findings by area,” the
+     rows marked “gate”), each fixed or with its line above: SEC9-4 is the
+     policy's, and LP9b-5 is Turnstile's.
+   - **The private beta, on real devices, with nothing left from it that
+     stops the opening** (all three; 4l). Not started.
+   - **The opening change itself, last** (Claude, on BVJ's word; rule 11):
+     the switch and its key, the words 4j wrote for “not open yet” and
+     both pages' effective dates, `/delete-account/`'s box, the header,
+     whether `/account/` stays noindex and whether `/delete-account/`
+     rejoins the sitemap (DOC9-6), and the production service's origin in
+     `SERVICES`.
 
    **As it stood before 2026-11-23**: Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
@@ -8629,6 +8704,209 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   values, so themes, print and contrast decide how they look, and a
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
+
+### 2026-11-26 (Study Desk Audit 9: BVJ's decisions)
+
+Study Desk Audit 9 (`STUDY-DESK-AUDIT-9.md`, PR #715) ended with 15
+numbered decisions for BVJ and BDR, Tier 2 rows naming BVJ, and owner
+questions in its appendices. BVJ answered them in one session, a few at a
+time, from Claude's plain-text recommendations. Each line here is BVJ's
+answer; the audit's "Findings by area" carries each finding's state.
+
+- **Decision 1, the Workers plan: Free** (“We're on the free plan.”).
+  Recorded in `DISASTER-RECOVERY.md` with what Free means: the D1 writes,
+  queries, Time Travel (7 days), and Workers Logs (3 days) are the
+  account's, so a flood of the preview can also stop the policy report
+  Worker's counts for a day.
+- **Decision 2, SV9-1 (with SEC9-3): what one account may store** (“15.1,
+  yes / 15.2, yes / 15.3 yes / 15.4 no”). An account holds at most 100,000
+  rows and 100 MB of sealed rows, and a push that would pass either is
+  refused whole, as a named error the apps must handle; uploads
+  (`POST /rows`) get a limit of their own, 120 a minute from one address,
+  beside the 1,200 every request shares; and the hourly run deletes an
+  account that never set up a notebook, has no live session, and was made
+  more than 30 days ago, which `/privacy` says. An account emptied by a
+  replacement and not set up again is swept the same way, its 30 days
+  counted from the replacement (“Agree to the recommendations”: it holds
+  only its ways in, as a never-used one does). BVJ approved the words: the
+  `/privacy` line (“an account with no notebook in it, because one was
+  never set up or was replaced and not set up again: deleted by itself
+  once 30 days have passed since it was made or replaced and no one is
+  signed in to it”), and the status line's for a full account (“Your
+  account is full, so changes made here aren’t syncing. They are saved in
+  this browser.”, with the limits, what waits, and “about an hour”). For
+  BDR to confirm (the spec's “Still open,” 92). **Workers Paid before production is declined
+  for now**: “We won't need paid for quite some time. We have about 500
+  total app users and 25 daily site visitors. Insist BDR build the apps
+  side requiring the apps to prove they're real.” So the service stays on
+  Free, where a sender with many addresses can still use up a day's
+  writes, and the protection BVJ chose for that is the apps proving they
+  are the apps (App Attest on iOS, Play Integrity on Android), which BVJ
+  requires of BDR before accounts open (the spec's “Still open,” 86).
+- **Decision 3, LP9b-1, the tracking sentence: the words now, the players
+  later** (“go with your recommendations”). `/privacy` says “we don’t track
+  you across sites” and names, under External links, the podcast page's
+  YouTube, Spotify, and Apple Podcasts players and the Support page's Give
+  Lively form, which may set cookies under their own policies; Do Not Track
+  points to them. Whether YouTube moves to its no-cookie address, or each
+  player loads on a press, is left for later.
+- **Decision 4, LP9b-4, the service's stored logs: off** (“All as
+  recommended”). BVJ read one stored Workers Logs event from the preview on
+  2026-11-26: beside the service's own line it held the Worker's name and
+  version, Cloudflare's request, ray, trace, and span ids, and the request's
+  method, full URL, and path, with no IP address and no header. Four routes
+  put an id in the URL, so `observability.enabled` is now false, as the CSP
+  Worker has it; live tailing still works. `/privacy` says the lines aren't
+  stored, and drops “up to seven days.” Only BVJ and BDR can read the
+  dashboard (BVJ), which made it a question of the words, not a leak.
+- **LP9b-2, -3, -5, -8, and LP9b-10: four account sentences made exact**
+  (“go with your recommendations”): Apple's token is readable to the
+  service and opens nothing in the notebook; a device waiting to be
+  approved shows its kind and model, plain, for up to ten minutes (on the
+  website its browser and system), and a passkey's syncs flag and use count
+  are listed; Turnstile guards “Create an account” on the website; the next
+  device to open the notebook replaces a 30-day trash copy with its
+  tombstone; and the backup history holds a deleted account whose notebook
+  stays locked.
+- **Decision 5, SEC9-1: an approval link on a browser that holds the
+  notebook** (“All as recommended”). Such a browser never acts on a link's
+  code: it takes the code out of the address as before, drops it, and opens
+  “Add a device” empty, asking for the code the new device shows. The
+  question says when the request was made and how its session signed in
+  (“Asked 2 minutes ago, signed in with a passkey.”, from two new members
+  of `GET /approvals/<id>`, `created` and `through`), and says to approve
+  only a device in hand, in one wording where the new device shows the code
+  and another where it typed this browser's. For BDR to confirm for the
+  apps (the spec's “Still open,” 91).
+- **Decision 6, COH9-1: signing out after removal or replacement** (the
+  same). The client chooses: a session attached to no device sends
+  `DELETE /session`, and a refusal of `DELETE /devices/<id>` as
+  `own_device` falls back to it. The service is unchanged. For BDR to
+  confirm.
+- **Decision 7, SEC9-2: the deploy job and its token** (“Agree to the
+  recommendations”). Each deploy workflow tests in a job with no secrets,
+  and deploys from a fresh machine that installs without running any
+  package's install script (`npm ci --ignore-scripts`) and runs only
+  `wrangler`; the actions are pinned by commit, which Dependabot keeps
+  moving. **No separate Cloudflare account for the preview**: a Worker's
+  custom domain has to be on a domain in its own account, and the
+  preview's address is on litbible.net, so a second account would mean a
+  new address and a change in the apps. The preview's token still reaches
+  production's database once there is one; that is the cost accepted.
+- **Decision 8, SV9-4 and SV9-5: the emergency stop** (“17, yes”). The
+  service is stopped by removing its custom domain in the dashboard, and
+  started again by adding it back: no code, about a minute, and every
+  notebook stays on its devices, which show “offline.” The runbook says
+  how, with the query that finds the largest accounts and how to delete
+  one in pieces. BVJ tries the stop once on the preview, telling BDR first
+  in case the apps are testing against it. The ceiling (decision 2) keeps
+  any account's delete inside D1's 30 seconds; the runbook's manual route
+  stays as the backup.
+- **Decision 9, LP9-6 and LP9b-3: the stores' privacy forms are BDR's**
+  (“27 to 32 as recommended”). Both stores' forms declare the service's
+  plain fields as collected (the account and its ways in, device ids,
+  times, and a waiting device's model and platform), linked to the
+  account and never used for tracking, and the notebook as end-to-end
+  encrypted, answered from `/privacy`'s “What the service keeps, and can
+  read,” before accounts open in either app. Asked of BDR in
+  `STUDY-DESK-FOR-THE-APPS.md`.
+- **Decision 10, DOC9-1: a line for each of iOS's points** (the same).
+  One pass before the format freezes on December 24 gives each of the 22
+  points and three key-storage points iOS sent (#701) a line: taken, and
+  where; not taken, and why; or BDR's. Done in #725, under each point in
+  `STUDY-DESK-FOR-THE-APPS.md`: 5 taken, 10 not taken, 7 not taken yet
+  (the website's: spec sentences and vectors for points 1 to 4 and 17
+  before the freeze, and two engine fixes, 18 and 19), and the three
+  key-storage points BDR's.
+- **Decision 11, LP9b-7: a “What changed” line** (“go with your
+  recommendations”), under the effective date, naming the 2026-11-25
+  rewrite and this correction. The correction is treated as material: the
+  effective date moves to the day it lands, and the line comes off 30 days
+  after (`src/pages/CLAUDE.md`, rule 4). `/terms/` now promises the same
+  30 days. The apps' What's New note is BDR's (`STUDY-DESK-FOR-THE-APPS.md`).
+- **LP9b-6: the spec's two “not even that there was one” sentences** take
+  the 30 days of backup history (“as recommended”).
+- **Decision 12, LP9-9 and LP9b-9: the lawyer's list, and the license's
+  reach** (“All as recommended”). The audit's ten points join step 4j's
+  “For a lawyer” list. The license on `/read` now names the book
+  introductions, glossary, and articles beside the text and footnotes, so
+  the Terms' “under the same license” is true; whose license it is stays on
+  the lawyer's list.
+- **Decision 13, the desk's words** (“All as recommended”): the sign-out
+  sentence says a notebook whose key is “This device only” needs the
+  recovery code or another device to sync again (AC9-3); the backup
+  reminder stays on for a synced reader and says “to a file” (UX9b-2); the
+  Notebook panel's Settings tab gets one quiet line to `/account/` while
+  accounts are open and the browser isn't synced (UX9b-4); “this browser”
+  is where the notebook is kept, “this computer” only a saved file or the
+  hardware, and “device” only “This device only” and the account's devices
+  (CP9-1); and “Set up an account” loses its ellipsis (UX9b-7).
+- **Decision 14, SY9b-3: clocks far apart** (“27 to 32 as recommended”).
+  The merge rule stays. `STUDY-DESK-FORMAT.md`'s warning names a deletion
+  undone and a restore buried beside the lost edit, and the sync status's
+  clock sentence says the same: ahead, “Until it is set right, what you
+  change or delete here can override newer changes from your other
+  devices.”; behind, “…what you change or restore here can be overridden
+  by older changes from your other devices.” For BDR to confirm, since
+  the apps keep the same rule.
+- **Decision 15, TQ9-1 and TQ9-2: the tests that come first** (the same).
+  TQ9-1's nonce tests landed in #716. For TQ9-2, each of the two guards
+  against a hostile service (the signing-key check in `acceptGrant`, and
+  `checkKeyring`'s “every key we hold”) gets a test seen to fail with the
+  guard taken out, and the vectors gain “a card naming another signing
+  key,” which holds both apps to the spec's step 6; BDR is told when it
+  lands, since it changes the vectors file.
+- **Added from the appendices**: Rename says its result like every other
+  account action, and the screen's heading keeps focus (AC9-2, “All as
+  recommended”); and pages stop shipping developer comments, now rather
+  than at launch (CP9-4, the same).
+- **“Stop syncing” ends the service's session** (COH9's question 2 and
+  SY9b-2, “All as recommended”): it sends `DELETE /session` first,
+  ignoring a failure, and the sync's pass running at that moment is stopped
+  and waited for before its state is cleared. For BDR to confirm.
+- **A “This device only” reader keeps “Sign in with a passkey” after
+  signing out** (LV9's question 1, the same): signing in is the account,
+  and the notebook then asks for the recovery code or another device, as
+  the sign-out sentence now says (decision 13).
+- **Turnstile checks the site** (SEC9's question 2, “16, yes”): the
+  service refuses a token whose `hostname`, in Cloudflare's answer, isn't
+  one of the hosts it already accepts as an `Origin`; `action` isn't
+  checked, since there is one use. The apps are unaffected.
+- **The policy report counter's cap is spread over the day** (SV9-12,
+  “18, yes”): 24 hourly allowances in place of one daily 5,000, so a
+  flood blanks an hour, not a day. BVJ deploys it by hand
+  (`npm run deploy` in `workers/csp-reports`).
+- **No copy of the service's data outside Cloudflare** (SV9's question 4,
+  “19, yes”): every notebook also lives on its reader's devices, so losing
+  the account loses no notes, and another copy would be another place
+  holding everyone's sealed data. Recorded in `DISASTER-RECOVERY.md`.
+- **The workflows' GitHub token reads only** (SEC9-6, the same): `ci.yml`
+  and the apps' mirror workflow ask for `contents: read`, and a checkout
+  that never pushes keeps no token on disk; BVJ set the repository's
+  default to read the same day (Settings, Actions, General, Workflow
+  permissions; “Item 22 done”). The release notes workflow asks for write
+  itself and pushes with its own token.
+- **Production rolls back without a reviewer** (SV9-2 and SV9-3, the
+  same): production's rollback has an environment of its own,
+  `notebook-production-rollback`, limited to `main` with no required
+  reviewer, so BDR can roll back alone; a rollback only puts back an
+  earlier version of the code. Rollbacks run in their own queue, so a
+  merge can't cancel one, and the runbook says to switch deploys off
+  after rolling back. When BVJ sets production up, that is two
+  environments to make.
+- **The enforced policy drops `'unsafe-inline'`** (SEC9-4, the same):
+  in step 4i each inline script is allowed by its hash instead, at least
+  on the account and Study Desk pages, as a gate before accounts open.
+- **One “Before accounts open” list** (DOC9-3, “27 to 32 as
+  recommended”), in the Phase 4 plan (“Order of work,” 4, after “What it
+  waits on”): each gate with its owner, where it is tracked, and its
+  state. The account file's rule 11 and the service's README point to it.
+- **A refusal sync doesn't know asks the reader after five failed passes**
+  (SY9b-4, the same). Sync goes on retrying behind it, and the notice
+  says: “Sync keeps running into a problem, so changes made here aren’t
+  syncing. They are saved in this browser.”, then “It will keep trying.”
+  and a request to tell us on the Contact page, naming the service's word
+  for the refusal (“too_large,” for one).
 
 ### 2026-11-23 (the call with BDR: plan C, and sync on February 10)
 
