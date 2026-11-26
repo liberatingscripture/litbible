@@ -481,6 +481,17 @@ significant announcements.
 asks to be dismissed. If a message matters, it has a permanent place; if it
 does not, it is not shown.**
 
+**Pull, and push** (BVJ: “it's the same principle as a company workflow:
+Pulls for information vs. pushes for information. Pulls are great when
+someone knows the information is there waiting for them. Not so much when
+either they don't know when it will be ready or don't even know it's
+coming; that's where pushes come in.”). The rule above makes the site a
+pull: a message waits in its permanent place. That serves a reader who
+knows to look. **What a reader doesn't know exists, or doesn't know is
+ready, is pushed**, once and never over scripture: the tour offer and a
+launch's announcement below. The test for any new message is which of the
+two it is.
+
 **The exceptions**: anything that would lose a reader's writing (a failed
 save, a notebook this computer can no longer open) may interrupt, once, in
 plain words, with the fix as its button (the proposal's one exception).
