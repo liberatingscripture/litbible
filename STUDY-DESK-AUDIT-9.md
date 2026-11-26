@@ -280,7 +280,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| DOC9-1 | **Low** | Medium | Open | BDR | iOS’s 22 points and three key-storage points (#701) have no line each saying taken, not taken, or BDR’s; a triage before the December 24 freeze (COH9’s table has each point’s state in code) |
+| DOC9-1 | **Low** | Medium | Fixed (#725; the key-storage points are BDR's) | BDR | iOS’s 22 points and three key-storage points (#701) have no line each saying taken, not taken, or BDR’s; a triage before the December 24 freeze (COH9’s table has each point’s state in code) |
 | DOC9-2 | **Low** | Medium | Fixed (#717) |  | The spec and the service README say Free gives “a database” 100,000 rows written a day; Cloudflare says the allowance is the account’s |
 | DOC9-3 | **Low** | Medium | Fixed (#717) |  | No single list of what must be true before accounts open (#713 extended rule 11; Turnstile in production, the store forms, What’s New, and the CSP are still elsewhere) |
 | DOC9-4 | **Low** | Low | Open |  | Turnstile’s “off” wording survives in five places |
