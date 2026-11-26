@@ -55,6 +55,12 @@
   disagree. Read View's whole book is the heaviest page to try.
 ## The announcement popover
 
+Featherboa keeps it **for launches only** (the apps, the Study Desk's
+opening, the What's New page; BVJ names each), under the rules below;
+ordinary news is marked on the header menu it belongs to
+(`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"). Until Featherboa
+is built, this section holds as written.
+
 - **One announcement popover at a time.** `Layout.astro` renders exactly ONE
   popover component (currently `AppsLaunchPopover.astro`, the iOS/Android
   launch). Retiring an announcement means swapping that import and leaving the

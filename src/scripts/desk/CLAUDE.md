@@ -819,6 +819,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        expanded with the home question answered: Take the tour now, Remind
        me later (also the ×, Escape, closing or minimizing the Notebook,
        and leaving the page; back on a later day), or Don't show this again.
+       Featherboa replaces the window with a "Start here" line, a line in
+       the first use's undo bar, and the front door, and moves the backup
+       reminder into the Notebook's foot line (`SITE-FEATHERBOA.md`,
+       "Nothing interrupts the reader"); until it is built, this holds.
        The window is `src/scripts/float-window.js`, which stays open through
        clicks elsewhere and never takes `lit-panel.js`'s one slot. The privacy
        page names these keys and the notebook's storage: keep it in step if a

@@ -184,9 +184,9 @@ then puts boxes in the box, so it takes the boxes away. BVJ took it
   drops it, then keeps it once at the foot of the Study sidebar
   (proposal 9). Today it is the "Preview" badge on the Notebook's heading,
   its word read from `DESK_STAGE` in `src/lib/desk-first-use.mjs`.
-  - **Where it goes is open**, since the format is changing (BVJ). It is
-    decided with the workspace (proposals 9 and 21); proposal 9's place is
-    one option.
+  - **Where it goes**: BVJ asked, since the format is changing. Decided
+    with proposal 9: once, at the foot of the Study sidebar ("Nothing
+    interrupts the reader," below).
   - **Its word**: BVJ, “maybe, since it's moving into beta rather than mere
     preview, it should evolve to a beta label.” That is already the plan in
     `STUDY-DESK.md` ("Launching": an invite-only preview, a public beta, then
@@ -463,6 +463,113 @@ The third ink was 3.3:1 by day in the proposal's first version and was
 darkened to 5.1. LIT Green by day is enough for a large numeral or a marker
 line and not for words, which is why green words are always the deep green.
 
+## Nothing interrupts the reader (decided 2026-11-26)
+
+Design Directions' proposal 9. In one sitting behind the preview gate its
+author was offered an app banner, a storage notice with a checkbox and "Got
+it," a tour card with three choices, the "Preview" badge, and a "Continue
+reading" chip to dismiss: each kind, and each the site speaking first. In
+the reading room and the workroom, the reader starts the conversation. BVJ
+took it with Claude's adjustments (“Mostly take it, adjusted”), then worked
+through two points BVJ raised, both of which come down to “people don't go
+looking for things they don't know are there”: the tour offer, and
+significant announcements.
+
+### The rule
+
+**Nothing appears over scripture unless the reader asked for it. Nothing
+asks to be dismissed. If a message matters, it has a permanent place; if it
+does not, it is not shown.**
+
+**The exceptions**: anything that would lose a reader's writing (a failed
+save, a notebook this computer can no longer open) may interrupt, once, in
+plain words, with the fix as its button (the proposal's one exception).
+BVJ's decisions below add two more, never over scripture: a launch's
+announcement window, and the app banner on phones.
+
+| Kind of message | Today | Its home |
+|-----------------|-------|----------|
+| Status | A notice card atop the Notebook panel; a reminder checkbox; a dot on a tab | One line at the foot of the thing it is about. It changes its words, never its place |
+| Teaching | Tour cards over the page, with Take the tour now, Remind me later, and Don't show this again | The empty state: one sentence and one button, shown exactly when there is nothing else to show; Help holds the rest. **The tour offer keeps its prominence by its place** (below) |
+| News | An announcement popover in the header; "What's new for you" on the Notebook page | **Where its subject lives** (below; the proposal had a dot beside About), and a "Changed since you marked it" filter in the Notebook. Nothing opens by itself, save a launch's window |
+| Asks | The app banner above the header on phones; the newsletter form | The front page and the footer, never above scripture; the phone menu carries one "Get the app" row. **The app banner stays** (below) |
+| Your place | "Continue reading" chips to dismiss | "Continue: Romans 8" is the first row of the book picker and of Home |
+
+The proposal's empty state, for a chapter with none of the reader's notes:
+"No notes on John 1 yet. Select a verse number or any words, then choose
+Note, Highlight, or Bookmark," with "Show me how." The foot line under it
+reads "Kept on this computer only" with "Back up…", and in its other states
+"In sync," "Offline. Your changes are saved here.," and "Signed out. Your
+notebook is still here." with "Sign in" (four of the sync states the site
+already defines).
+
+### The adjustments
+
+1. **The backup reminder becomes the foot line's words**, not a bar: when
+   it is due (E113: 7 days after the last backup), the line says so
+   ("Last backed up 9 days ago") beside "Back up…". Until sync, a browser
+   can clear its storage without warning, so this reminder is the reader's
+   only protection, and the foot line is the proposal's own place for
+   status.
+2. **The tour stays, behind "Show me how"** in the empty state, and Help
+   lists it. It is the acting tour BVJ decided (2026-10-13 and 14), not
+   rewritten as text.
+3. **The tour offer stays prominent, by its place rather than a floating
+   window** (BVJ: “I had the tour offer itself prominently on purpose.
+   Your adjustments help, but it's still not obvious it exists until
+   you're already looking for it. People don't go looking for what they
+   don't know exists.” Then, of Claude's three ways in: “Yes, to all
+   three”). A reader can't ask for what they don't know exists, so the
+   offer finds them, each time at a moment they started:
+   - **"Start here" heads the Study Desk until the tour is taken.** The
+     first time the Notebook or the workspace opens, its first line is
+     "Start here: Take the tour," the view's one filled button. It keeps
+     its place across visits, so nothing needs "Remind me later," and it
+     never asks to be dismissed: taking the tour, or "I know my way
+     around," moves it into Help.
+   - **A reply at the first use.** The first highlight, note, or bookmark
+     a reader makes adds "New here? Take the tour" to the line their
+     action already brings ("Highlighted · Undo"), as E74 offers "Open the
+     Notebook" in that line today.
+   - **The front door**: the Study Desk's way in on Home and the header's
+     Study menu offer "Take the tour" to a first-time visitor (drawn with
+     the front page).
+4. **The app banner stays on phones**, dismissed for 90 days as today. The
+   proposal left it to BVJ ("it is how many phone readers find the apps"),
+   and the website sends phone readers to the apps for its study tools.
+5. **The stage badge is shown once, at the foot of the Study sidebar**
+   (proposal 21's), not on every panel ("Surfaces": BVJ keeps it as
+   information while there is a stage).
+
+6. **News shows where its subject lives, and a launch adds the window**
+   (BVJ: “Yes, both”). The proposal put news behind a dot beside About;
+   BVJ: “That's not where I would think to find them as a user. About pages
+   are usually pretty static. As a user, I might look at it the first time
+   I'm encountering a site or organization, and then never, ever again.”
+   And of the popover: “Right now the popover is the only place to see
+   them. … people won't even know there's a What's New page, because the
+   page itself will be new.”
+   - **Ordinary news is marked on the place it is about**: a dot on the
+     header menu that holds what changed, and “New” beside the item inside
+     it, the dot clearing once the reader opens that menu. A new article or
+     episode marks Learn; a Study Desk feature marks Study; text changes
+     stay where reading starts, as Release Notes already is (/read's
+     "Latest text changes," Home's "Latest change," and the footer).
+     Readers come back to the menus they use, so news reaches the readers
+     it is for. **Never only under About**: the desk preview's About menu
+     drops its "What's new" link, and where Release Notes and the What's
+     New page sit in the header is drawn with proposal 19 ("Four places").
+   - **A launch** (the apps, the Study Desk's opening, the What's New page
+     itself; BVJ names each) adds three things for a set time: the mark
+     spelled out on its menu (“Study · New”), the front page's band, and
+     **the announcement window**, kept for launches only under today's
+     rules (one at a time, never on a session's first page or over
+     scripture, once per reader; `src/components/CLAUDE.md`, "The
+     announcement popover"). The window announcing the What's New page is
+     how readers learn it exists; after that the marks point to it.
+
+Home's "Continue" row is drawn with the front page, last.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -476,7 +583,6 @@ line and not for words, which is why green words are always the deep green.
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
   whether its served file has old-style figures ("Sizes, space, and the
   measure").
-- **Where the Study Desk's stage badge goes** ("Surfaces," above).
 - **The workspace's name**, “Study Desk” or the proposal's “Desk”
   ("Controls," above; proposal 21).
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`

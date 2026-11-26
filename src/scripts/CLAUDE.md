@@ -570,7 +570,10 @@ notice there or nowhere.
   it. Draft chapters are never recorded. `ContinueReading.astro` (home title
   block, top of /read) and a button in the phone menu offer it back, hidden
   until a record exists, so no JS or no storage means nothing renders; the ×
-  forgets it everywhere. The Study Desk's LIT pane on /desk writes it too
+  forgets it everywhere. Featherboa offers it as the first row of the book
+  picker and of Home instead, with nothing to dismiss
+  (`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"); the record is
+  unchanged. The Study Desk's LIT pane on /desk writes it too
   (`desk/desk-last-read.js`, through `saveLastRead`: the leading pane's place,
   `view: "study"`, after 500 ms, never a draft; BVJ, 2026-11-10). Each save also dispatches a `lit:last-read` window
   event, which only the Study Desk (places, when the preview is on) hears. The privacy page's storage paragraph names it: keep
