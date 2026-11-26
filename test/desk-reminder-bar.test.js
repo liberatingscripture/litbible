@@ -11,7 +11,7 @@ import { settle, window as happyWindow } from "./helpers/browser-env.mjs";
 
 const resetDomUrl = () => happyWindow.happyDOM.setURL("http://localhost/");
 
-const { startReminder, stopReminder, paintDots, DOT_ATTR } = await import("../src/scripts/desk/reminder.js");
+const { startReminder, stopReminder, paintDots, factsFromStore, DOT_ATTR } = await import("../src/scripts/desk/reminder.js");
 const { hideUndo } = await import("../src/scripts/desk/undo-bar.js");
 
 const NOW = new Date("2026-11-13T15:30:00");
@@ -62,6 +62,20 @@ test("a due reminder shows the bar with its four choices and the days", async ()
   assert.deepEqual(labels(), ["Back up now", "Remind me tomorrow", "Not this week", "Turn off reminders"]);
   assert.equal(document.querySelectorAll(".desk-undo__choice--primary").length, 1);
   assert.equal(document.querySelector(".desk-undo__choice--primary").textContent, "Back up now");
+});
+
+test("UX9b-2: in a browser that syncs, the bar names the file", async () => {
+  await start({ ...due, linked: true });
+  await settle();
+  assert.equal(text(), "It’s been 9 days since you backed up your notebook to a file.");
+});
+
+test("UX9b-2: the facts from a store say whether the browser syncs", async () => {
+  const { SYNC_META, SERVICES, makeLink } = await import("../src/lib/desk-sync-link.mjs");
+  const link = makeLink({ id: "0b7c3a52-5d0e-4c55-9d7a-1a2b3c4d5e6f", notebook: "6a1d2e3f-4b5c-4d6e-8f70-112233445566", service: SERVICES.preview, now: "2026-11-24T12:00:00.000Z" });
+  const store = (meta) => ({ all: async () => [], getMeta: async (key) => meta[key] });
+  assert.equal((await factsFromStore(store({ [SYNC_META]: link }))).linked, true);
+  assert.equal((await factsFromStore(store({}))).linked, false);
 });
 
 test("nothing shows when not due, when off, in a tour, or when the notebook is empty", async () => {

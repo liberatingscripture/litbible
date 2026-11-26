@@ -28,8 +28,17 @@ export const BACKUP_HREF = "/notebook/#backup";
 export const HELP_HREF = "/desk/help/";
 export const WAYS_HREF = "/desk/help/#ways-to-keep";
 export const CONTACT_HREF = "/contact/";
-/** Where the first-time card's "Set up an account…" goes. */
+/** Where the first-time card's "Set up an account" goes. */
 export const ACCOUNT_HREF = "/account/";
+
+/**
+ * The Settings tab's one quiet line to the account pages, in the backup group
+ * (UX9b-4; BVJ, 2026-11-26). The whole sentence is the link.
+ */
+export const ACCOUNT_LINE = "Keep it in step across your devices with an account.";
+
+/** Whether that line shows: accounts are open in this browser, and it doesn't sync yet. */
+export const accountLineShown = (accountsOpen, linked) => Boolean(accountsOpen) && !linked;
 
 /**
  * The first-time card's words (D6; step 4j, BVJ 2026-11-25). `closed` is the
@@ -37,22 +46,22 @@ export const ACCOUNT_HREF = "/account/";
  * accounts are closed; `open` is the choice, where they are open
  * (html[data-account="open"]), and it keeps BVJ's rule that no account at
  * all is plainly an option. In both, keeping the notebook in this browser is
- * the answer the card stores; "Set up an account…" is a link. A browser that
+ * the answer the card stores; "Set up an account" is a link. A browser that
  * syncs never shows the card, so neither form has to be true there.
  */
 export const CARD_WORDS = Object.freeze({
   closed: Object.freeze({
     title: "Your notebook is kept in this browser",
-    lead: "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, the notebook is gone unless you have backed it up.",
+    lead: "It stays in this browser, and nothing is sent anywhere. If the browser’s data for this site is cleared, the notebook is gone unless you have backed it up.",
     more: "An account that keeps it in step across your devices is coming. You won’t need one.",
     done: "Got it",
   }),
   open: Object.freeze({
     title: "Where should your notebook be kept?",
-    keepLead: "It stays on this computer, and nothing is sent anywhere. If this browser’s data for this site is cleared, it is gone unless you have backed it up.",
+    keepLead: "It stays in this browser, and nothing is sent anywhere. If the browser’s data for this site is cleared, it is gone unless you have backed it up.",
     keep: "Keep it in this browser",
     accountLead: "Your notebook stays in this browser and syncs across your devices, locked with a key we never have.",
-    account: "Set up an account…",
+    account: "Set up an account",
     more: "You don’t need an account, and you can stop using one at any time.",
   }),
   remind: "Remind me to back up my notebook",
@@ -299,7 +308,7 @@ export const TOUR_STEPS = [
     title: "My Notebook, and where it’s kept",
     body: {
       default:
-        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser, on this computer, and nothing is sent anywhere. The Settings tab says when you last backed it up.",
+        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser, and nothing is sent anywhere. The Settings tab says when you last backed it up.",
       // In a browser that syncs, "nothing is sent anywhere" is false (step
       // 4g's list; these words are step 4j's, BVJ 2026-11-25).
       linked:

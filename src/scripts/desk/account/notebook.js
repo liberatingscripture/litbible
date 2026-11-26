@@ -69,6 +69,8 @@ import {
   failureWords,
   newsWords,
   removeAsk,
+  renamedWords,
+  signOutAsk,
   wayWords,
 } from "../../../lib/desk-account-words.mjs";
 import {
@@ -706,7 +708,7 @@ export async function showHome(ctx, note) {
       if (out.querySelector(".account__confirm")) return;
       out.append(
         confirmBox(ui, {
-          ask: WORDS.signOutLinked,
+          ask: signOutAsk(H.lists ? whereKeyLives(H.lists) : null),
           yes: WORDS.signOutConfirm,
           onYes: async () => {
             const device = connector.device();
@@ -798,7 +800,7 @@ export async function showHome(ctx, note) {
             const next = cleanName(name.input.value);
             if (!next || next === entry.name) return again();
             await renameDevice({ call: connector.call, device: H.device, held: H.held, lists: H.lists, name: next });
-            await again();
+            await again(renamedWords(next));
           });
           row.append(name.row, h("div", { class: "account__actions" }, save));
           name.input.focus();

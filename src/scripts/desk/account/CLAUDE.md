@@ -26,7 +26,7 @@ and off (rule 19). **The choices Claude made while building are BVJ's
 now** (2026-11-25, “yes” to each of the eight listed under step 4h): the
 header's tiles, its “Sign out,” and “Account” in the phone menu (rule
 17), a heading not drawn twice (rule 18), no announcement here
-(“Routes”), “approved from this computer,” the one press of rule 20,
+(“Routes”), “approved from this browser,” the one press of rule 20,
 and rule 21's three seconds. **The Turnstile check is on in the
 preview** (2026-11-25: BVJ made the widget, for `litbible.net` alone, and
 set its secret; `workers/CLAUDE.md`, “The notebook service”), so “Create
@@ -192,7 +192,7 @@ without the switch. The announcement popover stays off all three
     The header's note of what it showed last (`lit-desk-account-last`,
     rule 17) is a key of its own, since the pre-paint script reads it,
     and `/privacy` names it too.
-14. **Signing out, deleting, and “Stop syncing on this computer” keep the
+14. **Signing out, deleting, and “Stop syncing in this browser” keep the
     notebook in the browser, and say so** (BVJ, the same day: no “erase it
     here too”). Signing out is asked first, in one place: the header's
     “Sign out” is a link to `/account/#sign-out`, which opens the question
@@ -207,7 +207,7 @@ without the switch. The announcement popover stays off all three
     `src/scripts/desk/sync/CLAUDE.md`, “What the account pages supply”).
     The home's first block names the real step for the stop: “Sign in
     again,” “Join again,” or “Join the new notebook,” each beside “Stop
-    syncing on this computer.” While a stop stands, nothing that needs the
+    syncing in this browser.” While a stop stands, nothing that needs the
     key is offered.
 17. **The header's entry** (BVJ, 2026-11-24): “Sign in” at the end of the
     header's tools, only with the Study Desk on, on a computer, with
@@ -310,6 +310,13 @@ without the switch. The announcement popover stays off all three
     - **A new section of the home** that waits on a request goes above
       `.account__rest` and is shown in `loadLists`' one step; one that
       doesn't wait goes above the lists or inside the rest.
+22. **One name for the local place** (BVJ, 2026-11-26, Audit 9 decision 13).
+    Every reader-facing string says **“this browser”** where the notebook
+    is kept or syncs (two browsers on one computer hold two notebooks),
+    **“this computer”** only for a saved file or the hardware (“a file on
+    your computer,” a clock), and **“device”** only in “This device only”
+    and for the account's set (“your devices,” “Add a device,” a device
+    card). A new sentence follows it.
 
 ## Testing
 

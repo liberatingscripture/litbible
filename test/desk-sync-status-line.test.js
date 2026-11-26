@@ -102,7 +102,7 @@ test("offline shows what waits and “Reconnect,” which tries again and says h
   await moment();
   await timers.fire((ms) => ms === 2000);
   await until(() => state(connector) === "offline", "offline");
-  assert.equal(text(slot, ".desk-sync__line"), "You’re offline. Your notebook is on this computer, and 1 change will sync when you’re back online.");
+  assert.equal(text(slot, ".desk-sync__line"), "You’re offline. Your notebook is in this browser, and 1 change will sync when you’re back online.");
   assert.equal(button.hidden, false);
   assert.equal(button.textContent, "Reconnect");
   assert.equal(slot.querySelector(".desk-sync").dataset.state, "stopped");
@@ -154,7 +154,7 @@ test("a sign-out is never silent: a dot, and a notice with the line's own words,
   assert.equal(html().getAttribute(STOPPED_ATTR), "stopped");
   assert.equal(document.querySelector(".desk-tab").getAttribute("aria-description"), STOPPED_WORDS);
   assert.equal(document.querySelector('[data-tab="settings"]').getAttribute("aria-description"), STOPPED_WORDS);
-  assert.match(bar.shown[0].message, /^You’ve been signed out\. Your notebook is still on this computer/);
+  assert.match(bar.shown[0].message, /^You’ve been signed out\. Your notebook is still in this browser/);
   assert.deepEqual(bar.shown[0].choices.map((c) => c.label), ["Reconnect"]);
   const db = await openSyncDb();
   assert.equal((await db.get("told")).state, "signedOut");
@@ -227,15 +227,15 @@ test("one stop that becomes another: the notice still up changes its words", asy
   await until(() => bar.shown.length === 1, "the notice");
   assert.match(bar.shown[0].message, /^You’ve been signed out\./);
 
-  // Meanwhile this computer was removed from the notebook. The reader signs in again, the notice
+  // Meanwhile this browser was removed from the notebook. The reader signs in again, the notice
   // still on the screen, and finds that out.
   await changeKey(service, other.by, { kept: [other.by], removed: [mine] });
   await connector.setSession(service.signIn("reader"));
   await until(() => state(connector) === "removed", "removed");
   await until(() => bar.shown.length === 2, "the notice for the new stop");
-  assert.match(bar.shown[1].message, /^This computer was removed from your notebook’s devices/);
+  assert.match(bar.shown[1].message, /^This browser was removed from your notebook’s devices/);
   assert.equal(bar.up, true);
-  assert.match(text(slots.settings, ".desk-sync__line"), /^This computer was removed/);
+  assert.match(text(slots.settings, ".desk-sync__line"), /^This browser was removed/);
   assert.equal(html().getAttribute(STOPPED_ATTR), "stopped");
   const db = await openSyncDb();
   assert.equal((await db.get("told")).state, "removed");

@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import { settle, resetDom } from "./helpers/browser-env.mjs";
 
 import {
-  ACCOUNT_HREF, CARD_WORDS, HOME_KEY, TOUR_STEPS, WAYS_HREF, backupLede, keptLine, notebookIntro, nudgeLine, savedLine, stepBody,
+  ACCOUNT_HREF, ACCOUNT_LINE, CARD_WORDS, HOME_KEY, TOUR_STEPS, WAYS_HREF, backupLede, keptLine, notebookIntro, nudgeLine, savedLine, stepBody,
 } from "../src/lib/desk-first-use.mjs";
 import { SERVICES, SYNC_META, makeLink } from "../src/lib/desk-sync-link.mjs";
 
@@ -72,7 +72,7 @@ test("the Settings tab's lines name the file once the notebook also syncs", () =
 });
 
 test("My Notebook's first line and its backup lead are true in both states", () => {
-  assert.match(notebookIntro(false), /never leaves this computer unless you back it up\.$/);
+  assert.match(notebookIntro(false), /never leaves this browser unless you back it up\.$/);
   assert.doesNotMatch(notebookIntro(true), /never leaves/);
   assert.match(notebookIntro(true), /syncs with your account, locked with a key we never have\.$/);
   assert.match(backupLede(false), /Your notebook stays in this browser, and a browser can lose it/);
@@ -157,6 +157,25 @@ test("an unlinked browser with no answer is nudged once, and its foot says what 
   store.entry();
   assert.equal(revealed(), 1);
   assert.match(fu.foot.querySelector(".desk-panel__kept").textContent, /^Kept in this browser\. Not backed up yet\./);
+});
+
+test("UX9b-4: the Settings tab's account line shows only while accounts are open and the browser doesn't sync", async () => {
+  for (const [open, linked, shown] of [[true, false, true], [false, false, false], [true, true, false], [false, true, false]]) {
+    const { fu } = await draw({ open, linked });
+    const line = fu.foot.querySelector(".desk-home__account");
+    assert.ok(line, "the line is in the foot");
+    assert.equal(line.hidden, !shown, "accounts " + (open ? "open" : "closed") + ", " + (linked ? "linked" : "not linked"));
+    const a = line.querySelector("a");
+    assert.equal(a.getAttribute("href"), ACCOUNT_HREF);
+    assert.equal(a.textContent, ACCOUNT_LINE);
+    assert.equal(line.textContent, ACCOUNT_LINE, "the whole sentence is the link");
+    assert.equal(a.getAttribute("target"), null, "it opens in the same tab");
+  }
+  assert.equal(ACCOUNT_LINE, "Keep it in step across your devices with an account.");
+});
+
+test("UX9b-7: the card's account link has no ellipsis", () => {
+  assert.equal(CARD_WORDS.open.account, "Set up an account");
 });
 
 /* ── My Notebook's backup section ───────────────────────────────────── */

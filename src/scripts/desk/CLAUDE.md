@@ -790,7 +790,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        FU4-1; `localStorage['lit-desk-home']`). **Where accounts are open it
        asks instead** (step 4j, BVJ 2026-11-25): "Where should your notebook
        be kept?", with "Keep it in this browser" (the stored answer) and a
-       link, "Set up an account…"; no account is plainly a choice. Its words
+       link, "Set up an account"; no account is plainly a choice. Its words
        are `CARD_WORDS` in `desk-first-use.mjs`. **A browser that syncs sees
        neither form and isn't nudged**, and every sentence about where the
        notebook is kept has a form for it (the tour's `kept` step's `linked`

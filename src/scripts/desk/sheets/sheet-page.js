@@ -505,7 +505,7 @@ async function showSheet(root, store, id, view = null) {
     const p = make("p", "sheets-page__intro");
     const all = make("a", null, "your sheets");
     all.href = `${BASE}sheets/`;
-    p.append(document.createTextNode("This sheet isn’t in this browser’s notebook. It may have been deleted, or made on another computer. See "), all, document.createTextNode("."));
+    p.append(document.createTextNode("This sheet isn’t in this browser’s notebook. It may have been deleted, or made in another browser. See "), all, document.createTextNode("."));
     root.append(p);
     return;
   }

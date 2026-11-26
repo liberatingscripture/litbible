@@ -355,7 +355,7 @@ a.desk-item__ref:hover {
 
 /* One link style across the tab (E75; they were underlined and not, bold and
    not): the text green, underlined, at the tab's weight. */
-.desk-panel__settings-tab :is(.desk-panel__page a, .desk-panel__commands .greek-cmd-link, .desk-home__links a, .desk-home__links .desk-home__tour, .desk-home__safari a) {
+.desk-panel__settings-tab :is(.desk-panel__page a, .desk-panel__commands .greek-cmd-link, .desk-home__links a, .desk-home__links .desk-home__tour, .desk-home__safari a, .desk-home__account a) {
   padding: 0;
   color: var(--green-text);
   font-weight: 400;
@@ -3030,7 +3030,8 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 /* The panel's foot: where the notebook is kept. */
-.desk-home__safari {
+.desk-home__safari,
+.desk-home__account {
   margin-top: 6px !important;
 }
 

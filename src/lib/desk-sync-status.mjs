@@ -109,40 +109,40 @@ export function statusWords(status, format = {}) {
       ok = true;
       break;
     case "offline":
-      line = `You’re offline. Your notebook is on this computer, and ${waiting(pending)} when you’re back online.`;
+      line = `You’re offline. Your notebook is in this browser, and ${waiting(pending)} when you’re back online.`;
       break;
     case "signedOut":
-      line = `You’ve been signed out. Your notebook is still on this computer, and ${waiting(pending)} after you sign in again.`;
+      line = `You’ve been signed out. Your notebook is still in this browser, and ${waiting(pending)} after you sign in again.`;
       break;
     case "slowed":
       line = `Sync is paused for a moment because it made too many requests. It will try again in ${roughly((status.retry ?? 60) * 1000)}.`;
-      if (pending > 0) detail.push(`${plural(pending, "change")} will sync then. They are saved on this computer.`);
+      if (pending > 0) detail.push(`${plural(pending, "change")} will sync then. They are saved in this browser.`);
       break;
     case "removed":
-      line = "This computer was removed from your notebook’s devices, so it isn’t syncing. Your notebook is still on this computer.";
-      if (pending > 0) detail.push(`${plural(pending, "change")} made here will sync once this computer joins your notebook again.`);
+      line = "This browser was removed from your notebook’s devices, so it isn’t syncing. Your notebook is still in this browser.";
+      if (pending > 0) detail.push(`${plural(pending, "change")} made here will sync once this browser joins your notebook again.`);
       break;
     case "otherNotebook": {
       const how = status.replaced ? replacedWords(status.replaced, format) : "";
-      line = `Your account’s notebook was replaced${how}, so this computer isn’t syncing. The notebook on this computer is still here, and nothing in it was changed.`;
+      line = `Your account’s notebook was replaced${how}, so this browser isn’t syncing. The notebook in this browser is still here, and nothing in it was changed.`;
       break;
     }
     case "noKeys":
     case "cantOpen":
-      line = "This computer can’t open your synced notebook, so it isn’t syncing. Your notebook is still on this computer.";
+      line = "This browser can’t open your synced notebook, so it isn’t syncing. Your notebook is still in this browser.";
       detail.push(
         pending > 0
-          ? `${plural(pending, "change")} made here will sync once this computer joins your notebook again.`
-          : "It will sync once this computer joins your notebook again.",
+          ? `${plural(pending, "change")} made here will sync once this browser joins your notebook again.`
+          : "It will sync once this browser joins your notebook again.",
       );
       break;
     default:
-      line = `Sync ran into a problem and will try again. Your notebook is on this computer, and ${waiting(pending)} when it works again.`;
+      line = `Sync ran into a problem and will try again. Your notebook is in this browser, and ${waiting(pending)} when it works again.`;
   }
 
   const problems = status?.problems ?? {};
   if (problems.stuck > 0) {
-    detail.push(`${plural(problems.stuck, "entry", "entries")} couldn’t be sent to your account. ${problems.stuck === 1 ? "It is" : "They are"} still in your notebook on this computer.`);
+    detail.push(`${plural(problems.stuck, "entry", "entries")} couldn’t be sent to your account. ${problems.stuck === 1 ? "It is" : "They are"} still in this browser’s notebook.`);
   }
   if (problems.ahead > 0) {
     detail.push(
@@ -150,13 +150,13 @@ export function statusWords(status, format = {}) {
     );
   }
   if (problems.blocked > 0) {
-    detail.push(`${plural(problems.blocked, "change")} made here ${problems.blocked === 1 ? "is" : "are"} waiting behind ${problems.blocked === 1 ? "an entry" : "entries"} this computer hasn’t been able to take in yet.`);
+    detail.push(`${plural(problems.blocked, "change")} made here ${problems.blocked === 1 ? "is" : "are"} waiting behind ${problems.blocked === 1 ? "an entry" : "entries"} this browser hasn’t been able to take in yet.`);
   }
   if (problems.aside > 0) {
     detail.push(`${plural(problems.aside, "entry", "entries")} in your account ${problems.aside === 1 ? "was" : "were"} written by a newer version of LIT Bible and can’t be shown here yet.`);
   }
   if (problems.unread > 0) {
-    detail.push(`${plural(problems.unread, "entry", "entries")} in your account couldn’t be read on this computer and ${problems.unread === 1 ? "was" : "were"} left as ${problems.unread === 1 ? "it is" : "they are"}.`);
+    detail.push(`${plural(problems.unread, "entry", "entries")} in your account couldn’t be read in this browser and ${problems.unread === 1 ? "was" : "were"} left as ${problems.unread === 1 ? "it is" : "they are"}.`);
   }
   if (typeof status?.clock === "number" && Math.abs(status.clock) >= CLOCK_NOTICE_MS) {
     detail.push(
