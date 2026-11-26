@@ -252,7 +252,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | LP9-3 | **Medium** | Medium | Partly fixed (#713, #717) | 4j | Turnstile on the new-account step wasn’t disclosed (now named; what remains is LP9b-5) |
 | LP9-4 | **Low** | Medium | Fixed | 4j | No retention was stated (now “until you delete them or the account”; sweeping idle accounts is BVJ’s call) |
 | LP9-5 | **Low** | Medium | Fixed (#713, #717) | 4j | D1’s 30 days of history was on /delete-account/ only (now on /privacy; two spec sentences remain, LP9b-6) |
-| LP9-6 | **Medium** | Medium | Partly fixed | BDR | Neither store’s form can be answered “no data collected”; the plain fields are now on /privacy, the forms are BDR’s (ask 21), and LP9b-3’s fields are still missing |
+| LP9-6 | **Medium** | Medium | Decided: BDR declares the plain fields on both forms (decision 9) | BDR | Neither store’s form can be answered “no data collected”; the plain fields are now on /privacy, the forms are BDR’s (ask 21), and LP9b-3’s fields are still missing |
 | LP9-7 | (in LP9b-4) | Medium | Fixed (#717) |  | Stored logs on |
 | LP9-8 | **Low** | Low | Fixed | 4j | No minimum age (now 13, or the country’s higher age) |
 | LP9-9 | **Low** | Low | Decided: for a lawyer (BVJ) | 4j | No controller, lawful basis, rights, or processors (the Collective, the processors, and the rights are now named; lawful basis, transfers, and a complaint route are not) |
@@ -282,7 +282,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 |---|---|---|---|---|---|
 | DOC9-1 | **Low** | Medium | Open | BDR | iOS’s 22 points and three key-storage points (#701) have no line each saying taken, not taken, or BDR’s; a triage before the December 24 freeze (COH9’s table has each point’s state in code) |
 | DOC9-2 | **Low** | Medium | Fixed (#717) |  | The spec and the service README say Free gives “a database” 100,000 rows written a day; Cloudflare says the allowance is the account’s |
-| DOC9-3 | **Low** | Medium | Partly fixed |  | No single list of what must be true before accounts open (#713 extended rule 11; Turnstile in production, the store forms, What’s New, and the CSP are still elsewhere) |
+| DOC9-3 | **Low** | Medium | Fixed (#717) |  | No single list of what must be true before accounts open (#713 extended rule 11; Turnstile in production, the store forms, What’s New, and the CSP are still elsewhere) |
 | DOC9-4 | **Low** | Low | Open |  | Turnstile’s “off” wording survives in five places |
 | DOC9-5 | **Low** | Low | Open |  | Four places still say the deletion page can’t delete |
 | DOC9-6 | **Low** | Low | Open |  | The account file says /delete-account/ is in the sitemap; the config takes it out |
