@@ -25,7 +25,10 @@
 // removed, another notebook, keys that don't open) is not repeated on a
 // timer: only "Reconnect," or the account pages handing in a new session or
 // keyring, starts another. What waits is still counted, so the status line
-// can say how much.
+// can say how much. A pass that ends "full" (the account's ceiling) sets no
+// timer of its own: the engine holds the rows back for an hour
+// (FULL_WAIT_MS in desk-sync-engine.mjs), the passes asked for meanwhile
+// still pull, and "Reconnect" tries the rows at once.
 //
 // WHAT THE ACCOUNT PAGES GET (step 4h) is the object `createConnector`
 // resolves to, and `linkNotebook` and `unlink` in ./start.js.

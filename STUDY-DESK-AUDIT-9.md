@@ -177,7 +177,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 |---|---|---|---|---|---|
 | SEC9-1 | **Medium** | Medium | Open (its point 4, focus on the question, done in #716) |  | A link carrying an approval code, opened on a computer that holds the notebook, fills in “Add a device” and presses Continue by itself, and the question it lands on lacks the spec’s “approve only a device you are holding,” so one keypress can hand a stolen sign-in the whole keyring |
 | SEC9-2 | **Medium** | Medium | Open |  | The preview’s deploy job runs `npm ci` (install scripts on) and `npm test` in the same job and workspace as the steps that hold a Cloudflare token reaching every Worker and D1 database on the account, production’s included once it exists |
-| SEC9-3 | (in SV9-1) | Medium | Open |  | No per-account storage limit (the same fault as SV9-1) |
+| SEC9-3 | (in SV9-1) | Medium | Fixed (#722) |  | No per-account storage limit (the same fault as SV9-1) |
 | SEC9-4 | **Low** | Low | Decided: hashes in place of `'unsafe-inline'` in step 4i (BVJ, 2026-11-26) | gate | The policy step 4i plans to enforce keeps `'unsafe-inline'` in `script-src`; enforce it without that before accounts open, as the plan already says the full policy comes before sign-in |
 | SEC9-5 | (in SV9-12) | Low | Open |  | Anyone can post CSP reports; a forged origin can top the week’s list |
 | SEC9-6 | **Low** | Low | Open |  | `ci.yml` sets no `permissions`, and the repository’s default workflow token is write |
@@ -190,11 +190,11 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| SV9-1 | **Medium** | High | Open | live | Nothing limits what one account, or the service, stores, and an account costs nothing to make (no `Origin` skips Turnstile, by design); reproduced locally: 20 of 20 junk pushes, 75 MB, no siteverify call. It can stop the preview and, on Workers Free, the account’s day of D1 writes |
+| SV9-1 | **Medium** | High | Fixed (#722; the apps' attestation is BDR's, “Still open,” 86) | live | Nothing limits what one account, or the service, stores, and an account costs nothing to make (no `Origin` skips Turnstile, by design); reproduced locally: 20 of 20 junk pushes, 75 MB, no siteverify call. It can stop the preview and, on Workers Free, the account’s day of D1 writes |
 | SV9-2 | **Low** | Medium | Open | gate | Production’s rollback job runs in the environment BVJ is to review, so BDR could not roll production back alone; set up the environment with that in mind |
 | SV9-3 | **Low** | Medium | Open |  | A queued rollback of the preview can be canceled by a later push (one concurrency group, one pending run) |
-| SV9-4 | **Low** | Medium | Open | gate | No way to switch the service off, or to find and remove one abusive account, in the runbook |
-| SV9-5 | **Low** | Medium | Open | gate | An account large enough that its delete or replace passes D1’s 30 seconds fails every hour (the runbook’s manual route covers it) |
+| SV9-4 | **Low** | Medium | Fixed (#722; BVJ tries the stop on the preview) | gate | No way to switch the service off, or to find and remove one abusive account, in the runbook |
+| SV9-5 | **Low** | Medium | Fixed (#722, by the ceiling) | gate | An account large enough that its delete or replace passes D1’s 30 seconds fails every hour (the runbook’s manual route covers it) |
 | SV9-6 | (in LP9b-4) | Medium | Fixed (#717) |  | Workers Logs is on for the service and off for the CSP Worker |
 | SV9-7 | **Low** | Medium | Open | KNOWN | The hourly run’s query budget on Free, and a held request retried ahead of newer ones |
 | SV9-8 | **Low** | Low | Open |  | A token added between Apple’s revocation and the account’s deletion is deleted unrevoked (Apple is off) |

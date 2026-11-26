@@ -98,11 +98,15 @@
       // How often one address may ask (src/limits.js). A namespace id is a
       // number of our own choosing, unique on the account; it is not a
       // resource to create and not a secret. `period` is in seconds.
+      // A deployment missing any of the three answers "error" to everything.
       "ratelimits": [
         // The requests that begin a sign-in: 60 a minute from one address.
         { "name": "SIGN_IN_LIMIT", "namespace_id": "4101", "simple": { "limit": 60, "period": 60 } },
         // Every other request: 1,200 a minute from one address.
-        { "name": "REQUEST_LIMIT", "namespace_id": "4102", "simple": { "limit": 1200, "period": 60 } }
+        { "name": "REQUEST_LIMIT", "namespace_id": "4102", "simple": { "limit": 1200, "period": 60 } },
+        // POST /rows, counted apart from the rest: 120 a minute from one
+        // address (BVJ, 2026-11-26; Study Desk Audit 9, SV9-1).
+        { "name": "PUSH_LIMIT", "namespace_id": "4103", "simple": { "limit": 120, "period": 60 } }
       ],
       // `wrangler deploy` refuses to deploy the preview until these secrets are set.
       "secrets": { "required": ["PREVIEW_SECRET", "TURNSTILE_SECRET"] }
@@ -142,7 +146,8 @@
       "triggers": { "crons": ["17 * * * *"] },
       "ratelimits": [
         { "name": "SIGN_IN_LIMIT", "namespace_id": "4111", "simple": { "limit": 60, "period": 60 } },
-        { "name": "REQUEST_LIMIT", "namespace_id": "4112", "simple": { "limit": 1200, "period": 60 } }
+        { "name": "REQUEST_LIMIT", "namespace_id": "4112", "simple": { "limit": 1200, "period": 60 } },
+        { "name": "PUSH_LIMIT", "namespace_id": "4113", "simple": { "limit": 120, "period": 60 } }
       ]
     }
   }

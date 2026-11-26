@@ -148,13 +148,33 @@ describe("a request that lost a race is checked again against what the other one
     const two = await approve(one);
     const row = await rowFor(two.held);
 
-    const DB = pausingAfterRead("SELECT id, rev FROM rows", async () => {
+    const DB = pausingAfterRead("SELECT id, rev, size FROM rows", async () => {
       await changeKey(one);
     });
     const res = await call("POST", "/rows", { token: two.token, body: { put: [row] }, env: { DB } });
     // The change closed the pushing device's session, so it is told to catch up, and nothing was stored.
     expect([res.status, res.body.error, res.body.kid]).toEqual([403, "not_open", 2]);
     expect((await must("GET", "/rows?since=0", { token: one.token })).rows).toEqual([]);
+  });
+
+  it("holds the account's ceiling when two pushes meet at its edge (BVJ, 2026-11-26)", async () => {
+    const { account, device: one } = await setUp();
+    const two = await approve(one);
+    const id = await accountId(account);
+    // One row's room left.
+    await env.DB.prepare("UPDATE accounts SET row_count = ? WHERE id = ?").bind(LIMITS.accountRows - 1, id).run();
+    const [slow, quick] = [await rowFor(two.held), await rowFor(one.held)];
+
+    // Both read the counts with one row's room. The one that pauses must find, as it writes, that
+    // the other took it, read the counts again, and be refused.
+    const DB = pausingAfterRead("SELECT id, rev, size FROM rows", async () => {
+      expect((await call("POST", "/rows", { token: one.token, body: { put: [quick] } })).status).toBe(200);
+    });
+    const res = await call("POST", "/rows", { token: two.token, body: { put: [slow] }, env: { DB } });
+    expect([res.status, res.body.error, res.body.what]).toEqual([413, "too_large", "account"]);
+    const kept = await env.DB.prepare("SELECT row_count FROM accounts WHERE id = ?").bind(id).first();
+    expect(kept.row_count).toBe(LIMITS.accountRows);
+    expect((await must("GET", "/rows?since=0", { token: one.token })).rows.map((r) => r.id)).toEqual([quick.id]);
   });
 
   it("does not list a device that joined under a key that changed while it was joining", async () => {

@@ -178,6 +178,105 @@ test("slowed by the limiter: the pass stops and says how long to wait", async ()
   assert.equal((await a.sync()).state, "upToDate");
 });
 
+test("slowed by the push limit: a refused push is a wait, not a failure, and the next pass sends it", async () => {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  await a.sync();
+  const note = a.note();
+  // The limit on POST /rows alone (BVJ, 2026-11-26): the pull goes through, the push is refused.
+  let refused = false;
+  service.onCall = (call) => {
+    if (!refused && isPost(call, a)) {
+      refused = true;
+      service.slowDown(1);
+    }
+  };
+  const status = await a.sync();
+  assert.equal(refused, true);
+  assert.equal(status.state, "slowed");
+  assert.equal(status.retry, 60);
+  assert.equal(status.pending, 1);
+  assert.equal(a.engine.failures(), 0, "a wait is not counted as a failure, so no backoff grows from it");
+  service.onCall = null;
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.ok(rowsOf(service, a).has(note.id));
+});
+
+/* ── The account's ceiling (BVJ, 2026-11-26) ─────────────────────────── */
+
+const CEILING = { rows: 100_000, bytes: 100_000_000 };
+const HOUR = 60 * 60_000;
+
+/** A device whose account is at its ceiling of rows, with nothing owed. */
+async function fullDevice() {
+  const service = createFakeService();
+  const a = await firstDevice(service);
+  await a.sync();
+  service.account(a.by.account).rowCount = CEILING.rows;
+  return { service, a };
+}
+
+test("a full account: the push is refused whole, every change stays here, and the pass says so", async () => {
+  const { service, a } = await fullDevice();
+  const first = a.note("written with the account full");
+  const status = await a.sync();
+  assert.equal(status.state, "full");
+  assert.deepEqual(status.limits, CEILING);
+  assert.equal(status.retry, 3600);
+  assert.equal(status.pending, 1);
+  assert.equal(a.engine.failures(), 0, "not a failure: nothing backs off or counts up");
+  assert.equal(rowsOf(service, a).has(first.id), false);
+  assert.deepEqual(await a.notebook.get(first.id), first, "the change is here, as it was written");
+});
+
+test("a full account is not sent the same rows again in a loop: passes pull, hold the rows, and count them", async () => {
+  const { service, a } = await fullDevice();
+  a.note();
+  await a.sync();
+  const pushes = posts(service, a).length;
+  a.clock.tick(60_000);
+  a.note();
+  for (let i = 0; i < 5; i++) {
+    a.clock.tick(60_000);
+    const status = await a.sync();
+    assert.equal(status.state, "full");
+    assert.equal(status.pending, 2);
+    assert.ok(status.retry > 0 && status.retry < 3600, "the wait counts down");
+  }
+  assert.equal(posts(service, a).length, pushes, "no row was sent while the ceiling holds them back");
+  assert.ok(service.calls.some((c) => c.method === "GET" && c.path.startsWith("/rows")), "the passes still pull");
+});
+
+test("a full account is tried again an hour on: once, and an hour more if it is still full", async () => {
+  const { service, a } = await fullDevice();
+  const note = a.note();
+  await a.sync();
+  const pushes = posts(service, a).length;
+  a.clock.tick(HOUR);
+  const still = await a.sync();
+  assert.equal(still.state, "full");
+  assert.equal(still.retry, 3600, "refused again: a new hour");
+  assert.equal(posts(service, a).length, pushes + 1, "one push, not more");
+
+  // Room again (the service's limit raised, or rows gone): the first pass after the hour sends what waited.
+  service.account(a.by.account).rowCount = 0;
+  a.clock.tick(HOUR);
+  const status = await a.sync();
+  assert.equal(status.state, "upToDate");
+  assert.equal(status.pending, 0);
+  assert.ok(rowsOf(service, a).has(note.id));
+});
+
+test("a full account: the reader's Reconnect tries at once, without the hour's wait", async () => {
+  const { service, a } = await fullDevice();
+  const note = a.note();
+  assert.equal((await a.sync()).state, "full");
+  service.account(a.by.account).rowCount = 0;
+  a.engine.resume();
+  assert.equal((await a.sync()).state, "upToDate");
+  assert.ok(rowsOf(service, a).has(note.id));
+});
+
 test("the service asks to be sent a request again (busy): it is, without the reader hearing of it", async () => {
   const service = createFakeService();
   const a = await firstDevice(service);
