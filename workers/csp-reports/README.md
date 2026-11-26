@@ -186,6 +186,13 @@ enforced (the list to work through), what the enforced part already blocks,
 and what browser extensions cause (not the site's to fix). Its last lines
 say how to tell an extension from a gap.
 
+**Any line can be forged** (Study Desk Audit 9, SEC9-5). Anyone can post to
+the address, and the Worker can't tell a browser's report from a made-up
+one, so a few posts can put an origin the site never uses at the top of
+section 1. **An origin seen only in reports never goes into the policy**: it
+goes in once it has been seen on that page in a real browser (the walk
+below). The summary says so above its lists.
+
 **A week at the site's traffic is a thin sample.** Reports come only from
 pages someone opened, so also walk each kind of page in a real browser once
 the headers are live (the donation box through to its payment step, the

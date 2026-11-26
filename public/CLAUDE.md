@@ -42,7 +42,10 @@
   **A week of reports is read with `npm run summary` in
   `workers/csp-reports/`**, and at this site's traffic a week is thin, so
   walk each kind of page in a real browser too (that README, "Reading a
-  week"). Adding an origin to the allowlist never needs the Worker touched.
+  week"). **Anyone can post a report, so an origin seen only in reports
+  never goes into the allowlist** until it has been seen on that page in a
+  real browser (SEC9-5). Adding an origin to the allowlist never needs the
+  Worker touched.
 - **Agent/AI discovery surface** lives in static files, all served as-is from
   `public/`. They only take effect on a deployed Cloudflare Pages site — `dev`
   and `astro preview` do **not** apply `_headers`:
