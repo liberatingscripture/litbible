@@ -70,7 +70,10 @@ moves both (BVJ, 2026-11-26). **A workflow's own GitHub token reads only**:
 `ci.yml`, `apps-mirror-notify.yml`, and the deploy workflow say
 `permissions: contents: read`, and their checkouts keep no token on disk
 (`persist-credentials: false`); `release-notes.yml` asks for write itself
-and pushes with its own token (SEC9-6). A new workflow does the same. The
+and pushes with its own token (SEC9-6). The repository's default for a
+workflow's token is read as well (BVJ set it on 2026-11-26: Settings,
+Actions, General, Workflow permissions), so a workflow that names no
+`permissions` reads only. A new workflow still says its own. The
 other workflows (`ci.yml`,
 `release-notes.yml`, `apps-mirror-notify.yml`) never touch Cloudflare: the
 site deploys through the Pages project's own git connection. **The forms'
