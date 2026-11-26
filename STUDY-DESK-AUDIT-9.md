@@ -175,7 +175,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| SEC9-1 | **Medium** | Medium | Open |  | A link carrying an approval code, opened on a computer that holds the notebook, fills in “Add a device” and presses Continue by itself, and the question it lands on lacks the spec’s “approve only a device you are holding,” so one keypress can hand a stolen sign-in the whole keyring |
+| SEC9-1 | **Medium** | Medium | Open (its point 4, focus on the question, done in #716) |  | A link carrying an approval code, opened on a computer that holds the notebook, fills in “Add a device” and presses Continue by itself, and the question it lands on lacks the spec’s “approve only a device you are holding,” so one keypress can hand a stolen sign-in the whole keyring |
 | SEC9-2 | **Medium** | Medium | Open |  | The preview’s deploy job runs `npm ci` (install scripts on) and `npm test` in the same job and workspace as the steps that hold a Cloudflare token reaching every Worker and D1 database on the account, production’s included once it exists |
 | SEC9-3 | (in SV9-1) | Medium | Open |  | No per-account storage limit (the same fault as SV9-1) |
 | SEC9-4 | **Low** | Low | Open | gate | The policy step 4i plans to enforce keeps `'unsafe-inline'` in `script-src`; enforce it without that before accounts open, as the plan already says the full policy comes before sign-in |
@@ -207,8 +207,8 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| SY9-1 | **Low** | Medium | Open |  | One failed notebook read in the engine’s scan drops the touched ids, so an edit waits, with the status saying “up to date,” until the next page load’s full scan |
-| SY9-2 | **Low** | Low | Open |  | The fake service the website’s tests use differs from the real one: the order of its checks, `what: "body"`, a token the real service would refuse, `rev` on replace |
+| SY9-1 | **Low** | Medium | Fixed (#716) |  | One failed notebook read in the engine’s scan drops the touched ids, so an edit waits, with the status saying “up to date,” until the next page load’s full scan |
+| SY9-2 | **Low** | Low | Fixed (#716) |  | The fake service the website’s tests use differs from the real one: the order of its checks, `what: "body"`, a token the real service would refuse, `rev` on replace |
 | SY9b-2 | **Low** | Low | Open |  | “Stop syncing” and sign-out don’t stop a pass already running: it can still merge, write sync state, and push |
 | SY9b-3 | **Low** | Low | Open | BDR | With clocks an hour or a day apart, about a quarter of fuzzed histories revive a deletion or bury a restore; the format’s warning names only lost edits |
 | SY9b-4 | **Low** | Low | Open |  | A refusal the engine doesn’t know is retried for ever behind one quiet line, with no notice |
@@ -218,7 +218,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| AC9-1 | **Medium** | Medium | Open |  | The “Are you sure” box (delete the account, remove a device, sign out) is an unnamed group, focus lands on the destructive button, and its question isn’t tied to it, so a screen reader hears only the button |
+| AC9-1 | **Medium** | Medium | Fixed (#716) |  | The “Are you sure” box (delete the account, remove a device, sign out) is an unnamed group, focus lands on the destructive button, and its question isn’t tied to it, so a screen reader hears only the button |
 | AC9-2 | **Low** | Medium | Open |  | After Rename the home is redrawn with nothing said; other actions say their result next in reading order (rule 18) |
 | AC9-3 | **Low** | Medium | Open | 4j | Signing out of a one-device notebook means the recovery code to get back, and the sign-out sentence (`signOutLinked`) doesn’t say so; #713 added context elsewhere (“Your passkey only signs you in,” the help page), not this sentence |
 | AC9-4 | **Low** | Low | Open |  | The reason “Follows my account” is unavailable isn’t tied to the disabled radio |
@@ -229,7 +229,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | AC9-9 | **Nit** | Low | Open |  | The copy test sweeps the sync words for dashes and quotes, not for punctuation inside quotes or British spelling |
 | AC9-10 | **Nit** | Nit | Open |  | The status dot vanishes on hover of the header’s account button (not under Site 2.0) |
 | AC9-11 | **Nit** | Nit | Open |  | The stop sentence shows twice on the account home |
-| LV9-1 | (in AC9-1) | Medium | Open |  | Confirmed live |
+| LV9-1 | (in AC9-1) | Medium | Fixed (#716) |  | Confirmed live |
 | LV9-2 | (in AC9-2) | Medium | Open |  | Confirmed live |
 | LV9-3 | (in AC9-3) | Medium | Open |  | Confirmed live |
 | LV9-4 | **Low** | Low | Open |  | Showing a code for the new device removes the pressed button, and nothing moves focus to the code or says it |
@@ -274,7 +274,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 |---|---|---|---|---|---|
 | COH9-1 | **Medium** | Medium | Open | BDR | “Sign out” fails (`not_allowed`, `own_device`) on a computer that was removed and signed in again, or whose notebook was replaced, because the session has no device; `DELETE /session` would work, and the spec steers an app to the request that fails |
 | COH9-2 | **Nit** | Low | Open |  | The `POST /holders` row names no refusal word for a passkey that already holds the key |
-| COH9-3 | (in SY9-2) | Nit | Open |  | Size before padding, and `too_large`’s `what` |
+| COH9-3 | (in SY9-2) | Nit | Open (the fake's half fixed in #716; the spec's order and `what` remain) |  | Size before padding, and `too_large`’s `what` |
 
 ### The records: docs and decisions
 
@@ -317,8 +317,8 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 
 | ID | Severity | As reported | State | Tag | What |
 |---|---|---|---|---|---|
-| UX9b-1 | **Low** | Medium | Open | gate | Nothing tests #713’s “linked” wiring into the tour, the notebook page (the LV9-8 fix), the shell, and the panel’s nudge; five of seven planted faults there survived. The code is right today |
-| TQ9-1 | **Low** | Medium | Open | gate | No test would notice if `sealDeviceCard` or `sealHolderRecord` used one nonce every time, though every production call relies on the default (the same fault in `sealRecord` is caught). The code is right; the stakes are the highest of any test gap here, since a regression would let the service forge a device card and be sealed the next key |
+| UX9b-1 | **Low** | Medium | Fixed (#716) | gate | Nothing tests #713’s “linked” wiring into the tour, the notebook page (the LV9-8 fix), the shell, and the panel’s nudge; five of seven planted faults there survived. The code is right today |
+| TQ9-1 | **Low** | Medium | Fixed (#716) | gate | No test would notice if `sealDeviceCard` or `sealHolderRecord` used one nonce every time, though every production call relies on the default (the same fault in `sealRecord` is caught). The code is right; the stakes are the highest of any test gap here, since a regression would let the service forge a device card and be sealed the next key |
 | TQ9-2 | **Low** | Medium | Open |  | Two guards against a hostile service have no test that fails without them: the signing-key check in `acceptGrant`, and “every key we hold must be in the incoming keyring” in `checkKeyring`. The second can’t change anything for a keyring the service sends (`parseKeyring` refuses it first), and `sign` is used for nothing in version 1 |
 | TQ9-3 | **Low** | Low | Open |  | Eight smaller website faults survive: the page’s PRF input losing to the service’s extensions, an empty user handle, PRF output sharing the platform’s buffer, extractable imported keys, a multi-key approval proof, and two re-checks |
 | TQ9-4 | **Nit** | Low | Open |  | The service’s full suite caught all 104 planted faults, but 20 only through other files: the unit file named for the code doesn’t hold UP, the five wrong proofs, the three approvals, and others; CI runs the full suite |
@@ -326,7 +326,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | TQ9-6 | **Low** | Low | Open |  | The website’s fake passkeys lack the members real creation answers carry and a counting authenticator |
 | TQ9-7 | **Low** | Low | Open | KNOWN | A few tests depend on the clock or machine speed; some assert an absence after a fixed wait |
 | TQ9-8 | **Nit** | Nit | Open |  | Assertions that can’t fail (`toBeTruthy()` placations) and tests of source text instead of behavior |
-| SY9b-1 | **Low** | Medium | Open |  | 11 of 51 deliberate faults in the sync rules and engine pass every test; three are real guards with none (a stale hold, a newer key in a pull, the catch-up bound) |
+| SY9b-1 | **Low** | Medium | Fixed (#716) |  | 11 of 51 deliberate faults in the sync rules and engine pass every test; three are real guards with none (a stale hold, a newer key in a pull, the catch-up bound) |
 
 ### PR #713’s desk code and words
 
