@@ -37,7 +37,12 @@ laptop and signed in with it from `litbible.net`** (2026-11-25), the
 first outside the rig's virtual authenticator; what prompt made it isn't
 recorded. E231 came of it (rule 17). The same day BVJ approved the
 choices in the notices that were still Claude's
-(`src/scripts/desk/sync/CLAUDE.md`, rule 11).
+(`src/scripts/desk/sync/CLAUDE.md`, rule 11). **A spare key by default
+changes setup, sign-in, and the account's home** (BVJ, 2026-11-26, BDR's
+level 2; `STUDY-DESK.md`, "Order of work," 4, step SK4): the default setup
+with no recovery code, "End-to-end encryption" on and off on the home, and
+Apple and Google first on the sign-in page with "Sign in with a passkey"
+kept as a quieter third. Not built; a Fable session builds it.
 
 ## Routes
 

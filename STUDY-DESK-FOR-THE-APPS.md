@@ -39,6 +39,8 @@ because nothing carried them there. This file is what carries them now.
    below, above all that passkeys carry the key at launch. **They are now
    numbered in one place**: `STUDY-DESK-ENCRYPTION.md`, “Still open,” 1 to
    15 (draft 2, the first entry below). Answer by number here.
+   **The spare key (ask 23) changes 1 to 3**: they now hold for readers
+   who turn on “End-to-end encryption.”
 3. **BDR, the Google Cloud project for Sign in with Google is assigned to
    you** (BVJ, 2026-11-23: “Let's actually just assign BDR the Google
    Cloud project. If he balks, we can change it”). Say here if that
@@ -444,8 +446,61 @@ because nothing carried them there. This file is what carries them now.
     each app, please say what it counts today for a bookmark's label, a
     label's name, and a note's body (code points, UTF-16 units, graphemes,
     or bytes), and whether it can count as the format says.
+23. **The spare key** (asked 2026-11-26, the first entry below). BVJ took
+    BDR's level 2 and Claude's picks for the rest. For BDR to confirm, by
+    number: (1) Apple and Google first, with the passkey kept as a third
+    way, not Apple and Google alone; (2) the option's name, “End-to-end
+    encryption,” and its one line at every setup; (3) no recovery code
+    under the default, required with the option; (4) the option can be
+    turned off again. And please start the Apple and Google setup now (ask
+    12): they can't stay off at launch. The spec's draft 3 will number its
+    own choices for you.
 
 ## The list
+
+### 2026-11-26, a spare key by default: BVJ chose BDR's level 2
+
+**BVJ said yes to BDR's level 2** (BDR's page “Synced notes: three privacy
+levels,” 2026-11-25): the service keeps a spare key to each notebook by
+default and hands it to the reader's devices after they sign in, and each
+reader can turn on “End-to-end encryption.” **Nothing is built yet**, and
+the spec and vectors version 4 still describe today's design. A Fable
+session will build it from the plan in `STUDY-DESK.md` (“Order of work,”
+4, “The spare key”), spec first. The record is `STUDY-DESK.md`,
+“Decisions,” 2026-11-26. BDR's five questions, answered:
+
+1. **Level 2 as the default**: yes.
+2. **The spare key**: no person ever uses it. Only the service's code
+   does, to hand the key to a device signed in to that account. LIT
+   answers a legal demand only as the law requires, and `/privacy` will
+   say so. The service's secret is a Cloudflare Worker secret that BVJ
+   types, with two-step sign-in required on the account.
+3. **The option is “End-to-end encryption”** (“Only you can open your
+   notes, not even LIT.”), not “only my devices,” which wouldn't be true
+   where a synced passkey opens the notebook. Setup mentions it to every
+   reader in one quiet line. Inside it the reader still chooses “Follows my
+   account” or “This device only,” and a recovery code is required; a
+   reader who keeps the default gets none. The option can be turned off
+   again.
+4. **Sign-in**: Apple and Google first, with “Sign in with a passkey” kept
+   as a quieter third way, so a reader who wants neither keeps one (BVJ's
+   requirement of 2026-10-05), rather than Apple and Google alone. **So
+   Apple and Google are needed at launch: please start their setup now**
+   (ask 12).
+5. **The freeze**: the record format doesn't change. The service's holder
+   goes into the spec, the reference, and the vectors (version 5) first,
+   aiming at three weeks of your review before December 24.
+
+**What it changes for the apps**, once built: a new device of a reader who
+keeps the default gets the key from the service after sign-in, with no
+approval or code; the spec's “Still open,” 1 to 3 and 85 now apply inside
+the option; the stores' forms (ask 21.2) change for readers who keep the
+default, since the service can open their notebook; and the app sections
+of `/privacy` change with the website's. **No lawyer is consulted for
+now** (BVJ): Fable researches each legal question and its recommendation
+is followed, the state app-store laws (ask 21.3) and Apple's and Play's
+rules included. **For BDR to confirm**: 2 to 4, Claude's picks that BVJ
+took (ask 23).
 
 ### 2026-11-26, the format says how a length is counted
 

@@ -5715,6 +5715,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **Built 2026-11-24 and 25, and closed.** No reader sees an account:
      accounts open in one browser with `?account=preview`, as the desk
      does with `?desk=on` (below, BVJ's fourth yes).
+     **The spare key changes its setup, sign-in page, and home**
+     (2026-11-26; step SK4, after “Before accounts open”; not built).
      **The pages**: `/account/` (every screen, signed out to the
      account's home), `/account/connect/` (where a link that carries an
      approval code lands), and a box on `/delete-account/`. What a
@@ -6204,6 +6206,11 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      pages; the merge filed liberatingscripture.github.io#126 for LSC's
      own policy.
 
+     **No lawyer for now** (BVJ, 2026-11-26): Fable researches each
+     question below, and its recommendation is followed. The one list,
+     with the spare key's three, is “The lawyer questions, for Fable,”
+     after “Before accounts open.” And **the spare key changes these
+     pages** (step SK5, not built).
      **For a lawyer, if BVJ wants one**: the minimum age's wording; the
      paragraph limiting liability; governing law and the courts; whether
      the sign-in page's sentence is enough assent; whether a passkey's
@@ -6330,8 +6337,15 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      (BVJ's side, BDR on key storage; decision 10, DOC9-1), before the
      format freezes on December 24.
    - **Apple and Google** (BDR's identifiers, then the settings; the
-     spec's “Still open,” 90), or a decision to open with passkeys alone.
-     Built and off.
+     spec's “Still open,” 90). Built and off. **Needed at launch since
+     2026-11-26**: with the spare key they are the sign-in page's first two
+     buttons, so opening with passkeys alone is no longer an option.
+   - **The spare key, built** (a Fable session; SK1 to SK5, below), with
+     its secret typed by BVJ for each environment and two-step sign-in
+     required of every member of the Cloudflare account (BVJ). Not started.
+   - **Fable's research on the lawyer questions**, its recommendations in
+     the pages (BVJ, 2026-11-26; “The lawyer questions, for Fable,” below).
+     Not started.
    - **Audit 9's gates** (`STUDY-DESK-AUDIT-9.md`, “Findings by area,” the
      rows marked “gate”), each fixed or with its line above: SEC9-4 is the
      policy's, and LP9b-5 is Turnstile's.
@@ -6343,6 +6357,139 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      whether `/account/` stays noindex and whether `/delete-account/`
      rejoins the sitemap (DOC9-6), and the production service's origin in
      `SERVICES`.
+
+   **The spare key (BDR's level 2), to be built by a Fable session** (BVJ,
+   2026-11-26: “We're doing all the prep and will hand it to a Fable
+   session to build.”). BVJ chose a spare key kept by the service by
+   default, with “End-to-end encryption” as each reader's option, and took
+   Claude's picks for the rest (under “Decisions,” 2026-11-26). It changes
+   what steps 4a to 4h and 4j built, not the record format. **Nothing is
+   built yet** (“Don't build yet”): this is the plan the building session
+   starts from, written by the session that put the questions to BVJ. Each
+   step is a pull request, in this order, and none merges without BVJ's
+   go-ahead in that session:
+   - **SK1. The spec's draft 3** (`STUDY-DESK-ENCRYPTION.md`). A third kind
+     of holder, the service's, whose record the service can open with a
+     secret of its own. Each choice gets a number under “Still open,” from
+     94, with a pick, for BVJ and then BDR:
+     - **How the service's holder is sealed.** Claude's lean: HPKE to a
+       service public key whose private half is the Worker secret, named by
+       a key id so the secret can be replaced; a device then seals the
+       holder's record as it seals any, and never hands the service a key
+       in the clear. The other way is a device sending the holder's private
+       key for the service to wrap.
+     - **The request that hands a signed-in session the key**, and what the
+       service checks first (the account has the holder; how often).
+     - **Setup under the default** (the service's holder, no recovery code,
+       one quiet line about the option); **turning the option on** (the
+       service's holder removed and the key changed, as removing any holder
+       does, a recovery code made in the same step, and the reader's choice
+       of “Follows my account” or “This device only”); **turning it off** (a
+       device with the key adds the service's holder; the key doesn't
+       change). “A notebook always has a holder” (11) counts the service's.
+     - **What a stolen Apple or Google sign-in may do under the default.**
+       Today it gets a session that can't open the notebook; with a spare
+       key it can. Put it to BVJ with a pick before the draft is final: a
+       wait before a device new to the account gets the spare key while
+       the account's other devices are active (Apple's Stolen Device
+       Protection uses an hour), a yes from one of those devices, or only
+       the notice every device already gives (kept on 2026-11-26; the wait
+       and the yes were not put to BVJ).
+     - **The key proof, the seven-day wait, and removing a device**,
+       rewritten for a session that can get the key by signing in.
+     - **What this protects, and what the service holds, at each setting**;
+       the decided list at the top; a section “Changed for the spare key.”
+     It should land early enough for about three weeks of BDR's review
+     before the freeze (December 24).
+   - **SK2. The reference and the vectors, version 5**
+     (`src/lib/desk-crypto.mjs`, `test/fixtures/notebook-crypto-vectors.json`):
+     the service's holder sealed and opened, with its checks. With SK1 if
+     small.
+   - **SK3. The service** (`workers/notebook-service/`): the holder kind, a
+     migration if a table needs one, the request, its limits, and tests.
+     **The secret comes first**: BVJ types it at Wrangler's prompt for the
+     preview, under the name SK1 chooses, before the pull request that
+     lists it in `secrets.required` merges (a deploy fails without it, as
+     with Turnstile). `DISASTER-RECOVERY.md` names it and says what losing
+     it costs (readers who keep the default keep their devices' notebooks
+     and lose the spare key; ask BVJ whether an offline copy is kept, and
+     never see it). The service's README and `workers/CLAUDE.md` say who
+     may use it (no person) and that no request or tool returns a reader's
+     key except to that account's own session. **Its merge redeploys the
+     preview BDR's apps build against, and a migration can't be rolled
+     back**: say so in the pull request, and tell BDR first.
+   - **SK4. The website** (`src/scripts/desk/account/`, `sync/`): the
+     connector takes the key from the service's holder after sign-in;
+     setup makes the default, with one quiet line about the option; the
+     account's home gets “End-to-end encryption,” on and off, with “Follows
+     my account” and “This device only” inside it; the sign-in page puts
+     Apple and Google first and keeps “Sign in with a passkey” as a quieter
+     third (Apple and Google off until BDR's ids arrive, the spec's “Still
+     open,” 90); the notices and the sign-out sentence follow; notebooks
+     already set up on the preview count as having the option on.
+   - **SK5. The words**: `/privacy`, `/terms/`, the help page's “Ways to
+     keep your notebook,” the first-time card, the tour, and the Settings
+     tab, each true at each setting, with the sentence on legal demands.
+     **After Fable's research on the lawyer questions** (below), whose
+     recommendations are followed. A material change: the effective date
+     moves and “What changed” is back for 30 days (`src/pages/CLAUDE.md`,
+     rules 1 and 4).
+   - **In every one**: a dated entry in `STUDY-DESK-FOR-THE-APPS.md` for
+     what changes for the apps (the stores' forms change for readers who
+     keep the default: Audit 9's decision 9, ask 21), and `npm test`, `npm
+     run check`, `npm run check:links`, and the notebook service's own
+     suite, as each applies.
+
+   **The lawyer questions, for Fable** (BVJ, 2026-11-26, under
+   “Decisions”). No lawyer is consulted for now. Fable researches each
+   question thoroughly and its recommendation is followed, BVJ
+   “acknowledging we understand that it can't give lawyer-level advice.” A
+   recommendation that changes a page is built in SK5, and one for the apps
+   goes to BDR in `STUDY-DESK-FOR-THE-APPS.md`. This is the one list, from
+   step 4j's, Study Desk Audit 9's Appendix H, and the spare key; a new
+   question gets a line here:
+   1. **The minimum age's wording** (13, or older where a country's law
+      says).
+   2. **The paragraph limiting liability**: whether it reaches BDR and
+      contractors, and the missing carve-out, indemnity, severability, and
+      assignment clauses.
+   3. **Governing law and the courts** (Oregon).
+   4. **Assent**: whether the sign-in page's sentence is enough; the apps'
+      sign-in, which shows no Terms line; and “using the account after a
+      change means you accept.”
+   5. **Whether a passkey's credential id is “personal data”** under
+      Oregon's act.
+   6. **The state app-store laws** (Texas, California, Utah, Louisiana;
+      the apps', with BDR: ask 21.3).
+   7. **Who licenses and who contracts**: the license on `/read` is in
+      BVJ's name, and the Terms' party is the Collective.
+   8. **Notice of a change** by a line on the page and in the apps alone,
+      with two different periods.
+   9. **Suspending or closing an account** with no notice or appeal, and
+      the 90 days' carve-out for “a law.”
+   10. **Sensitive data**, now that the service can open a default
+       reader's notebook: whether notes that may reveal religious belief,
+       sexuality, or abuse are sensitive data under Oregon's, Colorado's,
+       and similar acts (and special-category data for readers in the EU),
+       and what consent or notice that asks for.
+   11. **The embedded players and Do Not Track.**
+   12. **The worldwide “ask what we hold”**: no response time, no way to
+       identify an account from a message, and for the EU no lawful basis,
+       controller, transfer note, or complaint route.
+   13. **Children**: “we don't knowingly collect” beside a parent's right
+       to delete an account that can't be found.
+   14. **Apple's standard license agreement** (which the Terms assume) and
+       **Play's Families and target-audience rules** (with BDR).
+   15. **Legal demands** (new with the spare key): what `/privacy` says
+       about a demand for account data and for a notebook the service can
+       open; whether LIT tells the reader when the law allows; and what
+       “challenges demands that go too far” commits a volunteer project to.
+   16. **What the pages may promise at each setting** (new): how to say
+       that the service can open a default reader's notebook while no
+       person does, so that no sentence promises more than is true.
+   17. **The stores' forms at each setting** (new; BDR's, Audit 9's
+       decision 9): how the notebook is declared for a reader who keeps the
+       default, and for one with the option on.
 
    **As it stood before 2026-11-23**: Starts once plan A or C is chosen and, if the Zoom
    wants plan A tested, the proofs (P1 to P3, now the spikes, paused
@@ -8705,6 +8852,112 @@ split itself is still a proposal BVJ worked within but hasn't confirmed.
   reader's accessibility font still wins on screen. Left out: images and
   tables. The set can grow later but never shrink.
 
+### 2026-11-26 (synced notes: a spare key by default)
+
+**BDR proposed changing how private the synced notebook is** (2026-11-25,
+“Synced notes: three privacy levels,” a page in BDR's account that BVJ was
+invited to: https://claude.ai/artifact/11ani67cn4HeQjki4fKsnC). It set out
+three levels (1, ordinary cloud storage, LIT holding the keys; 2, a spare
+key kept by the service by default, with full end-to-end encryption as each
+reader's option; 3, end-to-end only, the plan since 2026-11-23), supported
+level 2, and asked BVJ five questions. BDR also leaned toward Sign in with
+Apple and with Google as the only sign-in buttons at launch. Claude checked
+the page's facts and put the questions to BVJ the next day, with a pick for
+each. **Claude's pick for the first was to keep end-to-end encryption as the
+default; BVJ chose level 2.** Nothing was written in BDR's page: this record
+and `STUDY-DESK-FOR-THE-APPS.md` are the answer.
+
+**BVJ decided** (2026-11-26):
+- **Level 2**: “Yes, BDR's level 2,” to “By default, should LIT be able to
+  open a reader's synced notes?” The service keeps a spare key to each
+  notebook and hands it to the reader's devices after they sign in, so the
+  notes appear on a new device with no code or approval, and each reader
+  can turn on full end-to-end encryption. It changes:
+  - the call's “Plan C, with end-to-end encryption at launch” and BDR's
+    wording rule of 2026-10-07 (“Three plans, not two”), which BDR's page
+    relaxes;
+  - BVJ's calls that the reader chooses where the key lives (2026-11-23)
+    and that every setup makes a recovery code (2026-11-24): both now hold
+    inside the option (below);
+  - step 4h's setup and sign-in page, step 4j's `/privacy` and `/terms/`,
+    which say LIT can't read a notebook, and the spec's draft 2.
+- **Claude's picks for the rest**: “Go with your picks. Don't build yet.”
+  1. **Sign-in at launch** (BDR's question 4): Apple and Google first, and
+     “Sign in with a passkey” kept as a quieter third way, so a reader who
+     wants neither still has one (BVJ's requirement of 2026-10-05). So Apple
+     and Google can't stay off at launch, and BDR starts their setup now.
+  2. **Who may use a spare key** (BDR's question 2): no person. Only the
+     service's own code, to hand the key to a device signed in to that
+     account; no request or tool lets BVJ, BDR, or anyone else open a
+     reader's key. LIT answers a legal demand only as the law requires,
+     says so on `/privacy`, and challenges demands that go too far.
+  3. **The service's secret**: a Cloudflare Worker secret, typed by BVJ at
+     Wrangler's prompt and named in `DISASTER-RECOVERY.md`, with two-step
+     sign-in required of every member of the Cloudflare account.
+     (Cloudflare's Secrets Store has the same exposure and is in beta; a
+     key service outside Cloudflare would add an outside log of each use
+     but not stop someone who can deploy code.)
+  4. **The option's name** (BDR's question 3): “End-to-end encryption,”
+     described as “Only you can open your notes, not even LIT.” BDR's “only
+     my devices” wouldn't be true where a synced passkey opens the notebook.
+     Every reader sees one quiet line about it at setup.
+  5. **How the option behaves**: a reader may turn it off again from a
+     device that has the key; within it the reader still chooses “Follows
+     my account” or “This device only”; a reader who keeps the default gets
+     no recovery code at setup (the spare key is their way back), and the
+     option requires one.
+  6. **The freeze** (BDR's question 5): the record format doesn't change.
+     The service's holder goes into the spec, the reference, and the
+     vectors first, aiming at about three weeks of BDR's review before
+     December 24.
+  And two of Claude's, shown with the picks: notebooks already set up on
+  the preview (BVJ's and the test runs') count as having the option on, and
+  every device still announces a device newly added, now a reader's main
+  warning that someone else has signed in.
+- **No lawyer for now**: “We're not planning to consult a lawyer at this
+  time. Make a note of that in the docs and to have fable do thorough
+  research and go with the recommendation it gives on the lawyer
+  questions, with us acknowledging we understand that it can't give
+  lawyer-level advice.” Every question this record had left for a lawyer,
+  with the spare key's new ones, is in one list under “Order of work,” 4,
+  “The lawyer questions, for Fable,” and `src/pages/CLAUDE.md` keeps the
+  rule. Not started: “Fable is out of tokens for the moment” (BVJ, the same
+  day).
+- **A Fable session builds it**: “We're doing all the prep and will hand it
+  to a Fable session to build.” The plan it starts from is under “Order of
+  work,” 4, “The spare key.” The change that recorded this is the prep: the
+  record, the plan, and pointers in the spec, the apps' list, and the area
+  files. No code, page, spec section, or vector changed.
+
+**What Claude found, for the record** (checked in each platform's
+documentation on 2026-11-26; the notes with sources are in that session's
+shared notes, outside the repo):
+- **A spare key the service can open lets a stolen Apple or Google sign-in
+  open a default reader's notebook**, where today it gets a session that
+  can't, and the key proof, the seven-day wait, and removing a device
+  protect those readers less. Step SK1 puts the ways to soften that to BVJ.
+- **BDR's facts**: Android 8 has no passkeys (right). Password managers
+  vary: in a vendor's tests (Corbado, by its own account “a direction, not
+  a benchmark”) 1Password, Proton Pass, Enpass, and Keeper return the
+  passkey's secret, Dashlane and NordPass don't, and Bitwarden is
+  unreliable; Google Password Manager does in those tests, and no Google
+  page says so (the spec's “Still open,” 19). Windows Hello may on recent
+  Windows 11 (third parties only), and a Windows Hello passkey never
+  carries the key here anyway (“Still open,” 8). “Lose every device, lose
+  the notes” was overstated under “Follows my account,” where the passkey
+  comes back with the Apple or Google account.
+- **iCloud**: under standard protection Apple still keeps Keychain, Health,
+  Messages, and Journal end-to-end encrypted; Notes, Photos, Drive, and
+  Backup are Apple-held, and Apple's guidelines for law enforcement say
+  that content can be produced under a search warrant.
+- **App Store guideline 4.8**: Google sign-in needs an equivalent private
+  option, and Sign in with Apple is one; passkeys alone are very likely
+  LIT's own account system, which the rule exempts (Claude's inference:
+  the text doesn't name passkeys).
+- **Cloudflare**: a Worker secret can't be read back in the dashboard, but
+  any code deployed to the Worker can use it, and nothing there separates
+  “may deploy” from “may use the key.”
+
 ### 2026-11-26 (Study Desk Audit 9: BVJ's decisions)
 
 Study Desk Audit 9 (`STUDY-DESK-AUDIT-9.md`, PR #715) ended with 15
@@ -8920,6 +9173,12 @@ with 29 of its 37 items answered, and then what BVJ told Claude the same
 day, quoted. **The worksheet's item numbers are its own**: its D5 and D6 are
 not this file's D5 (the lock) and D6 (the first-time choice), so they are
 written “item D5” here.
+
+**Changed on 2026-11-26** (under that date): the service keeps a spare key
+to each notebook by default, with end-to-end encryption as each reader's
+option (BDR's level 2). “Encrypted so the LIT can't read it” below, the
+reader's choice of where the key lives, and the recovery code at every
+setup now hold for readers who turn that option on.
 
 **Decided on the call:**
 - **Plan C** (item D1: “BDR and BVJ agree: Plan C”). A small LIT service on
