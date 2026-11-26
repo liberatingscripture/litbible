@@ -210,8 +210,8 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 | SY9-1 | **Low** | Medium | Fixed (#716) |  | One failed notebook read in the engine’s scan drops the touched ids, so an edit waits, with the status saying “up to date,” until the next page load’s full scan |
 | SY9-2 | **Low** | Low | Fixed (#716) |  | The fake service the website’s tests use differs from the real one: the order of its checks, `what: "body"`, a token the real service would refuse, `rev` on replace |
 | SY9b-2 | **Low** | Low | Fixed (#720) |  | “Stop syncing” and sign-out don’t stop a pass already running: it can still merge, write sync state, and push |
-| SY9b-3 | **Low** | Low | Open | BDR | With clocks an hour or a day apart, about a quarter of fuzzed histories revive a deletion or bury a restore; the format’s warning names only lost edits |
-| SY9b-4 | **Low** | Low | Open |  | A refusal the engine doesn’t know is retried for ever behind one quiet line, with no notice |
+| SY9b-3 | **Low** | Low | Fixed (#726; BDR to confirm the apps match) | BDR | With clocks an hour or a day apart, about a quarter of fuzzed histories revive a deletion or bury a restore; the format’s warning names only lost edits |
+| SY9b-4 | **Low** | Low | Fixed (#726) |  | A refusal the engine doesn’t know is retried for ever behind one quiet line, with no notice |
 | SY9b-5 | **Nit** | Low | Open |  | A visible tab’s 60 s poll cuts the backoff short (the `slow_down` half can’t happen today) |
 
 ### The account pages: use and accessibility
@@ -319,7 +319,7 @@ a fix ships, mark it in the State column here, as the desk file's "The records" 
 |---|---|---|---|---|---|
 | UX9b-1 | **Low** | Medium | Fixed (#716) | gate | Nothing tests #713’s “linked” wiring into the tour, the notebook page (the LV9-8 fix), the shell, and the panel’s nudge; five of seven planted faults there survived. The code is right today |
 | TQ9-1 | **Low** | Medium | Fixed (#716) | gate | No test would notice if `sealDeviceCard` or `sealHolderRecord` used one nonce every time, though every production call relies on the default (the same fault in `sealRecord` is caught). The code is right; the stakes are the highest of any test gap here, since a regression would let the service forge a device card and be sealed the next key |
-| TQ9-2 | **Low** | Medium | Open |  | Two guards against a hostile service have no test that fails without them: the signing-key check in `acceptGrant`, and “every key we hold must be in the incoming keyring” in `checkKeyring`. The second can’t change anything for a keyring the service sends (`parseKeyring` refuses it first), and `sign` is used for nothing in version 1 |
+| TQ9-2 | **Low** | Medium | Fixed (#726) |  | Two guards against a hostile service have no test that fails without them: the signing-key check in `acceptGrant`, and “every key we hold must be in the incoming keyring” in `checkKeyring`. The second can’t change anything for a keyring the service sends (`parseKeyring` refuses it first), and `sign` is used for nothing in version 1 |
 | TQ9-3 | **Low** | Low | Open |  | Eight smaller website faults survive: the page’s PRF input losing to the service’s extensions, an empty user handle, PRF output sharing the platform’s buffer, extractable imported keys, a multi-key approval proof, and two re-checks |
 | TQ9-4 | **Nit** | Low | Open |  | The service’s full suite caught all 104 planted faults, but 20 only through other files: the unit file named for the code doesn’t hold UP, the five wrong proofs, the three approvals, and others; CI runs the full suite |
 | TQ9-5 | **Nit** | Low | Open |  | The root suite’s D1 stand-in (`node:sqlite`) binds a missing value as NULL and takes over 100 binds, where workerd’s D1 throws on both; the service’s largest statement binds 14, and its own suite runs on workerd in CI |

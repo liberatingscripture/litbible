@@ -29,6 +29,35 @@ const NEEDS_READER = new Set(["signedOut", "removed", "otherNotebook", "cantOpen
 export const needsReader = (state) => NEEDS_READER.has(state);
 
 /**
+ * A pass that ends in `error` is retried on a timer, which is right for a
+ * fault that passes. After five passes in a row for the same reason and ten
+ * minutes since the first of them (BVJ, 2026-11-26, Audit 9's SY9b-4: both,
+ * because the connector's backoff does five passes in about 75 seconds) the
+ * reader is told, while the timer keeps retrying behind it. The engine counts
+ * them and times them (`status.streak`, `status.failingFor`, by its own
+ * clock); a pass that succeeds, or another reason, starts both over.
+ */
+export const STUCK_AFTER = 5;
+export const STUCK_MS = 10 * 60_000;
+export const isStuck = (status) =>
+  status?.state === "error" &&
+  Number.isFinite(status.streak) &&
+  status.streak >= STUCK_AFTER &&
+  Number.isFinite(status.failingFor) &&
+  status.failingFor >= STUCK_MS;
+
+/**
+ * What the notice is about, or null when it has nothing to say: the state for
+ * a stop only the reader can settle, and `error:<reason>` for a failure that
+ * keeps coming. Kept as `told`'s state, so each is said once (`shouldTell`).
+ * Unlike a stop, a stuck pass is still retried: `needsReader` stays false.
+ */
+export function noticeKey(status) {
+  if (needsReader(status?.state)) return status.state;
+  return isStuck(status) ? `error:${status.reason ?? "failed"}` : null;
+}
+
+/**
  * Where “Reconnect” leads for a stop only the reader can settle (BVJ,
  * 2026-11-24: the button keeps its word and opens the account page, which
  * names the real step: sign in again, join again, or decide about a
@@ -48,7 +77,7 @@ export const STOPPED_WORDS = "Sync has stopped";
  * (`{ state, at }`, `at` in milliseconds), or nothing.
  */
 export function shouldTell(told, state, nowMs) {
-  if (!needsReader(state)) return false;
+  if (!state || (!needsReader(state) && !String(state).startsWith("error:"))) return false;
   if (!told || told.state !== state || !Number.isFinite(told.at)) return true;
   return nowMs - told.at >= TELL_AGAIN_MS || nowMs < told.at;
 }
@@ -152,6 +181,13 @@ export function statusWords(status, format = {}) {
           : "It will sync once this browser joins your notebook again.",
       );
       break;
+    case "error":
+      if (isStuck(status)) {
+        line = "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser.";
+        detail.push(`It will keep trying. If this goes on, let us know on the Contact page and mention “${status.reason ?? "failed"}.”`);
+        break;
+      }
+    // falls through
     default:
       line = `Sync ran into a problem and will try again. Your notebook is in this browser, and ${waiting(pending)} when it works again.`;
   }
@@ -177,8 +213,8 @@ export function statusWords(status, format = {}) {
   if (typeof status?.clock === "number" && Math.abs(status.clock) >= CLOCK_NOTICE_MS) {
     detail.push(
       status.clock > 0
-        ? `This computer’s clock is ${roughly(status.clock)} ahead. Until it is set right, changes made here can replace later ones from your other devices.`
-        : `This computer’s clock is ${roughly(status.clock)} behind. Until it is set right, changes made here can lose to earlier ones from your other devices.`,
+        ? `This computer’s clock is ${roughly(status.clock)} ahead. Until it is set right, what you change or delete here can override newer changes from your other devices.`
+        : `This computer’s clock is ${roughly(status.clock)} behind. Until it is set right, what you change or restore here can be overridden by older changes from your other devices.`,
     );
   }
   const asked = waitingSentence(status?.account?.waiting, format);

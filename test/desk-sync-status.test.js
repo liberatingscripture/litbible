@@ -23,6 +23,10 @@ import {
   noticeDay,
   roughly,
   shouldTell,
+  STUCK_AFTER,
+  STUCK_MS,
+  isStuck,
+  noticeKey,
   shouldTellWaiting,
   statusWords,
   waitingKey,
@@ -153,8 +157,8 @@ test("what couldn't be synced is listed under the line, each kind in its own sen
 
 test("a clock five minutes off is said, with which way it errs", () => {
   assert.deepEqual(statusWords(status("upToDate", { clock: CLOCK_NOTICE_MS - 1 })).detail, []);
-  assert.match(statusWords(status("upToDate", { clock: CLOCK_NOTICE_MS })).detail[0], /clock is about 5 minutes ahead\. Until it is set right, changes made here can replace later ones/);
-  assert.match(statusWords(status("upToDate", { clock: -2 * 60 * 60_000 })).detail[0], /clock is about 2 hours behind\. Until it is set right, changes made here can lose to earlier ones/);
+  assert.match(statusWords(status("upToDate", { clock: CLOCK_NOTICE_MS })).detail[0], /clock is about 5 minutes ahead\. Until it is set right, what you change or delete here can override newer changes from your other devices\.$/);
+  assert.match(statusWords(status("upToDate", { clock: -2 * 60 * 60_000 })).detail[0], /clock is about 2 hours behind\. Until it is set right, what you change or restore here can be overridden by older changes from your other devices\.$/);
 });
 
 test("a deletion or a replacement that is waiting is said, with who asked and when it takes effect", () => {
@@ -285,4 +289,35 @@ test("the notices' own words follow the site's conventions", () => {
     assert.ok(words.length > 0);
     assert.doesNotMatch(words, /["'\u2014]/, `${words}: curly quotes only, and no em dash`);
   }
+});
+
+test("an error that has come five times in a row for one reason asks the reader, in BVJ's words; fewer says the old line (SY9b-4)", () => {
+  assert.equal(STUCK_AFTER, 5);
+  assert.equal(STUCK_MS, 10 * 60_000);
+  // Both are needed: five passes and ten minutes since the first.
+  assert.equal(isStuck(status("error", { streak: 5, failingFor: STUCK_MS - 1 })), false, "five passes in under ten minutes");
+  assert.equal(isStuck(status("error", { streak: 5, failingFor: STUCK_MS })), true);
+  assert.equal(isStuck(status("error", { streak: 40, failingFor: 3 * STUCK_MS })), true);
+  assert.equal(isStuck(status("error", { streak: 4, failingFor: 60 * 60_000 })), false, "four passes in an hour");
+  assert.equal(isStuck(status("error", { streak: 5 })), false, "no time given");
+  const before = statusWords(status("error", { reason: "too_large", streak: 4, failingFor: STUCK_MS }));
+  assert.match(before.line, /^Sync ran into a problem and will try again\./);
+  assert.equal(isStuck(status("error", { streak: 4 })), false);
+  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 4, failingFor: STUCK_MS })), null);
+
+  const words = statusWords(status("error", { reason: "too_large", streak: 5, failingFor: STUCK_MS }));
+  assert.equal(words.line, "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser.");
+  assert.deepEqual(words.detail, ["It will keep trying. If this goes on, let us know on the Contact page and mention “too_large.”"]);
+  assert.equal(words.action, "Reconnect", "the button asks for a pass now");
+  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 9, failingFor: STUCK_MS })), "error:too_large");
+  // Not a stop: the connector still retries it, and a timer is not the reader's to wait on.
+  assert.equal(needsReader("error"), false);
+  // Said once for each reason, and again a day later.
+  const at = 1_000_000;
+  assert.equal(shouldTell(null, "error:too_large", at), true);
+  assert.equal(shouldTell({ state: "error:too_large", at }, "error:too_large", at + 60_000), false);
+  assert.equal(shouldTell({ state: "error:too_large", at }, "error:bad_request", at + 60_000), true);
+  assert.equal(shouldTell(null, null, at), false);
+  assert.equal(noticeKey(status("signedOut")), "signedOut");
+  assert.equal(noticeKey(status("offline")), null);
 });

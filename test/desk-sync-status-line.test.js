@@ -36,8 +36,10 @@ function page() {
   return { settings: document.querySelector("#settings [data-desk-sync-slot]"), notebook: document.querySelector("#notebook-page [data-desk-sync-slot]") };
 }
 
-async function linkedPage() {
+async function linkedPage({ timed = false } = {}) {
   const browser = freshBrowser();
+  // With `timed`, the engine's own clock is the browser's `clock`, which a test moves (the other tests keep the real one).
+  if (timed) browser.env.now = () => new Date(browser.clock.at).toISOString();
   await sync.setSyncEnv(browser.env);
   const slots = page();
   const other = await firstDevice(browser.service, "reader", { clock: testClock(new Date(Date.now() - 60_000).toISOString()) });
@@ -335,4 +337,90 @@ test("on a sheet's own page the notice never comes up, and the next page says it
 
   await reopen(env);
   await until(() => bar.shown.length === 1, "the notice, on the next page");
+});
+
+test("a failure that keeps coming is said after five passes in a row and ten minutes, with its reason, while the retries go on (SY9b-4)", async () => {
+  const { service, timers, bar, clock, store, slots, connector } = await linkedPage({ timed: true });
+  const slot = slots.settings;
+  const button = slot.querySelector(".desk-sync__again");
+  service.refuseAs("too_large");
+  await store.save(note("a note the service will not take"));
+  await moment();
+
+  const fail = async (n) => {
+    await connector.syncNow();
+    await until(() => connector.status().state === "error" && connector.status().streak === n, `failed pass ${n}`);
+    await connector.idle();
+  };
+  // Five in a row inside ten minutes, and six, say nothing.
+  for (let n = 1; n <= 6; n++) {
+    await fail(n);
+    clock.at += 60_000;
+    assert.equal(bar.shown.length, 0, `after ${n} failures in ${n - 1} minutes nothing is said`);
+    assert.match(text(slot, ".desk-sync__line"), /^Sync ran into a problem and will try again\./);
+  }
+  assert.ok(connector.status().failingFor < 10 * 60_000);
+  // The first failing pass after ten minutes since the first failure says it.
+  clock.at += 4 * 60_000 + 1;
+  await fail(7);
+  await until(() => bar.shown.length === 1, "the notice after ten minutes");
+  const words = "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser. It will keep trying. If this goes on, let us know on the Contact page and mention “too_large.”";
+  // (The test moves only the device's clock, so the clock notice follows the words as a further line.)
+  assert.ok(bar.shown[0].message.startsWith(words), bar.shown[0].message);
+  assert.equal(text(slot, ".desk-sync__line"), "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser.");
+  assert.equal(text(slot, ".desk-sync__detail li"), "It will keep trying. If this goes on, let us know on the Contact page and mention “too_large.”");
+  assert.deepEqual(bar.shown[0].choices.map((c) => c.label), ["Reconnect"]);
+  assert.equal(html().hasAttribute(STOPPED_ATTR), false, "no dot: nothing has stopped");
+  assert.equal(button.hidden, false);
+
+  // Retrying goes on behind the notice, and is said once, not at every failure.
+  assert.ok(timers.waiting().length > 0, "a retry is waiting");
+  const calls = service.calls.length;
+  await timers.fire((ms) => ms >= 5000);
+  await until(() => service.calls.length > calls, "a retry after the notice");
+  await connector.idle();
+  assert.equal(connector.status().streak, 8);
+  assert.equal(bar.shown.length, 1, "said once");
+  const db = await openSyncDb();
+  assert.equal((await db.get("told")).state, "error:too_large");
+  db.close();
+
+  // A pass that succeeds starts the count over.
+  service.refuseAs(null);
+  await connector.syncNow();
+  await until(() => state(connector) === "upToDate", "in step again");
+  assert.equal(connector.status().streak, undefined);
+});
+
+test("a different reason starts the count and the time over, and so does a success", async () => {
+  const { service, bar, clock, store, connector } = await linkedPage({ timed: true });
+  await store.save(note("a note"));
+  await moment();
+  const pass = async () => {
+    await connector.syncNow();
+    await connector.idle();
+  };
+  service.refuseAs("too_large");
+  for (let i = 0; i < 4; i++) await pass();
+  assert.equal(connector.status().streak, 4);
+  clock.at += 9 * 60_000;
+  service.refuseAs("bad_request");
+  await pass();
+  assert.equal(connector.status().streak, 1, "another reason: one");
+  assert.equal(connector.status().reason, "bad_request");
+  assert.equal(connector.status().failingFor, 0, "and its time starts over");
+  clock.at += 9 * 60_000;
+  for (let i = 0; i < 4; i++) await pass();
+  assert.equal(connector.status().streak, 5);
+  assert.equal(connector.status().failingFor, 9 * 60_000, "five passes, but not ten minutes since the first of this reason");
+  assert.equal(bar.shown.length, 0);
+  service.refuseAs(null);
+  await pass();
+  assert.equal(state(connector), "upToDate");
+  clock.at += 11 * 60_000;
+  service.refuseAs("bad_request");
+  await pass();
+  assert.equal(connector.status().streak, 1, "a success in between: one");
+  assert.equal(connector.status().failingFor, 0);
+  assert.equal(bar.shown.length, 0);
 });

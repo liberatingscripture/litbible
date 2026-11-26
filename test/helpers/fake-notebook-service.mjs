@@ -127,6 +127,7 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
   let slow = 0;
   let busy = 0;
   let failing = 0;
+  let refusing = null;
   let lost = 0;
   const service = {
     /** Every request, as { method, path, body, account }, in order. */
@@ -151,6 +152,10 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
     /** The next `n` requests are answered `error` (500). */
     fail(n = 1) {
       failing = n;
+    },
+    /** Every request is refused with `word` (a 400 with that error) until `refuseAs(null)`: a refusal the engine has no state for. */
+    refuseAs(word) {
+      refusing = word;
     },
     /** The next `n` requests (those `only` picks, if given) are carried out, and their answers are lost on the way back. */
     loseAnswer(n = 1, only = null) {
@@ -384,6 +389,7 @@ export function createFakeService({ now = () => new Date().toISOString() } = {})
       busy--;
       refuse(503, "busy");
     }
+    if (refusing) refuse(400, refusing);
     if (failing > 0) {
       failing--;
       refuse(500, "error");

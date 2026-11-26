@@ -589,6 +589,28 @@ test("approval", async () => {
   assert.ok(vectors.approval.refused.filter((k) => k.expected.refused === "mac").length >= 8);
 });
 
+test("the guards against a hostile service: a card naming another signing key, a keyring that lacks a key held (TQ9-2)", async () => {
+  const { macKey, id } = await c.approvalKeys(h(vectors.approval.case.given.code));
+  // The vector's card is sealed under the right key for the right device and the right device key, but names
+  // another signing key: only the `sign` comparison refuses it.
+  const k = vectors.approval.refused.find((r) => r.why === "a grant whose card names another signing key than this device's");
+  assert.ok(k, "the shared vector case is in the file");
+  const f = k.given.grant;
+  const grant = { kid: f.kid, enc: h(f.enc), ct: h(f.ciphertext), card: { nonce: h(f.card.nonce), ct: h(f.card.ciphertext) }, mac: h(f.mac) };
+  const device = { id: k.given.device.id, key: pair(k.given.device.key), sign: h(k.given.device.sign.public) };
+  const e = await refusalOf(() => c.acceptGrant({ macKey, id, grant, device }));
+  assert.ok(e, "a card that names another signing key is refused");
+  assert.equal(e.why, "card");
+
+  const key = (n) => new Uint8Array(32).fill(n);
+  const held = { notebook: "n", current: 2, keys: [{ kid: 2, key: key(2) }, { kid: 1, key: key(1) }] };
+  const lacking = { notebook: "n", current: 2, keys: [{ kid: 2, key: key(2) }] };
+  const e2 = await refusalOf(() => c.checkKeyring({ held, incoming: lacking }));
+  assert.ok(e2, "a keyring that lacks a key this device holds is refused");
+  assert.equal(e2.why, "keyChanged");
+  assert.ok(c.checkKeyring({ held, incoming: { ...held } }), "the same keyring is accepted");
+});
+
 test("signingKey", async () => {
   const g = vectors.signingKey;
   assert.equal(c.toBase64url(h(g.key.public)), g.key.sign, "the public key as a card's `sign` carries it");

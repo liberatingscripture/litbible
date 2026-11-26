@@ -1392,7 +1392,12 @@ deletion made in between, every time (BA4). So:
     so the slower device judges the record again, and takes it once its
     clock is within five minutes of the stamp. From then on both hold the
     faster clock's edit, **even over an
-    edit the slower device made to that record in between**. That is the
+    edit the slower device made to that record in between**. The same rule
+    works on deletions and restores: a device whose clock is fast can bring
+    back a record that was deleted on another device, or delete again one
+    restored there (the 2026-11-26 audit's fuzzed histories with clocks an
+    hour or a day apart did one or the other in about a quarter of them).
+    That is the
     cost of leaving the cap to devices, and the reason the service sends its
     own time with every answer: a client can tell a reader whose clock is
     far off (whether it does is each client's own). Cases

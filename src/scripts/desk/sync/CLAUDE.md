@@ -201,6 +201,22 @@ each one cheap to change: one constant, one function, one place.
     `test/desk-sync-stop.test.js` drives the audit's two races with a gated
     service.
 
+13. **A failure that never ends is said after five passes and ten minutes** (Audit 9,
+    SY9b-4; BVJ approved it, 2026-11-26). A refusal the engine has no state
+    for ends a pass in `error`, which the connector retries on its backoff
+    for ever. The engine counts the passes in a row that ended in `error`
+    for the same reason (`status.streak`, and `status.failingFor`, the time since the first of them by the
+    engine's own `now`); a success, a stop, or another
+    reason starts the count over, and an offline pass leaves it. At
+    `STUCK_AFTER` (5) and `STUCK_MS` (10 minutes) both reached (the backoff alone
+    does five passes in about 75 seconds) `isStuck` is true and the notice
+    bar says the words in `desk-sync-status.mjs` (the reason in them), once
+    for each reason and again a day later (`noticeKey`, kept as `told`'s
+    state `error:<reason>`). It is **not** in `NEEDS_READER`: no dot, the
+    connector keeps retrying behind it, and its "Reconnect" asks for a pass
+    now rather than opening the account page. The bar carries no link, so
+    "Contact page" is plain text.
+
 ## A place for the status line
 
 A desk page that wants the line leaves an empty, hidden element marked

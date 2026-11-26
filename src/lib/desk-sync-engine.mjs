@@ -177,6 +177,8 @@ export function createSyncEngine({
   let running = null;
   let stopped = false;
   let failures = 0;
+  /** Passes in a row that ended in `error` for the same reason (a success, or another reason, starts it over): `streak` in the status, with `since` the time of the first of them (the engine's `now`, in ms), which gives `failingFor`. */
+  let streak = { reason: null, count: 0, since: 0 };
   /** While the account's ceiling holds rows back: { until, limits } (the header). */
   let full = null;
   let counts = { pending: 0, blocked: 0, stuck: 0 };
@@ -687,6 +689,7 @@ export function createSyncEngine({
       // Stopped while the last write was on its way: nothing is said (the catch below).
       alive();
       failures = 0;
+      streak = { reason: null, count: 0, since: 0 };
       publish({ state: done ? "upToDate" : "syncing", again: !done });
     } catch (err) {
       open = false;
@@ -705,6 +708,7 @@ export function createSyncEngine({
         log("what is owed could not be counted", inner);
       }
       if (err instanceof Halt) {
+        streak = { reason: null, count: 0, since: 0 };
         publish({ state: err.state, ...err.detail });
       } else if (err instanceof Offline || err?.name === "Offline") {
         failures++;
@@ -712,7 +716,9 @@ export function createSyncEngine({
       } else {
         failures++;
         log("a pass failed", err);
-        publish({ state: "error", failures, reason: err instanceof Refused ? err.word : err instanceof Behind ? "behind" : "failed" });
+        const reason = err instanceof Refused ? err.word : err instanceof Behind ? "behind" : "failed";
+        streak = streak.reason === reason ? { ...streak, count: streak.count + 1 } : { reason, count: 1, since: nowMs() };
+        publish({ state: "error", failures, reason, streak: streak.count, failingFor: Math.max(0, nowMs() - streak.since) });
       }
     }
     return status;
