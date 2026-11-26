@@ -8685,6 +8685,21 @@ answer; the audit's "Findings by area" carries each finding's state.
   device to open the notebook replaces a 30-day trash copy with its
   tombstone; and the backup history holds a deleted account whose notebook
   stays locked.
+- **Decision 5, SEC9-1: an approval link on a browser that holds the
+  notebook** (“All as recommended”). Such a browser never acts on a link's
+  code: it takes the code out of the address as before, drops it, and opens
+  “Add a device” empty, asking for the code the new device shows. The
+  question says when the request was made and how its session signed in
+  (“Asked 2 minutes ago, signed in with a passkey.”, from two new members
+  of `GET /approvals/<id>`, `created` and `through`), and says to approve
+  only a device in hand, in one wording where the new device shows the code
+  and another where it typed this browser's. For BDR to confirm for the
+  apps (the spec's “Still open,” 91).
+- **Decision 6, COH9-1: signing out after removal or replacement** (the
+  same). The client chooses: a session attached to no device sends
+  `DELETE /session`, and a refusal of `DELETE /devices/<id>` as
+  `own_device` falls back to it. The service is unchanged. For BDR to
+  confirm.
 - **Decision 11, LP9b-7: a “What changed” line** (“go with your
   recommendations”), under the effective date, naming the 2026-11-25
   rewrite and this correction. The correction is treated as material: the
@@ -8712,6 +8727,14 @@ answer; the audit's "Findings by area" carries each finding's state.
   account action, and the screen's heading keeps focus (AC9-2, “All as
   recommended”); and pages stop shipping developer comments, now rather
   than at launch (CP9-4, the same).
+- **“Stop syncing” ends the service's session** (COH9's question 2 and
+  SY9b-2, “All as recommended”): it sends `DELETE /session` first,
+  ignoring a failure, and the sync's pass running at that moment is stopped
+  and waited for before its state is cleared. For BDR to confirm.
+- **A “This device only” reader keeps “Sign in with a passkey” after
+  signing out** (LV9's question 1, the same): signing in is the account,
+  and the notebook then asks for the recovery code or another device, as
+  the sign-out sentence now says (decision 13).
 
 ### 2026-11-23 (the call with BDR: plan C, and sync on February 10)
 
