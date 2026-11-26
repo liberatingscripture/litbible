@@ -30,14 +30,21 @@ export const needsReader = (state) => NEEDS_READER.has(state);
 
 /**
  * A pass that ends in `error` is retried on a timer, which is right for a
- * fault that passes. After this many in a row for the same reason (about ten
- * minutes at the connector's backoff; BVJ, 2026-11-26, Audit 9's SY9b-4) the
+ * fault that passes. After five passes in a row for the same reason and ten
+ * minutes since the first of them (BVJ, 2026-11-26, Audit 9's SY9b-4: both,
+ * because the connector's backoff does five passes in about 75 seconds) the
  * reader is told, while the timer keeps retrying behind it. The engine counts
- * them (`status.streak`); a pass that succeeds, or another reason, starts the
- * count over.
+ * them and times them (`status.streak`, `status.failingFor`, by its own
+ * clock); a pass that succeeds, or another reason, starts both over.
  */
 export const STUCK_AFTER = 5;
-export const isStuck = (status) => status?.state === "error" && Number.isFinite(status.streak) && status.streak >= STUCK_AFTER;
+export const STUCK_MS = 10 * 60_000;
+export const isStuck = (status) =>
+  status?.state === "error" &&
+  Number.isFinite(status.streak) &&
+  status.streak >= STUCK_AFTER &&
+  Number.isFinite(status.failingFor) &&
+  status.failingFor >= STUCK_MS;
 
 /**
  * What the notice is about, or null when it has nothing to say: the state for

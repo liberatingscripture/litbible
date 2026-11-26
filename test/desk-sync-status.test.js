@@ -24,6 +24,7 @@ import {
   roughly,
   shouldTell,
   STUCK_AFTER,
+  STUCK_MS,
   isStuck,
   noticeKey,
   shouldTellWaiting,
@@ -268,16 +269,23 @@ test("the notices' own words follow the site's conventions", () => {
 
 test("an error that has come five times in a row for one reason asks the reader, in BVJ's words; fewer says the old line (SY9b-4)", () => {
   assert.equal(STUCK_AFTER, 5);
-  const before = statusWords(status("error", { reason: "too_large", streak: 4 }));
+  assert.equal(STUCK_MS, 10 * 60_000);
+  // Both are needed: five passes and ten minutes since the first.
+  assert.equal(isStuck(status("error", { streak: 5, failingFor: STUCK_MS - 1 })), false, "five passes in under ten minutes");
+  assert.equal(isStuck(status("error", { streak: 5, failingFor: STUCK_MS })), true);
+  assert.equal(isStuck(status("error", { streak: 40, failingFor: 3 * STUCK_MS })), true);
+  assert.equal(isStuck(status("error", { streak: 4, failingFor: 60 * 60_000 })), false, "four passes in an hour");
+  assert.equal(isStuck(status("error", { streak: 5 })), false, "no time given");
+  const before = statusWords(status("error", { reason: "too_large", streak: 4, failingFor: STUCK_MS }));
   assert.match(before.line, /^Sync ran into a problem and will try again\./);
   assert.equal(isStuck(status("error", { streak: 4 })), false);
-  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 4 })), null);
+  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 4, failingFor: STUCK_MS })), null);
 
-  const words = statusWords(status("error", { reason: "too_large", streak: 5 }));
+  const words = statusWords(status("error", { reason: "too_large", streak: 5, failingFor: STUCK_MS }));
   assert.equal(words.line, "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser.");
   assert.deepEqual(words.detail, ["It will keep trying. If this goes on, let us know on the Contact page and mention “too_large.”"]);
   assert.equal(words.action, "Reconnect", "the button asks for a pass now");
-  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 9 })), "error:too_large");
+  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 9, failingFor: STUCK_MS })), "error:too_large");
   // Not a stop: the connector still retries it, and a timer is not the reader's to wait on.
   assert.equal(needsReader("error"), false);
   // Said once for each reason, and again a day later.

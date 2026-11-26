@@ -20,7 +20,7 @@
 //     say it again.
 //
 // One more thing is said the same way, with no dot: a pass that ends in `error`
-// for the same reason five times in a row (`isStuck`, BVJ 2026-11-26). It is
+// for the same reason five times in a row and ten minutes running (`isStuck`, BVJ 2026-11-26). It is
 // still retried on its timer behind the notice, so "Reconnect" asks for a pass
 // now instead of opening the account page.
 //

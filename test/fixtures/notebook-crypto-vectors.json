@@ -3,7 +3,7 @@
  "spec": "STUDY-DESK-ENCRYPTION.md",
  "specDraft": 2,
  "version": 1,
- "vectorsVersion": 2,
+ "vectorsVersion": 3,
  "generatedBy": "npm run build:notebook-crypto-vectors (scripts/build-notebook-crypto-vectors.mjs)",
  "conventions": [
   "Byte strings are lowercase hex. The exceptions are inside text the spec itself defines: a `plaintext` or `text` (JSON as it is sealed) carries its byte strings in base64url, as do a MAC's `macInput` and the passkey responses under `prf`.",

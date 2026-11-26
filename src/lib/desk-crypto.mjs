@@ -26,7 +26,7 @@
 export const CRYPTO_VERSION = 1;
 
 /** The committed vectors' own version: it moves whenever a value in the file does. */
-export const CRYPTO_VECTORS_VERSION = 2;
+export const CRYPTO_VECTORS_VERSION = 3;
 
 export const KEY_BYTES = 32;
 export const NONCE_BYTES = 12;

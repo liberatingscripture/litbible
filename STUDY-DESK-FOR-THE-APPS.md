@@ -460,12 +460,15 @@ because nothing carried them there. This file is what carries them now.
   this device's.” The card is sealed correctly for the right device and
   device key but names a signing key that isn't the device's; `acceptGrant`
   must refuse it as `card`. The file only gained the case (no existing case
-  changed, `vectorsVersion` is still 2), so your runner sees one more case.
-- **The website tells its reader after 5 failed passes in a row with the
-  same reason** (SY9b-4): a notice with “Sync keeps running into a problem,
-  so changes made here aren't syncing. They are saved in this browser.”
-  and the reason's word, while it keeps retrying. A success or another
-  reason starts the count over. The apps may want to match.
+  changed), and `vectorsVersion` is now 3 because of that one added case,
+  so your runner sees one more case.
+- **The website tells its reader after five failed passes in a row with
+  the same reason and ten minutes since the first** (SY9b-4; both, because
+  the backoff alone does five passes in about 75 seconds): a notice with
+  “Sync keeps running into a problem, so changes made here aren’t syncing.
+  They are saved in this browser.” and the reason’s word, while it keeps
+  retrying. A success or another reason starts the count and the time
+  over. The apps may want to match.
 
 ### 2026-11-26, the approval question, a link's code, and signing out (Audit 9)
 
