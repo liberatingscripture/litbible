@@ -731,6 +731,94 @@ Read View's retirement, with a Chapter / Whole book switch on the reading
 page. It is decided there; Claude's view is that either answer leaves
 Reading redundant.
 
+## Beside scripture: the verse menu and the Notebook (decided 2026-11-26)
+
+Design Directions' proposal 11, "Beside scripture: a margin, not a
+dashboard." The verse menu and the Notebook panel are where study begins,
+and both ask a lot before giving anything: the menu is ten rows of equal
+weight, and the panel opens on four tabs, a storage notice with a checkbox,
+a pill, and a badge. The proposal leads with the four things people do to a
+verse and lets the panel be only about the page the reader is on. BVJ took
+it point by point (“1, yes,” then 5, 6, and 7, then 2, 3, and 4 once they
+were worked through). Already settled elsewhere: "Notes" without "My" and
+icon with word ("Controls"), the four highlighter colors ("Color"), the
+storage notice as the panel's foot line and the stage badge leaving the
+panel for the foot of the Study sidebar ("Nothing interrupts the reader").
+
+### The verse menu
+
+- **Four actions across the top, icon and word: Highlight, Note, Bookmark,
+  Copy.**
+- **Each does its usual thing in one press, then shows its choices beneath
+  it** (“5, yes”):
+  - **Highlight** highlights in the last color used, then shows the four
+    colors and Remove, so highlighting stays one press, as today.
+  - **Bookmark** adds one to a verse that has none; on a verse that has one,
+    it shows the choices of today's "Bookmark ▸" flyout (BVJ, 2026-11-04):
+    Remove, Edit, Add another that moves or stays put, and Leave it here.
+  - **Copy** copies the text, then offers Copy link and Copy with footnotes,
+    so E39's three copies stay together.
+  - **Note** opens the editor.
+- **Rows below**: Add to sheet…, Add to collection…, Share… (Share text…,
+  Share image…, and Print), and **Show in Notebook last**, the one-press
+  way to This verse, which stays (below). The proposal dropped Show in
+  Notebook along with This verse.
+- **The selection panel matches** (“6, yes”), as BVJ's rule has it
+  (2026-09-29): the same actions under the same names in both.
+- **Where the Study Desk is off (phones)**, Highlight, Note, and Bookmark
+  have nothing to work with, so the top row would be Copy alone. It is
+  drawn with proposal 15, and the menu keeps today's Copy and Share there
+  until then; **Share itself is revisited at 15** (“7, yes, with revisiting
+  share at 15”).
+
+This replaces E39's "Copy text" split row and the Share flyout as the
+menu's layout, and E112's order of the Notebook's rows.
+
+### The Notebook panel
+
+- **Four tabs, in BVJ's order: Notes, Footnotes, This verse, Greek** (“yes
+  but in this order”). Notes, Footnotes, and Greek each list the chapter one
+  kind at a time; This verse gathers every kind for one verse.
+- **The panel takes the margin's column** (“1, yes”): while it is open, the
+  reader's notes are its Notes list rather than beside their lines, and
+  closing it brings the margin back.
+- **A footnote letter opens its footnote floating beside its line whatever
+  the panel shows** (“2, yes”), as in "The reading page," now over the
+  panel. The Footnotes list doesn't scroll or change, so a reader can read
+  one footnote in the list and another floating (BVJ: “a user might want to
+  see two footnotes at once”). The floating footnote **drags aside by its
+  header**, as the verse menu and the selection panel do (BVJ, 2026-10-14),
+  and keeps its Pin button; pinned footnotes are listed in Notes.
+- **This verse stays.** The proposal dropped it; BVJ was “most resistant”
+  (“there are reasons to have it”), and it is the one place that gathers a
+  verse: its words, footnotes (with Pin), and Greek; the reader's notes,
+  highlights, and bookmark on it with every action they have elsewhere
+  (E148); the reader's notes elsewhere that cite it (N4); the collections
+  that hold it; stepping verse by verse without moving the page; and the
+  gap view (E157). The last three exist nowhere else, and it passes the
+  proposal's own test, being about the page the reader is on. "N more
+  notes" opens it, and opening a verse's menu moves it to that verse, as
+  today.
+- **The Settings tab goes, and nothing in it is lost** (BVJ: “Before
+  agreeing, we need a way to replace what is lost,” then yes once the title
+  menu was shown):
+
+  | In Settings today | Where it goes |
+  |---|---|
+  | Show (the switches) | Display, where proposal 13 merges them into "My marks," still on the H key |
+  | Where the notebook is kept | The panel's foot line, "Kept in this browser only. Back up…" |
+  | My sheets, My collections | The header's Study menu and the footer's Study group, as today |
+  | Print… (with notes, or with room to write) | The panel's title menu |
+  | The notebook page | The title menu, and the header's Study menu |
+  | Notebook actions | The title menu, and the search tray and /search, as today |
+  | Take the tour | The title menu, beside "Start here" |
+  | Help, Feedback | The title menu |
+
+  **The panel's title is a menu, "Notebook ▾,"** as /desk's "Study Desk ▾"
+  is (E15): Print…, the whole notebook, Notebook actions, Take the tour,
+  Help, and Feedback. It opens over the reader's notes rather than replacing
+  them, as the tab did.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again

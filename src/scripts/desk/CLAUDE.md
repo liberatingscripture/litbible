@@ -364,7 +364,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `src/scripts/desk/actions.js` listens, adding "My Notebook" (in BVJ's
      order of 2026-11-12, E112: Highlight, Add a note, Add bookmark, Add to
      sheet, Print, Show in Notebook; Highlight and Add bookmark only in Read
-     View), so a
+     View; Featherboa puts Highlight, Note, Bookmark, and Copy across the
+     menu's top and Show in Notebook last, `SITE-FEATHERBOA.md`, "Beside
+     scripture," and until it is built this order holds), so a
      reader's menus are unchanged. The Notebook's "This verse" tab
      (`desk/tab-verse.js`) listens too: a verse menu opened while the
      notebook is open moves the tab to that verse. Keep the event before `showPanel`, or the panel is measured
@@ -458,7 +460,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `test/desk-footnotes.test.js` holds the page's text of every published
      footnote equal to the JSON's, so a new render-time transform of
      footnote HTML that adds visible text will fail there.
-  10. **The Notebook panel has tabs, one module each**: "My Notes"
+  10. **The Notebook panel has tabs, one module each** (Featherboa makes
+     them Notes, Footnotes, This verse, Greek, and moves Settings into a
+     "Notebook ▾" title menu and Display: `SITE-FEATHERBOA.md`, "Beside
+     scripture"; until it is built, this holds): "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
      and "Greek" (`desk/tab-greek.js`; `public/greek/CLAUDE.md`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
@@ -739,7 +744,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and
        Edit, Add a bookmark that moves or stays put, and for the resting one "Leave
        it here". A verse with none keeps the one-press "Bookmark", and a
-       finger's chips stay flat. **The flyout is shared code** (E39):
+       finger's chips stay flat. (Featherboa shows these choices beneath the
+       menu's Bookmark instead of in a flyout: `SITE-FEATHERBOA.md`, "Beside
+       scripture"; until it is built, this holds.) **The flyout is shared code** (E39):
        `flyoutRow` (`src/scripts/CLAUDE.md`, "One set of actions, two ways
        in"), which also builds "Print ▸" (rule 19). Desk code imports it;
        shared code never imports desk code.

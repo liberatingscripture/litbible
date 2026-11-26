@@ -194,7 +194,12 @@ and `panel-flyout.js`, and `actionRows` in `panel-pieces.js` lays the copy
 and share rows out for both), so keep them in step.
 
 **A mouse or the keyboard gets two flyout rows; a finger's chips stay flat**
-(BVJ, 2026-11-06, E39, for every reader). **"Copy text"** is a split row:
+(BVJ, 2026-11-06, E39, for every reader). Featherboa replaces this layout:
+Highlight, Note, Bookmark, and Copy across the top, each showing its
+choices beneath it once pressed (Copy link and Copy with footnotes under
+Copy), and Share… holding Share text…, Share image…, and Print, in both
+panels (`SITE-FEATHERBOA.md`, "Beside scripture"). Until it is built, this
+holds. **"Copy text"** is a split row:
 pressing the row copies the text exactly as before (one press); its chevron,
 named "More ways to copy", hover (which never takes focus) or the right arrow
 open a flyout of Copy text, Copy link and Copy with footnotes. **"Share"** is
