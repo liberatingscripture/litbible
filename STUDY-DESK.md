@@ -6188,10 +6188,13 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      “Since you answered,” **BVJ approved them as drafted the same day**:
      “I approve the "Since you answered" parts.”
 
-     **Claude's choices, for BVJ to change**: the open card is a button and
-     a link, with the account the lesser of the two. The footer says
-     “Terms of Use.” The effective date is 2026-11-25 on both pages, to
-     move to the merge day if later.
+     **Claude's choices, then approved**: the open card is a button and a
+     link, with the account the lesser of the two, and the footer says
+     “Terms of Use.” BVJ approved both on 2026-11-25: “yes those, "your
+     choices" items are approved.” **Merged 2026-11-25** as PR #713, by
+     BVJ's go-ahead, so the effective date of 2026-11-25 stood on both
+     pages; the merge filed liberatingscripture.github.io#126 for LSC's
+     own policy.
 
      **For a lawyer, if BVJ wants one**: the minimum age's wording; the
      paragraph limiting liability; governing law and the courts; whether
