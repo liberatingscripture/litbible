@@ -442,8 +442,8 @@ because nothing carried them there. This file is what carries them now.
 
 ### 2026-11-26, the service's limits: a full account, a limit on pushes, and unused accounts (Audit 9)
 
-**One answer you can get is new.** BVJ's decisions 1 to 4 of Study Desk
-Audit 9, built in `workers/notebook-service/` (migration
+**One answer you can get is new.** BVJ's answers to Study Desk Audit 9's
+decision 2 and SEC9's question 2, built in `workers/notebook-service/` (migration
 `0004_account_ceiling.sql`), made without BDR in the conversation and so
 **for BDR to confirm** (`STUDY-DESK-ENCRYPTION.md`, “Still open,” 92):
 
@@ -469,6 +469,16 @@ Audit 9, built in `workers/notebook-service/` (migration
   deletion: `sign_in`, then a new empty account.
 - **Turnstile checks the site its token was made on.** The apps send no
   token and see no change.
+- **BVJ requires the apps to prove they are the apps before accounts
+  open**: “Insist BDR build the apps side requiring the apps to prove
+  they're real.” BVJ chose this over moving to Workers Paid (“We won't need
+  paid for quite some time”). A request with no `Origin` skips Turnstile,
+  so today a program can make accounts through the apps' door without end;
+  the ceiling bounds one account, not how many. App Attest on iOS and Play
+  Integrity on Android, sent at sign-up, and required by the service of a
+  request with no `Origin` (the spec's “Still open,” 86). **This one is
+  not a question**: BDR, please say how and by when for each app, so the
+  service's side can be built to match.
 
 **For BDR**: will each app handle the full account as the website does,
 and what will it say to its reader? (The website's words are drafted for

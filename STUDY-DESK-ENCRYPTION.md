@@ -3299,7 +3299,12 @@ Changing one before the freeze is cheap. The numbers go on from 73:
     Google’s Play Integrity, each a new member of the same request, which the service would then
     require of a request with no `Origin`. **For BDR**: will the apps attest at sign-up, and
     when? Until they do, the apps need change nothing: `GET /sign-in` may carry `turnstile`,
-    which they ignore. Neither key is set on any deployment yet.
+    which they ignore. Both keys are set on the preview (since 2026-11-25) and neither on
+    production. **BVJ requires the apps to attest before accounts open** (2026-11-26, Audit 9’s
+    decision 2, in place of moving to Workers Paid: “Insist BDR build the apps side requiring
+    the apps to prove they’re real.”): the service stays on Workers Free, where a program with
+    many addresses could otherwise spend a day’s writes through the apps’ door, and the ceiling
+    (92) bounds one account, not how many.
 87. **The link a QR code carries is `https://litbible.net/account/connect/#a=<16 characters>`,
     the code’s characters unbroken.** “The link” recommended this shape and left the exact
     address to be settled. The website’s account page shows it as a QR code beside the code in

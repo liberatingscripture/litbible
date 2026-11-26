@@ -124,9 +124,14 @@ decision 1). The Free limits are the **account's**, shared by every Worker
 and database on it: 100,000 D1 rows written a day, 50 queries per
 request, Time Travel back 7 days, and Workers Logs kept 3 days. So a flood
 of the notebook preview can also stop the policy report Worker's counts for
-the rest of that day. Production's entry below says it should run on
-Workers Paid ($5 a month), which raises each of those; when the account
-moves, record it here and set a billing notification in the dashboard.
+the rest of that day. **It stays on Free, production included, for now**
+(BVJ, 2026-11-26, Audit 9's decision 2: “We won't need paid for quite
+some time.”). What BVJ chose against a flood instead is the notebook
+service's own ceiling and limits, and **the apps proving they are the apps
+before accounts open** (App Attest and Play Integrity; the spec's “Still
+open,” 86). Workers Paid ($5 a month) raises each of those limits; when
+the account moves, record it here and set a billing notification in the
+dashboard.
 
 ### The notebook service's preview (deployed 2026-11-23)
 
@@ -204,7 +209,7 @@ Whether and when to deploy is BVJ's; the steps are in
   then, and nothing deploys with it); a Custom Domain,
   `notebook.litbible.net`, with one record in the zone; a cron trigger,
   hourly; and three rate limit bindings, which are configuration and no
-  resource. It should run on Workers Paid.
+  resource. It runs on Workers Free for now (BVJ, 2026-11-26; above).
 - **What it will hold**: every signed-in reader's notebook, sealed on their
   devices with keys the service never has, and the plain fields
   `STUDY-DESK-ENCRYPTION.md` lists under "What the service holds." **This
@@ -213,7 +218,10 @@ Whether and when to deploy is BVJ's; the steps are in
 - **Its backup is D1's Time Travel**: any minute of the last 30 days (7 on
   the Free plan), restored with `wrangler d1 time-travel restore`. There is
   no other copy, by design: a second copy is a second place a deleted
-  account would linger. A restore undoes deletions made since, so it is
+  account would linger. BVJ kept it so (2026-11-26, Audit 9): every
+  notebook also lives on its reader's devices, so losing the account loses
+  no notes, and a copy outside Cloudflare would be one more place holding
+  everyone's sealed data. A restore undoes deletions made since, so it is
   BVJ's call each time (`RUNBOOK.md`, 4).
 - **Losing the database entirely** loses the synced copies and no reader's
   notebook: every device holds its own, whole, and pushes it again once a

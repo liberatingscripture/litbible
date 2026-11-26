@@ -271,7 +271,7 @@ so in that session.
 The account's plan matters in one way. On Workers Free a request gets 10 ms of
 CPU, which is enough for everything here but may cut off a push of several
 megabytes; on Workers Paid the limit is 30 seconds. The preview works on
-either. Production should be on Paid ("Production" below).
+either. Production stays on Free for now (BVJ; "Production" below).
 
 ### The address
 
@@ -907,7 +907,9 @@ BDR's identifiers are configured, exactly as on the preview.
 **BVJ's steps, in order, when the day comes.** Each creates or changes
 something on Cloudflare or GitHub.
 
-1. **Decide the plan.** Production should be on Workers Paid: Free gives a
+1. **The plan: Free, for now** (BVJ, 2026-11-26, Audit 9's decision 2:
+   “We won't need paid for quite some time. We have about 500 total app
+   users and 25 daily site visitors.”). What Free costs: it gives a
    request 10 ms of CPU, which may cut off a large push, and keeps Time
    Travel's history for 7 days instead of 30. The deletion page tells
    readers 30 days. Two more reasons, from Cloudflare's pages as read on
@@ -920,7 +922,13 @@ something on Cloudflare or GitHub.
    due deletion takes at least two, so an hourly run with more than about
    two dozen due would stop short and skip that hour's sweep. The same
    holds for the preview on whichever plan the account has today; there
-   it would cost a day of testing.
+   it would cost a day of testing. What BVJ chose instead: the account's
+   ceiling and the limit on pushes (Audit 9), and **the apps proving they
+   are the apps before accounts open** (App Attest and Play Integrity; the
+   spec's “Still open,” 86), so a program can't make accounts without end
+   through the apps' door. Moving to Paid later is one change in the
+   dashboard's Workers plans ($5 a month); record it in
+   `DISASTER-RECOVERY.md`.
 2. **Make the database**: `npx wrangler d1 create litbible-notebook`. Choose
    the location when asked (the preview's is western North America). Put
    the `database_id` it prints into `env.production.d1_databases` in

@@ -43,6 +43,9 @@ curl -s https://notebook-preview.litbible.net/     # or production's address
   `"what":"account"`, 413)**: it holds 100,000 rows or 100 MB. See (6).
 - **Only Apple sign-ins fail (`provider`, 502)**: Apple is unreachable or
   its key is wrong. Nothing else is affected. See (5).
+- **Harm that rolling back can't stop** (the stored data is what's wrong,
+  or one account is filling the database or spending the day's writes):
+  switch the service off (10), then find the cause.
 
 A log line never holds an id, an account, or an address. To find one
 reader's trouble, ask them what their device says: the refusal's word is
@@ -210,3 +213,51 @@ with an assistant. `DISASTER-RECOVERY.md` has every name.
 Write what happened in the pull request that fixes it. If readers were
 affected, or a restore undid a deletion, BVJ decides what they are told. If
 the apps must change anything, it goes in `STUDY-DESK-FOR-THE-APPS.md`.
+
+## 10. Switch the service off (BVJ)
+
+For when rolling back the code can't help: the stored data is what's
+wrong, or one account is doing harm (BVJ, 2026-11-26; Audit 9's decision
+8). Stop the service answering first, then find the cause.
+
+1. **Stop deploys** (3). A deploy puts the address back, since `routes` in
+   `wrangler.jsonc` names it.
+2. **Remove the address.** Cloudflare dashboard: Workers & Pages, the
+   Worker (`litbible-notebook-preview` or `litbible-notebook-production`),
+   Settings, Domains & Routes, the Custom Domain
+   (`notebook-preview.litbible.net` or `notebook.litbible.net`), Remove.
+   It takes about a minute and changes no code. The website and the apps
+   then say they're offline, and every notebook stays whole on its
+   devices. The hourly run goes on, since it needs no address.
+3. **Find the account**, by its counts (an id is no name):
+
+   ```bash
+   npx wrangler d1 execute DB --env production --remote --command "SELECT id, row_count, row_bytes, created FROM accounts ORDER BY row_bytes DESC LIMIT 5"
+   npx wrangler d1 execute DB --env production --remote --command "SELECT account, COUNT(*) AS n FROM rows GROUP BY account ORDER BY n DESC LIMIT 5"
+   ```
+
+   The second counts the rows themselves, for when the first's counts may
+   be wrong (after a rollback past migration `0004`; count again, (2)).
+4. **Delete it, if that is the call (BVJ's).** Not by hand if it holds a
+   token from Apple (`SELECT COUNT(*) FROM apple_tokens t JOIN ways w ON
+   w.id = t.way WHERE w.account = '<id>'` above 0): the service always
+   tells Apple before an account goes, and a hand delete would skip that.
+   Otherwise remove its rows in pieces, as in (7), until the statement
+   changes nothing, then the account:
+
+   ```bash
+   npx wrangler d1 execute DB --env production --remote --command "DELETE FROM accounts WHERE id = '<id>'"
+   ```
+
+   **On Workers Free each row deleted counts against the day's 100,000
+   rows written**, shared with every database on the account, and an
+   index counts again. An account at the ceiling (100,000 rows) can take
+   more than a day's allowance: spread it over days, with the service off
+   or not. The ceiling keeps any account's delete within D1's 30 seconds,
+   so the hourly run's own delete would also work; this is the route for
+   an account nobody asked to delete.
+5. **Switch it back on**: the same page, Add, Custom Domain, the same
+   address. Then let deploys run again (3).
+
+Try it once on the preview when convenient (BVJ's, 2026-11-26), telling
+BDR first in case the apps are testing against it.
