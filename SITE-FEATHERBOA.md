@@ -387,6 +387,35 @@ mark on the page): chips take the 6-pixel corner too, and a real switch
 (“Follow reading,” in place of the Stay here toggle) is the one round
 control.
 
+## Motion (decided 2026-11-26)
+
+Design Directions' proposal 7, "Motion: four speeds, one curve." Movement
+should explain where something came from and then get out of the way. Its
+reason: the stylesheets use about twenty durations today, from 120 to 900
+milliseconds, mostly with the browser's default "ease"; none is wrong alone,
+but together they give the site no physical character. BVJ took it as drawn
+(“Take it”).
+
+| Speed | For | How it moves |
+|-------|-----|--------------|
+| **Instant**, 0 | Pointing, pressing, selecting, switching tabs, turning a setting on, highlighting a verse | It doesn't. Things done all day never make a reader wait |
+| **Quick**, 120 ms | Menus, popovers, tooltips | Fades in and rises 4 pixels toward where it was called from |
+| **Settled**, 180 ms | A margin note opening, the Notebook panel, the phone bar hiding as the reader reads | Slides 8 pixels from its edge and fades |
+| **Large**, 260 ms | Bottom sheets, dialogs, present mode | Travels its full height; the page dims behind it |
+
+- **One curve**: everything arrives fast and settles gently (a sharp
+  ease-out). Leaving takes two thirds as long as arriving. Nothing bounces,
+  and nothing loops.
+- **Scripture never moves.** It does not animate, shift, or reflow when a
+  note or panel opens: the margin is already reserved, so the text stays
+  where the eye left it. Today some panels do reflow it, which is what
+  `keep-reading-place.js` holds the reader's line through; proposals 10
+  and 11 reserve the margin.
+- **Reduced motion is unchanged**: a reader whose device asks for less gets
+  no movement.
+- **Built as** four duration tokens and one easing token, then one pass
+  through the stylesheets to point each transition at one of them.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
