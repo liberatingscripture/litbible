@@ -363,7 +363,10 @@ provided the notes stay with the verses they explain and the work carries a
 fixed attribution notice (/read, "Noncommercial use" and "Quoting the LIT in a commercial work"). Two features serve
 that, and both print the notice from **one constant, `LIT_CREDIT_LINE` in
 `src/lib/lit-credit.mjs`**, which /read's own terms also render. Change the
-notice there or nowhere.
+notice there or nowhere. (Featherboa moves the terms from /read to a
+License page of their own, forwarding /read's old anchors:
+`SITE-FEATHERBOA.md`, "Finding a passage"; until it is built, they are on
+/read.)
 
 - **`src/styles/print.css`** (imported by `Layout.astro`, all `@media print`)
   prints a chapter, an intro or a whole Read View book as text and notes
@@ -561,7 +564,11 @@ notice there or nowhere.
     is no room for a third header button (the short title ran 20–36px into
     them at 320px, in every font), so the icon moves into the phone menu as
     "Search". **A new page with its own `SearchBar` must pass `pageSearch`**,
-    or it renders two.
+    or it renders two. Featherboa keeps the rule but moves a reading
+    page's way in: the toolbar's box goes, and "Search" on the place line
+    opens it in place of the line, while the passage picker gains a typing
+    field of its own (`SITE-FEATHERBOA.md`, "Finding a passage"); until it
+    is built, this holds.
 ## Continue reading, Read View's landing, and keyboard shortcuts
 
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**

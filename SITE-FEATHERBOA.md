@@ -819,11 +819,92 @@ menu's layout, and E112's order of the Notebook's rows.
   Help, and Feedback. It opens over the reader's notes rather than replacing
   them, as the tab did.
 
+## Finding a passage (decided 2026-11-26)
+
+Design Directions' proposal 12, "Finding a passage: the place line is the
+picker." Most visits start with "take me to a passage," and today that is
+three tools: the "Go to passage" button (a grid with nowhere to type), the
+search box in the reading row (which also jumps to a typed reference), and
+/read. The proposal puts all of it in the line that already says where the
+reader is. BVJ took points 1 to 3 (“1-3 yes, but without grouping the
+books”), then worked through the header's "Read," search, and /read (“Yes
+to all of what you just said”).
+
+### The picker
+
+Pressing the book's name in the place line, or G as now, opens one panel:
+
+- **A field at the top** ("book, chapter, or verse"): typing wins over
+  picking, so "rom 8" offers "Go to Romans 8" at once and Enter takes the
+  reader there. It is forgiving ("jn 3 16," "1 cor 13," "romans") with the
+  guesser the 404 page already uses, and "Matthew intro" offers the
+  introduction (E123).
+- **When what is typed isn't a passage**, the last row is "Search for
+  ‘forgiveness’," and Enter runs it, so typing never dead-ends.
+- **Continue reading is its first row** ("Nothing interrupts the reader").
+- **All 27 books in canonical order, with no groups** (BVJ: “There's no
+  reason for that,” of the proposal's "Gospels and Acts," "Letters," and
+  "Revelation"), fitting the panel with no scrolling.
+- **The chosen book's chapters as a grid**, with its introduction under it.
+- **Drafts as today**: a book or chapter still being translated is dimmed
+  and still opens (its page shows how far along it is), now with the words
+  "in progress" beside it.
+- **"Read the whole book" is decided with proposal 14**, which is about
+  exactly that, since Read View and the Reading layout both retire.
+
+Keys stay: G opens the picker, / opens Search, and the arrows turn the
+chapter. The phone's picker is drawn with proposal 15.
+
+### The ways in, and /read
+
+- **"Read" in the header opens the picker panel** on a computer with
+  JavaScript. BVJ called the idea “good overall” and asked how people would
+  then reach /read (“We could potentially rename the /read page if that
+  would help differentiate”); the answer was to split the page, so the
+  panel is all /read is for.
+- **/read becomes the picker at full size**, which is also where "Read"
+  leads without JavaScript. Home has the picker too (the front page, drawn
+  last).
+- **The license gets its own page, "License,"** under About and in the
+  footer, with the owner's words unchanged. Today it sits folded at the foot
+  of /read, which "Read" doesn't name. The old addresses (`/read#license`,
+  `#license-terms`, `#sblgnt-disclaimer`) forward to it, because the apps
+  and the Study Desk link them; BDR points the apps' link at the new page in
+  a later release, and the forwarding covers installed apps meanwhile. The
+  repo's own links (`LICENSE`, `CONTRIBUTING.md`, `public/llms.txt`, the
+  Terms and About pages) move when it is built.
+- **The rest of /read goes where its subject lives** ("Nothing interrupts
+  the reader"): Continue reading is the picker's first row, "Latest text
+  changes" stays on Home and with Release Notes, "Ways to read" goes to the
+  front page, and Read View's card goes with Read View. This replaces BVJ's
+  first answer to the proposal's point 2, that the rest of /read stays below
+  the picker.
+
+### Search on a reading page
+
+- **The reading row's search box goes**, and **"Search" (magnifier and
+  word) joins the place line**, ordered Search · ‹ › · Notebook, with "Open
+  in Study Desk" until proposal 21. BVJ: “In the same line with the arrows
+  and Notebook would only be about a 1/2 inch lower, so people looking at
+  the top right would still see it, and it would be clearly tied to the
+  text.” Claude had recommended the header, on every page, and agreed.
+- **Pressing it, or /, opens the field in place of the line**, as the phone's
+  row does today (audit F3), reading "Search the LIT, or go to a passage,"
+  with results dropping below, verses first.
+- **One way in per page holds** (audit U6): a reading page's is the place
+  line's Search, and every other page keeps the header's magnifier.
+- BVJ's reason it can't live only in the picker: “having it buried in the
+  passage picker feels... well, buried.” What search finds and how its
+  results look is proposal 16's.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
   (above), with 2.0's decision beside the proposals'.
 - **What becomes of Site 2.0's code** behind `data-restyle`.
+- **/read as the full-size picker, and the License page**, each drawn as a
+  page ("Finding a passage"), with /read's lede that names the unfinished
+  texts.
 - **Fraunces's settings** (above).
 - **The Display tray's faces.** Its Default is Inter today; the other two
   choices are Atkinson Next and OpenDyslexic.
