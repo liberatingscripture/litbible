@@ -27,6 +27,13 @@
 // keyring, starts another. What waits is still counted, so the status line
 // can say how much.
 //
+// A STOP IS FINAL (Audit 9, SY9b-2). `stop()` stops the loop (the engine's
+// own stop: no request and no write from then on), cuts off the request in
+// flight, and resolves once the pass that was running has ended. The Web
+// Lock is let go only then, so another tab can't start leading while this
+// one's pass is still finishing. ./start.js waits for it before closing the
+// sync's storage or clearing it.
+//
 // WHAT THE ACCOUNT PAGES GET (step 4h) is the object `createConnector`
 // resolves to, and `linkNotebook` and `unlink` in ./start.js.
 
@@ -70,6 +77,8 @@ export async function createConnector({ store, db, link, env = {} }) {
   } = env;
 
   let stopped = false;
+  /** What stop() resolves, once it was asked. */
+  let stopping = null;
   let leader = false;
   let engine = null;
   let release = null;
@@ -91,7 +100,9 @@ export async function createConnector({ store, db, link, env = {} }) {
   }
   await readKeys();
 
-  const api = createApi({ service: link.service, token: () => token, fetch: send, pageOrigin });
+  // Aborted by stop(): the request in flight is cut off, and none is sent after it.
+  const ending = new AbortController();
+  const api = createApi({ service: link.service, token: () => token, fetch: send, pageOrigin, signal: ending.signal });
 
   /* ── Status ─────────────────────────────────────────────────────────── */
 
@@ -284,6 +295,7 @@ export async function createConnector({ store, db, link, env = {} }) {
   }
 
   async function adoptHere(incoming) {
+    if (stopped) throw new Error("desk-sync: the sync was stopped");
     if (!engine) throw new Error("desk-sync: this browser holds no keys for the notebook");
     await running;
     await engine.adopt(incoming);
@@ -315,7 +327,13 @@ export async function createConnector({ store, db, link, env = {} }) {
         if (m.manual || m.changed || Date.now() - lastPassAt > VISIBLE_AFTER_MS) fire({ changed: m.changed === true, manual: m.manual === true });
       } else if (m.t === "resume") {
         // A new session was written by another tab: every tab reads it, and the leader tries again.
-        await readKeys();
+        try {
+          await readKeys();
+        } catch (err) {
+          // Stopped meanwhile, and the sync's storage closed: there is nothing left to resume.
+          if (!stopped) log("the new session couldn’t be read", err);
+          return;
+        }
         if (leader) runPass({ manual: true });
       } else if (m.t === "adopt" && leader) {
         try {
@@ -382,6 +400,7 @@ export async function createConnector({ store, db, link, env = {} }) {
      */
     async setSession(next) {
       if (typeof next !== "string" || !next) throw new Error("desk-sync: not a session");
+      if (stopped) throw new Error("desk-sync: the sync was stopped");
       await db.set({ token: next });
       await readKeys();
       post({ t: "resume" });
@@ -433,10 +452,18 @@ export async function createConnector({ store, db, link, env = {} }) {
       );
     },
 
-    /** Stops this tab's connector. Storage is left as it is. */
+    /**
+     * Stops this tab's connector for good: no pass starts, the one running
+     * makes no request and no write from here, and the request in flight is
+     * cut off. Resolves once that pass has ended; the Web Lock is let go
+     * then, and not before. Asked again, it is the same promise. Storage is
+     * left as it is.
+     */
     stop() {
-      if (stopped) return;
+      if (stopping) return stopping;
       stopped = true;
+      const tail = Promise.all([engine?.stop(), running]);
+      ending.abort();
       clearTimers();
       for (const undo of cleanup) undo();
       for (const waiting of asks.values()) clearTimer(waiting.timer);
@@ -446,9 +473,15 @@ export async function createConnector({ store, db, link, env = {} }) {
       } catch {
         /* already closed */
       }
-      release?.();
       leader = false;
       listeners.clear();
+      stopping = tail
+        .catch((err) => log("a pass failed as the sync stopped", err))
+        .then(() => {
+          release?.();
+          release = null;
+        });
+      return stopping;
     },
 
     /** For tests: resolves when no pass is running. */

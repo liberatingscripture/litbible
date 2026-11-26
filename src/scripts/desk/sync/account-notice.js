@@ -281,7 +281,8 @@ export function mountAccountNotice(connector, env) {
     try {
       await once(status);
     } catch (err) {
-      log("a notice about the account couldn’t be shown", err);
+      // Taken off meanwhile, as the sync stopped: its storage is closed and refuses, which is no fault.
+      if (!off) log("a notice about the account couldn’t be shown", err);
     } finally {
       working = false;
     }

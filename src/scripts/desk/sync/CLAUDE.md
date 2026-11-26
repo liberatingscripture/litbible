@@ -178,6 +178,22 @@ each one cheap to change: one constant, one function, one place.
       BVJ didn't take), so once the bar is closed the dot's words are a
       screen reader's alone until the account page is opened.
 
+12. **A stop is final** (Audit 9, SY9b-2; BVJ approved the fix,
+    2026-11-26). `unlink`, and every `stopCurrent` in `start.js` (linking
+    anew, `setSyncEnv`), waits for the pass that is running, and once
+    stopped that pass makes no request and no write: the engine's `stop()`
+    sets a flag checked before and after each request, before each write of
+    the sync's state, and inside the notebook's own transaction for a merge.
+    The connector aborts the request in flight (`createApi`'s `signal`) and
+    lets go of the Web Lock only once the pass has ended, so no other tab
+    leads while it finishes. A closed `sync-db.js` handle refuses every call
+    instead of opening the database again; a connection the browser takes
+    away (another tab deleting the database, or a newer page upgrading it)
+    still opens again. A stopped connector's `call` fails as `Offline`, so
+    the account pages make their requests before they stop it.
+    `test/desk-sync-stop.test.js` drives the audit's two races with a gated
+    service.
+
 ## A place for the status line
 
 A desk page that wants the line leaves an empty, hidden element marked
@@ -241,7 +257,10 @@ what the sync leaves to the reader:
   to it and to the service's own code where the order of checks decides the
   answer (no session, a session not open, a body too large) and fails where
   they part (Audit 9, SY9-2); a refusal the stand-in learns joins its cases.
-  `sync-rig.mjs` makes devices; `sync-browser.mjs` makes the page.
+  Its `fetch` honors an abort as a browser's does: the fetch fails at once,
+  and a request already sent goes on at the service. `onCall` can hold a
+  request to make a race exact. `sync-rig.mjs` makes devices;
+  `sync-browser.mjs` makes the page.
 - **End to end is a real browser against `wrangler dev`**, in
   `workers/notebook-service/` with a `.dev.vars` made for this machine
   (never the deployed preview's secret). The local service answers CORS for

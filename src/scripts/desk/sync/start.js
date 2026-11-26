@@ -21,7 +21,9 @@
 //       (./connector.js says what each does).
 //   unlink({ store })
 //       Signing this browser out of syncing: its keys, its session, and the
-//       sync's state go. The notebook stays in the browser, whole.
+//       sync's state go. The notebook stays in the browser, whole. It waits
+//       for a pass already running, so nothing comes in or goes out after it
+//       returns.
 //
 // ONE NOTEBOOK AT A TIME (the plan's C5). A browser is linked to one account
 // notebook or none. `linkNotebook` refuses a browser already linked to
@@ -48,13 +50,20 @@ const sameLink = (a, b) => a && b && a.link === b.link;
 /** What `linkNotebook` writes beside a new link when the account page hands it over. */
 const CARRIED = ["code", "seen"];
 
+/**
+ * Stops this tab's connector and waits for the pass it was running, which
+ * makes no request and no write once stopped (Audit 9, SY9b-2); only then are
+ * the status line and the notices taken off and the sync's storage closed. A
+ * closed handle refuses every call (./sync-db.js), so nothing of this
+ * connector writes there again.
+ */
 async function stopCurrent() {
   const was = current;
   current = null;
   if (!was) return;
   try {
     const connector = await was.ready;
-    connector?.stop();
+    await connector?.stop();
   } catch {
     /* it never started */
   }
@@ -205,10 +214,15 @@ export function linkNotebook({ store, service, token, notebook, device, keyring,
 
 /**
  * Stops syncing in this browser and forgets what syncing needed: the
- * session, the device's keys, the sealed keyring, and the loop's state. The
- * notebook is not touched, and neither is anything on the service: removing
- * this device there (`DELETE /devices/<id>`) is the account pages' request,
- * made before this.
+ * session, the device's keys, the sealed keyring, and the loop's state. A
+ * pass already running is waited for first, and once stopped it makes no
+ * request and no write, so when this returns nothing more comes in or goes
+ * out, and nothing of the sync is written again. The notebook is not
+ * touched, and neither is anything on the service: this sends no request.
+ * What the service is told (removing this device, `DELETE /devices/<id>`, or
+ * ending its session) is the account pages' request, made before this;
+ * signing out and "Stop syncing" both end the device's session there first
+ * (../account/notebook.js), not here.
  */
 export function unlink({ store }) {
   return inTurn(async () => {
