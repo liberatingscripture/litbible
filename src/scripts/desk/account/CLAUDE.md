@@ -22,7 +22,13 @@ request that waits and a device that joined are also said on the page
 being read** (BVJ, 2026-11-25), by the sync's own code:
 `src/scripts/desk/sync/CLAUDE.md`, rule 11. Not built: the final words of
 the first-time choice (step 4j). Sign in with Apple and with Google are built
-and off (rule 19). The Turnstile check is built on both sides and off: the
+and off (rule 19). **The choices Claude made while building are BVJ's
+now** (2026-11-25, “yes” to each of the eight listed under step 4h): the
+header's tiles, its “Sign out,” and “Account” in the phone menu (rule
+17), a heading not drawn twice (rule 18), no announcement here
+(“Routes”), “approved from this computer,” the one press of rule 20,
+and rule 21's three seconds. The Turnstile check is built on both sides
+and off: the
 service asks for it only once BVJ has made a widget and set its site key
 and secret (`workers/CLAUDE.md`, “The notebook service”), and no widget
 has been seen on the sign-in page.
@@ -206,8 +212,9 @@ without the switch. The announcement popover stays off all three
       wasn't there before paint, so `desk-gate.js` never drew the entry (a
       linked browser with the switch off).
     - **Both buttons are tiles**, as the search and Aa buttons are, and
-      joined to `restyle.css`'s ordinary list (Claude's choice: green text
-      beside the green “Read” read as a second primary).
+      joined to `restyle.css`'s ordinary list (Claude's choice, which BVJ
+      kept, 2026-11-25: green text beside the green “Read” read as a
+      second primary).
 18. **One screen at a time, and its heading takes focus** (`screens` in
     `ui.js`), except the page's first, which leaves focus alone: taking it
     on load scrolled `/delete-account/` to its box. A heading that repeats
@@ -244,7 +251,8 @@ without the switch. The announcement popover stays off all three
     step as the three (`settle` in `showHome`), so neither ever moves down
     the page under a reader. Four things to keep:
     - **The wait has an end**, `REST_WAIT_MS` (three seconds; Claude's
-      number), because signing out and deleting are down there. Past it the
+      number, which BVJ kept, 2026-11-25), because signing out and
+      deleting are down there. Past it the
       rest shows and moves once when the lists come. A stop, or a state
       with no pass running (offline, slowed, a pass that failed), settles
       at once, since no list is coming.
@@ -316,3 +324,13 @@ without the switch. The announcement popover stays off all three
   closes and nothing else could sign in to delete it. **Wait for the
   home's lists, not only for “in sync”**: the three sections that need
   their own requests are drawn a moment later over a network.
+- **And from `litbible.net` itself**, the same way and on the same
+  go-ahead: the pages at `https://litbible.net` with `?account=preview`,
+  and `litbible.net` as the relying party wherever the rig names one.
+  It is the only run in which the site's headers meet these pages.
+  **Keep the run out of the site's numbers**: block
+  `*cloudflareinsights.com*` and `*/csp-report*` in each device
+  (`Network.setBlockedURLs`), so test visits are not in the analytics
+  and the policy's week of reports counts readers only, and record
+  violations in the run instead (a `securitypolicyviolation` listener
+  added to every new document, and the protocol's `Log.entryAdded`).

@@ -5796,7 +5796,9 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
          Signed in, it is a small account button whose menu holds the
          sync's status, “Account and devices,” and “Sign out.” The
          Settings tab's status line stays.
-     **Choices Claude made while building, none of them BVJ's yet**:
+     **Choices Claude made while building, each of which BVJ kept
+     (2026-11-25: “yes” to all seven here, and to the three-second
+     wait under “The home now fills from the top down,” below)**:
      the header's two buttons are tiles like Search and Aa, since green
      words beside the green “Read” read as a second primary; “Sign out”
      in the header's menu goes to the account page, which asks first, so
@@ -5880,7 +5882,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      under the three sections is drawn at once and held back, then shown
      in the same step as they are, so neither it nor they ever move. The
      header's “Sign out” question waits for that step too. The wait has
-     an end, three seconds (Claude's number, for BVJ to change), since
+     an end, three seconds (Claude's number, which BVJ kept that day:
+     “yes”), since
      signing out and deleting are down there; a stop, or a sync with no
      pass running, ends it at once. Three tests drive it with the
      lists' answer held. **Seen in headless Chrome the same day**,
@@ -5893,6 +5896,26 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      window, which is the shift every visit over a network had before.
      Not tried against the deployed preview again: that go-ahead was for
      one run.
+     **From `litbible.net` itself, the same evening, on BVJ's go-ahead**
+     (“Yes, try it,” once all three pull requests were merged): the
+     same run with the pages served by the live site and opened with
+     `?account=preview`, so the passkey's relying party is
+     `litbible.net` (still headless Chrome's virtual authenticator, not
+     an operating system's prompt) and the site's own headers came with
+     every page. 53 checks, all passing: each step of the preview run,
+     and five more (the page was `litbible.net`'s own; it came with
+     both policies; the report-only one allows the preview service; and
+     over the real network the home's lists came 250 ms after its
+     status, with “Sign out” drawn in one place and never moved).
+     **Neither policy recorded a violation** on any page the run opened
+     (the account page, `/delete-account/`, a chapter, and About), by
+     the browser's own `securitypolicyviolation` events and its log.
+     That is with no Turnstile widget drawn and Apple and Google off.
+     **The run's account was deleted at the end**, at once, from the
+     computer that held the key, and its passkey then signed in to
+     nothing. The run kept itself out of the site's numbers: it blocked
+     the analytics script and any policy report (none was sent), so the
+     week of reports under 4i counts readers only.
      **A request that waits and a device that joined are now said on
      the page being read** (BVJ, 2026-11-25). Claude mocked where the
      two notices would show outside the account's home, three ways for
@@ -5947,13 +5970,10 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      the second (DevTools can't copy a passkey's PRF secret, so in the
      rig a copied passkey opens nothing, which is the “can't open”
      path); Safari, Firefox, and a real phone; scanning the QR code;
-     the preview or anything else from `litbible.net` itself, where a
-     passkey is a real `litbible.net` one (the preview was reached only
-     from `localhost:4321`); the Turnstile widget and the real
-     siteverify, which wait on a widget and a secret only BVJ can make;
-     the
-     content security policy, since the local server sends no headers;
-     and Apple and Google. Only in tests, not in the browser: a
+     the Turnstile widget and the real siteverify, which wait on a
+     widget and a secret only BVJ can make, and so the content security
+     policy with a widget on the page; and Apple and Google. Only in
+     tests, not in the browser: a
      notebook replaced after its seven days and “Join the new
      notebook”; “Stop syncing on this computer”; adding and removing a
      passkey; “Show a code for the new device instead”; a setup whose
@@ -5961,11 +5981,8 @@ Christmas, which is likely to come before phase 1 is ready to release anyway.
      **What is left of 4h**: Turnstile's widget and its secret, which
      are BVJ's to make and set (the service's half is built and stays off
      until both are there), and then a look at the widget on the sign-in
-     page; a try from
-     `litbible.net` itself, now that the pages are merged, which is the first
-     real `litbible.net` passkey and the first time the content security
-     policy's headers meet these pages; and real browsers and devices
-     (4l). **Known
+     page; and real browsers and devices (4l), which is where an
+     operating system's passkey prompt is first met. **Known
      limits**: a browser that was syncing one account's notebook and
      signs in to a different account is told its notebook “was
      replaced,” which is the right step and the wrong reason; a reader
