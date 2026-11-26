@@ -19,6 +19,11 @@
 //     own state (the `told` value in ./sync-db.js), so the next page doesn't
 //     say it again.
 //
+// One more thing is said the same way, with no dot: a pass that ends in `error`
+// for the same reason five times in a row (`isStuck`, BVJ 2026-11-26). It is
+// still retried on its timer behind the notice, so "Reconnect" asks for a pass
+// now instead of opening the account page.
+//
 // The bar never comes up over a tour or a print, never over a sheet's own
 // page (present mode is never interrupted, as the backup reminder's rule
 // is), never on the account page (which shows the stop and its step
@@ -34,7 +39,7 @@
 // ./notice-parts.js's, shared with the account's notices (./account-notice.js).
 
 import { SLOT_EVENT } from "../../../lib/desk-sync-link.mjs";
-import { ACCOUNT_PAGE, needsReader, shouldTell, statusWords } from "../../../lib/desk-sync-status.mjs";
+import { ACCOUNT_PAGE, needsReader, noticeKey, shouldTell, statusWords } from "../../../lib/desk-sync-status.mjs";
 import { STOPPED_ATTR, WAIT_MS, WAIT_TIMES, barFree, loadBar, markDots } from "./notice-parts.js";
 
 export { STOPPED_ATTR };
@@ -87,7 +92,7 @@ export function mountStoppedNotice(connector, env) {
 
   function show(status) {
     const words = statusWords(status);
-    said = status.state;
+    said = noticeKey(status);
     number = ui.showChoices(
       [words.line, ...words.detail].join(" "),
       [
@@ -95,7 +100,8 @@ export function mountStoppedNotice(connector, env) {
           label: "Reconnect",
           primary: true,
           // Another pass would end the same way: the step is the reader's, and the account page names it.
-          onPress: () => go(ACCOUNT_PAGE),
+          // A failure that keeps coming (`isStuck`) is not that: it is still retried, so the button asks for a pass now.
+          onPress: () => (needsReader(status.state) ? go(ACCOUNT_PAGE) : connector.syncNow()),
         },
       ],
       { onClose: () => {} },
@@ -104,14 +110,16 @@ export function mountStoppedNotice(connector, env) {
 
   /** What the bar does for one status that is no longer on its way somewhere. */
   async function once(status) {
-    const state = status.state;
-    if (!needsReader(state)) {
+    const state = noticeKey(status);
+    if (!state) {
+      // A pass that couldn't reach the service says nothing about a failure that keeps coming: ours stays.
+      if (status.state === "offline") return;
       handled = null;
       waits = 0;
       // Ours comes down: what it said is no longer so.
       if (number !== null) ui?.hideUndo(number);
       number = null;
-      if (state === "upToDate") {
+      if (status.state === "upToDate") {
         const { told } = await db.getAll(["told"]);
         if (told) await db.set({ told: undefined });
       }

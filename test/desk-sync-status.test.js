@@ -23,6 +23,9 @@ import {
   noticeDay,
   roughly,
   shouldTell,
+  STUCK_AFTER,
+  isStuck,
+  noticeKey,
   shouldTellWaiting,
   statusWords,
   waitingKey,
@@ -261,4 +264,28 @@ test("the notices' own words follow the site's conventions", () => {
     assert.ok(words.length > 0);
     assert.doesNotMatch(words, /["'\u2014]/, `${words}: curly quotes only, and no em dash`);
   }
+});
+
+test("an error that has come five times in a row for one reason asks the reader, in BVJ's words; fewer says the old line (SY9b-4)", () => {
+  assert.equal(STUCK_AFTER, 5);
+  const before = statusWords(status("error", { reason: "too_large", streak: 4 }));
+  assert.match(before.line, /^Sync ran into a problem and will try again\./);
+  assert.equal(isStuck(status("error", { streak: 4 })), false);
+  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 4 })), null);
+
+  const words = statusWords(status("error", { reason: "too_large", streak: 5 }));
+  assert.equal(words.line, "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser.");
+  assert.deepEqual(words.detail, ["It will keep trying. If this goes on, let us know on the Contact page and mention “too_large.”"]);
+  assert.equal(words.action, "Reconnect", "the button asks for a pass now");
+  assert.equal(noticeKey(status("error", { reason: "too_large", streak: 9 })), "error:too_large");
+  // Not a stop: the connector still retries it, and a timer is not the reader's to wait on.
+  assert.equal(needsReader("error"), false);
+  // Said once for each reason, and again a day later.
+  const at = 1_000_000;
+  assert.equal(shouldTell(null, "error:too_large", at), true);
+  assert.equal(shouldTell({ state: "error:too_large", at }, "error:too_large", at + 60_000), false);
+  assert.equal(shouldTell({ state: "error:too_large", at }, "error:bad_request", at + 60_000), true);
+  assert.equal(shouldTell(null, null, at), false);
+  assert.equal(noticeKey(status("signedOut")), "signedOut");
+  assert.equal(noticeKey(status("offline")), null);
 });

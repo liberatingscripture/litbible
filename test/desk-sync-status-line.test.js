@@ -336,3 +336,78 @@ test("on a sheet's own page the notice never comes up, and the next page says it
   await reopen(env);
   await until(() => bar.shown.length === 1, "the notice, on the next page");
 });
+
+test("a failure that keeps coming is said after five passes in a row, with its reason, while the retries go on (SY9b-4)", async () => {
+  const { service, timers, bar, store, slots, connector } = await linkedPage();
+  const slot = slots.settings;
+  const button = slot.querySelector(".desk-sync__again");
+  service.refuseAs("too_large");
+  await store.save(note("a note the service will not take"));
+  await moment();
+
+  const fail = async (n) => {
+    await connector.syncNow();
+    await until(() => connector.status().state === "error" && connector.status().streak === n, `failed pass ${n}`);
+    await connector.idle();
+  };
+  for (let n = 1; n <= 4; n++) {
+    await fail(n);
+    assert.equal(bar.shown.length, 0, `after ${n} failures nothing is said`);
+    assert.match(text(slot, ".desk-sync__line"), /^Sync ran into a problem and will try again\./);
+  }
+  await fail(5);
+  await until(() => bar.shown.length === 1, "the notice after the fifth");
+  const words = "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser. It will keep trying. If this goes on, let us know on the Contact page and mention “too_large.”";
+  assert.equal(bar.shown[0].message, words);
+  assert.equal(text(slot, ".desk-sync__line"), "Sync keeps running into a problem, so changes made here aren’t syncing. They are saved in this browser.");
+  assert.equal(text(slot, ".desk-sync__detail li"), "It will keep trying. If this goes on, let us know on the Contact page and mention “too_large.”");
+  assert.deepEqual(bar.shown[0].choices.map((c) => c.label), ["Reconnect"]);
+  assert.equal(html().hasAttribute(STOPPED_ATTR), false, "no dot: nothing has stopped");
+  assert.equal(button.hidden, false);
+
+  // Retrying goes on behind the notice, and is said once, not at every failure.
+  assert.ok(timers.waiting().length > 0, "a retry is waiting");
+  const calls = service.calls.length;
+  await timers.fire((ms) => ms >= 5000);
+  await until(() => service.calls.length > calls, "a retry after the notice");
+  await connector.idle();
+  assert.equal(connector.status().streak, 6);
+  assert.equal(bar.shown.length, 1, "said once");
+  const db = await openSyncDb();
+  assert.equal((await db.get("told")).state, "error:too_large");
+  db.close();
+
+  // A pass that succeeds starts the count over.
+  service.refuseAs(null);
+  await connector.syncNow();
+  await until(() => state(connector) === "upToDate", "in step again");
+  assert.equal(connector.status().streak, undefined);
+});
+
+test("a different reason starts the count over, and so does a success", async () => {
+  const { service, bar, store, connector } = await linkedPage();
+  await store.save(note("a note"));
+  await moment();
+  const pass = async () => {
+    await connector.syncNow();
+    await connector.idle();
+  };
+  service.refuseAs("too_large");
+  for (let i = 0; i < 4; i++) await pass();
+  assert.equal(connector.status().streak, 4);
+  service.refuseAs("bad_request");
+  await pass();
+  assert.equal(connector.status().streak, 1, "another reason: one");
+  assert.equal(connector.status().reason, "bad_request");
+  service.refuseAs("too_large");
+  for (let i = 0; i < 4; i++) await pass();
+  assert.equal(connector.status().streak, 4, "the count of the first reason did not come back");
+  assert.equal(bar.shown.length, 0);
+  service.refuseAs(null);
+  await pass();
+  assert.equal(state(connector), "upToDate");
+  service.refuseAs("too_large");
+  await pass();
+  assert.equal(connector.status().streak, 1, "a success in between: one");
+  assert.equal(bar.shown.length, 0);
+});

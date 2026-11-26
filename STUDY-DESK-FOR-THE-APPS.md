@@ -440,6 +440,33 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-26, clocks far apart, a new refused card, and a failure that asks for help (Audit 9)
+
+**Nothing you call changed**; three things for BDR to take or leave, each
+**for BDR to confirm**:
+
+- **The format's clock warning now names deletions and restores**
+  (`STUDY-DESK-FORMAT.md`, “Two devices whose clocks differ”). The rule is
+  the same and no vector moved: a device whose clock is fast can bring
+  back something deleted on another device, or delete again something
+  restored there (about a quarter of the audit's fuzzed histories with
+  clocks an hour or a day apart). If an app shows a clock warning, the
+  website's now reads “Until it is set right, what you change or delete
+  here can override newer changes from your other devices” (clock ahead)
+  and “what you change or restore here can be overridden by older changes
+  from your other devices” (clock behind).
+- **One more shared vector case** in `notebook-crypto-vectors.json`,
+  `approval.refused`: “a grant whose card names another signing key than
+  this device's.” The card is sealed correctly for the right device and
+  device key but names a signing key that isn't the device's; `acceptGrant`
+  must refuse it as `card`. The file only gained the case (no existing case
+  changed, `vectorsVersion` is still 2), so your runner sees one more case.
+- **The website tells its reader after 5 failed passes in a row with the
+  same reason** (SY9b-4): a notice with “Sync keeps running into a problem,
+  so changes made here aren't syncing. They are saved in this browser.”
+  and the reason's word, while it keeps retrying. A success or another
+  reason starts the count over. The apps may want to match.
+
 ### 2026-11-26, the approval question, a link's code, and signing out (Audit 9)
 
 **One answer grew, and nothing else you call changed**: `GET
