@@ -8813,8 +8813,11 @@ answer; the audit's "Findings by area" carries each finding's state.
 - **Decision 10, DOC9-1: a line for each of iOS's points** (the same).
   One pass before the format freezes on December 24 gives each of the 22
   points and three key-storage points iOS sent (#701) a line: taken, and
-  where; not taken, and why; or BDR's. BVJ's side writes it from COH9's
-  table; the key-storage points are BDR's.
+  where; not taken, and why; or BDR's. Done in #725, under each point in
+  `STUDY-DESK-FOR-THE-APPS.md`: 5 taken, 10 not taken, 7 not taken yet
+  (the website's: spec sentences and vectors for points 1 to 4 and 17
+  before the freeze, and two engine fixes, 18 and 19), and the three
+  key-storage points BDR's.
 - **Decision 11, LP9b-7: a “What changed” line** (“go with your
   recommendations”), under the effective date, naming the 2026-11-25
   rewrite and this correction. The correction is treated as material: the
