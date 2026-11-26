@@ -15,6 +15,16 @@ behind it. Decisions are added as they are made. **Nothing here is built yet.**
   claude.ai organization, so a session in BVJ's account reads them in the
   Browser pane by screenshot; the artifact tools answer "not found." BVJ is
   taking them one question at a time, and each answer gets a section here.
+  **The front page comes last** (BVJ, 2026-11-26).
+  Design Directions' 26 proposals, by part: **Foundations** (1 Three
+  typefaces, 2 Green is ink, 3 One field, 4 Sizes and space, 5 One grammar,
+  6 The kit, 7 Motion, 8 Night, 9 Nothing interrupts); **the reading room**
+  (10 The reading page, 11 The margin, 12 Finding a passage, 13 Display,
+  14 A whole book, 15 The phone, 16 Search, 17 Glossary and articles,
+  18 Print and images); **the front door** (19 Four places, 20 The front
+  page); **the workroom** (21 One workspace, 22 The Notebook, 23 Sheets,
+  24 Greek, 25 Signing in and sync, 26 Small screens). Around them: What I
+  saw, House rules, Nine dares, and Landing it.
 - **Site 2.0** (`SITE-2.0.md`) was built and merged behind `data-restyle` on
   2026-11-17 and has not launched. Featherboa replaces it. Where the two
   disagree, this file wins.
@@ -26,6 +36,9 @@ behind it. Decisions are added as they are made. **Nothing here is built yet.**
   Featherboa decides what becomes of it.
 
 ## Type (decided 2026-11-26)
+
+Design Directions' proposal 1, "Three typefaces, one job each," with its
+reading face changed.
 
 ### The rule
 
