@@ -122,6 +122,12 @@ work," "Production," and what each later step plugs in and where), and
   was read. A new write path that skips the guard is a race, whatever its
   tests say; `test/races.test.js` shows how to force one at an exact point,
   and each guard there was checked by weakening it and watching a test fail.
+- **An account's row counts (`row_count`, `row_bytes`) move only in the
+  batch that writes its rows**, under that batch's guard on `rev` (BVJ's
+  ceiling of 100,000 rows and 100 MB, Audit 9, 2026-11-26; migration
+  `0004`). A new path that adds, removes, or resizes rows without moving
+  them lets an account past its ceiling or refuses it early. A path that
+  deletes every row resets them (`carryOutReplace`).
 - **Nothing personal is stored or logged, and no body, key proof, or session
   token reaches a log.** One line a request, with the route's own pattern and
   never the address asked for; `test/http.test.js` holds the service to it.
@@ -164,7 +170,10 @@ work," "Production," and what each later step plugs in and where), and
     repo: the site key is public, and the tests use Cloudflare's published
     dummy keys. The check runs before a challenge is written. A "no" from
     siteverify for the deployment's own reason (a secret it doesn't know)
-    is `provider`, never the reader's `not_allowed`.
+    is `provider`, never the reader's `not_allowed`. **A token passes only
+    if siteverify's `hostname` is the host of one of `ALLOWED_ORIGINS`**,
+    whole (BVJ, 2026-11-26); `action` is not checked, since the website
+    sets none.
   - **The Android origins in `wrangler.jsonc` and the certificates in
     `public/.well-known/assetlinks.json` change together**; the root's
     `test/link-files.test.js` fails when they differ. Those two link
@@ -181,12 +190,17 @@ work," "Production," and what each later step plugs in and where), and
     its condition inside it** (still open, still waiting, still due).
     `test/waiting-races.test.js` forces each race, and each condition was
     checked by taking it out and watching a test fail. Do the same for a
-    new one.
+    new one. **The sweep of accounts never set up is held the same way**
+    (`sweepUnused`; no notebook, no live session, 30 days; BVJ,
+    2026-11-26): every condition is asked again inside the deleting
+    statement, and `test/sweep-races.test.js` failed with each taken out.
   - **A replaced notebook resets every session's proof.** The next
     notebook's first key is `kid` 1 again.
   - **The address a request comes from is never stored or logged.** It is
     the limiter's key, and is passed on to Turnstile's siteverify with a
-    token, and nothing else. A missing limiter binding answers
+    token, and nothing else. There are three limiters (sign-in starts,
+    `POST /rows`, everything else), each with its own namespace in each
+    environment (`test/config.test.js`). A missing limiter binding answers
     `error` to everything, on purpose.
   - **Production's config has no `PREVIEW_` anything**, and its workflow
     jobs never run on a push; `test/config.test.js` holds both. The top

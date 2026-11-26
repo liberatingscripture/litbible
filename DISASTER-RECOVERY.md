@@ -203,7 +203,7 @@ Whether and when to deploy is BVJ's; the steps are in
   by hand first (its id in `wrangler.jsonc` is a placeholder of zeros until
   then, and nothing deploys with it); a Custom Domain,
   `notebook.litbible.net`, with one record in the zone; a cron trigger,
-  hourly; and two rate limit bindings, which are configuration and no
+  hourly; and three rate limit bindings, which are configuration and no
   resource. It should run on Workers Paid.
 - **What it will hold**: every signed-in reader's notebook, sealed on their
   devices with keys the service never has, and the plain fields

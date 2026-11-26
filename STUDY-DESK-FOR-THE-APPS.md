@@ -440,6 +440,40 @@ because nothing carried them there. This file is what carries them now.
 
 ## The list
 
+### 2026-11-26, the service's limits: a full account, a limit on pushes, and unused accounts (Audit 9)
+
+**One answer you can get is new.** BVJ's decisions 1 to 4 of Study Desk
+Audit 9, built in `workers/notebook-service/` (migration
+`0004_account_ceiling.sql`), made without BDR in the conversation and so
+**for BDR to confirm** (`STUDY-DESK-ENCRYPTION.md`, “Still open,” 92):
+
+- **An account holds at most 100,000 rows and 100 MB** of sealed record (a
+  row's `ct` as bytes). A push that would take it past either is **refused
+  whole**: status 413, `too_large` with two new members, `what: "account"`
+  and `limits: { "rows": 100000, "bytes": 100000000 }`. Nothing of it is
+  stored. **An app that reads every `too_large` as “send a smaller
+  request” would split the push and loop.** Instead: keep every change on
+  the device, send no rows for a while (the website waits an hour, and
+  tries at once when its reader asks), keep pulling, and tell the reader
+  the account is full and nothing was lost. A push that only removes rows,
+  or puts a row again no larger, always goes through.
+- **`POST /rows` is limited to 120 in a minute from one address**, beside
+  the 1,200 every request shares. It answers `slow_down` with `retry`, as
+  before, so an app that already waits on `slow_down` needs nothing new.
+- **The hourly run deletes an account that never set up a notebook**, once
+  it has no live session and is more than 30 days old (or 30 days past its
+  notebook's replacement). Apple's token is revoked first, and the account
+  stays until Apple answers. An app that signs a reader in and leaves the
+  account without a notebook for a month will find it gone, as after any
+  deletion: `sign_in`, then a new empty account.
+- **Turnstile checks the site its token was made on.** The apps send no
+  token and see no change.
+
+**For BDR**: will each app handle the full account as the website does,
+and what will it say to its reader? (The website's words are drafted for
+BVJ in `src/lib/desk-sync-status.mjs`.) Full text:
+`STUDY-DESK-ENCRYPTION.md`, “Changed in Audit 9: the service’s limits.”
+
 ### 2026-11-26, `/privacy` corrected, and the service stores no logs (Audit 9)
 
 **Nothing you call changed**: no request, answer, size, word, or format
