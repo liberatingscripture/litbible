@@ -334,7 +334,11 @@
 - **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
   Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
   non-button icon accents — it carries **ink** text (4.6:1) or white *large*
-  headings, never small white text (only 3.5:1). `--green-deep` (#0F6B33 "Deep
+  headings, never small white text (only 3.5:1). Featherboa takes it off
+  surfaces: it marks (the emblem, the chapter numeral, "you are here," a
+  launch's band on the front page), and the front page's green sections and
+  chat go (`SITE-FEATHERBOA.md`, "Color," "The front page"); until it is
+  built, this holds. `--green-deep` (#0F6B33 "Deep
   Green") is for **solid buttons/CTAs** with **white** labels (6.6:1). Both are
   fixed in dark mode, so a Deep-Green button stays readable in both themes and
   reads as an intentional second shade against LIT-Green surfaces. Do NOT use

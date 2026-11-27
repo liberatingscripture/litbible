@@ -490,7 +490,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      wires `button[data-desk-toggle]` only). **The home page keeps the
      header's** "Study Desk" link (`SiteHeader`'s `deskLink`, which `Layout`
      sets for `/` alone; still `data-desk-toggle`, so global.css shows it with
-     the desk on). **Scripture pages, chapters and book introductions, put a
+     the desk on; Featherboa gives it a panel on the front page instead,
+     `SITE-FEATHERBOA.md`, "The front page," until then this holds). **Scripture pages, chapters and book introductions, put a
      pill in the toolbar's right slot**, the old "Switch to Read View" pill's
      design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
      beside the Read View wrapper, which stays hidden while the preview is on;

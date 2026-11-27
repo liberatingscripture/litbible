@@ -554,9 +554,9 @@ already defines).
      a reader makes adds "New here? Take the tour" to the line their
      action already brings ("Highlighted · Undo"), as E74 offers "Open the
      Notebook" in that line today.
-   - **The front door**: the Study Desk's way in on Home and the header's
-     Study menu offer "Take the tour" to a first-time visitor (drawn with
-     the front page).
+   - **The front door**: Study's way in on Home (its panel, "The front
+     page") and the header's Study menu offer "Take the tour" to a
+     first-time visitor.
 4. **The app banner stays on phones**, dismissed for 90 days as today. The
    proposal left it to BVJ ("it is how many phone readers find the apps"),
    and the website sends phone readers to the apps for its study tools.
@@ -591,7 +591,7 @@ already defines).
      announcement popover"). The window announcing the What's New page is
      how readers learn it exists; after that the marks point to it.
 
-Home's "Continue" row is drawn with the front page, last.
+Home's "Continue" sits on the front page's first screen ("The front page").
 
 ## The reading page (decided 2026-11-26)
 
@@ -894,8 +894,8 @@ row, as a sheet rising nearly to the top ("The phone").
   would help differentiate”); the answer was to split the page, so the
   panel is all /read is for.
 - **/read becomes the picker at full size**, which is also where "Read"
-  leads without JavaScript. Home has the picker too (the front page, drawn
-  last).
+  leads without JavaScript. Home has the picker too, as "Choose a passage
+  ▾" on its first screen ("The front page").
 - **The license gets its own page, "License,"** under About and in the
   footer, with the owner's words unchanged. Today it sits folded at the foot
   of /read, which "Read" doesn't name. The old addresses (`/read#license`,
@@ -1556,6 +1556,86 @@ New page), and took the answers (“2, yes / 3, yes … / 5, yes”).
   ("Small screens").
 - **The footer takes the same four groups and names**, plus Privacy, the
   Terms of Use, and the newsletter ("Nothing interrupts the reader").
+
+## The front page (decided 2026-11-27)
+
+Design Directions' proposal 20 hands the home page to its own artifact,
+"LIT Front Page Directions" ("Three front doors"). Its three directions
+share one page color, green as ink, Fraunces for the voice, reading from
+the first screen, a real passage, the questions as a list, and the
+four-place header:
+
+- **A, the letter**: today's page, calmer. The claim in large light type,
+  one green band holding the name and the way in, the letter, the
+  conversation set as dialogue in type, Luke 3:4–6, and the six questions.
+- **B, open the book**: a first screen of /apps' headline ("A New
+  Testament that's for everyone") beside John 1 open with its note, then
+  three word pairs, the letter, panels for the apps and the podcast, and
+  four questions. The claim moves to About, and the conversation is
+  distilled into the pairs.
+- **C, the library**: the name, "Continue," a field, all 27 books, "This
+  Sunday's" readings, and the claim lower down.
+
+Its author picks B (the artifact's "you" is BDR, so its "the page you
+already like best (/apps)" is BDR's). BVJ asked which Claude would pick
+without knowing that, and whether one of the three or a fourth built from
+today's decisions. Claude chose a fourth: all three were drawn before
+those decisions; the header's "Read" (the picker, "Continue" its first
+row) and /read already serve returning readers, which is C's job; and the
+best parts are spread across A and B. BVJ took it, adding a line to the
+first screen, naming the pairs, and dropping the conversation (“1, yes,
+but add … 3, yes, faith, liberation, righteousness 4, we can ditch it”;
+the rest “yes,” and “Left Out: yes”).
+
+### Top to bottom
+
+- **The first screen.** BVJ's claim and question ("The Bible is a library
+  of sacred literature from oppressed & marginalized communities. So why
+  do we translate it to justify more trauma, authoritarianism, and
+  exclusion?") in large, light Fraunces. Under it the full name
+  ("Introducing the Liberation & Inclusion Translation of the Christian
+  Scriptures"), since the header always says "LIT Bible" ("Four places:
+  the header"), and after that **“A Bible that's FOR everyone”** (BVJ's
+  addition, in BVJ's capitals; B's headline set "for" in italics). Then
+  "Read John 1," the page's one filled button; "Choose a passage ▾," the
+  picker ("Finding a passage"); and "Continue: Romans 8" for a returning
+  reader ("Nothing interrupts the reader"). A quiet "Latest change" line
+  sits under the buttons, as today. Beside them, John 1:1–5 drawn by the
+  Read page itself, with the "Conversation" note in the margin ("The
+  reading page"), so a stranger sees what reading here looks like. The
+  words are A's and the layout B's.
+- **The letter, whole** ("Hi there. I'm Brandon."), as today. It ends
+  "One Greek word at a time," which leads into the pairs.
+- **"One Greek word at a time": three pairs, faith, salvation, and
+  righteousness** (BVJ: “faith, liberation, righteousness”). Each is
+  drawn as the glossary draws an entry's head ("The glossary and
+  articles": the pair is the headline), worded as its entry
+  (`faith-trust`, `salvation-liberation`, `righteousness-justness`), and
+  opens it. B's first pair, Word → Conversation, has no entry, and John 1
+  shows it on the first screen.
+- **Three panels in /apps' colors** ("Color"): the apps (cobalt) and the
+  podcast (red), the "Ways to read" /read hands to the front page
+  ("Finding a passage"), and, on a computer, Study (forest), its way in
+  from Home, offering "Take the tour" to a first-time visitor ("Nothing
+  interrupts the reader").
+- **The questions as a list, their pictures gone**: four of today's six
+  (the values, who is translating, who keeps it going, and the work
+  shown), since the apps and the podcast have panels.
+- **No green band, save a launch's**, under the first screen for its set
+  time ("Color," "Nothing interrupts the reader").
+
+### Left out
+
+- **The conversation, and the Luke 3:4–6 after it** (BVJ: “we can ditch
+  it”). Claude had proposed keeping it, set as two voices in type, with
+  liberation left out of the pairs to keep its reveal; liberation is a
+  pair instead. Its bubbles' accents, sky and ocean, were already gone
+  ("Color").
+- **C's book list**: "Choose a passage" opens the same picker, and /read is
+  the picker at full size ("Finding a passage").
+- **"This Sunday,"** until the site has the lectionary data the apps
+  already have.
+- **B's /apps headline, and A's green band holding the name.**
 
 ## The Study Desk (decided 2026-11-26)
 
@@ -2527,6 +2607,9 @@ BVJ: “1, yes. 2, yes. 3, just use the apps! 4, yes.”
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
+- **The front page on a phone** ("The front page"). Claude's note, not put
+  as a question: the same order, with the buttons right under the claim
+  and John 1 after them.
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and
