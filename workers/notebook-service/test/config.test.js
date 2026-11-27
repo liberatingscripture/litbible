@@ -86,12 +86,24 @@ describe("production", () => {
     expect(production.vars.PASSKEY_ORIGINS).toBe(preview.vars.PASSKEY_ORIGINS);
   });
 
-  it("has no identifier of Apple's or Google's, as the preview has none", () => {
-    for (const env of [preview, production]) {
-      for (const name of ["APPLE_CLIENT_IDS", "APPLE_TEAM_ID", "APPLE_KEY_ID", "APPLE_PRIVATE_KEY", "GOOGLE_CLIENT_IDS"]) {
-        expect(env.vars[name], name).toBeUndefined();
-      }
+  it("has no identifier of Apple's or Google's: Apple is the preview's alone, with a key to be replaced", () => {
+    for (const name of ["APPLE_CLIENT_IDS", "APPLE_TEAM_ID", "APPLE_KEY_ID", "APPLE_PRIVATE_KEY", "GOOGLE_CLIENT_IDS"]) {
+      expect(production.vars[name], name).toBeUndefined();
     }
+    expect(preview.vars.GOOGLE_CLIENT_IDS).toBeUndefined();
+  });
+
+  it("never writes Apple's key into the file, in either environment", () => {
+    for (const env of [preview, production]) expect(env.vars.APPLE_PRIVATE_KEY).toBeUndefined();
+    expect(raw).not.toMatch(/APPLE_PRIVATE_KEY"\s*:/);
+    expect(raw).not.toContain("PRIVATE KEY-----");
+  });
+
+  it("turns Sign in with Apple on in the preview alone (2026-11-27): the iOS app, its team, the key's id, and the key required", () => {
+    expect(preview.vars.APPLE_CLIENT_IDS).toBe("com.litbible.app");
+    expect(preview.vars.APPLE_TEAM_ID).toMatch(/^[A-Z0-9]{10}$/);
+    expect(preview.vars.APPLE_KEY_ID).toMatch(/^[A-Z0-9]{10}$/);
+    expect(preview.secrets.required).toContain("APPLE_PRIVATE_KEY");
   });
 
   it("never writes Turnstile's secret into the file, in either environment", () => {
@@ -129,10 +141,10 @@ describe("what both environments must have, each written out (a named environmen
 });
 
 describe("the preview", () => {
-  it("is the only environment with the preview's way in, and requires its secret to deploy", () => {
+  it("is the only environment with the preview's way in, and requires its secrets to deploy", () => {
     expect(preview.vars.ENVIRONMENT).toBe("preview");
     expect(preview.vars.PREVIEW_SIGN_IN).toBe("on");
-    expect(preview.secrets).toEqual({ required: ["PREVIEW_SECRET", "TURNSTILE_SECRET"] });
+    expect(preview.secrets).toEqual({ required: ["PREVIEW_SECRET", "TURNSTILE_SECRET", "APPLE_PRIVATE_KEY"] });
   });
 });
 

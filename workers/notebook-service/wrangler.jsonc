@@ -72,13 +72,23 @@
         // /sign-in hands it to the website. Its secret is the Wrangler secret
         // TURNSTILE_SECRET, never written here; the check is on only where
         // both are set.
-        "TURNSTILE_SITE_KEY": "0x4AAAAAAGTndtU2opdLCqsd"
+        "TURNSTILE_SITE_KEY": "0x4AAAAAAGTndtU2opdLCqsd",
 
-        // Sign in with Apple and with Google are OFF: no client id is set
-        // here, and none is guessed. They come from BDR's Apple developer
-        // account and Google Cloud project (README, "Apple and Google").
-        //   APPLE_CLIENT_IDS, APPLE_TEAM_ID, APPLE_KEY_ID   variables
-        //   APPLE_PRIVATE_KEY                               a Wrangler secret
+        // Sign in with Apple, ON in the preview (2026-11-27), for the iOS
+        // app to test (README, "Apple and Google"). Identifiers from BDR's
+        // Apple developer account, not secrets: the iOS app's bundle id and
+        // team id, which its code and the site's apple-app-site-association
+        // both name (STUDY-DESK-FOR-THE-APPS.md, ask 12), and the id of the
+        // Sign in with Apple key BDR made, as its .p8 file is named. The key
+        // itself is the Wrangler secret APPLE_PRIVATE_KEY, never written here.
+        // No Services ID yet, so no web flow: the website offers Apple only
+        // once its own PROVIDER_CLIENTS names one.
+        "APPLE_CLIENT_IDS": "com.litbible.app",
+        "APPLE_TEAM_ID": "9KL9F7A3CR",
+        "APPLE_KEY_ID": "AFNXV8W456"
+
+        // Sign in with Google is OFF: no client id is set here, and none is
+        // guessed. It comes from BDR's Google Cloud project.
         //   GOOGLE_CLIENT_IDS                               a variable
       },
       "d1_databases": [
@@ -109,7 +119,7 @@
         { "name": "PUSH_LIMIT", "namespace_id": "4103", "simple": { "limit": 120, "period": 60 } }
       ],
       // `wrangler deploy` refuses to deploy the preview until these secrets are set.
-      "secrets": { "required": ["PREVIEW_SECRET", "TURNSTILE_SECRET"] }
+      "secrets": { "required": ["PREVIEW_SECRET", "TURNSTILE_SECRET", "APPLE_PRIVATE_KEY"] }
     },
 
     // Deploys as the Worker "litbible-notebook-production". NOT DEPLOYED, and
@@ -127,8 +137,9 @@
         "PASSKEY_ORIGINS": "https://litbible.net,android:apk-key-hash:i0jYJmPpHB9l29QmwXak-oP4_MisDdoXizByqeH510k,android:apk-key-hash:1fwRSSnQjSYWhPzTsioZe2Wjm838nZnc6GVT8PMwlEU"
 
         // Never here: PREVIEW_SIGN_IN, PREVIEW_SECRET, PASSKEY_LOCAL_ORIGINS.
-        // Apple and Google are off until BDR's identifiers are configured,
-        // exactly as on the preview.
+        // Apple and Google are off. Apple is on in the preview only, with a
+        // key BVJ means to replace before production (README, "Apple and
+        // Google"); production takes the new key's id and its own secret.
       },
       "d1_databases": [
         {

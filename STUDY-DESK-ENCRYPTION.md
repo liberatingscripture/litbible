@@ -1874,13 +1874,15 @@ GET /sign-in
       "turnstile": "<Turnstile's site key>" }      only where the check is on
 ```
 
-On the preview today it answers `["passkey"]`. **`turnstile` is there only where the deployment
+On the preview today it answers `["passkey", "apple"]` (Apple since 2026-11-27, for the iOS app). **`turnstile` is there only where the deployment
 checks a Cloudflare Turnstile token before a new account** (below, and “Still open,” 86): it is
 the site key a browser shows the widget with, public by design. Where the check is off the member
-is absent. A client that shows no widget (an app) ignores it. **Sign in with Apple and with Google are built and
-off**: their client ids come from BDR’s Apple developer account and Google Cloud project, none is
-configured, and none is guessed (“Still open,” 41). They have been tested against stand-ins for
-the two providers and against neither provider itself.
+is absent. A client that shows no widget (an app) ignores it. **Sign in with Apple is on in the
+preview for the iOS app (2026-11-27), and Sign in with Google is built and off**: their client ids
+come from BDR’s Apple developer account and Google Cloud project, Apple’s are configured in the
+preview alone (the iOS app’s bundle id, no Services ID), and none is guessed (“Still open,” 41).
+They have been tested against stand-ins for the two providers; the iOS app’s test is Apple’s
+first meeting with the real one.
 
 **Every sign-in answers a challenge the service made**: 32 random bytes, good once and for five
 minutes. A passkey signs it. Apple and Google carry it back as the identity token’s `nonce`. So
@@ -3051,7 +3053,11 @@ test. Changing one before the freeze is cheap. The numbers go on from 40:
     never written anywhere; and the redirect address a web flow would use. For Google: each OAuth
     client id a token will be issued to (the one the Android app asks Credential Manager for, the
     iOS app’s, the website’s). **Until then both are off, and nothing here has met either
-    provider.** **BVJ, 2026-11-24: “I’ll let BDR answer.”**
+    provider.** **BVJ, 2026-11-24: “I’ll let BDR answer.”** **Apple, answered for the iOS app
+    (2026-11-27)**: the bundle id and team id from the app’s code, and a key BDR made, set in the
+    preview alone. The key is temporary, since its text reached a conversation with an assistant:
+    a new one comes before production, set from its file (the service’s README, “Apple and
+    Google”). Still open: the Services ID and its return addresses, and all of Google.
 42. **The origins a passkey may answer from.** `https://litbible.net`; the Android app by the two
     certificates in `assetlinks.json`; and, on the preview alone, `http://localhost:4321` with the
     relying party `localhost`. For BDR: which of the two certificates is the Play signing key and
