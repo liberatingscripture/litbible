@@ -795,7 +795,7 @@ M3 and "Order of work", 3j), on the sheet's own page:
 where the room is lives in the open windows. An empty text or question
 part (no words and no rule) has no screen, and an empty Leader only part
 gives no note; a part with only a heading or a rule still shows
-(`presentScreens`, SH5-8). Five things to know:
+(`presentScreens`, SH5-8). Seven things to know:
 - **`src/lib/desk-present.mjs` is the rules** (pure, tested): the
   screens (`presentScreens`: a start screen, then each passage, text,
   question and key terms box the room sees; a Leader only part goes to
@@ -842,6 +842,12 @@ gives no note; a part with only a heading or a rule still shows
   on the document in the capture phase, and a strip button about to be
   disabled or hidden hands focus to the stage first, so focus never
   falls out of the keys' reach (BA79).
+- **The screen stays on** (E233): the room's window and the presenter view
+  each hold a screen wake lock (`keepScreenOn`), asked for again whenever the
+  page shows (the browser lets it go while hidden) and let go when the room's
+  window closes; a missing or refusing API changes nothing and says nothing.
+  A phone projecting a shared sheet needs it most, and only a real phone shows
+  it working (`test/desk-present-wake-lock.test.js` drives a stub).
 
 ## Rule 21: getting started and sharing
 

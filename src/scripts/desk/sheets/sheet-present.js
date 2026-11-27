@@ -19,6 +19,9 @@
 //   windows on screens (Chrome and Edge, the Window Management API) the
 //   presentation moves to the other screen; elsewhere the leader drags it
 //   there. The two windows stay in step through a BroadcastChannel.
+// - **The screen stays on** (E233): both windows hold a screen wake lock while
+//   they are open, so a phone mirrored to a projector, or a laptop on one long
+//   screen, doesn't sleep when the leader stops tapping (`keepScreenOn`).
 //
 // The rules are src/lib/desk-present.mjs. The screens are drawn from the same
 // reading of each chapter the copies use (sheet-copy.js), so a blank or a
@@ -221,6 +224,60 @@ function fitScreen(el, height) {
   });
   notes.style.setProperty("--present-notes-size", `${noteSize}px`);
   notes.scrollTop = 0;
+}
+
+/* ── The screen stays on ─────────────────────────────────────────────── */
+
+/**
+ * Hold a screen wake lock until the returned function is called (E233), so the
+ * device doesn't dim or lock mid-talk: a phone projecting a sheet by AirPlay,
+ * casting or an adapter shows the room whatever its own screen shows. The
+ * browser lets the lock go whenever the page is hidden, so it is asked for
+ * again each time the page shows. Where the API is missing, or the request is
+ * refused (battery saver, a permissions policy), nothing is said: the
+ * presentation runs as it did without it. Nothing is stored.
+ */
+function keepScreenOn() {
+  const api = globalThis.navigator?.wakeLock;
+  if (typeof api?.request !== "function") return () => {};
+  let lock = null;
+  let asking = false;
+  let done = false;
+  const letGo = (held) => {
+    try {
+      Promise.resolve(held?.release?.()).catch(() => {});
+    } catch (_) {}
+  };
+  const ask = async () => {
+    if (done || asking || document.visibilityState === "hidden" || (lock && lock.released !== true)) return;
+    asking = true;
+    try {
+      const got = await api.request("screen");
+      if (done) letGo(got);
+      else {
+        lock = got;
+        // Let go by the browser (the page hidden): forget it, so showing asks again.
+        got?.addEventListener?.("release", () => { if (lock === got) lock = null; });
+      }
+    } catch (_) {
+      // Refused: the screen may sleep, as it did before.
+    } finally {
+      asking = false;
+    }
+  };
+  const onVisibility = () => {
+    if (document.visibilityState === "visible") ask();
+  };
+  document.addEventListener("visibilitychange", onVisibility);
+  ask();
+  return () => {
+    if (done) return;
+    done = true;
+    document.removeEventListener("visibilitychange", onVisibility);
+    const held = lock;
+    lock = null;
+    letGo(held);
+  };
 }
 
 /* ── Where the room is, shared by both windows ───────────────────────── */
@@ -550,8 +607,11 @@ export async function openPresentation({ sheet, store, fullscreen = true, touch 
 
   presenter.addEventListener("click", () => openPresenterWindow(stage, sheet, tell));
 
+  const screenOff = keepScreenOn();
+
   function finish() {
     clearTimeout(idle);
+    screenOff();
     control.close();
     document.removeEventListener("fullscreenchange", onFullscreen);
     document.removeEventListener("keydown", onKey, true);
@@ -913,6 +973,9 @@ export async function showPresenterView({ root, sheet, store }) {
     e.preventDefault();
     control.act(action);
   });
+  // The leader's screen stays on too, for as long as this window is open: the
+  // browser lets the lock go when the window closes.
+  keepScreenOn();
   window.addEventListener("pagehide", () => control.close());
 
   status.textContent = "Waiting for the presentation. If it’s on another screen, it will follow this view; if not, drag its window to the room’s display and choose Full screen there.";
