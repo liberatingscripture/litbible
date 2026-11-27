@@ -101,7 +101,8 @@ surface:
   a field with a toolbar inside, keeps `--desk-field`; a sheet's pick row
   whose checkbox is unavailable (`.desk-sheet__pick:has(input:disabled)`)
   has no level; /sheets' copy link (`.sheets-page__copy-link`) draws its
-  own filled button, as `sheets-page.css` stays on the kit test's LATER;
+  own filled button, and present mode its own buttons (`.present-btn`), as
+  `sheets-page.css` stays on the kit test's LATER;
   the text tools (`sheet-text.js`) and /sheets' copy icon (`sheet-page.js`)
   are drawn by hand (Q20).
 - **Phase 12 (the Greek)**: the Greek's words that open their details take
@@ -184,7 +185,7 @@ run's best reading, entered in the plan's queue with what was done.
 | TY-03 | Literata is out as the reading face, since it is a serif | 1 | `test/featherboa-fonts.test.js`: Literata only in a sheet's Style set and the viewer (SH-16) | built (c1bb5383) |
 | TY-04 | Headings, titles, heroes, and the chapter numeral: Fraunces, the variable font, with its softness (`SOFT`) and wonk (`WONK`) axes | 1 | The served Fraunces files list `SOFT` and `WONK`; h1 to h3 compute to Fraunces | built (c1bb5383); its file's size is Q8 |
 | TY-05 | Reading text: Source Sans 3, in place of Inter | 1 | Scripture, articles, and footnotes compute to Source Sans 3 at 1440 and 390 | built (c1bb5383); Latin Extended too (Q9) |
-| TY-06 | Controls (buttons, labels, menus, a panel's own words): Atkinson Hyperlegible Next, in place of Inter | 1, 2 | Buttons, tabs, and menu rows compute to Atkinson Hyperlegible Next | built (c1bb5383); the kit's controls in Phase 2 |
+| TY-06 | Controls (buttons, labels, menus, a panel's own words): Atkinson Hyperlegible Next, in place of Inter | 1, 2 | Buttons, tabs, and menu rows compute to Atkinson Hyperlegible Next | built (c1bb5383, 7216b1ef) |
 | TY-07 | Greek in sans text, and the Greek tab's SBLGNT: Source Sans 3's own polytonic Greek | 1, 12 | John 1:1's Greek in a footnote and in the Greek tab draws in Source Sans 3 | built (c1bb5383); the Greek tab checked in Phase 12 |
 | TY-08 | Hebrew in sans text: Noto Sans Hebrew, as today | 1 | Kept: a footnote with Hebrew still draws it in Noto Sans Hebrew | built (c1bb5383, kept) |
 | TY-09 | Greek and Hebrew in Fraunces: Cardo, as today | 1 | Kept: Greek inside a Fraunces heading draws in Cardo | built (c1bb5383, kept) |
@@ -195,7 +196,7 @@ run's best reading, entered in the plan's queue with what was done.
 | TY-14 | Fraunces loads as its variable font (`@fontsource-variable`), in place of the static 400 and 500 | 1 | `global.css` loads the variable files only; the package's axes checked | built (c1bb5383); Q8 |
 | TY-15 | Fraunces's settings wait for the first heading drawn in it; the specimen used softness 50 with wonk on for headings, softness 100 for the numeral (the start settled by BP-13) | 1 | Computed `font-variation-settings` on a heading and on the paper's numeral | built (c1bb5383) at BP-13's start; OP-01 |
 | TY-16 | Fraunces's italic gets one large line on a front-door page, never more, and never in reading or Study (DA-01) | 7 | Italic Fraunces appears only on Home, About, and the 404 page, once each | open |
-| TY-17 | “Keep Atkinson”: controls stay Atkinson Hyperlegible Next, so two sans families stand side by side | 2 | No control computes to Source Sans 3 | open |
+| TY-17 | “Keep Atkinson”: controls stay Atkinson Hyperlegible Next, so two sans families stand side by side | 2 | No control computes to Source Sans 3 | built (7216b1ef, f47df065) |
 | TY-18 | The Greek moves to Source Sans 3's own in both places, replacing the C27 plan's Greek from Inter | 1, 12 | No Greek glyph draws in Inter or Crimson Text | built (c1bb5383) |
 | TY-19 | Atkinson and OpenDyslexic, which have no Greek, borrow Source Sans 3's | 1 | Greek in a footnote with Atkinson and with OpenDyslexic chosen draws in Source Sans 3 | built (c1bb5383) |
 | TY-20 | Cardo stays for the SBLGNT's text-critical signs (⸀ and its kin), from its patch, unless Source Sans 3 has them (OP-03) | 12 | A verse with ⸀ in the Greek tab draws the sign, no missing glyph | open |
@@ -209,13 +210,13 @@ run's best reading, entered in the plan's queue with what was done.
 | CO-02 | Paper `#FAFAF8`: the page | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
 | CO-03 | Ink `#1D231C`: all text; grays are ink at 78% and 66%, never a separate gray | 1 | `test/featherboa-tokens.test.js`; grep the stylesheets for gray hex values | built (c1bb5383) |
 | CO-04 | LIT Green `#209D50`: the mark (the emblem, the chapter numeral, “you are here,” one band on the front page); never behind small text | 1 | `test/featherboa-tokens.test.js`; no LIT Green behind words in the preview | built (c1bb5383), but Home's green sections (CO-10, Phase 7) |
-| CO-05 | Deep green `#0F6B33`: what can be pressed (links, and the one filled button on a view) | 1, 2 | `test/featherboa-tokens.test.js`; links compute to deep green | built (c1bb5383); the filled button in Phase 2 |
+| CO-05 | Deep green `#0F6B33`: what can be pressed (links, and the one filled button on a view) | 1, 2 | `test/featherboa-tokens.test.js`; links compute to deep green | built (c1bb5383, 7216b1ef) |
 | CO-06 | Sunshine `#FFD23F`: the reader's own; no longer a bar over titles | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
 | CO-07 | Red `#B3261E`: deleting and errors, and bookmarks | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
 | CO-08 | /apps' cobalt, red, and forest: the front page's feature panels only, never in reading or study | 7 | Grep: the three colors only in the home panels' rules and /apps | open |
 | CO-09 | Links stay green, in the deep green (“the dark green of the proposal”) | 1 | Links on an article and a glossary entry compute to deep green, day and night | built (c1bb5383) |
 | CO-10 | No longer green: the full green sections on Home | 7 | Home at 1440 and 390 has no green section | open |
-| CO-11 | No longer green: the round arrow buttons | 2, 4 | No round green arrow button on any page | open |
+| CO-11 | No longer green: the round arrow buttons | 2, 4 | No round green arrow button on any page | built (f47df065): today's round arrows are the kit's plain; Phase 4 redraws them |
 | CO-12 | No longer green: the accents sky and ocean (Site 2.0's), which leave with the home page's chat bubbles | 0, 7 | Grep: no sky or ocean value left | built (63d07ac0): no sky or ocean left |
 | CO-13 | Unchanged: the four highlighter colors | 1 | Kept: the four highlights draw by day as on `main` | built (c1bb5383, kept) |
 | CO-14 | Unchanged: the six note markers (the reader's own labels) | 1 | Kept: the six markers' colors match `main` | built (c1bb5383, kept) |
@@ -232,7 +233,7 @@ run's best reading, entered in the plan's queue with what was done.
 | SU-01 | The page is the paper (`#FAFAF8`); the cream (`#E1DFD9`) and the sheet laid on it go | 1 | John 3 and Home at 1440: no sheet, no cream | built (c1bb5383) |
 | SU-02 | Site 2.0's cream everywhere, scripture “on a sheet,” and the page frame with the Marks go | 0, 1 | Grep: no `data-restyle` rule and no page frame left | built (63d07ac0, c1bb5383) |
 | SU-03 | Things are set apart by space first, a hairline second, and a tint third | all (1) | Checkpoint audits: no box where space or a hairline serves | built (c1bb5383): the green bands outside Home now the page or a tint; held at the checkpoints |
-| SU-04 | Two corner radii: 6px on what is pressed, 10px on what floats | 1, 2 | `test/featherboa-shapes.test.js`: no radius but 6, 10, and a switch's round | tokens built (c1bb5383); the radii come with the kit (Phase 2), checked by the shapes test then |
+| SU-04 | Two corner radii: 6px on what is pressed, 10px on what floats | 1, 2 | `test/featherboa-shapes.test.js`: no radius but 6, 10, and a switch's round | built (c1bb5383, 7216b1ef); the shapes test holds it |
 | SU-05 | One shadow, and it means “this floats over the page and will go away”: menus, popovers, and dialogs have it, nothing else | 1 | `test/featherboa-shapes.test.js`: one shadow token, used only by floating things | built (c1bb5383): `test/featherboa-shapes.test.js`; the desk's button kinds wait for Phase 2, the Sheets for Phase 11 |
 | SU-06 | No ornament: the sunshine bar over titles goes | 1 | No title carries a bar | built (63d07ac0, c1bb5383): no title carries a bar |
 | SU-07 | No ornament: the Marks go | 0, 1 | Grep: no Marks markup or rule | built (63d07ac0) |
@@ -254,7 +255,7 @@ run's best reading, entered in the plan's queue with what was done.
 | SZ-05 | Scripture: Source Sans 3 400, refit from the proposal's 20 / 1.62; the reader's size M, with S, L, and XL still scaling it | 1 | x-height measured against the proposal; `test/display-scale.test.js` kept green | built (c1bb5383); Q11 |
 | SZ-06 | Text: Source Sans 3 400, refit from the proposal's 17 / 1.6; articles, introductions, footnotes at full length, the reader's notes | 1 | x-height measured on an article at 1440 | built (c1bb5383); Q11 |
 | SZ-07 | Margin: Source Sans 3 400, refit from the proposal's 15 / 1.5; notes beside a line, list rows in Study | 1 | x-height measured on a margin note | token built (c1bb5383); margin notes take it in Phase 5; Q11 |
-| SZ-08 | Label: Atkinson Hyperlegible Next 600, 14.5 / 1.4; every button, tab, and menu row | 1, 2 | `test/featherboa-tokens.test.js` | token built (c1bb5383); the kit applies it (Phase 2) |
+| SZ-08 | Label: Atkinson Hyperlegible Next 600, 14.5 / 1.4; every button, tab, and menu row | 1, 2 | `test/featherboa-tokens.test.js` | token built (c1bb5383); the kit's classes apply it (7216b1ef); the old names take it with their surface's redraw (Q15) |
 | SZ-09 | Small label: Atkinson Hyperlegible Next 600, 12.5 / 1.4; counts, dates, captions; nothing is smaller | 1 | `test/featherboa-tokens.test.js`; no computed size under 12.5px | token built (c1bb5383); the kit applies it (Phase 2) |
 | SZ-10 | Verse number: Atkinson Hyperlegible Next 600 at 0.56 of the text, growing and shrinking with it, in deep green with no underline | 1, 4 | The ratio measured at S and XL | built (c1bb5383) |
 | SZ-11 | The three reading sizes are refit so Source Sans 3's small letters stand as tall as the proposal drew them, measured when built; their line heights are checked with them | 1 | The measured values written beside the tokens; John 1, the specimen, on the preview | built (c1bb5383): the values beside the tokens; Q11 |
@@ -269,19 +270,19 @@ run's best reading, entered in the plan's queue with what was done.
 | SZ-20 | Computer, 1100 and up: text 660; the 320 margin, beside the line; the full header and the place line | 4, 5 | The preview at 1100 and 1440 | open |
 | SZ-21 | Study, 1100 and up: two panes share what is left; the companion pane; “A 236 sidebar that never moves” | 9 | None; see SD-46 | superseded → SD-46 |
 | SZ-22 | Study's row as changed with proposal 21: one to three panes of tabs, and a sidebar that folds | 9 | Covered by SD-15 and SD-46 | open |
-| SZ-23 | Anything pressed is 36px tall with a mouse, 44 on touch, and 32 only inside the Study sidebar | 2, 9 | Measure controls at 1440 and 390, sidebar rows at 1440 | open |
+| SZ-23 | Anything pressed is 36px tall with a mouse, 44 on touch, and 32 only inside the Study sidebar | 2, 9 | Measure controls at 1440 and 390, sidebar rows at 1440 | the kit's classes built (7216b1ef); the old names keep their size until their surface's redraw (Q15); the sidebar's 32px in Phase 9 |
 | SZ-24 | Old-style figures in running text, lining figures in the interface (counts and dates) | 1 | `font-variant-numeric` on text and on labels, once OP-04 is answered | queued (Q7) |
 
 ## Controls (CT)
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| CT-01 | Labels: verb, then thing (“Add note,” “Copy verse,” “Print sheet”) | all (2) | Checkpoint audits of every label | open |
-| CT-02 | Sentence case; capitals only for the names of places (the Notebook, Sheets, Collections) | all (2) | Checkpoint audits of every label | open |
-| CT-03 | An ellipsis only when the command needs more from the reader before it acts (“Add to sheet…,” “Share…”) | all (2) | Checkpoint audits: every label with “…” asks for more | open |
-| CT-04 | One name per thing, and no “My”; inside Study everything is the reader's | all (2) | `test/featherboa-labels.test.js`: no reader-facing “My ” but the record's own exceptions | open |
-| CT-05 | No articles: “Add note,” not “Add a note” | all (2) | `test/featherboa-labels.test.js` | open |
-| CT-06 | Rename: Notebook, My Notebook, the Notebook, and My Notes become Notebook (the place) and Notes (what is in it) | 2, 5, 9, 10 | `test/featherboa-labels.test.js` | open |
+| CT-01 | Labels: verb, then thing (“Add note,” “Copy verse,” “Print sheet”) | all (2) | Checkpoint audits of every label | held from Phase 2 (f47df065) for the shared pieces; checked at each checkpoint |
+| CT-02 | Sentence case; capitals only for the names of places (the Notebook, Sheets, Collections) | all (2) | Checkpoint audits of every label | held from Phase 2 (f47df065) for the shared pieces; checked at each checkpoint |
+| CT-03 | An ellipsis only when the command needs more from the reader before it acts (“Add to sheet…,” “Share…”) | all (2) | Checkpoint audits: every label with “…” asks for more | held from Phase 2 (f47df065) for the shared pieces; checked at each checkpoint |
+| CT-04 | One name per thing, and no “My”; inside Study everything is the reader's | all (2) | `test/featherboa-labels.test.js`: no reader-facing “My ” but the record's own exceptions | built for the shared pieces (7216b1ef, f47df065); each surface's phase takes its files off the test's LATER |
+| CT-05 | No articles: “Add note,” not “Add a note” | all (2) | `test/featherboa-labels.test.js` | built for the shared pieces (7216b1ef, f47df065); each surface's phase takes its files off the test's LATER |
+| CT-06 | Rename: Notebook, My Notebook, the Notebook, and My Notes become Notebook (the place) and Notes (what is in it) | 2, 5, 9, 10 | `test/featherboa-labels.test.js` | the header's part built (f47df065); the Notebook's names with Phases 5, 9, and 10 |
 | CT-07 | Rename: Sheets, My sheets, and Sheets page become Sheets | 9, 11 | `test/featherboa-labels.test.js` | open |
 | CT-08 | Rename: Add a note, Add bookmark, and Add a bookmark that moves become Add note and Add bookmark | 5 | The verse menu's and the selection panel's labels | open |
 | CT-09 | Rename: Open in Study Desk, Edit in Study Desk, and Open the Study Desk become one label, the verb with its passage, “Study Romans 8”; the proposal's “Open in Desk” is not taken | 4, 9 | `test/featherboa-labels.test.js`: no “Study Desk” a reader sees | open |
@@ -290,38 +291,38 @@ run's best reading, entered in the plan's queue with what was done.
 | CT-12 | Rename: Stay here and Stop following become one switch, Follow reading | 9 | A following tab offers the switch; no “Stay here” or “Stop following” | open |
 | CT-13 | Rename: Layout… and Make this pane wider become a layout switch in view (the pane count) and dragging the divider | 9 | No “Layout…” or “Make this pane wider” in Study | open |
 | CT-14 | This reverses “My Notes” (BA138, BA139) and “My Notebook” (E70), which `src/scripts/desk/CLAUDE.md` holds until Featherboa is built | 9, 10 | The desk file's rules rewritten in the same commit | open |
-| CT-15 | “Notes” is the reader's and “footnotes” the translation's; the two words are never used for each other | all (2) | Checkpoint audits of labels and the help page | open |
+| CT-15 | “Notes” is the reader's and “footnotes” the translation's; the two words are never used for each other | all (2) | Checkpoint audits of labels and the help page | held from Phase 2 (f47df065); checked at each checkpoint |
 | CT-16 | The workspace is “Study”; the proposal's “Desk” (“Open in Desk,” and Desk among the places) is not taken | 9 | `test/featherboa-labels.test.js` | open |
-| CT-17 | One icon set, in place of the sixteen scattered today: a 24-pixel grid, a 1.5-pixel stroke, round ends, sized to sit beside its label (Lucide's, BP-12) | 2 | `test/featherboa-icons.test.js`: every icon comes from `src/lib/icons.mjs` | open |
-| CT-18 | Typed glyphs (× ‹ › ▾) stop standing in for icons | 2 | Grep the markup and scripts for typed ×, ‹, ›, and ▾ drawn as controls | open |
-| CT-19 | An icon stands alone only if it is one of five everyone knows (search, close, back, forward, and more); every other icon keeps its word | 2 | `test/featherboa-icons.test.js`: an icon-only control is one of the five and has an accessible name | open |
-| CT-20 | The set the proposal draws: Read, Notebook, Sheet, Collection, Highlight, Note, Bookmark, Copy, Share, Print, Layout, New, Search, Close, Back, More | 2 | `src/lib/icons.mjs` exports each by name, for `.astro` files and client scripts | open |
-| CT-21 | Emphasis, filled (deep green): the one main action; a view may use it once | 2 | `test/featherboa-kit.test.js`; count filled buttons per view in the preview | open |
-| CT-22 | Emphasis, tinted: the usual next step | 2 | `test/featherboa-kit.test.js` | open |
-| CT-23 | Emphasis, plain (words and an icon, no box until pointed at): everything else, most commands on a tool surface | 2 | `test/featherboa-kit.test.js` | open |
-| CT-24 | Emphasis, red words: deleting; never filled | 2 | `test/featherboa-kit.test.js`: no red fill on a button | open |
-| CT-25 | The ladder replaces Study's four kinds of button (E126: primary, ordinary, toggle, and quiet or glyph) | 2 | `test/desk-buttons-css.test.js` rewritten to the kit | open |
-| CT-26 | It relaxes E159 for plain commands only; a tinted or filled button still never matches its background | 2 | Tinted and filled buttons on every surface, by day and night | open |
+| CT-17 | One icon set, in place of the sixteen scattered today: a 24-pixel grid, a 1.5-pixel stroke, round ends, sized to sit beside its label (Lucide's, BP-12) | 2 | `test/featherboa-icons.test.js`: every icon comes from `src/lib/icons.mjs` | the set built (7216b1ef); every shared piece draws from it (f47df065); Study's icons still drawn by hand go with their phases (Q20, the notes above) |
+| CT-18 | Typed glyphs (× ‹ › ▾) stop standing in for icons | 2 | Grep the markup and scripts for typed ×, ‹, ›, and ▾ drawn as controls | built (f47df065) |
+| CT-19 | An icon stands alone only if it is one of five everyone knows (search, close, back, forward, and more); every other icon keeps its word | 2 | `test/featherboa-icons.test.js`: an icon-only control is one of the five and has an accessible name | built (7216b1ef, f47df065); a note's “Show all” caret in the Notebook panel waits for Phase 5 (the notes above) |
+| CT-20 | The set the proposal draws: Read, Notebook, Sheet, Collection, Highlight, Note, Bookmark, Copy, Share, Print, Layout, New, Search, Close, Back, More | 2 | `src/lib/icons.mjs` exports each by name, for `.astro` files and client scripts | built (7216b1ef) |
+| CT-21 | Emphasis, filled (deep green): the one main action; a view may use it once | 2 | `test/featherboa-kit.test.js`; count filled buttons per view in the preview | built (7216b1ef, f47df065) |
+| CT-22 | Emphasis, tinted: the usual next step | 2 | `test/featherboa-kit.test.js` | built (7216b1ef, f47df065) |
+| CT-23 | Emphasis, plain (words and an icon, no box until pointed at): everything else, most commands on a tool surface | 2 | `test/featherboa-kit.test.js` | built (7216b1ef, f47df065) |
+| CT-24 | Emphasis, red words: deleting; never filled | 2 | `test/featherboa-kit.test.js`: no red fill on a button | built (7216b1ef, f47df065) |
+| CT-25 | The ladder replaces Study's four kinds of button (E126: primary, ordinary, toggle, and quiet or glyph) | 2 | `test/desk-buttons-css.test.js` rewritten to the kit | built (f47df065) |
+| CT-26 | It relaxes E159 for plain commands only; a tinted or filled button still never matches its background | 2 | Tinted and filled buttons on every surface, by day and night | built (f47df065) |
 
 ## The kit (KT)
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| KT-01 | If a screen needs something not in the kit, that is a design conversation before it is a line of code | all (2) | Every addition the run makes is a queue entry | open |
-| KT-02 | Ten controls: filled, tinted, plain, destructive, icon alone, field, checkbox, switch, tabs, and list row | 2 | `src/styles/kit.css` defines each; `test/featherboa-kit.test.js` | open |
-| KT-03 | Five states: at rest, pointed at, pressed or on, keyboard focus, and unavailable | 2 | `test/featherboa-kit.test.js`: each control has each state | open |
-| KT-04 | One small stylesheet of control classes, shared by the header, the reading page, and Study, in place of rules in `global.css`, `restyle.css`, and `desk.css` | 2 | `test/featherboa-kit.test.js`: no button rule outside `kit.css` | open |
-| KT-05 | Pointed at is one step stronger, with no movement and no shadow (no lift on hover) | 2 | `test/featherboa-kit.test.js`: no transform or shadow on hover | open |
-| KT-06 | On is a fill or a green underline plus a heavier weight, so it never depends on color alone | 2 | Tabs, choices, and switches at 1440 by day and night, and in grayscale | open |
-| KT-07 | Focus is the same 2-pixel green ring everywhere, 2 pixels off the control (`--focus-ring`, as today) | 2 | Kept: walk each new control with the keyboard | open |
-| KT-08 | Unavailable stays legible: its fill stays, its words stand at 4.5:1 or more on every surface, and it is never faded with `opacity` | 2 | `test/featherboa-kit.test.js`: no `opacity` on an unavailable control; contrast measured | open |
-| KT-09 | An unavailable control's reason is given where a keyboard or a finger reaches it too (beside the line, and to screen readers) | 2 | Tab to an unavailable control; read its description with `read_page` | open |
-| KT-10 | Tabs change what a pane shows; a switch turns one thing on at once; a checkbox is for a list of things to tick, then act on | 2 | Checkpoint audits: each control used for its own job | open |
-| KT-11 | Today's green-filled pills (“John 1 / Everything,” Theme, Text size) become tabs or a plain row of choices | 2, 4 | No green-filled pill left in the tray or the panel | open |
-| KT-12 | This settles E160: a chosen segment and a lone toggle that is on share one look (a fill or a green underline with a heavier weight) | 2 | A chosen segment beside an on switch at 1440 | open |
-| KT-13 | Everything pressed has 6-pixel corners | 2 | `test/featherboa-shapes.test.js` | open |
-| KT-14 | The only round things are switches, color dots, and the emblem | 2 | `test/featherboa-shapes.test.js`: a full round only on those three | open |
-| KT-15 | This changes E141: chips take the 6-pixel corner too, and a real switch (“Follow reading,” in place of the Stay here toggle) is the one round control | 2, 9 | Chips at 6px; the Follow reading switch round | open |
+| KT-01 | If a screen needs something not in the kit, that is a design conversation before it is a line of code | all (2) | Every addition the run makes is a queue entry | held (7216b1ef); every addition the run makes is a queue entry |
+| KT-02 | Ten controls: filled, tinted, plain, destructive, icon alone, field, checkbox, switch, tabs, and list row | 2 | `src/styles/kit.css` defines each; `test/featherboa-kit.test.js` | built (7216b1ef, f47df065) |
+| KT-03 | Five states: at rest, pointed at, pressed or on, keyboard focus, and unavailable | 2 | `test/featherboa-kit.test.js`: each control has each state | built (7216b1ef, f47df065) |
+| KT-04 | One small stylesheet of control classes, shared by the header, the reading page, and Study, in place of rules in `global.css`, `restyle.css`, and `desk.css` | 2 | `test/featherboa-kit.test.js`: no button rule outside `kit.css` | built (7216b1ef); the old names take its looks by name (Q15) |
+| KT-05 | Pointed at is one step stronger, with no movement and no shadow (no lift on hover) | 2 | `test/featherboa-kit.test.js`: no transform or shadow on hover | built (7216b1ef, f47df065) |
+| KT-06 | On is a fill or a green underline plus a heavier weight, so it never depends on color alone | 2 | Tabs, choices, and switches at 1440 by day and night, and in grayscale | built (7216b1ef, f47df065) |
+| KT-07 | Focus is the same 2-pixel green ring everywhere, 2 pixels off the control (`--focus-ring`, as today) | 2 | Kept: walk each new control with the keyboard | built (f47df065): one rule, global.css's :focus-visible; the kit test's "focus is the one ring" |
+| KT-08 | Unavailable stays legible: its fill stays, its words stand at 4.5:1 or more on every surface, and it is never faded with `opacity` | 2 | `test/featherboa-kit.test.js`: no `opacity` on an unavailable control; contrast measured | built (7216b1ef, f47df065) |
+| KT-09 | An unavailable control's reason is given where a keyboard or a finger reaches it too (beside the line, and to screen readers) | 2 | Tab to an unavailable control; read its description with `read_page` | kept as today (f47df065): the Study's menus give each unavailable row its reason beside it and to screen readers (menu-reasons.js); each Study phase rechecks its own |
+| KT-10 | Tabs change what a pane shows; a switch turns one thing on at once; a checkbox is for a list of things to tick, then act on | 2 | Checkpoint audits: each control used for its own job | built (7216b1ef, f47df065) |
+| KT-11 | Today's green-filled pills (“John 1 / Everything,” Theme, Text size) become tabs or a plain row of choices | 2, 4 | No green-filled pill left in the tray or the panel | built (f47df065) for the Display tray's Theme and Text size and the panel's “John 1 / Everything”; Phase 4 rechecks the tray |
+| KT-12 | This settles E160: a chosen segment and a lone toggle that is on share one look (a fill or a green underline with a heavier weight) | 2 | A chosen segment beside an on switch at 1440 | built (7216b1ef, f47df065) |
+| KT-13 | Everything pressed has 6-pixel corners | 2 | `test/featherboa-shapes.test.js` | built (7216b1ef, f47df065); the shapes test holds it |
+| KT-14 | The only round things are switches, color dots, and the emblem | 2 | `test/featherboa-shapes.test.js`: a full round only on those three | built (7216b1ef, f47df065); the shapes test holds it |
+| KT-15 | This changes E141: chips take the 6-pixel corner too, and a real switch (“Follow reading,” in place of the Stay here toggle) is the one round control | 2, 9 | Chips at 6px; the Follow reading switch round | chips built (f47df065); the Follow reading switch in Phase 9 |
 
 ## Motion (MO)
 
@@ -1176,7 +1177,7 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-09 | /license is the owner's words in the reading column | 4 | /license at 1440 | open |
 | BP-10 | BVJ reviews those pages built, and any redrawn becomes its own decision | 7 | At Checkpoint A | open |
 | BP-11 | /apps keeps its own look and faces inside the new header and footer, since its stylesheet is the LSC site's too | 7 | /apps at 1440: only the header and footer change | open |
-| BP-12 | The icons are Lucide's (ISC license) at a 1.5-pixel stroke, credited in the colophon (the set for CT-17) | 2, 7 | `test/featherboa-icons.test.js`; the colophon's credit | open |
+| BP-12 | The icons are Lucide's (ISC license) at a 1.5-pixel stroke, credited in the colophon (the set for CT-17) | 2, 7 | `test/featherboa-icons.test.js`; the colophon's credit | the icons built (7216b1ef); the colophon's credit in Phase 7 |
 | BP-13 | Fraunces starts at the specimen's settings: softness 50 and wonk on for headings, softness 100 for the paper's numeral, for BVJ to adjust on the preview (settles TY-15's start) | 1, 8 | Computed `font-variation-settings` on a heading and the numeral | built (c1bb5383) |
 | BP-14 | The italic lines are each page's own words: on Home the letter's first line, set as its opening; on About “So… who am I?”; on the 404 page “Page not found.” (settles DA-03) | 7 | Each page at 1440 | open |
 | BP-15 | Study on a phone or tablet says “Study is made for a computer. On a phone or tablet, the free LIT Bible app keeps your notes, highlights, and bookmarks.” (approved; settles SM-05) | 13 | /study at 390 | open |

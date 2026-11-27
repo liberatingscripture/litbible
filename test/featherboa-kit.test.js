@@ -38,8 +38,7 @@ const kitCss = readFileSync(join(repo, KIT), "utf8");
 /** Stylesheets the kit reaches in a later phase (SITE-FEATHERBOA-BUILD.md),
  *  by the phase that draws them. Each phase empties its entries. */
 export const LATER = new Map([
-  ["src/styles/pages/sheets-page.css", 11], // the Sheets page, its paper and present mode
-  ["src/styles/print.css", 8], // the printed page
+  ["src/styles/pages/sheets-page.css", 11], // present mode's buttons (.present-btn)
 ]);
 
 // ---------- Reading selectors ----------

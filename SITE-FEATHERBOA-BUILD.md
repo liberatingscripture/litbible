@@ -996,7 +996,9 @@ with its last commit when done; never delete a line.
 - [x] Phase 0: Set up, clear Site 2.0, write the ledger (cf1cf82d; Site 2.0
   removed in 63d07ac0)
 - [x] Phase 1: Foundations (c1bb5383)
-- [ ] Phase 2: The kit and its words
+- [x] Phase 2: The kit and its words (f47df065; the kit and its icons in
+  7216b1ef). What each surface's phase redraws is in the ledger's "What
+  Phase 2 left to each surface's phase"
 - [ ] Phase 3: The header, the line under it, the footer, and the phone's bars
 - [ ] Phase 4: The Read page
 - [ ] Phase 5: Beside scripture
