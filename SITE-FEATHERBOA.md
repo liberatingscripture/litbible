@@ -2106,11 +2106,16 @@ is the one "Study and its places" replaced.
   numbers don't need to be Green because they aren't links here”).
   Nothing happens when one is pressed, and "Color" keeps deep green for
   what can be pressed.
-- **The chosen word's other forms stay marked**, as today, with the
-  proposal's faint underline in place of today's green tint (BVJ: “Yes to
-  all three”), since green now means what can be pressed. It reads the
-  Greek's own dictionary forms, not the tagging the partner lighting
-  waits for.
+- **The chosen word's other forms stay marked as today**, with a pale
+  tint, and the chosen word alone is green with its rule under it. **The
+  proposal's faint underline is not taken**: Claude had called today's
+  tint green, and BVJ, having said yes on that word, corrected it (“I
+  think the faint underline is a mistake. They aren't green. They are
+  highlighted in gray today. The Green is only the one that's actually
+  selected”). The tint is the text green at 12%, which reads as gray
+  beside the chosen word's 22%; hovering another word tints its forms in
+  true gray, so both sets can show at once. It reads the Greek's own
+  dictionary forms, not the tagging the partner lighting waits for.
 
 ### A word's card
 
