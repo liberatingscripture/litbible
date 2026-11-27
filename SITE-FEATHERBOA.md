@@ -85,6 +85,8 @@ What each choice carries with it:
   `@fontsource-variable` package ships. The settings wait for the first
   heading drawn in it. The specimen used softness 50 with wonk on for
   headings, and softness 100 for the chapter numeral.
+- **Fraunces's italic gets one large line on a front-door page**, never
+  more and never in reading or Study ("The dares," viii).
 - **Controls stay Atkinson Hyperlegible Next**, as the proposal had them.
   Claude suggested Source Sans 3 there too, for one sans family; BVJ chose
   “Keep Atkinson,” so the two families stand side by side.
@@ -2584,6 +2586,78 @@ BVJ: “1, yes. 2, yes. 3, just use the apps! 4, yes.”
   12). Where that page says where the notebook can be opened, it uses the
   sentence above.
 
+## The dares (decided 2026-11-27)
+
+Design Directions' part five, nine "Dares": “Everything above is what I
+would recommend with a straight face. These nine go past that. Each is a
+way the site could be more itself than a careful design would let it be.”
+Claude checked each against the decisions above and recommended taking two
+and declining seven, five of those already settled; BVJ took them all
+(“Yes, as recommended”).
+
+### Taken
+
+- **viii, one line of Fraunces's italic on a front-door page**: one line
+  each on Home, About, and the 404 page, large, never two on a page and
+  never in reading or Study, each line BVJ's to choose. It is a heading's
+  use, which "Type"'s rule allows, and it gives back the voice the
+  Squarespace page had. **It stays one large line, never a sentence of
+  reading text**, since the research behind "Type" found italics read
+  worse for dyslexic readers. On Home the dare's line is the letter's
+  first, “No, I don't want my kids near most Bibles, either.”; the other
+  candidate is “A Bible that's FOR everyone,” whose "for" B's headline set
+  in italics ("The front page"). The lines are open (below).
+- **ix, a colophon**: a page at /colophon, "How this site is made," linked
+  from the footer. In plain words it gives the faces and why, what each
+  color means, and the site's promises about contrast, motion, and reading
+  without JavaScript, so it is also the accessibility statement the site
+  doesn't have. The dare's sentence that people direct the site and an AI
+  writes much of its code is BVJ's to word or leave out; if it is in, the
+  page says as plainly who translates the text, so no reader mistakes one
+  for the other.
+
+### Declined
+
+- **i, the front page is John 1** (no landing page; the site opens on the
+  text). "The front page" took its best part, John 1 open on the first
+  screen, and keeps the claim, the letter, and the ways in it would push
+  off the page.
+- **ii, a reader's edition by default** (no verse numbers or footnote
+  letters until switched on). Numbers are how a reader finds, cites, and
+  shares a verse and opens its menu, and the footnotes are half the
+  translation's argument (the dare's own risk). Display's "Verse and
+  chapter numbers" and "Footnote letters" put that edition one switch
+  away ("Display"), and its middle path, plain in a whole book, has no
+  place now that chapters read on into each other ("A whole book").
+- **iii, show the argument** (a "Compare" switch setting the traditional
+  word, struck through, beside each key term). **Not now, and revisited
+  with the word links**: it needs the traditional word for each term in
+  each verse, the glossary has one per term, and the tagging isn't precise
+  yet ("The Greek," "What waits"). "Key terms" and its card already show
+  "Traditionally…" for a term a reader points at, and the front page's
+  pairs make the case. Once the alignment's word links are published it
+  could be a View switch, with its tone (the LIT framed as a correction on
+  every page) BVJ's to weigh then.
+- **iv, one word for the whole suite** ("Study," holding Notes, Sheets,
+  and Collections). Most of it is done: the page is "Study," "Study Desk"
+  and "Desk" retire, and the link is "Study Romans 8" ("Study and its
+  places"). What is left, "Notebook" becoming "Notes," goes against "The
+  Notebook"'s names ("Notebook" the place, "Notes," "Highlights," and
+  "Bookmarks" what it holds); "Notes" is also its tab, and the apps and the
+  format documents say "Notebook."
+- **v, one highlighter** (sunshine only). "Color" kept the four highlighter
+  colors and the six note markers.
+- **vi, pages, not a scroll.** "A whole book" reads chapters on into each
+  other in one scroll, and pages would make find-on-page, text resizing,
+  screen readers, and "open where I stopped" harder, at the most cost of
+  anything proposed.
+- **vii, retire the header while you read.** On a computer, "Four places:
+  the header" makes the header the map on every page, and a reading page
+  is where most readers land from a search engine (the dare's own risk).
+  On a phone, "The phone" already gives a reading page one row (the
+  emblem, the picker, and Aa) in the header's place, and Focus, with its
+  fading header and place line, retired ("A whole book").
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -2610,6 +2684,10 @@ BVJ: “1, yes. 2, yes. 3, just use the apps! 4, yes.”
 - **The front page on a phone** ("The front page"). Claude's note, not put
   as a question: the same order, with the buttons right under the claim
   and John 1 after them.
+- **The italic lines** ("The dares," viii): one each for Home, About, and
+  the 404 page, BVJ's to choose.
+- **The colophon's sentence about how the site is made** ("The dares,"
+  ix): BVJ's to word or leave out.
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and
