@@ -9,8 +9,10 @@
 - **The header's title is chosen before first paint; keep its script
   inline** (E138; BVJ, 2026-11-17). `SiteHeader.astro` shows "The Liberation &
   Inclusion Translation" where it fits and "LIT Bible" where it doesn't (never
-  an ellipsis on a computer; always the short one in OpenDyslexic). The
-  choice needs a measurement, made by an `is:inline` script right after
+  an ellipsis on a computer; always the short one in OpenDyslexic).
+  Featherboa's header always says "LIT Bible," and this script retires
+  (`SITE-FEATHERBOA.md`, "Four places: the header"); until it is built,
+  this holds. The choice needs a measurement, made by an `is:inline` script right after
   `.site-header__inner`, so the first paint already has the right title.
   A bundled script that waited for idle time made every page with a narrow
   window (every phone, a computer from about 1100 to 1440px, every

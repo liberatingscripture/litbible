@@ -581,7 +581,7 @@ already defines).
      Readers come back to the menus they use, so news reaches the readers
      it is for. **Never only under About**: the desk preview's About menu
      drops its "What's new" link, and where Release Notes and the What's
-     New page sit in the header is drawn with proposal 19 ("Four places").
+     New page sit in the header is in "Four places: the header."
    - **A launch** (the apps, the Study Desk's opening, the What's New page
      itself; BVJ names each) adds three things for a set time: the mark
      spelled out on its menu (“Study · New”), the front page's band, and
@@ -879,6 +879,8 @@ Pressing the book's name in the place line, or G as now, opens one panel:
   "in progress" beside it.
 - **No "Read the whole book" row**: since proposal 14 every chapter reads
   on into the next ("A whole book").
+- **Release Notes at its foot**, where reading starts ("Four places: the
+  header").
 
 Keys stay: G opens the picker, / opens Search, and the arrows turn the
 chapter. On a phone the picker opens from the chapter's name in the top
@@ -1185,9 +1187,9 @@ thumb. Claude recommended it with ten adjustments, and BVJ took them all
 ### The menu
 
 - **A sheet rising from the bar**, not today's panel from the top corner.
-- **Its rows wait for proposal 19** ("Four places," where the proposal's
-  Read, Study, Learn, and About come from), then "Get the app" ("Nothing
-  interrupts the reader").
+- **Its rows are Read, Learn, and About, each with its own**, the current
+  place marked ("Four places: the header"; Study stays off a phone), then
+  "Get the app" ("Nothing interrupts the reader").
 - **Today's "Continue" button leaves it**: Continue reading is the picker's
   first row ("Finding a passage").
 - **A page without the bar keeps the header's menu button**, which opens the
@@ -1443,9 +1445,117 @@ to drop it on screen don't apply.”).
 
 ### Handouts
 
-A sheet printed from the Study Desk uses this same page: the same head,
+A sheet printed from Study uses this same page: the same head,
 faces, and footer. Leader and participant copies differ in content, never
 in look. The rest of a sheet's paper copy is in "Sheets."
+
+## Four places: the header (decided 2026-11-27)
+
+Design Directions' proposal 19, "Four places, and a header that says which
+one you are in." Today the header changes its title between pages (the
+full name where it fits, "LIT Bible" where it doesn't), "Read" is a black
+button rather than a place, nothing marks where the reader is, and Study
+(the preview's /desk today) has a header of its own. With the preview on, a computer shows
+Learn ▾, Study ▾, and About ▾ (header C, BVJ 2026-11-08); without it, five
+plain links (About, Commitments, Glossary, Podcast, and Articles). Apps and
+Courses aren't in the header. The proposal makes four places, marks the
+current one on every page, and puts one line under the header that names
+the page and lets the reader move sideways. Claude recommended it with ten
+adjustments. BVJ took seven (“1, yes … 6, yes, 7, yes, 8, yes, 9, yes, 10,
+yes”), asked about the other three (Study's title, /about, and the What's
+New page), and took the answers (“2, yes / 3, yes … / 5, yes”).
+
+### The header
+
+- **Read, Study, Learn, and About, the current one underlined in green**
+  (the mark's green, "Color"). The black "Read" button goes: Read is a
+  place like the others. It opens the passage picker, as decided ("Finding
+  a passage"). The proposal's "Read View becomes a whole-book switch"
+  falls away, since every chapter reads on into the next ("A whole book").
+- **Learn, Study, and About open menus, and keep their ▾.** No address
+  changes, so no page gathers Learn's or About's pages for the word to lead
+  to. **Study's rows are the Study sidebar's places**: Scripture, Notebook,
+  Sheets, and Collections ("Study and its places"). So the decisions that
+  assumed a Study menu hold: "New" beside a Study feature and "Take the
+  tour" for a first-time visitor ("Nothing interrupts the reader"), and
+  sheets within reach from any page. "Help for study tools" leaves the
+  menu for the foot of Study's sidebar ("Study and its places").
+- **The name in the header is always "LIT Bible."** This reverses E138
+  (BVJ, 2026-11-17: the full name where it fits), and the script that
+  chooses between the two retires (`src/components/CLAUDE.md`, "The
+  header's title swap"). The four places and the tools need the room; the
+  full name stays in every page's tab title.
+- **The right end always holds Aa and the account** ("Sign in" until a
+  reader signs in, "First visit, signing in, and sync"). **The magnifier
+  is there on every page but the Read page**, whose Search is on its place
+  line (one way in per page, "Finding a passage").
+
+### The line under the header
+
+- **Every page but Home has one line under the header that names the
+  page**, with the page's one or two main commands at its right: "Learn /
+  Glossary ▾ / trust" ("The glossary and articles"), "About / Contact." The
+  Read page's place line is this line ("The reading page"). A part with ▾
+  is a menu of what sits beside the page: "Glossary ▾" lists the entries.
+- **On Study, the title row is the line** (BVJ: “this is actually a case
+  for bringing the page title back that I told you to remove on the Study
+  page. If that's the site convention, it should be consistent. And if it
+  functions as a menu, that's helpful,” then “2, yes”). "Fold sidebar"
+  stays at its left, then "Study / Sheets ▾ / Advent 2 handout," then the
+  pane count and Full screen at its right. "Sheets ▾" lists the reader's
+  sheets and "Collections ▾" their collections, so a reader switches
+  without the sidebar, which matters most when it is folded to icons.
+  Scripture, Notebook, and Trash list nothing, so their line reads plainly
+  ("Study / Notebook"). It adds no height, since the row is there already.
+  **This reverses "The title row has no heading"** ("Study and its
+  places"). A sheet's own row (its name, "saved," Print…, Share…, and
+  Present) stays, since it belongs to the sheet's pane and moves with it
+  beside another; alone, the sheet's name shows in both, as a chapter's
+  line says "John 1" over its heading.
+- **A page in no menu marks no place**: Privacy, the Terms of Use, the
+  account pages, and the 404 page.
+
+### Names
+
+- **A menu's names match the pages they open.** Study: Notebook, Sheets,
+  and Collections, without "My." About: The LIT, Commitments, The
+  Collective, Apps, Release Notes, Support, and Contact.
+- **/about stays as it is, at its address, and its row is "The LIT"**, in
+  place of today's "About the LIT" and the proposal's "The translation."
+  BVJ asked whether /about was changing (Claude had written that no page
+  gathers About's pages). Claude suggested "The LIT and its translator,"
+  since the page opens “So… who am I?”; BVJ: “it can stay ‘The LIT’
+  instead of translator. The opening of that page is a reference to the
+  current home page link, which is likely changing.”
+- **A page's own heading stays as written** ("So… who am I?", "Contact
+  me"); the line under the header carries the matching name.
+- **Courses joins Learn when a course opens** (BVJ: “courses page should
+  not be easily (or at all) findable for a user right now”). Until then
+  /courses is in no menu.
+
+### News in the header
+
+- **Release Notes is every text change, and the What's New page everything
+  else** (BVJ: “The What's New page is going to be about site/app updates,
+  feature releases, launches, etc. Everything that's not a text update
+  (that's release notes)”). This settles where "Nothing interrupts the
+  reader" left them.
+- **Release Notes sits at the foot of Read's picker as well as under
+  About**, since text changes belong where reading starts, as /read's
+  "Latest text changes" does today; BVJ had said About is visited once.
+- **The What's New page has no row of its own.** A menu carrying a "New"
+  mark ends with "See what's new →," an app update marks About's Apps row,
+  and the footer links it. The launch window introduces the page when it
+  opens ("Nothing interrupts the reader").
+
+### The phone and the footer
+
+- **On a phone the menu sheet lists Read, Learn, and About, each with its
+  rows, the current place marked, then "Get the app"** ("The phone"). Study
+  stays off the phone's menu, as today, since Study is for computers
+  ("Small screens").
+- **The footer takes the same four groups and names**, plus Privacy, the
+  Terms of Use, and the newsletter ("Nothing interrupts the reader").
 
 ## The Study Desk (decided 2026-11-26)
 
@@ -1917,7 +2027,10 @@ the header's.
   "Fold sidebar" at its left and the pane count and "Full screen" at its
   right. A place's name is its pane's title ("Advent 2 handout ▾"), and
   the sidebar marks the place. The page keeps "Study" as a heading for
-  screen readers, out of sight, since every page has one.
+  screen readers, out of sight, since every page has one. **"Four places:
+  the header" reverses this** (BVJ, 2026-11-27): the title row carries the
+  line every page has, "Study / Sheets ▾ / Advent 2 handout," between
+  "Fold sidebar" and the pane count.
 - **The word is "pane," not "column"** (BVJ: “Panes”). BVJ asked: “Is
   ‘Columns’ the right word to use? ‘Panes’ or ‘Sections’ could also work.
   A column could be two columns of the same text, like on a document.”
@@ -2407,8 +2520,6 @@ BVJ: “1, yes. 2, yes. 3, just use the apps! 4, yes.”
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
   whether its served file has old-style figures ("Sizes, space, and the
   measure").
-- **The phone menu's rows**, which wait for proposal 19's four places
-  ("The phone").
 - **The glossary's third opening paragraph** ("The glossary and
   articles"). Claude's draft, for BVJ to approve or rewrite: “As you look
   through the entries below, you’ll find the traditional word on the left
