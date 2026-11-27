@@ -665,8 +665,9 @@ everything about a line.
   who picks OpenDyslexic has it in their notes too. The site keeps three
   faces.
 - **Without a margin**, the popover is the fallback and shows the whole
-  note, with the same "In the notes ↓". On a phone, footnotes and notes
-  open as a sheet from the bottom (proposal 15).
+  note, with the same "In the notes ↓". On a phone, a footnote opens as a
+  sheet from the bottom, whole ("The phone"); the reader's notes are the
+  Study Desk's, which a phone doesn't have.
 
 ### The page's controls
 
@@ -681,11 +682,12 @@ pill goes with it; the Study Desk's way in stays in the line until proposal
 21 names the workspace. The proposal's line drew neither, only the arrows
 and "Notebook" (proposal 11).
 
-**The phone's bar is decided with proposal 15** (The phone), where the
-phone is drawn whole (“Take 1-6”). The proposal moves it to the bottom, at
-the thumb (Back, Search, Notes, Next), hiding while the reader scrolls
-down; today's is one row at the top (audit F3, owner 2026-09-28), and F3
-stands until then.
+**The phone's bar was left to proposal 15** (“Take 1-6”), which draws the
+phone whole ("The phone"): one row at the top (the emblem, the chapter's
+name as its picker, and Aa) and a bar at the thumb (Previous, Search, Menu,
+and Next), both hiding while the reader scrolls down. It replaces today's
+one row at the top (audit F3, owner 2026-09-28), which stands until it is
+built.
 
 ### A Justify switch
 
@@ -781,10 +783,11 @@ panel for the foot of the Study sidebar ("Nothing interrupts the reader").
 - **The selection panel matches** (“6, yes”), as BVJ's rule has it
   (2026-09-29): the same actions under the same names in both.
 - **Where the Study Desk is off (phones)**, Highlight, Note, and Bookmark
-  have nothing to work with, so the top row would be Copy alone. It is
-  drawn with proposal 15, and the menu keeps today's Copy and Share there
-  until then; **Share itself is revisited at 15** (“7, yes, with revisiting
-  share at 15”).
+  have nothing to work with, so the top row would be Copy alone. Proposal
+  15 draws it as a sheet at the thumb with Copy text, Copy link, Share
+  text…, Share image…, and Copy with footnotes, and **revisits Share**
+  (“7, yes, with revisiting share at 15”): on a phone its two actions stand
+  alone, with no Print ("The phone").
 
 This replaces E39's "Copy text" split row and the Share flyout as the
 menu's layout, and E112's order of the Notebook's rows.
@@ -868,7 +871,8 @@ Pressing the book's name in the place line, or G as now, opens one panel:
   on into the next ("A whole book").
 
 Keys stay: G opens the picker, / opens Search, and the arrows turn the
-chapter. The phone's picker is drawn with proposal 15.
+chapter. On a phone the picker opens from the chapter's name in the top
+row, as a sheet rising nearly to the top ("The phone").
 
 ### The ways in, and /read
 
@@ -1050,8 +1054,9 @@ settled the rest point by point.
   Where the Notebook panel runs (a computer with the Study Desk), they are
   its Footnotes tab and This verse's "This chapter," which already shows
   the chapter's Go deeper rows; a margin footnote's "In the notes ↓" opens
-  the Footnotes tab at its note. The panel is the desk's, so where they
-  live on a phone or tablet is drawn with proposal 15.
+  the Footnotes tab at its note. The panel is the desk's; on a phone or
+  tablet the heading's Go deeper opens a sheet (a panel on a tablet) with
+  "Go deeper" and "Footnotes" tabs ("The phone").
 - **"Go deeper" sits at the right end of each chapter's heading**, and
   opens the Notebook on This verse, scrolled to "This chapter" for that
   chapter. BVJ asked for “a ‘go deeper’ control somewhere more visible that
@@ -1090,8 +1095,8 @@ settled the rest point by point.
 along the place line's bottom edge, in place of its border, so it adds no
 height. It fills as the reader moves through the book, measured in verses,
 so a long chapter counts for more. The place line names the chapter, so
-screen readers skip the line. Where it goes on a phone is proposal 15's,
-with the bar.
+screen readers skip the line. On a phone it runs along the top row's
+bottom edge and hides with it ("The phone").
 
 ### The rest of the proposal
 
@@ -1121,6 +1126,92 @@ with the bar.
   which now reads straight through. Chapter View's name was already going
   (E33).
 
+## The phone (decided 2026-11-26)
+
+Design Directions' proposal 15, "The phone: one row above, one bar at the
+thumb." On a phone today four rows come before the first verse (the app
+banner, the header, the picker and search row, and the title with its
+arrows), and John's first word sits about 300 pixels down an 812-pixel
+screen: “A phone is where most people will meet this translation. Give them
+the text.” The proposal draws one row above, a bar of four below, the menu
+as a sheet from the bar, and the verse menu and a footnote as sheets at the
+thumb. Claude recommended it with ten adjustments, and BVJ took them all
+(“Yes, 1–10”). It settles what proposals 10 to 14 left to the phone.
+
+### The two bars
+
+- **One row at the top: the emblem (home), the chapter's name as the picker
+  ("John 1 ▾"), and Aa.** The proposal starts verse 1 82 pixels down. The
+  name "LIT Bible" leaves the reading page's top row; the emblem is the way
+  home.
+- **A bar at the bottom: Previous · Search · Menu · Next**, four targets of
+  44 pixels with a word under each. **"Previous," not the proposal's
+  "Back"**: the button goes to the previous chapter, and "Back" reads as the
+  browser's Back, which leaves the book ("A whole book").
+- **Both hide together on a scroll down and return on any scroll up**, one
+  rule, as Safari does with its own two bars; the proposal hid only the
+  bottom one. The timing is "Motion"'s.
+- **This replaces** today's one-row toolbar on a phone (audit F3, owner
+  2026-09-28), the round ‹ › beside the title “at every width” (owner,
+  2026-10-14) there, and the title row itself.
+- **The app banner stays above the row** ("Nothing interrupts the reader").
+  The proposal's 82 pixels are drawn without it; on Android it adds about
+  60 until dismissed for 90 days, and on an iPhone Safari draws its own
+  banner above the page.
+- **The progress line runs along the top row's bottom edge**, as on a
+  computer, and hides with it ("A whole book").
+- **Search opens the field in place of the top row**, results below and
+  verses first, as the place line's does on a computer ("Finding a
+  passage") and the phone's row does today.
+- **"John 1 ▾" opens the picker as a sheet rising nearly to the top**: the
+  typing field first, then Continue reading, the 27 books, the chapter grid,
+  and the introduction ("Finding a passage").
+
+### The menu
+
+- **A sheet rising from the bar**, not today's panel from the top corner.
+- **Its rows wait for proposal 19** ("Four places," where the proposal's
+  Read, Study, Learn, and About come from), then "Get the app" ("Nothing
+  interrupts the reader").
+- **Today's "Continue" button leaves it**: Continue reading is the picker's
+  first row ("Finding a passage").
+- **A page without the bar keeps the header's menu button**, which opens the
+  same sheet from the bottom, so the menu looks the same everywhere.
+
+### Beside the text
+
+- **The verse sheet holds the five actions**, since a phone has no Study
+  Desk (so the proposal's "where Study is on" never happens there): **Copy
+  text, Copy link, Share text…, and Share image…** across, with icons, then
+  **Copy with footnotes**. The names are the computer's, by BVJ's rule that
+  an action has one name everywhere (2026-09-29; E39, E111); the proposal's
+  were Copy, Link, Share, and Image. In OpenDyslexic a label may take two
+  lines. The selection panel matches, as today.
+- **Share, revisited** (as BVJ asked with proposal 11): on a phone, Share
+  text… and Share image… stand on their own, with no "Share…" group and no
+  Print, since the phone's own share sheet offers printing. The computer
+  keeps Share… with Share text…, Share image…, and Print ("Beside
+  scripture").
+- **A footnote opens as a sheet**, the phone's margin, as tall as its note
+  needs up to about half the screen; it drags up to full height and scrolls
+  inside, and the word it belongs to stays marked. **No "Read the whole
+  note →"**: BVJ required the whole note right there, never a trip to the
+  page's foot ("The reading page").
+- **All of a chapter's footnotes, and its Go deeper**, which "A whole book"
+  left to this proposal: the chapter heading's "Go deeper" opens a sheet for
+  that chapter with two tabs, **"Go deeper"** (Listen, Read, Key terms, and
+  Book) and **"Footnotes"** (the chapter's whole list, each note whole), and
+  a footnote's sheet links to that list. Tablets, which have no Notebook
+  either, get the same, drawn as the panel over the right edge that "Sizes,
+  space, and the measure" gives them.
+
+### Without JavaScript
+
+The bar is plain links and doesn't hide (the site's rule that every page
+works without JavaScript): Previous and Next go to the chapters, Search to
+/search, and Menu to the footer's links, and "John 1 ▾" goes to /read, the
+full-size picker ("Finding a passage").
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -1137,6 +1228,8 @@ with the bar.
   measure").
 - **The workspace's name**, “Study Desk” or the proposal's “Desk”
   ("Controls," above; proposal 21).
+- **The phone menu's rows**, which wait for proposal 19's four places
+  ("The phone").
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
 

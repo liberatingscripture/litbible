@@ -7,7 +7,8 @@
 - **On a phone, Chapter View's toolbar is one row** (audit F3, owner
   2026-09-28). Featherboa replaces the computer's toolbar with the place
   line (`SITE-FEATHERBOA.md`, "The reading page" and "Finding a passage")
-  and decides the phone's bar with its proposal 15; until it is built, this
+  and the phone's with one row at the top and a bar of four at the thumb,
+  the round ‹ › there included ("The phone"); until it is built, this
   holds. At 640px and below the passage picker, a search button and an
   icon-only Read View link share one 44px row; search opens in place of the
   row, and its × or Escape closes it and returns focus to the button. The top

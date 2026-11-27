@@ -282,6 +282,10 @@ fonts, and in the selection panel (154px) in Inter and Atkinson. "Share
 image…" needs 119px (Inter), 111px (Atkinson) and 162px (OpenDyslexic), so
 in OpenDyslexic's selection panel it takes a line of its own, as the rule
 allows (E111; the ellipsis cost 13px).
+Featherboa draws the phone's verse sheet as Copy text, Copy link, Share
+text…, and Share image… across, with icons, then Copy with footnotes, and
+no Print (`SITE-FEATHERBOA.md`, "The phone"); until it is built, this
+holds.
 
 **The verse menu follows the input, as the selection panel does** (owner,
 2026-09-29), not the screen width, and **the text it covers must always stay
