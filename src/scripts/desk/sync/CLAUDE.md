@@ -292,8 +292,9 @@ what the sync leaves to the reader:
   account notice's look at what is new, `GET /devices` (rule 11), sent after
   reads of its own storage, so on a slow machine it can land well after the
   status reaches `upToDate`. A test that counts the service's calls waits
-  for it first (`linkedPage` in `test/desk-sync-status-line.test.js`), or a
-  CI run counts it as the test's.
+  for it first, as the linked pages of `desk-sync-status-line.test.js`,
+  `desk-sync-connector.test.js` and `desk-sync-stop.test.js` do, or a CI
+  run counts it as the test's.
 - **End to end is a real browser against `wrangler dev`**, in
   `workers/notebook-service/` with a `.dev.vars` made for this machine
   (never the deployed preview's secret). The local service answers CORS for
