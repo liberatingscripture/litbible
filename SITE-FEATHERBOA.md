@@ -2220,8 +2220,8 @@ it (BVJ: “I don't remember addressing Greek search in detail”). Today a
 group, and in the Search pane. The window's top is the builder (E5, BVJ
 2026-11-02), a card for each word, up to four, with "Examples and all
 commands" under it. Claude recommended five points, and BVJ took them
-(“Yes to 1-5 about the Greek”), then asked about the name (the last
-point).
+(“Yes to 1-5 about the Greek”), then asked about the name and chose it
+(the last point).
 
 - **The window stays a window opened on request**, dragged aside and
   keeping its place, in Featherboa's look. What it holds stays: the
@@ -2241,11 +2241,17 @@ point).
 - **Typed commands keep working in every field that searches the Greek**,
   and the field's placeholder keeps its example ("Try πίστις.gen or
   *.aor.impv").
-- **Its name is open.** Claude proposed the proposal's "Build a search"
-  for the link and the window, since the builder now comes first, with the
-  commands under a heading of their own inside it. BVJ's yes took it, and
-  then BVJ asked: “I wonder about using the term Advanced Search at all?”
-  Today's name is "Search commands."
+- **It is called "Build a search,"** the proposal's name, in place of
+  "Search commands": the link reads "Build a search…," and the window
+  carries the name as its title, with the commands under a heading of
+  their own inside it. Claude proposed it since the builder now comes
+  first. BVJ asked “I wonder about using the term Advanced Search at
+  all?”, and Claude advised against "Advanced search": on most sites it
+  means more options for the ordinary search (an exact phrase, a range of
+  books), which this window doesn't offer, since it searches only the
+  Greek; "advanced" tells a newcomer the window isn't for them, when the
+  builder was made so anyone can search from its menus; and "Build a
+  search" says what is done there. BVJ chose “Build a search.”
 
 ## First visit, signing in, and sync (decided 2026-11-27)
 
@@ -2410,9 +2416,6 @@ BVJ: “1, yes. 2, yes. 3, just use the apps! 4, yes.”
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
-- **The Greek search window's name** ("The Greek," "Searching the
-  Greek"): "Build a search," as proposed and taken, or "Advanced search,"
-  which BVJ asked about. Today's is "Search commands."
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and

@@ -242,10 +242,11 @@ Four things to know:
   window, outside `lit-panel.js`'s one slot, so a footnote or preview
   opening never closes it; it opens from the tray, /search and /desk's
   Search pane, and closes when its field is gone (BA114). Featherboa
-  opens it from one quiet link in the field's row, shown only while the
-  Greek tab is chosen, and the word card's "Find this word ▾" searches
-  reach it through the field; its name is open (`SITE-FEATHERBOA.md`,
-  "Searching the Greek"); until it is built, this holds. What it announces is meant to be heard: a command by its meaning (“Added: Within 3
+  names it "Build a search" and opens it from one quiet "Build a
+  search…" link in the field's row, shown only while the Greek tab is
+  chosen, and the word card's "Find this word ▾" searches reach it
+  through the field (`SITE-FEATHERBOA.md`, "Searching the Greek"); until
+  it is built, this holds. What it announces is meant to be heard: a command by its meaning (“Added: Within 3
   words.”), the builder's by the query it made (BA117).
   **What it puts in a field is typed, not set** (BA147): `typeInto`
   replaces only the changed span with `execCommand("insertText")`, so
