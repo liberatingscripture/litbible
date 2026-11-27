@@ -2,9 +2,7 @@
 // src/pages/read.astro
 import ReadLayout from "../layouts/ReadLayout.astro";
 import Icon from "../components/Icon.astro";
-import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import "../styles/pages/read.css";
-import SblgntCredits from "../components/SblgntCredits.astro";
 import releaseNotes from "../data/release-notes.json";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
@@ -52,6 +50,12 @@ const TYPE_LABEL: Record<string, string> = {
   showTools={true}
   pagefindIndex={false}
 >
+  {/* The license moved to /license; the old addresses forward there, as early as a script can run so /read doesn't flash first. Inline on purpose (the enforced policy has no script-src; the report-only one allows inline). */}
+  <script
+    slot="head"
+    is:inline
+    set:html={`try{var h=location.hash;if(h==="#license"||h==="#license-terms"||h==="#sblgnt-disclaimer")location.replace("/license/"+h)}catch(_){}`}
+  />
   <link slot="head" rel="preload" as="image" type="image/svg+xml" href="/images/lit-logo-2026-ring.svg" fetchpriority="high" />
   <div slot="hero" class="read-hero">
     <img
@@ -184,142 +188,6 @@ const TYPE_LABEL: Record<string, string> = {
       </div>
     </div>
   </section>
-
-  <section slot="bands" class="license-band" aria-labelledby="license-heading">
-    <div class="license-band__inner">
-      <section
-        id="license"
-        class="license-card"
-        aria-labelledby="license-heading"
-      >
-        <h2 id="license-heading" class="license-card__title">
-          License and reuse
-        </h2>
-
-        <p class="license-card__lede">
-          <a href="https://litbible.net" class="license-card__link">
-            The Liberation and Inclusion Translation of the Bible (LIT)™
-          </a>
-          © 2024 by{" "}
-          <a href="/about" class="license-card__link">
-            Brandon C. Vélez Johnson
-          </a>{" "}
-          is licensed under{" "}
-          <a
-            href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1"
-            class="license-card__link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >CC BY-NC-ND 4.0</a>.
-        </p>
-
-        <div class="license-faq">
-          <details class="license-faq-item" id="license-terms">
-            <summary class="license-faq-q">
-              View full license terms and permissions for church, study, and commercial use
-              <Icon name="down" />
-            </summary>
-            <div class="license-faq-body">
-              <p>
-                The LIT Bible is licensed under CC BY-NC-ND 4.0. In addition to
-                that license, I grant the permissions below to anyone who reads
-                this notice or uses the LIT Bible website or apps. They apply to
-                the LIT text and footnotes, and to the book introductions,
-                glossary, and articles on this site, as written by the
-                Liberating Scripture Collective, not to third-party material the
-                footnotes quote. If
-                you would like to use the LIT outside these terms, please{" "}
-                <a href="/contact" class="license-card__link">contact me</a> to
-                discuss your project.
-              </p>
-              <ul>
-                <li>
-                  <strong>Attribution</strong>: You must give appropriate credit,
-                  provide a link to the license, and indicate if changes were made.
-                </li>
-                <li>
-                  <strong>NonCommercial Use Only</strong>: You may not use the
-                  material for commercial purposes.
-                </li>
-                <li>
-                  <strong>No Derivatives</strong>: If you remix, transform, or
-                  build upon the material, you may not distribute the modified
-                  material.
-                </li>
-              </ul>
-
-              <h3>Noncommercial use</h3>
-              <p>
-                You may print, display, and share any amount of the LIT Bible text
-                and footnotes for noncommercial uses. This includes Bible studies,
-                classes, sermons, church bulletins, study guides, retreats, and
-                personal use. It includes programs and events that charge for
-                participation, such as paid courses, tuition, and retreat fees, as
-                long as the LIT text and footnotes are not what is being sold.
-                When used that way:
-              </p>
-              <ol>
-                <li>
-                  Quote the text and footnotes as written. You may leave words
-                  blank for participants to fill in, as long as the answers are the
-                  LIT’s own words. Please don’t replace the LIT’s words with other
-                  wording.
-                </li>
-                <li>Keep footnotes with the verses they reference.</li>
-                <li>Include this notice: “{LIT_CREDIT_LINE}”</li>
-              </ol>
-
-              <h3>Quoting the LIT in a commercial work</h3>
-              <p>
-                These standing exceptions permit commercial use without special
-                permission:
-              </p>
-              <ol>
-                <li>
-                  The text and footnotes are quoted as written, with footnotes
-                  kept with the verses they reference.
-                </li>
-                <li>
-                  The quotations do not amount to a complete book of the Bible.
-                </li>
-                <li>
-                  LIT material does not account for more than 50% of the total
-                  content of the new work.
-                </li>
-                <li>The work includes this notice: “{LIT_CREDIT_LINE}”</li>
-              </ol>
-              <p>
-                Selling the LIT Bible itself, in print or digitally, or any other
-                commercial use, requires my written permission.
-              </p>
-
-              <h3>Sharing online</h3>
-              <p>
-                You are welcome to share the LIT Bible text and footnotes, in any
-                amount, on noncommercial social media accounts, personal blogs,
-                and church email newsletters without a formal copyright block,
-                provided each post includes a direct link to litbible.net (or tags
-                an official LIT Bible account) so others can find the full text in
-                context. Please link to a chapter or book rather than reposting
-                whole books, so readers find the notes too. Monetized sites and
-                business accounts fall under the commercial terms above.
-              </p>
-            </div>
-          </details>
-
-          <details class="license-faq-item" id="sblgnt-disclaimer">
-            <summary class="license-faq-q">
-              Source text and translation credits (SBLGNT)
-              <Icon name="down" />
-            </summary>
-            <div class="license-faq-body sblgnt-credits">
-              <SblgntCredits />
-            </div>
-          </details>
-        </div>
-      </section>
-    </div>
-  </section>
 </ReadLayout>
 
 <script>
@@ -363,36 +231,6 @@ const TYPE_LABEL: Record<string, string> = {
         close();
       }
     });
-  })();
-</script>
-
-<script>
-  // @ts-nocheck
-  // A fragment aimed at a <details> element itself leaves it closed (browsers
-  // only auto-open one when the target is inside it), so open the two license
-  // disclosures when a link names them. #license is the whole section and is
-  // left to the browser. Without JS the page is unchanged.
-  (() => {
-    const DISCLOSURES = ["license-terms", "sblgnt-disclaimer"];
-
-    function revealHash() {
-      let id = "";
-      try {
-        id = decodeURIComponent(location.hash.slice(1));
-      } catch {
-        return;
-      }
-      if (!DISCLOSURES.includes(id)) return;
-      const target = document.getElementById(id);
-      if (!target) return;
-      target.open = true;
-      // The stylesheet's smooth scrolling would animate toward a spot that
-      // moves as the page settles; land at once, as Read View does.
-      target.scrollIntoView({ block: "start", behavior: "instant" });
-    }
-
-    window.addEventListener("hashchange", revealHash);
-    revealHash();
   })();
 </script>
 

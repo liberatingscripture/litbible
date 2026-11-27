@@ -337,49 +337,6 @@ html[data-desk="on"] .view-card__badge--apps {
 }
 
 /* =========================================================
-   License band (no band of its own: the card's hairline is its one edge)
-   ========================================================= */
-
-.license-band {
-  position: relative;
-  margin-top: 72px;
-  padding: 0 0 56px;
-
-  color: var(--text-strong);
-
-  /* full-bleed trick */
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-
-  /* was previously compensating for layout bottom padding; no longer needed */
-  margin-bottom: 0;
-}
-
-.license-band__inner {
-  max-width: var(--content-width, 72ch);
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-/* =========================================================
-   License placard
-   ========================================================= */
-
-.license-card {
-  margin-top: 8px;
-
-  background: var(--surface-raised);
-  border-radius: var(--radius-float);
-  padding: 26px 24px;
-
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-}
-
-#license {
-  scroll-margin-top: 96px;
-}
-
-/* =========================================================
    Scripture Disclaimer (full-bleed, flush to footer)
    ========================================================= */
 
@@ -424,80 +381,6 @@ html[data-desk="on"] .view-card__badge--apps {
 }
 
 .scripture-disclaimer__inner a {
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-/* ── License accordion (mirrors FAQ pattern from /about) ── */
-.license-faq {
-  margin-top: 1.5rem;
-}
-
-.license-faq-item {
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: var(--radius-float);
-  background: rgba(var(--surface-rgb), 0.65);
-  backdrop-filter: blur(10px);
-  overflow: hidden;
-  /* A linked disclosure scrolls clear of the sticky header, like #license. */
-  scroll-margin-top: 96px;
-}
-
-.license-faq-q {
-  list-style: none;
-  font-size: clamp(1rem, 0.5vw + 0.9rem, 1.15rem);
-  line-height: 1.4;
-  width: 100%;
-  min-height: 0;
-  padding: 16px 20px;
-  justify-content: space-between;
-  text-align: left;
-  white-space: normal;
-  user-select: none;
-}
-
-.license-faq-q::-webkit-details-marker {
-  display: none;
-}
-
-.license-faq-q .icon {
-  width: 1.15rem;
-  height: 1.15rem;
-  flex-shrink: 0;
-}
-
-.license-faq-item[open] .license-faq-q .icon {
-  transform: rotate(180deg);
-}
-
-.license-faq-body {
-  padding: 0 20px 20px;
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-}
-
-.license-faq-body p { margin: 0 0 0.75rem; }
-.license-faq-body ul,
-.license-faq-body ol { margin: 0 0 1rem 1.25rem; padding: 0; }
-.license-faq-body li { margin-bottom: 0.4rem; }
-.license-faq-body h3 {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 500;
-  margin: 1.25rem 0 0.5rem;
-}
-.license-faq-body .sblgnt-divider {
-  border: none;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
-  margin: 1.5rem 0;
-}
-.license-faq-body .sblgnt-credits {
-  font-size: 0.875rem;
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-}
-.license-faq-body .sblgnt-credits p { margin: 0 0 0.75rem; }
-.license-faq-body .sblgnt-credits a {
   overflow-wrap: anywhere;
   word-break: break-word;
 }

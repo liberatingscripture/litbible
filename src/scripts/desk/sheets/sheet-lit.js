@@ -1329,7 +1329,7 @@ export function createLicenseCard({ getSheet, readOnly, setCommercial, idPrefix 
     document.createTextNode(" "),
   );
   const terms = make("a", null, "Read the license terms");
-  terms.href = `${BASE}read/#license-terms`;
+  terms.href = `${BASE}license/#license-terms`;
   terms.target = "_blank";
   terms.rel = "noopener";
   terms.setAttribute("aria-label", "Read the license terms (opens in a new tab)");

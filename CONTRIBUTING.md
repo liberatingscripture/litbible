@@ -57,7 +57,7 @@ Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0), so it may be
 shared with attribution but not sold or altered. The owner grants further
 permissions beyond that license (any amount for noncommercial use, and
 quotation in commercial works within limits); they are set out in the notice on
-[litbible.net/read](https://litbible.net/read#license-terms). Third-party
+[litbible.net/license](https://litbible.net/license#license-terms). Third-party
 material (the Greek data under `public/greek/`, the fonts, and most images)
 is under neither license and keeps its own terms, listed in `LICENSE`.
 If you contribute code,

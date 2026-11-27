@@ -1,0 +1,113 @@
+/* =========================================================
+   License page (/license): the owner's license notice in the reading column.
+   Drawn with Featherboa's tokens; a disclosure's summary takes its look from
+   the kit (`.license-faq-q` is one of its names), so this file says only
+   where it sits and how big it is.
+   ========================================================= */
+
+.license-page {
+  background-color: var(--page-bg);
+  min-height: 100vh;
+  /* Follows the Display tray's text size (src/styles/CLAUDE.md). */
+  font-size: calc(1em * var(--reading-scale, 1));
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
+}
+
+.license-page__inner {
+  max-width: calc(65 * var(--ch));
+  margin: 0 auto;
+  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  overflow-wrap: break-word;
+}
+
+.license-title {
+  font-family: var(--font-display);
+  font-size: calc(clamp(2.25rem, 4vw, 3rem) * var(--heading-scale, 1));
+  line-height: 1.1;
+  margin: 0 0 var(--space-4);
+}
+
+.license-lede {
+  font-size: calc(clamp(1.1rem, 0.5vw + 1rem, 1.25rem) * var(--reading-scale, 1));
+  line-height: calc(1.72 + var(--reading-leading-extra, 0));
+  margin: 0;
+}
+
+/* The disclosures */
+.license-faq {
+  margin-top: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.license-faq-item {
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-float);
+  overflow: hidden;
+  /* A linked disclosure scrolls clear of the sticky header. */
+  scroll-margin-top: var(--space-9);
+}
+
+#license {
+  scroll-margin-top: var(--space-9);
+}
+
+.license-faq-q {
+  list-style: none;
+  font-size: clamp(1rem, 0.5vw + 0.9rem, 1.15rem);
+  line-height: 1.4;
+  width: 100%;
+  min-height: 0;
+  padding: var(--space-4) var(--space-5);
+  justify-content: space-between;
+  text-align: left;
+  white-space: normal;
+  user-select: none;
+}
+
+.license-faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.license-faq-q .icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.license-faq-item[open] .license-faq-q .icon {
+  transform: rotate(180deg);
+}
+
+.license-faq-body {
+  padding: 0 var(--space-5) var(--space-5);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
+}
+
+.license-faq-body p { margin: 0 0 var(--space-3); }
+.license-faq-body ul,
+.license-faq-body ol { margin: 0 0 var(--space-4) var(--space-5); padding: 0; }
+.license-faq-body li { margin-bottom: var(--space-2); }
+.license-faq-body h2 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  margin: var(--space-5) 0 var(--space-2);
+}
+.license-faq-body .sblgnt-divider {
+  border: none;
+  border-top: 1px solid var(--color-hairline);
+  margin: var(--space-5) 0;
+}
+.license-faq-body .sblgnt-credits {
+  font-size: 0.875rem;
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
+}
+.license-faq-body .sblgnt-credits p { margin: 0 0 var(--space-3); }
+.license-faq-body .sblgnt-credits a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

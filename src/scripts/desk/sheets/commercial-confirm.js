@@ -94,7 +94,7 @@ export function confirmCommercial(findings, opener, verb) {
     contact.rel = "noopener";
     contact.setAttribute("aria-label", "contact the LIT (opens in a new tab)");
     const terms = make("a", null, "Read the license terms");
-    terms.href = `${BASE}read/#license-terms`;
+    terms.href = `${BASE}license/#license-terms`;
     terms.target = "_blank";
     terms.rel = "noopener";
     terms.setAttribute("aria-label", "Read the license terms (opens in a new tab)");

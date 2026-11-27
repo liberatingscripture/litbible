@@ -17,11 +17,11 @@ that neither license covers, each under its own terms.
    NOT sell it and NOT distribute altered versions.
    The license owner also grants additional permissions (any amount for
    noncommercial use, blanks in teaching handouts, quotation in commercial
-   works within limits). They are set out at https://litbible.net/read#license-terms
+   works within limits). They are set out at https://litbible.net/license#license-terms
    and apply in addition to CC BY-NC-ND 4.0.
    Summary:    https://creativecommons.org/licenses/by-nc-nd/4.0/
    Legal code: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
-   See also the license notice at https://litbible.net/read#license
+   See also the license notice at https://litbible.net/license#license
 
 Which files are CONTENT (CC BY-NC-ND 4.0), not SOFTWARE:
   - src/data/chapters/            (scripture chapter text)

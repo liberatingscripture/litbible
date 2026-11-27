@@ -913,6 +913,16 @@ Entered by the run:
   takes Lucide's for them as it redraws the surface (the ledger's notes
   list them). Other choice: only the sixteen, with words where an icon is
   missing. Cost: none now. Recommendation: accept.
+- **Q21. About names the Read page for the license** (FP-21). About says
+  licensing details are “on the Read page,” twice (the LIT's license, and
+  the SBLGNT text's credits), in BVJ's words. The record moves About's
+  links to /license. Meanwhile: both links go to /license, with the words
+  unchanged, so each says “Read” and opens the License page. (Study's own
+  links, its export's license line, the Sheets' terms links, and its help
+  page, moved too, as the repo's own; `llms-full.txt` with `llms.txt`.)
+  Other choice: leave About's links on /read's old anchors, which forward
+  to /license (the words still name a page that no longer holds it).
+  Cost: two words. Recommendation: “on the License page” in both.
 
 ## Questions answered before the run
 

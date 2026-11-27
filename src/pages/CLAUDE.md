@@ -46,6 +46,18 @@ reader. Six things to keep:
    a new one gets a line there. A pull request that rests on one says it is
    Fable's research, not legal advice.
 
+## The license page (`license.astro`)
+
+The license notice, in the owner's words, moved off the foot of /read
+(Featherboa, "The ways in, and /read"). Its ids (`license`, `license-terms`,
+`sblgnt-disclaimer`) are addresses the apps and Study link, so they stay.
+**`/read` forwards the three old fragments** with `location.replace` from an
+`is:inline` script in its head (so /read doesn't flash first). Inline is safe
+there: the enforced policy has no `script-src`, and the report-only one allows
+inline (`public/CLAUDE.md`). Installed apps keep the old link until a later
+release, so **don't remove the forwarding**. The page's script opens a
+disclosure when the address names it. Its words change only with the owner.
+
 ## The podcast page (`found-in-translation-podcast.astro`)
 
 `/podcast` redirects here. The "All Episodes" list is RSS-driven off the

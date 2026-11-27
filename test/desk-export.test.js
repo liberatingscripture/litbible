@@ -210,7 +210,7 @@ test("the Markdown file reads as the mocked file does", () => {
   assert.match(md, /^## Places\n- Thursday group: Luke 15:11 <!-- lit:id=\S+ -->$/m, "a list item carries no modified");
   assert.match(md, /^## Labels\n- Prayer <!-- lit:id=\S+ -->$/m);
   assert.ok(md.includes(LIT_CREDIT_LINE));
-  assert.ok(md.includes("https://litbible.net/read/#license-terms"));
+  assert.ok(md.includes("https://litbible.net/license/#license-terms"));
   assert.ok(!md.includes("gone"), "trash stays out");
   // Bible order: John (4th gospel) before Romans, Romans 4 before Romans 8.
   assert.ok(md.indexOf("## Mark 4:35") < md.indexOf("## John 3:16"));

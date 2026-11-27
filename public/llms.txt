@@ -52,7 +52,7 @@ Not permitted:
   without written permission
 - Replacing or altering the LIT's words
 
-Full terms: https://litbible.net/read#license-terms
+Full terms: https://litbible.net/license#license-terms
 
 If your purpose is helping people engage with the LIT Bible, you are welcome to use it.
 If your purpose is commercial, contact us first: https://liberatingscripture.org

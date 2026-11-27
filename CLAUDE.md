@@ -230,7 +230,7 @@ workers/             # Cloudflare Workers, deployed separately, each with its ow
 | `/app-support` | `app-support.astro` | App support form (linked from the apps; `/app-support/thanks` is the no-JS success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here); read `src/pages/CLAUDE.md` before touching its embeds |
 | `/404` | `404.astro` | Not found; a guessable scripture address lands on its page |
-| others | `delete-account` (noindex; `workers/CLAUDE.md`, and its box, the account file's "Routes"), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy` and `terms` (`src/pages/CLAUDE.md`), `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
+| others | `delete-account` (noindex; `workers/CLAUDE.md`, and its box, the account file's "Routes"), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy` and `terms` (`src/pages/CLAUDE.md`), `license` (the license notice; `/read#license`, `#license-terms`, and `#sblgnt-disclaimer` forward to it, because the apps and Study link them; `src/pages/CLAUDE.md`), `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
