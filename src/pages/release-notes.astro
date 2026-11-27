@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/release-notes.css";
-import "../styles/v2/release-notes.css";
 import releaseNotes from "../data/release-notes.json";
 import { releaseNoteLinker } from "../lib/release-note-linker";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
@@ -49,7 +48,7 @@ const TYPE_LABEL: Record<string, string> = {
 >
   <div class="rn-page">
     <header class="rn-hero">
-      <h1 class="rn-title v2-bar">Release Notes</h1>
+      <h1 class="rn-title">Release Notes</h1>
       <p class="rn-lede">
         A running record of content updates to the LIT: new chapters, revised
         text, added footnotes, and glossary changes.

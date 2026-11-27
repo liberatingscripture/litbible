@@ -142,7 +142,7 @@ export function createPrintMenu({
       if (c.href) item.setAttribute("href", c.href);
       else if (!book) item.removeAttribute("href");
       // This page's chapter prints here, so its choices name no new tab and
-      // the restyle draws no new-tab mark on them (E136); a middle click
+      // carry no target a new-tab mark would read (E136); a middle click
       // still opens the tab, ready to print.
       if (!book) {
         if (c.inPlace) item.removeAttribute("target");

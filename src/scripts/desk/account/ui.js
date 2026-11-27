@@ -163,4 +163,4 @@ export function focusConfirm(within) {
 }
 
 /** A section of the account's home: a heading, then its parts. */
-export const section = (title, ...kids) => h("section", { class: "account__section" }, h("h2", { class: "account__heading v2-rule", text: title }), ...kids);
+export const section = (title, ...kids) => h("section", { class: "account__section" }, h("h2", { class: "account__heading", text: title }), ...kids);

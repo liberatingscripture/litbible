@@ -8,7 +8,6 @@ import { normalizeLabel } from "../../scripts/lib/glossary-feed-core.mjs";
 import { gatedOccurrences } from "../lib/alignment-gate.mjs";
 import { compareGlossaryLabels, glossarySortKey } from "../lib/glossary-sort.mjs";
 import "../styles/pages/glossary.css";
-import "../styles/v2/glossary.css";
 
 // `draft: true` entries stay in the collection (build-alignment.mjs seeds off
 // the files) but never reach a reader. Filtering here also keeps them out of
@@ -135,7 +134,7 @@ const totalOccurrences = (id: string) =>
 
 // Two sorted views — each menu and the initial page order use their own sort key.
 // A leading article is skipped ("The Adversary" files under A); the rule is
-// glossary-sort.mjs, which the page's sort switch and the 2.0 list share.
+// glossary-sort.mjs, which the page's sort switch uses.
 const byLit = [...rawEntries].sort((a, b) =>
   compareGlossaryLabels(a.data.litMenu, b.data.litMenu)
 );
@@ -220,7 +219,7 @@ const menuData = {
     {/* PAGE HEADER (white background) */}
     <section class="glossary-hero" aria-labelledby="glossary-title">
       <div class="wrap">
-        <h1 id="glossary-title" class="glossary-title v2-bar">Glossary</h1>
+        <h1 id="glossary-title" class="glossary-title">Glossary</h1>
 
         <p data-pagefind-ignore>
           There are many words you would expect to see if you’re familiar with
@@ -280,30 +279,6 @@ const menuData = {
             >↑</button>
           </div>
         </div>
-
-        {/* Site 2.0's left pane on a computer (data-v2: hidden without the
-            stamp, and under 1000px by v2/glossary.css, where the dropdown
-            above stays). Every entry by name, in the page's first order;
-            v2-glossary.js follows the sort and marks where you are. Plain
-            links, so it works without JS. */}
-        <nav
-          class="v2-glossary__rail"
-          data-v2
-          data-pagefind-ignore
-          aria-labelledby="v2-glossary-jump"
-        >
-          <p class="v2-label v2-glossary__jump" id="v2-glossary-jump">Jump to an entry</p>
-          <ul class="v2-glossary__list">
-            {byLit.map((e) => (
-              <li
-                data-lit={e.data.litMenu}
-                data-traditional={e.data.menuTraditional ?? e.data.traditional}
-              >
-                <a href={`#${e.data.id}`}>{e.data.litMenu}</a>
-              </li>
-            ))}
-          </ul>
-        </nav>
 
         {/* Menu data (generated at build time from glossary collection) */}
         <script
@@ -426,7 +401,7 @@ const menuData = {
                 const litParts = data.lit.split(" / ");
                 return (
                   <article
-                    class="entry v2-rule"
+                    class="entry"
                     data-entry={data.id}
                     data-animate="underline"
                     data-sort-lit={glossarySortKey(data.litMenu)}
@@ -478,11 +453,8 @@ const menuData = {
 
                       {/* A link to this entry, outside the heading so it stays
                           out of the heading's name. Without JS it is an ordinary
-                          link; glossary-entry-links.js makes a click copy it.
-                          Today's look only (data-v1): 2.0 has no copy-link
-                          button (BVJ, 2026-11-17; SITE-2.0.md). */}
+                          link; glossary-entry-links.js makes a click copy it. */}
                       <a
-                        data-v1
                         class="entry-link"
                         href={`#${data.id}`}
                         data-entry-link
@@ -901,12 +873,7 @@ const menuData = {
                   });
                 }
 
-                // Site 2.0 draws plain lines in CSS (v2/glossary.css), so with
-                // the restyle's stamp no ink is drawn. Without it, as before.
-                const plainLines = document.documentElement.hasAttribute("data-restyle");
-
                 function redrawAllInk() {
-                  if (plainLines) return;
                   const titles = Array.from(
                     document.querySelectorAll(".glossary-page .entry-title"),
                   );
@@ -961,6 +928,5 @@ const menuData = {
     import "../scripts/ref-preview.js";
     import "../scripts/glossary-entry-links.js";
     import "../scripts/glossary-selection.js";
-    import "../scripts/v2-glossary.js";
   </script>
 </Layout>

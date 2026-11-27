@@ -32,7 +32,7 @@
                      #   ebible-refs.mjs (the apocrypha it links to eBible.org),
                      #   glossary-crossrefs.mjs, glossary-sort.mjs (the
                      #   glossary's A to Z, which skips a leading "The", "A"
-                     #   or "An"; /glossary's sort and its 2.0 list share
+                     #   or "An"; /glossary's sort and jump menu share
                      #   it), release-note-links.mjs +
                      #   release-note-linker.ts (see "Scripture references link
                      #   at render" in Conventions below), release-notes-view.mjs (how

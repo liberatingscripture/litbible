@@ -9,7 +9,7 @@
 // There is no "Make a sheet" (D13, decision 36; BVJ, 2026-11-19): Add to
 // sheet…'s "New sheet" row makes that sheet.
 // Nothing here has a look of its own (decision 25): every class is one the
-// site already has, and styles/v2/collections.css only places them.
+// site already has, and styles/pages/collections.css only places them.
 //
 // What is shown comes from `collectionRows` (desk-collections.mjs) in the
 // collection's own order: Bible order, By type, or My order. Only My order
@@ -963,7 +963,7 @@ const grip = () => {
 
 /** A heading in My order: its grip, its words, and its buttons; a field while it is being renamed. */
 function headingRow(host, c, row, state, rows) {
-  const box = make("div", "collection-page__heading v2-rule");
+  const box = make("div", "collection-page__heading");
   box.dataset.rowKey = row.key;
   if (state.editing === row.key) {
     const form = make("form", "desk-sheet__ref");

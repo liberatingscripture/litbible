@@ -187,8 +187,6 @@ test("the pane's actions end with Open on its own page in a new tab, in Print's 
   assert.equal(own.target, "_blank");
   assert.match(own.textContent, /\(opens in a new tab\)/);
   // Each member is a sheet of its own, in a pane as on the page (E192).
-  const members = p.el.querySelector(".collection-page__members");
-  assert.ok(!members.classList.contains("v2-sheet"), "no sheet under the members' sheets");
   assert.equal(p.el.querySelectorAll(".collection-page__member").length, 1);
 });
 

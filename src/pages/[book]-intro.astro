@@ -5,9 +5,6 @@ import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import { isDraftIntro } from "../lib/chapter-nav-data.mjs";
 import ChapterCtas from "../components/ChapterCtas.astro";
 import DraftPage from "../components/DraftPage.astro";
-// Site 2.0's intro (the Marks and the "On this page" rail), behind the
-// restyle's stamp; after the page's own styles.
-import "../styles/v2/intro.css";
 
 // Load intro markdown files eagerly (so we can render immediately)
 type IntroMod = {
@@ -43,11 +40,10 @@ const introMod = (introModules as Record<string, IntroMod>)[introKey] ?? null;
 // intros, which made every intro a search hit for "liberation" and
 // "inclusion". It stays on the page; Pagefind skips it.
 //
-// Site 2.0's contents rail ("On this page") links to the intro's h2s, which
-// the Markdown writes as raw HTML with no ids. Each one without an id gets
-// one from its words ("Main Themes" → "main-themes"); an id already there
-// is kept and used. The rail is built from the same list.
-const railHeadings: { id: string; html: string }[] = [];
+// The Markdown writes each h2 as raw HTML with no id, so each one without an
+// id gets one from its words ("Main Themes" → "main-themes"); an id already
+// there is kept. They give a section an address to share, and Pagefind's
+// results an anchor to land on.
 const usedIds = new Set<string>();
 const introHtml = introMod?.compiledContent
   ? linkRefs(await introMod.compiledContent())
@@ -56,22 +52,23 @@ const introHtml = introMod?.compiledContent
         "<h2 data-pagefind-ignore$1>$2</h2>",
       )
       .replace(/<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/g, (whole: string, attrs: string = "", inner: string) => {
-        const words = inner.replace(/<[^>]*>/g, "").trim();
         const own = /\sid="([^"]*)"/.exec(attrs);
-        let id = own?.[1] ?? "";
-        if (!id) {
-          const base =
-            words
-              .toLowerCase()
-              .replace(/&[a-z0-9#]+;/g, "")
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-+|-+$/g, "") || "section";
-          id = base;
-          for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
+        if (own) {
+          usedIds.add(own[1]);
+          return whole;
         }
+        const base =
+          inner
+            .replace(/<[^>]*>/g, "")
+            .trim()
+            .toLowerCase()
+            .replace(/&[a-z0-9#]+;/g, "")
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "") || "section";
+        let id = base;
+        for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
         usedIds.add(id);
-        railHeadings.push({ id, html: words });
-        return own ? whole : `<h2 id="${id}"${attrs}>${inner}</h2>`;
+        return `<h2 id="${id}"${attrs}>${inner}</h2>`;
       })
   : null;
 
@@ -90,8 +87,6 @@ const description = `Introduction to ${bookName} in the Liberation and Inclusion
 // over by Previous/Next, the same as an indexed:false chapter.
 const isDraft = isDraftIntro(bookKey);
 
-// The rail needs at least two headings to be worth a row; a draft has none.
-const showRail = !isDraft && railHeadings.length >= 2;
 ---
 
 <ScriptureLayout
@@ -136,24 +131,6 @@ const showRail = !isDraft && railHeadings.length >= 2;
         </>
       ) : (
         <>
-          {showRail && (
-            <nav
-              class="v2-intro-rail"
-              data-v2
-              data-v2-rail
-              data-pagefind-ignore
-              aria-labelledby="v2-intro-rail-label"
-            >
-              <div class="v2-intro-rail__in">
-                <p id="v2-intro-rail-label" class="v2-label v2-intro-rail__label">On this page</p>
-                <ul>
-                  {railHeadings.map((h) => (
-                    <li><a href={`#${h.id}`} set:html={h.html} /></li>
-                  ))}
-                </ul>
-              </div>
-            </nav>
-          )}
           <section class="intro">
             <Fragment set:html={introHtml} />
           </section>
@@ -280,8 +257,5 @@ const showRail = !isDraft && railHeadings.length >= 2;
   {/* Scripture reference previews (progressive enhancement) */}
   <script>
     import "../scripts/ref-preview.js";
-    // Site 2.0: marks the rail's current heading (does nothing without the
-    // restyle's stamp or a [data-v2-rail]).
-    import "../scripts/v2-frame.js";
   </script>
 </ScriptureLayout>

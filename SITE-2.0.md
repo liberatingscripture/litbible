@@ -1,5 +1,8 @@
 # Site 2.0: the build plan and its decisions
 
+**Featherboa replaced Site 2.0, and its code was removed in Featherboa's
+Phase 0 (`SITE-FEATHERBOA-BUILD.md`); this file is the record only.**
+
 > **Replaced by Featherboa** (BVJ, 2026-11-26): `SITE-FEATHERBOA.md` is the
 > site's next design. This file stays the record of what 2.0 decided and
 > built behind `data-restyle`. Its decisions don't carry over by themselves:

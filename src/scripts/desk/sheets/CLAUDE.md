@@ -629,7 +629,7 @@ my notebook"**. Twelve things to know:
   Site 2.0 removed it from the site's styles): the sheet's title (24pt), Key
   terms, the answer key's title and references and the passage's reference
   are all the paper's own Crimson Text, so none falls back to Georgia. Bold is
-  set on each, since the restyle gives a heading 600. **Featherboa reverses
+  set on each, whatever weight the screen gives a heading. **Featherboa reverses
   this** (BVJ, 2026-11-26; decided, not built): paper takes the screen's
   faces, Fraunces headings and Source Sans 3 text (`SITE-FEATHERBOA.md`,
   "Type"). Until it is built, the rule here holds. The print block's
@@ -944,8 +944,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   verses", and invisible copies of its longest labels hold its width (the
   Search pane's strip, E117, does the same; the words are shared in
   `desk-sheet-gather.mjs`). The card and the checked rows share a green
-  rule; under Site 2.0 the restyle's card shadow outweighs the rows' rule,
-  so `v2/search.css` restates it (E163). **The chapters by topic are checked the same way** (E163; BVJ,
+  rule (E163). **The chapters by topic are checked the same way** (E163; BVJ,
   2026-11-18: “It should match the keyword results behavior”): a box on
   each chapter and the same head row, words and disabled button, with
   “chapter” for “verse” (each word helper takes the noun); each checked

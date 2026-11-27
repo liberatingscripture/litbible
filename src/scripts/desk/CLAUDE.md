@@ -129,18 +129,12 @@ means each of these, in one change:
     `read.astro`). Keep only that wording; comments and docs follow.
     Featherboa says "Read page," case by case (`SITE-FEATHERBOA.md`,
     "Study and its places").
-14. **The site restyle** (E132; BVJ, 2026-11-13) goes to every reader:
-    Layout.astro's second stamp, `data-restyle`, is set on every device
-    from the same key, phones included, so it can't simply follow item 1's
-    exclusions. Either stamp it unconditionally or drop the gate from
-    `src/styles/restyle.css`, and then fold its rules into the files they
-    override where that reads better. `test/desk-prepaint.test.js` and
-    `test/restyle-css.test.js` hold the gate today.
-15. **Site 2.0** (BVJ, 2026-11-17) rides the same stamp as item 14: its
-    page layouts in `src/styles/v2/`, its `data-v1` and `data-v2` markup,
-    and four small modules that check the stamp. The steps are in
-    `SITE-2.0.md`, "At launch." Featherboa (`SITE-FEATHERBOA.md`) replaces
-    2.0, and how it launches is still open.
+14. *(Done.)* The site restyle (E132) and its `data-restyle` stamp were
+    removed with Site 2.0 in Featherboa's Phase 0
+    (`SITE-FEATHERBOA-BUILD.md`); nothing is left to launch.
+15. *(Done.)* Site 2.0's layouts and markup went in the same phase
+    (`SITE-2.0.md` stays as the record). Featherboa launches with Study, in
+    one merge (`SITE-FEATHERBOA-BUILD.md`, "Branch, preview, and launch").
 
 After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
 `lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere; the

@@ -115,8 +115,7 @@ html:not([data-account="open"]) [data-account-opened] {
 }
 
 /* Deep Green with white words: the one fill that reads in both themes
-   (src/styles/CLAUDE.md, "Brand colors"). With the restyle on, the button
-   lists in restyle.css draw these instead. */
+   (src/styles/CLAUDE.md, "Brand colors"). */
 .account__button--primary {
   border-color: var(--green-deep);
   background: var(--green-deep);

@@ -72,7 +72,8 @@ export function addKindGlyph(el, kind) {
 
 /**
  * A link's "open on its page in a new tab" icon (E35), drawn in the text colour. Decorative: the link names itself.
- * Its class tells restyle.css's new-tab mark (E71) that the link already shows one (E135).
+ * Its class tells a site-wide new-tab mark that the link already shows one (E135); Site 2.0's
+ * restyle.css drew that mark until Featherboa's Phase 0 removed it.
  */
 export const OPEN_PAGE_ICON = `<svg class="desk-open-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">

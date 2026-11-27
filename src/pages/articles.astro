@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/articles.css";
-import "../styles/v2/articles.css";
 
 import SearchBar from "../components/SearchBar.astro";
 import ArticlesHero from "../components/ArticlesHero.astro";
@@ -34,7 +33,6 @@ const rest: ArticleEntry[] = featured
   bg="cream"
   headerClass="site-header--green"
   pageSearch
-  headerSearchLink
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({

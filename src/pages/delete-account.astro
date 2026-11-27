@@ -36,7 +36,6 @@ import Layout from "../layouts/Layout.astro";
 // The privacy page's document column, used as it is. Nothing is added to
 // that stylesheet for this page.
 import "../styles/pages/privacy.css";
-import "../styles/v2/privacy.css";
 // The box that signs in and deletes: the account page's own styles.
 import "../styles/pages/account.css";
 ---
@@ -47,9 +46,9 @@ import "../styles/pages/account.css";
   canonical="https://litbible.net/delete-account/"
   robotsNoindex={true}
 >
-  <article class="privacy-page v2-frame" aria-labelledby="delete-title">
+  <article class="privacy-page" aria-labelledby="delete-title">
 
-    <header class="privacy-header v2-frame__head v2-bar">
+    <header class="privacy-header">
       <div class="privacy-header__inner">
         <h1 id="delete-title" class="privacy-title">Delete your account</h1>
         <p class="privacy-effective">
@@ -71,10 +70,10 @@ import "../styles/pages/account.css";
       </div>
     </header>
 
-    <div class="privacy-body v2-frame__text">
+    <div class="privacy-body">
 
       <section aria-labelledby="delete-what">
-        <h2 id="delete-what" class="v2-rule">What an account is</h2>
+        <h2 id="delete-what">What an account is</h2>
         <p>
           A LIT Bible account keeps your notebook (your notes, highlights,
           bookmarks, and sheets) in step across your devices. The copy we
@@ -85,7 +84,7 @@ import "../styles/pages/account.css";
       </section>
 
       <section aria-labelledby="delete-how">
-        <h2 id="delete-how" class="v2-rule">How to delete your account</h2>
+        <h2 id="delete-how">How to delete your account</h2>
         <p>You can delete your account from any place you are signed in.</p>
         <ul>
           <li>
@@ -106,7 +105,7 @@ import "../styles/pages/account.css";
             account,” with no app installed.
           </li>
         </ul>
-        <div class="account-sheet v2-sheet" data-account-page="delete" data-account-opened></div>
+        <div class="account-sheet" data-account-page="delete" data-account-opened></div>
         <p>
           We can’t delete an account for you from an email or a form. Because
           we don’t keep your name or email address, we have no way to tell
@@ -116,7 +115,7 @@ import "../styles/pages/account.css";
       </section>
 
       <section aria-labelledby="delete-when">
-        <h2 id="delete-when" class="v2-rule">How long it takes</h2>
+        <h2 id="delete-when">How long it takes</h2>
         <ul>
           <li>
             <strong>From a device that holds your notebook’s key,</strong>
@@ -134,7 +133,7 @@ import "../styles/pages/account.css";
       </section>
 
       <section aria-labelledby="delete-deleted">
-        <h2 id="delete-deleted" class="v2-rule">What is deleted</h2>
+        <h2 id="delete-deleted">What is deleted</h2>
         <p>Everything we hold for the account:</p>
         <ul>
           <li>the synced copy of your notebook, with every note, highlight, bookmark, and sheet in it;</li>
@@ -150,7 +149,7 @@ import "../styles/pages/account.css";
       </section>
 
       <section aria-labelledby="delete-kept">
-        <h2 id="delete-kept" class="v2-rule">What is not deleted</h2>
+        <h2 id="delete-kept">What is not deleted</h2>
         <ul>
           <li>
             <strong>The notebook on each of your devices.</strong> Deleting
@@ -173,7 +172,7 @@ import "../styles/pages/account.css";
       </section>
 
       <section aria-labelledby="delete-after">
-        <h2 id="delete-after" class="v2-rule">Afterward</h2>
+        <h2 id="delete-after">Afterward</h2>
         <p>
           Deleting an account can’t be undone. If you sign in again later
           with the same Apple or Google account, you start a new, empty
@@ -183,7 +182,7 @@ import "../styles/pages/account.css";
       </section>
 
       <section aria-labelledby="delete-help">
-        <h2 id="delete-help" class="v2-rule">Questions</h2>
+        <h2 id="delete-help">Questions</h2>
         <p>
           For help, write to the LIT Bible team through
           <a href="/app-support/">app support</a> or the

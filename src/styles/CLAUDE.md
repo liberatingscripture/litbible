@@ -486,89 +486,14 @@
   words, with no shadow on a button at rest. Until it is built, the rules
   above hold.
 
-## The restyle and Site 2.0
+## Site 2.0 is gone
 
-- **The rest of the site takes the desk's look in `restyle.css`, behind
-  `data-restyle`** (E132; BVJ, 2026-11-13). Layout.astro stamps it from
-  `lit-desk-preview` on every device, phones included, and loads the file
-  after `global.css` on every page; it comes off at launch (item 14 of
-  "Launching" in `src/scripts/desk/CLAUDE.md`). Five rules hold it together,
-  and `test/restyle-css.test.js` checks the first four:
-  1. **Every rule starts `:root[data-restyle]`**, so nothing reaches a reader
-     without the preview. Dark values name both selectors, as everywhere.
-  2. **The desk's tokens are copied with desk.css's values**, since most
-     pages never load desk.css. Change one in desk.css and here together.
-  3. **Each kind of control is one `:is()` list** (ordinary, primary, pill,
-     glyph, floating surface, card, heading, field, quiet link), repeated
-     word for word in its state rules. A new button joins a list; it never
-     gets a rule of its own.
-  4. **An element is in one list only.** A `:is()` list weighs as much as
-     its most specific member, so the ordinary list outweighs the others
-     whatever the order, and a second kind would lose. The same fact is used
-     on purpose: page and component styles load after this file and win a
-     tie, so where one weighs as much as a list, a member named with its
-     page's class (`.search-page .result-link`) lifts the whole list.
-  5. **/apps is mirrored with the LSC site**: only its four store buttons
-     take the look (BVJ, 2026-11-13), from here, never from `apps.css`.
-  **The header's Read link is the one ink primary, on every page** (BVJ,
-  2026-11-21: "more visual variety"). It is in the primary list, with its
-  fill and edge re-pinned to ink on the link (`--green-deep` and
-  `--desk-primary-edge`, so rest, hover, and press all follow), so a page
-  with a Deep Green primary of its own (Next at a chapter's foot, a form's
-  Send) has two different ones, not two alike. Ink is why: Deep Green is only
-  1.9:1 against the home band's LIT Green, and ink is 4.6:1 there in both
-  themes. A near-black page would swallow an ink fill, so off the green band
-  the dark theme gives it the kind's green edge back (two rules naming both
-  dark selectors). It was briefly stepped down to an ordinary button on pages
-  with a primary of their own; that was undone, so don't re-add an
-  `ownPrimary`. `global.css` still draws the link the old way for the
-  ungated site (an ink block, a green curtain on `::before`, capitals); the
-  rules after the primary block switch that off here, and the `.cta-hold`
-  that keeps its width stays. The phone menu's Read (`.menu-overlay__cta`) is
-  in the same list but stays Deep Green: it sits on the menu's near-black
-  scrim, where ink would vanish. One rule drops its capitals and the 420ms
-  stagger delay (it would hold back every hover). The open menu's X is ink
-  (`var(--ink)`, never `--text`, which the green header pages re-pin) on the
-  ordinary buttons' white tile, in the phone menu and the computer's side tray
-  alike.
-  Check a change against the computed styles of every control on each page,
-  in both themes and at a phone's width, before trusting a screenshot.
-- **Site 2.0's page layouts live in `src/styles/v2/`, behind the same
-  stamp** (BVJ, 2026-11-17; `SITE-2.0.md` is the plan and its ground rules;
-  Featherboa, `SITE-FEATHERBOA.md`, replaces it).
-  `v2/base.css` (tokens `--v2-*`, the sheet, the Marks, the quiet label, the
-  watermark, the page frame) loads after `restyle.css` in Layout.astro; each
-  page's `v2/<page>.css` is imported by that page after its own styles.
-  Every selector begins `:root[data-restyle]`, dark rules name both
-  selectors, and nothing 2.0 goes into `restyle.css`, `global.css` or a
-  page's existing stylesheet. (What kind a control is stays `restyle.css`'s
-  to say: when 2.0 made the Scripture pages' arrows and Previous quiet and
-  left Next the page's one primary, BVJ 2026-11-17, they moved between its
-  lists; no rule was added there.)
-  Markup only 2.0 has carries `data-v2` (plus
-  `data-pagefind-ignore` when it repeats the page's words); markup it
-  replaces carries `data-v1`; two rules in Layout.astro's critical CSS hide
-  each in the other look, and no `id` is in both. `test/site2-css.test.js`
-  holds these. `src/pages/404.astro` with `v2/notfound.css` is the worked
-  example.
-  Two traps wave 4 found: a grid item with `margin: 0 auto` stops
-  stretching and takes its longest word's width (Privacy scrolled sideways
-  in OpenDyslexic), so a page-frame child carries no auto margin; and a
-  rail's "you are here" marker is a border over transparent ones, which a
-  contrast theme paints on every link, so `base.css` names `Canvas` and
-  `Highlight` for them under `forced-colors`.
-  **A sentence that ends in a new-tab link** would show the restyle's mark
-  between its last word and its period (BVJ, 2026-11-17: “The period should
-  be up against the ‘4.0’”). CSS can't reorder them, so for the two
-  hand-written sentences (/read's license card, the source-text notice) the
-  link drops its mark and the paragraph's `::after` draws the same one
-  after the period (`v2/base.css`, screen only; it repeats `restyle.css`'s
-  drawing, so change both). A new such sentence joins that selector.
-  **The mark is an inline-block, so it can wrap on its own**, a row below the
-  link it belongs to. A short link keeps itself and its mark together with
-  `white-space: nowrap` (the footer's license link, `global.css`, did this
-  at some widths from about 1030 to 1050px); a long one can't, so give it
-  the paragraph treatment above.
+- **Site 2.0 and the restyle (E132) were removed** in Featherboa's Phase 0
+  (`SITE-FEATHERBOA-BUILD.md`): `restyle.css`, `src/styles/v2/`, the
+  `data-restyle` stamp, and the `data-v1`/`data-v2` markup. `SITE-2.0.md`
+  stays as the record; none of its decisions carries over unless
+  `SITE-FEATHERBOA.md` says so. Don't bring back a `:root[data-restyle]`
+  rule or a `v2-` class.
 
 ## Forced colors
 

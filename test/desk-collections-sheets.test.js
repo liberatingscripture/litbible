@@ -98,7 +98,6 @@ test("E192: each member is its own module, one run per kind, and the page marks 
   const { root, page } = await mount(`?id=${c.id}`);
   await until(() => root.querySelectorAll(".collection-page__member").length === 5, 3000, "five members");
   const members = root.querySelector(".collection-page__members");
-  assert.equal(members.classList.contains("v2-sheet"), false, "no one sheet under them all");
   const runs = [...members.querySelectorAll(".collection-page__run")];
   assert.deepEqual(
     runs.map((r) => r.querySelectorAll(":scope > .collection-page__member").length),

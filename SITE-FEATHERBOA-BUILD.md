@@ -753,6 +753,18 @@ Entered before the run, from BVJ's answers:
 - **Q5. Study's stage at launch**: "beta," unless the opening and sync land
   on the same day (Phase 14; `STUDY-DESK.md`, "Launching").
 
+Entered by the run:
+
+- **Q6. The new-tab mark** (Phase 0; `SITE-FEATHERBOA.md` has no row for
+  it). Site 2.0's `restyle.css` drew E71's open-page mark after every link
+  that opens a new tab, prose included (D7 of E132, BVJ 2026-11-13), and
+  it went with `restyle.css`; the Study Desk's own marks (`newTabMark`,
+  E71) stay. The record draws no mark. Meanwhile: none on prose links.
+  Other choices: a mark in the kit (Phase 2) from the icon set, after the
+  link's last word, kept off pictures, icons, and /apps' body as D7 was.
+  Cost: one rule and one icon; the period-after-a-link case 2.0 handled
+  (BVJ, 2026-11-17) comes back with it.
+
 ## Questions answered before the run
 
 Eighteen questions put to BVJ on 2026-11-27, each with Claude's

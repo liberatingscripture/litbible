@@ -60,9 +60,8 @@ here hold.
   E194). Styles: the rows' rules (the actions row, the order
   bar, headings, a passage's cut at three lines) are `desk.css`'s
   "Collections (D13)" section, where the pane reads them too;
-  `styles/v2/collections.css` keeps the page's frame (its widths, and one
-  collection's column, every selector behind `:root[data-restyle]`),
-  and `styles/pages/collections.css` the note without the desk and the
+  `styles/pages/collections.css` keeps the page's frame (Site 2.0's
+  `v2/collections.css` frame went with 2.0), the note without the desk and the
   page's text size: /sheets' rule (`--sheet-ui`, and `--desk-ui` for the
   notebook's rows, from `--reading-scale`), its root's `.desk-np` 1rem and
   1.55 set back to inherit, so the page's words are /sheets' at every tray

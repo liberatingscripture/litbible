@@ -358,18 +358,3 @@ test("E116, E117: the strips stay in view, a long label ends in “…”, and c
   // A head row's [hidden] wins over its display: flex.
   assert.match(search, /\.desk-gather\[hidden\] \{[^}]*display:\s*none/);
 });
-
-test("E163: Site 2.0's /search keeps the green rule on a checked result, at rest and on hover", () => {
-  // restyle.css's card list (:root[data-restyle] :is(.search-page .result-link, …))
-  // outweighs desk-search.css's rule, so v2/search.css restates it with the
-  // restyle's own shadows behind it.
-  const v2 = read("v2/search.css");
-  const picked = ":root[data-restyle] .search-page .desk-gather__row-item--picked > .result-link";
-  const rest = v2.slice(v2.indexOf(`${picked} {`));
-  assert.ok(v2.includes(`${picked} {`), "no rule for a checked card");
-  assert.match(rest, /^[^}]*box-shadow:\s*inset 3px 0 0 var\(--green-text\), var\(--restyle-link-card-shadow\)/);
-  const hover = v2.slice(v2.indexOf(`${picked}:hover {`));
-  assert.ok(v2.includes(`${picked}:hover {`), "no rule for a checked card under the pointer");
-  assert.match(hover, /^[^}]*box-shadow:\s*inset 3px 0 0 var\(--green-text\), var\(--restyle-link-card-hover-shadow\)/);
-  assert.match(v2, /@media \(forced-colors: active\) \{\s*:root\[data-restyle\] \.search-page \.desk-gather__row-item--picked > \.result-link \{[^}]*border-color:\s*Highlight/);
-});

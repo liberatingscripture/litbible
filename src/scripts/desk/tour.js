@@ -70,7 +70,7 @@ const visible = (e) => Boolean(e && e.getClientRects().length && e.getBoundingCl
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 
 /** The scripture toolbar holding `input` when its search is closed behind the
-    round button (a phone, or OpenDyslexic in the 2.0 look), else null. */
+    round button (a phone, where the toolbar is compact), else null. */
 function searchRow(input) {
   const row = input?.closest(".scripture-tools[data-compact]");
   if (!row || row.hasAttribute("data-search-open")) return null;
@@ -344,9 +344,9 @@ export function createTour({ panel, canKeep = true, store = null }) {
     async search(live) {
       closePanel();
       const input = document.getElementById("site-search-input");
-      // In OpenDyslexic the toolbar keeps search behind its round button
-      // (v2/scripture.css). Open the row as the button does, but leave focus
-      // on the card, and close it again after.
+      // Where the toolbar keeps search behind its round button, open the row
+      // as the button does, but leave focus on the card, and close it again
+      // after.
       const row = searchRow(input);
       if (row) {
         row.setAttribute("data-search-open", "");

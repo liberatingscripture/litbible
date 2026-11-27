@@ -1,7 +1,7 @@
 // The Print menu (src/scripts/desk/print-menu.js, E16) driven in a browser DOM:
 // a choice names a new tab only when it opens one (E136). In the Notebook on a
-// chapter page, that chapter's choices print in place, so the restyle's
-// new-tab mark (an ::after on a[target="_blank"]) must not promise a tab.
+// chapter page, that chapter's choices print in place, so a link there must
+// not carry target="_blank" and promise a tab it never opens.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

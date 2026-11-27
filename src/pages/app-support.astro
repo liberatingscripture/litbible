@@ -1,9 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/contact.css";
-import EmblemMark from "../components/EmblemMark.astro";
-// Site 2.0's look, behind the data-restyle stamp (src/styles/v2/contact.css).
-import "../styles/v2/contact.css";
 ---
 
 <Layout
@@ -14,7 +11,7 @@ import "../styles/v2/contact.css";
   <div class="contact-page">
     <section class="contact-hero" aria-labelledby="app-support-title">
       <div class="contact-inner">
-        <h1 id="app-support-title" class="v2-bar">App support</h1>
+        <h1 id="app-support-title">App support</h1>
 
         <p class="contact-lead">
           Something not working, or an idea to make the app better? Tell us
@@ -24,7 +21,6 @@ import "../styles/v2/contact.css";
 
         <img
           class="contact-logo"
-          data-v1
           src="/images/lit-logo-2026-ring.svg"
           alt="Liberation and Inclusion Translation logo."
           loading="lazy"
@@ -39,7 +35,7 @@ import "../styles/v2/contact.css";
             JS to render, so a truly JS-less visitor can't pass the check.
             The Worker 303-redirects to /app-support/thanks/ on success. */}
         <form
-          class="contact-form v2-sheet v2-sheet--bleed v2-contact-sheet"
+          class="contact-form"
           action="/app-support/submit"
           method="POST"
           data-contact-form
@@ -123,7 +119,6 @@ import "../styles/v2/contact.css";
             <a href="/contact/">contact page</a>.
           </p>
         </form>
-        <EmblemMark class="v2-watermark contact-mark" />
       </div>
 
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>

@@ -40,7 +40,7 @@ const heroImage = data.heroImage; // string | undefined (from your schema)
 
     <div class="featured__body">
       <div class="featured__meta">
-        <time class="v2-label" datetime={data.date.toISOString()}>{dateLabel}</time>
+        <time datetime={data.date.toISOString()}>{dateLabel}</time>
       </div>
 
       <h2 class="featured__title">{data.title}</h2>

@@ -36,25 +36,6 @@ From the root's project tree.
                      #   greek-commands, the Greek search commands window,
                      #   whose top is greek-builder, the menu-based search
                      #   builder);
-                     #   v2-frame, Site 2.0's "you are here" marker on a
-                     #   contents rail (About, Privacy, the Commitments'
-                     #   longer text, Study Desk help, where it also
-                     #   scrolls the long rail to the current item, the
-                     #   podcast's seasons): with the
-                     #   restyle's stamp only, it sets
-                     #   aria-current="location" on the link of the last
-                     #   heading above the reading line;
-                     #   v2-glossary, v2-search and v2-scripture, each a
-                     #   2.0 page's own module, inert without the stamp:
-                     #   the Glossary's left list (its order and marker),
-                     #   /search's left pane (it MOVES the page's sort,
-                     #   filters and picker into the pane, never copies
-                     #   them, and draws "Result groups"; the move can
-                     #   come before searchbar.js sets up at idle, so a
-                     #   moved control is found by its id, never only
-                     #   inside the tray), and the phone
-                     #   toolbar's hide on a scroll down and return on a
-                     #   scroll up on scripture pages;
                      #   desk-gate + desk/, the Study Desk preview (its
                      #   Sheets in desk/sheets/), and
                      #   desk-frame, what every page knows about its panel;
@@ -261,8 +242,6 @@ Desk adds its "My Notebook" row to it as it does in scripture. The entry's
 copy-link button says what it does twice over: hover text ("Copy link to this
 entry") and a copy icon with a chain on its front sheet (owner, 2026-10-09).
 A bare chain reads as a link that goes somewhere.
-Site 2.0 has no such button (BVJ, 2026-11-17; it is `data-v1`): the left
-list's links and the panel's Copy entry link serve there.
 
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and

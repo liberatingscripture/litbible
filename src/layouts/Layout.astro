@@ -1,7 +1,5 @@
 ---
 import "../styles/global.css";
-import "../styles/restyle.css";
-import "../styles/v2/base.css";
 import "../styles/print.css";
 import SiteHeader from "../components/SiteHeader.astro";
 import interLatin400Url from "@fontsource/inter/files/inter-latin-400-normal.woff2";
@@ -34,10 +32,6 @@ const {
   // Read View, /search, articles). Every other page gets the header's
   // search icon instead, so each page has exactly one way in (audit U6).
   pageSearch = false,
-  // Site 2.0 (shown only with the restyle's stamp): a page with its own
-  // search box that also wants the header's search icon, as a plain link to
-  // /search. The articles pages pass it (SiteHeader's searchLink).
-  headerSearchLink = false,
   // The Study Desk's own header (/desk): the page's title, centered, in
   // place of the nav, and no search (SiteHeader's deskTitle).
   deskTitle,
@@ -80,10 +74,7 @@ const criticalDarkColor = isGreen ? "#E1DFD9" : "#F0F0F0";
 // attribute overrides it on first paint: the media rule is guarded with
 // :not([data-theme="light"]) (so a forced-light user on a dark OS gets no dark
 // frame), and an explicit :root[data-theme="dark"] rule forces dark on any OS.
-// The last two rules are Site 2.0's (SITE-2.0.md, ground rule 3): markup only
-// 2.0 has (data-v2) is hidden without the data-restyle stamp, and markup 2.0
-// replaces (data-v1) is hidden with it. They are here so neither flashes.
-const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}:root:not([data-restyle]) [data-v2]{display:none!important}:root[data-restyle] [data-v1]{display:none!important}`;
+const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}`;
 
 // What the desk's pre-paint script needs to repeat src/lib/desk-margin.mjs's
 // firstPaint (BA25, BA30).
@@ -122,10 +113,7 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
     <script is:inline define:vars={{ readView: scriptureControls === "read" }}>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=readView?(s.getItem('lit-read-numbers')||s.getItem('lit_rm_markers')||s.getItem('lit-verse-numbers')):s.getItem('lit-verse-numbers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k)}catch(_){}</script>
     {/* The Study Desk preview (STUDY-DESK.md, phase 1b). ?desk=on or ?desk=off sets or
          clears lit-desk-preview in this browser (off clears lit-desk-panel too) and is
-         taken out of the address, so a copied link never carries it. With the flag on, on
-         every device (phones too), data-restyle goes on: src/styles/restyle.css draws the
-         rest of the site in the desk's look (E132), and it comes off at launch with the
-         preview ("Launching" in src/scripts/desk/CLAUDE.md). With the flag on, and on a computer (the test in
+         taken out of the address, so a copied link never carries it. With the flag on, and on a computer (the test in
          src/lib/app-platform.mjs, repeated here since this script can't import),
          data-desk="on" turns the desk on: desk-gate.js loads it, and global.css shows
          the Notebook button and narrows the reading measure to 52. The rest is the
@@ -178,7 +166,7 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
          button last (lit-desk-account-last, a note desk/account/header-entry.js keeps): the
          button is narrower than "Sign in," so the row holds the right room from first paint
          and nothing in it moves when the entry is drawn (E231). That one stays at launch. */}
-    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags, deskFit, deskPanel, deskChapter }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),y=u.searchParams.get('account'),o=0,n=navigator,a=n.userAgent||'',t=n.maxTouchPoints>1;if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');o=1}if(y==='preview'||y==='local'||y==='off'){if(y==='off')s.removeItem('lit-desk-account');else s.setItem('lit-desk-account',y);u.searchParams.delete('account');o=1}if(o)history.replaceState(history.state,'',u.pathname+u.search+u.hash);var c=s.getItem('lit-desk-account');if(c==='preview'||c==='local'){d.setAttribute('data-account','open');if(s.getItem('lit-desk-account-last')==='in')d.setAttribute('data-account-last','in')}if(s.getItem('lit-desk-preview')==='on')d.setAttribute('data-restyle','');if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(n.userAgentData&&n.userAgentData.mobile===true)||(t&&(/Macintosh/.test(a)||(/Linux/.test(a)&&!/CrOS/.test(a)))))){d.setAttribute('data-desk','on');if(deskPanel){var b=s.getItem('lit-desk-start');if(s.getItem('lit-desk-show')==='off')d.setAttribute('data-desk-show','off');if(s.getItem('lit-desk-show')==='off'?false:b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');if(b==='open'||(b!=='min'&&s.getItem('lit-desk-min')==='0')){var f=deskFit,w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width')),e=document.createElement('div'),v,k=(f.ch[d.getAttribute('data-font')]||f.ch[''])*(f.scale[d.getAttribute('data-size')]||1)*f.body*parseFloat(getComputedStyle(d).fontSize),r,h=1,g;e.style.cssText='position:absolute;visibility:hidden;width:99px;height:9px;overflow:scroll';d.appendChild(e);v=innerWidth-(e.offsetWidth-e.clientWidth);d.removeChild(e);r=v-f.edge-f.gap-f.keepLeft;if(m>=f.minMeasure&&m<=f.maxMeasure&&x>=f.minWidth){h=m*k+f.pad+x-r;if(h>0){g=Math.min(h,x-f.minWidth);x-=g;h-=g}if(h>0){g=Math.min(h,(m-f.minMeasure)*k);m-=g/k;h-=g}}if(h<=.5){m=Math.round(m*10)/10;x=Math.round(x);d.setAttribute('data-desk-expanded','');d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(m));d.style.setProperty('--desk-width',x+'px');if(deskChapter)d.style.setProperty('--desk-bar-center',v-f.edge-x-f.gap-(m*k+f.pad)/2+'px')}else if(r-f.measure*k-f.pad>=f.minWidth){d.setAttribute('data-desk-expanded','');h=Math.round(Math.max(0,f.minWidth+f.edge+f.gap+(f.measure*k+f.pad-v)/2));if(deskChapter&&h){d.style.setProperty('--desk-move',-h+'px 0');d.style.setProperty('--desk-bar-center',v/2-h+'px')}}}}}}}catch(_){}</script>
+    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags, deskFit, deskPanel, deskChapter }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),y=u.searchParams.get('account'),o=0,n=navigator,a=n.userAgent||'',t=n.maxTouchPoints>1;if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');o=1}if(y==='preview'||y==='local'||y==='off'){if(y==='off')s.removeItem('lit-desk-account');else s.setItem('lit-desk-account',y);u.searchParams.delete('account');o=1}if(o)history.replaceState(history.state,'',u.pathname+u.search+u.hash);var c=s.getItem('lit-desk-account');if(c==='preview'||c==='local'){d.setAttribute('data-account','open');if(s.getItem('lit-desk-account-last')==='in')d.setAttribute('data-account-last','in')}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(n.userAgentData&&n.userAgentData.mobile===true)||(t&&(/Macintosh/.test(a)||(/Linux/.test(a)&&!/CrOS/.test(a)))))){d.setAttribute('data-desk','on');if(deskPanel){var b=s.getItem('lit-desk-start');if(s.getItem('lit-desk-show')==='off')d.setAttribute('data-desk-show','off');if(s.getItem('lit-desk-show')==='off'?false:b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');if(b==='open'||(b!=='min'&&s.getItem('lit-desk-min')==='0')){var f=deskFit,w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width')),e=document.createElement('div'),v,k=(f.ch[d.getAttribute('data-font')]||f.ch[''])*(f.scale[d.getAttribute('data-size')]||1)*f.body*parseFloat(getComputedStyle(d).fontSize),r,h=1,g;e.style.cssText='position:absolute;visibility:hidden;width:99px;height:9px;overflow:scroll';d.appendChild(e);v=innerWidth-(e.offsetWidth-e.clientWidth);d.removeChild(e);r=v-f.edge-f.gap-f.keepLeft;if(m>=f.minMeasure&&m<=f.maxMeasure&&x>=f.minWidth){h=m*k+f.pad+x-r;if(h>0){g=Math.min(h,x-f.minWidth);x-=g;h-=g}if(h>0){g=Math.min(h,(m-f.minMeasure)*k);m-=g/k;h-=g}}if(h<=.5){m=Math.round(m*10)/10;x=Math.round(x);d.setAttribute('data-desk-expanded','');d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(m));d.style.setProperty('--desk-width',x+'px');if(deskChapter)d.style.setProperty('--desk-bar-center',v-f.edge-x-f.gap-(m*k+f.pad)/2+'px')}else if(r-f.measure*k-f.pad>=f.minWidth){d.setAttribute('data-desk-expanded','');h=Math.round(Math.max(0,f.minWidth+f.edge+f.gap+(f.measure*k+f.pad-v)/2));if(deskChapter&&h){d.style.setProperty('--desk-move',-h+'px 0');d.style.setProperty('--desk-bar-center',v/2-h+'px')}}}}}}}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
@@ -262,7 +250,7 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} searchLink={headerSearchLink} deskTitle={deskTitle} deskLink={deskLink} deskHref={deskHref} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskLink={deskLink} deskHref={deskHref} />
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

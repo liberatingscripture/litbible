@@ -61,7 +61,7 @@ function seasonNavLabel(key: string): string {
 {seasonKeys.length > 1 && (
   <div class="fit-season-nav-wrap">
     <button class="fit-season-arrow fit-season-arrow--prev" aria-label="Scroll seasons left" hidden>&#8592;</button>
-    <nav id="fit-season-nav" class="fit-season-nav" aria-label="Jump to season" data-v2-rail>
+    <nav id="fit-season-nav" class="fit-season-nav" aria-label="Jump to season">
       {seasonKeys.map((key) => (
         <a href={`#fit-season-${key}`}>{seasonNavLabel(key)}</a>
       ))}
@@ -71,10 +71,6 @@ function seasonNavLabel(key: string): string {
 )}
 
 <script>
-  // Site 2.0: marks the season in view in the list of seasons (only with the
-  // restyle's stamp; see the module's header).
-  import "../scripts/v2-frame.js";
-
   const nav = document.querySelector('.fit-season-nav') as HTMLElement | null;
   const wrap = nav?.closest('.fit-season-nav-wrap') as HTMLElement | null;
   const btnPrev = wrap?.querySelector('.fit-season-arrow--prev') as HTMLButtonElement | null;
@@ -113,7 +109,7 @@ function seasonNavLabel(key: string): string {
       {seasonKeys.length > 1 && (
         <h3 id={`fit-season-${key}`} class="fit-season-heading">{label}</h3>
       )}
-      <ul class="fit-ep-list v2-sheet" role="list">
+      <ul class="fit-ep-list" role="list">
         {seasonEpisodes.map((ep) => (
           <li class="fit-ep">
             <h3 class="fit-ep__title">

@@ -120,10 +120,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
          initialOpen={true}, so no client-side toggle is needed. */
     }
 
-    {/* Site 2.0's left pane (data-v2, hidden without the stamp): the page
-        hands it in, and its script moves today's controls into it. */}
-    <slot name="v2Pane" />
-
     <div
       class="scripture-main"
       data-pagefind-body={shouldIndex ? true : undefined}

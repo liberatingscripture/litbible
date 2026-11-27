@@ -195,8 +195,8 @@ export function createWidths({ column, panel, onChange }) {
   gutters.append(textEdge, bookEdge);
   document.body.append(gutters);
 
-  // Site 2.0 paints the sheet the text lies on as the column's ::before
-  // (v2/scripture.css), reaching past the column's box on both sides. Its
+  // A stylesheet may paint a sheet the text lies on as the column's ::before,
+  // reaching past the column's box on both sides. Its
   // edges in the window, given the column's box, or null where none is drawn.
   function sheetEdges(box) {
     const sheet = getComputedStyle(column, "::before");

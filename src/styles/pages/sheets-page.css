@@ -347,8 +347,8 @@
 
 /* The paper names no display face: every title on it is the paper's own
    Crimson Text, as the sheet's headings are (BVJ, 2026-11-22: it shouldn't use
-   Fraunces at all). Bold is set, not inherited, since the restyle gives a
-   heading 600 and the title should print as the other titles do. */
+   Fraunces at all). Bold is set, not inherited, so the title prints as the
+   other titles do whatever weight a heading is given on the screen. */
 .sheet-copy__title {
   margin: 0;
   font-size: calc(24pt * var(--sheet-text-scale, 1));
@@ -459,14 +459,14 @@
 }
 
 /* A link to another site (a footnote's Isaiah or Deuteronomy, which the linker
-   sends to Sefaria) gets restyle.css's new-tab mark after it. The paper has no
-   use for it, and it cost the page twice: it is a box filled with the text
-   color, which print.css clears from every ::after, so on paper it drew
-   nothing and still held 1.2em of the line, a gap before the semicolon that
-   follows the reference (E215). Gone on screen too, so the preview breaks its
-   lines and pages as the paper does. The saved files and Copy never had it:
-   they read the elements, and a pseudo-element isn't one. !important, since
-   restyle.css names the link by its target. */
+   sends to Sefaria) had Site 2.0's new-tab mark after it, and the paper has no
+   use for one: a box filled with the text color, which print.css clears from
+   every ::after, so on paper it drew nothing and still held 1.2em of the line,
+   a gap before the semicolon that follows the reference (E215). The rule stays
+   so no mark drawn later can do the same, on screen too, so the preview breaks
+   its lines and pages as the paper does. The saved files and Copy never had
+   it: they read the elements, and a pseudo-element isn't one. !important,
+   since a mark is named by the link's target. */
 .sheet-copy a[target="_blank"]::after {
   display: none !important;
 }

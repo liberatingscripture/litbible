@@ -23,7 +23,6 @@
 // does). Nothing is added to that stylesheet for this page.
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/privacy.css";
-import "../styles/v2/privacy.css";
 ---
 
 <Layout
@@ -52,9 +51,9 @@ import "../styles/v2/privacy.css";
     })} />
   </Fragment>
 
-  <article class="privacy-page v2-frame" aria-labelledby="terms-title">
+  <article class="privacy-page" aria-labelledby="terms-title">
 
-    <header class="privacy-header v2-frame__head v2-bar">
+    <header class="privacy-header">
       <div class="privacy-header__inner">
         <h1 id="terms-title" class="privacy-title">Terms of Use</h1>
         <p class="privacy-effective">
@@ -71,27 +70,10 @@ import "../styles/v2/privacy.css";
       </div>
     </header>
 
-    <nav class="privacy-toc v2-frame__toc" data-v2 data-pagefind-ignore aria-label="On this page">
-      <p class="v2-label">On this page</p>
-      <ul>
-        <li><a href="#terms-who">Who we are</a></li>
-        <li><a href="#terms-reading">Reading and sharing the LIT</a></li>
-        <li><a href="#terms-notebook">Your notebook is yours</a></li>
-        <li><a href="#terms-accounts">Accounts</a></li>
-        <li><a href="#terms-fair">Using the service fairly</a></li>
-        <li><a href="#terms-ends">If the service changes or ends</a></li>
-        <li><a href="#terms-promises">No promises beyond these</a></li>
-        <li><a href="#terms-others">Other services</a></li>
-        <li><a href="#terms-law">The law that applies</a></li>
-        <li><a href="#terms-changes">Changes to these terms</a></li>
-        <li><a href="#terms-contact">Questions</a></li>
-      </ul>
-    </nav>
-
-    <div class="privacy-body v2-frame__text">
+    <div class="privacy-body">
 
       <section aria-labelledby="terms-who">
-        <h2 id="terms-who" class="v2-rule">Who we are</h2>
+        <h2 id="terms-who">Who we are</h2>
         <p>
           The LIT Bible is a project of the Liberating Scripture Collective
           (“we”), a 501(c)(3) nonprofit. The website, the apps, and the
@@ -101,7 +83,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-reading">
-        <h2 id="terms-reading" class="v2-rule">Reading and sharing the LIT</h2>
+        <h2 id="terms-reading">Reading and sharing the LIT</h2>
         <p>
           Reading the LIT needs no account and has no age limit. The LIT text
           and footnotes are licensed under CC BY-NC-ND 4.0, with further
@@ -115,7 +97,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-notebook">
-        <h2 id="terms-notebook" class="v2-rule">Your notebook is yours</h2>
+        <h2 id="terms-notebook">Your notebook is yours</h2>
         <p>
           What you write in the Study Desk or the apps (notes, highlights,
           bookmarks, sheets, and collections) belongs to you, and we claim no
@@ -128,7 +110,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-accounts">
-        <h2 id="terms-accounts" class="v2-rule">Accounts</h2>
+        <h2 id="terms-accounts">Accounts</h2>
         <ul>
           <li>
             <strong>An account is optional.</strong> You need one only to sync
@@ -164,7 +146,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-fair">
-        <h2 id="terms-fair" class="v2-rule">Using the service fairly</h2>
+        <h2 id="terms-fair">Using the service fairly</h2>
         <p>
           Please don’t try to get into anyone else’s account or notebook;
           interfere with the website, the apps, or the account service, or
@@ -178,7 +160,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-ends">
-        <h2 id="terms-ends" class="v2-rule">If the service changes or ends</h2>
+        <h2 id="terms-ends">If the service changes or ends</h2>
         <p>
           We may change the website, the apps, and the account service, and
           add or remove features. If we decide to end the account service, we
@@ -191,7 +173,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-promises">
-        <h2 id="terms-promises" class="v2-rule">No promises beyond these</h2>
+        <h2 id="terms-promises">No promises beyond these</h2>
         <p>
           We offer the LIT Bible, the apps, and the account freely and as they
           are. We work to keep your notebook safe and in step, but we can’t
@@ -207,7 +189,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-others">
-        <h2 id="terms-others" class="v2-rule">Other services</h2>
+        <h2 id="terms-others">Other services</h2>
         <p>
           Signing in with Apple or Google, a password manager that keeps your
           passkey, the App Store and Google Play, Give Lively (donations), and
@@ -218,7 +200,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-law">
-        <h2 id="terms-law" class="v2-rule">The law that applies</h2>
+        <h2 id="terms-law">The law that applies</h2>
         <p>
           The Liberating Scripture Collective is based in Oregon. These terms
           are governed by the laws of the State of Oregon and of the United
@@ -231,7 +213,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-changes">
-        <h2 id="terms-changes" class="v2-rule">Changes to these terms</h2>
+        <h2 id="terms-changes">Changes to these terms</h2>
         <p>
           If we change these terms in a way that matters, we will update the
           effective date, say what changed at the top of this page for at
@@ -242,7 +224,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="terms-contact">
-        <h2 id="terms-contact" class="v2-rule">Questions</h2>
+        <h2 id="terms-contact">Questions</h2>
         <p>
           Write to us at <a href="/contact/">litbible.net/contact</a>.
         </p>
@@ -251,9 +233,4 @@ import "../styles/v2/privacy.css";
     </div>
   </article>
 
-  <script>
-    // Site 2.0: marks the contents rail's current section (only with the
-    // restyle's stamp; see the module's header).
-    import "../scripts/v2-frame.js";
-  </script>
 </Layout>

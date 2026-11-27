@@ -2,7 +2,6 @@
 // src/pages/search.astro
 import SearchLayout from "../layouts/SearchLayout.astro";
 import { SEARCH_CREDIT, isExternal } from "../lib/greek-credits.mjs";
-import "../styles/v2/search.css";
 
 const title = "Search | Liberation and Inclusion Translation";
 const description = "Search the Liberation & Inclusion Translation (LIT).";
@@ -22,28 +21,12 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     </p>
   </header>
 
-  {/* Site 2.0 (data-v2): the pane beside the results on a computer, rows
-       under the field on a phone. Empty here: v2-search.js moves today's sort,
-       filters, and passage picker into it (never copies), and lists the
-       result groups. "Filters" and "Result groups" are BVJ's two new labels. */}
-  <div class="v2-search__pane" slot="v2Pane" data-v2 data-v2-search-pane data-pagefind-ignore>
-    <div class="v2-search__set" data-v2-search-sort></div>
-    <div class="v2-search__set" role="group" aria-labelledby="v2-search-filters-label" data-v2-search-filters>
-      <p class="v2-label v2-search__label" id="v2-search-filters-label">Filters</p>
-    </div>
-    <nav class="v2-search__groups" aria-labelledby="v2-search-groups-label" data-v2-search-groups hidden>
-      <p class="v2-label v2-search__label" id="v2-search-groups-label">Result groups</p>
-      <ul></ul>
-    </nav>
-    <div class="v2-search__go" data-v2-search-go></div>
-  </div>
-
   <section class="search-page" data-pagefind-ignore>
     <div class="search-meta">
       {/* Sort stays in a dedicated row so it never "wraps under" the status line */}
       <div class="search-meta__top">
         <div class="sort-wrap" aria-label="Sort results">
-          <span class="sort-label v2-label">Sort by:</span>
+          <span class="sort-label">Sort by:</span>
           <div class="sort-toggle">
             <button
               type="button"

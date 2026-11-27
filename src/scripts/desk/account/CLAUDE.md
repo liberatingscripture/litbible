@@ -263,10 +263,11 @@ without the switch. The announcement popover stays off all three
       it links the browser or stops syncing, and on a visit whose stamp
       wasn't there before paint, so `desk-gate.js` never drew the entry (a
       linked browser with the switch off).
-    - **Both buttons are tiles**, as the search and Aa buttons are, and
-      joined to `restyle.css`'s ordinary list (Claude's choice, which BVJ
-      kept, 2026-11-25: green text beside the green “Read” read as a
-      second primary).
+    - **Both buttons are tiles**, as the search and Aa buttons are
+      (Claude's choice, which BVJ kept, 2026-11-25: green text beside the
+      green “Read” read as a second primary). Site 2.0's `restyle.css`,
+      which drew them, went in Featherboa's Phase 0; Featherboa's kit
+      draws them from Phase 2.
 18. **One screen at a time, and its heading takes focus** (`screens` in
     `ui.js`), except the page's first, which leaves focus alone: taking it
     on load scrolled `/delete-account/` to its box. A heading that repeats

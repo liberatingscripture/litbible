@@ -84,11 +84,8 @@ const _initSearchbars = async () => {
     const status = root.querySelector(".searchbar__status");
     const groupsEl = root.querySelector("[data-groups]");
     // The filters (book, type and their tips) are the tray's even where a page
-    // has moved them: on /search the 2.0 look puts them in the page's left pane
-    // (startV2Search in v2-search.js), often before this runs at idle. The
-    // tray then found no menus and skipped its setup, so whether /search had
-    // its completion and tips depended on which came first. SearchBar is on a
-    // page once (its ids are fixed), so the book menu's id finds them.
+    // has moved them. SearchBar is on a page
+    // once (its ids are fixed), so the book menu's id finds them.
     const filters =
       root.querySelector(".searchbar__filters") ??
       document.getElementById("searchbar-book")?.closest(".searchbar__filters");
