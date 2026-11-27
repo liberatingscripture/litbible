@@ -53,6 +53,10 @@ For Featherboa: the bottom bar takes `translateY(100%)` with the same state; the
 "Motion"'s Settled (180 ms, the one curve), leaving at two thirds; the progress line rides the
 top row's bottom edge and hides with it.
 
+Built in 782271a5 as `src/lib/phone-bars.mjs` and `src/scripts/phone-bars.js`: the
+state kept, with an 8px give from the turning point (queue Q36), and `scroll-padding`
+on `html` in place of `scroll-margin-top` (Q40). The progress line is Phase 4's.
+
 ### What Phase 2 left to each surface's phase
 
 Phase 2 put every control on the kit by its old name (queue Q15) and kept
@@ -66,7 +70,8 @@ surface:
   ("What's new" becomes "Release Notes," "Names" in "Four places"). The
   footer's groups (HD-36, BS-24) were Site 2.0's, behind its preview, and
   went with it in Phase 0: `git show 63d07ac0^:src/components/SiteFooter.astro`
-  has its `FOOTER_GROUPS` and `SOCIAL` lists to start from.
+  has its `FOOTER_GROUPS` and `SOCIAL` lists to start from. The menu
+  button's bars went in Phase 3's second part (782271a5; queue Q47).
 - **Phase 4 (the Read page)**: verse numbers and footnote letters join the
   kit's "inline" (Q16); Read View's toolbar draws its own icons (its
   close, the faders, focus, and the cycle), as does /read's Study pill
@@ -132,7 +137,7 @@ run's best reading, entered in the plan's queue with what was done.
 - **Phase 3, the bars.** How far a scroll hides the phone's bars: the
   record says they return on any scroll up; the notes above keep 2.0's
   rule. Where a news dot or a "New" mark shows on a phone, whose menu is a
-  bottom sheet.
+  bottom sheet. Both read by the run in 782271a5: queue Q36 and Q44.
 - **Phase 4, the Read page.** The place line's order: "Search · ‹ › ·
   Notebook" ("Finding a passage") against the plan's "‹ ›, Search,
   Notebook." The picker's size beyond showing all 27 books unscrolled
@@ -361,7 +366,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NI-15 | Contrast: ink on a highlight (highlighted scripture), 13.3 and 8.1 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383): 13.4 by day; Q10 |
 | NI-16 | Contrast: red on paper (deleting, errors), 6.3 and 7.5 | 1 | `test/featherboa-contrast.test.js`; the night red chosen to reach 7.5 | built (c1bb5383); Q10 |
 | NI-17 | Contrast: LIT Green on paper (the chapter numeral, the “you are here” line), 3.4 and 6.9 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
-| NI-18 | Green words are always the deep green; LIT Green serves a large numeral or a marker line, not words | 1 | Grep: LIT Green never sets the color of words | built (c1bb5383) for words; the green on ink buttons' hover (Phase 2), the menu's group headings (Phase 3), and Home (Phase 7) wait |
+| NI-18 | Green words are always the deep green; LIT Green serves a large numeral or a marker line, not words | 1 | Grep: LIT Green never sets the color of words | built (c1bb5383) for words; the menu sheet's group headings (782271a5: ink, the current one underlined in LIT Green); the green on ink buttons' hover (Phase 2) and Home (Phase 7) wait |
 
 ## Nothing interrupts the reader (NX)
 
@@ -377,7 +382,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-08 | Teaching: the empty state, one sentence and one button, shown exactly when there is nothing else to show; Help holds the rest (tour cards over the page, with Take the tour now, Remind me later, and Don't show this again, go) | 5, 13 | A fresh profile with the preview: no tour card; the empty state shows | open |
 | NX-09 | News: where its subject lives, and a “Changed since you marked it” filter in the Notebook; nothing opens by itself, save a launch's window | 3, 10 | The header's popover never opens outside a launch | the header's part built (ec3378b6); the Notebook's filter with Phase 10 |
 | NX-10 | News behind a dot beside About (the proposal's) | 3 | None; see NX-26 | superseded → NX-26 |
-| NX-11 | Asks: the front page and the footer, never above scripture; the phone menu carries one “Get the app” row | 3, 7 | The newsletter in the footer; no ask above scripture at 390 and 1440 | the footer's newsletter kept (ec3378b6); Home with Phase 7, the phone menu's row with Phase 3's second part |
+| NX-11 | Asks: the front page and the footer, never above scripture; the phone menu carries one “Get the app” row | 3, 7 | The newsletter in the footer; no ask above scripture at 390 and 1440 | the footer's newsletter kept (ec3378b6); the menu sheet's row built (782271a5); Home with Phase 7 |
 | NX-12 | Your place: “Continue: Romans 8” is the first row of the book picker and of Home, in place of “Continue reading” chips to dismiss | 4, 7 | Read Romans 8, then open the picker and Home | open |
 | NX-13 | The empty state for a chapter with none of the reader's notes: “No notes on John 1 yet. Select a verse number or any words, then choose Note, Highlight, or Bookmark,” with “Show me how” | 5 | The panel's Notes tab on an unmarked chapter | open |
 | NX-14 | The foot line's first state, “Kept on this computer only” with “Back up…” | 5 | None; see NB-34 | superseded → NB-34 |
@@ -392,7 +397,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-23 | The app banner stays on phones, dismissed for 90 days as today | 3 | Kept: the banner at 390 with an Android user agent; dismiss and reload | built (ec3378b6, kept) |
 | NX-24 | The stage badge is shown once, at the foot of the Study sidebar, not on every panel | 9 | The Notebook panel and Study's panes show no badge | open |
 | NX-25 | News shows where its subject lives, and a launch adds the window (“Yes, both”) | 3, 14 | Covered by the rows below | built (ec3378b6), by the rows below; the launch's window with Phase 14 |
-| NX-26 | Ordinary news is marked on the place it is about: a dot on the header menu that holds what changed and “New” beside the item inside it, the dot clearing once the reader opens that menu | 3 | Put an entry in the news data file; open the menu; reload | built (ec3378b6), tested; when “New” goes queued (Q31) |
+| NX-26 | Ordinary news is marked on the place it is about: a dot on the header menu that holds what changed and “New” beside the item inside it, the dot clearing once the reader opens that menu | 3 | Put an entry in the news data file; open the menu; reload | built (ec3378b6), tested; the menu sheet's marks and the Menu buttons' dots (782271a5), tested with entries; when “New” goes queued (Q31) |
 | NX-27 | A new article or episode marks Learn; a Study feature marks Study | 3 | The same, with a Learn entry and a Study entry | built (ec3378b6), tested with Learn and Study entries |
 | NX-28 | Text changes stay where reading starts, as Release Notes already is (/read's “Latest text changes,” Home's “Latest change,” and the footer; /read's moves by FP-23) | 3, 4, 7 | Release Notes reachable from the picker, Home, and the footer | the footer built (ec3378b6); the picker with Phase 4, Home with Phase 7 |
 | NX-29 | Never only under About: the preview's About menu drops its “What's new” link | 3 | The About menu with the preview has no “What's new” row | built (ec3378b6) |
@@ -440,7 +445,7 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-32 | The line keeps Study's way in at its right end | 4, 9 | The line at 1440 with the preview | open |
 | RP-33 | That way in labeled “Open in Study Desk” | 4 | None; see ST-15 | superseded → ST-15 |
 | RP-34 | Read View retires at launch (E8), and its pill goes with it | 4 | Covered by WB-44 | open |
-| RP-35 | The phone's bars are proposal 15's (one row at the top, a bar at the thumb, both hiding on a scroll down), replacing today's one row (audit F3) | 3 | Covered by PH-01 to PH-06 | open |
+| RP-35 | The phone's bars are proposal 15's (one row at the top, a bar at the thumb, both hiding on a scroll down), replacing today's one row (audit F3) | 3 | Covered by PH-01 to PH-06 | built (782271a5), by PH-01 to PH-06 |
 | RP-36 | One switch, “Justify,” in the Display tray, directly under Line spacing | 4 | The tray at 1440 | open |
 | RP-37 | Justify brings hyphenation with it, as E106 does | 4 | `hyphens: auto` with Justify on, seen in headless Chrome (the Browser pane draws no hyphens) | open |
 | RP-38 | E106's exceptions stay: poetry, OpenDyslexic and Atkinson, and a column under 22em are never justified | 4 | Kept: `test/desk-reading-justify.test.js` rewritten for the switch | open |
@@ -597,7 +602,7 @@ run's best reading, entered in the plan's queue with what was done.
 | WB-33 | The progress line is kept: a thin green line along the place line's bottom edge, in place of its border, adding no height | 4 | The line's height with and without it | open |
 | WB-34 | It fills as the reader moves through the book, measured in verses, so a long chapter counts for more | 4 | Half of Luke's verses read: half full | open |
 | WB-35 | Screen readers skip it, since the place line names the chapter | 4 | `read_page` shows no progress node | open |
-| WB-36 | On a phone it runs along the top row's bottom edge and hides with it | 3, 4 | At 390, scroll down and up | open |
+| WB-36 | On a phone it runs along the top row's bottom edge and hides with it | 3, 4 | At 390, scroll down and up | open: Phase 4 (the phone's row is built, 782271a5; its hairline holds the line's place, Q37) |
 | WB-37 | Printing stays one chapter with its notes, the chapter in view | 8 | `test/featherboa-continuous.test.js`: a print is one chapter; a PDF of John 4 reached from John 3 | open |
 | WB-38 | “Read the whole book,” the switch, and the title page aren't needed, since any chapter reads on | 4 | None of the three built | open |
 | WB-39 | The introduction keeps its own page (`/mark-intro`) | 7 | Kept: `/mark-intro` at its address | open |
@@ -613,21 +618,21 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| PH-01 | One row at the top: the emblem (home), the chapter's name as the picker (“John 1 ▾”), and Aa | 3 | At 390, John 1's first verse about 82px down (banner dismissed) | open |
-| PH-02 | The name “LIT Bible” leaves the reading page's top row; the emblem is the way home | 3 | John 1 at 390 | open |
-| PH-03 | A bar at the bottom: Previous · Search · Menu · Next, four 44px targets with a word under each | 3 | The targets measured at 390 | open |
-| PH-04 | “Previous,” not the proposal's “Back,” which reads as the browser's Back | 3 | The bar's first label | open |
-| PH-05 | Both bars hide together on a scroll down and return on any scroll up, one rule, at “Motion”'s timing | 3 | At 390, scroll down and up (this file's Phase 3 notes) | open |
-| PH-06 | This replaces today's one-row toolbar on a phone (audit F3), the round ‹ › beside the title there, and the title row itself | 3 | None of the three at 390 | open |
-| PH-07 | The app banner stays above the row | 3 | Kept: the banner at 390 with an Android user agent | open |
-| PH-08 | The progress line runs along the top row's bottom edge, as on a computer, and hides with it | 3, 4 | Covered by WB-36 | open |
-| PH-09 | Search opens the field in place of the top row, results below and verses first | 3, 6 | Press Search at 390 | open |
+| PH-01 | One row at the top: the emblem (home), the chapter's name as the picker (“John 1 ▾”), and Aa | 3 | At 390, John 1's first verse about 82px down (banner dismissed) | built (782271a5); at 320, 375, and 390, in the text face and OpenDyslexic, the first line 65px down and its verse number 70px; the row's measures queued (Q37), the picker until Phase 4 (Q35) |
+| PH-02 | The name “LIT Bible” leaves the reading page's top row; the emblem is the way home | 3 | John 1 at 390 | built (782271a5) |
+| PH-03 | A bar at the bottom: Previous · Search · Menu · Next, four 44px targets with a word under each | 3 | The targets measured at 390 | built (782271a5); 44px measured at 320, 360, and 390 in all three faces; its drawing queued (Q38), OpenDyslexic under 360px (Q39) |
+| PH-04 | “Previous,” not the proposal's “Back,” which reads as the browser's Back | 3 | The bar's first label | built (782271a5) |
+| PH-05 | Both bars hide together on a scroll down and return on any scroll up, one rule, at “Motion”'s timing | 3 | At 390, scroll down and up (this file's Phase 3 notes) | built (782271a5), with an 8px give (Q36) and `scroll-padding` for a link's target (Q40); the feel on a real phone for BVJ |
+| PH-06 | This replaces today's one-row toolbar on a phone (audit F3), the round ‹ › beside the title there, and the title row itself | 3 | None of the three at 390 | built (782271a5): none of the three from 320 to 699px, all back at 700; Read View on a phone until Phase 4 queued (Q48) |
+| PH-07 | The app banner stays above the row | 3 | Kept: the banner at 390 with an Android user agent | built (782271a5, kept): the banner on top at 360 and 412 with an Android user agent, the row sticking at 0 once it scrolls away |
+| PH-08 | The progress line runs along the top row's bottom edge, as on a computer, and hides with it | 3, 4 | Covered by WB-36 | open: Phase 4, with WB-36 (the row's hairline holds its place, Q37) |
+| PH-09 | Search opens the field in place of the top row, results below and verses first | 3, 6 | Press Search at 390 | built (782271a5) for the field in place of the row (Q41); verses first with Phase 6 |
 | PH-10 | “John 1 ▾” opens the picker as a sheet rising nearly to the top: the typing field first, then Continue reading, the 27 books, the chapter grid, and the introduction | 4 | At 390 | open |
-| PH-11 | The menu is a sheet rising from the bar, not today's panel from the top corner | 3 | Press Menu at 390 | open |
-| PH-12 | Its rows are Read, Learn, and About, each with its own, the current place marked; Study stays off a phone | 3 | At 390 with and without `?desk=on` | open |
-| PH-13 | Then “Get the app” | 3 | The menu's last row | open |
-| PH-14 | Today's “Continue” button leaves the menu, since Continue reading is the picker's first row | 3 | No Continue in the menu | open |
-| PH-15 | A page without the bar keeps the header's menu button, which opens the same sheet from the bottom | 3 | /about at 390 | open |
+| PH-11 | The menu is a sheet rising from the bar, not today's panel from the top corner | 3 | Press Menu at 390 | built (782271a5): 526px tall at 390 by 844, the page dimmed (Q46), focus on its × (Q43), Escape back to Menu; one sheet at every width (Q42) |
+| PH-12 | Its rows are Read, Learn, and About, each with its own, the current place marked; Study stays off a phone | 3 | At 390 with and without `?desk=on` | built (782271a5), no Study at 390 with or without `?desk=on`; its groups and marks queued (Q44) |
+| PH-13 | Then “Get the app” | 3 | The menu's last row | built (782271a5); the sheet's foot queued (Q45) |
+| PH-14 | Today's “Continue” button leaves the menu, since Continue reading is the picker's first row | 3 | No Continue in the menu | built (782271a5); Continue reading comes with Phase 4's picker |
+| PH-15 | A page without the bar keeps the header's menu button, which opens the same sheet from the bottom | 3 | /about at 390 | built (782271a5), on /glossary and an article at 390; the header's Menu queued (Q47) |
 | PH-16 | The verse sheet holds five actions: Copy text, Copy link, Share text…, and Share image… across, with icons, then Copy with footnotes | 5 | Press a verse number at 390 | open |
 | PH-17 | The names are the computer's, one name per action everywhere (E39, E111), not the proposal's Copy, Link, Share, and Image | 5 | The labels match the computer's menu | open |
 | PH-18 | In OpenDyslexic a label may take two lines | 5 | The sheet at 390 in OpenDyslexic | open |
@@ -638,7 +643,7 @@ run's best reading, entered in the plan's queue with what was done.
 | PH-23 | The chapter heading's “Go deeper” opens a sheet for that chapter with two tabs: “Go deeper” (Listen, Read, Key terms, and Book) and “Footnotes” (the chapter's whole list, each note whole) | 5 | John 3 at 390 | open |
 | PH-24 | A footnote's sheet links to that list | 5 | At 390 | open |
 | PH-25 | Tablets get the same, drawn as the panel over the right edge | 5 | At 820 | open |
-| PH-26 | Without JavaScript the bar is plain links and doesn't hide: Previous and Next go to the chapters, Search to /search, Menu to the footer's links, and “John 1 ▾” to /read | 3 | At 390 with JavaScript off | open |
+| PH-26 | Without JavaScript the bar is plain links and doesn't hide: Previous and Next go to the chapters, Search to /search, Menu to the footer's links, and “John 1 ▾” to /read | 3 | At 390 with JavaScript off | built (782271a5), checked at 390 with JavaScript off |
 
 ## Search (SE)
 
@@ -775,7 +780,7 @@ run's best reading, entered in the plan's queue with what was done.
 | HD-32 | An app update marks About's Apps row | 3, 7 | An app-update entry marks Apps | built (ec3378b6), tested with an Apps entry |
 | HD-33 | The footer links the What's New page | 3 | The footer at 1440 | built (1253bf85) |
 | HD-34 | The launch window introduces the What's New page when it opens | 14 | Covered by NX-33 | open |
-| HD-35 | On a phone the menu sheet lists Read, Learn, and About, each with its rows, the current place marked, then “Get the app”; Study stays off it | 3 | Covered by PH-12 and PH-13 | open |
+| HD-35 | On a phone the menu sheet lists Read, Learn, and About, each with its rows, the current place marked, then “Get the app”; Study stays off it | 3 | Covered by PH-12 and PH-13 | built (782271a5), by PH-12 and PH-13 |
 | HD-36 | The footer takes the same four groups and names, plus Privacy, the Terms of Use, and the newsletter | 3 | The footer at 1440 and 390 | built (ec3378b6); seen at 1440, 820, and 390 (Q33) |
 
 ## The front page (FR)

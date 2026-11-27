@@ -1030,6 +1030,114 @@ Entered by the run:
   command, not a question, stays at the Label size as a plain control:
   the account page's “Enter a code from the other device instead” and
   “I can’t do any of these” (cf6f21c8).
+- **Q35. The passage picker before Phase 4** (PH-01, PH-10, PH-26). “John
+  3 ▾” in a phone's top row must open something until Phase 4's picker
+  sheet. Meanwhile: with JavaScript, ReadMenu makes the row's link a
+  second button for today's picker panel, which hangs from that button,
+  and its × gives focus back there; without JavaScript it is a link to
+  /read. Its name is “Go to passage. Current: John 3” (an introduction's,
+  “John · Intro”), with no draft mark. Other choice: a link to /read even
+  with JavaScript. Cost: ReadMenu serves two buttons for one panel until
+  Phase 4 removes it. Recommendation: keep until Phase 4.
+- **Q36. How far a scroll moves the bars** (PH-05; the ledger's “Where the
+  record is unclear”). The record says any scroll up brings them back;
+  Site 2.0 answered every pixel. Meanwhile: the ledger's `barState`, plus
+  an 8px give measured from the turning point (the lowest point while they
+  are away, the highest while they show), so a resting thumb, an image
+  settling, or Safari's own bars never flicker them, and a slow scroll
+  still adds up. Nothing hides before the reader's first wheel, touch,
+  pointer, or key, so a link to /john-3/#v16 arrives with both bars
+  showing and the verse below the row. They hold while search, the picker,
+  Aa's tray, or the menu is open, or while keyboard focus is in either
+  bar. Other choices: 2.0's every pixel, or a 16 to 24px give.
+  Recommendation: keep 8, and feel it on a real iPhone and Android phone.
+- **Q37. The top row's measures** (PH-01, PH-02, PH-06). The record names
+  the row's contents, not its measures. Meanwhile: sticky through CSS, so
+  it holds without JavaScript; 52px and a hairline, on the page's surface;
+  the emblem 40px inside a 44px link; the chapter's name centered, cut
+  short with an ellipsis only at 320px in OpenDyslexic (“2 Thessalonians
+  3” loses 31px); the page's h1 visually hidden under 700px. Other choice:
+  no hairline. Recommendation: keep; Phase 4's progress line takes the
+  hairline's place.
+- **Q38. The bar's drawing** (PH-03, PH-04). Meanwhile: the kit's plain
+  buttons, the icon over the word at the Label size, in four columns on
+  the page's surface under a hairline; a missing Previous or Next keeps
+  its place in the kit's unavailable look; the page's foot gains 64px so
+  the footer clears the bar; no safe-area inset, since the page's viewport
+  has no `viewport-fit=cover`. Other choice: hide a missing button, which
+  moves the others. Recommendation: keep, and check the band above an
+  iPhone's home indicator.
+- **Q39. OpenDyslexic on the narrowest phones** (PH-03, PH-15). The bar's
+  four words need 360px in OpenDyslexic with its edges and gaps, so Next
+  overran 320 by 12px, and the header's “Menu” cut 8px off “LIT Bible” at
+  360. Meanwhile, the room is bought back and the type is never shrunk:
+  under 375px the bar drops its edges and gaps; under 360px Previous,
+  Search, and Next show their icons alone (three of the five icons the
+  record lets stand alone, their words kept as their names) and Menu keeps
+  its word; under 380px the magnifier moves into the menu sheet as its
+  Search row; Menu's icon shows from 430px (400px in the other faces).
+  Re-measured, nothing is cut or overruns from 320 to 430px. Other
+  choices: smaller OpenDyslexic type, which the styles' rules make the
+  last resort, or the overrun. Recommendation: keep; it breaks “a word
+  under each” only in OpenDyslexic under 360px.
+- **Q40. Where a link's target stops** (PH-05). The plan said
+  `scroll-margin-top`. Meanwhile: `scroll-padding-top` and
+  `scroll-padding-bottom` of 53px on `html` on a phone's reading pages,
+  one rule for every anchor and focus scroll, which `readingLine` counts.
+  Other choice: `scroll-margin-top` on `main [id]`, as Site 2.0 had.
+  Recommendation: keep.
+- **Q41. Search in place of the top row** (PH-09, HD-13). A page's
+  SearchBar renders once, with fixed ids, and its toolbar is hidden on a
+  phone. Meanwhile: the bar's Search moves that one SearchBar into the row
+  and back, its × beside the field's 44px submit button, and the row grows
+  from 53 to 60px (68 in OpenDyslexic) while it is open, since the field
+  is that tall. Other choice: a second SearchBar, which repeats ids.
+  Recommendation: keep; Phase 6's field takes the row's height.
+- **Q42. One sheet wherever a “Menu” shows** (PH-11, PH-15). The record
+  says the same sheet rises “from the bottom, so the menu looks the same
+  everywhere.” The header's Menu also shows in Study's own header at every
+  width, from 700 to 899px in OpenDyslexic, and in a narrow computer
+  window (where BVJ's side tray of 2026-11-04 was). Meanwhile: one bottom
+  sheet everywhere, at most 660px wide and centered, so on /desk at 1440px
+  it rises from the window's foot. Other choice: with a mouse or trackpad,
+  hang it from its button like the header's menus. Cost: at 1440px it
+  opens far from its button. Recommendation: keep until Phase 9 redraws
+  Study's header.
+- **Q43. The sheet's head and focus** (PH-11). Meanwhile: the title “Menu”
+  and a ×; opening moves focus to the ×, Tab stays inside, and closing
+  gives focus back to the button that opened it. Other choice: focus the
+  first row. Recommendation: keep.
+- **Q44. The sheet's groups and marks** (PH-12, HD-35, NI-18, NX-26; the
+  ledger's “Where the record is unclear”). Meanwhile: two columns, Read
+  and Learn on the left and About on the right, with Study a third only
+  where the header shows Study (its own header from 1100px with the
+  preview on); the page's place underlined in LIT Green; news as in the
+  header's menus (a dot on a group's name, “New” beside a row, “See what’s
+  new →” at the group's foot), with a dot on both Menu buttons, and
+  opening the sheet sees what it shows. Other choice: one column, 20 rows
+  long. Recommendation: keep.
+- **Q45. The sheet's foot** (PH-13, NX-11). Meanwhile: Search under 360px
+  (380px in OpenDyslexic) on a page whose magnifier opens the strip;
+  Account under 700px with accounts open (a phone never has the preview,
+  so in practice a narrow computer window), left out of Study's own
+  header, which shows the entry itself; and “Get the app” at every width.
+  Other choice: “Get the app” under 700px only. Recommendation: at every
+  width.
+- **Q46. The dim behind the sheet** (PH-11). tokens.css has no scrim
+  color. Meanwhile: 40% black by day and night, fading at the Large speed.
+  Other choice: a `--color-scrim` token now. Recommendation: add the token
+  when Phase 5's phone sheets need a dim too.
+- **Q47. The header's “Menu”** (PH-15). The old button was three bars
+  drawn with backgrounds, its word hidden, which the record's icon rule
+  forbids. Meanwhile: the kit's plain button with the `menu` icon and the
+  word “Menu,” the word alone under 400px (430px in OpenDyslexic), where
+  the icon stops fitting. Other choice: the word alone at every phone
+  width. Recommendation: keep.
+- **Q48. Read View on a phone until Phase 4** (PH-06). Today's phone
+  toolbar had an icon-only “Switch to Read View,” and that toolbar is gone
+  on a phone. Meanwhile: Read View is reached from /read. Other choice: a
+  “Read View” row in the sheet on chapter pages. Cost: one more step on a
+  phone, until Phase 4 makes the two views one. Recommendation: keep.
 
 ## Questions answered before the run
 
@@ -1116,9 +1224,9 @@ with its last commit when done; never delete a line.
 - [x] Phase 2: The kit and its words (f47df065; the kit and its icons in
   7216b1ef). What each surface's phase redraws is in the ledger's "What
   Phase 2 left to each surface's phase"
-- [ ] Phase 3: The header, the line under it, the footer, and the phone's bars
-  (the computer's header, the line, the news marks, and the footer built,
-  ec3378b6; the phone's bars and menu sheet next)
+- [x] Phase 3: The header, the line under it, the footer, and the phone's bars
+  (782271a5; the computer's header, the line, the news marks, and the footer in
+  ec3378b6)
 - [ ] Phase 4: The Read page (/license built ahead, de0085a8)
 - [ ] Phase 5: Beside scripture
 - [ ] Phase 6: Search
