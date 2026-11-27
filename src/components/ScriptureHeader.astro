@@ -1,7 +1,8 @@
 ---
-import Icon from "./Icon.astro";
+// The title of a chapter or a book's introduction, the page's h1. Previous
+// and Next are the place line's ‹ › (PlaceLine.astro; CO-11), the phone
+// bar's, and the large links at the foot.
 import { bookKeyToLabel } from "../data/books.js";
-import { navFor } from "../lib/chapter-nav-data.mjs";
 
 /**
  * Props are OPTIONAL so <ScriptureHeader /> is valid anywhere.
@@ -65,17 +66,6 @@ if (kind === "chapter") {
 
 const bookName = bookKey ? bookKeyToLabel(bookKey) : "";
 
-// Previous/Next come from the one shared rule, which steps over draft pages
-// (src/lib/chapter-nav.mjs), so these buttons, the bottom-of-page ones and a
-// draft page's links always agree.
-const nav = bookKey ? navFor(bookKey, kind === "intro" ? "intro" : (chapter ?? 1)) : null;
-const prevHref = nav?.prev?.href ?? null;
-const nextHref = nav?.next?.href ?? null;
-// Where each button goes, for its accessible name ("Previous: John 2"), so a
-// screen reader hears the destination the bottom-of-page links already name.
-const prevLabel = nav?.prev?.label ?? "";
-const nextLabel = nav?.next?.label ?? "";
-
 const headingText = !bookKey
   ? "Scripture"
   : kind === "intro"
@@ -87,40 +77,9 @@ const headingText = !bookKey
   <h1 id="chapter-title" class="chapter-title" data-pagefind-meta="title">
     {headingText}
   </h1>
-
-  <nav class="chapter-nav" aria-label="Chapter navigation">
-    {
-      prevHref ? (
-        <a class="nav-button" href={prevHref} rel="prev" aria-label={`Previous: ${prevLabel}`}>
-          <Icon name="back" />
-        </a>
-      ) : (
-        <span class="nav-button nav-button--disabled" aria-disabled="true">
-          <Icon name="back" />
-        </span>
-      )
-    }
-
-    {
-      nextHref ? (
-        <a class="nav-button" href={nextHref} rel="next" aria-label={`Next: ${nextLabel}`}>
-          <Icon name="forward" />
-        </a>
-      ) : (
-        <span class="nav-button nav-button--disabled" aria-disabled="true">
-          <Icon name="forward" />
-        </span>
-      )
-    }
-  </nav>
 </header>
 
 <style>
-  /* Previous/Next are 44px plain ‹ › buttons either side of the title from
-     700px (owner, 2026-10-14, "at every width," until the phone's bar took
-     them there: PH-06, below). The nav covers the header, so the buttons sit
-     on the edges of the text column. Each keeps its accessible name
-     ("Previous: Romans 7"); the bottom buttons stay big. */
   .scripture-header {
     position: relative;
     text-align: center;
@@ -132,28 +91,8 @@ const headingText = !bookKey
     font-size: calc(28px * var(--heading-scale, 1));
     line-height: 1.25;
     margin: 0;
-    padding: 8px 52px;
+    padding: 8px 0;
     text-align: center;
-  }
-
-  .chapter-nav {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
-  }
-
-  .nav-button {
-    pointer-events: auto;
-    margin: 0;
-    text-decoration: none;
-  }
-
-  .nav-button--disabled {
-    visibility: hidden;
-    pointer-events: none;
   }
 
   @media (min-width: 641px) {
@@ -167,12 +106,11 @@ const headingText = !bookKey
     }
   }
 
-  /* On a phone the two bars carry this row (SITE-FEATHERBOA.md, "The
-     phone"; PH-06): the chapter's name is the top bar's picker, and
-     Previous and Next are the bottom bar's. The title stays the page's
-     heading for screen readers, the verse menu's reference, and search,
-     drawn for none of them; the round buttons go. Screen only: a printed
-     page is narrower than 700px too, and keeps its title. */
+  /* On a phone the top bar names the chapter (SITE-FEATHERBOA.md, "The
+     phone"; PH-06), so the title stays the page's heading for screen
+     readers, the verse menu's reference, and search, drawn for none of
+     them. Screen only: a printed page is narrower than 700px too, and keeps
+     its title. */
   @media screen and (max-width: 699px) {
     .scripture-header {
       margin: 0;
@@ -186,10 +124,6 @@ const headingText = !bookKey
       overflow: hidden;
       clip: rect(0, 0, 0, 0);
       white-space: nowrap;
-    }
-
-    .chapter-nav {
-      display: none;
     }
   }
 </style>

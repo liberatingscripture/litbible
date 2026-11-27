@@ -12,13 +12,18 @@
                      #   / prepareReadParagraph; both views wrap each verse in
                      #   a data-verse span), draft-chapters.mjs (single source
                      #   for indexed:false draft data, and for draft intros —
-                     #   used by astro.config.mjs, ReadMenu, and the /read
-                     #   lede), claude-docs-guard.mjs (keeps every CLAUDE.md
-                     #   out of the built site, for astro.config.mjs and
-                     #   check:links: scripts/CLAUDE.md, "Build Pipeline"),
+                     #   used by astro.config.mjs, ReadMenu, the passage
+                     #   picker, and the /read lede), claude-docs-guard.mjs
+                     #   (keeps every CLAUDE.md out of the built site, for
+                     #   astro.config.mjs and check:links: scripts/CLAUDE.md,
+                     #   "Build Pipeline"),
                      #   chapter-nav.mjs + chapter-nav-data.mjs (the one
                      #   Previous/Next rule, which steps over drafts, and its
-                     #   build shell), fetchPodcastEpisodes.ts +
+                     #   build shell), passage-picker.mjs (the passage
+                     #   picker's books and what its field offers:
+                     #   readTyping, pickerBooks, draftNote;
+                     #   src/components/CLAUDE.md, "The passage picker"),
+                     #   fetchPodcastEpisodes.ts +
                      #   podcast-feed-core.ts (shell/core split: the shell holds
                      #   the two imports Node can't resolve — the JSON overrides
                      #   and podcast-feed.xml?raw — so the core stays import-free

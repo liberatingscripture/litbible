@@ -16,8 +16,9 @@
 //   - the notebook holds records this page draws (`peekNotebook`: this
 //     chapter's in Chapter View, the book's in Read View; nothing elsewhere
 //     while N11 is off), or can't say, or another tab writes to it;
-//   - the reader presses the tab, Read View's Notebook button or "Skip to
-//     the Notebook" (which the Notebook then opens for, so no press is lost),
+//   - the reader presses the tab, a Notebook button (the place line's or
+//     Read View's) or "Skip to the Notebook" (which the Notebook then opens
+//     for, so no press is lost),
 //     or turns "Show the Notebook" on where the Notebook starts expanded;
 //   - the reader starts toward a menu the desk adds to: a verse number or a
 //     footnote letter pressed or focused, or words selected (a head start);
@@ -280,7 +281,8 @@ async function drawAndWait({ where, state, importShell, leave }) {
     e.preventDefault();
     openWhenUp(null, tab);
   });
-  // Read View's Notebook button (the header's are links to /desk).
+  // The Notebook buttons: the place line's and Read View's (the header's
+  // Study is a link to /desk).
   for (const t of document.querySelectorAll("button[data-desk-toggle]")) {
     on(t, "click", (e) => {
       e.stopPropagation();

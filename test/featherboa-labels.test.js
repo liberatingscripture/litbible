@@ -20,8 +20,6 @@ const ALLOWED = [{ file: "src/pages/about.astro", why: "BVJ's own story, in the 
 /** Files whose words wait for their surface's phase, by phase. */
 export const LATER = new Map([
   ["src/components/ReadMenu.astro", 4], // the Read page
-  ["src/layouts/ReadLayout.astro", 4], // the Read page
-  ["src/layouts/ScriptureLayout.astro", 4], // the Read page
   ["src/lib/desk-account-words.mjs", 13], // signing in and the account
   ["src/lib/desk-bookmarks.mjs", 10], // the Notebook
   ["src/lib/desk-commands.mjs", 9], // Study's frame
@@ -45,7 +43,6 @@ export const LATER = new Map([
   ["src/pages/desk/help.astro", 13], // first visit, the tours, and help
   ["src/pages/notebook.astro", 10], // the Notebook
   ["src/pages/privacy.astro", 13], // privacy words wait for SK5
-  ["src/pages/read.astro", 4], // the Read page
   ["src/pages/read/[book].astro", 4], // the Read page
   ["src/pages/search.astro", 6], // Search
   ["src/pages/sheets.astro", 11], // Sheets

@@ -7,6 +7,7 @@ import "../styles/footer.css";
 import "../styles/print.css";
 import SiteHeader from "../components/SiteHeader.astro";
 import PlaceLine from "../components/PlaceLine.astro";
+import PassagePicker from "../components/PassagePicker.astro";
 import { placeOf } from "../lib/places.mjs";
 import sourceSansLatinUrl from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2";
 import frauncesLatinUrl from "@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2";
@@ -34,18 +35,27 @@ const {
   // footnote letters) on chapter pages, "read" (numbers only; Read View
   // prints no footnote letters) on /read/<book>.
   scriptureControls,
-  // True on pages that carry their own search box (chapters, intros, /read,
-  // Read View, /search, articles). The header's magnifier takes the reader
-  // to that box there, and opens its own strip everywhere else, so a page
-  // never shows two (audit U6). The Read page (chapters, intros, Read View)
-  // has no magnifier at all (HD-13).
+  // True on pages that carry their own search box (chapters and intros, in
+  // the place line; Read View, /search, articles). The header's magnifier
+  // takes the reader to that box there, and opens its own strip everywhere
+  // else, so a page never shows two (audit U6). The Read page (chapters,
+  // intros, Read View) has no magnifier at all (HD-13).
   pageSearch = false,
   // Study's own header (/desk): the page's title, centered, in place of the
   // places, and no search (SiteHeader's deskTitle).
   deskTitle,
   // Where the header's Study menu sends "Scripture": a chapter or an
-  // introduction passes its toolbar pill's ?place= address (ScriptureLayout).
+  // introduction passes the place line's "Study John 3" address
+  // (ScriptureLayout), so the two never disagree.
   deskHref,
+  // The passage on a chapter or an introduction ({ book, chapter,
+  // studyHref }; ScriptureLayout), which makes the line under the header
+  // the place line (PlaceLine.astro) and opens the passage picker at it.
+  readingLine,
+  // True on /read, where the passage picker is the page, so no other is
+  // drawn: everywhere else but Study's own header, the picker waits in a
+  // closed dialog for its ways in (PassagePicker.astro).
+  pickerInPage = false,
   // The chapter's name on a chapter or an introduction ("John 3"), which
   // makes the header's row the phone's top bar under 700px (SiteHeader's
   // picker; ScriptureLayout passes it, with the bar at the thumb).
@@ -269,13 +279,33 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
     <AppInstallBanner />
     <SiteHeader class={headerClass} scriptureControls={scriptureControls} search={search} deskTitle={deskTitle} picker={picker} deskHref={deskHref} />
     {/* A page puts its one or two main commands at the line's right with
-        slot="place-line" (none does yet). */}
-    {where.line && !deskTitle && (
+        slot="place-line" (none does yet). A chapter or an introduction gets
+        the place line instead (readingLine). */}
+    {readingLine && !deskTitle ? (
+      <PlaceLine where={where} reading={readingLine} />
+    ) : where.line && !deskTitle && (
       Astro.slots.has("place-line") ? (
         <PlaceLine where={where}><slot name="place-line" slot="commands" /></PlaceLine>
       ) : (
         <PlaceLine where={where} />
       )
+    )}
+    {/* The passage picker's panel and sheet (FP-01 to FP-16): closed until
+        a way in opens it, and kept in a <template> till then, so a page that
+        never opens it carries none of its thousand-odd elements (a dialog
+        never opens without JavaScript anyway). passage-picker.js puts it in
+        place the first time; /read's own picker is the page. */}
+    {!deskTitle && !pickerInPage && (
+      <dialog class="picker-dialog" id="passagePicker" aria-label="Choose passage" data-picker-dialog data-pagefind-ignore>
+        <template data-picker-template>
+          <PassagePicker book={readingLine?.book} chapter={readingLine?.chapter} />
+        </template>
+      </dialog>
+    )}
+    {!deskTitle && (
+      <script>
+        import "../scripts/passage-picker.js";
+      </script>
     )}
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>

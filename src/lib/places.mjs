@@ -7,8 +7,9 @@
 // page joins or leaves a place here and nowhere else. Pure: no DOM, no Astro.
 // test/places.test.js holds every page under src/pages to an answer.
 //
-// - Read has no menu: the header's Read is a link to /read until Phase 4 has
-//   it open the passage picker (FP-15). Its rows are the footer's Read group:
+// - Read has no menu: the header's Read opens the passage picker on a
+//   computer with JavaScript, and is a link to /read, the picker at full
+//   size, without it (FP-15, FP-16). Its rows are the footer's Read group:
 //   the books, and Release Notes, which sits at the foot of Read's picker as
 //   well as under About (HD-29). Release Notes is About's page, so a row
 //   listed in two places names its home with `also`.
@@ -225,8 +226,10 @@ export function rowOf(placeKey, rowKey) {
  *   is inside it (an article, under Articles), for aria-current;
  * - `name`: what the line under the header calls the page;
  * - `up`: where that name links, for a page inside another, or null;
- * - `line`: whether the line shows (never on Home, the Read page, or
- *   Study's pages, whose title row is their line in Phase 9);
+ * - `line`: whether the line that names the page shows (never on Home,
+ *   the Read page, whose chapters and introductions draw the place line
+ *   from their passage instead (Layout's `readingLine`), or Study's pages,
+ *   whose title row is their line in Phase 9);
  * - `readPage`: a chapter, an introduction, or Read View, which has no
  *   header magnifier (HD-13);
  * - `home`: the front page.

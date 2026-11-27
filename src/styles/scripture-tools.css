@@ -1,4 +1,6 @@
-/* Shared tools tray layout (SearchLayout + ScriptureLayout) */
+/* The tools row of /search (SearchLayout: its heading over the search
+   field) and of Read View (the search-only variant). A chapter's and an
+   introduction's went with Featherboa's place line (PlaceLine.astro). */
 
 .scripture-tools {
   padding: 18px 16px 10px;
@@ -62,13 +64,6 @@
   justify-self: end;
 }
 
-/* ReadMenu trigger: left-aligned in the tools bar's left column (desktop
-   and the tablet band); the ≤640px block below centers it instead */
-.scripture-layout .read-menu-wrap,
-.scripture-tools__left .read-menu-wrap {
-  justify-content: flex-start;
-}
-
 /* Search-only variant (Read View pages): the passage picker lives in the
    sticky reading toolbar instead, so the bar holds just the search field —
    one centered column at every width. Out-specifies the breakpoint
@@ -78,28 +73,17 @@
   justify-content: center;
 }
 
-/* Tablet band (641-900px): one row, like desktop, with the picker at its
-   own width, the search field taking the rest, and a shorter Read View
-   label (audit F3). */
+/* Tablet band (641-900px): one row, like desktop, the search field taking
+   what the side columns leave (audit F3). */
 @media (max-width: 900px) and (min-width: 641px) {
   .scripture-tools__inner {
     grid-template-columns: auto minmax(0, 1fr) auto;
     width: min(860px, calc(100% - 32px));
     gap: 12px;
   }
-
-  /* Three classes, to out-specify the components' scoped min-width floors. */
-  .scripture-tools .scripture-tools__left .read-menu__trigger,
-  .scripture-tools .scripture-tools__right .reading-view-pill {
-    min-width: 0;
-  }
-
-  .scripture-tools .rvp-full {
-    display: none;
-  }
 }
 
-/* Mobile (≤640px): single centered stack — picker, search, Read View */
+/* Mobile (≤640px): one centered stack, the empty side columns out of it. */
 @media (max-width: 640px) {
   .scripture-tools__inner {
     grid-template-columns: 1fr;
@@ -118,37 +102,8 @@
     justify-self: center;
   }
 
-  .scripture-layout .reading-view-right {
-    justify-content: center;
-    margin-top: 0.75rem;
-  }
-
-  .scripture-layout .read-menu-wrap,
-  .scripture-tools__left .read-menu-wrap {
-    justify-content: center;
-  }
-}
-
-/* The Read View pill's short label is off everywhere until the tablet band
-   turns it on. */
-.rvp-short {
-  display: none;
-}
-
-@media (max-width: 900px) and (min-width: 641px) {
-  .scripture-tools .rvp-short {
-    display: inline;
-  }
-}
-
-/* On a phone, a chapter's or an introduction's toolbar gives way to the
-   phone's two bars (SiteHeader's reading row and PhoneBar.astro; PH-06):
-   the picker is the row's, and the search field opens in the row's place,
-   moved there from here by phone-bars.js. The search page's and Read
-   View's toolbars stay. */
-@media (max-width: 699px) {
-  .scripture-layout--scripture .scripture-tools,
-  .scripture-layout--intro .scripture-tools {
+  .scripture-tools__left:empty,
+  .scripture-tools__right:empty {
     display: none;
   }
 }

@@ -523,6 +523,80 @@ a.place-line__page {
   margin-left: auto;
 }
 
+/* ---------- The place line on a reading page ----------
+   A chapter or a book's introduction (RP-29 to RP-32, FP-27, FP-28):
+   "John ▾ / Chapter 3 ▾," each part the kit's plain button (it opens the
+   passage picker), then Search, ‹ ›, the Notebook, and "Study John 3." Its
+   gutters are a step narrower, so the words inside the first and last
+   buttons stand where the line's words stand on other pages. */
+
+.place-line--reading .place-line__inner {
+  gap: var(--space-3);
+  padding: 0 var(--space-1);
+}
+
+.place-line--reading .place-line__trail {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.place-line__turn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* The Notebook and Study are for a computer with the Study preview on
+   (DI-16, ST-15): from 1100px, under html[data-desk]. The Notebook also
+   keeps global.css's gate, which shows it only beside a reading column. */
+.place-line__notebook,
+.place-line__study {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  html[data-desk] .place-line__notebook,
+  html[data-desk] .place-line__study {
+    display: inline-flex;
+  }
+}
+
+/* Search in place of the line (FP-30; place-line.js): the page's one
+   search field and its ×, the results hanging below, over the page and the
+   Notebook. */
+.place-line--reading[data-search-open] :is(.place-line__trail, .place-line__commands) {
+  display: none;
+}
+
+.place-line__find:not([hidden]) {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 45rem;
+  margin: 0 auto;
+  padding: var(--space-1) 0;
+}
+
+.place-line__find .searchbar {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.place-line--reading:has(.place-line__find:not([hidden])) {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Under 700px the phone's two bars do the line's work (PH-10): the top
+   row's picker, and the bar's arrows and Search. */
+@media screen and (max-width: 699px) {
+  .place-line--reading {
+    display: none;
+  }
+}
+
 /* =========================================================
    The phone's top bar (SITE-FEATHERBOA.md, "The phone"; PH-01, PH-05 to
    PH-07, PH-09): on a chapter or an introduction under 700px (SiteHeader's

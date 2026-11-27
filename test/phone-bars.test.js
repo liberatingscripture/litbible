@@ -99,8 +99,8 @@ test("without JavaScript Search goes to /search and Menu to the footer's links (
 
 test("the top row: the emblem goes home, the chapter's name is the picker, then Aa; and the search field's place (PH-01, PH-09)", () => {
   assert.ok(header.includes("{picker && <span class=\"sr-only site-header__home\">Home</span>}"));
-  assert.match(header, /<a class="kit-btn kit-btn--plain site-header__picker" href="\/read" data-rm-also>/);
-  assert.match(header, /<span class="sr-only">Go to passage\. Current:&nbsp;<\/span>\s*<span class="site-header__picker-label">\{picker\}<\/span>\s*<Icon name="down" \/>/);
+  assert.match(header, /<a class="kit-btn kit-btn--plain site-header__picker" href="\/read\/" data-picker-open="chapters">/, "the passage picker's sheet, at the chapter (passage-picker.js); /read without JavaScript");
+  assert.match(header, /<span class="sr-only">Choose passage\. Current:&nbsp;<\/span>\s*<span class="site-header__picker-label">\{picker\}<\/span>\s*<Icon name="down" \/>/);
   assert.ok(header.includes('<div class="site-header__find" id="phoneFind" data-phone-find hidden>'));
   assert.ok(header.includes('aria-label="Close search" data-phone-find-close'));
   assert.ok(header.includes('${picker ? "site-header--reading" : ""}'), "the row's own class, only where there is a picker");
@@ -113,12 +113,14 @@ test("only a chapter or an introduction has the bars", () => {
   assert.ok(read("src/layouts/Layout.astro").includes("picker={picker}"), "Layout hands the picker to the header");
 });
 
-test("the bars take the places of the toolbar and the title's round buttons on a phone, and a page prefetches the bar's neighbors (PH-06)", () => {
-  assert.doesNotMatch(scriptureLayout, /tools-search-toggle|tools-search-close|data-compact/, "the toolbar's phone search and its compact mode are gone");
-  assert.ok(scriptureLayout.includes('".phone-bar a[rel]"'), "the bar's Previous and Next are prefetched as the title's are");
-  assert.match(read("src/styles/scripture-tools.css"), /@media \(max-width: 699px\) \{\s*\.scripture-layout--scripture \.scripture-tools,\s*\.scripture-layout--intro \.scripture-tools \{\s*display: none;/);
+test("the bars do the place line's work on a phone, and a page prefetches the bar's neighbors (PH-06, PH-10)", () => {
+  assert.doesNotMatch(scriptureLayout, /scripture-tools|tools-search-toggle|data-compact/, "the toolbar is gone at every width");
+  assert.ok(scriptureLayout.includes('".phone-bar a[rel]"'), "the bar's Previous and Next are prefetched as the line's are");
+  assert.ok(scriptureLayout.includes('".place-line a[rel]"'));
+  assert.match(read("src/styles/header.css"), /@media screen and \(max-width: 699px\) \{\s*\.place-line--reading \{\s*display: none;/, "the line isn't drawn under 700px");
   const scriptureHeader = read("src/components/ScriptureHeader.astro");
-  assert.match(scriptureHeader, /@media screen and \(max-width: 699px\) \{[^@]*\.chapter-nav \{\s*display: none;/, "screen only: paper keeps its title");
+  assert.doesNotMatch(scriptureHeader, /chapter-nav|nav-button/, "no round arrows beside the title (CO-11)");
+  assert.match(scriptureHeader, /@media screen and \(max-width: 699px\) \{[^@]*\.chapter-title \{\s*position: absolute;/, "screen only: paper keeps its title");
 });
 
 test("paper has neither bar nor the menu sheet", () => {
@@ -129,15 +131,15 @@ test("paper has neither bar nor the menu sheet", () => {
 
 const MAIN_TOP = 120; // where the page's main content starts: the banner and the row above it
 
-/** A reading page's two bars, as SiteHeader.astro, ScriptureLayout.astro,
- *  and PhoneBar.astro draw them, with the page's search field in the
- *  toolbar where it waits. */
+/** A reading page's two bars, as SiteHeader.astro, PlaceLine.astro, and
+ *  PhoneBar.astro draw them, with the page's search field in the place
+ *  line where it waits. */
 function draw() {
   document.body.innerHTML = `
     <header class="site-header site-header--reading">
       <div class="site-header__inner">
         <a class="site-header__brand" href="/"><span class="sr-only site-header__home">Home</span></a>
-        <a class="kit-btn kit-btn--plain site-header__picker" href="/read" data-rm-also>John 3</a>
+        <a class="kit-btn kit-btn--plain site-header__picker" href="/read/" data-picker-open="chapters">John 3</a>
         <div class="site-header__find" id="phoneFind" data-phone-find hidden>
           <button type="button" class="kit-icon site-header__find-close" aria-label="Close search" data-phone-find-close>Close</button>
         </div>
@@ -145,7 +147,7 @@ function draw() {
       </div>
     </header>
     <main id="main-content">
-      <div class="scripture-tools"><span id="before">before</span><div class="searchbar" data-searchbar data-open="false"><input type="search" id="site-search-input"><button type="button" class="searchbar__close">Close results</button></div><span id="after">after</span></div>
+      <div class="place-line__find" id="lineFind" data-line-find hidden><span id="before">before</span><div class="searchbar" data-searchbar data-open="false"><input type="search" id="site-search-input"><button type="button" class="searchbar__close">Close results</button></div><span id="after">after</span></div>
       <p>For God so loved the world.</p>
     </main>
     <nav class="phone-bar" aria-label="Chapters, search, and menu" data-phone-bar>
@@ -161,7 +163,7 @@ function draw() {
     find: document.getElementById("phoneFind"),
     findClose: document.querySelector("[data-phone-find-close]"),
     aa: document.querySelector("[data-font-toggle]"),
-    tools: document.querySelector(".scripture-tools"),
+    tools: document.querySelector("[data-line-find]"),
     searchbar: document.querySelector("[data-searchbar]"),
     input: document.getElementById("site-search-input"),
     resultsClose: document.querySelector(".searchbar__close"),
@@ -279,7 +281,7 @@ test("Search opens the page's own field in place of the top row, held there unti
     key(input, "Escape");
     assert.equal(row.hasAttribute("data-search-open"), false, "then the field");
     assert.equal(find.hidden, true);
-    assert.equal(tools.contains(searchbar), true, "back in the toolbar");
+    assert.equal(tools.contains(searchbar), true, "back in the place line");
     assert.equal(searchbar.previousElementSibling?.id, "before", "in its own place");
     assert.equal(searchbar.nextElementSibling?.id, "after");
     assert.equal(search.getAttribute("aria-expanded"), "false");

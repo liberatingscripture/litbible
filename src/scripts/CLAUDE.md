@@ -24,7 +24,12 @@ From the root's project tree.
                      #   reading bars (Search in the top row, hiding
                      #   together on a scroll down); link-button, a link
                      #   that answers as a button once a script takes it
-                     #   over (the bar's Search and Menu);
+                     #   over (the bar's Search and Menu, the place line's
+                     #   Search, the picker's ways in); passage-picker,
+                     #   the passage picker (the panel, the phone's sheet,
+                     #   and /read; `src/components/CLAUDE.md`);
+                     #   place-line, the place line's Search, which opens
+                     #   the page's one box in place of the line;
                      #   keyboard-shortcuts; print-radios, which sets every
                      #   radio button back after the print dialog (Edge
                      #   clears them all; see "Printing and handouts");
@@ -523,9 +528,10 @@ License page of their own, forwarding /read's old anchors:
     with the Study Desk preview on it opens /desk in its Reading layout at
     the passage instead (`/desk/?place=john-3:16&layout=reading`, a book at
     chapter 1; E114, BVJ 2026-11-12), and its label says so. Both build it
-    with `readingJumpLink` in `search-core.js`, which reads `deskEnabled()`;
-    the chapter picker's footer writes the same address inline. Featherboa
-    retires the Reading layout, so these open the desk at the passage
+    with `readingJumpLink` in `search-core.js`, which reads `deskEnabled()`.
+    The passage picker's field reads the same parse first (`readTyping`,
+    `src/lib/passage-picker.mjs`), then the 404 page's guesser, and offers
+    no Read View. Featherboa retires the Reading layout, so these open the desk at the passage
     alone, without `&layout=reading` (`SITE-FEATHERBOA.md`, "The reading
     page"); until it is built, this holds.
   - *Reference parsing* accepts a period as the chapter:verse separator
@@ -577,12 +583,14 @@ License page of their own, forwarding /read's old anchors:
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`
     to `Layout`: chapters, intros and drafts (through `ScriptureLayout`),
-    `/read`, Read View, `/search`, and the articles pages. The header's
-    magnifier beside "Aa" is on every page but the Read page (a chapter, an
-    introduction, Read View, whose box is the toolbar's; HD-13) and /desk,
-    whose search is a pane. On a phone a chapter's or an introduction's
-    toolbar is hidden, and the bar's Search moves that same box into the top
-    row while it is open (`phone-bars.js`), so the page still has one.
+    Read View, `/search`, and the articles pages. The header's magnifier
+    beside "Aa" is on every page but the Read page (HD-13) and /desk, whose
+    search is a pane. **A chapter's or an introduction's way in is "Search"
+    on the place line** (FP-27 to FP-31), which opens the box in place of
+    the line (`place-line.js`), and `/` presses it; Read View's box is its
+    toolbar's. On a phone the line isn't drawn, and the bar's Search moves
+    that same box into the top row while it is open (`phone-bars.js`), so
+    the page still has one.
     Without JS the magnifier is a link to `/search`. With JS
     (`header-search.js`), on a page with its own box it takes the reader to
     that box; on any other it opens a strip under the header holding the
@@ -592,13 +600,8 @@ License page of their own, forwarding /read's old anchors:
     320px, in every font), nor under 380px in OpenDyslexic beside its wider
     "Menu" (measured), so the icon moves into the menu sheet as its Search
     row, or leaves the page's own box as the way in. **A new page with its own `SearchBar` must pass
-    `pageSearch`**, or it renders two. Featherboa keeps the rule but moves a reading
-    page's way in: the toolbar's box goes, and "Search" on the place line
-    opens it in place of the line, while the passage picker gains a typing
-    field of its own (`SITE-FEATHERBOA.md`, "Finding a passage"). A phone
-    has the first part (the bar's Search opens the box in place of its top
-    row, which names the passage); the picker's typing field, and all of it
-    on a computer, wait for Phase 4. Until then, this holds.
+    `pageSearch`**, or it renders two. The passage picker's field is not a
+    `SearchBar`: it goes to passages and offers a search of /search.
 ## Continue reading, Read View's landing, and keyboard shortcuts
 
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
@@ -613,21 +616,20 @@ License page of their own, forwarding /read's old anchors:
   one its toolbar names). `read-mode.js` is loaded through `?url`, so Vite serves it
   unbundled and it **cannot import**: it announces each save with an
   `rm:position` event, and a bundled script in `read/[book].astro` records
-  it. Draft chapters are never recorded. `ContinueReading.astro` (home title
-  block, top of /read) offers it back, hidden until a record exists, so no
-  JS or no storage means nothing renders; the × forgets it everywhere. The
-  menu sheet doesn't offer it: on a phone it waits for Phase 4's picker
-  (PH-14). Featherboa offers it as the first row of the book
-  picker and of Home instead, with nothing to dismiss
-  (`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"); the record is
-  unchanged. The Study Desk's LIT pane on /desk writes it too
+  it. Draft chapters are never recorded. **The passage picker offers it
+  back as its first row** ("Continue: Romans 8"; FP-07, NX-12), with nothing
+  to dismiss, unless it names the page being read; the menu sheet doesn't
+  (PH-14). `ContinueReading.astro`, on Home until Phase 7 makes it Home's
+  first row too (`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"),
+  is hidden until a record exists, so no JS or no storage means nothing
+  renders, and its × forgets it everywhere. The record is unchanged. The Study Desk's LIT pane on /desk writes it too
   (`desk/desk-last-read.js`, through `saveLastRead`: the leading pane's place,
   `view: "study"`, after 500 ms, never a draft; BVJ, 2026-11-10). Each save also dispatches a `lit:last-read` window
   event, which only the Study Desk (places, when the preview is on) hears. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
 - **Read View lands on a link instantly, then holds it.** `/read/<book>` is
   the whole book on one page, tens of thousands of pixels tall, so arriving at
-  `#ch-10` (Chapter View's "Switch to Read View") or `#luke-10-v25` (search)
+  `#ch-10` (from the old "Switch to Read View") or `#luke-10-v25` (search)
   is fragile: any height change above the target after the jump (a web font
   finishing, the Android banner) slides the text under a fixed scroll offset,
   and Safari has no scroll anchoring to undo it. (The reader's text size is
@@ -639,12 +641,13 @@ License page of their own, forwarding /read's old anchors:
   Don't make that first landing smooth again: this replaced it after the owner
   saw the switch land "at random places within the book" (2026-09-27).
 - **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
-  2026-09-28): `/` search (a Search pane on /desk; on a phone's reading
-  page the bar's Search), `g` Go to passage (the toolbar's picker, or the
-  top row's on a phone), and
+  2026-09-28): `/` search (the place line's Search on a chapter or an
+  introduction, the bar's on a phone, a Search pane on /desk), `g` the
+  passage picker (a `lit:picker-open` event that `passage-picker.js`
+  answers; Read View's own picker there), and
   ← → or `[` `]` for the
-  previous and next chapter (Chapter View's top Previous/Next, found by their
-  `rel="prev"` / `rel="next"`, the neighboring `#ch-N` in Read View, or on
+  previous and next chapter (the place line's ‹ ›, found by
+  `.place-line a[rel="prev"]` / `[rel="next"]`, the neighboring `#ch-N` in Read View, or on
   /desk a `lit:desk-chapter` event that `desk-page.js` answers by pressing the
   passage bar's arrow of the pane holding focus, else the leading LIT pane).
   Featherboa keeps them where chapters read on into each other: they go to
@@ -660,7 +663,7 @@ License page of their own, forwarding /read's old anchors:
   and until it is built it stays in the tray). **The switch is required, not a nicety**:
   single-key shortcuts fire when a speech-recognition user dictates a word
   (WCAG 2.1.4). They stand down while the reader is typing or working a control
-  that owns those keys (a radio group, a menu, a grid, a dialog, the picker's
-  popover), whenever Ctrl, Alt or Cmd is held, and the arrows also stand down
+  that owns those keys (a radio group, a menu, a grid, a dialog, the passage
+  picker), whenever Ctrl, Alt or Cmd is held, and the arrows also stand down
   whenever the page scrolls sideways, which is how someone zoomed in reads
   along a line.

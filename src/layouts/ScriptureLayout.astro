@@ -1,15 +1,14 @@
 ---
-// ScriptureLayout.astro
-import "../styles/scripture-tools.css";
-
+// ScriptureLayout.astro: a chapter (drafts included) or a book's
+// introduction. Its place line (PlaceLine.astro, drawn by Layout from
+// `readingLine`) holds the page's passage picker, its one search field,
+// Previous and Next, and Study's way in; under 700px the phone's two bars
+// do that work (src/layouts/CLAUDE.md).
 import Layout from "./Layout.astro";
-import ReadMenu from "../components/ReadMenu.astro";
-import SearchBar from "../components/SearchBar.astro";
 import ScriptureHeader from "../components/ScriptureHeader.astro";
 import PrintCredit from "../components/PrintCredit.astro";
 import SblgntNotice from "../components/SblgntNotice.astro";
 import PhoneBar from "../components/PhoneBar.astro";
-import Icon from "../components/Icon.astro";
 import { bookKeyToLabel } from "../data/books.js";
 
 const {
@@ -20,7 +19,7 @@ const {
 
   /**
    * Pagefind + scripture metadata
-   * book: MUST match your ReadMenu slug keys (e.g., "luke", "1peter", "hebrews")
+   * book: a book key (src/data/books.js: "luke", "1peter", "hebrews")
    * chapter: "intro" or a chapter number (e.g., "1")
    * type: "scripture" | "intro" | "search" | ...
    */
@@ -33,12 +32,6 @@ const {
    * These are indexed as Pagefind meta "topics"
    */
   topics,
-
-  /**
-   * Layout toggles
-   */
-  showToolsReadMenu = true,
-  showToolsSearch = true,
 
   /**
    * Controls the robots meta (noindex/index) via Layout, and — for intro
@@ -117,25 +110,22 @@ if (headerKind === "chapter") {
   headerChapter = Number.isFinite(n) ? n : 1;
 }
 
-// The Study Desk pill's address (E50, BVJ 2026-11-06): /desk at the chapter
-// being read (E8's ?place=), and on a book's introduction at chapter 1 (the
-// desk has no pane for an introduction; E173 retired E53's ?intro=). The pill is
-// in the markup for every reader and shown by CSS only with the desk preview on.
-// The header's Study group takes the same address, so the two never disagree.
+// "Study John 3"'s address on the place line (ST-15, CT-09; E50's pill
+// before it): /desk at the chapter being read (E8's ?place=), and on a
+// book's introduction at chapter 1 (the desk has no pane for an
+// introduction; E173 retired E53's ?intro=). The line draws it for every
+// reader and shows it only on a computer with the Study preview on. The
+// header's Study group takes the same address, so the two never disagree.
 const deskPlaceChapter = headerKind === "chapter" ? (headerChapter ?? 1) : 1;
-const deskPlaceHref =
-  headerKind === "intro"
-    ? `/desk/?place=${pagefindBook}-1`
-    : `/desk/?place=${pagefindBook}-${deskPlaceChapter}`;
-const deskPlaceLabel =
-  headerKind === "intro"
-    ? `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} 1`
-    : `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
-const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
+const deskPlaceHref = `/desk/?place=${pagefindBook}-${deskPlaceChapter}`;
+// The passage, for the place line and the passage picker (Layout.astro).
+const readingLine = isScriptureLike
+  ? { book: pagefindBook, chapter: headerKind === "intro" ? "intro" : (headerChapter ?? 1), studyHref: deskPlaceHref }
+  : undefined;
 // The phone's two bars (SITE-FEATHERBOA.md, "The phone"): the header's row
-// names the chapter as the picker, as the toolbar's picker does ("John 3,"
-// "John · Intro"), and PhoneBar.astro is the bar at the thumb. A chapter or
-// an introduction, drafts included; never Read View or /search.
+// names the chapter ("John 3," "John · Intro"), which opens the passage
+// picker as a sheet, and PhoneBar.astro is the bar at the thumb. A chapter
+// or an introduction, drafts included; never Read View or /search.
 const phonePicker = isScriptureLike
   ? headerKind === "intro"
     ? `${bookKeyToLabel(pagefindBook)} · Intro`
@@ -147,7 +137,7 @@ const phonePicker = isScriptureLike
 const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === "intro" ? "intro" : undefined;
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskHref={showDeskPill ? deskPlaceHref : undefined} deskSurface={deskSurface} picker={phonePicker}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={isScriptureLike} deskHref={isScriptureLike ? deskPlaceHref : undefined} deskSurface={deskSurface} picker={phonePicker} readingLine={readingLine}>
   <slot slot="head" name="head" />
 
   {/* Fetch the previous or next chapter as soon as a reader shows intent
@@ -163,7 +153,7 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
         {
           "where": {
             "selector_matches": [
-              ".chapter-nav a.nav-button",
+              ".place-line a[rel]",
               ".chapter-ctas a.chapter-cta",
               ".phone-bar a[rel]"
             ]
@@ -175,64 +165,6 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
   </script>
 
   <div class={`scripture-layout scripture-layout--${pagefindType}`}>
-    {
-      (showToolsReadMenu || showToolsSearch) && (
-        <section
-          class="scripture-tools"
-          data-pagefind-ignore
-          aria-label="Scripture tools"
-        >
-          <div class="scripture-tools__inner">
-            <div class="scripture-tools__left" aria-label="Jump to passage">
-              {showToolsReadMenu ? <ReadMenu currentBook={pagefindBook} currentChapter={String(pagefindChapter)} /> : null}
-            </div>
-
-            <div class="scripture-tools__center" aria-label="Search the LIT">
-              {/* On a phone the toolbar gives way to the two bars, and the
-                  bar's Search moves this field into the top row while it is
-                  open (phone-bars.js). */}
-              {showToolsSearch ? (
-                <SearchBar />
-              ) : null}
-            </div>
-
-            <div class="scripture-tools__right" aria-label="Read View">
-              {pagefindType === "scripture" && headerKind === "chapter" ? (
-                <div class="reading-view-right" data-pagefind-ignore>
-                  <a
-                    class="reading-view-pill"
-                    href={`/read/${pagefindBook}/#ch-${headerChapter ?? 1}`}
-                    aria-label={`Switch to Read View for ${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1}`}
-                  >
-                    <span class="reading-view-pill__icon" aria-hidden="true">
-                      <Icon name="read" size={17} />
-                    </span>
-                    <span class="rvp-full">Switch to Read View</span>
-                    <span class="rvp-short">Read View</span>
-                  </a>
-                </div>
-              ) : null}
-              {showDeskPill ? (
-                <div class="reading-view-right reading-view-right--desk" data-pagefind-ignore>
-                  <a
-                    class="reading-view-pill"
-                    href={deskPlaceHref}
-                    aria-label={deskPlaceLabel}
-                  >
-                    <span class="reading-view-pill__icon" aria-hidden="true">
-                      <Icon name="notebook" size={17} />
-                    </span>
-                    <span class="rvp-full">Open in Study Desk</span>
-                    <span class="rvp-short">Study Desk</span>
-                  </a>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </section>
-      )
-    }
-
     <div
       class="scripture-main"
       aria-labelledby={isScriptureLike ? "chapter-title" : undefined}
@@ -346,6 +278,10 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
 
     <SblgntNotice />
 
+    <script>
+      import "../scripts/place-line.js";
+    </script>
+
     {isScriptureLike && (
       <PhoneBar bookKey={pagefindBook} chapter={headerKind === "intro" ? "intro" : (headerChapter ?? 1)} />
     )}
@@ -379,78 +315,6 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
         height: 1px;
         overflow: hidden;
         white-space: nowrap;
-      }
-
-      @media (min-width: 641px) {
-        :global(.scripture-tools__right) {
-          justify-self: end;
-        }
-      }
-
-      /* Read View pill: right column, on the shared toolbar row */
-      .reading-view-right {
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      /* The Read View pill is gone while the Study Desk preview is on (BVJ,
-         2026-10-29), and the Study Desk pill takes its place (E50, BVJ
-         2026-11-06): same slot, same design, shown only with the preview on. */
-      :global(html[data-desk]) .reading-view-right:not(.reading-view-right--desk) {
-        display: none;
-      }
-
-      :global(html:not([data-desk])) .reading-view-right--desk {
-        display: none;
-      }
-
-      /* A plain button (kit.css), the same as the ReadMenu picker's trigger,
-         so the two ends of the tools bar read as one design family. */
-      .reading-view-pill {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-
-        /* Pinned to the same floor as the ReadMenu picker trigger so the
-           toolbar's two ends are the same size. Keep in sync with ReadMenu. */
-        min-width: 245px;
-        padding: 10px 18px;
-
-        text-decoration: none;
-        user-select: none;
-
-        font-size: 16px;
-        /* The picker is a <button>, which doesn't inherit the page's line
-           height and so takes "normal"; with line-height: 1 this pill stood
-           about 2px shorter. Same fix as .read-menu__desk on /read. */
-        line-height: normal;
-
-      }
-
-      .reading-view-pill__icon {
-        display: inline-flex;
-        align-items: center;
-        font-size: 17px;
-        line-height: 1;
-      }
-
-
-      /* Mobile-only breathing room BETWEEN the two tool columns.
-     (We do NOT style SearchBar internals here.) */
-      @media (max-width: 640px) {
-        :global(.scripture-tools__inner) {
-          gap: 18px;
-        }
-
-        :global(.scripture-tools__center) {
-          margin-top: 8px;
-        }
-
-        .reading-view-right {
-          margin-top: 0.75rem;
-          justify-content: center;
-        }
       }
     </style>
   </div>

@@ -46,10 +46,10 @@ below unless it is already loaded.** Rules that keep this from decaying:
 | `src/scripts/desk/account/CLAUDE.md` | The account pages (4h): /account, sign-in, passkeys, setup, joining, devices, the header's "Sign in," Apple and Google (off); `src/lib/desk-account*.mjs`, `desk-passkey.mjs` |
 | `src/lib/CLAUDE.md` | The module map of `src/lib/`; scripture reference linking (Sefaria, eBible), external links, Go deeper, the release notes page and feed |
 | `src/styles/CLAUDE.md` | CSS anywhere, including component `<style>` blocks: theming, the Display tray's settings, `--ch`, Greek and Hebrew fonts, the brand greens, the emblem, the LSC mark, focus rings |
-| `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |
+| `src/layouts/CLAUDE.md` | A chapter's place line and a phone's two bars; chapter prefetching |
 | `src/content/CLAUDE.md` | Articles, glossary entries, the /apps collections; the apps' glossary feed |
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
-| `src/components/CLAUDE.md` | The header, the line under it, and the footer: the four places (`src/lib/places.mjs`), their menus, the news marks (`src/lib/news.mjs`); the announcement popover |
+| `src/components/CLAUDE.md` | The header, the line under it, and the footer: the four places (`src/lib/places.mjs`), their menus, the news marks (`src/lib/news.mjs`); the passage picker; the announcement popover |
 | `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
 | `src/pages/CLAUDE.md` | The privacy page and the Terms of Use; the podcast page's embeds; the 404 page's address guessing; measuring Read View |
 | `scripts/CLAUDE.md` | The toolchain's pins (Node, Astro), commands run by hand, **the apps' sync contract**, the build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
@@ -192,7 +192,7 @@ src/
     verse-gaps.js    # Verse numbers the LIT leaves out (Matthew 17:21)
     release-notes.json, release-notes-skip.md   # see Key Conventions
     podcast-feed.xml, podcastOverrides.json, translation-commitments.json
-  layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
+  layouts/           # Layout, ScriptureLayout, SearchLayout
   lib/               # Build-time helpers, mostly pure and unit-tested
   pages/             # File-based routes (below)
   scripts/           # CLIENT-side vanilla JS; desk/ is the Study Desk preview
@@ -219,7 +219,7 @@ workers/             # Cloudflare Workers, deployed separately, each with its ow
 |-------|------|---------|
 | `/<book>-<chapter>` | `[slug].astro` | Scripture chapter ("Chapter View") |
 | `/<book>-intro` | `[book]-intro.astro` | Book introduction |
-| `/read` | `read.astro` | The /read landing (Chapter View, Read View, the apps) |
+| `/read` | `read.astro` | The passage picker at full size under the page's lede; where Read goes without JavaScript |
 | `/read/<book>` | `read/[book].astro` | Read View: a whole book on one page |
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |

@@ -8,9 +8,10 @@
 // adds, under 700px:
 //
 // - Search opens the page's search field in place of the top row (PH-09):
-//   the toolbar's SearchBar, the page's only one, is moved into the row while
-//   it is open and put back after. Its close button, or Escape once the
-//   results are closed, puts it back and returns focus to Search.
+//   the place line's SearchBar, the page's only one (the line itself isn't
+//   drawn under 700px), is moved into the row while it is open and put
+//   back after. Its close button, or Escape once the results are closed,
+//   puts it back and returns focus to Search.
 // - Both bars hide together on a scroll down and come back on any scroll up
 //   (PH-05), by src/lib/phone-bars.mjs's rule, written on <html> as
 //   data-bars, which header.css turns into the bars' movement. Neither hides
@@ -45,7 +46,7 @@ export function start({ doc = globalThis.document, win = globalThis.window } = {
   // ---------- Search, in place of the top row (PH-09) ----------
 
   const find = row.querySelector("[data-phone-find]");
-  const searchbar = doc.querySelector(".scripture-tools [data-searchbar]");
+  const searchbar = doc.querySelector("[data-line-find] [data-searchbar]");
   const link = bar.querySelector("[data-bar-search]");
   const searchOpen = () => row.hasAttribute("data-search-open");
   let search = null;

@@ -1,0 +1,141 @@
+---
+// The passage picker (SITE-FEATHERBOA.md, "Finding a passage"; FP-01 to
+// FP-16): one component for the panel a computer opens from the place line,
+// the header's Read and G; the sheet a phone opens from its top row; and
+// /read, where it is the page. Its field comes first ("book, chapter, or
+// verse"), and what is typed wins over what is picked: "rom 8" offers "Go to
+// Romans 8" at once, and anything that isn't a passage offers "Search for
+// ‘…’" (src/lib/passage-picker.mjs reads it). Then Continue reading, the 27
+// books in canonical order with no groups, the chosen book's chapters as a
+// grid with its introduction under it, and Release Notes at the foot. A
+// draft is dimmed, still opens, and says "in progress."
+//
+// Without JavaScript (on /read) the field is a search form for /search, each
+// book a link to its chapters on the page (#picker-john, shown by :target,
+// Matthew's when the address names none), and every chapter a link. With it,
+// src/scripts/passage-picker.js makes the books tabs and the offers a list
+// the field keeps track of, and opens the panel and the sheet: Layout.astro
+// draws this in a <template> inside a closed <dialog>, put in place the
+// first time it opens, and loads the script (here it would sit inside the
+// template, where no script runs).
+//
+// full: /read's own, part of the page, with no close. book and chapter: the
+// page being read, whose book is shown first and whose chapter is marked.
+import Icon from "./Icon.astro";
+import { scanDraftChapters, scanDraftIntros } from "../lib/draft-chapters.mjs";
+import { FIELD_HINT, IN_PROGRESS, pickerBooks } from "../lib/passage-picker.mjs";
+import "../styles/picker.css";
+
+interface Props {
+  full?: boolean;
+  book?: string;
+  chapter?: number | "intro";
+}
+
+const { full = false, book = "", chapter } = Astro.props;
+const drafts = scanDraftChapters();
+const books = pickerBooks({
+  draftChaptersByBook: drafts.draftChaptersByBook,
+  fullyDraftBooks: drafts.fullyDraftBooks,
+  draftIntros: scanDraftIntros(),
+});
+// A book's link: on /read the section on the page; in the panel, /read's,
+// which only a failed script would ever follow.
+const bookHref = (key: string) => (full ? `#picker-${key}` : `/read/#picker-${key}`);
+---
+
+<div
+  class:list={["picker", full && "picker--full"]}
+  data-picker
+  data-picker-full={full ? "" : undefined}
+  data-book={book || undefined}
+  data-chapter={chapter === undefined ? undefined : String(chapter)}
+  data-pagefind-ignore
+>
+  <div class="picker__top">
+    <form class="picker__form" action="/search/" method="get" role="search" data-picker-form>
+      <label class="sr-only" for="picker-field">Book, chapter, or verse</label>
+      <input
+        id="picker-field"
+        class="kit-field picker__field"
+        type="search"
+        name="q"
+        placeholder={FIELD_HINT}
+        autocomplete="off"
+        spellcheck="false"
+        data-picker-field
+      />
+    </form>
+    {!full && (
+      <button type="button" class="kit-icon picker__close" aria-label="Close picker" data-picker-close>
+        <Icon name="close" />
+      </button>
+    )}
+  </div>
+
+  <div class="picker__offers" id="picker-offers" role="listbox" aria-label="Passages" data-picker-offers hidden></div>
+  <p class="sr-only" role="status" data-picker-status></p>
+
+  <a class="kit-row picker__continue" href="/read/" data-picker-continue hidden>
+    Continue: <span data-picker-continue-label></span>
+  </a>
+
+  <div class="picker__panes">
+    <ol class="picker__books" aria-label="Books" data-picker-books>
+      {books.map((b) => (
+        <li class="picker__book-item">
+          <a
+            class:list={["kit-tab", "picker__book", b.draft && "kit-tab--draft"]}
+            id={`picker-tab-${b.key}`}
+            href={bookHref(b.key)}
+            data-picker-book={b.key}
+          >
+            {b.label}
+            {b.draft && (
+              <>
+                <span class="sr-only">, </span><span class="picker__progress">{IN_PROGRESS}</span>
+              </>
+            )}
+          </a>
+        </li>
+      ))}
+    </ol>
+
+    <div class="picker__chapters">
+      {books.map((b) => (
+        <section class="picker__section" id={`picker-${b.key}`} aria-labelledby={`picker-name-${b.key}`} data-picker-section={b.key}>
+          <h2 class="picker__name" id={`picker-name-${b.key}`}>{b.label}</h2>
+          <ol class="picker__grid" aria-label={`${b.label} chapters`} data-picker-grid>
+            {b.chapters.map((c) => (
+              <li class="picker__cell">
+                <a
+                  class:list={["kit-tab", "picker__chapter", c.draft && "kit-tab--draft"]}
+                  href={c.href}
+                  aria-current={b.key === book && c.n === chapter ? "page" : undefined}
+                  data-picker-chapter={c.n}
+                >
+                  <span class="sr-only">Chapter </span>{c.n}{c.draft && <span class="sr-only">, {IN_PROGRESS}</span>}
+                </a>
+              </li>
+            ))}
+          </ol>
+          {b.note && <p class="picker__note">{b.note}</p>}
+          <a
+            class:list={["kit-row", "picker__intro", b.intro.draft && "kit-row--draft"]}
+            href={b.intro.href}
+            aria-current={b.key === book && chapter === "intro" ? "page" : undefined}
+          >
+            Introduction
+            {b.intro.draft && (
+              <>
+                <span class="sr-only">, </span><span class="picker__progress">{IN_PROGRESS}</span>
+              </>
+            )}
+          </a>
+        </section>
+      ))}
+    </div>
+  </div>
+
+  <a class="kit-row picker__foot" href="/release-notes/">Release Notes</a>
+</div>

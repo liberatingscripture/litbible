@@ -113,8 +113,10 @@
      the menu sheet under 380px and "Menu"'s icon leaving under 430px, and
      the phone bar's edges and gaps given up under 375px, its Previous,
      Search, and Next showing their icons alone under 360px),
-     `ReadMenu.astro` (grid floors), and `read-mode.css` (Read
-     View's toolbar floor and its sheet buttons' side padding). Prefer
+     `picker.css` (the passage picker's book cells, and its panel at 60rem
+     rather than 50rem), `ReadMenu.astro` (grid floors), and
+     `read-mode.css` (Read View's toolbar floor and its sheet buttons'
+     side padding). Prefer
      **buying back space over shrinking type** — an accessibility font is the
      last thing that should be made smaller. The header keeps the menu button
      until 900px rather than compressing the places; the hero scroll's
@@ -199,7 +201,7 @@
        takes `--reading-scale`.
      - **`--control-scale`** is the gentler one for controls whose words sit
        on one line in a fixed width: the verse menu and the selection panel,
-       the passage picker's list, Read View's toolbar and resume chip. It
+       Read View's passage list (ReadMenu), toolbar, and resume chip. It
        never shrinks a control (Small leaves it alone) and stops at the Large
        step, since the full Extra large step pushes a label out of its tile.
        **On a phone (640px and under) it stays 1**: the sheets' two-button
@@ -209,10 +211,9 @@
        toolbar's width floors, a panel's width).
 
      **Left to browser zoom, on purpose**: the header and its menus, the
-     footer, the Display tray, tooltips, buttons and form fields, and
-     Chapter View's tools row (its labels are 16px already, it sits above the
-     text, and its one-row phone layout and 245px pills are what a larger
-     label breaks first). So are the designed pages of short display type:
+     footer, the Display tray, tooltips, buttons and form fields, the place
+     line, and the passage picker, whose controls are the kit's at the
+     kit's sizes (`src/components/CLAUDE.md`). So are the designed pages of short display type:
      home, /read, /courses, /support, the contact forms, the podcast page,
      the articles index, and /apps, which is mirrored with the LSC site.
 
@@ -341,7 +342,8 @@
   the desk's margin (Phases 4 and 5). The article card is sized from it as
   well (`--article-width` on the article page), so the card's edges follow
   the text. The other width is **`--content-width`** (72 × `--ch`) for the
-  pages around it (/read, /search, About, courses, commitments). Both are
+  pages around it (/search, About, courses, commitments; /read is the
+  passage picker's 60rem). Both are
   declared on `:root` and resolve their em against the element that uses
   them, so size a column where its text size is set (see the Display tray
   rules above). Two things to know before touching `--ch`:

@@ -336,17 +336,27 @@ export function createTour({ panel, canKeep = true, store = null }) {
     async search(live) {
       closePanel();
       const input = document.getElementById("site-search-input");
-      // A phone's search waits behind its bar's Search, but the desk is off
-      // under 768px, so the step needs the toolbar's field showing.
-      if (!visible(input)) return null;
-      const root = input.closest("[data-searchbar]");
-      const before = input.value;
+      // On a chapter the field waits behind the place line's Search, which
+      // the step presses and puts back (place-line.js); Read View's toolbar
+      // shows it. A phone's waits behind its bar's Search, but the desk is
+      // off under 768px.
+      const lineSearch = document.querySelector("[data-line-search]");
+      if (!visible(input) && !visible(lineSearch)) return null;
+      const root = input?.closest("[data-searchbar]");
+      const before = input?.value ?? "";
       // The click on the card that brought the tour here is still bubbling,
       // and the tray closes on any click outside itself (searchbar.js), so
       // the tray is opened only once that click is over; opened within it,
       // it shut at once and the step showed an empty box.
       await frame();
       if (!live()) return null;
+      if (!visible(input) && lineSearch?.getAttribute("aria-expanded") === "false") {
+        lineSearch.click();
+        later(() => {
+          if (lineSearch.getAttribute("aria-expanded") === "true") lineSearch.click();
+        });
+      }
+      if (!visible(input)) return null;
       // ">" lists the box's commands, the one thing a reader with an empty
       // notebook can be shown. The commands are the box's desk part, loaded
       // on its first focus (searchbar.js listens for focusin), and once it
@@ -390,7 +400,7 @@ export function createTour({ panel, canKeep = true, store = null }) {
   const available = () => {
     const ids = new Set(TOUR_STEPS.filter((s) => s.views.includes(view)).map((s) => s.id));
     const field = document.getElementById("site-search-input");
-    if (!visible(field)) ids.delete("search");
+    if (!visible(field) && !visible(document.querySelector("[data-line-search]"))) ids.delete("search");
     if (!document.querySelector(".chapter-paragraphs .fn-ref a")) ids.delete("pin");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) ids.delete("greek");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");

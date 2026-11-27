@@ -2349,10 +2349,10 @@ body:not(:has(.scripture-layout--scripture .scripture-main, .rm-page .rm-reader)
   display: none !important;
 }
 /* The ways into Study are links to /desk, so they need no reading column:
-   the header's Study menu (a computer with the preview on; header.css), and
-   the scripture toolbar's and /read's Study Desk pills, each shown by its own
-   rule (ScriptureLayout, ReadMenu). Only the buttons that open the panel
-   (Read View's toolbar) are held to the reading surfaces above. */
+   the header's Study menu and the place line's "Study John 3" (a computer
+   with the preview on; header.css). Only the buttons that open the panel
+   (the place line's Notebook, Read View's toolbar's) are held to the
+   reading surfaces above. */
 
 /* The narrower reading measures for the desk, on for the preview only until
    the desk is released. --ch is untouched. 52 (from 60; BVJ, 2026-10-05),

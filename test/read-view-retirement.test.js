@@ -107,20 +107,8 @@ test("nothing in the site imports the retirement rules before the launch cutover
 });
 
 // ---- the preview's swaps (html[data-desk="on"]) --------------------------------
-
-test("with the preview on, /read swaps the Read View card for the Study Desk card", () => {
-  const page = readFileSync("src/pages/read.astro", "utf8");
-  const css = readFileSync("src/styles/pages/read.css", "utf8");
-  assert.match(page, /view-card--read/);
-  assert.match(page, /view-card--desk/);
-  assert.match(page, /href="\/desk\/\?place=matthew-5"/);
-  // Both cards are in the page; the attribute decides which one shows.
-  assert.match(css, /\.view-card--desk\s*\{\s*display:\s*none/);
-  assert.match(css, /html\[data-desk="on"\] \.view-card--desk\s*\{\s*display:\s*flex/);
-  assert.match(css, /html\[data-desk="on"\] \.view-card--read\s*\{\s*display:\s*none/);
-  // "Available now" goes with the preview from the apps card to the desk card.
-  assert.match(css, /html\[data-desk="on"\] \.view-card__badge--apps\s*\{\s*display:\s*none/);
-});
+// (/read's view cards went with Featherboa's passage picker, FP-25:
+// test/featherboa-picker.test.js holds that /read draws none.)
 
 test("with the preview on, the chapter picker's footer link opens the Study Desk", () => {
   const menu = readFileSync("src/components/ReadMenu.astro", "utf8");

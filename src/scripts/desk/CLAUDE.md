@@ -76,7 +76,7 @@ means each of these, in one change:
    retire with the flip, and the `/privacy` paragraph drops the key. **The
    compromise (BVJ, 2026-11-04) is "Show the Notebook" in the Display tray**
    on pages that have the panel (`lit-desk-show` = "off"; absent = shown): off
-   closes the panel and hides its tab and the Read View Notebook button, and
+   closes the panel and hides its tab and every Notebook button, and
    writes none of the reader's panel keys, so turning it on restores the
    Notebook as they left it (`startState` returns closed first; Layout.astro's
    pre-paint script repeats that and stamps `data-desk-show="off"`; the panel
@@ -88,12 +88,9 @@ means each of these, in one change:
 3. Direct readers of the stamp: `desk-gate.js`, `desk-frame.js`
    (`DESK_ATTRS`, what `standDown` removes), `keyboard-shortcuts.js` (`h`),
    `sheet-share-gate.js` (delete its "turn the desk on" link and the computer
-   branch), `ScriptureLayout.astro`, `read/[book].astro`, `SiteHeader.astro`,
-   and `ReadMenu.astro` (and the `html:not([data-desk])` rule that hides the
-   E50 pill in `ReadLayout.astro`).
+   branch), `read/[book].astro`, `SiteHeader.astro`, and `ReadMenu.astro`.
 4. CSS written for "the preview is on": `global.css` (the hide rule, the 52/48
-   measure and widths), `glossary.css`, `read-mode.css`, and the Read View
-   card and pill swaps (`pages/read.css`, `read.astro`, `ScriptureLayout.astro`).
+   measure and widths), `glossary.css`, and `read-mode.css`.
 5. The pages' preview copy and loading/off pairs (`desk.astro`,
    `notebook.astro`, `sheets.astro`, `desk/help.astro` and their page CSS).
    The "off" note must still say something true for no-JS and phones
@@ -119,14 +116,15 @@ means each of these, in one change:
     in (redirects in `astro.config.mjs`, the `/read/[book].astro` rewrite, the
     sitemap filter, the `lit_last_read` records Read View writes). Delete
     `test/read-view-retirement.test.js`'s guard that nothing imports the
-    retirement rules, and rewrite its two "with the preview on" tests.
-12. **The header's Study place** goes live with the flip by itself: its
-    rules read `html[data-desk]` (from 1100px), which item 1 keeps; a tablet,
-    which never gets the stamp, has Read, Learn, and About.
+    retirement rules, and rewrite its "with the preview on" test.
+12. **The header's Study place**, and the place line's Notebook and "Study
+    John 3," go live with the flip by themselves: their rules read
+    `html[data-desk]` (from 1100px), which item 1 keeps; a tablet, which
+    never gets the stamp, has Read, Learn, and About.
 13. **E130's labels** (BVJ, 2026-11-12): with the preview on, "Chapter View"
     reads "Scripture page" or "Scripture pages" (`searchbar.js`, `search.js`,
-    `ReadMenu.astro`, `read/[book].astro`, `read-mode.js` and `.css`,
-    `read.astro`). Keep only that wording; comments and docs follow.
+    `ReadMenu.astro`, `read/[book].astro`, `read-mode.js` and `.css`). Keep
+    only that wording; comments and docs follow.
     Featherboa says "Read page," case by case (`SITE-FEATHERBOA.md`,
     "Study and its places").
 14. *(Done.)* The site restyle (E132) and its `data-restyle` stamp were
@@ -155,7 +153,7 @@ database). "Show the Notebook" hides and restores the first stage's tab
 itself. The shell, `desk.css` and the rest come when the Notebook starts
 expanded, a bookmark follows, the address carries `greek`, `desk-tour` or
 `print`, this page has records to draw, or the reader reaches for the
-Notebook (the tab, Read View's button, the skip link, a verse number, a
+Notebook (the tab, a Notebook button, the skip link, a verse number, a
 footnote letter or a selection), or the Footnotes list nears the window
 (its Pin buttons are the shell's, E80); `lit:panel-actions`, `lit:footnote-actions`,
 `lit:desk-command` and `lit:greek-word` arriving first are held and sent
@@ -476,23 +474,21 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      where the notebook is kept), and Help (Notebook actions, the tour, help,
      feedback), with one link style; panel.js puts each module's part under
      its heading. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
-     "Close the Notebook" command, Escape and the Read View toolbar's Notebook
-     button minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
+     "Close the Notebook" command, Escape and a Notebook button (the place
+     line's, Read View's) minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
      start; "Hide my marks" and H fold it to its tab and un-hiding opens it
      again, NB-1; BVJ, 2026-11-03.) **Where the Study Desk button is** (BVJ, 2026-10-30,
      changed 2026-11-06, E50): a link to /desk, never a toggle (the panel
      wires `button[data-desk-toggle]` only). **Every page's header has Study** (from 1100px; its Scripture
-     row is /desk; `src/components/CLAUDE.md`). **Scripture pages, chapters and book introductions, put a
-     pill in the toolbar's right slot**, the old "Switch to Read View" pill's
-     design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
-     beside the Read View wrapper, which stays hidden while the preview is on;
-     its labels are E50's). Its `?place=` is the chapter
-     being read (`romans-8`), and on an introduction its chapter 1 (no pane
-     shows an introduction, E173), written out in the layout because shared reader code never imports
-     `desk-passage.mjs`. **/read has a "Study Desk"
-     pill matching "Go to passage"** (`.read-menu__desk`), linking
-     to plain `/desk/`. Both pills are in the markup for everyone and shown
-     only under `html[data-desk]`.
+     row is /desk; `src/components/CLAUDE.md`). **A chapter's or an
+     introduction's place line has "Study John 3"** (`a[data-study-place]`,
+     `PlaceLine.astro`; ST-15). Its `?place=` is the chapter being read
+     (`romans-8`), and on an introduction its chapter 1 ("Study John"; no
+     pane shows an introduction, E173), written out in the layout
+     (`deskPlaceHref`) because shared reader code never imports
+     `desk-passage.mjs`. It is in the markup for everyone and shown, with
+     the line's Notebook, only from 1100px under `html[data-desk]`
+     (`header.css`); /read has no way into Study of its own.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
      ("Minimize the Notebook," "Show in Notebook"); lowercase "notebook" means
@@ -998,13 +994,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        keeps its panes and sizes, and only the active LIT pane and the
        shared place move (`arrivalLayout`; BVJ, 2026-11-02: a link never
        forces an arrangement). **Only the links that stood for Read View add
-       `&layout=reading`** (E114, BVJ 2026-11-12: the search's second jump,
-       the picker's footer): arriving presses the Reading row, undo bar too
+       `&layout=reading`** (E114, BVJ 2026-11-12: the search's second jump;
+       ReadMenu's Chapter View footer, which no page draws since Featherboa's
+       Phase 4): arriving presses the Reading row, undo bar too
        (`readingArrival`). desk-page.js saves either as the last layout,
-       strips both. The toolbar's "Study Desk" pill carries the chapter
+       strips both. The place line's "Study John 3" carries the chapter
        (`ScriptureLayout.astro`'s `deskPlaceHref`), as do the header's Study
        menu's Scripture row (`deskHref`) and the Notebook panel's header
-       link, which reads the pill's address (BVJ, 2026-11-10: all three
+       link, which reads `a[data-study-place]` (BVJ, 2026-11-10: all three
        alike). A new link into /desk at a passage uses `place`, never the
        stored layout.
      - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,

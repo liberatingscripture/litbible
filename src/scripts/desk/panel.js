@@ -112,12 +112,12 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const toggles = Array.from(document.querySelectorAll("button[data-desk-toggle]"));
   const inReadView = Boolean(document.querySelector("[data-rm-root]"));
 
-  // The header's Study Desk link goes where the toolbar's "Open in Study Desk"
-  // does: the page's chapter in the LIT pane (or, on an introduction, the
-  // introduction beside chapter 1). That pill's own address is the one source,
-  // so the two never disagree; a page without it (Read View, say) uses its chapter.
+  // The header's Study Desk link goes where the place line's "Study John 3"
+  // does: the page's chapter in the LIT pane (on an introduction, its
+  // chapter 1). That link's own address is the one source, so the two never
+  // disagree; a page without it (Read View, say) uses its chapter.
   const deskHref =
-    document.querySelector(".reading-view-right--desk a.reading-view-pill")?.getAttribute("href") ??
+    document.querySelector("a[data-study-place]")?.getAttribute("href") ??
     (here ? deskPlaceHref(here) : "/desk/");
 
   const panel = document.createElement("aside");

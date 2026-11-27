@@ -7,10 +7,10 @@ import { NEWS } from "../lib/news.mjs";
 // introduction (SITE-FEATHERBOA.md, "The phone"; PH-02 to PH-06, PH-26):
 // Previous, Search, Menu, and Next, each an icon with its word under it, on
 // the page's own surface under a hairline, never a shadow. Under 700px it
-// takes the place of the toolbar and of the round buttons beside the title
-// (ScriptureHeader.astro), with the header's reading row above (SiteHeader's
-// `picker`); from 700px it is not drawn, and the big Previous and Next at
-// the chapter's foot stay at every width.
+// does the place line's work (PlaceLine.astro, not drawn there; PH-10),
+// with the header's reading row above (SiteHeader's `picker`); from 700px
+// it is not drawn, and the big Previous and Next at the chapter's foot stay
+// at every width.
 //
 // Without JavaScript all four are plain links that never hide (PH-26):
 // Previous and Next to their pages, Search to /search, and Menu to the
@@ -20,7 +20,7 @@ import { NEWS } from "../lib/news.mjs";
 // opens the menu sheet (MenuSheet.astro, header-menus.js).
 //
 // Previous and Next come from the one shared rule (src/lib/chapter-nav.mjs),
-// as the title's buttons and the foot's do, and are named for where they go
+// as the place line's arrows and the foot's do, and are named for where they go
 // ("Previous: Romans 7"). Matthew's introduction has no Previous and
 // Revelation 22 no Next: that one is drawn unavailable, in its place, so the
 // other three never move.

@@ -7,7 +7,8 @@
 // unless that switch is on, and a few may move at once (MAX_FOLLOWING).
 //
 // A name is the reader's own words, set as text, never HTML. The verse is read
-// as the Go to passage field reads one (search-core.js's parseReference). The
+// as the search box and the passage picker read one (search-core.js's
+// parseReference). The
 // rules (what a name may be, how many may move, one bookmark of each kind on a
 // verse) are src/lib/desk-bookmarks.mjs and desk-bookmark-change.mjs, applied
 // in the one transaction that writes.

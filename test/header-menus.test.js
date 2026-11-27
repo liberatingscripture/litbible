@@ -35,7 +35,7 @@ const globalCss = read("src/styles/global.css");
 test("the places are places.mjs's, in its order: Read a link, the others menus with ▾", () => {
   assert.deepEqual(PLACES.map((p) => p.label), ["Read", "Study", "Learn", "About"]);
   assert.ok(header.includes("{PLACES.map((place) =>"), "the header draws every place from the one list");
-  assert.ok(header.includes('<a class="kit-tab site-nav__place" href={place.href} aria-current={placeCurrent(place)}>{place.label}</a>'), "a place with no menu is a link (HD-02)");
+  assert.ok(header.includes('<a class="kit-tab site-nav__place" href={place.href} aria-current={placeCurrent(place)} data-picker-open={place.key === "read" ? "books" : undefined}>{place.label}</a>'), "a place with no menu is a link (HD-02), and Read opens the passage picker (FP-15)");
   assert.ok(header.includes('<details class="site-nav__group" name="site-nav" data-nav-group={place.key}>'), "a menu opens without JavaScript, one at a time where the browser can");
   assert.ok(header.includes('<summary class="kit-tab site-nav__place" aria-current={placeCurrent(place)}>'));
   assert.ok(header.includes('{place.label}<Icon name="down" />'), "the menu's ▾ is the icon set's, never a typed glyph");
@@ -84,12 +84,14 @@ test("the menu sheet: a modal <dialog> titled “Menu,” the places as groups w
   assert.match(headerCss, /\.menu-sheet \{[^}]*max-width: var\(--col-text\);/, "no wider than the text column");
 });
 
-test("Study's Scripture row goes where the page's Study pill goes", () => {
+test("Study's Scripture row goes where the place line's Study link goes", () => {
   assert.equal(PLACES.find((p) => p.key === "study").rows[0].href, STUDY_HREF);
   assert.ok(header.includes('const hrefOf = (row: Row) => (row.key === "scripture" ? deskHref : row.href);'));
   assert.match(header, /deskHref = STUDY_HREF \} = Astro\.props;/);
   assert.ok(layout.includes("deskHref={deskHref}"), "Layout hands it on");
-  assert.match(read("src/layouts/ScriptureLayout.astro"), /deskHref=\{showDeskPill \? deskPlaceHref : undefined\}/, "a chapter or an introduction passes its pill's address");
+  const scripture = read("src/layouts/ScriptureLayout.astro");
+  assert.match(scripture, /deskHref=\{isScriptureLike \? deskPlaceHref : undefined\}/, "a chapter or an introduction passes its “Study John 3” address");
+  assert.match(scripture, /studyHref: deskPlaceHref/, "the same address the place line's Study link takes");
 });
 
 test("the magnifier: a strip, the page's own box, or none on the Read page and in Study's header (HD-13)", () => {
@@ -106,9 +108,9 @@ test("without JavaScript the menus are links in <details>, and below the full he
   assert.ok(read("src/components/SiteFooter.astro").includes('id="footer-nav"'));
 });
 
-test("the line under the header is on every page but Home, scripture, and Study's own, and never on paper", () => {
+test("the line under the header is on every page but Home and Study's own, a chapter's the place line, and never on paper", () => {
   assert.ok(layout.includes('import PlaceLine from "../components/PlaceLine.astro";'));
-  assert.match(layout, /\{where\.line && !deskTitle && \(/);
+  assert.match(layout, /\{readingLine && !deskTitle \? \(\s*<PlaceLine where=\{where\} reading=\{readingLine\} \/>\s*\) : where\.line && !deskTitle && \(/);
   assert.match(read("src/styles/print.css"), /\.site-header,\s*\.place-line,/);
   // The menu sheet is a modal dialog, so the rest of the page, the line
   // included, is inert while it is open (the sheet's test, above).

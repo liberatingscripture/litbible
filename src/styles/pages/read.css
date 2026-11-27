@@ -1,386 +1,46 @@
 /* =========================================================
-   Read page
+   /read (SITE-FEATHERBOA.md, "The ways in, and /read"; FP-16, BP-08): the
+   page's title and the owner's lede, then the passage picker at full size
+   (.picker--full), which picker.css draws and this places. Like the other
+   pages of short display type it is left to browser zoom rather than the
+   Display tray's text size (src/styles/CLAUDE.md, "The Display tray").
    ========================================================= */
 
-/* Sticky-footer layout: keeps the footer pinned to the bottom of the viewport
-   when page content is shorter than 100vh (previously the scripture-disclaimer
-   section filled that space; now the main element grows instead). Scoped to
-   body.bg-cream so it only fires on /read. */
-body.bg-cream {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-body.bg-cream > main {
-  flex: 1;
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
 .read-page {
-  max-width: var(--content-width, 72ch);
+  box-sizing: border-box;
+  max-width: 60rem;
   margin: 0 auto;
-  padding: clamp(72px, 10vh, 108px) 16px 56px;
+  padding: var(--space-7) var(--space-4) var(--space-8);
 }
 
 .read-hero {
+  max-width: calc(68 * var(--ch));
+  margin: 0 auto var(--space-5);
   text-align: center;
 }
 
 .read-logo {
   display: block;
-  margin: 0 auto 18px;
+  width: 100%;
   max-width: 200px;
   height: auto;
+  margin: 0 auto var(--space-4);
 }
 
 .read-title {
-  margin: 0 0 14px;
+  margin: 0 0 var(--space-3);
   font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.1;
-}
-
-.read-continue {
-  margin: 0 0 16px;
+  line-height: var(--leading-title);
 }
 
 .read-lede {
-  margin: 0 auto;
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  max-width: calc(68 * var(--ch));
+  margin: 0;
+  color: var(--color-text-2);
+  font-size: var(--size-text);
+  line-height: var(--leading-text);
 }
 
 .read-lede a {
-  color: var(--green-text, #0f6b33);
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-
-.read-lede a:hover {
-  color: var(--ink, #1d231c);
-}
-
-.read-body {
-  margin-top: 34px;
-}
-
-/* =========================================================
-   What's New disclosure
-   ========================================================= */
-
-.whats-new {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.whats-new__trigger {
-  /* The kit's plain button: its dot and chevron are all this adds. */
-  gap: 6px;
-}
-
-.whats-new__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--radius-round);
-  background: var(--green, #209d50);
-  flex-shrink: 0;
-}
-
-.whats-new__chevron {
-  display: inline-flex;
-}
-
-.whats-new__chevron .icon {
-  width: 1em;
-  height: 1em;
-}
-
-.whats-new__trigger[aria-expanded="true"] .whats-new__chevron {
-  transform: rotate(180deg);
-}
-
-.whats-new__panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) translateY(-4px);
-  width: min(400px, 90vw);
-  z-index: 40;
-
-  background: var(--color-float);
-  border: 1px solid var(--color-float-edge);
-  border-radius: var(--radius-float);
-  box-shadow: var(--shadow-float);
-  padding: 20px;
-
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-  max-height: 0;
-  overflow: hidden;
-  transition: opacity var(--dur-quick-out) var(--ease), transform var(--dur-quick-out) var(--ease), visibility 0s linear var(--dur-quick-out), max-height 0s linear var(--dur-quick-out);
-}
-
-.whats-new__panel.is-open {
-  opacity: 1;
-  pointer-events: auto;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  max-height: 80vh;
-  overflow-y: auto;
-  transition: opacity var(--dur-quick) var(--ease), transform var(--dur-quick) var(--ease);
-}
-
-.whats-new__entry {
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.08);
-}
-
-.whats-new__entry:last-of-type {
-  padding-bottom: 0;
-  margin-bottom: 16px;
-  border-bottom: none;
-}
-
-.whats-new__date {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-  margin-bottom: 8px;
-  text-decoration: none;
-}
-
-.whats-new__date:hover {
-  color: var(--link);
-  text-decoration: underline;
-}
-
-.whats-new__changes {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.whats-new__change {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 0.875rem;
-  line-height: 1.45;
-  text-align: left;
-}
-
-.whats-new__badge {
-  flex-shrink: 0;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: var(--radius-press);
-  background: rgba(var(--ink-rgb), 0.08);
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-}
-
-.whats-new__change[data-type="chapter_added"] .whats-new__badge,
-.whats-new__change[data-type="article_added"] .whats-new__badge,
-.whats-new__change[data-type="glossary_added"] .whats-new__badge {
-  background: color-mix(in srgb, var(--link) 12%, transparent);
-  color: var(--link);
-}
-
-.whats-new__change-text {
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-}
-
-.whats-new__all {
-  display: block;
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--green-text, #0f6b33);
-  text-decoration: none;
-}
-
-.whats-new__all:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* =========================================================
-   Views explanation
-   ========================================================= */
-
-.views-band {
-  margin-top: 56px;
-  text-align: center;
-  max-width: var(--content-width, 72ch);
-  margin-inline: auto;
-  padding: 0 16px;
-}
-
-.views-heading {
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
-  margin: 0 0 10px;
-  line-height: 1.2;
-}
-
-.views-lede {
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  margin: 0 auto 28px;
-  max-width: calc(56 * var(--ch));
-}
-
-.views-grid {
-  display: grid;
-  /* Auto-fit within the shared 72ch content width: 3-up on desktop, then
-     reflows to 2-up / 1-up on its own as the width shrinks. */
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  text-align: left;
-}
-
-.view-card {
-  background: var(--surface-raised);
-  border-radius: var(--radius-float);
-  padding: 24px;
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
-  display: flex;
-  flex-direction: column;
-}
-
-/* Badge on the apps card */
-.view-card__badge {
-  align-self: flex-start;
-  display: inline-block;
-  margin: 0 0 10px;
-  padding: 2px 9px;
-  border-radius: var(--radius-press);
-  background: rgba(var(--ink-rgb), 0.06);
-  color: var(--green-text, #0f6b33);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.view-card__title {
-  font-size: 1.15rem;
-  margin: 0 0 8px;
-  line-height: 1.3;
-}
-
-.view-card__desc {
-  font-size: 0.97rem;
-  line-height: 1.65;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  margin: 0 0 14px;
-}
-
-.view-card__link {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--green-text, #0f6b33);
-  text-decoration: none;
-  margin-top: auto;
-}
-
-.view-card__link:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* The Study Desk preview (html[data-desk="on"]) swaps the Read View card for
-   the Study Desk card in the same grid slot (E8, 8b). Both are in the page, so
-   nothing shifts when the attribute is stamped before first paint. */
-.view-card--desk {
-  display: none;
-}
-
-html[data-desk="on"] .view-card--desk {
-  display: flex;
-}
-
-html[data-desk="on"] .view-card--read {
-  display: none;
-}
-
-/* The chapter card's heading and link, likewise: "Chapter View" without the
-   preview, the wording it keeps after launch with it (E33). */
-.view-card__copy--desk,
-html[data-desk="on"] .view-card__copy--public {
-  display: none;
-}
-
-html[data-desk="on"] .view-card__copy--desk {
-  display: inline;
-}
-
-/* The "Available now" badge moves from the apps card to the Study Desk card with
-   the preview on (BVJ, 2026-11-02). */
-html[data-desk="on"] .view-card__badge--apps {
-  display: none;
-}
-
-/* =========================================================
-   Scripture Disclaimer (full-bleed, flush to footer)
-   ========================================================= */
-
-.scripture-disclaimer {
-  background: var(--surface-raised);
-
-  /* full-bleed breakout (escapes max-width parents) */
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-
-  padding: 30px 0 56px;
-
-  /* prevents margin-collapsing oddities */
-  display: flow-root;
-
-  position: relative;
-  z-index: 1;
-
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.18);
-
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.scripture-disclaimer__inner {
-  margin: 0 auto;
-  width: min(1100px, calc(100% - 32px));
-  max-width: none;
-
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-}
-
-.scripture-disclaimer__inner p {
-  margin: 0 0 14px;
-}
-
-.scripture-disclaimer__inner p:first-child {
-  margin-top: 0;
-}
-
-.scripture-disclaimer__inner a {
-  overflow-wrap: anywhere;
-  word-break: break-word;
 }

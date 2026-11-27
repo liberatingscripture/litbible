@@ -1,23 +1,23 @@
 ---
 // src/pages/read.astro
-import ReadLayout from "../layouts/ReadLayout.astro";
-import Icon from "../components/Icon.astro";
+//
+// /read (SITE-FEATHERBOA.md, "The ways in, and /read"; FP-16, FP-25, BP-08):
+// the page's title and the owner's lede, then the passage picker at full
+// size, which is all the page is for. It is where the header's Read leads
+// without JavaScript, and where a picker's book links go then
+// (/read/#picker-john). Continue reading is the picker's first row; what else
+// /read held went where its subject lives ("Latest text changes" with Release
+// Notes and on Home, "Ways to read" to the front page, Read View's card with
+// Read View).
+import Layout from "../layouts/Layout.astro";
+import PassagePicker from "../components/PassagePicker.astro";
 import "../styles/pages/read.css";
-import releaseNotes from "../data/release-notes.json";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
-import ContinueReading from "../components/ContinueReading.astro";
-import { releaseNoteLinker } from "../lib/release-note-linker";
-import { entryIds } from "../lib/release-notes-view.mjs";
 
 const title = "Read | Liberation and Inclusion Translation";
 const description =
   "Read the Liberation and Inclusion Translation (LIT) online.";
-
-const recentNotes = releaseNotes.slice(0, 3);
-// Each date links to its entry on /release-notes.
-const recentIds = entryIds(releaseNotes).slice(0, 3);
-const linkDescription = await releaseNoteLinker();
 
 // The lede names what isn't finished yet. It comes from the chapters' own
 // indexed:false flags, so it stays true as drafts land: the hand-written
@@ -28,27 +28,13 @@ const unfinished = unfinishedTexts(scanDraftChapters()).map(
 );
 const unfinishedList = joinList(unfinished);
 const exceptHtml = unfinished.length ? ` (all except ${unfinishedList})` : "";
-
-const TYPE_LABEL: Record<string, string> = {
-  chapter_added: "Added",
-  text_updated: "Updated",
-  footnote_added: "Updated",
-  footnote_updated: "Updated",
-  intro_updated: "Updated",
-  metadata_updated: "Updated",
-  glossary_added: "Added",
-  glossary_updated: "Updated",
-  article_added: "Added",
-  article_updated: "Updated",
-};
 ---
 
-<ReadLayout
+<Layout
   title={title}
   description={description}
-  bg="cream"
-  showTools={true}
   pagefindIndex={false}
+  pickerInPage
 >
   {/* The license moved to /license; the old addresses forward there, as early as a script can run so /read doesn't flash first. Inline on purpose (the enforced policy has no script-src; the report-only one allows inline). */}
   <script
@@ -57,183 +43,32 @@ const TYPE_LABEL: Record<string, string> = {
     set:html={`try{var h=location.hash;if(h==="#license"||h==="#license-terms"||h==="#sblgnt-disclaimer")location.replace("/license/"+h)}catch(_){}`}
   />
   <link slot="head" rel="preload" as="image" type="image/svg+xml" href="/images/lit-logo-2026-ring.svg" fetchpriority="high" />
-  <div slot="hero" class="read-hero">
-    <img
-      class="read-logo"
-      src="/images/lit-logo-2026-ring.svg"
-      alt="Liberation and Inclusion Translation logo"
-      width="220"
-      height="220"
-      loading="eager"
-      decoding="async"
-      fetchpriority="high"
-    />
 
-    <h1 class="read-title">Read the LIT Online</h1>
+  <div class="read-page">
+    <header class="read-hero">
+      <img
+        class="read-logo"
+        src="/images/lit-logo-2026-ring.svg"
+        alt="Liberation and Inclusion Translation logo"
+        width="220"
+        height="220"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
 
-    <ContinueReading class="read-continue" />
+      <h1 class="read-title">Read the LIT Online</h1>
 
-    <p class="read-lede">
-      I’ve got solid drafts of {unfinished.length ? "most of " : ""}the New
-      Testament<Fragment set:html={exceptHtml} /> ready for you to study,
-      scrutinize, celebrate, and use in your faith circles. This is a living
-      project, so check back over time for the latest version. Questions,
-      comments, or insights?
-      <a href="/contact" style="white-space:nowrap">Drop me a line</a>.
-    </p>
+      <p class="read-lede">
+        I’ve got solid drafts of {unfinished.length ? "most of " : ""}the New
+        Testament<Fragment set:html={exceptHtml} /> ready for you to study,
+        scrutinize, celebrate, and use in your faith circles. This is a living
+        project, so check back over time for the latest version. Questions,
+        comments, or insights?
+        <a href="/contact" style="white-space:nowrap">Drop me a line</a>.
+      </p>
+    </header>
 
-    {
-      recentNotes.length > 0 && (
-        <div class="whats-new">
-          <button
-            class="whats-new__trigger"
-            type="button"
-            aria-expanded="false"
-            aria-controls="whatsNewPanel"
-          >
-            <span class="whats-new__dot" aria-hidden="true" />
-            <span>What’s new</span>
-            <span class="whats-new__chevron" aria-hidden="true"><Icon name="down" /></span>
-          </button>
-
-          <div class="whats-new__panel" id="whatsNewPanel">
-            {recentNotes.map((entry, i) => (
-              <div class="whats-new__entry">
-                <a class="whats-new__date" href={`/release-notes/#${recentIds[i]}`}>
-                  <time datetime={entry.date}>{entry.label}</time>
-                </a>
-                <ul class="whats-new__changes">
-                  {entry.changes.map((change) => (
-                    <li class="whats-new__change" data-type={change.type}>
-                      <span class="whats-new__badge">
-                        {TYPE_LABEL[change.type] ?? "Updated"}
-                      </span>
-                      <span
-                        class="whats-new__change-text"
-                        set:html={linkDescription(change.description)}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <a href="/release-notes/" class="whats-new__all">
-              See all release notes →
-            </a>
-          </div>
-        </div>
-      )
-    }
+    <PassagePicker full />
   </div>
-
-  <section slot="bands" class="views-band" aria-labelledby="views-heading">
-    <h2 id="views-heading" class="views-heading">Ways to read the LIT</h2>
-    <p class="views-lede">
-      Read the LIT however suits you: two ways on the web, plus free apps for
-      iPhone and Android.
-    </p>
-
-    {/* With the Study Desk preview on (html[data-desk="on"]), the Study Desk card
-        takes the Read View card's slot; read.css swaps them, so nothing shifts (E8, 8b). */}
-    <div class="views-grid">
-      {/* With the preview on, this card's heading and link take the wording they
-          keep after launch (E33, BVJ 2026-11-11); read.css swaps the spans. */}
-      <div class="view-card">
-        <h3 class="view-card__title">
-          <span class="view-card__copy--public">Chapter View</span><span
-            class="view-card__copy--desk">Scripture pages</span>
-        </h3>
-        <p class="view-card__desc">
-          One chapter at a time, with its footnotes, key terms, and linked
-          references. Nothing to set up, and it works on any device.
-        </p>
-        <a href="/matthew-5" class="view-card__link"
-          ><span class="view-card__copy--public">Try Chapter View</span><span
-            class="view-card__copy--desk">View Scripture page</span
-          > &rarr;</a
-        >
-      </div>
-
-      <div class="view-card view-card--read">
-        <h3 class="view-card__title">Read View</h3>
-        <p class="view-card__desc">
-          A whole book on one page, read straight through, with no notes and no
-          page turns between chapters.
-        </p>
-        <a href="/read/matthew#ch-5" class="view-card__link"
-          >Try Read View &rarr;</a
-        >
-      </div>
-
-      <div class="view-card view-card--desk">
-        <h3 class="view-card__title">Study Desk</h3>
-        <span class="view-card__badge">Available now</span>
-        <p class="view-card__desc">
-          The whole New Testament in one scroll, with your notes and the Greek
-          alongside when you want them.
-        </p>
-        <a href="/desk/?place=matthew-5" class="view-card__link"
-          >Try the Study Desk &rarr;</a
-        >
-      </div>
-
-      <div class="view-card view-card--available">
-        <h3 class="view-card__title">LIT Bible apps</h3>
-        <span class="view-card__badge view-card__badge--apps">Available now</span>
-        <p class="view-card__desc">
-          iPhone and Android apps with the whole translation offline, plus notes,
-          highlights, and daily and Lectionary readings.
-        </p>
-        <a href="/apps" class="view-card__link">Explore the apps &rarr;</a>
-      </div>
-    </div>
-  </section>
-</ReadLayout>
-
-<script>
-  // @ts-nocheck
-  (() => {
-    const trigger = document.querySelector(".whats-new__trigger");
-    const panel = document.getElementById("whatsNewPanel");
-    if (!trigger || !panel) return;
-
-    const open = () => {
-      panel.classList.add("is-open");
-      trigger.setAttribute("aria-expanded", "true");
-    };
-
-    const close = () => {
-      panel.classList.remove("is-open");
-      trigger.setAttribute("aria-expanded", "false");
-    };
-
-    const isOpen = () => panel.classList.contains("is-open");
-
-    trigger.addEventListener("click", () => {
-      // Yield to the browser so the button's :active/:focus styles paint
-      // before the panel's visibility/transform transition starts (improves INP).
-      requestAnimationFrame(() => (isOpen() ? close() : open()));
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && isOpen()) {
-        close();
-        trigger.focus({ preventScroll: true });
-      }
-    });
-
-    document.addEventListener("click", (e) => {
-      if (
-        isOpen() &&
-        !trigger.contains(e.target) &&
-        !panel.contains(e.target)
-      ) {
-        close();
-      }
-    });
-  })();
-</script>
-
-<script>
-  import "../scripts/ref-preview.js";
-</script>
+</Layout>

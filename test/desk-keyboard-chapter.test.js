@@ -52,9 +52,9 @@ test("without the desk, nothing is asked", () => {
   assert.deepEqual(heard, []);
 });
 
-test("Chapter View's own Previous/Next win, and the desk isn't asked", () => {
+test("a chapter's own ‹ › on the place line win, and the desk isn't asked", () => {
   root.setAttribute("data-desk", "on");
-  document.body.innerHTML = `<nav class="chapter-nav"><a rel="next" href="#next">Next</a></nav>`;
+  document.body.innerHTML = `<div class="place-line" data-place-line><nav class="place-line__turn"><a class="kit-icon" rel="next" href="#next">Next</a></nav></div>`;
   let clicked = 0;
   document.querySelector("a").addEventListener("click", (e) => { e.preventDefault(); clicked++; });
   assert.equal(press("ArrowRight"), true);

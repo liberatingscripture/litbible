@@ -1,11 +1,12 @@
 // src/scripts/keyboard-shortcuts.js
 //
 // Keyboard shortcuts for reading (audit U4), on every page:
-//   /          search (the page's own box, or the header's search strip; on
-//              /desk, a Search pane)
-//   g          Go to passage, where the page has the picker
-//   ← → [ ]    previous and next chapter: Chapter View's Previous/Next links,
-//              the neighbouring chapter in Read View, or on /desk the pane
+//   /          search (the place line's Search on a chapter or an
+//              introduction, the phone bar's there on a phone, the page's
+//              own box, or the header's search strip; on /desk, a Search pane)
+//   g          the passage picker (passage-picker.js; Read View's own there)
+//   ← → [ ]    previous and next chapter: the place line's ‹ ›, the
+//              neighbouring chapter in Read View, or on /desk the pane
 //              being read (the leading LIT pane)
 //   h          hide or show my marks, where the Study Desk is on (M1)
 //
@@ -43,6 +44,8 @@ const KEYS_OWNED_BY = [
   "[role='tablist']",
   "[role='slider']",
   "dialog",
+  // The passage picker on /read, whose books and chapters take the arrows.
+  "[data-picker]",
   // The Study Desk's docked panel owns its keys: lists, tabs and, later,
   // its own search.
   "[data-desk-dock]",
@@ -77,6 +80,14 @@ function openSearch() {
     barSearch.click();
     return true;
   }
+  // From 700px the place line's Search opens the same field in place of the
+  // line (place-line.js; a link to /search until that script runs). Once
+  // open, the field below takes the key.
+  const lineSearch = document.querySelector("[data-line-search]");
+  if (visible(lineSearch) && lineSearch.getAttribute("aria-expanded") === "false") {
+    lineSearch.click();
+    return true;
+  }
   const input = document.getElementById("site-search-input");
   if (visible(input)) {
     input.focus();
@@ -87,18 +98,25 @@ function openSearch() {
 }
 
 function openPicker() {
-  // ReadMenu swaps its fallback link for a button of the same class, and the
-  // phone's top bar's chapter name (data-rm-also) for another; until then
-  // each is still the no-JS link, which would navigate away.
-  const trigger = Array.from(document.querySelectorAll("button.read-menu__trigger, button[data-rm-also]")).find(visible);
-  if (!trigger) return false;
-  trigger.click();
-  return true;
+  // Read View keeps its own picker until it retires (ReadMenu swaps its
+  // fallback link for a button of the same class).
+  const trigger = Array.from(document.querySelectorAll("button.read-menu__trigger")).find(visible);
+  if (trigger) {
+    trigger.click();
+    return true;
+  }
+  // Everywhere else the passage picker answers (passage-picker.js): the panel
+  // or the phone's sheet opens at the books, or /read's field takes focus.
+  // Nothing answers before its script runs, or on /desk.
+  const ev = new CustomEvent("lit:picker-open", { cancelable: true });
+  document.dispatchEvent(ev);
+  return ev.defaultPrevented;
 }
 
 function goToChapter(step) {
-  // Chapter View (and intros and drafts): the top Previous/Next links.
-  const link = document.querySelector(`.chapter-nav a[rel="${step < 0 ? "prev" : "next"}"]`);
+  // A chapter, an introduction, or a draft: the place line's ‹ › (in the
+  // page at every width; under 700px the phone's bar shows the same two).
+  const link = document.querySelector(`.place-line a[rel="${step < 0 ? "prev" : "next"}"]`);
   if (link) {
     link.click();
     return true;

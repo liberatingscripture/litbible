@@ -1,9 +1,11 @@
 ---
-// SearchLayout.astro
+// SearchLayout.astro: /search, its heading and field in the tools row
+// (scripture-tools.css). Its "Go to passage" button went with Featherboa's
+// passage picker (FP-01): the field still jumps to a typed reference, and
+// G and the header's Read open the picker; Phase 6 redraws the page.
 import "../styles/scripture-tools.css";
 
 import Layout from "./Layout.astro";
-import ReadMenu from "../components/ReadMenu.astro";
 import SearchBar from "../components/SearchBar.astro";
 
 const {
@@ -14,7 +16,7 @@ const {
 
   /**
    * Pagefind + scripture metadata
-   * book: MUST match your ReadMenu slug keys (e.g., "luke", "1peter", "hebrews")
+   * book: a book key (src/data/books.js: "luke", "1peter", "hebrews")
    * chapter: "intro" or a chapter number (e.g., "1")
    * type: "scripture" | "intro" | "search" | ...
    */
@@ -31,7 +33,6 @@ const {
   /**
    * Layout toggles
    */
-  showToolsReadMenu = true,
   showToolsSearch = true,
 
   /**
@@ -80,7 +81,7 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 
   <div class={`scripture-layout scripture-layout--${pagefindType}`}>
     {
-      (showToolsReadMenu || showToolsSearch) && (
+      showToolsSearch && (
         <section
           class="scripture-tools"
           data-pagefind-ignore
@@ -88,16 +89,14 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         >
           <div class="scripture-tools__inner">
             {/* Content above the search bar (the search page's heading), in a
-                grid row of its own so the picker can share the field's row. */}
+                grid row of its own over the field. */}
             {Astro.slots.has("preSearch") && (
               <div class="scripture-tools__heading">
                 <slot name="preSearch" />
               </div>
             )}
 
-            <div class="scripture-tools__left" aria-label="Jump to passage">
-              {showToolsReadMenu ? <ReadMenu /> : null}
-            </div>
+            <div class="scripture-tools__left" />
 
             <div class="scripture-tools__center" aria-label="Search the LIT">
               {showToolsSearch ? (
@@ -221,13 +220,9 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         white-space: nowrap;
       }
 
-      /* The heading sits over the search field in a row of its own, and the
-         passage picker shares the next row with the field, its label on the
-         same baseline as the field's text (BVJ, 2026-11-06). Centered on the
-         whole middle column (heading, field and filters), the picker landed
-         wherever the heading's wrapping and the filters' height put that
-         column's middle, a different place at each width. A phone stacks
-         them: heading, picker, field. */
+      /* The heading sits over the search field in a row of its own, in the
+         field's column (BVJ, 2026-11-06). A phone stacks them: heading,
+         then field. */
       :global(.scripture-tools__heading) {
         grid-column: 2;
         grid-row: 1;
@@ -242,13 +237,6 @@ const baseUrl = import.meta.env.BASE_URL || "/";
         :global(.scripture-tools__center),
         :global(.scripture-tools__right) {
           grid-row: 2;
-        }
-
-        /* A flex box takes its baseline from its first item, which in the
-           picker is the book icon; this hands it the label's. The label is
-           the tallest item, so it doesn't move. */
-        :global(.scripture-tools__left .read-menu__label) {
-          align-self: baseline;
         }
       }
 

@@ -9,9 +9,13 @@ import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import Icon from "./Icon.astro";
 
 /**
- * mode="study" (default): the standalone "Go to passage" pill. Chapter picks
- *   navigate to Chapter View pages (/john-3); the footer offers Read View
- *   (with the Study Desk preview on, the desk's Reading layout; E114).
+ * Read View's passage picker, until Read View retires (Featherboa's passage
+ * picker, PassagePicker.astro, serves every other page).
+ *
+ * mode="study" (default): the standalone "Go to passage" pill, which nothing
+ *   draws since the place line took its place. Chapter picks navigate to
+ *   Chapter View pages (/john-3); the footer offers Read View (with the
+ *   Study Desk preview on, the desk's Reading layout; E114).
  * mode="read": the compact trigger embedded in the Read View toolbar.
  *   Chapter picks stay in Read View (/read/<book>#ch-N — same-book picks
  *   are intercepted by read-mode.js for an in-page smooth scroll); the footer
@@ -192,30 +196,10 @@ const fallbackHref =
       trigger.setAttribute("popovertarget", panel.id);
       trigger.setAttribute("popovertargetaction", "toggle");
 
-      // A second way in (SITE-FEATHERBOA.md, "The phone"; PH-01): on a
-      // chapter or an introduction the header's top bar names the chapter as
-      // a link to /read marked data-rm-also, made here into another invoker
-      // of this same panel, until Phase 4 draws the picker as a sheet. The
-      // panel hangs from whichever invoker opened it, and its close returns
-      // focus there. Read View's toolbar picker takes none.
+      // The panel hangs from its trigger, and its close returns focus there.
+      // (The phone's top row opens Featherboa's passage picker instead.)
       const invokers = [trigger];
-      if (!isRead) {
-        for (const also of document.querySelectorAll("a[data-rm-also]")) {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = also.className;
-          b.innerHTML = also.innerHTML;
-          b.setAttribute("data-rm-also", "");
-          b.setAttribute("aria-haspopup", "dialog");
-          b.setAttribute("aria-expanded", "false");
-          b.setAttribute("popovertarget", panel.id);
-          b.setAttribute("popovertargetaction", "toggle");
-          also.replaceWith(b);
-          invokers.push(b);
-        }
-      }
-      let opener = trigger;
-      for (const b of invokers) b.addEventListener("click", () => (opener = b));
+      const opener = trigger;
 
       function positionPanel() {
         const r = opener.getBoundingClientRect();
@@ -460,9 +444,6 @@ const fallbackHref =
     })();
   </script>
 
-  {/* After the script, which finds the nav in this wrap as it runs. The /read
-      landing puts its Study Desk pill here (E50); everywhere else is empty. */}
-  <slot />
 
   <style is:global>
     .read-menu-wrap {
@@ -490,75 +471,29 @@ const fallbackHref =
        flips to dark ink. The panel is appended to <body> (not the nav), so
        it must be named alongside .read-menu to receive these. */
     .read-menu,
-    .read-menu__panel,
-    .read-menu__desk {
+    .read-menu__panel {
       --rm-draft-dot: #8a5a00;
     }
 
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) .read-menu,
-      :root:not([data-theme="light"]) .read-menu__panel,
-      :root:not([data-theme="light"]) .read-menu__desk {
+      :root:not([data-theme="light"]) .read-menu__panel {
         --rm-draft-dot: #d9a462;
       }
     }
 
     :root[data-theme="dark"] .read-menu,
-    :root[data-theme="dark"] .read-menu__panel,
-    :root[data-theme="dark"] .read-menu__desk {
+    :root[data-theme="dark"] .read-menu__panel {
       --rm-draft-dot: #d9a462;
     }
 
-    /* The picker's trigger and the Study Desk pill are the kit's plain
-       buttons; what is set here is their floor and their place. */
+    /* The picker's trigger is the kit's plain button; what is set here is
+       its floor and its place (the standalone pill's; Read View's compact
+       trigger drops the floor below). */
     .read-menu__trigger {
       gap: 8px;
-      /* Pinned to the same floor as the Read View pill so the toolbar's two
-         ends are the same size; long labels ("2 Thessalonians 3") still grow
-         past it. Keep this in sync with .reading-view-pill in
-         ScriptureLayout. */
       min-width: 245px;
       text-decoration: none;
-    }
-
-    /* The /read landing's Study Desk pill (E50, BVJ 2026-11-06): the trigger's
-       design, beside it in the wrap, shown only with the desk preview on. */
-    .read-menu__desk {
-      gap: 8px;
-      /* The same floor as .read-menu__trigger, so the two pills match. */
-      min-width: 245px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    html:not([data-desk]) .read-menu__desk {
-      display: none;
-    }
-
-    /* On /read the picker and the Study Desk pill are one pair (BVJ,
-       2026-11-13): the same height, and the same width whatever their labels,
-       side by side or stacked in a narrow window. The picker is a <button>
-       once its script runs, and a button doesn't inherit the page's line
-       height, so the pill takes the button's (it stood 6px taller). Equal
-       grid columns give the width; the picker fills its column. */
-    .read-menu__desk {
-      line-height: normal;
-    }
-
-    html[data-desk] .read-menu-wrap:has(> .read-menu__desk) {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: 1fr;
-    }
-
-    html[data-desk] .read-menu-wrap:has(> .read-menu__desk) .read-menu__trigger {
-      width: 100%;
-    }
-
-    @media (max-width: 560px) {
-      html[data-desk] .read-menu-wrap:has(> .read-menu__desk) {
-        grid-auto-flow: row;
-      }
     }
 
     /* Compact variant (read-mode toolbar): no pill floor — the trigger sits

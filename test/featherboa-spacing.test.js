@@ -18,6 +18,9 @@ const NEW = [
   "src/styles/pages/license.css",
   "src/styles/pages/colophon.css",
   "src/styles/pages/whats-new.css",
+  // The passage picker and /read, its page at full size (Phase 4).
+  "src/styles/picker.css",
+  "src/styles/pages/read.css",
   // The pages no decision draws (BP-07): on the scale since Phase 7. The
   // podcast page's stays out, for its photo and cover's overlap (queue Q23).
   "src/styles/pages/about.css",

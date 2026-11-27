@@ -12,9 +12,11 @@ import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
 // src/lib/places.mjs, which the line under the header (PlaceLine.astro) and
 // the footer read too.
 //
-// - Read is a link to /read. Learn, Study, and About are <details> menus, so
-//   they open without JavaScript; header-menus.js adds the keys, one open at
-//   a time, and closing on a press elsewhere.
+// - Read opens the passage picker's panel (passage-picker.js; FP-15), and
+//   is a link to /read, the picker at full size, without JavaScript. Learn,
+//   Study, and About are <details> menus, so they open without JavaScript;
+//   header-menus.js adds the keys, one open at a time, and closing on a
+//   press elsewhere.
 // - Study shows only on a computer with the Study preview on (html[data-desk],
 //   stamped before paint, at 1100px and up; header.css), so nothing moves.
 // - The full header holds from 700px (900px in OpenDyslexic). Below that
@@ -33,22 +35,24 @@ import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
 //
 // search: "strip" (the magnifier opens a search strip under the header),
 // "page" (the page has its own search box, which the magnifier takes the
-// reader to), or "none" (the Read page, whose search is its own row, and
-// Study's own header). Without JavaScript the magnifier is a link to /search.
+// reader to), or "none" (the Read page, whose search is its place line's or
+// its toolbar's, and Study's own header). Without JavaScript the magnifier
+// is a link to /search.
 // deskTitle: Study's own header (/desk, BVJ 2026-10-21), at every width: the
 // emblem and "LIT Bible" as the home link, the page's title centered, and
 // then the menu button. desk-page.js turns the title into a menu and moves
 // Aa into it (E15), so Aa is in the markup but leaves the bar once Study is
 // up. No places and no search.
 // deskHref: where Study's "Scripture" goes. A chapter or an introduction
-// passes its toolbar pill's address (?place=), so the two never disagree.
+// passes its place line's "Study John 3" address (?place=), so the two
+// never disagree.
 // scriptureControls: "study" on a chapter page (verse numbers and footnote
 // letters), "read" in Read View (numbers only: it prints no footnote
 // letters, and its numbers setting hides the chapter headings too).
 // picker: the chapter's name on a chapter or an introduction ("John 3,"
 // "John · Intro"), which makes the row the phone's top bar under 700px.
-// Without JavaScript it is a link to /read; ReadMenu's script makes it a
-// second way to open the page's passage picker until Phase 4 redraws it.
+// It opens the passage picker's sheet at the chapter's grid
+// (passage-picker.js), and is a link to /read without JavaScript.
 const { class: className = "", scriptureControls, search = "strip", deskTitle, picker, deskHref = STUDY_HREF } = Astro.props;
 
 type Place = (typeof PLACES)[number];
@@ -104,8 +108,8 @@ const SIZE_OPTIONS = [
         when the bar's Search opens it there (PH-09; phone-bars.js moves the
         page's SearchBar in and out). Both only on a phone's reading page. */}
     {picker && (
-      <a class="kit-btn kit-btn--plain site-header__picker" href="/read" data-rm-also>
-        <span class="sr-only">Go to passage. Current:&nbsp;</span>
+      <a class="kit-btn kit-btn--plain site-header__picker" href="/read/" data-picker-open="chapters">
+        <span class="sr-only">Choose passage. Current:&nbsp;</span>
         <span class="site-header__picker-label">{picker}</span>
         <Icon name="down" />
       </a>
@@ -126,7 +130,7 @@ const SIZE_OPTIONS = [
           {PLACES.map((place) =>
             !place.menu ? (
               <li class={`site-nav__item site-nav__item--${place.key}`}>
-                <a class="kit-tab site-nav__place" href={place.href} aria-current={placeCurrent(place)}>{place.label}</a>
+                <a class="kit-tab site-nav__place" href={place.href} aria-current={placeCurrent(place)} data-picker-open={place.key === "read" ? "books" : undefined}>{place.label}</a>
               </li>
             ) : (
               <li class={`site-nav__item site-nav__item--${place.key}`}>
@@ -403,7 +407,7 @@ const SIZE_OPTIONS = [
       </div>
       <ul class="font-tray__keys" id="fontTrayKeys">
         <li><kbd>/</kbd> Search</li>
-        <li><kbd>g</kbd> Go to passage</li>
+        <li><kbd>g</kbd> Choose passage</li>
         <li><kbd>←</kbd> <kbd>→</kbd> Previous or next chapter</li>
       </ul>
     </fieldset>

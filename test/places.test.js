@@ -85,7 +85,7 @@ test("the Read page: a chapter, an introduction, or Read View, and nothing that 
     const where = placeOf(path);
     assert.equal(where.place, "read", path);
     assert.equal(where.readPage, true, path);
-    assert.equal(where.line, false, `${path}: its place line is Phase 4's`);
+    assert.equal(where.line, false, `${path}: no line naming the page (a chapter's place line comes from its passage, ScriptureLayout's readingLine)`);
   }
 });
 

@@ -6,11 +6,12 @@
 
 ## The header, the line under it, and the footer
 
-Featherboa's Phase 3 (`SITE-FEATHERBOA.md`, "Four places: the header,"
-"The phone and the footer," "The phone," and "The menu"). Narrower than
-the full header the row is the brand, the magnifier, Aa, and "Menu," which
-opens the menu sheet; a chapter or an introduction on a phone has the
-phone's two bars instead (`src/layouts/CLAUDE.md`).
+Featherboa's Phases 3 and 4 (`SITE-FEATHERBOA.md`, "Four places: the
+header," "The phone and the footer," "The phone," "The menu," and "Finding
+a passage"). Narrower than the full header the row is the brand, the
+magnifier, Aa, and "Menu," which opens the menu sheet; a chapter or an
+introduction on a phone has the phone's two bars instead
+(`src/layouts/CLAUDE.md`).
 
 - **One list of places, `src/lib/places.mjs`** (pure; `test/places.test.js`):
   Read, Study, Learn, and About with their rows, and `placeOf(path)`, which
@@ -21,8 +22,9 @@ phone's two bars instead (`src/layouts/CLAUDE.md`).
   place's menu, a page inside a row (`INSIDE`, as an article is inside
   Articles), or a page in no place (`NO_PLACE`, with its name).
   `test/places.test.js` fails on a page under `src/pages/` with none. Read
-  is a link to /read, not a menu (HD-02), until Phase 4's book picker; Study's
-  "Help for study tools" sits below a line until Phase 9 moves help.
+  is not a menu (HD-02): it opens the passage picker (below), and is a link
+  to /read without JavaScript; Study's "Help for study tools" sits below a
+  line until Phase 9 moves help.
 - **The header** (`SiteHeader.astro`, `header.css`): "LIT Bible" always
   (HD-10; a visually hidden tail names the translation in full, and every
   `<title>` keeps the full name, HD-11). The places are the kit's tabs; the
@@ -47,9 +49,8 @@ phone's two bars instead (`src/layouts/CLAUDE.md`).
   "Home"), the chapter's name centered as the picker, and Aa, sticky at the
   window's top below the app banner (`AppInstallBanner.astro`, which scrolls
   away), with `PhoneBar.astro` at the thumb (Previous, Search, Menu, Next).
-  Without JavaScript the picker is a link to /read; with it, ReadMenu turns
-  the link (`data-rm-also`) into a second button for the toolbar's own
-  picker panel, which hangs from whichever button opened it. The row's
+  Without JavaScript the picker is a link to /read; with it, it opens the
+  passage picker's sheet at the chapter (PH-10, below). The row's
   `site-header__find` is where the bar's Search puts the page's search
   field (`phone-bars.js`). The header's own "Menu" isn't drawn there: the
   bar's is.
@@ -67,22 +68,24 @@ phone's two bars instead (`src/layouts/CLAUDE.md`).
   (under 360px, 380px in OpenDyslexic, on a page whose magnifier opens the
   strip), Account (under
   700px with accounts open; not in Study's header, which has the entry), and
-  "Get the app" (NX-11). Continue reading isn't there: it waits for Phase
-  4's picker (PH-14). Without a modal dialog or JavaScript it never opens,
+  "Get the app" (NX-11). Continue reading isn't there: it is the passage
+  picker's first row (PH-14). Without a modal dialog or JavaScript it never opens,
   and the bar's Menu stays a link to the footer's links.
 - **The magnifier has three modes**, which `Layout.astro` picks (HD-13):
   `"strip"` opens the search strip under the header (`header-search.js`);
   `"page"`, on a page passing `pageSearch`, takes the reader to the page's
   own box, since `SearchBar` renders once a page; `"none"` on the Read page
-  (a chapter, an introduction, Read View), whose search is its toolbar's, and
-  in Study's own header. Without JavaScript it is a link to /search.
+  (a chapter or an introduction, whose search is the place line's Search;
+  Read View, whose is its toolbar's) and in Study's own header. Without
+  JavaScript it is a link to /search.
 - **Without JavaScript**, Aa and the menu button go (a `<noscript>` style),
   and below the full header's width a row of two links stands in: Read, and
   Menu, which goes to the footer's links (`#footer-nav`). A phone's reading
   row doesn't draw them: its picker and the bar's four links do that work.
 - **The line under the header** (`PlaceLine.astro`; HD-14, HD-22) is on
-  every page but Home, the Read page, and Study's own pages. It names the
-  place and the page ("Learn / Glossary"), or the page alone for a page in
+  every page but Home, Read View, and Study's own pages. On a chapter or an
+  introduction it is the place line (`readingLine`; `src/layouts/CLAUDE.md`).
+  Elsewhere it names the place and the page ("Learn / Glossary"), or the page alone for a page in
   no place, the place a link up when the page is inside a row ("Learn /
   Articles" over an article). Its right end takes one or two of the page's
   main commands through Layout's `place-line` slot (none does yet); nothing
@@ -112,6 +115,50 @@ phone's two bars instead (`src/layouts/CLAUDE.md`).
 - **Home lies on LIT Green until Phase 7**, so `header.css` pins the ink on
   the places and the tools there, not on the row: the menus are floats of
   their own and keep the theme's colors and ring.
+
+## The passage picker
+
+Featherboa's Phase 4 (`SITE-FEATHERBOA.md`, "Finding a passage"; FP-01 to
+FP-16; `test/featherboa-picker.test.js`). **One component,
+`PassagePicker.astro`, and one script, `src/scripts/passage-picker.js`, in
+three places**: /read, where it is the page (`full`); a panel hanging from
+what opened it, from 700px, at Quick speed; and a sheet rising nearly to the
+top under 700px, at Large speed (`picker.css`). The panel and the sheet are
+one modal `<dialog>` that `Layout.astro` draws, closed, on every page but
+/read (`pickerInPage`) and Study's own, so G works anywhere. **Its picker
+waits in a `<template>`** that the first opening puts in place, so a page
+that never opens it carries none of its thousand-odd elements, only about
+58 KB of markup (under 4 KB gzipped); Layout loads the script, since inside
+the template it would never run. Its ways in are links marked
+`data-picker-open` ("books" or "chapters": where it opens and what takes
+focus), which go to /read without JavaScript: the header's Read, the place
+line's book and chapter, and the phone row's name. G sends
+`lit:picker-open` (`keyboard-shortcuts.js`), which the dialog answers, or on
+/read the field.
+
+- **Top to bottom**: the field ("book, chapter, or verse"), where typing
+  wins over picking: `readTyping` (`src/lib/passage-picker.mjs`) reads it as
+  the search box does (`parseReferenceJump`), then by the 404 page's
+  guesser, so "rom 8" offers "Go to Romans 8" at once and Enter goes there,
+  and anything else offers "Search for ‘…’." Then Continue reading from
+  `lit_last_read` (hidden when it names the page being read), the 27 books
+  as tabs, the chosen book's chapters as a grid with its introduction under
+  it, and Release Notes last.
+- **A draft is dimmed, still opens, and says "in progress"**:
+  `kit-tab--draft` and `kit-row--draft` (`kit.css`) take the third ink, never
+  `opacity`; the words show beside a book or an introduction, and a
+  chapter's number says them to a screen reader, under the book's note.
+- **Keys and focus**: focus stays inside while it is open, Escape empties
+  the field and then closes, a press outside, its ×, or a chosen link (a
+  frame later) closes it, and focus goes back to what opened it. The books
+  are tabs (the arrows, Home, End, Space); the chapters are one stop with the
+  arrows inside.
+- **Without JavaScript** /read's books link to `#picker-<book>` on the page,
+  shown by `:target` (Matthew's when the address names none), and the
+  field is a search form for /search.
+
+Read View keeps ReadMenu's own panel until it retires, and G presses that
+there.
 
 ## The announcement popover
 
