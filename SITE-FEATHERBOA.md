@@ -2071,6 +2071,88 @@ needs:
 - **When the commands for what is chosen don't fit the pane**, the count
   goes first, then "Add to collection…" and "Label…" move into More.
 
+## The Greek (decided 2026-11-26)
+
+Design Directions' proposal 24, "Greek beside the English": the tool that
+proves the translation. The Greek tab should make one thing effortless:
+point at a word in either language and see its partner, what it is, and
+what the LIT did with it. Its drawing has the LIT and the Greek side by
+side, a chosen word lit in both, and under the Greek a card of labeled
+rows. Most of it is today's tab rearranged: the Greek set as text, the
+parsing in words, both dictionaries, "A lexicon and the LIT can differ," a
+"rendered here as" line for the glossary's words, the verse's footnote
+letters, and a note from the Greek (step 4k). Claude recommended it with
+eight adjustments, and BVJ took them, with a change to the first two and a
+question about the fifth.
+
+The drawing's frame (a "John 1 with the Greek" heading and layout icons)
+is the one "Study and its places" replaced.
+
+### What waits
+
+- **A word's partner in the other language doesn't light up yet, not even
+  for the glossary's terms** (BVJ: “not even for glossary terms yet. The
+  tagging wasn't quite that precise. This will come some day.”). Claude
+  had suggested the glossary's terms now and every word once the word
+  links are published (the alignment file, "Phase 2"). Neither lights
+  until those links are ready, and this is where they will show.
+
+### The text
+
+- **The Greek is Source Sans 3's own polytonic Greek** ("Type"), set as
+  today's tab sets it: paragraphs with their verse numbers, not a table of
+  words. The proposal named Literata's Greek.
+- **Its verse numbers are ink at 66%, not deep green** (BVJ: “the verse
+  numbers don't need to be Green because they aren't links here”).
+  Nothing happens when one is pressed, and "Color" keeps deep green for
+  what can be pressed.
+
+### A word's card
+
+Choosing a word opens its card under the text, in the house's plain rows:
+
+- **The word, its dictionary form, and that form's transliteration**
+  ("λόγος logos"), as the glossary shows "πίστις pistis" ("The glossary
+  and articles"). One rule makes them when the site is built, matching the
+  glossary's.
+- **Form**: the parsing in words, with MorphGNT's code beside it, as today.
+- **In the LIT here**: today's two lines, "rendered here as “Conversation”"
+  with its glossary link (for the glossary's words), and "LIT notes on
+  verse 1: a," each letter opening This verse. It never names one footnote
+  as a word's explanation, since the site doesn't know which note is about
+  which word (the alignment file: nobody guesses), so the proposal's
+  "footnote a explains the choice" goes. Outside the glossary's words the
+  row stays hidden.
+- **Dictionary**: "UBS dictionary · STEPBible" as a plain row of choices
+  at its top ("The kit"), not a menu that hides the second. STEPBible
+  keeps the full LSJ entry under its brief one (BVJ, 2026-10-13), and UBS
+  its "At this word" and "Other senses." The line "A lexicon and the LIT
+  can differ" moves into this row, where the difference would show.
+- **Elsewhere**: "4 in this chapter · Every place it appears →," the
+  chapter's count as today, its link the search for every form. The
+  proposal counted the verse, which is 1 for most words.
+- **"Find this word ▾"**: one press, then today's four searches as its
+  choices: this form, every form of λόγος, Strong's G3056, and words parsed
+  the same. BVJ asked for each (2026-10-13 and 14), and the proposal's one
+  button would keep one. Where the results open is open (below).
+- **A note from the Greek stays** (step 4k, PR #693): from a chosen word,
+  or from a selection of the Greek ("Add a note on verse 1"). BVJ asked
+  for it in the plan after not finding it on /desk, where it works but its
+  button is a note icon alone beside the word's ×, shown only once a word
+  is chosen (BVJ, 2026-11-23). Whether the card gives it a word is open
+  (below).
+
+### Kept from today
+
+What the drawing leaves out stays (BVJ: “yes”): the text-critical signs,
+"Show the note," and the Apparatus view; Sources and licenses, which the
+licenses require; the draggable line between the text and the card (BVJ,
+2026-10-17); following the LIT tab, with "Go to verse N"; the arrow keys
+through the words; the line saying where John 7:53–8:11 and Romans
+16:25–27 take their Greek; and a copy that pastes as plain Greek. "Build a
+search" in Search keeps the Greek search commands (`public/greek/CLAUDE.md`,
+rule 17), where the proposal tucks them.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -2096,6 +2178,20 @@ needs:
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
+- **Which pane "Find this word" opens its results in** ("The Greek").
+  Claude proposed a Search tab in place of today's results inside the tab
+  (E219), and BVJ asked: “would it make sense for it to show in the Search
+  tab of that pane, with it easy to click back to the Greek tab? Or would
+  it be in a different pane? The same pane but different tab would be
+  similar to what's already built, but closer to the new functionality.”
+  Claude's answer, for BVJ: the same pane.
+- **Whether the chosen word's other forms stay marked in the Greek**
+  ("The Greek"). Today's tab tints them green, from the Greek's own
+  dictionary forms rather than the tagging BVJ's “not yet” is about; the
+  proposal draws a faint underline.
+- **Whether the card's note button gains its word** ("The Greek"): "Add
+  note" beside "Find this word ▾," as drawn, in place of the note icon
+  alone (BVJ, 2026-11-23).
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and

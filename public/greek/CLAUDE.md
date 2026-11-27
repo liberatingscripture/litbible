@@ -17,7 +17,10 @@
 "Order of work", 1f). **Featherboa takes it off the reading page's
 Notebook panel and keeps it in Study** (the desk's new name): This verse's
 Greek words and a draft chapter's line lead there (`SITE-FEATHERBOA.md`,
-"Study and its places"). Until it is built, this holds. Before touching it:
+"Study and its places"). It also redraws a word's details as a card of
+labeled rows, its four word searches gathered under one "Find this word ▾"
+(rule 15's starters), with the text's verse numbers in gray (`SITE-FEATHERBOA.md`,
+"The Greek"). Until it is built, this holds. Before touching it:
 - **Its data is committed, not built.** `npm run build:greek` reads
   clones kept outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`: the
   SBLGNT with its apparatus, MACULA Greek, the UBS dictionary, STEPBible's
