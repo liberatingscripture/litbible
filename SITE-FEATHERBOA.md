@@ -258,7 +258,8 @@ below).
 | Study, 1100 and up | Two panes share what is left | The companion pane | A 236 sidebar that never moves |
 
 Proposals 11 (the margin), 15 (the phone), and 21 (one workspace) draw these
-rows in full.
+rows in full. Study's row changed with 21: one to three columns of tabs, and
+a sidebar that folds ("The Study Desk").
 
 ### Targets and figures
 
@@ -293,7 +294,7 @@ The renames the proposal draws:
 | Notebook, My Notebook, the Notebook, My Notes | **Notebook** (the place), **Notes** (what is in it) |
 | Sheets, My sheets, Sheets page | **Sheets** |
 | Add a note, Add bookmark, Add a bookmark that moves | **Add note**, **Add bookmark** |
-| Open in Study Desk, Edit in Study Desk, Open the Study Desk | One label; the proposal's is "Open in Desk," and the name waits for proposal 21 |
+| Open in Study Desk, Edit in Study Desk, Open the Study Desk | One label, **Open in Study Desk** (the proposal's "Open in Desk" is not taken: "The Study Desk") |
 | “Show” (four different controls) | **View** for what a page displays, **Filter** for lists |
 | Display settings, Display, Display options | **Display** |
 | Stay here, Stop following | One switch: **Follow reading** |
@@ -305,9 +306,9 @@ The renames the proposal draws:
   2026-11-10); `src/scripts/desk/CLAUDE.md` holds both until Featherboa is
   built. **“Notes” is the reader's, and “footnotes” the translation's**, so
   the two words are never used for each other.
-- **The workspace's name waits for proposal 21** (“One workspace”). The
-  proposal says “Desk” (“Open in Desk,” and Desk among the places);
-  until 21 decides, labels keep “Study Desk.”
+- **The workspace keeps the name “Study Desk”** (proposal 21, "The Study
+  Desk"). The proposal's “Desk” (“Open in Desk,” and Desk among the
+  places) is not taken.
 
 ### Icons
 
@@ -679,8 +680,8 @@ next are plain arrows there, and large type at the foot.
 **The line's right end loses "Switch to Read View" and keeps "Open in
 Study Desk"** (BVJ, “Yes,” and “Read View pages are being retired”). Read
 View retires at launch (BVJ, 2026-10-21; `STUDY-DESK-FIXES.md`, E8), so its
-pill goes with it; the Study Desk's way in stays in the line until proposal
-21 names the workspace. The proposal's line drew neither, only the arrows
+pill goes with it; the Study Desk's way in stays in the line, under the
+name proposal 21 kept ("The Study Desk"). The proposal's line drew neither, only the arrows
 and "Notebook" (proposal 11).
 
 **The phone's bar was left to proposal 15** (“Take 1-6”), which draws the
@@ -907,7 +908,7 @@ row, as a sheet rising nearly to the top ("The phone").
 
 - **The reading row's search box goes**, and **"Search" (magnifier and
   word) joins the place line**, ordered Search · ‹ › · Notebook, with "Open
-  in Study Desk" until proposal 21. BVJ: “In the same line with the arrows
+  in Study Desk" (the name proposal 21 kept). BVJ: “In the same line with the arrows
   and Notebook would only be about a 1/2 inch lower, so people looking at
   the top right would still see it, and it would be clearly tied to the
   text.” Claude had recommended the header, on every page, and agreed.
@@ -1261,7 +1262,8 @@ its quieter redraw) was the other option and is not taken.
   to John 3:16," and Enter takes the reader there, as the picker's field
   does ("Finding a passage"), so /search carries no passage picker of its
   own. With the Study Desk on, **the second row stays "Open in Study
-  Desk"** at the passage, until proposal 21 names the workspace.
+  Desk"** at the passage, under the name proposal 21 kept ("The Study
+  Desk").
 - **Over the verses, one line for the chapters**: "John 1 is one of 6
   chapters about light," with "See all 6 →" opening that tab.
 - **The glossary still answers first.** Today its matches sit at the top,
@@ -1436,6 +1438,169 @@ A sheet printed from the Study Desk uses this same page: the same head,
 faces, and footer. Leader and participant copies differ in content, never
 in look. The rest of a sheet's paper copy is proposal 23's.
 
+## The Study Desk (decided 2026-11-26)
+
+Design Directions' proposal 21, "Study: one workspace in place of four
+pages." Today the Notebook, Sheets, Collections, and the Study Desk are four
+pages with four layouts, joined by links that each use a different name. The
+proposal makes them one workspace: the site's header, a sidebar of the
+reader's things, and scripture beside the work. Its drawing has two panes,
+scripture always on the left and everything else in tabs on the right.
+
+Claude recommended it with ten adjustments. BVJ liked much of it and asked
+what was lost (“It feels like there are real costs though”). Fixed sides
+lose real function: “I want to be able to see search, Greek, and LIT at
+once. Or maybe Notes, Sheet, and Search.” BVJ asked for a sidebar that
+folds, one, two, or three columns, Search as a real column, columns that
+switch, and widths that still drag. Then BVJ found the way to put it
+together, tabs in every column: “That way it's not really replacing
+something, it's just switching tabs.” Claude drew that as a working mock
+(Luke 3 with its Greek and footnotes, and a real search for "wilderness"),
+and BVJ took it as drawn (“Record it”).
+
+### The name and the frame
+
+- **The workspace keeps the name "Study Desk,"** settling what "Controls"
+  left open. "Desk" alone reads as furniture. Its ways in keep "Open in
+  Study Desk." The header's word for the place is proposal 19's.
+- **The site's ordinary header replaces the desk's own.** This reverses
+  BVJ's 2026-10-21 decision that the desk has its own header at every
+  width. It costs no height (today is a header plus the command row; this
+  is a header plus the title row), and one header everywhere can mark where
+  the reader is.
+- **The title row**: "Fold sidebar" (icon and word), the page's heading
+  "Study Desk," and at the right "Columns 1 2 3" and "Full screen" (the
+  browser's own, E43).
+- **The command row and the title menu go** (E68's row, and "Study Desk ▾").
+  Each command has a home: Add pane and Layout… become the column count;
+  New sheet… and New collection… go to "New…" in the sidebar; Print… goes
+  on what it prints (a sheet's Share…, the Notes tab's More menu); Display
+  options is the header's Aa, as on every page; My Notebook is the
+  sidebar's Notebook; Help, the tour, and feedback go to the sidebar's
+  foot.
+
+### Columns of tabs
+
+- **One, two, or three columns**, chosen with "Columns 1 2 3" on the title
+  row: always in view and in words, E68's reason for worded buttons. A
+  column is at least 280px wide. A count the window can't hold is dimmed,
+  its reason ("Needs a wider window") reachable without a pointer ("The
+  kit").
+- **Every column is one row of tabs**, and a tab is one thing: the LIT at a
+  place (labeled with the place, "Luke 3"), Greek, Footnotes, This verse,
+  Notes, a sheet or a collection (by its name), or Search. **Any kind can be
+  in any column, any number of times**: two LIT tabs compare passages, two
+  sheets let a reader copy from one to the other, and two searches keep two
+  questions open.
+- **The row is the column's only bar.** It holds the tabs and, at its right
+  end, the open tab's one or two key actions (the LIT's ‹ ›; a sheet's
+  Share… and a filled Present; Select on Notes' Everything), then More (⋯).
+- **Tabs are plain words.** The open tab in each column is underlined in
+  ink. In the column the reader is working in, the underline is green,
+  proposal 2's "you are here," and it also shows where something new will
+  open.
+- **× shows on hover or focus only.** Everything else a tab can do is in
+  More: "Open in this column ▸," "Move this tab to" Left, Middle, or Right
+  (the keyboard's way to move it), "Pin to this passage" on a tab that
+  follows, and Close. More is one of the five icons that may stand alone
+  ("Controls").
+- **Tabs that don't fit fold into "2 more ▾,"** and the open tab always
+  shows.
+- **What a column can show is one grouped list**: Scripture (The LIT,
+  Greek, Footnotes, This verse), Yours (Notes, Sheets, Collections), and
+  Search on its own line. More's "Open in this column ▸" holds it, and an
+  empty column shows it whole.
+
+### Opening, moving, and following
+
+- **Nothing is ever replaced, so nothing needs an undo.** Opening something
+  brings its tab forward if it is open in any column; otherwise it adds a
+  tab to the column marked green. To choose the column, drag the item from
+  the sidebar onto it.
+- **Tabs move between columns** by dragging, or with "Move this tab to."
+  That is how columns switch places.
+- **Changing the count keeps everything.** Going down a column moves its
+  tabs into the last column still open; a new column opens empty, showing
+  the list.
+- **Following stays**: Notes (on "This chapter"), This verse, Footnotes, and
+  Greek follow the LIT tab the reader last moved in, unless pinned.
+- **Widths still drag** (BVJ: “keep the adjustable column widths”). Each
+  line between columns has its menu of steps and its own reset, as on the
+  reading page (E189), and each column count remembers its own widths, so
+  going from three columns to two and back returns the three-column sizes.
+- **A new reader starts with two columns**: the LIT, and beside it Notes,
+  Footnotes, This verse, and Greek, the reading page's own panel ("Beside
+  scripture"), so the desk reads as the page they know with more room.
+  After that, the page reopens as the reader left it.
+- **The LIT tab is the reading page's text**: chapters read on ("A whole
+  book"), footnotes float in the margin ("The reading page"), and Display
+  reaches it.
+- **Search is a tab.** On the Study Desk the header's magnifier, or "/",
+  brings the Search tab forward or opens one in the column marked green. The
+  sidebar has no field of its own, so the page keeps one way in (audit U6).
+  The tab shows /search's tabs and rows ("Search").
+- **A Sheets or Collections tab opens the last one the reader had there**,
+  or the list when there is none yet. **Its name is a menu**: another sheet,
+  a new one, or all of them.
+
+### The sidebar
+
+- **Top to bottom**: Notebook (its count, and a dot while there is news),
+  Sheets (its count, the three most recent, and All sheets), Collections
+  (the same), and Trash. At the foot: "New…," Help with "Start here" (the
+  tour) and Feedback, the stage badge ("Nothing interrupts the reader,"
+  item 5), and the line "Kept in this browser only. Back up…."
+- **It folds to a strip of icons, each with its word** ("Controls"), and
+  the page remembers whether it is folded. Three columns want a wide window
+  or a folded sidebar: in the mock, at 1,163px, each column was about 300px
+  wide with the sidebar open and 360 with it folded.
+
+### The Notebook page's tools
+
+Each of /notebook's tools goes where its subject lives, not to the account
+page: most readers won't have an account at first, and backing up matters
+most for them, since their notebook lives only in their browser. With these
+homes, one kind, "Notes," with "This chapter / Everything" at its top,
+serves both the passage and the whole list (BVJ said yes, as long as the
+tools have a home).
+
+| Today on /notebook | In the Study Desk |
+|--------------------|-------------------|
+| The list and its filters (words, kind, color, label) | Notes on "Everything"; the sidebar's Notebook opens it there |
+| Labels: make, rename, delete | "Manage labels…" beside the filters |
+| Delete all notes, all sheets, all collections | "Select" in each list, then Select all and Delete…: the same Select as /search's ("Search"), so three buttons become one habit |
+| Back up, and Merge a backup | The sidebar foot's "Back up…," one window holding both |
+| Trash (30 days), and Empty the trash now | Trash in the sidebar, opening as a tab (not drawn yet) |
+| What's new for you | The top of Notes' Everything, with the dot on Notebook (news where its subject lives, "Nothing interrupts the reader") |
+| Print… | The Notes tab's More menu |
+
+### What goes from today's desk
+
+BVJ accepted less to customize (“Maybe not as customizable as what we
+already built”):
+
+- **8 of the 11 arrangements**: the seven with rows, and four columns. The
+  fourth pane goes with them, which reverses BVJ's 2026-10-18 set of
+  arrangements and the four-pane limit (`MAX_PANES`).
+- **The Layout window, and Add pane with its four directions.** The column
+  count replaces both.
+- **Dragging a pane onto another's edge to split it.** Dropping a tab on a
+  column moves it there.
+- **"My default."** The page reopens as the reader left it.
+
+No saved data needs moving, since the preview has one user (BVJ). A saved
+layout with rows reopens as columns.
+
+### Kept
+
+- **Every address and link**: /notebook, /sheets, /collections, /desk, a
+  sheet's `?id=`, present mode, and shared sheets' links, each opening the
+  workspace on what it names.
+- **Tablets and phones are proposal 26's.** The website's study tools are
+  for computers.
+- **When it is built is decided with the beta's launch date**, so beta
+  readers learn the desk only once.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -1452,8 +1617,6 @@ in look. The rest of a sheet's paper copy is proposal 23's.
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
   whether its served file has old-style figures ("Sizes, space, and the
   measure").
-- **The workspace's name**, “Study Desk” or the proposal's “Desk”
-  ("Controls," above; proposal 21).
 - **The phone menu's rows**, which wait for proposal 19's four places
   ("The phone").
 - **The glossary's third opening paragraph** ("The glossary and

@@ -610,7 +610,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The notebook page**, `/notebook/` (`pages/notebook.astro`; Routes):
        `desk-gate.js` loads `desk/notebook-page.js` when
        `[data-notebook-page]` is present; the page isn't a reading surface,
-       so it has no panel. **/notebook/, /desk/ and /sheets/ hide their
+       so it has no panel (Featherboa moves its tools into /desk: rule 18).
+       **/notebook/, /desk/ and /sheets/ hide their
        no-preview note under `html[data-desk="on"]`** and show “Loading the Study Desk…” until
        the desk's code replaces both (BA153); if that code fails to load,
        the gate's `standDown()` takes the stamp off and the note is back.
@@ -944,6 +945,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
+     Featherboa remakes it as one to three columns of tabs beside a sidebar
+     that folds, under the site's header, with no command row, rows, fourth
+     pane, Layout window, edge split or "My default", and takes in
+     /notebook's tools (`SITE-FEATHERBOA.md`, "The Study Desk"); until it is
+     built, this holds.
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
