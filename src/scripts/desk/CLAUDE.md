@@ -610,7 +610,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The notebook page**, `/notebook/` (`pages/notebook.astro`; Routes):
        `desk-gate.js` loads `desk/notebook-page.js` when
        `[data-notebook-page]` is present; the page isn't a reading surface,
-       so it has no panel (Featherboa moves its tools into /desk: rule 18).
+       so it has no panel (Featherboa moves its tools into /desk and All
+       settings, rows become select-then-act: `SITE-FEATHERBOA.md`, "The
+       Notebook").
        **/notebook/, /desk/ and /sheets/ hide their
        no-preview note under `html[data-desk="on"]`** and show “Loading the Study Desk…” until
        the desk's code replaces both (BA153); if that code fails to load,

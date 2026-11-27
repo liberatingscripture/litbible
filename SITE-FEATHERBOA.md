@@ -838,7 +838,7 @@ menu's layout, and E112's order of the Notebook's rows.
   | Help, Feedback | The title menu |
 
   **The panel's title is a menu, "Notebook ▾,"** as /desk's "Study Desk ▾"
-  is (E15): Print…, the whole notebook, Notebook actions, Take the tour,
+  is today (E15; "The Study Desk" retires that one): Print…, the whole notebook, Notebook actions, Take the tour,
   Help, and Feedback. It opens over the reader's notes rather than replacing
   them, as the tab did.
 
@@ -967,7 +967,9 @@ parts only where it is on** (“4, yes”). The proposal put it "in Study," but
 it holds the keyboard-shortcuts switch, and shortcuts work for every reader,
 desk or not; that switch is required (WCAG 2.1.4, for speech-recognition
 users). Its other parts are the finer mark choices, backup, and a link to
-the account pages, which it doesn't replace (proposal 25).
+the account pages, which it doesn't replace (proposal 25). Proposal 22 adds
+the Notebook panel's start setting and, last, Delete in bulk ("The
+Notebook").
 
 ### Widths: dragging stays, and "Reset widths" goes
 
@@ -1494,7 +1496,8 @@ and BVJ took it as drawn (“Record it”).
   questions open.
 - **The row is the column's only bar.** It holds the tabs and, at its right
   end, the open tab's one or two key actions (the LIT's ‹ ›; a sheet's
-  Share… and a filled Present; Select on Notes' Everything), then More (⋯).
+  Share… and a filled Present; in a list, the commands for what is chosen,
+  "The Notebook"), then More (⋯).
 - **Tabs are plain words.** The open tab in each column is underlined in
   ink. In the column the reader is working in, the underline is green,
   proposal 2's "you are here," and it also shows where something new will
@@ -1568,10 +1571,11 @@ tools have a home).
 |--------------------|-------------------|
 | The list and its filters (words, kind, color, label) | Notes on "Everything"; the sidebar's Notebook opens it there |
 | Labels: make, rename, delete | "Manage labels…" beside the filters |
-| Delete all notes, all sheets, all collections | "Select" in each list, then Select all and Delete…: the same Select as /search's ("Search"), so three buttons become one habit |
+| Delete all notes, all sheets, all collections, and Empty the trash now | Choosing rows, then Delete…, for what is chosen; the four bulk deletes, which reach labels and templates too, are All settings' last section ("The Notebook," which corrects this row) |
 | Back up, and Merge a backup | The sidebar foot's "Back up…," one window holding both |
-| Trash (30 days), and Empty the trash now | Trash in the sidebar, opening as a tab (not drawn yet) |
-| What's new for you | The top of Notes' Everything, with the dot on Notebook (news where its subject lives, "Nothing interrupts the reader") |
+| Trash (30 days) | Trash in the sidebar, opening as a tab (not drawn yet) |
+| What's new for you | The top of Notes' Everything, with the dot on Notebook (news where its subject lives, "Nothing interrupts the reader"); renamed "Changed since you marked it" ("The Notebook") |
+| The Notebook panel's start setting | All settings ("The Notebook"; missing from this table at first) |
 | Print… | The Notes tab's More menu |
 
 ### What goes from today's desk
@@ -1600,6 +1604,119 @@ layout with rows reopens as columns.
   for computers.
 - **When it is built is decided with the beta's launch date**, so beta
   readers learn the desk only once.
+
+## The Notebook (decided 2026-11-26)
+
+Design Directions' proposal 22, "The Notebook: a list beside its passage."
+Today's /notebook is one long page of eight sections reached by eight jump
+links, and the reader's notes are the third of them. The proposal makes the
+Notebook only the reader's notes, in Bible order, each opening its passage
+beside it. It was drawn before proposal 21 was reworked, so its frame (a
+sidebar of its own, a search field there, and a passage pane inside the
+list) differed from the Study Desk BVJ had just decided. Claude recommended
+its ideas fitted into that desk, with nine adjustments, and BVJ took them
+all (“Yes, 1–9”).
+
+### The list
+
+- **The Notebook is the Notes tab on "Everything"** ("The Study Desk").
+  Kinds, colors, and labels stay a filter row in the tab (Kind ▾, Color ▾,
+  Label ▾), each choice with its count ("Notes 41"). They are not sidebar
+  rows, as drawn: the desk allows two Notes tabs, and a sidebar row couldn't
+  say which one it filters. There is no "Search your notebook" field: the
+  tab filters by words, and the header's magnifier opens Search.
+- **"128 kept, in Bible order"** heads it, and Bible order stays the only
+  order, as today.
+- **A row carries only the reader's words**, with a small line under them:
+  the kind, the date, and a bookmark's label chips.
+
+### Select, then act
+
+- Today every row carries Edit, Labels…, Collections…, and Delete. **Now
+  clicking a row chooses it; Ctrl- or Shift-click adds more, and Space does
+  the same from the keyboard.** While anything is chosen, four commands sit
+  at the end of the column's row: **Edit, Label…, Add to collection…, and
+  Delete…**. Edit acts on one row, and Label… only on bookmarks (below); a
+  command that can't act is dimmed with its reason ("The kit").
+- **The sheets' and collections' lists work the same way.** This replaces
+  the "Select" button drawn for "The Study Desk."
+
+### The passage beside it
+
+- **Choosing a note takes the LIT tab the reader last read in to its
+  verse, with the note in the margin**: one click from “what did I write?”
+  to “what does it say?” (the proposal's words). It is not a pane inside
+  the list.
+- **If that LIT tab shares the list's column, the passage opens in the
+  column beside instead.** With one column, the LIT tab comes forward and
+  the list is one tab away. The drawing's toggle button isn't needed.
+
+### Changed since you marked it
+
+- **What's new for you is renamed "Changed since you marked it,"** the
+  drawing's name. It is the filter the notice at the top of Everything
+  opens ("The Study Desk"), and the dot stays on Notebook in the sidebar.
+- **A changed row says "Text changed Nov 1," as a link to that release
+  note**, so its green is a link's ("Green is ink"). The proposal's reason:
+  a translation still being revised should tell readers when their verse
+  moved, and that is one of the site's best ideas.
+
+### Names
+
+- **"Notebook" is the place; "Notes," "Highlights," and "Bookmarks" are
+  what it holds**, and "kept" counts them together ("128 kept"). "My Notes"
+  already went ("Controls").
+- **"Marks" stops naming the things kept**: "Delete all notes and marks"
+  becomes "Delete all notes, highlights, and bookmarks."
+- **Two names stay.** The tab is still "Notes" (BVJ's choice in "Beside
+  scripture" and "The Study Desk"), holding all three kinds as it does on
+  the reading page. The Display tray's "Your marks" ("Display") stays too,
+  since it names what is drawn on the text, not the things kept.
+
+### Labels stay on bookmarks
+
+The drawing puts "Advent" and "Sermon ideas" on notes. That would reverse
+**E149** (BVJ, 2026-11-17: “Labels are for bookmarks”), so it isn't taken:
+Label… acts on bookmarks, the Label filter's counts count bookmarks, and
+renaming and deleting stay in "Manage labels…" ("The Study Desk"). The
+format and the apps' sync are untouched, as the proposal says.
+
+### All settings holds the rest
+
+The drawing's Settings is proposal 13's All settings ("Display"), not a new
+sidebar row. Two things on /notebook had no home in "The Study Desk"'s
+table; Claude had missed both:
+
+- **The Notebook panel's start setting** ("When a page opens, the Notebook
+  panel is" Open, Minimized, or As I left it).
+- **The bulk deletes that choosing rows can't reach**: labels, the reader's
+  own templates, and "Empty the trash now."
+
+They go to All settings, which "Display" already gave backup and the finer
+choices about marks. **Delete in bulk is its last section, in red words**,
+with today's four choices and what each takes: all notes, highlights, and
+bookmarks (with pinned footnotes and labels); all sheets (with the reader's
+templates); all collections; and Empty the trash now. Choosing rows still
+deletes whatever is chosen. All settings is reached from the Aa tray, as on
+every page.
+
+### Links into it
+
+**Every /notebook link keeps working, its anchors too**: `#backup` opens the
+Back up window, `#whats-new` opens "Changed since you marked it," `#q=`
+(search's link into the notebook) opens Everything filtered by its words,
+`#labels` opens Manage labels…, and any other anchor opens Everything. The
+help page, the first-use line, the Notes tab, and search link to them
+today.
+
+### Kept
+
+- **Printing the list**, from the Notes tab's More menu ("The Study Desk").
+- **Continue reading**, already the picker's first row and Home's
+  ("Nothing interrupts the reader," "Finding a passage").
+- **The Trash's 30 days**, in the sidebar.
+- **The foot line says "browser,"** not the drawing's "computer," since a
+  notebook is kept in one browser.
 
 ## Open
 
