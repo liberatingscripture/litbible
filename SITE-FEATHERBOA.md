@@ -34,6 +34,11 @@ behind it. Decisions are added as they are made. **Nothing here is built yet.**
   section here says so; until then, 2.0's choice for a page is one option
   beside the proposals'. Its code stays on `main` behind `data-restyle` until
   Featherboa decides what becomes of it.
+- **BVJ makes every call** (2026-11-27: “I make all the calls”). Design
+  Directions' "Landing it" splits the calls between BVJ and BDR as
+  creative director; that split isn't taken. How Featherboa is built, in
+  what order, how it is checked, and how its questions reach BVJ is
+  `SITE-FEATHERBOA-BUILD.md`.
 
 ## Type (decided 2026-11-26)
 
