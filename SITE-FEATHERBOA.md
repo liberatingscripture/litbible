@@ -608,8 +608,9 @@ working; the margin footnote is the new behavior.
   measure"), about 70 characters a line in the 660 column. The proposal
   drew a book face at 20 pixels.
 - **The chapter number is a drop numeral in LIT Green**, as in the apps.
-  Proposal 14 retired it: where chapters read on, each has a heading that
-  names it ("A whole book").
+  Proposal 14 retired it on the screen: where chapters read on, each has a
+  heading that names it ("A whole book"). Paper keeps it ("Off the
+  screen").
 - **Verse numbers and footnote letters are deep green, with no underline**
   ("Color"), where the proposal drew small gray figures and small italics.
   **Footnote letters stand upright**: italics read worse for dyslexic
@@ -1050,7 +1051,8 @@ settled the rest point by point.
   chapter's last line to the next one's first, against 141 for the first
   drawing, which had a rule and more space. **The drop numeral goes** (“Yes,
   all three”): the heading names every chapter, so the numeral said the
-  same thing twice ("The reading page"). The footnote list and Go
+  same thing twice ("The reading page"). Paper keeps it, since a print is
+  one chapter ("Off the screen"). The footnote list and Go
   deeper leave the reading flow on the screen. The list stays in the page
   for printing, and both stay for readers without JavaScript and for the
   desk, which reads them from the chapter's page (`desk/chapter-page.js`).
@@ -1368,6 +1370,72 @@ beside the text) were the other option and are not taken.
   proposal had dropped them unless the article was about one.
 - **Tags move to the article's foot.**
 
+## Off the screen: print and the verse image (decided 2026-11-26)
+
+Design Directions' proposal 18, "Off the screen: the printed page and the
+shared verse." The translation leaves the site constantly (printed for a
+study group, pasted into a bulletin, posted as an image), and those are the
+copies most people will ever see, so they should be recognizably the same
+hand. Claude recommended it with nine adjustments; BVJ took eight and
+changed the second (“The drop letters can be kept for print. The reasons
+to drop it on screen don't apply.”).
+
+### The printed page
+
+- **The faces are the screen's** ("Type," “Same as the screen”): Source
+  Sans 3 for the text and Fraunces for headings, not the drawing's
+  Literata. The size stays 12pt times the reader's text size, refit to
+  Source Sans 3's letter height as on the screen, and a reader's
+  accessibility face prints as chosen, as today.
+- **Paper keeps the drop numeral**: the chapter's number as a drop capital
+  in Fraunces, beside its first lines. The screen retired it because the
+  heading of each chapter that reads on already names it ("A whole book");
+  a print is one chapter with nothing reading on, so that reason doesn't
+  hold there.
+- **A running head and a footer**, drawn with page-margin boxes, as the
+  Sheets' page numbers already are. The head reads the passage ("John 1")
+  and "Liberation and Inclusion Translation." The footer carries the
+  address ("litbible.net/john-1") and the license's credit line
+  (`LIT_CREDIT_LINE`, unchanged). A browser that can't draw page margins
+  prints neither, so the credit line and address still print once at the
+  end, as today, since the license asks for the notice; the SBLGNT notice
+  still prints after the text.
+- **Page numbers follow the Sheets' rule** (BVJ, 2026-11-10): page 1's
+  centered at the foot, then at the top right. The drawing put it at the
+  bottom right; this way a chapter and a handout look alike, the proposal's
+  own aim.
+- **Footnotes print after the chapter, whole, in two columns.** The
+  proposal set them at the foot of the page they belong to, as in a study
+  Bible, but no browser can: CSS's footnote placement works only in print
+  engines like Prince, not in Chrome, Edge, Firefox, or Safari. A script
+  that rebuilds the page into sheets before every print (Paged.js) would
+  be a new dependency, slow on a long chapter, and a change to how every
+  print works, so it isn't taken.
+- **No note is cut.** No "Continues at…": BVJ requires the whole note
+  ("The reading page"), and paper has no link to follow. With the notes
+  after the text, a long note can't push scripture off a page anyway.
+
+### The verse image
+
+- **The verse in Source Sans 3**, as "Same as the screen" decided for the
+  verse image; the drawing's Fraunces Light would have reversed it. The
+  reference stays in Fraunces, as a heading.
+- **One small line under the verse**, with **the address kept**: the
+  emblem and "John 1:5" (Fraunces) on the left, and "Liberation &
+  Inclusion Translation" over "litbible.net/john-1" (Source Sans 3) on the
+  right. The drawing's line dropped the address, which BVJ counts as the
+  link back the license's social-media exception asks for. **The green bar
+  goes; the emblem is the green.** Inter leaves the image.
+- **The rest stays**: Ink and Paper, Square and Story (Story the same
+  layout, taller), the one button that asks each question in turn, the
+  text set as large as fits down to a readable floor, and nothing stored.
+
+### Handouts
+
+A sheet printed from the Study Desk uses this same page: the same head,
+faces, and footer. Leader and participant copies differ in content, never
+in look. The rest of a sheet's paper copy is proposal 23's.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -1377,8 +1445,10 @@ beside the text) were the other option and are not taken.
   page ("Finding a passage"), with /read's lede that names the unfinished
   texts.
 - **Fraunces's settings** (above).
-- **What else names Inter**: the verse image's wordmark and address (the
-  margin notes' Plain face goes with Playpen Sans, "The reading page").
+- **What else names Inter**, beyond the two settled: the verse image's
+  name and address take Source Sans 3 ("Off the screen"), and the margin
+  notes' Plain face goes with Playpen Sans ("The reading page"). A search
+  of the code when it is built answers it.
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
   whether its served file has old-style figures ("Sizes, space, and the
   measure").

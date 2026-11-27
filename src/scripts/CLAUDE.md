@@ -340,7 +340,10 @@ page drawn by the same code:
 3. **The verse in Crimson Text**, the reference in Fraunces, the wordmark and
    address in Inter. The text is Copy text's (`joinPieces`, footnote letters
    and bracket markers gone, poetry kept as lines) without the inline verse
-   numbers, since the reference names the verses.
+   numbers, since the reference names the verses. Featherboa sets the
+   verse in Source Sans 3 and puts the emblem, the reference (Fraunces),
+   the name, and the address in one small line, the green bar gone
+   (`SITE-FEATHERBOA.md`, "Off the screen"); until it is built, this holds.
 4. **The chapter's own address** on the image ("litbible.net/john-3"), always
    the site's name whatever host drew it. The owner counts it as the link back
    the license's social-media exception asks for. The share sheet also gets
@@ -381,7 +384,12 @@ License page of their own, forwarding /read's old anchors:
   notice still prints after the text on all three. (Where Featherboa's
   chapters read on into each other, a print is still one chapter with its
   notes, the chapter in view: `SITE-FEATHERBOA.md`, "A whole book"; until it
-  is built, this holds.) `PrintCredit.astro` adds the
+  is built, this holds.) (Featherboa prints in Source Sans 3 with Fraunces
+  headings and the drop numeral, notes after the chapter in two columns,
+  never cut, and a running head, footer, and page numbers in page-margin
+  boxes, the end notice kept for browsers without them:
+  `SITE-FEATHERBOA.md`, "Off the screen"; until it is built, this holds.)
+  `PrintCredit.astro` adds the
   notice and the page's address ("litbible.net/john-3") at the end; it is a
   `hidden` element the stylesheet reveals, so no screen or screen reader ever
   meets it. Most rules are `!important` because page and component styles
