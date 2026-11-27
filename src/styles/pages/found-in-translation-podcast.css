@@ -1,34 +1,21 @@
 /* =========================================================
-   Found in Translation Podcast page
+   Found in Translation Podcast page, drawn with Featherboa's tokens: the
+   page is the paper, a tint sets the players apart, episodes take a
+   hairline. The platform links, season chips, and arrows take their look
+   from the kit (`.fit-platform`, `.fit-season-nav a`, `.fit-season-arrow`
+   are among its names).
+
+   Two things here stay off the spacing scale on purpose, as no step does
+   the job: the hero's full-bleed margins (half the window less half the
+   column) and the negative margin that lifts the cover over the hero's
+   foot.
    ========================================================= */
 
 .fit-page {
-  /* First section background should be white */
-  background: var(--surface-raised);
+  background: var(--color-page);
 
   /* Prevent any 100vw bleed from causing horizontal scroll */
   overflow-x: clip;
-}
-
-/* Header is NOT inside .fit-page, so .fit-page .site-header won't hit.
-   Use :has() to scope the header to this page. */
-body:has(.fit-page) {
-  background: var(--surface-raised); /* ensures white behind any transparent header */
-}
-
-body:has(.fit-page) .site-header {
-  background: var(--surface-raised);
-}
-
-body:has(.fit-page) .site-header__inner {
-  background: transparent;
-}
-
-/* If your header swaps backgrounds when sticky/scrolled, keep it white here too */
-body:has(.fit-page) .site-header.is-sticky,
-body:has(.fit-page) .site-header.is-scrolled,
-body:has(.fit-page) .site-header.has-bg {
-  background: var(--surface-raised);
 }
 
 /* -------------------------
@@ -39,13 +26,11 @@ body:has(.fit-page) .site-header.has-bg {
   position: relative;
   overflow: hidden;
 
-  /* FULL BLEED — escapes any centered layout container */
+  /* FULL BLEED: escapes any centered layout container */
   width: 100vw;
   max-width: none;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-
-  border-radius: 0;
 
   min-height: clamp(300px, 44vw, 560px);
 }
@@ -63,6 +48,7 @@ body:has(.fit-page) .site-header.has-bg {
   transform: translateZ(0);
 }
 
+/* A scrim over the photograph, so the title stays legible. */
 .fit-hero::after {
   content: "";
   position: absolute;
@@ -79,33 +65,31 @@ body:has(.fit-page) .site-header.has-bg {
   position: relative;
   z-index: 1;
 
-  padding: clamp(22px, 4vw, 54px);
+  padding: var(--space-6);
   text-align: center;
 
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
+  color: var(--color-text-2);
 
   max-width: calc(72 * var(--ch));
   margin: 0 auto;
 }
 
 .fit-hero__title {
-  margin: 0 0 10px;
-  font-family: var(--font-display);
-  font-size: clamp(2.1rem, 5vw, 4rem);
-  line-height: 1.08;
-  letter-spacing: 0.02em;
+  margin: 0 0 var(--space-2);
+  font-size: var(--size-title);
+  line-height: var(--leading-title);
 }
 
 .fit-hero__subtitle {
   margin: 0;
-  font-size: clamp(1.05rem, 2.2vw, 1.65rem);
-  letter-spacing: 0.02em;
+  font-size: var(--size-subhead);
+  line-height: var(--leading-subhead);
 }
 
 .fit-hero__byline {
-  margin: 6px 0 0;
-  font-size: 1rem;
-  opacity: 0.9;
+  margin: var(--space-1) 0 0;
+  font-size: var(--size-margin);
+  line-height: var(--leading-margin);
 }
 
 /* -------------------------
@@ -116,12 +100,12 @@ body:has(.fit-page) .site-header.has-bg {
   max-width: 1100px;
   margin: 0 auto;
 
-  padding: 0 16px 44px;
+  padding: 0 var(--space-4) var(--space-7);
   margin-top: -170px;
 
   display: grid;
   justify-items: center;
-  gap: 22px;
+  gap: var(--space-5);
 
   position: relative;
   z-index: 10;
@@ -137,7 +121,7 @@ body:has(.fit-page) .site-header.has-bg {
   height: auto;
 
   border-radius: var(--radius-float);
-  border: 1px solid rgba(var(--ink-rgb), 0.10);
+  border: 1px solid var(--color-hairline);
 
   display: block;
 }
@@ -145,31 +129,28 @@ body:has(.fit-page) .site-header.has-bg {
 .fit-platform-links {
   display: grid;
   grid-template-columns: repeat(3, minmax(160px, 1fr));
-  gap: 18px;
+  gap: var(--space-4);
   width: min(980px, 100%);
-  margin-top: 6px;
+  margin-top: var(--space-2);
 }
 
 /* The listen/watch links are the kit's tinted buttons; the grid sizes them. */
 .fit-platform {
   text-decoration: none;
-  display: flex;
-  justify-content: center;
-  padding: 16px 18px;
 }
 
-/* Informational follow link — deliberately a different tier than the
-   listen/watch pills above it: plain sentence case, no fill, text-link
-   treatment. --green-text flips in dark mode, so no dark rules needed. */
+/* Informational follow link: a different tier than the listen/watch
+   buttons above it, plain text-link treatment. */
 .fit-follow {
   display: inline-flex;
   align-items: center;
-  gap: 0.5em;
+  gap: var(--space-2);
 
-  font-size: 0.95rem;
+  font-size: var(--size-margin);
+  line-height: var(--leading-margin);
   font-weight: 600;
 
-  color: var(--green-text);
+  color: var(--color-press);
   text-decoration: none;
 }
 
@@ -207,45 +188,36 @@ body:has(.fit-page) .site-header.has-bg {
    ------------------------- */
 
 .fit-section {
-  --fit-section-pad: clamp(42px, 6vw, 78px);
-  padding: var(--fit-section-pad) 16px;
+  padding: var(--space-8) var(--space-4);
 }
 
+/* The players' section: a tint sets it apart, no color behind the words. */
 .fit-section--green {
-  /* A tint band: space and a tint set it apart, no color behind the words */
   background: var(--color-tint);
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .fit-section--green a {
-  color: var(--green-text);
-}
-
-.fit-section--green .fit-h2 {
-  color: var(--text-strong);
+  color: var(--color-press);
 }
 
 .fit-section--cream {
-  background: var(--page-bg);
-  color: var(--text);
+  background: var(--color-page);
+  color: var(--color-text);
 }
 
 .fit-h2 {
-  margin: 0 0 28px;
+  margin: 0 0 var(--space-6);
   text-align: center;
-
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  letter-spacing: 0.02em;
+  font-size: var(--size-heading);
+  line-height: var(--leading-heading);
 }
 
 .fit-lead {
-  margin: -6px 0 0;
+  margin: 0;
   text-align: center;
-
   font-family: var(--font-text);
-  font-size: clamp(1.3rem, 2.6vw, 2rem);
-  opacity: 0.92;
+  font-size: var(--size-subhead);
 }
 
 /* -------------------------
@@ -270,27 +242,20 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 /*
- * 660px is Apple's own cap — it is what their embed generator emits
- * (style="…max-width:660px…"), and it is load-bearing rather than cosmetic:
- * both the compact episode row and the taller show card stop growing before
- * the frame does, so a wider box leaves a dead band down the right-hand side.
- * That band is what the 900px cap here used to show.
+ * 660px is Apple's own cap: it is what their embed generator emits
+ * (style="...max-width:660px..."), and it is load-bearing rather than
+ * cosmetic: both the compact episode row and the taller show card stop
+ * growing before the frame does, so a wider box leaves a dead band down the
+ * right-hand side.
  */
 .fit-embed--apple {
   max-width: 660px;
-
-  /*
-   * Apple draws its own rounded card, so the frame's corner has to agree with
-   * it (12px, measured off .podcasts-episode) or the frame clips a wider curve
-   * than the card has and the mismatch reads as a halo.
-   */
-  border-radius: var(--radius-float);
 }
 
 /*
- * The fallback show card is 16:9 at every width (measured 660/371, 600/338,
- * 500/281, 360/203), unlike the episode row, which is a flat 160px however
- * wide the frame is. So it gets a ratio and the row gets a number.
+ * The fallback show card is 16:9 at every width, unlike the episode row,
+ * which is a flat 160px however wide the frame is. So it gets a ratio and
+ * the row gets a number.
  */
 .fit-embed--apple-show iframe {
   height: auto;
@@ -298,13 +263,11 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 /*
- * The video and the two audio players want opposite things, which is why they
- * are no longer one row of equal boxes: YouTube is 16:9 and wants width, while
- * Apple and Spotify are both compact horizontal rows about 160px tall. So the
- * video takes one column and the two rows stack in the other, where their
- * combined height (160 + gap + 152) lands within about 35px of the video's —
- * near enough to read as deliberate rather than as two things that failed to
- * line up.
+ * The video and the two audio players want opposite things: YouTube is 16:9
+ * and wants width, while Apple and Spotify are both compact horizontal rows
+ * about 160px tall. So the video takes one column and the two rows stack in
+ * the other, where their combined height lands within about 35px of the
+ * video's.
  */
 .fit-embed-grid {
   width: min(1100px, 100%);
@@ -312,34 +275,29 @@ body:has(.fit-page) .site-header.has-bg {
 
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 26px;
+  gap: var(--space-5);
   align-items: center;
 }
 
 .fit-embed-stack {
   display: grid;
-  gap: 26px;
+  gap: var(--space-5);
 }
 
 /*
- * A ratio, not a height: the frame used to be 535x352, a ratio of 1.52, and a
- * YouTube frame is 16:9 — the player covers that difference by cutting the
- * poster off at both sides, which is what cropped the thumbnail. The ratio
- * keeps the whole frame visible at every width.
+ * A ratio, not a height: a YouTube frame is 16:9, and a fixed height cuts
+ * the poster off at both sides. height:auto is required, as the iframe
+ * carries a height attribute, and a definite height on both axes makes the
+ * browser ignore aspect-ratio.
  */
 .fit-embed--youtube iframe {
-  /* height:auto is required — the iframe carries a height attribute, and a
-   * definite height on both axes makes the browser ignore aspect-ratio. */
   height: auto;
   aspect-ratio: 16 / 9;
 }
 
 /*
- * Spotify's compact height is the one that shows the most: the scrubber, the
- * skip controls and the running time only appear below ~250px — the 352px
- * layout spends that space on cover art instead and drops the transport
- * entirely. The title is a marquee at any size, so width, not height, is what
- * lets more of it sit still.
+ * Spotify's compact height shows the most: the scrubber, the skip controls
+ * and the running time only appear below about 250px.
  */
 .fit-embed--spotify iframe {
   height: 152px;
@@ -352,99 +310,7 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 /* =========================
-   Episode lists (Start with these / Then bounce around)
-   ========================= */
-
-.fit-episodes__inner {
-  max-width: calc(72 * var(--ch));
-  margin: 0 auto;
-}
-
-/* Serif centered headings */
-.fit-episodes__kicker {
-  margin: 0 0 28px;
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 4.6vw, 3.2rem);
-  line-height: 1.1;
-}
-
-.fit-episodes__kicker--spaced {
-  margin-top: clamp(48px, 7vw, 84px);
-}
-
-/* Main list */
-.fit-ep-list {
-  margin: 0;
-  padding-left: 1.6rem; /* keeps bullet nicely inset */
-}
-
-.fit-ep {
-  margin: 0 0 clamp(28px, 4vw, 46px);
-}
-
-/* Make the bullet feel like your screenshot */
-.fit-ep::marker {
-  font-size: 1.15em;
-}
-
-/* Big bold episode title */
-.fit-ep__title {
-  font-weight: 800;
-  font-size: clamp(1.55rem, 3vw, 2.25rem);
-  line-height: 1.25;
-  margin: 0 0 14px;
-}
-
-.fit-ep__date {
-  display: inline;
-  font-size: 0.85em;
-  font-weight: normal;
-  color: var(--color-ink-muted, #777);
-  margin-inline-start: 0.5em;
-}
-
-.fit-ep__date::before {
-  content: "·";
-  margin-inline-end: 0.5em;
-}
-
-/* Sub-links list (hollow circle bullets) */
-.fit-ep__links {
-  margin: 0;
-  padding-left: 1.75rem;
-  list-style: circle;
-}
-
-.fit-ep__links li {
-  margin: 10px 0;
-}
-
-/* Link styling: underlined, like screenshot */
-.fit-ep__links a {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 6px;
-  text-decoration-thickness: 2px;
-  font-size: clamp(1.35rem, 2.4vw, 1.8rem);
-}
-
-.fit-ep__links a:hover {
-  text-decoration-thickness: 3px;
-}
-
-/* Slight tightening on small screens so it doesn't feel huge */
-@media (max-width: 520px) {
-  .fit-ep-list {
-    padding-left: 1.25rem;
-  }
-  .fit-ep__links {
-    padding-left: 1.35rem;
-  }
-}
-
-/* =========================
-   Episodes — Quiet Cards (Option A)
+   Episodes: one hairline card each
    ========================= */
 
 .fit-episodes__inner {
@@ -453,15 +319,14 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 .fit-episodes__kicker {
-  margin: 0 0 22px;
+  margin: 0 0 var(--space-5);
   text-align: center;
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3rem);
-  letter-spacing: 0.01em;
+  font-size: var(--size-heading);
+  line-height: var(--leading-heading);
 }
 
 .fit-episodes__kicker--spaced {
-  margin-top: clamp(44px, 7vw, 80px);
+  margin-top: var(--space-8);
 }
 
 /* List layout */
@@ -471,32 +336,41 @@ body:has(.fit-page) .site-header.has-bg {
   margin: 0;
 
   display: grid;
-  gap: 18px;
+  gap: var(--space-4);
 }
 
 /* Card */
 .fit-episodes .fit-ep {
-  background: rgba(var(--surface-rgb), 0.58);
-  backdrop-filter: blur(10px);
-
-  border: 1px solid rgba(var(--ink-rgb), 0.10);
-  border-radius: var(--radius-press);
-
-  padding: clamp(16px, 2.5vw, 22px);
-
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-float);
+  padding: var(--space-5);
+  margin: 0;
 }
 
 /* Title */
 .fit-episodes .fit-ep__title {
-  margin: 0 0 12px;
-
-  font-weight: 800;
-  font-size: clamp(1.2rem, 2.1vw, 1.55rem);
-  line-height: 1.25;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
+  margin: 0 0 var(--space-3);
+  font-size: var(--size-subhead);
+  line-height: var(--leading-subhead);
+  color: var(--color-text-2);
 }
 
-/* Link pills */
+.fit-ep__date {
+  display: inline;
+  font-family: var(--font-control);
+  font-size: var(--size-small-label);
+  line-height: var(--leading-small-label);
+  font-weight: 600;
+  color: var(--color-text-3);
+  margin-inline-start: var(--space-2);
+}
+
+.fit-ep__date::before {
+  content: "·";
+  margin-inline-end: var(--space-2);
+}
+
+/* Links: the kit's tinted buttons in a row */
 .fit-episodes .fit-ep__links {
   list-style: none;
   padding: 0;
@@ -504,14 +378,14 @@ body:has(.fit-page) .site-header.has-bg {
 
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .fit-episodes .fit-ep__links a {
   text-decoration: none;
 }
 
-/* Mobile: stack pills */
+/* Mobile: stack the links */
 @media (max-width: 520px) {
   .fit-episodes .fit-ep__links a {
     width: 100%;
@@ -527,33 +401,34 @@ body:has(.fit-page) .site-header.has-bg {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 clamp(32px, 5vw, 52px);
+  gap: var(--space-2);
+  margin: 0 0 var(--space-6);
 }
 
 .fit-season-arrow {
   flex-shrink: 0;
 }
 
+/* A fade at each end of the scrolling row, in the page's own color. */
 .fit-season-nav-wrap::before,
 .fit-season-nav-wrap::after {
   content: "";
   position: absolute;
   top: 0;
-  bottom: 4px;
-  width: 48px;
+  bottom: var(--space-1);
+  width: var(--space-7);
   pointer-events: none;
 }
 
 .fit-season-nav-wrap::before {
-  left: 40px; /* clears the prev arrow button (32px) + gap (8px) */
-  background: linear-gradient(to left, transparent, var(--page-bg));
+  left: 40px; /* clears the prev arrow (32px) and its gap (8px) */
+  background: linear-gradient(to left, transparent, var(--color-page));
   opacity: 0;
 }
 
 .fit-season-nav-wrap::after {
-  right: 40px; /* clears the next arrow button (32px) + gap (8px) */
-  background: linear-gradient(to right, transparent, var(--page-bg));
+  right: 40px; /* clears the next arrow (32px) and its gap (8px) */
+  background: linear-gradient(to right, transparent, var(--color-page));
 }
 
 .fit-season-nav-wrap.is-scrolled-start::before {
@@ -567,12 +442,12 @@ body:has(.fit-page) .site-header.has-bg {
 .fit-season-nav {
   display: flex;
   flex-wrap: nowrap;
-  gap: 10px;
+  gap: var(--space-2);
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-snap-type: x proximity;
-  padding-bottom: 4px; /* prevent clipping box-shadow */
+  padding-bottom: var(--space-1);
 }
 
 .fit-season-nav::-webkit-scrollbar {
@@ -586,43 +461,36 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 /* The season links are the kit's tinted chips in a set; only where they
-   sit and their size here. */
+   sit here. */
 .fit-season-nav a {
-  display: inline-block;
-  padding: 8px 18px;
-  font-size: 0.85rem;
   text-decoration: none;
 }
 
 .fit-season-group {
-  margin-bottom: clamp(44px, 7vw, 72px);
+  margin-bottom: var(--space-8);
 }
 
 .fit-season-heading {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-  text-transform: uppercase;
-  margin: 0 0 clamp(20px, 3vw, 32px);
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
+  font-size: var(--size-subhead);
+  line-height: var(--leading-subhead);
+  color: var(--color-text-3);
+  margin: 0 0 var(--space-5);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
 .fit-season-top {
   display: inline-block;
-  margin-top: clamp(18px, 2.5vw, 28px);
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
+  margin-top: var(--space-4);
+  font-size: var(--size-margin);
+  line-height: var(--leading-margin);
+  font-weight: 600;
+  color: var(--color-text-3);
   text-decoration: none;
 }
 
 .fit-season-top:hover {
-  color: var(--green-text);
+  color: var(--color-press);
 }
 
 .fit-season-top:focus-visible {

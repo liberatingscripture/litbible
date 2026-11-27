@@ -181,7 +181,8 @@
        **`--reading-leading-extra`** (what "Roomy" adds) are for words a
        reader reads: Chapter View, book intros, Read View, article pages,
        the glossary, /search's results, the release notes, About, Privacy,
-       Translation Commitments and the Collective's page, the source-text
+       Translation Commitments, the Collective's page, /license, the
+       colophon, What's New, the source-text
        notice, and the three panels of text (a footnote's popover, a key
        term's card, a reference preview). The extra goes on every block
        that can wrap; a title, a one-line label and a button keep their line.

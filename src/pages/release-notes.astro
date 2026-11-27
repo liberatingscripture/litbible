@@ -69,7 +69,7 @@ const TYPE_LABEL: Record<string, string> = {
             <form class="rn-filters" id="rn-filters" aria-label="Filter changes" hidden>
               <label class="rn-filter">
                 <span class="rn-filter__label">Book</span>
-                <select class="rn-filter__select" id="rn-book" name="book">
+                <select class="rn-filter__select kit-field" id="rn-book" name="book">
                   <option value="">All books</option>
                   {books.map((key) => (
                     <option value={key}>{bookKeyToLabel(key)}</option>
@@ -78,7 +78,7 @@ const TYPE_LABEL: Record<string, string> = {
               </label>
               <label class="rn-filter">
                 <span class="rn-filter__label">Kind of change</span>
-                <select class="rn-filter__select" id="rn-kind" name="kind">
+                <select class="rn-filter__select kit-field" id="rn-kind" name="kind">
                   <option value="">All changes</option>
                   {kinds.map(([kind, label]) => (
                     <option value={kind}>{label}</option>

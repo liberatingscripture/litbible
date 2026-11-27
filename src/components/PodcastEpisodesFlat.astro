@@ -61,13 +61,13 @@ function seasonNavLabel(key: string): string {
 
 {seasonKeys.length > 1 && (
   <div class="fit-season-nav-wrap">
-    <button class="fit-season-arrow fit-season-arrow--prev" aria-label="Scroll seasons left" hidden><Icon name="back" /></button>
+    <button class="fit-season-arrow fit-season-arrow--prev kit-icon" aria-label="Scroll seasons left" hidden><Icon name="back" /></button>
     <nav id="fit-season-nav" class="fit-season-nav" aria-label="Jump to season">
       {seasonKeys.map((key) => (
-        <a href={`#fit-season-${key}`}>{seasonNavLabel(key)}</a>
+        <a class="kit-btn kit-btn--tinted" href={`#fit-season-${key}`}>{seasonNavLabel(key)}</a>
       ))}
     </nav>
-    <button class="fit-season-arrow fit-season-arrow--next" aria-label="Scroll seasons right"><Icon name="forward" /></button>
+    <button class="fit-season-arrow fit-season-arrow--next kit-icon" aria-label="Scroll seasons right"><Icon name="forward" /></button>
   </div>
 )}
 
@@ -133,13 +133,13 @@ function seasonNavLabel(key: string): string {
               {ep.links.map((link) =>
                 link.external ? (
                   <li>
-                    <a href={link.url} target="_blank" rel="noopener">
+                    <a class="kit-btn kit-btn--tinted" href={link.url} target="_blank" rel="noopener">
                       {link.label}
                     </a>
                   </li>
                 ) : (
                   <li>
-                    <a href={link.url}>{link.label}</a>
+                    <a class="kit-btn kit-btn--tinted" href={link.url}>{link.label}</a>
                   </li>
                 ),
               )}

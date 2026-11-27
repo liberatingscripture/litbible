@@ -17,20 +17,18 @@
 .license-page__inner {
   max-width: calc(65 * var(--ch));
   margin: 0 auto;
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
   overflow-wrap: break-word;
 }
 
 .license-title {
   font-family: var(--font-display);
-  font-size: calc(clamp(2.25rem, 4vw, 3rem) * var(--heading-scale, 1));
-  line-height: 1.1;
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
   margin: 0 0 var(--space-4);
 }
 
 .license-lede {
-  font-size: calc(clamp(1.1rem, 0.5vw + 1rem, 1.25rem) * var(--reading-scale, 1));
-  line-height: calc(1.72 + var(--reading-leading-extra, 0));
   margin: 0;
 }
 
@@ -55,8 +53,8 @@
 
 .license-faq-q {
   list-style: none;
-  font-size: clamp(1rem, 0.5vw + 0.9rem, 1.15rem);
-  line-height: 1.4;
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
   width: 100%;
   min-height: 0;
   padding: var(--space-4) var(--space-5);

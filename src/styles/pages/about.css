@@ -1,140 +1,122 @@
 /* =========================================================
-   About page — full-bleed cream, essay mode
+   About page: an essay in the reading column, drawn with Featherboa's
+   tokens. Its title is the page's one italic line ("Type": Fraunces's
+   italic, large, once on a front-door page). The contents' controls carry
+   the kit's own classes, and the disclosures take its plain look by name
+   (`.faq-q`), so this file says where they sit, and how big a disclosure's
+   question is: the Text size, following the Display tray as its answer
+   does, as /license's are.
    ========================================================= */
 
-/* This page follows the Display tray's text size and line spacing through
-   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
+/* The page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (src/styles/CLAUDE.md). */
 .about-page {
-  background-color: var(--page-bg);
+  background-color: var(--color-page);
   min-height: 100vh;
   font-size: calc(1em * var(--reading-scale, 1));
-
-  /* vertical rhythm */
-  padding-block: clamp(3.5rem, 8vw, 6rem);
-
-  /* global content gutter */
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
 }
 
 /* =========================================================
-   HERO: Question + answer
+   Hero: the question, set in Fraunces's italic, and its answer
    ========================================================= */
 
 .about-hero {
   width: 100%;
-  margin-bottom: clamp(3.5rem, 7vw, 5rem);
+  margin-bottom: var(--space-8);
 }
 
 .about-hero__inner {
   max-width: calc(60 * var(--ch));
   margin: 0 auto;
-  position: relative;
 }
 
-/* Title */
 .about-hero__title {
   font-family: var(--font-display);
+  font-style: italic;
   font-weight: 400;
-  font-size: calc(clamp(2.45rem, 4.2vw, 3.25rem) * var(--heading-scale, 1));
-  line-height: 1.1;
-  margin: 0 0 1.75rem 0;
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-5);
   text-align: center;
 }
 
-/* Answer block */
-.about-hero__answer {
-  font-size: calc(clamp(1.2rem, 0.6vw + 1.05rem, 1.35rem) * var(--reading-scale, 1));
-  line-height: calc(1.78 + var(--reading-leading-extra, 0));
+.about-hero__answer p:last-child {
+  margin-bottom: 0;
 }
 
-
-
 /* =========================================================
-   BODY SECTIONS (stacked, readable)
+   Body sections: stacked, readable
    ========================================================= */
 
 .about-body {
   max-width: calc(60 * var(--ch));
-  margin: 0 auto clamp(3.5rem, 7vw, 5rem);
-
-  font-size: calc(clamp(1.1rem, 0.55vw + 1rem, 1.3rem) * var(--reading-scale, 1));
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  margin: 0 auto var(--space-8);
 }
 
-/* Paragraph rhythm */
 .about-body p + p {
-  margin-top: 1.75rem;
+  margin-top: var(--space-5);
 }
 
-/* =========================================================
-   Headings hierarchy
-   ========================================================= */
-
-/* H2: Major sections */
+/* H2: major sections */
 .about-body > h2 {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: calc(clamp(1.75rem, 3vw, 2.15rem) * var(--heading-scale, 1));
-  line-height: 1.25;
-
-  margin-top: clamp(3.5rem, 7vw, 5rem);
-  margin-bottom: 1.5rem;
+  font-size: calc(var(--size-heading) * var(--heading-scale, 1));
+  line-height: var(--leading-heading);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
 }
 
-/* First H2 shouldn’t push down */
+/* The first one doesn't push down. */
 .about-body > h2:first-child {
   margin-top: 0;
 }
 
-/* H3: Subsections */
+/* H3: subsections */
 .about-body h3 {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: calc(clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem) * var(--reading-scale, 1));
-  line-height: 1.25;
-
-  margin-top: 2.75rem;
-  margin-bottom: 1rem;
+  font-size: calc(var(--size-subhead) * var(--heading-scale, 1));
+  line-height: var(--leading-subhead);
+  margin-top: var(--space-7);
+  margin-bottom: var(--space-3);
 }
 
-
-/* =========================================================
-   Lists
-   ========================================================= */
-
 .about-body ul {
-  margin: 1.5rem 0 1.75rem 1.25rem;
+  margin: var(--space-4) 0 var(--space-5) var(--space-5);
   padding: 0;
 }
 
 .about-body li {
-  margin-bottom: 0.65rem;
+  margin-bottom: var(--space-2);
 }
 
 /* =========================================================
-   FAQ accordion (details/summary)
+   FAQ disclosures
    ========================================================= */
 
 .faq {
-  margin-top: 1.5rem;
+  margin-top: var(--space-4);
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .faq-item {
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
+  border: 1px solid var(--color-hairline);
   border-radius: var(--radius-float);
-  background: rgba(var(--surface-rgb), 0.65);
-  backdrop-filter: blur(10px);
   overflow: hidden;
 }
 
 .faq-q {
   list-style: none;
-  display: flex;
-  justify-content: space-between;
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
   width: 100%;
+  min-height: 0;
+  padding: var(--space-4) var(--space-5);
+  justify-content: space-between;
   text-align: left;
+  white-space: normal;
+  user-select: none;
 }
 
 .faq-q::-webkit-details-marker {
@@ -142,9 +124,9 @@
 }
 
 .faq-q .icon {
-  width: 1em;
-  height: 1em;
-  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
 }
 
 .faq-item[open] .faq-q .icon {
@@ -152,170 +134,115 @@
 }
 
 .faq-a {
-  padding: 0 16px 16px;
+  padding: 0 var(--space-4) var(--space-4);
 }
 
 .faq-a p + p {
-  margin-top: 1.25rem;
+  margin-top: var(--space-4);
 }
-
 
 /* =========================================================
-   Section spacing refinements
+   Section spacing
    ========================================================= */
 
-.about-translation {
-  margin-top: clamp(4.5rem, 9vw, 6.5rem);
-}
-
+.about-translation,
 .about-site {
-  margin-top: clamp(4.5rem, 9vw, 6.5rem);
+  margin-top: var(--space-9);
 }
 
 .about-faq .about-back {
-  margin-top: 3rem;
+  margin-top: var(--space-7);
 }
 
+/* The last "Back to top" follows the article, outside its sections; it
+   sits in the text's column, as the others do. */
 .about-page > .about-back {
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-}
-
-
-/* =========================================================
-   Reduced motion
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .about-hero__answer::before {
-    display: none;
-  }
+  max-width: calc(60 * var(--ch));
+  margin-inline: auto;
 }
 
 /* =========================================================
-   About TOC (sticky)
-   Desktop (>= 901): tray always visible, no toggle
-   Mobile (<= 900): compact bar + hamburger opens tray
-   + Anchor offset so headings aren't covered
+   Contents: sticky, always open on a computer, behind a toggle on a phone
    ========================================================= */
 
 .about-toc {
   position: sticky;
-  top: 16px;
+  top: var(--space-4);
   z-index: 10;
+  margin: var(--space-5) auto var(--space-4);
+  max-width: calc(60 * var(--ch));
 
-  margin: 26px auto 18px;
-  max-width: var(--content-width, 72ch);
-  padding: 0 16px; /* breathing room on small screens */
-
-  /* Anchor math: keep jump targets below the sticky TOC */
-  --toc-top-gap: 16px;
-  --toc-outer-pad: 12px; /* bar padding */
-  --toc-border: 1px;
-  --toc-bar-height: 44px; /* approximate; tray closed on mobile */
+  /* Anchor math: keeps a jump target below the sticky contents. */
+  --toc-top-gap: var(--space-4);
 }
 
-/* Desktop: make TOC wider than the text column */
 @media (min-width: 901px) {
   .about-toc {
-    max-width: calc(var(--content-width, 72ch) + 5 * var(--ch));
+    max-width: calc(65 * var(--ch));
   }
 }
 
-
-/* Inner frosted panel */
+/* An opaque panel, so the text it passes over never shows through. */
 .about-toc__inner {
-  background: rgba(var(--surface-rgb), 0.78);
-  backdrop-filter: blur(12px);
-
-  border: 1px solid rgba(var(--ink-rgb), 0.10);
+  background: var(--color-page);
+  border: 1px solid var(--color-hairline);
   border-radius: var(--radius-float);
-
-  overflow: hidden; /* keeps tray edges clean */
+  overflow: hidden;
 }
 
-/* Top bar */
 .about-toc__bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-
-  padding: 12px;
+  gap: var(--space-3);
+  padding: var(--space-3);
 }
 
 .about-toc__label {
   margin: 0;
-  font-size: calc(0.82rem * var(--reading-scale, 1));
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
+  font-family: var(--font-control);
+  font-weight: 600;
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
+  color: var(--color-text-3);
 }
 
-/* Toggle button (mobile only): the kit draws it (plain); its chevron turns
+/* The toggle is the kit's plain button, on a phone only; its chevron turns
    when the tray is open. */
 .about-toc__toggle {
-  display: none; /* shown on mobile */
-}
-
-.about-toc__toggle .icon {
-  width: 1em;
-  height: 1em;
+  display: none;
 }
 
 .about-toc__toggle[aria-expanded="true"] .icon {
   transform: rotate(180deg);
 }
 
-/* Tray + list */
 .about-toc__tray {
-  padding: 0 12px 12px;
+  padding: 0 var(--space-3) var(--space-3);
 }
 
 .about-toc__list {
   list-style: none;
   margin: 0;
   padding: 0;
-
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
-/* Calm TOC CTA treatment (uses footer-cta, but no curtain) */
-.about-toc a.footer-cta.about-toc__cta {
-  white-space: nowrap;
-}
-
-/* Disable curtain in this context */
-.about-toc a.footer-cta.about-toc__cta::before {
-  content: none !important;
-}
-
-/* ---------------------------------------------------------
-   Desktop behavior (>= 901px)
-   Tray always visible (even if [hidden] is present)
-   --------------------------------------------------------- */
+/* A computer: the tray is always there, whatever the hidden attribute says. */
 @media (min-width: 901px) {
-  .about-toc__toggle {
-    display: none;
-  }
-
-  /* Always show tray on desktop, regardless of the hidden attribute */
   .about-toc__tray {
     display: block !important;
   }
 }
 
-/* ---------------------------------------------------------
-   Mobile behavior (<= 900px)
-   Compact bar, tray toggled
-   --------------------------------------------------------- */
+/* A phone: a compact bar, the tray toggled. */
 @media (max-width: 900px) {
   .about-toc {
-    top: 10px;
-    margin: 16px auto 14px;
-
-    --toc-top-gap: 10px;
+    top: var(--space-2);
+    margin: var(--space-4) auto var(--space-3);
+    --toc-top-gap: var(--space-2);
   }
 
   .about-toc__toggle {
@@ -323,36 +250,26 @@
   }
 
   .about-toc__tray {
-    border-top: 1px solid rgba(var(--ink-rgb), 0.08);
+    border-top: 1px solid var(--color-hairline);
   }
 
   .about-toc__list {
-    flex-direction: column; /* reduces crowding */
+    flex-direction: column;
   }
 
-  .about-toc a.footer-cta.about-toc__cta {
+  .about-toc .about-toc__cta {
     width: 100%;
     justify-content: center;
   }
 }
 
-/* =========================================================
-   Anchor offset so sticky TOC doesn't cover section headings
-   ========================================================= */
-
-/* Default (desktop): sticky panel is taller */
-:root {
-  --about-anchor-offset: 160px;
-}
-
+/* A jump target stays clear of the sticky contents. */
 .about-page h2[id] {
-  scroll-margin-top: var(--about-anchor-offset);
+  scroll-margin-top: calc(var(--space-9) + var(--space-8));
 }
 
-/* Mobile: bar is shorter, but still needs clearance */
 @media (max-width: 900px) {
-  :root {
-    --about-anchor-offset: 132px;
+  .about-page h2[id] {
+    scroll-margin-top: calc(var(--space-9) + var(--space-6) + var(--space-1));
   }
 }
-

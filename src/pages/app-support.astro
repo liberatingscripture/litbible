@@ -56,6 +56,7 @@ import "../styles/pages/contact.css";
           <div class="field">
             <label for="name">Name</label>
             <input
+              class="kit-field"
               id="name"
               name="name"
               type="text"
@@ -68,6 +69,7 @@ import "../styles/pages/contact.css";
           <div class="field">
             <label for="email">Email</label>
             <input
+              class="kit-field"
               id="email"
               name="email"
               type="email"
@@ -80,7 +82,7 @@ import "../styles/pages/contact.css";
 
           <div class="field">
             <label for="platform">Which app?</label>
-            <select id="platform" name="platform">
+            <select class="kit-field" id="platform" name="platform">
               <option value="Not sure">Not sure / other</option>
               <option value="iOS">iPhone or iPad (iOS)</option>
               <option value="Android">Android</option>
@@ -90,6 +92,7 @@ import "../styles/pages/contact.css";
           <div class="field">
             <label for="message">What’s going on?</label>
             <textarea
+              class="kit-field"
               id="message"
               name="message"
               rows="7"
@@ -107,7 +110,7 @@ import "../styles/pages/contact.css";
             <p class="contact-status" role="status" aria-live="polite" aria-atomic="true"></p>
           </div>
 
-          <button class="contact-button" type="submit">Send message</button>
+          <button class="contact-button kit-btn kit-btn--filled" type="submit">Send message</button>
 
           <p class="contact-privacy">
             This form sends your message to our support inbox and is not

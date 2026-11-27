@@ -11,7 +11,25 @@ import { join } from "node:path";
 import { declarations, repo } from "./helpers/featherboa-css.mjs";
 
 /** Featherboa's new stylesheets, each held to the scale whole. */
-const NEW = ["src/styles/kit.css", "src/styles/pages/license.css", "src/styles/pages/colophon.css", "src/styles/header.css", "src/styles/footer.css"];
+const NEW = [
+  "src/styles/kit.css",
+  "src/styles/header.css",
+  "src/styles/footer.css",
+  "src/styles/pages/license.css",
+  "src/styles/pages/colophon.css",
+  "src/styles/pages/whats-new.css",
+  // The pages no decision draws (BP-07): on the scale since Phase 7. The
+  // podcast page's stays out, for its photo and cover's overlap (queue Q23).
+  "src/styles/pages/about.css",
+  "src/styles/pages/contact.css",
+  "src/styles/pages/courses.css",
+  "src/styles/pages/liberating-scripture-collective.css",
+  "src/styles/pages/privacy.css",
+  "src/styles/pages/release-notes.css",
+  "src/styles/pages/support.css",
+  "src/styles/pages/translation-commitments.css",
+  "src/styles/pages/unsubscribe.css",
+];
 
 const SPACING = /^(margin|padding)(-(top|right|bottom|left|block|inline)(-(start|end))?)?$|^(gap|row-gap|column-gap)$/;
 const STEP = /^(0|auto|var\(--space-[1-9]\))$/;
