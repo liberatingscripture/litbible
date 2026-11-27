@@ -113,35 +113,35 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| WS-01 | Featherboa replaces Site 2.0; where the two disagree, `SITE-FEATHERBOA.md` wins | 0 | `SITE-2.0.md` opens with a line saying Featherboa replaced it | open |
-| WS-02 | Site 2.0's decisions don't carry over by themselves: a 2.0 choice holds only once a section of the record says so | all (0) | Checkpoint audits find no 2.0 pattern built without a row here | open |
+| WS-01 | Featherboa replaces Site 2.0; where the two disagree, `SITE-FEATHERBOA.md` wins | 0 | `SITE-2.0.md` opens with a line saying Featherboa replaced it | built (63d07ac0) |
+| WS-02 | Site 2.0's decisions don't carry over by themselves: a 2.0 choice holds only once a section of the record says so | all (0) | Checkpoint audits find no 2.0 pattern built without a row here | built (63d07ac0); held every phase |
 | WS-03 | Site 2.0's code stays on `main` behind `data-restyle` until Featherboa decides what becomes of it | 0 | None; settled by BP-02 | superseded → BP-02 |
-| WS-04 | BVJ makes every call; “Landing it”'s split of the calls between BVJ and BDR is not taken | all (0) | Every judgment call the run makes is a queue entry for BVJ | open |
+| WS-04 | BVJ makes every call; “Landing it”'s split of the calls between BVJ and BDR is not taken | all (0) | Every judgment call the run makes is a queue entry for BVJ | built (cf1cf82d, the queue); held every phase |
 | WS-05 | The front page comes last: Design Directions' questions are taken one at a time, each answer gets a section, and the front page is answered and built last (BVJ, 2026-11-26) | 7 | Home is built after every other page's phase, in Phase 7's last step | open |
 
 ## Type (TY)
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| TY-01 | The rule: “A reading face on a site should be sans-serif. Serif fonts are for headings and titles, heros, etc. only.” | all (1) | `test/featherboa-fonts.test.js`: no serif family on any reading-text rule | open |
-| TY-02 | The rule covers everything read at length: scripture, footnotes, introductions, articles, the glossary, the reader's notes, and the Greek, on screen and on paper | 1, 8 | Computed font-family of each kind at 1440, and the fonts in a printed PDF | open |
-| TY-03 | Literata is out as the reading face, since it is a serif | 1 | `test/featherboa-fonts.test.js`: Literata only in a sheet's Style set and the viewer (SH-16) | open |
-| TY-04 | Headings, titles, heroes, and the chapter numeral: Fraunces, the variable font, with its softness (`SOFT`) and wonk (`WONK`) axes | 1 | The served Fraunces files list `SOFT` and `WONK`; h1 to h3 compute to Fraunces | open |
-| TY-05 | Reading text: Source Sans 3, in place of Inter | 1 | Scripture, articles, and footnotes compute to Source Sans 3 at 1440 and 390 | open |
-| TY-06 | Controls (buttons, labels, menus, a panel's own words): Atkinson Hyperlegible Next, in place of Inter | 1, 2 | Buttons, tabs, and menu rows compute to Atkinson Hyperlegible Next | open |
-| TY-07 | Greek in sans text, and the Greek tab's SBLGNT: Source Sans 3's own polytonic Greek | 1, 12 | John 1:1's Greek in a footnote and in the Greek tab draws in Source Sans 3 | open |
-| TY-08 | Hebrew in sans text: Noto Sans Hebrew, as today | 1 | Kept: a footnote with Hebrew still draws it in Noto Sans Hebrew | open |
-| TY-09 | Greek and Hebrew in Fraunces: Cardo, as today | 1 | Kept: Greek inside a Fraunces heading draws in Cardo | open |
+| TY-01 | The rule: “A reading face on a site should be sans-serif. Serif fonts are for headings and titles, heros, etc. only.” | all (1) | `test/featherboa-fonts.test.js`: no serif family on any reading-text rule | built (c1bb5383); held by the fonts test |
+| TY-02 | The rule covers everything read at length: scripture, footnotes, introductions, articles, the glossary, the reader's notes, and the Greek, on screen and on paper | 1, 8 | Computed font-family of each kind at 1440, and the fonts in a printed PDF | built on screen (c1bb5383); paper in Phase 8 |
+| TY-03 | Literata is out as the reading face, since it is a serif | 1 | `test/featherboa-fonts.test.js`: Literata only in a sheet's Style set and the viewer (SH-16) | built (c1bb5383) |
+| TY-04 | Headings, titles, heroes, and the chapter numeral: Fraunces, the variable font, with its softness (`SOFT`) and wonk (`WONK`) axes | 1 | The served Fraunces files list `SOFT` and `WONK`; h1 to h3 compute to Fraunces | built (c1bb5383); its file's size is Q8 |
+| TY-05 | Reading text: Source Sans 3, in place of Inter | 1 | Scripture, articles, and footnotes compute to Source Sans 3 at 1440 and 390 | built (c1bb5383); Latin Extended too (Q9) |
+| TY-06 | Controls (buttons, labels, menus, a panel's own words): Atkinson Hyperlegible Next, in place of Inter | 1, 2 | Buttons, tabs, and menu rows compute to Atkinson Hyperlegible Next | built (c1bb5383); the kit's controls in Phase 2 |
+| TY-07 | Greek in sans text, and the Greek tab's SBLGNT: Source Sans 3's own polytonic Greek | 1, 12 | John 1:1's Greek in a footnote and in the Greek tab draws in Source Sans 3 | built (c1bb5383); the Greek tab checked in Phase 12 |
+| TY-08 | Hebrew in sans text: Noto Sans Hebrew, as today | 1 | Kept: a footnote with Hebrew still draws it in Noto Sans Hebrew | built (c1bb5383, kept) |
+| TY-09 | Greek and Hebrew in Fraunces: Cardo, as today | 1 | Kept: Greek inside a Fraunces heading draws in Cardo | built (c1bb5383, kept) |
 | TY-10 | Paper (a printed chapter or introduction, handouts, a sheet's paper copy, its slides) and the verse image: the same as the screen, Fraunces headings and Source Sans 3 text (a Read View book's print goes with Read View, WB-44) | 8, 11 | PDFs of a chapter, an intro, and a sheet; the slides; the verse image's fonts | open |
 | TY-11 | A sheet's serif, a leader's choice for a handout's words: Literata, in place of Crimson Text | 11 | Style's serif draws Literata in the editor, the PDF, and the phone's viewer | open |
-| TY-12 | Source Sans 3 is set larger than Inter (about 20.2px matches Inter's 18px), so the change is never the family name alone | 1 | Measure x-heights of the refit sizes against Inter's at the old sizes | open |
-| TY-13 | `--ch` is per face, so Source Sans 3 gets its own, and the reading measure is checked again in it | 1 | `test/featherboa-css-rules.test.js` (`--ch`, never `ch`); count characters a line per face and size | open |
-| TY-14 | Fraunces loads as its variable font (`@fontsource-variable`), in place of the static 400 and 500 | 1 | `global.css` loads the variable files only; the package's axes checked | open |
-| TY-15 | Fraunces's settings wait for the first heading drawn in it; the specimen used softness 50 with wonk on for headings, softness 100 for the numeral (the start settled by BP-13) | 1 | Computed `font-variation-settings` on a heading and on the paper's numeral | open |
+| TY-12 | Source Sans 3 is set larger than Inter (about 20.2px matches Inter's 18px), so the change is never the family name alone | 1 | Measure x-heights of the refit sizes against Inter's at the old sizes | built (c1bb5383); Q11 |
+| TY-13 | `--ch` is per face, so Source Sans 3 gets its own, and the reading measure is checked again in it | 1 | `test/featherboa-css-rules.test.js` (`--ch`, never `ch`); count characters a line per face and size | built (c1bb5383) |
+| TY-14 | Fraunces loads as its variable font (`@fontsource-variable`), in place of the static 400 and 500 | 1 | `global.css` loads the variable files only; the package's axes checked | built (c1bb5383); Q8 |
+| TY-15 | Fraunces's settings wait for the first heading drawn in it; the specimen used softness 50 with wonk on for headings, softness 100 for the numeral (the start settled by BP-13) | 1 | Computed `font-variation-settings` on a heading and on the paper's numeral | built (c1bb5383) at BP-13's start; OP-01 |
 | TY-16 | Fraunces's italic gets one large line on a front-door page, never more, and never in reading or Study (DA-01) | 7 | Italic Fraunces appears only on Home, About, and the 404 page, once each | open |
 | TY-17 | “Keep Atkinson”: controls stay Atkinson Hyperlegible Next, so two sans families stand side by side | 2 | No control computes to Source Sans 3 | open |
-| TY-18 | The Greek moves to Source Sans 3's own in both places, replacing the C27 plan's Greek from Inter | 1, 12 | No Greek glyph draws in Inter or Crimson Text | open |
-| TY-19 | Atkinson and OpenDyslexic, which have no Greek, borrow Source Sans 3's | 1 | Greek in a footnote with Atkinson and with OpenDyslexic chosen draws in Source Sans 3 | open |
+| TY-18 | The Greek moves to Source Sans 3's own in both places, replacing the C27 plan's Greek from Inter | 1, 12 | No Greek glyph draws in Inter or Crimson Text | built (c1bb5383) |
+| TY-19 | Atkinson and OpenDyslexic, which have no Greek, borrow Source Sans 3's | 1 | Greek in a footnote with Atkinson and with OpenDyslexic chosen draws in Source Sans 3 | built (c1bb5383) |
 | TY-20 | Cardo stays for the SBLGNT's text-critical signs (⸀ and its kin), from its patch, unless Source Sans 3 has them (OP-03) | 12 | A verse with ⸀ in the Greek tab draws the sign, no missing glyph | open |
 | TY-21 | Paper follows the screen, knowingly reversing E222 (the Sheets' paper “shouldn't use Fraunces at all”) | 8, 11 | A sheet's PDF titles in Fraunces; the E222 rule in `src/scripts/desk/sheets/CLAUDE.md` rewritten | open |
 
@@ -149,38 +149,38 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| CO-01 | Green is ink, not paint: every color has one job, and color comes off everything that has none | all (1) | Checkpoint audits: no color outside the rows below | open |
-| CO-02 | Paper `#FAFAF8`: the page | 1 | `test/featherboa-tokens.test.js` | open |
-| CO-03 | Ink `#1D231C`: all text; grays are ink at 78% and 66%, never a separate gray | 1 | `test/featherboa-tokens.test.js`; grep the stylesheets for gray hex values | open |
-| CO-04 | LIT Green `#209D50`: the mark (the emblem, the chapter numeral, “you are here,” one band on the front page); never behind small text | 1 | `test/featherboa-tokens.test.js`; no LIT Green behind words in the preview | open |
-| CO-05 | Deep green `#0F6B33`: what can be pressed (links, and the one filled button on a view) | 1, 2 | `test/featherboa-tokens.test.js`; links compute to deep green | open |
-| CO-06 | Sunshine `#FFD23F`: the reader's own; no longer a bar over titles | 1 | `test/featherboa-tokens.test.js` | open |
-| CO-07 | Red `#B3261E`: deleting and errors, and bookmarks | 1 | `test/featherboa-tokens.test.js` | open |
+| CO-01 | Green is ink, not paint: every color has one job, and color comes off everything that has none | all (1) | Checkpoint audits: no color outside the rows below | built (c1bb5383); held at the checkpoints |
+| CO-02 | Paper `#FAFAF8`: the page | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
+| CO-03 | Ink `#1D231C`: all text; grays are ink at 78% and 66%, never a separate gray | 1 | `test/featherboa-tokens.test.js`; grep the stylesheets for gray hex values | built (c1bb5383) |
+| CO-04 | LIT Green `#209D50`: the mark (the emblem, the chapter numeral, “you are here,” one band on the front page); never behind small text | 1 | `test/featherboa-tokens.test.js`; no LIT Green behind words in the preview | built (c1bb5383), but Home's green sections (CO-10, Phase 7) |
+| CO-05 | Deep green `#0F6B33`: what can be pressed (links, and the one filled button on a view) | 1, 2 | `test/featherboa-tokens.test.js`; links compute to deep green | built (c1bb5383); the filled button in Phase 2 |
+| CO-06 | Sunshine `#FFD23F`: the reader's own; no longer a bar over titles | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
+| CO-07 | Red `#B3261E`: deleting and errors, and bookmarks | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
 | CO-08 | /apps' cobalt, red, and forest: the front page's feature panels only, never in reading or study | 7 | Grep: the three colors only in the home panels' rules and /apps | open |
-| CO-09 | Links stay green, in the deep green (“the dark green of the proposal”) | 1 | Links on an article and a glossary entry compute to deep green, day and night | open |
+| CO-09 | Links stay green, in the deep green (“the dark green of the proposal”) | 1 | Links on an article and a glossary entry compute to deep green, day and night | built (c1bb5383) |
 | CO-10 | No longer green: the full green sections on Home | 7 | Home at 1440 and 390 has no green section | open |
 | CO-11 | No longer green: the round arrow buttons | 2, 4 | No round green arrow button on any page | open |
-| CO-12 | No longer green: the accents sky and ocean (Site 2.0's), which leave with the home page's chat bubbles | 0, 7 | Grep: no sky or ocean value left | open |
-| CO-13 | Unchanged: the four highlighter colors | 1 | Kept: the four highlights draw by day as on `main` | open |
-| CO-14 | Unchanged: the six note markers (the reader's own labels) | 1 | Kept: the six markers' colors match `main` | open |
-| CO-15 | The cream goes as a page color, with “Surfaces” | 1 | Grep: no `#E1DFD9` left | open |
-| CO-16 | Bookmarks stay red | 1 | Kept: a bookmark draws in red | open |
-| CO-17 | The note icons keep their own colors | 1 | Kept: note icons' colors match `main` | open |
-| CO-18 | Verse numbers and footnote letters are deep green, with no underline | 1, 4 | John 3 at 1440: both compute to deep green with `text-decoration: none` | open |
-| CO-19 | What can be pressed is deep green, and nothing else is; the rule has no exception | all (1) | Checkpoint audits: no deep green on anything that can't be pressed | open |
+| CO-12 | No longer green: the accents sky and ocean (Site 2.0's), which leave with the home page's chat bubbles | 0, 7 | Grep: no sky or ocean value left | built (63d07ac0): no sky or ocean left |
+| CO-13 | Unchanged: the four highlighter colors | 1 | Kept: the four highlights draw by day as on `main` | built (c1bb5383, kept) |
+| CO-14 | Unchanged: the six note markers (the reader's own labels) | 1 | Kept: the six markers' colors match `main` | built (c1bb5383, kept) |
+| CO-15 | The cream goes as a page color, with “Surfaces” | 1 | Grep: no `#E1DFD9` left | built (c1bb5383); the verse image's palette keeps it until Phase 8 |
+| CO-16 | Bookmarks stay red | 1 | Kept: a bookmark draws in red | built (c1bb5383, kept) |
+| CO-17 | The note icons keep their own colors | 1 | Kept: note icons' colors match `main` | built (c1bb5383, kept) |
+| CO-18 | Verse numbers and footnote letters are deep green, with no underline | 1, 4 | John 3 at 1440: both compute to deep green with `text-decoration: none` | built (c1bb5383) |
+| CO-19 | What can be pressed is deep green, and nothing else is; the rule has no exception | all (1) | Checkpoint audits: no deep green on anything that can't be pressed | built (c1bb5383); green button fills wait for the kit (Phase 2); held at the checkpoints |
 
 ## Surfaces (SU)
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| SU-01 | The page is the paper (`#FAFAF8`); the cream (`#E1DFD9`) and the sheet laid on it go | 1 | John 3 and Home at 1440: no sheet, no cream | open |
-| SU-02 | Site 2.0's cream everywhere, scripture “on a sheet,” and the page frame with the Marks go | 0, 1 | Grep: no `data-restyle` rule and no page frame left | open |
-| SU-03 | Things are set apart by space first, a hairline second, and a tint third | all (1) | Checkpoint audits: no box where space or a hairline serves | open |
-| SU-04 | Two corner radii: 6px on what is pressed, 10px on what floats | 1, 2 | `test/featherboa-shapes.test.js`: no radius but 6, 10, and a switch's round | open |
-| SU-05 | One shadow, and it means “this floats over the page and will go away”: menus, popovers, and dialogs have it, nothing else | 1 | `test/featherboa-shapes.test.js`: one shadow token, used only by floating things | open |
-| SU-06 | No ornament: the sunshine bar over titles goes | 1 | No title carries a bar | open |
-| SU-07 | No ornament: the Marks go | 0, 1 | Grep: no Marks markup or rule | open |
-| SU-08 | No ornament: the emblem watermark (Site 2.0's 404 and forms) goes | 0, 7 | The 404, Contact, and App support pages show no watermark | open |
+| SU-01 | The page is the paper (`#FAFAF8`); the cream (`#E1DFD9`) and the sheet laid on it go | 1 | John 3 and Home at 1440: no sheet, no cream | built (c1bb5383) |
+| SU-02 | Site 2.0's cream everywhere, scripture “on a sheet,” and the page frame with the Marks go | 0, 1 | Grep: no `data-restyle` rule and no page frame left | built (63d07ac0, c1bb5383) |
+| SU-03 | Things are set apart by space first, a hairline second, and a tint third | all (1) | Checkpoint audits: no box where space or a hairline serves | built (c1bb5383): the green bands outside Home now the page or a tint; held at the checkpoints |
+| SU-04 | Two corner radii: 6px on what is pressed, 10px on what floats | 1, 2 | `test/featherboa-shapes.test.js`: no radius but 6, 10, and a switch's round | tokens built (c1bb5383); the radii come with the kit (Phase 2), checked by the shapes test then |
+| SU-05 | One shadow, and it means “this floats over the page and will go away”: menus, popovers, and dialogs have it, nothing else | 1 | `test/featherboa-shapes.test.js`: one shadow token, used only by floating things | built (c1bb5383): `test/featherboa-shapes.test.js`; the desk's button kinds wait for Phase 2, the Sheets for Phase 11 |
+| SU-06 | No ornament: the sunshine bar over titles goes | 1 | No title carries a bar | built (63d07ac0, c1bb5383): no title carries a bar |
+| SU-07 | No ornament: the Marks go | 0, 1 | Grep: no Marks markup or rule | built (63d07ac0) |
+| SU-08 | No ornament: the emblem watermark (Site 2.0's 404 and forms) goes | 0, 7 | The 404, Contact, and App support pages show no watermark | built (63d07ac0) |
 | SU-09 | One exception: a sheet's page in its editor sits on a tinted desk | 11 | A sheet at 1440: a white page on a tinted desk | open |
 | SU-10 | The stage badge stays while Study is in a stage (“It's not a decoration. It's information.”) | 9 | The badge shows while `DESK_STAGE` is set | open |
 | SU-11 | The badge's place: once, at the foot of the Study sidebar (NX-24) | 9 | The badge appears only at the sidebar's foot | open |
@@ -191,21 +191,21 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| SZ-01 | Headline: Fraunces 300 to 800, 56 to 104 / 0.95; the front door only, one per screen | 1, 7 | `test/featherboa-tokens.test.js`; Home's first screen at 1440 and 390 | open |
-| SZ-02 | Title: Fraunces 400, 48 to 62 / 1.0; the name of a book or a page | 1 | `test/featherboa-tokens.test.js`; an intro and /about at 1440 | open |
-| SZ-03 | Heading: Fraunces 500, 28 / 1.15; sections of an article, a sheet's title | 1 | `test/featherboa-tokens.test.js` | open |
-| SZ-04 | Subhead: Fraunces 500, 21 / 1.2; panel and pane titles | 1 | `test/featherboa-tokens.test.js` | open |
-| SZ-05 | Scripture: Source Sans 3 400, refit from the proposal's 20 / 1.62; the reader's size M, with S, L, and XL still scaling it | 1 | x-height measured against the proposal; `test/display-scale.test.js` kept green | open |
-| SZ-06 | Text: Source Sans 3 400, refit from the proposal's 17 / 1.6; articles, introductions, footnotes at full length, the reader's notes | 1 | x-height measured on an article at 1440 | open |
-| SZ-07 | Margin: Source Sans 3 400, refit from the proposal's 15 / 1.5; notes beside a line, list rows in Study | 1 | x-height measured on a margin note | open |
-| SZ-08 | Label: Atkinson Hyperlegible Next 600, 14.5 / 1.4; every button, tab, and menu row | 1, 2 | `test/featherboa-tokens.test.js` | open |
-| SZ-09 | Small label: Atkinson Hyperlegible Next 600, 12.5 / 1.4; counts, dates, captions; nothing is smaller | 1 | `test/featherboa-tokens.test.js`; no computed size under 12.5px | open |
-| SZ-10 | Verse number: Atkinson Hyperlegible Next 600 at 0.56 of the text, growing and shrinking with it, in deep green with no underline | 1, 4 | The ratio measured at S and XL | open |
-| SZ-11 | The three reading sizes are refit so Source Sans 3's small letters stand as tall as the proposal drew them, measured when built; their line heights are checked with them | 1 | The measured values written beside the tokens; John 1, the specimen, on the preview | open |
-| SZ-12 | One spacing scale: every gap, padding, and margin is 4, 8, 12, 16, 24, 32, 48, 64, or 96 | all (1) | `test/featherboa-spacing.test.js` over the new stylesheets | open |
+| SZ-01 | Headline: Fraunces 300 to 800, 56 to 104 / 0.95; the front door only, one per screen | 1, 7 | `test/featherboa-tokens.test.js`; Home's first screen at 1440 and 390 | tokens built (c1bb5383); Home in Phase 7 |
+| SZ-02 | Title: Fraunces 400, 48 to 62 / 1.0; the name of a book or a page | 1 | `test/featherboa-tokens.test.js`; an intro and /about at 1440 | tokens built (c1bb5383); each page takes them when its phase draws it |
+| SZ-03 | Heading: Fraunces 500, 28 / 1.15; sections of an article, a sheet's title | 1 | `test/featherboa-tokens.test.js` | tokens built (c1bb5383); each page takes them when its phase draws it |
+| SZ-04 | Subhead: Fraunces 500, 21 / 1.2; panel and pane titles | 1 | `test/featherboa-tokens.test.js` | tokens built (c1bb5383); panel and pane titles in Fraunces 500 now, the size with Phases 2 and 9 |
+| SZ-05 | Scripture: Source Sans 3 400, refit from the proposal's 20 / 1.62; the reader's size M, with S, L, and XL still scaling it | 1 | x-height measured against the proposal; `test/display-scale.test.js` kept green | built (c1bb5383); Q11 |
+| SZ-06 | Text: Source Sans 3 400, refit from the proposal's 17 / 1.6; articles, introductions, footnotes at full length, the reader's notes | 1 | x-height measured on an article at 1440 | built (c1bb5383); Q11 |
+| SZ-07 | Margin: Source Sans 3 400, refit from the proposal's 15 / 1.5; notes beside a line, list rows in Study | 1 | x-height measured on a margin note | token built (c1bb5383); margin notes take it in Phase 5; Q11 |
+| SZ-08 | Label: Atkinson Hyperlegible Next 600, 14.5 / 1.4; every button, tab, and menu row | 1, 2 | `test/featherboa-tokens.test.js` | token built (c1bb5383); the kit applies it (Phase 2) |
+| SZ-09 | Small label: Atkinson Hyperlegible Next 600, 12.5 / 1.4; counts, dates, captions; nothing is smaller | 1 | `test/featherboa-tokens.test.js`; no computed size under 12.5px | token built (c1bb5383); the kit applies it (Phase 2) |
+| SZ-10 | Verse number: Atkinson Hyperlegible Next 600 at 0.56 of the text, growing and shrinking with it, in deep green with no underline | 1, 4 | The ratio measured at S and XL | built (c1bb5383) |
+| SZ-11 | The three reading sizes are refit so Source Sans 3's small letters stand as tall as the proposal drew them, measured when built; their line heights are checked with them | 1 | The measured values written beside the tokens; John 1, the specimen, on the preview | built (c1bb5383): the values beside the tokens; Q11 |
+| SZ-12 | One spacing scale: every gap, padding, and margin is 4, 8, 12, 16, 24, 32, 48, 64, or 96 | all (1) | `test/featherboa-spacing.test.js` over the new stylesheets | tokens built (c1bb5383); the spacing test starts with the kit's stylesheet (Phase 2) |
 | SZ-13 | On a computer the reading page is a 220 quiet side, a 660 text column, and a 320 margin | 4 | Measure at 1440: 220, 660, 320 | open |
 | SZ-14 | The text column never gets wider; on a bigger screen only the outer space grows | 4 | The column measured at 1440 and 1920 | open |
-| SZ-15 | The measure stays inside 45 to 75 characters (the 660 column's count measured again in Source Sans 3 through `--ch`); larger sizes shorten it | 1, 4 | Count characters a line on John 3 at each size and face | open |
+| SZ-15 | The measure stays inside 45 to 75 characters (the 660 column's count measured again in Source Sans 3 through `--ch`); larger sizes shorten it | 1, 4 | Count characters a line on John 3 at each size and face | built (c1bb5383): `--reading-width` holds 45 to 75 `--char`; counted again in Phase 4 |
 | SZ-16 | These widths are where every page starts, not a limit (“Keep dragging”): with Study on, the reader still drags the lines between the text, their notes' margin, and the Notebook (E189) | 4, 5 | Kept: `test/desk-e189-lines.test.js` green; drag each line at 1440 | open |
 | SZ-17 | The text column drags only within 45 to 75 characters a line | 4 | Drag to each end and count characters | open |
 | SZ-18 | Phone, under 700: text full width with 24 at each side; notes and footnotes a sheet from the bottom; one row on top and a bar at the thumb | 3, 5 | The preview at 390 | open |
@@ -214,7 +214,7 @@ run's best reading, entered in the plan's queue with what was done.
 | SZ-21 | Study, 1100 and up: two panes share what is left; the companion pane; “A 236 sidebar that never moves” | 9 | None; see SD-46 | superseded → SD-46 |
 | SZ-22 | Study's row as changed with proposal 21: one to three panes of tabs, and a sidebar that folds | 9 | Covered by SD-15 and SD-46 | open |
 | SZ-23 | Anything pressed is 36px tall with a mouse, 44 on touch, and 32 only inside the Study sidebar | 2, 9 | Measure controls at 1440 and 390, sidebar rows at 1440 | open |
-| SZ-24 | Old-style figures in running text, lining figures in the interface (counts and dates) | 1 | `font-variant-numeric` on text and on labels, once OP-04 is answered | open |
+| SZ-24 | Old-style figures in running text, lining figures in the interface (counts and dates) | 1 | `font-variant-numeric` on text and on labels, once OP-04 is answered | queued (Q7) |
 
 ## Controls (CT)
 
@@ -271,39 +271,39 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| MO-01 | Instant, 0: pointing, pressing, selecting, switching tabs, turning a setting on, highlighting a verse; nothing moves | 1 | `test/featherboa-motion.test.js` | open |
-| MO-02 | Quick, 120 ms: menus, popovers, tooltips; fades in and rises 4 pixels toward where it was called from | 1 | `test/featherboa-motion.test.js` | open |
-| MO-03 | Settled, 180 ms: a margin note opening, the Notebook panel, the phone bar hiding; slides 8 pixels from its edge and fades | 1, 3, 5 | `test/featherboa-motion.test.js` | open |
-| MO-04 | Large, 260 ms: bottom sheets, dialogs, present mode; travels its full height while the page dims behind it | 1, 5 | `test/featherboa-motion.test.js` | open |
-| MO-05 | One curve: everything arrives fast and settles gently (a sharp ease-out) | 1 | `test/featherboa-motion.test.js`: one easing token, no bare `ease` | open |
-| MO-06 | Leaving takes two thirds as long as arriving | 1 | `test/featherboa-motion.test.js` | open |
-| MO-07 | Nothing bounces, and nothing loops | 1 | Grep: no `infinite` animation and no overshooting curve | open |
+| MO-01 | Instant, 0: pointing, pressing, selecting, switching tabs, turning a setting on, highlighting a verse; nothing moves | 1 | `test/featherboa-motion.test.js` | built (c1bb5383) |
+| MO-02 | Quick, 120 ms: menus, popovers, tooltips; fades in and rises 4 pixels toward where it was called from | 1 | `test/featherboa-motion.test.js` | built (c1bb5383): the speed; each menu's 4px rise with the kit (Phase 2) |
+| MO-03 | Settled, 180 ms: a margin note opening, the Notebook panel, the phone bar hiding; slides 8 pixels from its edge and fades | 1, 3, 5 | `test/featherboa-motion.test.js` | built (c1bb5383): the speed; the slides with Phases 3 and 5 |
+| MO-04 | Large, 260 ms: bottom sheets, dialogs, present mode; travels its full height while the page dims behind it | 1, 5 | `test/featherboa-motion.test.js` | built (c1bb5383): the speed; the dimming with Phase 5 |
+| MO-05 | One curve: everything arrives fast and settles gently (a sharp ease-out) | 1 | `test/featherboa-motion.test.js`: one easing token, no bare `ease` | built (c1bb5383) |
+| MO-06 | Leaving takes two thirds as long as arriving | 1 | `test/featherboa-motion.test.js` | built (c1bb5383) |
+| MO-07 | Nothing bounces, and nothing loops | 1 | Grep: no `infinite` animation and no overshooting curve | built (c1bb5383) |
 | MO-08 | Scripture never moves: it does not animate, shift, or reflow when a note or panel opens, since the margin is already reserved | 4, 5 | Open a footnote and the panel at 1440; the first verse keeps its position | open |
-| MO-09 | Reduced motion is unchanged: a reader whose device asks for less gets no movement | 1 | Kept: emulate `prefers-reduced-motion`; open a menu, a sheet, and the panel | open |
-| MO-10 | Built as four duration tokens and one easing token, then one pass pointing every transition at one of them | 1 | `test/featherboa-motion.test.js`: no transition or animation outside the four durations | open |
+| MO-09 | Reduced motion is unchanged: a reader whose device asks for less gets no movement | 1 | Kept: emulate `prefers-reduced-motion`; open a menu, a sheet, and the panel | built (c1bb5383, kept) |
+| MO-10 | Built as four duration tokens and one easing token, then one pass pointing every transition at one of them | 1 | `test/featherboa-motion.test.js`: no transition or animation outside the four durations | built (c1bb5383); Q12 |
 
 ## Night (NI)
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| NI-01 | The page is `#111411`, and text `#ECEEE8` (15.9:1) | 1 | `test/featherboa-tokens.test.js` | open |
-| NI-02 | One page color by night: today's `#0E0E0F` page and `#161617` surfaces go | 1 | Grep: neither value left | open |
-| NI-03 | LIT Green brightens to `#2DB463` at night | 1 | `test/featherboa-tokens.test.js` | open |
-| NI-04 | A highlight becomes a low amber wash at night, the words on it at 8:1 | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-05 | Each of the four highlighter colors gets such a night wash, its words at 8:1 or more | 1 | `test/featherboa-contrast.test.js` for all four | open |
-| NI-06 | Depth without shadows: what floats at night gets a slightly lighter surface and a hairline edge in place of the one shadow | 1 | A menu and a dialog at night, 1440 | open |
-| NI-07 | Built as the dark values in the token file, every dark style written for both the device setting and the reader's own switch | 1 | `test/featherboa-css-rules.test.js`: every dark rule in both selectors | open |
-| NI-08 | Every text pairing needs 4.5:1, save LIT Green, held to 3:1 because it marks and sets large type and never words | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-09 | Contrast: ink on paper (scripture, all body text), 15.4 by day and 15.9 by night | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-10 | Contrast: second ink on paper (captions, secondary labels), 7.6 and 9.0 | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-11 | Contrast: third ink on paper (counts, dates), 5.1 and 5.9 | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-12 | Contrast: third ink on the darkest tint (counts in a selected sidebar row), 4.8 and 5.4 | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-13 | Contrast: deep green on paper (links, plain green commands), 6.3 and 9.6 | 1 | `test/featherboa-contrast.test.js`; the night deep green chosen to reach 9.6 | open |
-| NI-14 | Contrast: the label on the filled button (the one main action), 6.6 and 9.7 | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-15 | Contrast: ink on a highlight (highlighted scripture), 13.3 and 8.1 | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-16 | Contrast: red on paper (deleting, errors), 6.3 and 7.5 | 1 | `test/featherboa-contrast.test.js`; the night red chosen to reach 7.5 | open |
-| NI-17 | Contrast: LIT Green on paper (the chapter numeral, the “you are here” line), 3.4 and 6.9 | 1 | `test/featherboa-contrast.test.js` | open |
-| NI-18 | Green words are always the deep green; LIT Green serves a large numeral or a marker line, not words | 1 | Grep: LIT Green never sets the color of words | open |
+| NI-01 | The page is `#111411`, and text `#ECEEE8` (15.9:1) | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
+| NI-02 | One page color by night: today's `#0E0E0F` page and `#161617` surfaces go | 1 | Grep: neither value left | built (c1bb5383) |
+| NI-03 | LIT Green brightens to `#2DB463` at night | 1 | `test/featherboa-tokens.test.js` | built (c1bb5383) |
+| NI-04 | A highlight becomes a low amber wash at night, the words on it at 8:1 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-05 | Each of the four highlighter colors gets such a night wash, its words at 8:1 or more | 1 | `test/featherboa-contrast.test.js` for all four | built (c1bb5383) |
+| NI-06 | Depth without shadows: what floats at night gets a slightly lighter surface and a hairline edge in place of the one shadow | 1 | A menu and a dialog at night, 1440 | built (c1bb5383) |
+| NI-07 | Built as the dark values in the token file, every dark style written for both the device setting and the reader's own switch | 1 | `test/featherboa-css-rules.test.js`: every dark rule in both selectors | built (c1bb5383) |
+| NI-08 | Every text pairing needs 4.5:1, save LIT Green, held to 3:1 because it marks and sets large type and never words | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-09 | Contrast: ink on paper (scripture, all body text), 15.4 by day and 15.9 by night | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-10 | Contrast: second ink on paper (captions, secondary labels), 7.6 and 9.0 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-11 | Contrast: third ink on paper (counts, dates), 5.1 and 5.9 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-12 | Contrast: third ink on the darkest tint (counts in a selected sidebar row), 4.8 and 5.4 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-13 | Contrast: deep green on paper (links, plain green commands), 6.3 and 9.6 | 1 | `test/featherboa-contrast.test.js`; the night deep green chosen to reach 9.6 | built (c1bb5383); Q10 |
+| NI-14 | Contrast: the label on the filled button (the one main action), 6.6 and 9.7 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-15 | Contrast: ink on a highlight (highlighted scripture), 13.3 and 8.1 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383): 13.4 by day; Q10 |
+| NI-16 | Contrast: red on paper (deleting, errors), 6.3 and 7.5 | 1 | `test/featherboa-contrast.test.js`; the night red chosen to reach 7.5 | built (c1bb5383); Q10 |
+| NI-17 | Contrast: LIT Green on paper (the chapter numeral, the “you are here” line), 3.4 and 6.9 | 1 | `test/featherboa-contrast.test.js` | built (c1bb5383) |
+| NI-18 | Green words are always the deep green; LIT Green serves a large numeral or a marker line, not words | 1 | Grep: LIT Green never sets the color of words | built (c1bb5383) for words; the green on ink buttons' hover (Phase 2), the menu's group headings (Phase 3), and Home (Phase 7) wait |
 
 ## Nothing interrupts the reader (NX)
 
@@ -350,11 +350,11 @@ run's best reading, entered in the plan's queue with what was done.
 |---|---|---|---|---|
 | RP-01 | The chapter page feels like a well-made reader's Bible: a book face, a true measure, quiet numbers, and margins that do work; no paper texture, no page curl, no card | 4 | John 3 at 1440 against the proposal's drawing | open |
 | RP-02 | Built mostly as styles on today's markup; every Display setting keeps working; the margin footnote is the new behavior | 4 | Each tray setting on the new page | open |
-| RP-03 | Scripture in Source Sans 3 at its refit size, about 70 characters a line in the 660 column | 1, 4 | Count characters a line on John 3 at size M | open |
+| RP-03 | Scripture in Source Sans 3 at its refit size, about 70 characters a line in the 660 column | 1, 4 | Count characters a line on John 3 at size M | built (c1bb5383): the size; counted in Phase 4 |
 | RP-04 | The chapter number is a drop numeral in LIT Green, as in the apps | 4 | None; see WB-16 | superseded → WB-16 |
 | RP-05 | Verse numbers and footnote letters are deep green with no underline, not the proposal's small gray figures and small italics (CO-18) | 4 | Covered by CO-18 | open |
 | RP-06 | Footnote letters stand upright, never italic | 4 | Computed `font-style: normal` on footnote letters | open |
-| RP-07 | No sheet: the text sits on the page | 1, 4 | John 3 at 1440: no card behind the text | open |
+| RP-07 | No sheet: the text sits on the page | 1, 4 | John 3 at 1440: no card behind the text | built (63d07ac0, c1bb5383) |
 | RP-08 | The way on at the foot is large type in deep green (“John 2 →,” with “Luke 24” back), not a filled button | 4 | The foot of John 21, and John 3 without JavaScript | open |
 | RP-09 | The way on at every chapter's foot | 4 | None; see WB-10 | superseded → WB-10 |
 | RP-10 | Footnotes and the reader's notes share the 320 margin, one place for everything about a line | 5 | John 3 at 1440 with notes and a footnote open | open |
@@ -586,7 +586,7 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| SE-01 | Site 2.0's /search (“Yes to two panes,” in its quieter redraw) is not taken | 0, 6 | /search has no two-pane layout | open |
+| SE-01 | Site 2.0's /search (“Yes to two panes,” in its quieter redraw) is not taken | 0, 6 | /search has no two-pane layout | built (63d07ac0); Phase 6 draws /search |
 | SE-02 | The field is the page, with the count at its right end (“75 results”) | 6 | /search for “light” at 1440 | open |
 | SE-03 | The visible title and the instruction go; a “Search” heading stays for screen readers | 6 | `read_page` finds the heading; nothing visible above the field | open |
 | SE-04 | One row of tabs does the filtering: Scripture, Chapters about it, Glossary, Articles, Introductions, and with Study on, the notebook's tab (BP-03) and Greek | 6 | /search at 1440, with and without the preview | open |
@@ -624,7 +624,7 @@ run's best reading, entered in the plan's queue with what was done.
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
 | GL-01 | Articles and book introductions take the reading page's column, margin, and faces | 7 | An article and an intro at 1440 | open |
-| GL-02 | Site 2.0's choices (the glossary's list in a left column, an article's picture edge to edge, an introduction's headings beside the text) are not taken | 0, 7 | None of the three on the branch | open |
+| GL-02 | Site 2.0's choices (the glossary's list in a left column, an article's picture edge to edge, an introduction's headings beside the text) are not taken | 0, 7 | None of the three on the branch | built (63d07ac0); Phase 7 draws the pages |
 | GL-03 | /glossary stays one page, read on, each entry at its anchor, so every `/glossary#faith-trust` link keeps working | 7 | `test/featherboa-old-addresses.test.js`: every entry's anchor present | open |
 | GL-04 | The line at the top reads “Learn / Glossary ▾ / trust,” naming the entry in view | 7 | Scroll the glossary at 1440 | open |
 | GL-05 | “Glossary ▾” lists the entries, in place of today's jump list | 7 | Open it; no jump list on the page | open |
@@ -1101,7 +1101,7 @@ run's best reading, entered in the plan's queue with what was done.
 | DA-09 | Declined, ii: a reader's edition by default (Display's “Verse and chapter numbers” and “Footnote letters” put it one switch away) | 4 | Both switches on by default | open |
 | DA-10 | Declined for now, iii: show the argument (a “Compare” switch), revisited with the word links | 4 | No Compare switch | open |
 | DA-11 | Declined where it is left, iv: “Notebook” doesn't become “Notes” | 9, 10 | Covered by NB-18 | open |
-| DA-12 | Declined, v: one highlighter (“Color” kept the four highlighter colors and the six note markers) | 1 | Covered by CO-13 | open |
+| DA-12 | Declined, v: one highlighter (“Color” kept the four highlighter colors and the six note markers) | 1 | Covered by CO-13 | built (c1bb5383, kept) |
 | DA-13 | Declined, vi: pages, not a scroll | 4 | Covered by WB-01 | open |
 | DA-14 | Declined, vii: retire the header while you read | 3 | The header stays on John 3 at 1440 | open |
 
@@ -1110,7 +1110,7 @@ run's best reading, entered in the plan's queue with what was done.
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
 | BP-01 | Featherboa and Study launch together, in one merge that is also Study's public beta, so no computer ever has the new site without Study (settles SD-66) | 14 | Phase 14's launch list | open |
-| BP-02 | Site 2.0's code is removed, and `SITE-2.0.md` stays as the record (settles WS-03) | 0 | No `data-restyle`, `restyle.css`, or `v2/` left; `SITE-2.0.md` kept | open |
+| BP-02 | Site 2.0's code is removed, and `SITE-2.0.md` stays as the record (settles WS-03) | 0 | No `data-restyle`, `restyle.css`, or `v2/` left; `SITE-2.0.md` kept | built (63d07ac0) |
 | BP-03 | Search's tab for the reader's notes is “Notebook,” not “My Notebook,” by “Controls”' rule of no “My” (overrides SE-05) | 6 | /search with the preview | open |
 | BP-04 | About's rows include License: The LIT, Commitments, License, The Collective, Apps, Release Notes, Support, Contact (overrides HD-24; FP-18 put it under About) | 3 | About ▾ at 1440; `test/featherboa-labels.test.js` | open |
 | BP-05 | The What's New page is built with the rest, its entries written by hand, with no feed, at `/whats-new` | 7 | /whats-new builds, with no feed | open |
@@ -1121,7 +1121,7 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-10 | BVJ reviews those pages built, and any redrawn becomes its own decision | 7 | At Checkpoint A | open |
 | BP-11 | /apps keeps its own look and faces inside the new header and footer, since its stylesheet is the LSC site's too | 7 | /apps at 1440: only the header and footer change | open |
 | BP-12 | The icons are Lucide's (ISC license) at a 1.5-pixel stroke, credited in the colophon (the set for CT-17) | 2, 7 | `test/featherboa-icons.test.js`; the colophon's credit | open |
-| BP-13 | Fraunces starts at the specimen's settings: softness 50 and wonk on for headings, softness 100 for the paper's numeral, for BVJ to adjust on the preview (settles TY-15's start) | 1, 8 | Computed `font-variation-settings` on a heading and the numeral | open |
+| BP-13 | Fraunces starts at the specimen's settings: softness 50 and wonk on for headings, softness 100 for the paper's numeral, for BVJ to adjust on the preview (settles TY-15's start) | 1, 8 | Computed `font-variation-settings` on a heading and the numeral | built (c1bb5383) |
 | BP-14 | The italic lines are each page's own words: on Home the letter's first line, set as its opening; on About “So… who am I?”; on the 404 page “Page not found.” (settles DA-03) | 7 | Each page at 1440 | open |
 | BP-15 | Study on a phone or tablet says “Study is made for a computer. On a phone or tablet, the free LIT Bible app keeps your notes, highlights, and bookmarks.” (approved; settles SM-05) | 13 | /study at 390 | open |
 | BP-16 | The front page on a phone keeps the computer's order: the buttons right under the claim and the name, John 1 after them | 7 | Home at 390 | open |
@@ -1136,9 +1136,9 @@ run's best reading, entered in the plan's queue with what was done.
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
 | OP-01 | Fraunces's settings, adjusted on the preview from the starting values (BP-13) | 1 | BVJ on the preview | open |
-| OP-02 | What else names Inter, beyond the two settled: the verse image's name and address (OS-19) and the margin notes' Plain face (RP-23); /apps keeps it | 1 | A search of the code when it is built | open |
+| OP-02 | What else names Inter, beyond the two settled: the verse image's name and address (OS-19) and the margin notes' Plain face (RP-23); /apps keeps it | 1 | A search of the code when it is built | answered (c1bb5383): print and the verse image (Phase 8), a sheet's faces (Phase 11), and /apps; the fonts test's `LATER` map lists them |
 | OP-03 | Whether Source Sans 3 has the SBLGNT's text-critical signs | 12 | ⸀ and its kin drawn in Source Sans 3, or Cardo kept (TY-20) | open |
-| OP-04 | Whether Source Sans 3's served file has old-style figures | 1 | The served file's `onum` feature, for SZ-24 | open |
+| OP-04 | Whether Source Sans 3's served file has old-style figures | 1 | The served file's `onum` feature, for SZ-24 | answered: no; queued (Q7) |
 | OP-05 | The glossary's third opening paragraph: Claude's draft (“As you look through the entries below…”) for BVJ to approve or rewrite at the build's review | 7 | BVJ's answer at Checkpoint A | queued (Q1) |
 | OP-06 | The colophon's sentence about how the site is made: Claude drafts it, and it is decided at the build's review | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
 | OP-07 | The What's New page's words: its three entries, drafted in the build | 7, 13 | BVJ's answer at Checkpoint A | queued (Q3) |
