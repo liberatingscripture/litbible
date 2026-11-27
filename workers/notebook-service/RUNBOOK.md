@@ -123,10 +123,12 @@ the way back. On the preview, don't restore; wipe (`README.md`, "Wipe").
   an Apple way in can't be deleted until Apple answers. Nothing to do but
   wait; the hourly run retries by itself.
 - **The Apple key leaked or was revoked**: in BDR's Apple developer account,
-  revoke the key and make a new one. BVJ sets it at Wrangler's own prompt
-  (`npx wrangler secret put APPLE_PRIVATE_KEY --env …`) and changes
-  `APPLE_KEY_ID` in `wrangler.jsonc`. The value is never typed anywhere
-  else.
+  revoke the key and make a new one. BVJ sets it from the new `.p8` file
+  (`Get-Content -Raw "<path>" | npx wrangler secret put APPLE_PRIVATE_KEY --env …`,
+  README, "Apple and Google") and changes `APPLE_KEY_ID` in
+  `wrangler.jsonc` to the id in the file's name. Set the secret and merge
+  the id together: between the two, Apple's sign-ins fail with `provider`.
+  The value goes nowhere else, a conversation with an assistant included.
 
 ## 6. Reading the hourly line, and the limits
 
