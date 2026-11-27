@@ -96,7 +96,8 @@ means each of these, in one change:
    card and pill swaps (`pages/read.css`, `read.astro`, `ScriptureLayout.astro`).
 5. The pages' preview copy and loading/off pairs (`desk.astro`,
    `notebook.astro`, `sheets.astro`, `desk/help.astro` and their page CSS).
-   The "off" note must still say something true for no-JS and phones.
+   The "off" note must still say something true for no-JS and phones
+   (Featherboa's sentence: `SITE-FEATHERBOA.md`, "Small screens").
 6. `/privacy`'s notebook paragraph ("Readers who switch on the Study Desk,
    a preview…") and whether to bump its effective date. Its account
    section's launch edits are the account file's (rule 11).

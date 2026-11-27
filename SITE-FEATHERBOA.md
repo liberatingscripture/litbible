@@ -2289,6 +2289,42 @@ refinements at the end of this section.
 - **Nothing here changes the sync, the encryption, or the record format**,
   as the proposal says; the spare key's own changes are steps SK1 to SK5.
 
+## Small screens (decided 2026-11-27)
+
+Design Directions' proposal 26 is a question rather than a design: Study
+is off on phones and tablets, and the proposal sketches a measured version
+for each (on a tablet, the sidebar as a rail of icons with Scripture
+sliding over; on a phone, notes to read and write and a sheet to present,
+with no editor and no panes) for BVJ "to accept, shrink, or decline." Its
+reason: once sync arrives, a reader will open the site on a phone and find
+Study missing with no explanation. Claude recommended declining both, by
+BVJ's standing rule, and taking the proposal's "smallest honest version."
+BVJ: “1, yes. 2, yes. 3, just use the apps! 4, yes.”
+
+- **Study stays on computers** (BVJ, 2026-09-30, kept 2026-10-08 and
+  2026-10-28): phones and tablets use the free apps. Neither of the
+  proposal's versions is built.
+- **On a phone or tablet, Study says so, in one sentence with the two
+  store links**, in place of today's "The Study Desk is a preview that
+  isn't switched on in this browser." It is the same rule as the Greek's
+  on a draft ("The Greek"): what isn't there says why. Claude's draft:
+  “Study is made for a computer. On a phone or tablet, the free LIT Bible
+  app keeps your notes, highlights, and bookmarks.” Once the apps sync, it
+  adds “and, once you sign in, the notebook you keep here.” The words are
+  BVJ's to approve.
+- **Tablets use the apps too, with no tablet version planned** (BVJ:
+  “just use the apps!”). This drops the version 2 idea of 2026-10-28, a
+  tablet or an unfolded foldable choosing to use the desk
+  (`STUDY-DESK.md`, "Version 2: deferred and shelved"), which Claude had
+  proposed keeping.
+- **The two exceptions stay as built**: a shared sheet's link opens its
+  viewer on a phone or tablet (read, present, print, and share, with
+  nothing saved; `src/scripts/desk/sheets/CLAUDE.md`, rule 21), and the
+  account page gives a phone the basics (signing in, a request that waits,
+  deleting, and signing out; `src/scripts/desk/account/CLAUDE.md`, rule
+  12). Where that page says where the notebook can be opened, it uses the
+  sentence above.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
