@@ -6,19 +6,21 @@ work, the rules that keep the build faithful to the record, how it is
 checked, and how the questions reach BVJ. BVJ makes every call (2026-11-27:
 “I make all the calls”).
 
-**Status: a plan, waiting for BVJ's approval** (written 2026-11-27). Once
-approved, an Opus session at maximum effort builds it, with subagents,
-running as far as it can without asking. The sections "Progress" and "The
-queue" are the run's own to edit; every other section changes only with
-BVJ's say.
+**Status: approved by BVJ on 2026-11-27**, with the answers in "Questions
+answered before the run." An Opus session at maximum effort builds it, with
+subagents, running as far as it can without asking. The sections
+"Progress" and "The queue" are the run's own to edit; every other section
+changes only with BVJ's say.
 
 ## The run in one paragraph
 
 One branch, `claude/featherboa-build`, cut from `main` in a fresh worktree,
 with a draft pull request opened at once so CI runs on every push and
 Cloudflare Pages keeps a preview of the branch at
-`claude-featherboa-build.litbible.pages.dev`. Fourteen phases (0 to 13),
-foundations first, then the public site, then Study. Each phase starts by
+`claude-featherboa-build.litbible.pages.dev`. Fifteen phases (0 to 14),
+foundations first, then the public site, then Study, then the switch that
+opens Study to every computer, since **Featherboa and Study's public beta
+launch together, by one merge** (BVJ, 2026-11-27). Each phase starts by
 merging `main` in, ends with every check green and the preview updated, and
 marks its rows in the ledger. Where the record doesn't settle something,
 the run takes the most reversible choice that follows the record's own
@@ -137,8 +139,10 @@ Build the right-hand side.
 | News behind a dot beside About | Marked where its subject lives; Release Notes and the What's New page placed in "Four places: the header" |
 | "My Notes," "My Notebook," "Scripture page(s)" (E70, BA138, E130) | "Notes," "Notebook," "the Read page" ("Controls," "Study and its places") |
 
-Two pairs the record leaves unsettled are put to BVJ below (questions 5
-and 6).
+Two pairs the record had left unsettled are settled in its last decided
+section, "Decided with the build plan": Search's tab is "Notebook," and
+License is among About's rows. That section holds wherever it differs from
+an earlier one.
 
 ## Branch, preview, and launch
 
@@ -158,17 +162,24 @@ and 6).
   preview builds noindex; check the header once. The Study parts need
   `?desk=on` once on that address, as on the live site.
 - **Checkpoint A** comes after Phase 8, when the public site is done: an
-  audit, the queue to BVJ, and BVJ's choice to launch the public site then
-  (merge, and Study continues on a new branch from `main`) or to keep going
-  and launch everything together. The run keeps going into Phase 9 unless
-  BVJ says otherwise.
-- **Checkpoint B** comes after Phase 13: the final audit, the queue, and
+  audit and the queue to BVJ. The run keeps going into Phase 9 while BVJ
+  answers.
+- **Checkpoint B** comes after Phase 14: the final audit, the queue, and
   the launch list.
-- **The launch is BVJ's merge.** The merge method is a merge commit, so each
-  phase stays a unit for a later bisect. The merge commit touches
+- **The launch is BVJ's merge, and it launches both** (BVJ, 2026-11-27:
+  the public site and Study "launch together"). Until Phase 14, the branch
+  keeps Study behind the preview switch, as `main` does, so the preview
+  shows Study with `?desk=on`; Phase 14 makes it every computer's, so that
+  merging is Study's public beta too (`STUDY-DESK.md`, "Launching"). There
+  is no state in which a computer has the new site without Study, so none
+  is designed. The merge method is a merge commit, so each phase stays a
+  unit for a later bisect. The merge commit touches
   `src/data/release-notes-skip.md` (a design isn't a text change) and logs
-  why there. Study's own launch (the public beta, `STUDY-DESK.md`,
-  "Launching") is a separate step, BVJ's to time.
+  why there. BVJ times the merge.
+- **Study work on `main` continues meanwhile** (the sync, the service, and
+  BDR's work), and Phases 9 to 13 collide with any of it that changes
+  Study's interface. The run merges `main` at the start of each phase and
+  resolves the conflicts, keeping `main`'s behavior.
 
 ## The ledger
 
@@ -291,16 +302,18 @@ draws from the kit; the icon module serves both sides.
   About, with the record's names; "LIT Bible" always, so **the title swap
   retires** (its inline script, and `test/header-title.test.js`); Aa and
   the account at the right; the magnifier on every page but the Read page.
-  **Study shows only with the Study preview on** (question 3).
+  **Study shows on a computer only**, never on a phone or tablet; until
+  Phase 14 that means with the preview on.
 - **The line under the header**, one component, on every page but Home,
   naming the page, with the page's one or two main commands at its right;
   pages in no menu mark no place.
 - **News marks**: the dot on a header menu, "New" beside its item, cleared
   when that menu opens, read from one small data file, empty until there is
-  news. "See what's new →" and the footer's link wait for the What's New
-  page (question 7).
+  news; a menu with a mark ends with "See what's new →," to the What's New
+  page Phase 7 builds.
 - **The footer**: the four groups and their names, then Privacy, the Terms
-  of Use, the newsletter, and the colophon's link (Phase 7 makes the page).
+  of Use, the newsletter, and the links to the What's New page and the
+  colophon (Phase 7 makes both).
 - **The phone**: one row at the top (the emblem, the chapter's name as the
   picker, Aa), the bar at the thumb (Previous, Search, Menu, Next), both
   hiding together on a scroll down and returning on any scroll up (reuse
@@ -384,14 +397,13 @@ reader," and "The phone"'s sheets.
 - **The verse menu**: Highlight, Note, Bookmark, and Copy across the top,
   each acting at once and then showing its choices beneath; then Add to
   sheet…, Add to collection…, Share… (Share text…, Share image…, Print),
-  and Show in Notebook last. **The selection panel matches.** Without the
-  Study preview (a phone, or a computer before Study opens, question 3):
-  Copy and Share… only.
+  and Show in Notebook last. **The selection panel matches.** On a phone or
+  tablet, where Study never runs, the phone's actions below.
 - **The phone**: the verse sheet (Copy text, Copy link, Share text…, Share
   image…, then Copy with footnotes, no Print); a footnote as a sheet up to
   about half the screen, dragging to full height; the chapter heading's Go
   deeper opening a sheet with "Go deeper" and "Footnotes" tabs; on a tablet
-  (and a computer without Study) the same as a panel over the right edge.
+  the same as a panel over the right edge.
 - **The Notebook panel** (with the preview): Notes, Footnotes, This verse;
   it takes the margin's column while open; its title is the menu "Notebook
   ▾" (Print…, the whole notebook, Notebook actions, Take the tour, Help,
@@ -438,8 +450,9 @@ no decision draws (question 8).
   the entry in view, ‹ › between entries, the list's order switch; each
   entry's pair as its headline ("Traditionally" beside "In the LIT"), no
   arrow and no strike-through; "πίστις pistis" from the lemma map; "Where
-  it appears" in the margin, under the entry with no margin; the opening's
-  third paragraph as BVJ words it (question 13).
+  it appears" in the margin, under the entry with no margin. The opening's
+  third paragraph is BVJ's words, so it stays as it is until BVJ answers at
+  the review (the queue's first entry).
 - **Articles and introductions**: the reading column and type, a Fraunces
   title, author and date on one line, the picture at the column's width,
   tags at the foot; "Introduction to Mark →" above chapter 1 and "Mark 1 →"
@@ -452,7 +465,18 @@ no decision draws (question 8).
   four questions as a list; on a phone the same order (question 17). The
   conversation and its Luke 3 go.
 - **The italic lines** (question 14) and **/colophon**, "How this site is
-  made," linked from the footer (question 15 on its sentence about AI).
+  made," linked from the footer, with Claude's draft of its sentence about
+  AI in place and marked in the queue for BVJ's answer at the review
+  (question 15).
+- **The What's New page** at `/whats-new` (question 7): news that isn't a
+  change to the text, written by hand in one data file, with no feed (the
+  apps don't read it, and nothing writes it automatically). It follows the
+  Display tray's size and spacing, with its column in `--ch`. Its entries:
+  the apps, dated to the day they were released (find the date in the
+  repo's record; queue it if unsure); the new site, never calling it
+  "Featherboa," which isn't a public name; and, made near the end of the
+  run once Study is built, the Study page and its features as a mock-up for
+  BVJ's review. The entries' words are drafts in the queue.
 - **Every other page** takes the foundations, the header and its line, and
   the footer (question 8). /apps takes only the header and footer (question
   9).
@@ -486,7 +510,7 @@ no decision draws (question 8).
   what is a miss, and queues what is a judgment.
 - The ledger's public rows all checked or queued; the docs and tests
   current.
-- **The queue goes to BVJ**, with the launch choice (above).
+- **The queue goes to BVJ**, and the run goes on to Phase 9.
 
 ### Phase 9: Study's frame
 
@@ -591,6 +615,35 @@ retirement. The largest phase; `src/scripts/desk/` is some 47,000 lines and
   links (question 16), and the account page uses it.
 - **The tours** rewritten for the new frame: "Start here" heading Study
   until taken, the Study tour, and the Sheets tour (E63).
+- The What's New page's Study entry, as a mock-up (Phase 7).
+
+### Phase 14: The launch switch
+
+Study's public beta, so that the one merge launches both. The list is the
+desk's own, `src/scripts/desk/CLAUDE.md`, "Launching," items 1 to 12, then
+its grep, read with the record. Featherboa changes two of its items: "Show
+the Notebook" is now the Notebook button on the place line ("Display"), and
+Read View has already retired in Phase 4.
+
+- The pre-paint stamp stops requiring the preview on a computer; phones and
+  tablets stay without Study; `?desk=on`, `?desk=off`, and
+  `lit-desk-preview` retire, and `/privacy` drops the key.
+- Every reader of the stamp (`search-core.js`'s gates, `desk-gate.js`,
+  `desk-frame.js`, the keyboard's `h`, the shared sheet's gate, the
+  layouts, the header) works for every computer; the pages' preview copy
+  goes.
+- `DESK_STAGE` reads "beta" (the badge at the sidebar's foot). Whether a
+  beta stage is left if the opening and sync land on the same day is open
+  in `STUDY-DESK.md`, so it goes in the queue.
+- Indexing for /study and its help (a decision in that list), `llms.txt`,
+  the README, and every "preview" in the docs.
+- **The launch's announcement window** (launches only, under
+  `src/components/CLAUDE.md`'s rules): Study's opening and the What's New
+  page, one window, its words a draft in the queue; "Study · New" on the
+  header's menu and the front page's band for a set time that BVJ names.
+- `STUDY-DESK.md`'s "Before launch" list is checked: what is done, and what
+  is BVJ's or BDR's (the trusted readers, the real-device audit, BDR's
+  review of the format) goes in the launch list.
 
 ### Checkpoint B: the whole build
 
@@ -602,10 +655,11 @@ retirement. The largest phase; `src/scripts/desk/` is some 47,000 lines and
   section with the commit; the memory updated.
 - The weight measured against Phase 0's baselines, and the fonts trimmed to
   what is used.
-- **The launch list** for BVJ: the merge, the release-notes skip, the LSC
-  notice for `/privacy`, BDR's note about `/license` and the Sheets' font
-  set, Cloudflare's 404s and `/read/<book>` traffic to watch in the first
-  weeks, and Study's public beta as its own step.
+- **The launch list** for BVJ: the merge (the site and Study's public beta
+  at once), the release-notes skip, the LSC notice for `/privacy`, BDR's
+  note about `/license` and the Sheets' font set, what is left of
+  `STUDY-DESK.md`'s "Before launch," and Cloudflare's 404s and
+  `/read/<book>` traffic to watch in the first weeks.
 - **The queue to BVJ.**
 
 ## Checks
@@ -675,86 +729,103 @@ How a question waits. The run adds to it; BVJ answers at a checkpoint.
   recommendation for each, as BVJ prefers; answers recorded here and in
   the record when they are decisions, and built.
 
-(Empty.)
+Entered before the run, from BVJ's answers:
+
+- **Q1. The glossary's third opening paragraph** (BVJ: “ask me at the
+  review”). It describes today's styling ("in bold… In italics…
+  Underlined…"), so it stops matching in Phase 7, but it is BVJ's, so it
+  stays until answered. Claude's draft: “As you look through the entries
+  below, you’ll find the traditional word on the left and, on the right,
+  what the LIT Bible uses in its place most often (it can change based on
+  context). Under them is the Greek behind it.”
+- **Q2. The colophon's sentence about AI** (BVJ: “ask me at the review.
+  You can draft it, but we'll see what is decided”). The run drafts it and
+  puts it in place, marked here; BVJ words it, keeps it, or drops it. If it
+  stays, the page says as plainly who translates the text. Claude's first
+  draft: “People make every decision about this site, and much of its code
+  is written with Claude, an AI model made by Anthropic. The translation is
+  not: Brandon translates every word of the LIT.”
+- **Q3. The What's New page's words**: the apps' entry and its date, the
+  new site's entry, and the Study entry as a mock-up (Phase 7 and Phase
+  13).
+- **Q4. The launch's words**: the announcement window, and the band's and
+  the mark's set time (Phase 14).
+- **Q5. Study's stage at launch**: "beta," unless the opening and sync land
+  on the same day (Phase 14; `STUDY-DESK.md`, "Launching").
 
 ## Questions answered before the run
 
-The questions put to BVJ on 2026-11-27, with Claude's recommendations.
-BVJ's answers go here when given, and the run follows them.
+Eighteen questions put to BVJ on 2026-11-27, each with Claude's
+recommendation, and BVJ's answers. The run follows them.
 
 1. **The launch's shape.** One branch and its preview, launched by one
-   merge, with Checkpoint A offering to launch the public site before
-   Study. *Recommended.* The other way, a switch on the live site as Site
-   2.0 had, keeps two versions of every page in the code until launch.
+   merge (Claude's recommendation, over a switch on the live site as Site
+   2.0 had, which keeps two versions of every page in the code). BVJ: **the
+   site and Study "launch together,"** so Checkpoint A offers no early
+   launch, and Phase 14 makes the one merge Study's public beta too.
 2. **Site 2.0's code is removed** at the start, its phone bar's scroll
-   logic kept for the new bars, and `SITE-2.0.md` kept as the record.
-   *Recommended.*
-3. **A computer without Study** (every computer reader until Study's public
-   beta, and phones and tablets always): the header shows Read, Learn, and
-   About; the verse menu and selection panel have Copy and Share…; footnotes
-   still float in the margin; Go deeper and a chapter's footnotes open the
-   tablet's panel with its two tabs; the front page has no Study panel.
-   *Recommended*, since the record draws the Read page with Study on.
-4. **Study's rebuild comes in this run**, after the public site, merging
-   `main` as it goes; meanwhile other Study work on `main` stays to the
-   sync's logic and the service, with no new Study interface, so the two
-   don't collide. *Recommended.*
+   logic kept for the new bars, and `SITE-2.0.md` kept as the record. BVJ:
+   yes.
+3. **A computer without Study.** Claude proposed a design for computer
+   readers before Study's public beta. BVJ: **they launch together**, so
+   there is no such reader and nothing is designed for one. Phones and
+   tablets, which never get Study, are drawn by "The phone."
+4. **Study's rebuild comes in this run.** BVJ: “It can be fully built
+   because they launch together.” Claude's suggestion that other Study
+   interface work on `main` pause meanwhile wasn't taken up; the run merges
+   `main` and resolves ("Branch, preview, and launch").
 5. **Search's tab for the reader's notes is "Notebook,"** not "My
-   Notebook" as "Search" recorded it, by "Controls"' rule of no "My."
-   *Recommended.*
-6. **License in About's menu**: "Finding a passage" puts it there and
-   "Four places"' list leaves it out. The rows: The LIT, Commitments,
-   License, The Collective, Apps, Release Notes, Support, Contact.
-   *Recommended.*
-7. **The What's New page isn't built in this run**: it has its own design
-   to mock and BDR's feed to settle (`STUDY-DESK.md`, "Before launch"). The
-   run builds the "New" marks; "See what's new →" and the footer's link
-   appear when the page does. *Recommended.*
+   Notebook" as "Search" recorded it, by "Controls"' rule of no "My." BVJ:
+   yes.
+6. **License in About's menu**, which "Four places"' list had left out.
+   The rows: The LIT, Commitments, License, The Collective, Apps, Release
+   Notes, Support, Contact. BVJ: yes.
+7. **The What's New page.** Claude proposed leaving it out of the run for
+   its own design and a feed. BVJ: “There isn't a feed. It's not automatic
+   like the release notes. You can build it with an announcement about the
+   apps, dated to when the apps were released, and an announcement about
+   the new site (Featherboa, but that's not a public facing name), and the
+   Study page and its features as a mock-up near the end.” Built in Phase
+   7, its Study entry in Phase 13.
 8. **The pages no decision draws** (About, Commitments, the Collective,
    Contact, App support, Support, Courses, Podcast, Privacy, Terms,
    Unsubscribe, the 404 page, Release Notes, the delete-account page, and
    the account pages) take the foundations, the header and its line, and
    the footer, with their words and order as today and no new layouts. /read
    is the picker at full size under its lede, and /license the owner's words
-   in the reading column. You look at them on the preview, and any you want
-   redrawn becomes its own decision. *Recommended.*
+   in the reading column. BVJ looks at them on the preview, and any BVJ
+   wants redrawn becomes its own decision. BVJ: yes.
 9. **/apps keeps its own look and faces**, inside the new header and
-   footer. Its stylesheet is a byte-for-byte mirror of the LSC site's page
-   and names Inter and Crimson Text, so moving it to Featherboa's faces is a
-   change on both sites, BDR's to make with you later. *Recommended.*
+   footer, since its stylesheet is a byte-for-byte mirror of the LSC site's
+   and names Inter and Crimson Text; moving it is a change on both sites,
+   for BDR and BVJ later. BVJ: yes.
 10. **The icons come from Lucide** (an open set under the ISC license, drawn
-    on a 24-pixel grid with round ends), set to the 1.5-pixel stroke, and
-    credited in the colophon, rather than drawn from scratch. *Recommended.*
+    on a 24-pixel grid with round ends), set to the 1.5-pixel stroke and
+    credited in the colophon, rather than drawn from scratch. BVJ: yes.
 11. **The specimen and the five-reader test**: John 1 is on the preview at
-    the end of Phase 1, and the run doesn't wait for the test; you run it
-    when you like and stop the run if it shows a problem. The foundations
-    are tokens, so a change there is cheap. *Recommended.*
+    the end of Phase 1, and the run doesn't wait for the test; BVJ runs it
+    when BVJ likes and stops the run if it shows a problem. BVJ: yes.
 12. **Fraunces's settings** start as the specimen's (softness 50 and wonk on
-    for headings, softness 100 for the paper's numeral), for you to adjust
-    on the preview. *Recommended.*
-13. **The glossary's third paragraph**: Claude's draft is “As you look
-    through the entries below, you’ll find the traditional word on the left
-    and, on the right, what the LIT Bible uses in its place most often (it
-    can change based on context). Under them is the Greek behind it.”
-    Approve it, or give your words.
-14. **The italic lines** are each page's own words, so none is invented: on
-    Home the letter's first line, “No, I don't want my kids near most
-    Bibles, either.”, set as the letter's opening rather than repeated; on
-    About its heading, “So… who am I?”; on the 404 page its heading, “Page
-    not found.” *Recommended*, or give other lines.
-15. **The colophon's sentence about AI**: leave it out until you word it,
-    or take Claude's draft: “People make every decision about this site,
-    and much of its code is written with Claude, an AI model made by
-    Anthropic. The translation is not: Brandon translates every word of the
-    LIT.” Name the translator as you wish.
-16. **Study on a phone or tablet**: “Study is made for a computer. On a
-    phone or tablet, the free LIT Bible app keeps your notes, highlights,
-    and bookmarks.” Approve it, or give your words.
+    for headings, softness 100 for the paper's numeral), for BVJ to adjust
+    on the preview. BVJ: yes.
+13. **The glossary's third paragraph.** BVJ: “ask me at the review.” The
+    queue's Q1.
+14. **The italic lines** are each page's own words: on Home the letter's
+    first line, “No, I don't want my kids near most Bibles, either.”, set as
+    the letter's opening rather than repeated; on About its heading, “So…
+    who am I?”; on the 404 page its heading, “Page not found.” BVJ: yes.
+15. **The colophon's sentence about AI.** BVJ: “ask me at the review. You
+    can draft it, but we'll see what is decided.” The queue's Q2.
+16. **Study on a phone or tablet** says: “Study is made for a computer. On
+    a phone or tablet, the free LIT Bible app keeps your notes, highlights,
+    and bookmarks.” BVJ: yes. Once the apps sync it adds “and, once you
+    sign in, the notebook you keep here” ("Small screens").
 17. **The front page on a phone** keeps the computer's order, with the
-    buttons right under the claim and the name, and John 1 after them.
-    *Recommended.*
+    buttons right under the claim and the name, and John 1 after them. BVJ:
+    yes.
 18. **New addresses**: `/license`, `/colophon` (decided), `/settings` for
-    All settings, and `/study/help` for the help page. *Recommended.*
+    All settings, and `/study/help` for the help page. BVJ: yes.
+    (`/whats-new`, for the page question 7 added, follows the same pattern.)
 
 ## Progress
 
@@ -776,6 +847,7 @@ with its last commit when done; never delete a line.
 - [ ] Phase 11: Sheets, collections, and shared sheets
 - [ ] Phase 12: The Greek in Study
 - [ ] Phase 13: First visit, signing in, status, small screens, and the tours
+- [ ] Phase 14: The launch switch
 - [ ] Checkpoint B: the whole build
 
 ## The brief for the session that builds it

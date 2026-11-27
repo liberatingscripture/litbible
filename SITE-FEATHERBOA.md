@@ -2663,36 +2663,75 @@ and declining seven, five of those already settled; BVJ took them all
   emblem, the picker, and Aa) in the header's place, and Focus, with its
   fading header and place line, retired ("A whole book").
 
+## Decided with the build plan (2026-11-27)
+
+BVJ answered eighteen questions Claude put with the plan for building
+Featherboa (`SITE-FEATHERBOA-BUILD.md`, "Questions answered before the
+run"). These are the ones that decide the design; where one differs from a
+section above, this one holds.
+
+- **Featherboa and Study launch together** (BVJ: “they launch together”),
+  in one merge that is also Study's public beta, so no computer ever has
+  the new site without Study.
+- **Site 2.0's code is removed**, and `SITE-2.0.md` stays as the record.
+- **Search's tab for the reader's notes is "Notebook,"** not "My Notebook"
+  ("Search"), by "Controls"' rule of no "My."
+- **About's rows include License**: The LIT, Commitments, License, The
+  Collective, Apps, Release Notes, Support, Contact ("Four places: the
+  header"'s list had left it out; "Finding a passage" put it under About).
+- **The What's New page is built with the rest** (BVJ: “There isn't a
+  feed. It's not automatic like the release notes. You can build it with an
+  announcement about the apps, dated to when the apps were released, and an
+  announcement about the new site (Featherboa, but that's not a public
+  facing name), and the Study page and its features as a mock-up near the
+  end.”). Its entries are written by hand, with no feed, at `/whats-new`.
+- **The pages no section draws** (About, Commitments, the Collective,
+  Contact, App support, Support, Courses, Podcast, Privacy, Terms,
+  Unsubscribe, the 404 page, Release Notes, the delete-account page, and the
+  account pages) take the foundations, the header and its line, and the
+  footer, with their words and order as today. /read is the picker at full
+  size under its lede, and /license the owner's words in the reading
+  column. BVJ reviews them built, and any redrawn becomes its own decision.
+- **/apps keeps its own look and faces** inside the new header and footer,
+  since its stylesheet is the LSC site's too.
+- **The icons are Lucide's** (ISC license) at a 1.5-pixel stroke, credited
+  in the colophon ("Controls").
+- **Fraunces starts at the specimen's settings**: softness 50 and wonk on
+  for headings, softness 100 for the paper's numeral, for BVJ to adjust on
+  the preview.
+- **The italic lines are each page's own words**: on Home the letter's
+  first line, set as its opening; on About “So… who am I?”; on the 404 page
+  “Page not found.”
+- **Study on a phone or tablet** says “Study is made for a computer. On a
+  phone or tablet, the free LIT Bible app keeps your notes, highlights,
+  and bookmarks.” ("Small screens," approved).
+- **The front page on a phone** keeps the computer's order, the buttons
+  right under the claim and the name, John 1 after them.
+- **New addresses**: `/license`, `/colophon`, `/settings` for All
+  settings, `/study/help` for the help page, and `/whats-new`.
+
 ## Open
 
-- **The rest of the two proposals, and every page**, each decided again
-  (above), with 2.0's decision beside the proposals'.
-- **What becomes of Site 2.0's code** behind `data-restyle`.
-- **/read as the full-size picker, and the License page**, each drawn as a
-  page ("Finding a passage"), with /read's lede that names the unfinished
-  texts.
-- **Fraunces's settings** (above).
+- **Fraunces's settings**, adjusted on the preview from the starting
+  values above.
 - **What else names Inter**, beyond the two settled: the verse image's
   name and address take Source Sans 3 ("Off the screen"), and the margin
   notes' Plain face goes with Playpen Sans ("The reading page"). A search
-  of the code when it is built answers it.
+  of the code when it is built answers it; /apps keeps it (above).
 - **Whether Source Sans 3 has the SBLGNT's text-critical signs**, and
   whether its served file has old-style figures ("Sizes, space, and the
   measure").
 - **The glossary's third opening paragraph** ("The glossary and
-  articles"). Claude's draft, for BVJ to approve or rewrite: “As you look
-  through the entries below, you’ll find the traditional word on the left
-  and, on the right, what the LIT Bible uses in its place most often (it
-  can change based on context). Under them is the Greek behind it.”
-- **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
-  (`SITE-2.0.md`, "At launch").
-- **The front page on a phone** ("The front page"). Claude's note, not put
-  as a question: the same order, with the buttons right under the claim
-  and John 1 after them.
-- **The italic lines** ("The dares," viii): one each for Home, About, and
-  the 404 page, BVJ's to choose.
+  articles"), asked at the build's review (BVJ: “ask me at the review”).
+  Claude's draft, for BVJ to approve or rewrite: “As you look through the
+  entries below, you’ll find the traditional word on the left and, on the
+  right, what the LIT Bible uses in its place most often (it can change
+  based on context). Under them is the Greek behind it.”
 - **The colophon's sentence about how the site is made** ("The dares,"
-  ix): BVJ's to word or leave out.
+  ix), asked at the build's review (BVJ: “You can draft it, but we'll see
+  what is decided”).
+- **The What's New page's words**: its three entries, and the launch's
+  announcement, drafted in the build.
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and
