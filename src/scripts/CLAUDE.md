@@ -559,6 +559,11 @@ License page of their own, forwarding /read's old anchors:
     re-renders the results. A topic card names the topics that matched it
     when they differ from the query (a loose one-word match). That matching
     is `topicMatches`, which the desk's Search pane calls too (E166).
+    Featherboa replaces /search's sort row, type filter, jump links, and
+    group list with one row of tabs under the field ("Chapters about it" for
+    Topic matches; Introductions keeps its own), Relevance still the
+    default, and gives the tray the same rows (`SITE-FEATHERBOA.md`,
+    "Search"); the engines don't change. Until it is built, this holds.
   - *Every page has exactly one way in* (audit U6, owner 2026-09-28).
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`

@@ -741,7 +741,10 @@ Reading alone becomes the Justify switch everywhere; and the links that
 stood for Read View (the search's second jump and the picker's footer,
 E114) open the desk at the passage like every other link into it, keeping
 the reader's own layout (BVJ, 2026-11-02: a link never forces an
-arrangement). Their words are settled with proposals 12 and 16.
+arrangement). Their words are settled with proposals 12 and 16: the
+search's second row reads "Open in Study Desk" ("Search"), and the new
+picker has no such row ("Finding a passage," no "Read the whole book"
+row).
 
 Proposal 14 ("A whole book: a switch, not a second site") argued against
 Read View's retirement, with a Chapter / Whole book switch on the reading
@@ -914,7 +917,7 @@ row, as a sheet rising nearly to the top ("The phone").
   line's Search, and every other page keeps the header's magnifier.
 - BVJ's reason it can't live only in the picker: “having it buried in the
   passage picker feels... well, buried.” What search finds and how its
-  results look is proposal 16's.
+  results look is proposal 16's ("Search"): the same rows as /search.
 
 ## Display (decided 2026-11-26)
 
@@ -1211,6 +1214,90 @@ The bar is plain links and doesn't hide (the site's rule that every page
 works without JavaScript): Previous and Next go to the chapters, Search to
 /search, and Menu to the footer's links, and "John 1 ▾" goes to /read, the
 full-size picker ("Finding a passage").
+
+## Search (decided 2026-11-26)
+
+Design Directions' proposal 16, "Search: one field, answers first."
+Search works well and looks like a form: on /search today (Site 2.0's two
+panes, with the preview on) a sort control, two filters with help buttons,
+a list of result groups, a passage picker, a title, an instruction, and
+checkboxes for sheets all come before the first matching verse. The
+proposal makes the field the page, puts results directly under it, and lets
+tabs do the filtering. Claude recommended it with ten adjustments, and BVJ
+took them all (“Yes, 1–10”). Site 2.0's /search (“Yes to two panes,” in
+its quieter redraw) was the other option and is not taken.
+
+### The page
+
+- **The field is the page**, with the count at its right end ("75
+  results"). The visible title and the instruction go; **a "Search"
+  heading stays for screen readers**.
+- **One row of tabs under it does the filtering**: **Scripture**,
+  **Chapters about it**, **Glossary**, **Articles**, **Introductions**, and,
+  with the Study Desk on, **My Notebook** and **Greek** (below). They
+  replace the type filter, its help button, and the list of result groups.
+  **Every tab shows its count**; a tab with none reads 0 and is dimmed. The
+  page opens on Scripture, or on the first tab with results when Scripture
+  has none.
+- **"All books ▾" and the sort sit at the row's right end.** **Relevance
+  stays the default**, as today (exact forms above related ones, so
+  "liberation" lists its own verses before "liberate"'s); the menu's other
+  choice is **"Bible order,"** today's "Book order." **Book headings appear
+  only in Bible order**; under Relevance each verse stands with its
+  reference.
+- **Results are reading**: each match is the verse in the book face with
+  its reference, the matched word bold with a green underline. **No
+  sunshine on a match**: yellow means "yours" ("Green is ink").
+- **"Chapters about it"** is today's "Topic matches," the proposal's name
+  kept. It avoids the word "topic," so it holds if topics become tags.
+- **On a phone** the tabs scroll sideways in one row, with the book and
+  sort menus on a row under them.
+
+### Answers first
+
+- **A reference goes there**: typing "john 3:16" makes the first row "Go
+  to John 3:16," and Enter takes the reader there, as the picker's field
+  does ("Finding a passage"), so /search carries no passage picker of its
+  own. With the Study Desk on, **the second row stays "Open in Study
+  Desk"** at the passage, until proposal 21 names the workspace.
+- **Over the verses, one line for the chapters**: "John 1 is one of 6
+  chapters about light," with "See all 6 →" opening that tab.
+- **The glossary still answers first.** Today its matches sit at the top,
+  and a tab would hide an entry behind a click, so when a glossary term
+  matches what was typed ("trust," "logos"), one line sits above the
+  verses as the chapters line does: "Trust is in the glossary →".
+
+### Kept from today
+
+- **Book introductions keep a group of their own**, now the
+  "Introductions" tab, so an introduction is never mistaken for scripture
+  (owner, 2026-07-09). The drawing had left them out.
+- **With the Study Desk on, the notebook stays in search**: the "My
+  Notebook" tab (matches in the reader's own notes), the "Notebook
+  actions" link in the field's row, and ">" in the field offering commands.
+  The drawing had left out all three.
+- **The Greek tab shows only where the Greek search runs**, with the Study
+  Desk on, as today; a Greek word or a Strong's number typed there opens
+  it.
+- **Underneath, nothing changes**: the verse index, Pagefind, and the Greek
+  search. The page links stay, and so do the "Showing results for
+  ‘jerusalem’" note, related forms, and the topics a chapter matched.
+
+### Sheets
+
+**"Select" sits at the right end of the tab row, with the Study Desk on
+only.** The proposal said "the page's menu," which /search doesn't have.
+It puts a box on each row of Scripture and Chapters about it, and a bar at
+the foot reads "3 chosen · Add to a sheet… · Cancel." A reader who is only
+looking sees no boxes. One verse still goes to a sheet from its own verse
+menu.
+
+### The same rows everywhere
+
+**The results under a reading page's Search and the header's magnifier use
+the same rows** as /search: the verse in the book face, the word bold and
+underlined, with book headings in Bible order. Their "See all results →"
+opens /search on the same tab.
 
 ## Open
 
