@@ -1299,6 +1299,75 @@ the same rows** as /search: the verse in the book face, the word bold and
 underlined, with book headings in Bible order. Their "See all results →"
 opens /search on the same tab.
 
+## The glossary and articles (decided 2026-11-26)
+
+Design Directions' proposal 17, "The glossary and articles: show the
+choice being made." The glossary is the heart of the project's argument:
+for each of its words, what tradition says, what the Greek says, and what
+the LIT says instead. Every entry already has that shape in its data
+(`traditional`, `greek`, `lit`), and the page should have it too. Articles
+and book introductions take the reading page's column, margin, and faces.
+Claude recommended it with ten adjustments, and BVJ took them all (“Yes,
+1–10”). Site 2.0's choices (the glossary's list of entries in a left
+column, an article's picture edge to edge, an introduction's headings
+beside the text) were the other option and are not taken.
+
+### The glossary page
+
+- **One page, read on, with the chapters' line.** /glossary stays one page,
+  each entry at its anchor. The line at the top reads "Learn / Glossary ▾
+  / trust," naming the entry in view; "Glossary ▾" lists the entries (in
+  place of today's jump list), and ‹ › step from entry to entry. The
+  drawing could be read as a page per entry; one page keeps every
+  `/glossary#faith-trust` link working (the term lens, Go deeper, the
+  Notebook's Greek tab, the release notes, the home page), and a reader can
+  still read straight through, as the page's opening invites.
+- **BVJ's opening words stay at the top.** Their third paragraph describes
+  today's styling ("in bold… In italics… Underlined…"), so Claude drafts a
+  replacement for BVJ to approve or rewrite (Open, below).
+- **Both orders stay**, by the LIT word or by the traditional word, as a
+  switch at the top of the "Glossary ▾" list; the page follows it.
+- **The copy-link button stays** beside each entry's pair, as today.
+
+### An entry
+
+- **The pair is the headline**: "Traditionally" and the traditional word,
+  lighter and gray, beside "In the LIT" and the LIT's word in full weight.
+  **No arrow, no strike-through** (today's ink scribble through the
+  traditional word goes): two words side by side make the argument
+  without editorializing. The gray still meets 4.5:1, like every word on
+  the site.
+- **The LIT side is as the entry has it**: "trust / faithfulness" keeps
+  its slash (the drawing had a comma), each word on its own line on a
+  phone as today, and a note such as "(prepared for sacred purposes)" sits
+  under the word. Where the LIT keeps the traditional word (Demon / demon),
+  the pair still shows: keeping it is a choice too.
+- **The Greek spelling beside its transliteration** ("πίστις pistis")
+  comes from the alignment's lemma map (`scripts/lib/glossary-lemmas.mjs`),
+  which already has every entry's Greek, checked against the text. No entry
+  gains a field, and the apps' glossary feed doesn't change.
+- **"Where it appears" moves to the margin**, where footnotes sit on a
+  chapter page, so a reader learns once that the right-hand column is
+  "more about this line." It carries today's numbers, the total ("N
+  occurrences") and each rendering with its count, rather than the
+  drawing's first three verses; "Every place →" opens the full list under
+  the entry, as today's folded list does, without JavaScript too. With no
+  margin (a phone, a narrow window), the list sits under the entry as
+  today.
+
+### Articles and book introductions
+
+- **The reading page's type and column**: a Fraunces title, Source Sans 3
+  at the reading size (proposals 1 and 4, not the drawing's Literata at
+  17px), and the reading measure. Footnotes go in the margin where a piece
+  has them; none does today.
+- **The author and date share one small line under the title.**
+- **Every article keeps its picture**, under the title and byline at the
+  column's width, not edge to edge. All 13 have one, each credited in
+  `IMAGE-CREDITS.md`, and it is the picture a shared link shows. The
+  proposal had dropped them unless the article was about one.
+- **Tags move to the article's foot.**
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -1317,6 +1386,11 @@ opens /search on the same tab.
   ("Controls," above; proposal 21).
 - **The phone menu's rows**, which wait for proposal 19's four places
   ("The phone").
+- **The glossary's third opening paragraph** ("The glossary and
+  articles"). Claude's draft, for BVJ to approve or rewrite: “As you look
+  through the entries below, you’ll find the traditional word on the left
+  and, on the right, what the LIT Bible uses in its place most often (it
+  can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
 
