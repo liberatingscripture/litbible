@@ -7,6 +7,7 @@ import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { scanDraftChapters, scanDraftIntros } from './src/lib/draft-chapters.mjs';
+import { claudeDocsGuard, isClaudeDocPath } from './src/lib/claude-docs-guard.mjs';
 
 // Chapter slugs marked "indexed": false (in-progress drafts) are noindex'd,
 // so they must also stay out of the sitemap. We also track per-book draft
@@ -75,6 +76,7 @@ export default defineConfig({
       filter: (page) => {
         if (page.includes('/search')) return false;
         const slug = new URL(page).pathname.replace(/^\/|\/$/g, '');
+        if (isClaudeDocPath(slug)) return false; // the repo's own docs (claudeDocsGuard, below)
         if (slug === 'unsubscribe') return false; // noindex utility page
         if (slug === 'contact/thanks') return false; // noindex form-success page
         if (slug === 'app-support/thanks') return false; // noindex form-success page
@@ -97,6 +99,9 @@ export default defineConfig({
         return !noindexSlugs.has(slug) && !draftIntroSlugs.has(slug);
       },
     }),
+    // Takes every CLAUDE.md, and the page Astro makes of src/pages/CLAUDE.md,
+    // out of dist/ when the build ends.
+    claudeDocsGuard(),
   ],
   vite: {
     cacheDir: path.join(os.tmpdir(), 'litbible-vite-cache'),
