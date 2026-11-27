@@ -297,7 +297,7 @@ The renames the proposal draws:
 | Notebook, My Notebook, the Notebook, My Notes | **Notebook** (the place), **Notes** (what is in it) |
 | Sheets, My sheets, Sheets page | **Sheets** |
 | Add a note, Add bookmark, Add a bookmark that moves | **Add note**, **Add bookmark** |
-| Open in Study Desk, Edit in Study Desk, Open the Study Desk | One label, **Open in Study Desk** (the proposal's "Open in Desk" is not taken: "The Study Desk") |
+| Open in Study Desk, Edit in Study Desk, Open the Study Desk | One label, its words still open ("Study and its places"; the proposal's "Open in Desk" is not taken) |
 | “Show” (four different controls) | **View** for what a page displays, **Filter** for lists |
 | Display settings, Display, Display options | **Display** |
 | Stay here, Stop following | One switch: **Follow reading** |
@@ -309,9 +309,9 @@ The renames the proposal draws:
   2026-11-10); `src/scripts/desk/CLAUDE.md` holds both until Featherboa is
   built. **“Notes” is the reader's, and “footnotes” the translation's**, so
   the two words are never used for each other.
-- **The workspace keeps the name “Study Desk”** (proposal 21, "The Study
-  Desk"). The proposal's “Desk” (“Open in Desk,” and Desk among the
-  places) is not taken.
+- **The workspace is "Study"** ("Study and its places"), which reversed
+  proposal 21's “Study Desk” ("The Study Desk"). The proposal's “Desk”
+  (“Open in Desk,” and Desk among the places) is not taken.
 
 ### Icons
 
@@ -1463,6 +1463,10 @@ something, it's just switching tabs.” Claude drew that as a working mock
 (Luke 3 with its Greek and footnotes, and a real search for "wilderness"),
 and BVJ took it as drawn (“Record it”).
 
+**"Study and its places" changes this section**: the page is "Study," the
+Notebook, sheets, collections, and the Trash open as places of their own,
+and what follows holds for the columns, which are now the Scripture place.
+
 ### The name and the frame
 
 - **The workspace keeps the name "Study Desk,"** settling what "Controls"
@@ -1619,6 +1623,10 @@ sidebar of its own, a search field there, and a passage pane inside the
 list) differed from the Study Desk BVJ had just decided. Claude recommended
 its ideas fitted into that desk, with nine adjustments, and BVJ took them
 all (“Yes, 1–9”).
+
+**"Study and its places" changes this section**: the Notebook is a place
+of its own on the Study page, its passage in the column beside it, rather
+than the Notes tab on "Everything."
 
 ### The list
 
@@ -1799,8 +1807,8 @@ Desk, with an idea of their own, which is open ("Where a sheet sits," below).
 
 ### Commands
 
-- **Three stay in view: Print…, Share…, and a filled Present.** Where they
-  sit waits on "Where a sheet sits," below.
+- **Three stay in view: Print…, Share…, and a filled Present**, at the
+  right end of the sheet's row ("Study and its places").
 - **More (⋯) holds the rest**: Copy, Save as ▸ (the documents and the
   slides), Show QR codes, Import, Save as template, and the paper (Letter or
   A4), as drawn, and also the sheet's text size (E101) and Add answer key
@@ -1835,7 +1843,7 @@ notice in the editor (E84).
   another tab has the sheet open, and undo.
 - **The Sheets tour (E63) is rewritten** for the new page.
 
-### Where a sheet sits (open)
+### Where a sheet sits
 
 Claude's sixth adjustment fitted the drawing's frame into "The Study Desk":
 the sheet a tab in any column, Print…, Share…, and Present at its row's
@@ -1845,7 +1853,155 @@ answered “Maybe”: a full page at real proportions won't fit in three
 columns. BVJ's idea: “clicking sheets in the sidebar should give the page
 its own layout, with one tab that's flexible, and the size of one column in
 the three column layout, and one tab that's the sheet editor, and the size
-of two columns in the three column layout.” How it is worked out is open.
+of two columns in the three column layout.” **It grew into places: a sheet
+opens as a place of its own on the Study page** ("Study and its places").
+
+## Study and its places (decided 2026-11-26)
+
+This settles where a sheet sits ("Sheets"), and with it how the Notebook,
+collections, and the Trash open. BVJ's idea was a layout of a sheet's own,
+since a page at the paper's proportions won't fit beside two more columns.
+Then, from the proposal's drawing, where the sheet is the only column, BVJ
+asked whether a sheet should always be shown that way, whether the Notebook
+should too (“I know we decided to have that button just bring up the Notes
+column, but we can revisit it”), and where collections fit (“Let's
+explore”). Claude drew the "places" model as a working mock. BVJ liked it
+“as drawn for the most part,” renamed the page, gave a sheet its
+collections, and said “Take everything else.”
+
+A *place* here is one of the things the sidebar opens. The word is the
+record's, not a label a reader sees, and proposal 19's "Four places" are
+the header's.
+
+### The names
+
+- **The page is "Study."** BVJ: “I don't think the page needs to be called
+  Study Desk or even Desk anymore. It can just be the study page.” The
+  title row's heading reads "Study," and the header's "Study" (proposal
+  19's word) leads to it. **This reverses "The workspace keeps the name
+  'Study Desk'"** ("Controls," "The Study Desk"). Only what a reader sees
+  changes: the help page (about fifty mentions), the tours, the account
+  pages, Privacy (four), and the Terms of Use (one). Code and records keep
+  the old name (`desk-*`, `data-desk`, `STUDY-DESK.md`).
+- **The reading page is "the Read page."** BVJ: “The first tab in the
+  header nav, with the scripture pages, can be referred to as the Read
+  page.” **This replaces E130's "Scripture page(s),"** the name planned for
+  launch (BVJ, 2026-11-12). Each label is worded case by case (BVJ), and a
+  verb often serves better than the name: "Read Romans 8," not "Read Romans
+  8 on its Read page."
+- **The address is /study, and /desk does not forward to it** (BVJ: “it's
+  not public yet. I and two others, including BDR are the only ones who
+  have had a chance to see any of this, and we can all three adapt to using
+  the right address”). The help page moves with it. /notebook, /sheets
+  (with a sheet's `?id=`, present mode, and shared links), and /collections
+  open their places on the Study page.
+- **The words of the link that opens a passage in Study are open** ("Open").
+
+### The places
+
+- **The sidebar, top to bottom**: Scripture, Notebook, Sheets (the three
+  most recent, and All sheets), Collections (the same), and Trash, with the
+  foot "The Study Desk" drew. Each row opens its place in the page's
+  columns. The sidebar marks the place that is open with a tint and a green
+  bar; folded, it marks the group's icon.
+- **Scripture is "The Study Desk"'s columns of tabs**: Columns 1 2 3, any of
+  its kinds in any column, following, and the widths, all as decided there.
+  BVJ weighed "Desk" and "Workspace" for its name too, “since it's more
+  than scripture happening there, but you're right that it's the primary
+  focus.” It is also the word the place's own lists use: the first group of
+  what a column can show, and Search's first tab. **The row shows the
+  passage it holds at its right**, where the Notebook shows its count
+  ("Scripture … Luke 3"; BVJ: “Yes”).
+- **The Notebook, a sheet, and a collection are places of their own**: the
+  place's own column, and beside it a column of tabs. Their title row shows
+  "Columns 1 2," never 3. **A sheet starts with one column; the Notebook
+  and a collection start with two**, the list and the passage beside it.
+  Each place keeps its own count and what is beside it, and Scripture keeps
+  its columns while the reader is elsewhere.
+- **Beside a sheet, the column keeps its own width** (320px at first) and
+  the page takes the rest; the Notebook and a collection start half and
+  half. Every line drags, with its menu and its reset (E189). The column
+  beside is on the right, as drawn.
+- **The Trash is one column**, with no Columns control: each row with
+  Restore, and "Empty trash…" at the row's end, which asks first.
+- **The header's magnifier and "/" open Search beside the place's own
+  column**, making the second column if there was one column. In the Trash
+  they open Search in Scripture; in Scripture they work as "The Study Desk"
+  says.
+
+### What each place shows beside it
+
+Each place does one job, so the column beside it offers what that job
+needs:
+
+| Place | Its job | Tabs beside it | Opens with |
+|-------|---------|----------------|------------|
+| Scripture | Study a passage | The LIT, Greek, Footnotes, This verse, Notes, Search | As "The Study Desk" says |
+| Notebook | Reread and tend what is kept | The LIT, This verse, Greek, Search | The LIT, This verse |
+| A collection | Gather around a theme | The LIT, Search, Notes | The LIT, Search |
+| A sheet | Build a handout | The LIT, Search, Notes, a collection, another sheet | The LIT, Search, Notes |
+| Trash | Restore or empty | Nothing | |
+
+- **A collection beside a sheet is BVJ's addition**: “I think it's
+  important to have an easy way to access collections while making a
+  sheet. That's where all the information related to a specific topic,
+  series, or event would be kept together.” Its passages and notes go onto
+  the page as Search's and Notes' do. Another sheet is there to copy from.
+- **No Notes beside the Notebook**, which is the notes. **No Footnotes
+  outside Scripture**: the LIT floats a verse's footnotes in its margin,
+  This verse lists them, and a sheet's passage chooses its own with
+  "Footnotes…."
+- **Search is in every set**, so the magnifier never takes the reader away
+  from their work.
+- **The empty column and "Open in this column ▸" list only the place's
+  set**, and the LIT tab's More offers **"Open in Scripture"** at the same
+  passage, for anything a place doesn't hold.
+- **No Greek beside a sheet.** Claude was least sure of this one (a leader
+  writing a word study), and BVJ didn't add it.
+
+### A sheet's page
+
+- **Alone, the page shows at true size** wherever the column holds the
+  paper and its margin (a Letter page needs about 880px).
+- **With a column beside it, the page scales down to 80% at most, then
+  reflows** at true type size with no page breaks drawn, as "Sheets" said
+  of a narrow column. With the column beside at 320px, true size needs a
+  window about 1,450px wide with the sidebar open, or 1,275px with it
+  folded; 80% needs about 1,280px or 1,110px. In the mock's 1,163px window
+  the page reflowed with the sidebar open and showed at 86% with it folded.
+- **The sheet's commands are at the right end of its row**: Print…,
+  Share…, a filled Present, and More. Under the row, a bar holds the copy
+  tabs, with the template's name and "saved" at its right ("Bible study ·
+  saved").
+- **The formatting bar sits over the part holding the cursor**, at the
+  part's left edge and above its own controls, so it never covers the
+  words being written.
+
+### What changes in the sections before
+
+**"The Study Desk"** holds for Scripture's columns, with these changes:
+
+- **Sheets and collections leave the columns**, since they open as places.
+  What a column can show is Scripture (The LIT, Greek, Footnotes, This
+  verse), Yours (Notes), and Search. "A Sheets or Collections tab opens the
+  last one" becomes the place's title, whose name is still a menu (another,
+  a new one, or all). Two sheets side by side are now a sheet with another
+  beside it, and dragging an item from the sidebar onto a column goes.
+- **The Notes tab lists the chapter** ("This chapter"), with a link to the
+  Notebook ("All 128 in the Notebook"). "Everything" is the Notebook place,
+  so in the table of /notebook's tools the list and its filters, Manage
+  labels…, Print…, and "Changed since you marked it" go there, and the
+  Trash is the place above rather than a tab.
+- **Every address keeps working but /desk**, now /study (above).
+
+**"The Notebook"** holds for the Notebook place, with these changes:
+
+- **The Notebook is a place, not the Notes tab on "Everything."** Choosing
+  a note takes the LIT tab beside it to the note's verse, and with one
+  column it opens the second. The rule for a LIT tab sharing the list's
+  column goes.
+- **When the commands for what is chosen don't fit the column**, the count
+  goes first, then "Add to collection…" and "Label…" move into More.
 
 ## Open
 
@@ -1872,8 +2028,19 @@ of two columns in the three column layout.” How it is worked out is open.
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
-- **Where a sheet sits in the Study Desk**, from BVJ's idea of a layout of
-  its own ("Sheets").
+- **The words of the link that opens a passage in Study** ("Study and its
+  places"). BVJ asked about “Open study” in place of “Open in Study.”
+  Claude suggested the verb with its passage, as with Read: "Study Romans
+  8." With places, a sheet and a collection open on the Study page at their
+  own addresses, so the link only ever opens a passage.
+- **Whether a sheet in a collection opens with that collection beside it**
+  ("Study and its places"), Claude's suggestion for BVJ's “easy way to
+  access collections while making a sheet.”
+- **Taking the Greek tab off the Read page's Notebook panel**, BVJ's idea
+  (2026-11-26): This verse keeps each verse's Greek, and study in depth is
+  the Study page's. Two things need a home first: This verse's Greek words
+  open the Greek tab at the word, and a draft chapter's line points to the
+  Greek tab ("A whole book").
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and

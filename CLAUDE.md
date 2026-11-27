@@ -280,7 +280,9 @@ the sitemap filter live in `astro.config.mjs`.
   holds.
   Call them "Chapter View" and "Read View" in anything a reader sees; with
   the Study Desk preview on, labels say "Scripture page(s)" instead (E130),
-  the public name from launch. Older records use older names: "Study View"
+  the public name from launch. Featherboa calls the reading page "the Read
+  page" and the Study Desk "Study" (`SITE-FEATHERBOA.md`, "Study and its
+  places"); until it is built, this holds. Older records use older names: "Study View"
   (until 2026-11-02, still in STUDY-DESK.md and FIXLIST.md), "Reading View"
   and "Reading Mode" (until 2026-09-30); the `rm-` classes and
   `read-mode.js` keep the old initials.

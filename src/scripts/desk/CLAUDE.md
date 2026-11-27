@@ -126,6 +126,8 @@ means each of these, in one change:
     reads "Scripture page" or "Scripture pages" (`searchbar.js`, `search.js`,
     `ReadMenu.astro`, `read/[book].astro`, `read-mode.js` and `.css`,
     `read.astro`). Keep only that wording; comments and docs follow.
+    Featherboa says "Read page," case by case (`SITE-FEATHERBOA.md`,
+    "Study and its places").
 14. **The site restyle** (E132; BVJ, 2026-11-13) goes to every reader:
     Layout.astro's second stamp, `data-restyle`, is set on every device
     from the same key, phones included, so it can't simply follow item 1's
@@ -512,8 +514,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      wherever it is named (E70, BVJ 2026-11-10). Featherboa drops "My"
      (`SITE-FEATHERBOA.md`, "Controls": "Notebook" and "Notes"); until it
      is built, the names here hold.
-     **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
-     "the notebook preview"), and a reader works "in the Study Desk," never
+     **Words used here** (Audit 2, CP-11): "Study Desk" is the feature
+     (Featherboa: "Study"; never "the notebook preview"), and a reader works "in the Study Desk," never
      "on" it (BVJ, 2026-11-11, E105; "on the Study Desk page" is the page,
      and "the desk" pictured as a physical desk, as in the tour's "What's on
      the desk," keeps "on"); "Delete" is for what the reader typed or named
@@ -947,11 +949,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
-     Featherboa remakes it as one to three columns of tabs beside a sidebar
-     that folds, under the site's header, with no command row, rows, fourth
-     pane, Layout window, edge split or "My default", and takes in
-     /notebook's tools (`SITE-FEATHERBOA.md`, "The Study Desk"); until it is
-     built, this holds.
+     Featherboa remakes it as "Study" (/study): one to three columns of tabs
+     beside a sidebar that folds, under the site's header, with no command
+     row, rows, fourth pane, Layout window, edge split or "My default", and
+     the Notebook, sheets, collections and Trash as places of their own
+     (`SITE-FEATHERBOA.md`, "The Study Desk," "Study and its places"); until
+     it is built, this holds.
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
