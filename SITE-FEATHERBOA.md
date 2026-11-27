@@ -1881,12 +1881,19 @@ the header's.
 
 - **The page is "Study."** BVJ: “I don't think the page needs to be called
   Study Desk or even Desk anymore. It can just be the study page.” The
-  title row's heading reads "Study," and the header's "Study" (proposal
-  19's word) leads to it. **This reverses "The workspace keeps the name
-  'Study Desk'"** ("Controls," "The Study Desk"). Only what a reader sees
+  header's "Study" (proposal 19's word) leads to it. **This reverses "The
+  workspace keeps the name 'Study Desk'"** ("Controls," "The Study
+  Desk"). Only what a reader sees
   changes: the help page (about fifty mentions), the tours, the account
   pages, Privacy (four), and the Terms of Use (one). Code and records keep
   the old name (`desk-*`, `data-desk`, `STUDY-DESK.md`).
+- **The title row has no heading** (BVJ: “I don't think it needs the word
+  ‘study’ at the top as a title. It's already visually tied to the word
+  ‘study’ by the underlined ‘Study’ in the header nav.”). The row holds
+  "Fold sidebar" at its left and the column count and "Full screen" at its
+  right. A place's name is its column's title ("Advent 2 handout ▾"), and
+  the sidebar marks the place. The page keeps "Study" as a heading for
+  screen readers, out of sight, since every page has one.
 - **The reading page is "the Read page."** BVJ: “The first tab in the
   header nav, with the scripture pages, can be referred to as the Read
   page.” **This replaces E130's "Scripture page(s),"** the name planned for
@@ -1925,8 +1932,9 @@ the header's.
   ("Scripture … Luke 3"; BVJ: “Yes”).
 - **The Notebook, a sheet, and a collection are places of their own**: the
   place's own column, and beside it a column of tabs. Their title row shows
-  "Columns 1 2," never 3. **A sheet starts with one column; the Notebook
-  and a collection start with two**, the list and the passage beside it.
+  "Columns 1 2," never 3. **A sheet starts with one column, or two when it
+  is in a collection** (below); **the Notebook and a collection start with
+  two**, the list and the passage beside it.
   Each place keeps its own count and what is beside it, and Scripture keeps
   its columns while the reader is elsewhere.
 - **Beside a sheet, the column keeps its own width** (320px at first) and
@@ -1950,7 +1958,7 @@ needs:
 | Scripture | Study a passage | The LIT, Greek, Footnotes, This verse, Notes, Search | As "The Study Desk" says |
 | Notebook | Reread and tend what is kept | The LIT, This verse, Greek, Search | The LIT, This verse |
 | A collection | Gather around a theme | The LIT, Search, Notes | The LIT, Search |
-| A sheet | Build a handout | The LIT, Search, Notes, a collection, another sheet | The LIT, Search, Notes |
+| A sheet | Build a handout | The LIT, Search, Notes, a collection, another sheet | Its collection, the LIT, Search, Notes |
 | Trash | Restore or empty | Nothing | |
 
 - **A collection beside a sheet is BVJ's addition**: “I think it's
@@ -1958,6 +1966,26 @@ needs:
   sheet. That's where all the information related to a specific topic,
   series, or event would be kept together.” Its passages and notes go onto
   the page as Search's and Notes' do. Another sheet is there to copy from.
+- **A sheet in a collection opens with that collection beside it** (BVJ:
+  “What you described sounds good,” after a mock): from the collection's
+  place, always; from the sidebar or All sheets, at first, and after that
+  as the reader left it. A sheet in more than one collection opens with
+  the one the reader came from, else the one it was added to last. A sheet
+  in none starts with one column.
+- **The tab beside is for using the collection; its place is for tending
+  it.** The tab's first line names it ("The collection this sheet is in")
+  and links to its place ("Open Wilderness"). Under it are the
+  collection's groups and items, each cut to three lines, with this sheet
+  shown but not offered. Choosing rows (Ctrl or Shift adds) brings a bar
+  to the column's foot, "2 chosen · Clear · Add to sheet," which adds them
+  after the part chosen on the page; or a row drags onto the page, where a
+  green line shows where it lands. A note goes on as a text part headed
+  "From my notes · Luke 3:8." Ordering, removing, and renaming stay in the
+  place. The bar is at the foot because in the tab row, at 320px, it cut
+  off the open tab's name.
+- **Why two places and not one**: a collection holds more than sheets
+  (passages, notes, headings), and a sheet can be in several collections
+  or in none, so a sheet kept inside its collection would be tied to one.
 - **No Notes beside the Notebook**, which is the notes. **No Footnotes
   outside Scripture**: the LIT floats a verse's footnotes in its margin,
   This verse lists them, and a sheet's passage chooses its own with
@@ -2020,6 +2048,7 @@ needs:
   labels…, Print…, and "Changed since you marked it" go there, and the
   Trash is the place above rather than a tab.
 - **Every address keeps working but /desk**, now /study (above).
+- **The title row has no heading** ("The names").
 
 **"The Notebook"** holds for the Notebook place, with these changes:
 
@@ -2055,11 +2084,6 @@ needs:
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
-- **Whether a sheet in a collection opens with that collection beside it**
-  ("Study and its places"), Claude's suggestion for BVJ's “easy way to
-  access collections while making a sheet.” BVJ: “Sounds good. Does it
-  actually look good and make sense with sheets and collections being
-  separate Places?” Drawn in the mock to answer.
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and
