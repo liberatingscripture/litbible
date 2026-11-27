@@ -1,0 +1,565 @@
+/* =========================================================
+   The kit (SITE-FEATHERBOA.md, "Controls" and "The kit"): every control,
+   drawn once, in each state a reader can meet. The header, the reading
+   page, and Study draw from it; a screen that needs something not here is
+   a design conversation before it is a line of code.
+
+   Ten controls: filled, tinted, plain, destructive, icon alone, field,
+   checkbox, switch, tabs (and a row of choices), and list row. Five states:
+   at rest, pointed at, pressed or on, keyboard focus, and unavailable.
+
+   - Emphasis is a ladder: filled (deep green) is the one main action, and
+     a view uses it once; tinted is the usual next step; plain (words and an
+     icon, no box until pointed at) is everything else; red words delete,
+     and are never filled.
+   - Pointed at is one step stronger, with no movement and no shadow.
+   - On is a fill or a green underline plus a heavier weight, so it never
+     rests on color alone. A chosen choice and a toggle that is on read
+     alike (this settles E160).
+   - Focus is the one ring (global.css's :focus-visible, from tokens.css):
+     2px, 2px off the control.
+   - Unavailable stays legible: the fill stays, the words stand at 4.5:1 or
+     more on every surface, and nothing is faded with opacity. Its reason is
+     given in words a keyboard and a screen reader reach too (beside the
+     control, or by aria-describedby), never only on hover.
+   - What is pressed has 6px corners; a switch, a color dot, and the emblem
+     are the only round things.
+   - Pressing is Instant ("Motion"): no transition on any control.
+
+   Words on what can be pressed are deep green (--color-press), but a tab
+   and a list row, whose words are names, keep the ink and take green only
+   for "on."
+
+   THE KIT'S OTHER NAMES. Until each surface's phase redraws its markup
+   with the kit's classes, today's names draw from the kit here. Each level
+   below is one list, the kit's own class first and then, inside :where(),
+   the names that take its look, so every name has the kit class's weight
+   and no more; the same list opens each of the level's rules. A name
+   leaves its list when its markup takes the kit's class. Outside this
+   file a control's rule says only where it sits and how big it is.
+   test/featherboa-kit.test.js holds these rules, keeps each level's lists
+   alike, and works out the states' contrast by day and by night.
+   ========================================================= */
+
+/* ---------- The kit's own classes: size and type ----------
+   Label type (Atkinson Hyperlegible Next 600, 14.5 / 1.4) and the target:
+   36px with a mouse, 44 on touch ("Sizes"). Today's names keep their own
+   sizes until their surface is redrawn. */
+.kit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-height: var(--target);
+  padding: 0 var(--space-3);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kit-btn--plain,
+.kit-btn--danger {
+  padding: 0 var(--space-2);
+}
+
+/* Icon alone: only the five everyone knows (search, close, back, forward,
+   and more; src/lib/icons.mjs, STANDALONE), with an aria-label. */
+.kit-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  box-sizing: border-box;
+  min-width: var(--target);
+  min-height: var(--target);
+  padding: 0;
+  cursor: pointer;
+}
+
+.kit-icon > .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.kit-btn > .icon,
+.kit-row > .icon,
+.kit-tab > .icon {
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+}
+
+.kit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--target);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Tabs change what a pane shows (role="tab", aria-selected); a row of
+   choices sets one value (aria-pressed or aria-checked). */
+.kit-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.kit-choices {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.kit-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-height: var(--target);
+  padding: 0 var(--space-3);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kit-tabs > .kit-tab {
+  border-radius: var(--radius-press) var(--radius-press) 0 0;
+}
+
+/* A field: 16px keeps a phone from zooming in on it. */
+.kit-field {
+  box-sizing: border-box;
+  min-height: var(--target);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-control);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* A checkbox is for a list of things to tick, then act on. */
+.kit-check {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.kit-check:disabled {
+  cursor: not-allowed;
+}
+
+/* A color dot: a highlight's color, a label's. The component sets
+   --kit-dot to the color it stands for. */
+.kit-dot {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .kit-btn,
+  .kit-icon,
+  .kit-tab,
+  .kit-row {
+    min-height: var(--target-touch);
+  }
+
+  .kit-icon {
+    min-width: var(--target-touch);
+  }
+}
+
+/* Every checkbox and radio button the site draws, and a range's thumb,
+   take the deep green ("Color": what can be pressed). */
+:root {
+  accent-color: var(--color-press);
+}
+
+/* =========================================================
+   The levels: what each control looks like in each state.
+   ========================================================= */
+
+/* ---------- Filled: the one main action; a view uses it once ---------- */
+:is(.kit-btn--filled) {
+  border: 1px solid transparent;
+  border-radius: var(--radius-press);
+  background: var(--color-press);
+  color: var(--color-on-press);
+  font-family: var(--font-control);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  :is(.kit-btn--filled):hover:not(:disabled, [aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--color-press) 86%, var(--color-text));
+  }
+}
+
+:is(.kit-btn--filled):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--color-press) 74%, var(--color-text));
+}
+
+:is(.kit-btn--filled)[aria-pressed="true"] {
+  font-weight: 700;
+}
+
+/* Unavailable, it keeps a light fill of its own green and says so in it. */
+:is(.kit-btn--filled):is(:disabled, [aria-disabled="true"]) {
+  border-color: color-mix(in srgb, var(--color-press) 40%, transparent);
+  background: color-mix(in srgb, var(--color-press) 10%, transparent);
+  color: var(--color-press);
+  cursor: not-allowed;
+}
+
+/* ---------- Tinted: the usual next step, and a chip in a set ---------- */
+:is(.kit-btn--tinted) {
+  border: 1px solid transparent;
+  border-radius: var(--radius-press);
+  background: color-mix(in srgb, var(--color-press) 10%, transparent);
+  color: var(--color-press);
+  font-family: var(--font-control);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  :is(.kit-btn--tinted):hover:not(:disabled, [aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--color-press) 16%, transparent);
+  }
+}
+
+:is(.kit-btn--tinted):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--color-press) 22%, transparent);
+}
+
+:is(.kit-btn--tinted)[aria-pressed="true"] {
+  font-weight: 700;
+}
+
+:is(.kit-btn--tinted):is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  cursor: not-allowed;
+}
+
+/* ---------- Plain, and an icon alone: no box until pointed at ----------
+   Most commands on a tool surface. E159 (a button is never the color of
+   what lies behind it) is relaxed for these on purpose ("Controls"): a
+   plain command has no box to lose. A toggle that is on fills and grows
+   heavier; a menu button whose menu is open fills. */
+:is(.kit-btn--plain, .kit-icon) {
+  border: 1px solid transparent;
+  border-radius: var(--radius-press);
+  background: transparent;
+  color: var(--color-press);
+  font-family: var(--font-control);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  :is(.kit-btn--plain, .kit-icon):hover:not(:disabled, [aria-disabled="true"]) {
+    background: var(--color-tint);
+  }
+}
+
+:is(.kit-btn--plain, .kit-icon):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+  background: var(--color-tint-strong);
+}
+
+:is(.kit-btn--plain, .kit-icon)[aria-pressed="true"] {
+  font-weight: 700;
+}
+
+:is(.kit-btn--plain, .kit-icon):is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  cursor: not-allowed;
+}
+
+/* ---------- Destructive: red words, never a fill ---------- */
+:is(.kit-btn--danger) {
+  border: 1px solid transparent;
+  border-radius: var(--radius-press);
+  background: transparent;
+  color: var(--color-danger);
+  font-family: var(--font-control);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  :is(.kit-btn--danger):hover:not(:disabled, [aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+  }
+}
+
+:is(.kit-btn--danger):is(:active, [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+}
+
+:is(.kit-btn--danger):is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  cursor: not-allowed;
+}
+
+/* ---------- List row: a menu's item, a list's entry ---------- */
+:is(.kit-row) {
+  border: 1px solid transparent;
+  border-radius: var(--radius-press);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-control);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  :is(.kit-row):hover:not(:disabled, [aria-disabled="true"]) {
+    background: var(--color-tint);
+  }
+}
+
+:is(.kit-row):is(:active, [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+  background: var(--color-tint-strong);
+}
+
+/* The one that is chosen, or where the reader is. A row whose markup can't
+   carry the state (a label around a radio button) is named in the second
+   list. */
+:is(.kit-row):is([aria-selected="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+:is(.kit-row--on) {
+  background: var(--color-tint-strong);
+  font-weight: 700;
+}
+
+:is(.kit-row):is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  cursor: not-allowed;
+}
+
+/* ---------- Tabs, and a row of choices ----------
+   On is a green underline and a heavier weight, in place of today's
+   green-filled pills. */
+:is(.kit-tab) {
+  border: 1px solid transparent;
+  border-radius: var(--radius-press);
+  background: transparent;
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+  font-family: var(--font-control);
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  :is(.kit-tab):hover:not(:disabled, [aria-disabled="true"]) {
+    background: var(--color-tint);
+  }
+}
+
+:is(.kit-tab):is([aria-selected="true"], [aria-pressed="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+:is(.kit-tab--on) {
+  box-shadow: inset 0 -2px 0 var(--color-press);
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+:is(.kit-tab):is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  cursor: not-allowed;
+}
+
+/* ---------- A press that reads as text ----------
+   A verse number, a footnote letter, a key term, a reference: buttons
+   that sit in a line of text and read as its links do ("Color": deep
+   green is what can be pressed). No box; pointed at, underlined; its
+   panel open, a tint behind it. */
+:is(.kit-inline) {
+  border: 0;
+  background: none;
+  color: var(--color-press);
+  font-family: inherit;
+  font-weight: inherit;
+}
+
+@media (hover: hover) {
+  :is(.kit-inline):hover:not(:disabled, [aria-disabled="true"]) {
+    text-decoration: underline;
+  }
+}
+
+:is(.kit-inline):is(:active, [aria-expanded="true"], [aria-pressed="true"]):not(:disabled, [aria-disabled="true"]) {
+  background: var(--color-tint-strong);
+}
+
+:is(.kit-inline):is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  cursor: not-allowed;
+}
+
+/* ---------- Field ----------
+   Its fill is the page's, so its edge is --field-border (3:1). */
+:is(.kit-field) {
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-press);
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font-control);
+}
+
+:is(.kit-field)::placeholder {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  :is(.kit-field):hover:not(:disabled, [aria-disabled="true"], [readonly], :focus) {
+    border-color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+  }
+}
+
+:is(.kit-field):is(:disabled, [aria-disabled="true"], [readonly]) {
+  background: var(--color-tint);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+:is(.kit-field):is(:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+}
+
+/* ---------- Color dot ----------
+   On draws a ring of the press green beside its 3:1 edge, a change of
+   shape as well as color. */
+:is(.kit-dot) {
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-round);
+  background: var(--kit-dot, transparent);
+}
+
+@media (hover: hover) {
+  :is(.kit-dot):hover:not(:disabled, [aria-disabled="true"]) {
+    border-color: var(--color-text);
+  }
+}
+
+:is(.kit-dot):is([aria-pressed="true"], [aria-checked="true"], [aria-selected="true"]) {
+  box-shadow: 0 0 0 2px var(--color-press);
+}
+
+:is(.kit-dot):is(:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+}
+
+/* ---------- Switch: one thing on, at once ----------
+   A button with role="switch" and aria-checked; the track and knob are
+   drawn before its words. On moves the knob as well as filling the track,
+   so it never rests on color alone. */
+.kit-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  font-weight: 600;
+  line-height: var(--leading-label);
+  text-align: left;
+  cursor: pointer;
+}
+
+.kit-switch::before {
+  content: "";
+  flex: none;
+  box-sizing: border-box;
+  width: 36px;
+  height: 20px;
+  border-radius: var(--radius-round);
+  background:
+    radial-gradient(circle at 10px 50%, var(--color-page) 0 7px, transparent 7.5px),
+    rgba(var(--color-text-rgb), 0.58);
+}
+
+.kit-switch[aria-checked="true"]::before {
+  background:
+    radial-gradient(circle at 26px 50%, var(--color-on-press) 0 7px, transparent 7.5px),
+    var(--color-press);
+}
+
+@media (hover: hover) {
+  .kit-switch:hover:not(:disabled, [aria-disabled="true"])::before {
+    background:
+      radial-gradient(circle at 10px 50%, var(--color-page) 0 7px, transparent 7.5px),
+      rgba(var(--color-text-rgb), var(--text-2-alpha));
+  }
+
+  .kit-switch[aria-checked="true"]:hover:not(:disabled, [aria-disabled="true"])::before {
+    background:
+      radial-gradient(circle at 26px 50%, var(--color-on-press) 0 7px, transparent 7.5px),
+      color-mix(in srgb, var(--color-press) 86%, var(--color-text));
+  }
+}
+
+.kit-switch:is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  cursor: not-allowed;
+}
+
+/* ---------- Forced colors ----------
+   Backgrounds and shadows draw nothing there, so an edge says what a fill
+   said (BA149): every control a button's border, on and chosen ones
+   Highlight, unavailable ones GrayText. */
+@media (forced-colors: active) {
+  :is(.kit-btn--filled),
+  :is(.kit-btn--tinted),
+  :is(.kit-btn--plain, .kit-icon),
+  :is(.kit-btn--danger),
+  :is(.kit-row),
+  :is(.kit-tab) {
+    border-color: ButtonBorder;
+  }
+
+  :is(.kit-btn--filled)[aria-pressed="true"],
+  :is(.kit-btn--tinted)[aria-pressed="true"],
+  :is(.kit-btn--plain, .kit-icon):is([aria-pressed="true"], [aria-expanded="true"]),
+  :is(.kit-row):is([aria-selected="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+  :is(.kit-row--on),
+  :is(.kit-tab):is([aria-selected="true"], [aria-pressed="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+  :is(.kit-tab--on),
+  :is(.kit-dot):is([aria-pressed="true"], [aria-checked="true"], [aria-selected="true"]) {
+    border-color: Highlight;
+    border-width: 2px;
+  }
+
+  :is(.kit-btn--filled):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-btn--tinted):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-btn--plain, .kit-icon):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-btn--danger):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-row):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-tab):is(:disabled, [aria-disabled="true"]) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  .kit-switch::before {
+    forced-color-adjust: none;
+    border: 1px solid ButtonText;
+    background: radial-gradient(circle at 10px 50%, ButtonText 0 7px, transparent 7.5px), Canvas;
+  }
+
+  .kit-switch[aria-checked="true"]::before {
+    background: radial-gradient(circle at 26px 50%, Canvas 0 7px, transparent 7.5px), Highlight;
+  }
+}
