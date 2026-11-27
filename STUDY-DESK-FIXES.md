@@ -6044,7 +6044,8 @@ wording (E202).
   takes a `role="group"` menu too: this one never takes focus, so it has no
   arrow keys to pass over the line). Pressing either does nothing. The
   reason is `DRAFT_NOTE_REASON` (`desk-note-from-greek.mjs`): “This chapter
-  is still being translated, so it can’t take notes yet.” /desk's Greek pane
+  is still being translated, so it can’t take notes yet.” (BVJ kept these
+  words on seeing the screenshots, 2026-11-27.) /desk's Greek pane
   (`desk-panes.js`) and the Notebook's Greek tab on a draft's page
   (`panel.js`) both pass `noteUnavailable: "draft"`; without a notebook
   nothing shows, as before. The help page's “A note from the Greek” says
