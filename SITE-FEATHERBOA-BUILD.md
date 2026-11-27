@@ -1026,7 +1026,10 @@ Entered by the run:
   answer, so it is drawn at the Text size in the controls' face, and it
   follows the Display tray as its answer does. Other choice: the Label
   size, which sets a long question smaller than the answer under it.
-  Cost: a line each. Recommendation: the Text size.
+  Cost: a line each. Recommendation: the Text size. A summary that is a
+  command, not a question, stays at the Label size as a plain control:
+  the account page's “Enter a code from the other device instead” and
+  “I can’t do any of these” (cf6f21c8).
 
 ## Questions answered before the run
 
@@ -1121,7 +1124,7 @@ with its last commit when done; never delete a line.
 - [ ] Phase 6: Search
 - [ ] Phase 7: Learn, the front door, and every other page (built ahead:
   the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
-  draws but the account pages, bae1d1cb)
+  draws, bae1d1cb, and the account pages, cf6f21c8)
 - [ ] Phase 8: Off the screen (the verse image built ahead, 60952c32)
 - [ ] Checkpoint A: the public site
 - [ ] Phase 9: Study's frame
