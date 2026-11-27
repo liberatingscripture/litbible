@@ -6739,7 +6739,10 @@ be revisited for version 2.
   shape: gate the desk on the screen's size and the reader's choice, apart
   from `isAppPlatform`, which should keep treating tablets as tablets for
   the app QR code and the share sheet. It would need touch work and
-  real-device checks, since the desk was built for a mouse.
+  real-device checks, since the desk was built for a mouse. **Dropped**
+  (BVJ, 2026-11-27, of the next design's proposal 26: “just use the
+  apps!”): tablets and foldables use the apps, as phones do, and no tablet
+  version is planned (`SITE-FEATHERBOA.md`, "Small screens").
 - **N11, notes on glossary entries and articles**: out of version 1 (BVJ,
   2026-10-29; "maybe v2"). Built provisionally on the preview 2026-10-08,
   and switched off on the preview's glossary and article pages

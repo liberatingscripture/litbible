@@ -10,9 +10,16 @@
   reader-selectable accessibility fonts, OpenDyslexic and Atkinson
   Hyperlegible Next (the latter variable, via `@fontsource-variable`), set from
   the Display tray. Playpen Sans (variable) is the Study Desk's margin-note
-  face, loaded only by the desk. All of them load Latin only; Greek and Hebrew
+  face, loaded only by the desk (Featherboa drops it, and the notes follow
+  the Display face: `SITE-FEATHERBOA.md`, "The reading page"; until it is
+  built, this holds). All of them load Latin only; Greek and Hebrew
   letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
   by character range (see "Greek and Hebrew letters," below).
+  **Featherboa changes the faces** (BVJ, 2026-11-26; decided, not built):
+  Fraunces for headings, Source Sans 3 for reading text and its Greek,
+  Atkinson Hyperlegible Next for controls, and the same on paper
+  (`SITE-FEATHERBOA.md`, "Type"). Until it is built, the faces above are the
+  site's.
 - **Theming (light/dark) is a dual mechanism.** Dark-mode tokens are declared
   twice — `@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) … }`
   (follow the OS) and `:root[data-theme="dark"] … }` (explicit override) — in
@@ -92,7 +99,9 @@
 - **The hamburger menu is a side tray on a computer** (BVJ, 2026-11-04):
   under `@media (hover: hover) and (pointer: fine)` the `.menu-overlay` panel
   slides in from the right over a lighter scrim, a narrow desktop window
-  included. Touch screens keep the full-screen menu. The header stays above
+  included. Touch screens keep the full-screen menu (Featherboa makes the
+  phone's a sheet rising from its bottom bar, `SITE-FEATHERBOA.md`, "The
+  phone"; until it is built, this holds). The header stays above
   the scrim, so the toggle is the close button. Either way the menu lists
   header C's groups under headings (`.menu-overlay__group`, S12 step 5), its
   Study group only with `html[data-desk]`.
@@ -107,7 +116,13 @@
   switch, which Chapter View alone shows; with the desk preview on, the tray's
   Show group also gains the desk's own switches, "My highlights" among them,
   injected by `desk/note-settings.js` and sharing the Notebook panel's stored
-  setting). There is **one
+  setting). (Featherboa keeps text, size as four steps, line spacing with
+  Justify under it, theme, and a "View" group whose desk switches merge into
+  one "Your marks," and moves the rest, the Keyboard switch and "Reset
+  widths" among them, out of the tray: `SITE-FEATHERBOA.md`, "Display";
+  its verse-numbers switch becomes "Verse and chapter numbers" and hides
+  the chapters' headings too, as a desk pane's does: "A whole book"; until
+  it is built, this holds.) There is **one
   panel**: Read View's toolbar "Aa" opens this same tray (it's a
   `data-font-toggle`, like the header's two), which opens upward when there
   is no room below. Six rules:
@@ -319,7 +334,11 @@
 - **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
   Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
   non-button icon accents — it carries **ink** text (4.6:1) or white *large*
-  headings, never small white text (only 3.5:1). `--green-deep` (#0F6B33 "Deep
+  headings, never small white text (only 3.5:1). Featherboa takes it off
+  surfaces: it marks (the emblem, the chapter numeral, "you are here," a
+  launch's band on the front page), and the front page's green sections and
+  chat go (`SITE-FEATHERBOA.md`, "Color," "The front page"); until it is
+  built, this holds. `--green-deep` (#0F6B33 "Deep
   Green") is for **solid buttons/CTAs** with **white** labels (6.6:1). Both are
   fixed in dark mode, so a Deep-Green button stays readable in both themes and
   reads as an intentional second shade against LIT-Green surfaces. Do NOT use
@@ -461,6 +480,11 @@
   window, and tab opened**: E159's sweep of empty pages missed the
   collections page's buttons and the Highlight swatches (E169). The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
+- **Featherboa replaces the four kinds** (`SITE-FEATHERBOA.md`, "Controls"
+  and "Surfaces"; decided, not built): filled, tinted, plain (words and an
+  icon, no box until pointed at, which E159 allows on purpose), and red
+  words, with no shadow on a button at rest. Until it is built, the rules
+  above hold.
 
 ## The restyle and Site 2.0
 
@@ -510,7 +534,8 @@
   Check a change against the computed styles of every control on each page,
   in both themes and at a phone's width, before trusting a screenshot.
 - **Site 2.0's page layouts live in `src/styles/v2/`, behind the same
-  stamp** (BVJ, 2026-11-17; `SITE-2.0.md` is the plan and its ground rules).
+  stamp** (BVJ, 2026-11-17; `SITE-2.0.md` is the plan and its ground rules;
+  Featherboa, `SITE-FEATHERBOA.md`, replaces it).
   `v2/base.css` (tokens `--v2-*`, the sheet, the Marks, the quiet label, the
   watermark, the page frame) loads after `restyle.css` in Layout.astro; each
   page's `v2/<page>.css` is imported by that page after its own styles.

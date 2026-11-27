@@ -96,7 +96,8 @@ means each of these, in one change:
    card and pill swaps (`pages/read.css`, `read.astro`, `ScriptureLayout.astro`).
 5. The pages' preview copy and loading/off pairs (`desk.astro`,
    `notebook.astro`, `sheets.astro`, `desk/help.astro` and their page CSS).
-   The "off" note must still say something true for no-JS and phones.
+   The "off" note must still say something true for no-JS and phones
+   (Featherboa's sentence: `SITE-FEATHERBOA.md`, "Small screens").
 6. `/privacy`'s notebook paragraph ("Readers who switch on the Study Desk,
    a preview…") and whether to bump its effective date. Its account
    section's launch edits are the account file's (rule 11).
@@ -126,6 +127,8 @@ means each of these, in one change:
     reads "Scripture page" or "Scripture pages" (`searchbar.js`, `search.js`,
     `ReadMenu.astro`, `read/[book].astro`, `read-mode.js` and `.css`,
     `read.astro`). Keep only that wording; comments and docs follow.
+    Featherboa says "Read page," case by case (`SITE-FEATHERBOA.md`,
+    "Study and its places").
 14. **The site restyle** (E132; BVJ, 2026-11-13) goes to every reader:
     Layout.astro's second stamp, `data-restyle`, is set on every device
     from the same key, phones included, so it can't simply follow item 1's
@@ -136,7 +139,8 @@ means each of these, in one change:
 15. **Site 2.0** (BVJ, 2026-11-17) rides the same stamp as item 14: its
     page layouts in `src/styles/v2/`, its `data-v1` and `data-v2` markup,
     and four small modules that check the stamp. The steps are in
-    `SITE-2.0.md`, "At launch."
+    `SITE-2.0.md`, "At launch." Featherboa (`SITE-FEATHERBOA.md`) replaces
+    2.0, and how it launches is still open.
 
 After the change, re-run `grep -rnE "lit-desk-preview|data-desk|dataset.desk|deskEnabled|desk=on|desk=off" src test scripts astro.config.mjs`.
 `lit-desk-preview`, `desk=on` and `desk=off` should be gone everywhere; the
@@ -319,7 +323,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `desk-margin.mjs`): kept in `sessionStorage` for the visit, stamped
      before first paint as `data-desk-widths` with `--desk-measure` and
      `--desk-width`, and global.css sets the column's measure and right
-     margin from them.
+     margin from them. Featherboa keeps this dragging, starting from its
+     220, 660, and 320 columns, holds the text column to 45 to 75
+     characters a line, and drops the tray's "Reset widths" for each line's
+     own reset (`SITE-FEATHERBOA.md`, "Display"); until it is built, this
+     holds.
      **Every line a reader can drag works one way, through `wireLine`**
      (`desk/line-menu.js`; XA8-1, WCAG 2.5.7; E189, BVJ 2026-11-19): the two
      margin lines, the floating notebook's edge, the Greek tab's line and
@@ -363,7 +371,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `src/scripts/desk/actions.js` listens, adding "My Notebook" (in BVJ's
      order of 2026-11-12, E112: Highlight, Add a note, Add bookmark, Add to
      sheet, Print, Show in Notebook; Highlight and Add bookmark only in Read
-     View), so a
+     View; Featherboa puts Highlight, Note, Bookmark, and Copy across the
+     menu's top and Show in Notebook last, `SITE-FEATHERBOA.md`, "Beside
+     scripture," and until it is built this order holds), so a
      reader's menus are unchanged. The Notebook's "This verse" tab
      (`desk/tab-verse.js`) listens too: a verse menu opened while the
      notebook is open moves the tab to that verse. Keep the event before `showPanel`, or the panel is measured
@@ -383,7 +393,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      anchor reader all read the verses off the page. Their face is Playpen
      Sans (`desk.css`; see `src/styles/CLAUDE.md`), or
      Inter on "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
-     `html[data-font]`. Bookmarks show in the same `<aside>` as a red mark
+     `html[data-font]`. Featherboa drops Playpen Sans and "Plain": the notes
+     take the Display face, on a sunshine tint (`SITE-FEATHERBOA.md`, "The
+     reading page"); until it is built, this holds. Bookmarks show in the same `<aside>` as a red mark
      (gold if they stay put; see "Bookmarks, and Continue reading"), with their
      own switch (`data-desk-bookmarks`).
      **A stack of notes on one line shows five** (GF8b-6, BVJ, 2026-11-10):
@@ -455,7 +467,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `test/desk-footnotes.test.js` holds the page's text of every published
      footnote equal to the JSON's, so a new render-time transform of
      footnote HTML that adds visible text will fail there.
-  10. **The Notebook panel has tabs, one module each**: "My Notes"
+  10. **The Notebook panel has tabs, one module each** (Featherboa makes
+     them Notes, Footnotes, This verse (Greek goes to Study), and moves Settings into a
+     "Notebook ▾" title menu and Display: `SITE-FEATHERBOA.md`, "Beside
+     scripture"; until it is built, this holds): "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
      and "Greek" (`desk/tab-greek.js`; `public/greek/CLAUDE.md`, rule 14) on Chapter View chapters, and
      Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
@@ -475,7 +490,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      wires `button[data-desk-toggle]` only). **The home page keeps the
      header's** "Study Desk" link (`SiteHeader`'s `deskLink`, which `Layout`
      sets for `/` alone; still `data-desk-toggle`, so global.css shows it with
-     the desk on). **Scripture pages, chapters and book introductions, put a
+     the desk on; Featherboa gives it a panel on the front page instead,
+     `SITE-FEATHERBOA.md`, "The front page," until then this holds). **Scripture pages, chapters and book introductions, put a
      pill in the toolbar's right slot**, the old "Switch to Read View" pill's
      design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
      beside the Read View wrapper, which stays hidden while the preview is on;
@@ -497,9 +513,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      heading for the reader's notes, This verse's subhead too (Audit 8); the
      margin's switch and its region are "Notes in the margin." **The
      /notebook page is "My Notebook"**
-     wherever it is named (E70, BVJ 2026-11-10).
-     **Words used here** (Audit 2, CP-11): "Study Desk" is the feature (never
-     "the notebook preview"), and a reader works "in the Study Desk," never
+     wherever it is named (E70, BVJ 2026-11-10). Featherboa drops "My"
+     (`SITE-FEATHERBOA.md`, "Controls": "Notebook" and "Notes"); until it
+     is built, the names here hold.
+     **Words used here** (Audit 2, CP-11): "Study Desk" is the feature
+     (Featherboa: "Study"; never "the notebook preview"), and a reader works "in the Study Desk," never
      "on" it (BVJ, 2026-11-11, E105; "on the Study Desk page" is the page,
      and "the desk" pictured as a physical desk, as in the tour's "What's on
      the desk," keeps "on"); "Delete" is for what the reader typed or named
@@ -596,7 +614,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The notebook page**, `/notebook/` (`pages/notebook.astro`; Routes):
        `desk-gate.js` loads `desk/notebook-page.js` when
        `[data-notebook-page]` is present; the page isn't a reading surface,
-       so it has no panel. **/notebook/, /desk/ and /sheets/ hide their
+       so it has no panel (Featherboa moves its tools into /desk and All
+       settings, rows become select-then-act: `SITE-FEATHERBOA.md`, "The
+       Notebook").
+       **/notebook/, /desk/ and /sheets/ hide their
        no-preview note under `html[data-desk="on"]`** and show “Loading the Study Desk…” until
        the desk's code replaces both (BA153); if that code fails to load,
        the gate's `standDown()` takes the stamp off and the note is back.
@@ -734,7 +755,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        "Bookmark ▸" flyout** once it holds any (BVJ, 2026-11-04): Remove and
        Edit, Add a bookmark that moves or stays put, and for the resting one "Leave
        it here". A verse with none keeps the one-press "Bookmark", and a
-       finger's chips stay flat. **The flyout is shared code** (E39):
+       finger's chips stay flat. (Featherboa shows these choices beneath the
+       menu's Bookmark instead of in a flyout: `SITE-FEATHERBOA.md`, "Beside
+       scripture"; until it is built, this holds.) **The flyout is shared code** (E39):
        `flyoutRow` (`src/scripts/CLAUDE.md`, "One set of actions, two ways
        in"), which also builds "Print ▸" (rule 19). Desk code imports it;
        shared code never imports desk code.
@@ -791,7 +814,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        asks instead** (step 4j, BVJ 2026-11-25): "Where should your notebook
        be kept?", with "Keep it in this browser" (the stored answer) and a
        link, "Set up an account"; no account is plainly a choice. Its words
-       are `CARD_WORDS` in `desk-first-use.mjs`. **A browser that syncs sees
+       are `CARD_WORDS` in `desk-first-use.mjs`. Featherboa makes it
+       Study's empty state (`SITE-FEATHERBOA.md`, "First visit, signing
+       in, and sync"); until it is built, this holds. **A browser that syncs sees
        neither form and isn't nudged**, and every sentence about where the
        notebook is kept has a form for it (the tour's `kept` step's `linked`
        body, `savedLine`'s `linked`, `notebookIntro`, `backupLede`;
@@ -816,6 +841,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        expanded with the home question answered: Take the tour now, Remind
        me later (also the ×, Escape, closing or minimizing the Notebook,
        and leaving the page; back on a later day), or Don't show this again.
+       Featherboa replaces the window with a "Start here" line, a line in
+       the first use's undo bar, and the front door, and moves the backup
+       reminder into the Notebook's foot line (`SITE-FEATHERBOA.md`,
+       "Nothing interrupts the reader"); until it is built, this holds.
        The window is `src/scripts/float-window.js`, which stays open through
        clicks elsewhere and never takes `lit-panel.js`'s one slot. The privacy
        page names these keys and the notebook's storage: keep it in step if a
@@ -924,6 +953,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
+     Featherboa remakes it as "Study" (/study): one to three panes of tabs
+     beside a sidebar that folds, under the site's header, with no command
+     row, rows, fourth pane, Layout window, edge split or "My default", and
+     the Notebook, sheets, collections and Trash as places of their own
+     (`SITE-FEATHERBOA.md`, "The Study Desk," "Study and its places"); until
+     it is built, this holds.
      - **`src/lib/desk-layout.mjs` is the one set of rules** (pure, tested):
        a layout is a tree of panes and normalized splits; the Layout menu's
        arrangements (`ARRANGEMENTS`; four rows left out, BVJ 2026-10-18);
@@ -947,7 +982,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        minimum (`needs`, `fitSizes`, `resize`); and which panes follow the
        active LIT pane unless pinned (`KINDS`, `leaderFor`). A new
        arrangement or kind goes there, never in the page.
-     - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02): "Reading" is the
+     - **Reading and `?place=`** (E8, 8a; BVJ, 2026-11-02). Featherboa
+       retires the Reading layout, with its marks rule, E106, E107 and
+       `&layout=reading`; Justify becomes a Display switch
+       (`SITE-FEATHERBOA.md`, "The reading page"). Until it is built, the
+       rules here hold. "Reading" is the
        first row of the Layout window, one LIT pane (`readingLayout`); it is
        One pane's shape, told apart by the layout's `reading` mark (E107; BVJ,
        2026-11-12), which only that row sets and `settleActive` drops, so one
@@ -1110,7 +1149,9 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      - **The LIT pane scrolls the whole New Testament**, a chapter fetched
        as the reader nears it (`src/lib/desk-corpus.mjs`: a run of drafts in
        one book is one stub, from the draft list `desk.astro` writes at
-       build). Its text is the page's own with every id prefixed by pane and
+       build). Featherboa's reading page will load chapters on this way,
+       drafts as these stubs (`SITE-FEATHERBOA.md`, "A whole book").
+       Its text is the page's own with every id prefixed by pane and
        chapter (`src/lib/desk-lit-text.mjs`), which
        `test/desk-anchor-dom.test.js` sweeps as a third view; **a new
        render-time change to the chapter text must pass that sweep too.** A

@@ -5,7 +5,11 @@
 > in this directory.
 
 - **On a phone, Chapter View's toolbar is one row** (audit F3, owner
-  2026-09-28). At 640px and below the passage picker, a search button and an
+  2026-09-28). Featherboa replaces the computer's toolbar with the place
+  line (`SITE-FEATHERBOA.md`, "The reading page" and "Finding a passage")
+  and the phone's with one row at the top and a bar of four at the thumb,
+  the round ‹ › there included ("The phone"); until it is built, this
+  holds. At 640px and below the passage picker, a search button and an
   icon-only Read View link share one 44px row; search opens in place of the
   row, and its × or Escape closes it and returns focus to the button. The top
   Previous/Next are round ‹ › buttons beside the title **at every width**
@@ -29,7 +33,9 @@
   toward the app popover's `lit_pv` gate (`src/components/CLAUDE.md`, "One announcement popover at a time"), could
   open the popover in a page nobody has seen yet, and may log an analytics visit
   for a chapter nobody opened. None of those scripts check
-  `document.prerendering`.
+  `document.prerendering`. Featherboa loads the next and previous chapters
+  into the page itself as the reader nears them (`SITE-FEATHERBOA.md`, "A
+  whole book"); until it is built, this holds.
 - **A page with its own search box can still give the header a search
   button** (Site 2.0; BVJ, 2026-11-17: "The header can have a search button
   so that a non-article-defaulted option is available"). `SearchBar` can be

@@ -370,6 +370,11 @@ app contract; it must never move under `public/api/`.
 `glossary.astro` + the OCCURRENCES section of `pages/glossary.css`): an outer
 `<details>` holding the whole list, then one `<details>` per rendering. It is
 `data-pagefind-ignore`d so verse lists don't swamp the glossary's index.
+Featherboa moves it into the margin beside its entry, showing the total and
+each rendering's count, with "Every place →" opening the full list under the
+entry, and under the entry entirely where there is no margin
+(`SITE-FEATHERBOA.md`, "The glossary and articles"); the rules below still
+govern the list. Until it is built, this holds.
 
 Four rules there, all forced by the size of the finished dataset (~3,600
 verses across ~210 renderings on one page):

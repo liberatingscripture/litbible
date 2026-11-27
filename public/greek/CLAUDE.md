@@ -14,7 +14,13 @@
 ## Rule 14: the Greek tab
 
 **Phase 1f is the Greek tab** (STUDY-DESK.md,
-"Order of work", 1f). Before touching it:
+"Order of work", 1f). **Featherboa takes it off the reading page's
+Notebook panel and keeps it in Study** (the desk's new name): This verse's
+Greek words and a draft chapter's line lead there (`SITE-FEATHERBOA.md`,
+"Study and its places"). It also redraws a word's details as a card of
+labeled rows, its four word searches gathered under one "Find this word ▾"
+(rule 15's starters), with the text's verse numbers in gray (`SITE-FEATHERBOA.md`,
+"The Greek"). Until it is built, this holds. Before touching it:
 - **Its data is committed, not built.** `npm run build:greek` reads
   clones kept outside the repo (`GREEK_SOURCES_DIR`, `MORPHGNT_DIR`: the
   SBLGNT with its apparatus, MACULA Greek, the UBS dictionary, STEPBible's
@@ -168,7 +174,9 @@
   place in the tab's head row**, which doesn't scroll, and the heading
   moves to the top of the results as "ἄνομος in the New Testament" (what is searched: the form with
   Exact form only on, "Strong’s G435" for a number) over
-  "Appears 9 times" (BVJ, 2026-11-21, E219). Its result rows preview their verse on hover like any
+  "Appears 9 times" (BVJ, 2026-11-21, E219). Featherboa opens the results
+  in a Search tab beside the Greek in its pane instead, the text staying
+  (`SITE-FEATHERBOA.md`, "The Greek"); until it is built, this holds. Its result rows preview their verse on hover like any
   reference (`ref-preview.js`; a row for the chapter on screen is a
   button naming its verse in `data-preview-href`, and a tap on it jumps).
   **A Greek word searches at any length there too** (ὦ, ἤ; BVJ,
@@ -238,7 +246,12 @@ Four things to know:
   one puts the page's type menu on "Greek". It is a `float-window.js`
   window, outside `lit-panel.js`'s one slot, so a footnote or preview
   opening never closes it; it opens from the tray, /search and /desk's
-  Search pane, and closes when its field is gone (BA114). What it announces is meant to be heard: a command by its meaning (“Added: Within 3
+  Search pane, and closes when its field is gone (BA114). Featherboa
+  names it "Build a search" and opens it from one quiet "Build a
+  search…" link in the field's row, shown only while the Greek tab is
+  chosen, and the word card's "Find this word ▾" searches reach it
+  through the field (`SITE-FEATHERBOA.md`, "Searching the Greek"); until
+  it is built, this holds. What it announces is meant to be heard: a command by its meaning (“Added: Within 3
   words.”), the builder's by the query it made (BA117).
   **What it puts in a field is typed, not set** (BA147): `typeInto`
   replaces only the changed span with `execCommand("insertText")`, so

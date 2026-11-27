@@ -194,7 +194,12 @@ and `panel-flyout.js`, and `actionRows` in `panel-pieces.js` lays the copy
 and share rows out for both), so keep them in step.
 
 **A mouse or the keyboard gets two flyout rows; a finger's chips stay flat**
-(BVJ, 2026-11-06, E39, for every reader). **"Copy text"** is a split row:
+(BVJ, 2026-11-06, E39, for every reader). Featherboa replaces this layout:
+Highlight, Note, Bookmark, and Copy across the top, each showing its
+choices beneath it once pressed (Copy link and Copy with footnotes under
+Copy), and Share… holding Share text…, Share image…, and Print, in both
+panels (`SITE-FEATHERBOA.md`, "Beside scripture"). Until it is built, this
+holds. **"Copy text"** is a split row:
 pressing the row copies the text exactly as before (one press); its chevron,
 named "More ways to copy", hover (which never takes focus) or the right arrow
 open a flyout of Copy text, Copy link and Copy with footnotes. **"Share"** is
@@ -277,6 +282,10 @@ fonts, and in the selection panel (154px) in Inter and Atkinson. "Share
 image…" needs 119px (Inter), 111px (Atkinson) and 162px (OpenDyslexic), so
 in OpenDyslexic's selection panel it takes a line of its own, as the rule
 allows (E111; the ellipsis cost 13px).
+Featherboa draws the phone's verse sheet as Copy text, Copy link, Share
+text…, and Share image… across, with icons, then Copy with footnotes, and
+no Print (`SITE-FEATHERBOA.md`, "The phone"); until it is built, this
+holds.
 
 **The verse menu follows the input, as the selection panel does** (owner,
 2026-09-29), not the screen width, and **the text it covers must always stay
@@ -331,7 +340,10 @@ page drawn by the same code:
 3. **The verse in Crimson Text**, the reference in Fraunces, the wordmark and
    address in Inter. The text is Copy text's (`joinPieces`, footnote letters
    and bracket markers gone, poetry kept as lines) without the inline verse
-   numbers, since the reference names the verses.
+   numbers, since the reference names the verses. Featherboa sets the
+   verse in Source Sans 3 and puts the emblem, the reference (Fraunces),
+   the name, and the address in one small line, the green bar gone
+   (`SITE-FEATHERBOA.md`, "Off the screen"); until it is built, this holds.
 4. **The chapter's own address** on the image ("litbible.net/john-3"), always
    the site's name whatever host drew it. The owner counts it as the link back
    the license's social-media exception asks for. The share sheet also gets
@@ -358,7 +370,10 @@ provided the notes stay with the verses they explain and the work carries a
 fixed attribution notice (/read, "Noncommercial use" and "Quoting the LIT in a commercial work"). Two features serve
 that, and both print the notice from **one constant, `LIT_CREDIT_LINE` in
 `src/lib/lit-credit.mjs`**, which /read's own terms also render. Change the
-notice there or nowhere.
+notice there or nowhere. (Featherboa moves the terms from /read to a
+License page of their own, forwarding /read's old anchors:
+`SITE-FEATHERBOA.md`, "Finding a passage"; until it is built, they are on
+/read.)
 
 - **`src/styles/print.css`** (imported by `Layout.astro`, all `@media print`)
   prints a chapter, an intro or a whole Read View book as text and notes
@@ -366,7 +381,15 @@ notice there or nowhere.
   font prints as chosen), 12pt times the Display tray's text size, with the
   header, tools bar, Previous/Next, panels and Read View's toolbar gone.
   The footnotes stay the endnote list they are on screen, and the SBLGNT
-  notice still prints after the text on all three. `PrintCredit.astro` adds the
+  notice still prints after the text on all three. (Where Featherboa's
+  chapters read on into each other, a print is still one chapter with its
+  notes, the chapter in view: `SITE-FEATHERBOA.md`, "A whole book"; until it
+  is built, this holds.) (Featherboa prints in Source Sans 3 with Fraunces
+  headings and the drop numeral, notes after the chapter in two columns,
+  never cut, and a running head, footer, and page numbers in page-margin
+  boxes, the end notice kept for browsers without them:
+  `SITE-FEATHERBOA.md`, "Off the screen"; until it is built, this holds.)
+  `PrintCredit.astro` adds the
   notice and the page's address ("litbible.net/john-3") at the end; it is a
   `hidden` element the stylesheet reveals, so no screen or screen reader ever
   meets it. Most rules are `!important` because page and component styles
@@ -500,7 +523,10 @@ notice there or nowhere.
     the passage instead (`/desk/?place=john-3:16&layout=reading`, a book at
     chapter 1; E114, BVJ 2026-11-12), and its label says so. Both build it
     with `readingJumpLink` in `search-core.js`, which reads `deskEnabled()`;
-    the chapter picker's footer writes the same address inline.
+    the chapter picker's footer writes the same address inline. Featherboa
+    retires the Reading layout, so these open the desk at the passage
+    alone, without `&layout=reading` (`SITE-FEATHERBOA.md`, "The reading
+    page"); until it is built, this holds.
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the
@@ -541,6 +567,11 @@ notice there or nowhere.
     re-renders the results. A topic card names the topics that matched it
     when they differ from the query (a loose one-word match). That matching
     is `topicMatches`, which the desk's Search pane calls too (E166).
+    Featherboa replaces /search's sort row, type filter, jump links, and
+    group list with one row of tabs under the field ("Chapters about it" for
+    Topic matches; Introductions keeps its own), Relevance still the
+    default, and gives the tray the same rows (`SITE-FEATHERBOA.md`,
+    "Search"); the engines don't change. Until it is built, this holds.
   - *Every page has exactly one way in* (audit U6, owner 2026-09-28).
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`
@@ -553,7 +584,11 @@ notice there or nowhere.
     is no room for a third header button (the short title ran 20–36px into
     them at 320px, in every font), so the icon moves into the phone menu as
     "Search". **A new page with its own `SearchBar` must pass `pageSearch`**,
-    or it renders two.
+    or it renders two. Featherboa keeps the rule but moves a reading
+    page's way in: the toolbar's box goes, and "Search" on the place line
+    opens it in place of the line, while the passage picker gains a typing
+    field of its own (`SITE-FEATHERBOA.md`, "Finding a passage"); until it
+    is built, this holds.
 ## Continue reading, Read View's landing, and keyboard shortcuts
 
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
@@ -570,7 +605,10 @@ notice there or nowhere.
   it. Draft chapters are never recorded. `ContinueReading.astro` (home title
   block, top of /read) and a button in the phone menu offer it back, hidden
   until a record exists, so no JS or no storage means nothing renders; the ×
-  forgets it everywhere. The Study Desk's LIT pane on /desk writes it too
+  forgets it everywhere. Featherboa offers it as the first row of the book
+  picker and of Home instead, with nothing to dismiss
+  (`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"); the record is
+  unchanged. The Study Desk's LIT pane on /desk writes it too
   (`desk/desk-last-read.js`, through `saveLastRead`: the leading pane's place,
   `view: "study"`, after 500 ms, never a draft; BVJ, 2026-11-10). Each save also dispatches a `lit:last-read` window
   event, which only the Study Desk (places, when the preview is on) hears. The privacy page's storage paragraph names it: keep
@@ -595,12 +633,17 @@ notice there or nowhere.
   `rel="prev"` / `rel="next"`, the neighboring `#ch-N` in Read View, or on
   /desk a `lit:desk-chapter` event that `desk-page.js` answers by pressing the
   passage bar's arrow of the pane holding focus, else the leading LIT pane).
+  Featherboa keeps them where chapters read on into each other: they go to
+  the start of the neighboring chapter, loading it first
+  (`SITE-FEATHERBOA.md`, "A whole book").
   `h` is the Study Desk's "Hide my marks" and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
   stays out of this file.
   They are on by default, with a Keyboard switch in the Display tray
   (`localStorage['lit-shortcuts'] = 'off'`; no attribute on `<html>`, since
-  nothing renders differently). **The switch is required, not a nicety**:
+  nothing renders differently; Featherboa moves it to an All settings page
+  every reader can reach from the tray, `SITE-FEATHERBOA.md`, "Display,"
+  and until it is built it stays in the tray). **The switch is required, not a nicety**:
   single-key shortcuts fire when a speech-recognition user dictates a word
   (WCAG 2.1.4). They stand down while the reader is typing or working a control
   that owns those keys (a radio group, a menu, a grid, a dialog, the picker's

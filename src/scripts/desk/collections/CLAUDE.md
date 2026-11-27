@@ -22,6 +22,12 @@ headings that divide their own order (`heading`). It is **one record of kind
 and adding or removing something writes only the collection, never the record
 it holds. Computer only; the apps carry it untouched.
 
+**Featherboa opens a collection as a place of its own on the Study page**
+(the desk's new name; `SITE-FEATHERBOA.md`, "Study and its places"), not a
+tab in a desk pane: its list, with The LIT, Search, or Notes in the pane
+beside it, and it can open beside a sheet. Until it is built, the rules
+here hold.
+
 ## Where the code is
 
 - **Step 1, the record and its model (no UI):**

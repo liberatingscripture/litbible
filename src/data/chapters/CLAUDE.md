@@ -89,7 +89,10 @@ Each file in `src/data/chapters/` follows this structure:
      (`read-mode.js` keeps the label and the
      root's `data-current-chapter` updated on scroll, and intercepts
      same-book chapter picks for an in-page scroll; other books navigate to
-     `/read/<book>#ch-N`).
+     `/read/<book>#ch-N`). Featherboa makes the picker the place line's
+     panel, with a typing field and "in progress" beside a draft, and /read
+     its full-size page (`SITE-FEATHERBOA.md`, "Finding a passage"); until
+     it is built, this holds.
   5. The `/read` lede names what isn't finished ("all except Acts
      and Revelation"), built from `scanDraftChapters()` at
      build time: whole books first, then partly drafted books with their

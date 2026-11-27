@@ -12,6 +12,18 @@
 The code moved here from `src/scripts/desk/` on 2026-11-08 (STUDY-DESK.md,
 S12, step 0), so older records name the files without `sheets/`.
 
+**Featherboa remakes the Sheets** (`SITE-FEATHERBOA.md`, "Sheets"): the
+editor becomes the page itself at the paper's proportions, a small bar with
+"More formatting" replaces each part's toolbar (SH5-6), Edit and Preview
+retire (E209), the screen says "Leader's copy" and "Participant's copy"
+(E95), Style's fonts become Source Sans 3, Literata, Fraunces, and Atkinson
+Next (`sans` and `handwriting` leave the format's set), and present mode
+sets its words in Source Sans 3. **A sheet opens as a place of its own on
+the Study page** (the desk's new name; `SITE-FEATHERBOA.md`, "Study and its
+places"), not a tab in a desk pane: alone, its page at true size; beside a
+pane of The LIT, Search, Notes, a collection, or another sheet, it scales
+down to 80% and then reflows. Until it is built, the rules here hold.
+
 ## The sheet editor runs on `document.execCommand`
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
@@ -101,7 +113,10 @@ holds the inventory, the pairs, the two files in step and reduced motion.
    is** (E141; BVJ, 2026-11-17): a rounded rectangle is a button, the lock
    and a lone switch included, so **Pin, Stay here, and Show sources are
    never a pill or a circle**; a pill is a chip in a set; a circle is a
-   mark on the page (a margin note's).
+   mark on the page (a margin note's). Featherboa gives everything pressed,
+   chips included, a 6-pixel corner and makes a switch the one round
+   control (`SITE-FEATHERBOA.md`, "The kit"); until it is built, this
+   holds.
 4. **Quiet** (links: Labels…, Stop following, Verse N, Show the note, Take
    the Sheets tour, Clear checks) and **glyph** buttons (‹ › × ▾ +, the grip)
    keep their own looks, save This verse's Previous and Next, which are
@@ -614,7 +629,10 @@ my notebook"**. Twelve things to know:
   Site 2.0 removed it from the site's styles): the sheet's title (24pt), Key
   terms, the answer key's title and references and the passage's reference
   are all the paper's own Crimson Text, so none falls back to Georgia. Bold is
-  set on each, since the restyle gives a heading 600. The print block's
+  set on each, since the restyle gives a heading 600. **Featherboa reverses
+  this** (BVJ, 2026-11-26; decided, not built): paper takes the screen's
+  faces, Fraunces headings and Source Sans 3 text (`SITE-FEATHERBOA.md`,
+  "Type"). Until it is built, the rule here holds. The print block's
   Fraunces rule is left holding only the leader's own **Display** text style
   (`data-font="display"`, a stored value of the sheet's format, so it can't be
   removed; its look is in `desk-sheet-view.css`), because a font named there
@@ -1035,6 +1053,10 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   A shared sheet shows read only until "Import into my notebook", which saves
   it as a new sheet (`copyOfShared`) and turns the page into that
   sheet's own address. No storage key is added.
+  **Both viewers take Featherboa's look with the rest of the site**
+  (BVJ, 2026-11-27; `SITE-FEATHERBOA.md`, "Shared sheets"), so when it
+  is built, the phone's rules go in `desk-sheet-view.css` too, within
+  its Safari 16.4 floor; until it is built, this holds.
 
 ## Rule 22: a sheet checked before printing
 

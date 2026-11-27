@@ -274,10 +274,15 @@ the sitemap filter live in `astro.config.mjs`.
   **Read View gets what serves reading a book straight through** (display
   settings, the selection panel and its handouts, keeping and restoring a
   place, print, focus mode), and **a tool about a verse or a word goes in
-  Chapter View only** unless the owner decides otherwise.
+  Chapter View only** unless the owner decides otherwise. Featherboa
+  replaces the pair with one reading page whose chapters read on into each
+  other (`SITE-FEATHERBOA.md`, "A whole book"); until it is built, this
+  holds.
   Call them "Chapter View" and "Read View" in anything a reader sees; with
   the Study Desk preview on, labels say "Scripture page(s)" instead (E130),
-  the public name from launch. Older records use older names: "Study View"
+  the public name from launch. Featherboa calls the reading page "the Read
+  page" and the Study Desk "Study" (`SITE-FEATHERBOA.md`, "Study and its
+  places"); until it is built, this holds. Older records use older names: "Study View"
   (until 2026-11-02, still in STUDY-DESK.md and FIXLIST.md), "Reading View"
   and "Reading Mode" (until 2026-09-30); the `rm-` classes and
   `read-mode.js` keep the old initials.
@@ -343,6 +348,7 @@ Area files list their own key modules; these are the cross-cutting ones.
 | `GLOSSARY-CANDIDATES.md` | Glossary candidates deliberately not included or deferred, and why. Read it before proposing a "next term" |
 | `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-*.md` | The Study Desk's planning record, its Phase 5 log (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits. Grep, never read whole |
 | `API-2-FORMAT.md` | The content API, version 2, beside version 1; opens with the manifest rule that protects installed apps |
-| `SITE-2.0.md` | Site 2.0: the plan, its ground rules, every page's decision, the launch steps |
+| `SITE-FEATHERBOA.md`, `SITE-FEATHERBOA-BUILD.md` | Site Design: Featherboa, the next design, which replaces Site 2.0: BVJ's decisions as they are made, and what is open; then the plan for building it (order of work, checks, the questions' queue). Read the first before a design or font change |
+| `SITE-2.0.md` | Site 2.0 (replaced by Featherboa; built behind `data-restyle`, not launched): the plan, its ground rules, every page's decision, the launch steps |
 | `IMAGE-CREDITS.md` | Source, creator and terms of every image by others; a new stock image gets a row |
 | `DISASTER-RECOVERY.md` | Every dashboard and secret behind the deploy (names only), the DNS inventory, the from-zero redeploy. Update it when an integration, secret, or DNS record changes |

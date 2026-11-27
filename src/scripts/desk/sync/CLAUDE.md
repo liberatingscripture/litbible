@@ -67,7 +67,11 @@ each one cheap to change: one constant, one function, one place.
      for such a stop opens the account page** (`ACCOUNT_PAGE`; BVJ,
      2026-11-24), which names the real step; for every other stop it asks
      for another pass. A new state that needs the reader goes in that set
-     and gets a sentence that says where the notebook is.
+     and gets a sentence that says where the notebook is. Featherboa
+     drops that notice: a stop is said by the status line and the dot
+     alone, while rule 11's two notices keep their bar
+     (`SITE-FEATHERBOA.md`, "First visit, signing in, and sync"); until
+     it is built, this holds.
    - **A full account is a wait, not a loop** (the service's ceiling of
      100,000 rows and 100 MB; BVJ, 2026-11-26). The push the ceiling refuses
      is refused whole, so for `FULL_WAIT_MS` (an hour) after it the engine
@@ -236,7 +240,10 @@ menu"). The entry is `src/scripts/desk/account/CLAUDE.md`, rule 17. On a
 page that runs no connector (About, say) the menu holds its two links and
 no status. **On the account page the stop is the page's to show**: the
 status line draws no "Reconnect" for a stop that needs the reader, and the
-notice never comes up there.
+notice never comes up there. Featherboa shows the same line at the foot
+of the Study sidebar and of the Read page's Notebook panel, and keeps the
+header's account menu (`SITE-FEATHERBOA.md`, "First visit, signing in,
+and sync"); until it is built, this holds.
 
 ## What the account pages supply
 
