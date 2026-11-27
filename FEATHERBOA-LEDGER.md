@@ -146,8 +146,9 @@ run's best reading, entered in the plan's queue with what was done.
   "Latest text changes" "stays on Home" while the front page keeps one quiet
   "Latest change" line: one element or two. What a phone shows of John
   1:1 to 5 beside the buttons, and whether its margin note shows there.
-- **Phase 8, off the screen.** The verse image's readable floor has no
-  number; it stays as today's code (OS-20).
+- **Phase 8, off the screen.** The verse image was built ahead
+  (60952c32), its readable floor, which has no number, kept as today's
+  code (OS-20); Phase 8 is printing and the handouts.
 - **Phase 9, Study's frame.** Study's header menu: "The header" lists
   Scripture, Notebook, Sheets, and Collections, "Names" three of them, and
   Trash is in neither. How "Sheets ▾" in the Study line behaves in the
@@ -220,7 +221,7 @@ run's best reading, entered in the plan's queue with what was done.
 | CO-12 | No longer green: the accents sky and ocean (Site 2.0's), which leave with the home page's chat bubbles | 0, 7 | Grep: no sky or ocean value left | built (63d07ac0): no sky or ocean left |
 | CO-13 | Unchanged: the four highlighter colors | 1 | Kept: the four highlights draw by day as on `main` | built (c1bb5383, kept) |
 | CO-14 | Unchanged: the six note markers (the reader's own labels) | 1 | Kept: the six markers' colors match `main` | built (c1bb5383, kept) |
-| CO-15 | The cream goes as a page color, with “Surfaces” | 1 | Grep: no `#E1DFD9` left | built (c1bb5383); the verse image's palette keeps it until Phase 8 |
+| CO-15 | The cream goes as a page color, with “Surfaces” | 1 | Grep: no `#E1DFD9` left | built (c1bb5383); the verse image's cream went with 60952c32 (Q22); the link-preview cards, which no decision names, keep theirs |
 | CO-16 | Bookmarks stay red | 1 | Kept: a bookmark draws in red | built (c1bb5383, kept) |
 | CO-17 | The note icons keep their own colors | 1 | Kept: note icons' colors match `main` | built (c1bb5383, kept) |
 | CO-18 | Verse numbers and footnote letters are deep green, with no underline | 1, 4 | John 3 at 1440: both compute to deep green with `text-decoration: none` | built (c1bb5383) |
@@ -511,10 +512,10 @@ run's best reading, entered in the plan's queue with what was done.
 | FP-15 | “Read” in the header opens the picker panel on a computer with JavaScript | 3, 4 | Press Read at 1440 | open |
 | FP-16 | /read becomes the picker at full size, which is also where “Read” leads without JavaScript | 4 | /read at 1440, and Read with JavaScript off | open |
 | FP-17 | Home has the picker too, as “Choose a passage ▾” on its first screen | 7 | Covered by FR-06 | open |
-| FP-18 | The license gets its own page, “License,” under About and in the footer, with the owner's words unchanged | 4 | Diff /license's words against /read's license section on `main` | open |
-| FP-19 | `/read#license`, `#license-terms`, and `#sblgnt-disclaimer` forward to it, because the apps and Study link them | 4 | `test/featherboa-old-addresses.test.js` | open |
+| FP-18 | The license gets its own page, “License,” under About and in the footer, with the owner's words unchanged | 4 | Diff /license's words against /read's license section on `main` | built (de0085a8): its words match /read's on `main` word for word (466) |
+| FP-19 | `/read#license`, `#license-terms`, and `#sblgnt-disclaimer` forward to it, because the apps and Study link them | 4 | `test/featherboa-old-addresses.test.js` | built (de0085a8): `test/featherboa-old-addresses.test.js` |
 | FP-20 | BDR points the apps' link at the new page in a later release; the forwarding covers installed apps meanwhile | 14 | BDR's note in the launch list at Checkpoint B | open |
-| FP-21 | The repo's own links to the license move: `LICENSE`, `CONTRIBUTING.md`, `public/llms.txt`, the Terms, and About | 4 | Grep: no `/read#license` left in the repo | open |
+| FP-21 | The repo's own links to the license move: `LICENSE`, `CONTRIBUTING.md`, `public/llms.txt`, the Terms, and About | 4 | Grep: no `/read#license` left in the repo | built (de0085a8), held by the same test; the records keep the old address as history, and it forwards |
 | FP-22 | The rest of /read goes where its subject lives: Continue reading is the picker's first row | 4 | Covered by FP-07 | open |
 | FP-23 | “Latest text changes” stays on Home and with Release Notes | 7 | Home's line and /release-notes | open |
 | FP-24 | “Ways to read” goes to the front page | 7 | Covered by FR-13 | open |
@@ -726,13 +727,13 @@ run's best reading, entered in the plan's queue with what was done.
 | OS-11 | Footnotes print after the chapter, whole, in two columns | 8 | A PDF of John 1 | open |
 | OS-12 | No script that rebuilds the page into sheets before printing (Paged.js) | 8 | `package.json` has no such dependency | open |
 | OS-13 | No note is cut, and no “Continues at…” | 8 | A PDF of the chapter with the longest note | open |
-| OS-14 | The verse image: the verse in Source Sans 3 | 8 | `test/verse-image.test.js` rewritten; an image of John 1:5 | open |
-| OS-15 | The image's reference stays in Fraunces, as a heading | 8 | The same image | open |
-| OS-16 | One small line under the verse: the emblem and “John 1:5” (Fraunces) at the left; “Liberation & Inclusion Translation” over “litbible.net/john-1” (Source Sans 3) at the right | 8 | The same image, Square and Story | open |
-| OS-17 | The address is kept, the link back the license's social-media exception asks for | 8 | The same image | open |
-| OS-18 | The green bar goes; the emblem is the green | 8 | The same image | open |
-| OS-19 | Inter leaves the image | 8 | `test/featherboa-fonts.test.js` covers `verse-image.js` | open |
-| OS-20 | The rest stays: Ink and Paper, Square and Story (Story the same layout, taller), the one button that asks each question in turn, the text as large as fits down to a readable floor, and nothing stored | 8 | Kept: each choice makes an image | open |
+| OS-14 | The verse image: the verse in Source Sans 3 | 8 | `test/verse-image.test.js` rewritten; an image of John 1:5 | built (60952c32) |
+| OS-15 | The image's reference stays in Fraunces, as a heading | 8 | The same image | built (60952c32); a canvas can't set Fraunces's softness and wonk, so the reference draws at the font's defaults |
+| OS-16 | One small line under the verse: the emblem and “John 1:5” (Fraunces) at the left; “Liberation & Inclusion Translation” over “litbible.net/john-1” (Source Sans 3) at the right | 8 | The same image, Square and Story | built (60952c32) |
+| OS-17 | The address is kept, the link back the license's social-media exception asks for | 8 | The same image | built (60952c32) |
+| OS-18 | The green bar goes; the emblem is the green | 8 | The same image | built (60952c32) |
+| OS-19 | Inter leaves the image | 8 | `test/featherboa-fonts.test.js` covers `verse-image.js` | built (60952c32): the fonts test's `LATER` map no longer lists it |
+| OS-20 | The rest stays: Ink and Paper, Square and Story (Story the same layout, taller), the one button that asks each question in turn, the text as large as fits down to a readable floor, and nothing stored | 8 | Kept: each choice makes an image | built (60952c32): Ink and Paper take Featherboa's two colors (Q22); the readable floor kept |
 | OS-21 | A sheet printed from Study uses this same page: the same head, faces, and footer | 8, 11 | PDFs of a sheet's two copies | open |
 | OS-22 | Leader and participant copies differ in content, never in look | 11 | The same two PDFs | open |
 
@@ -1150,7 +1151,7 @@ run's best reading, entered in the plan's queue with what was done.
 | DA-01 | Taken, viii: one line of Fraunces's italic, large, on Home, About, and the 404 page, never two on a page and never in reading or Study | 7 | Covered by TY-16 | open |
 | DA-02 | It stays one large line, never a sentence of reading text | 7 | Each line at 1440 and 390 | open |
 | DA-03 | Each line BVJ's to choose (on Home the letter's first, “No, I don't want my kids near most Bibles, either.”, or “A Bible that's FOR everyone”) | 7 | None; settled by BP-14 | superseded → BP-14 |
-| DA-04 | Taken, ix: a colophon at /colophon, “How this site is made,” linked from the footer | 7 | The footer's link; the page builds | open |
+| DA-04 | Taken, ix: a colophon at /colophon, “How this site is made,” linked from the footer | 7 | The footer's link; the page builds | the page built (b8fcd43b); the footer's link with Phase 3's footer |
 | DA-05 | In plain words it gives the faces and why, what each color means, and the site's promises about contrast, motion, and reading without JavaScript, so it is also the accessibility statement | 7 | The page at 1440 | open |
 | DA-06 | The dare's sentence that people direct the site and an AI writes much of its code is BVJ's to word or leave out | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
 | DA-07 | If it is in, the page says as plainly who translates the text | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
@@ -1174,16 +1175,16 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-06 | Its entries: the apps, dated to their release; the new site (“Featherboa” isn't a public name); and the Study page and its features as a mock-up near the end (words in OP-07) | 7, 13 | The three entries on /whats-new | open |
 | BP-07 | The pages no section draws (About, Commitments, the Collective, Contact, App support, Support, Courses, Podcast, Privacy, Terms, Unsubscribe, the 404 page, Release Notes, the delete-account page, and the account pages) take the foundations, the header and its line, and the footer, with their words and order as today | 7 | Each page at 1440 and 390; words diffed against `main` | open |
 | BP-08 | /read is the picker at full size under its lede | 4 | /read at 1440 | open |
-| BP-09 | /license is the owner's words in the reading column | 4 | /license at 1440 | open |
+| BP-09 | /license is the owner's words in the reading column | 4 | /license at 1440 | built (de0085a8); its look at 1440 checked on the build with Phase 3 |
 | BP-10 | BVJ reviews those pages built, and any redrawn becomes its own decision | 7 | At Checkpoint A | open |
 | BP-11 | /apps keeps its own look and faces inside the new header and footer, since its stylesheet is the LSC site's too | 7 | /apps at 1440: only the header and footer change | open |
-| BP-12 | The icons are Lucide's (ISC license) at a 1.5-pixel stroke, credited in the colophon (the set for CT-17) | 2, 7 | `test/featherboa-icons.test.js`; the colophon's credit | the icons built (7216b1ef); the colophon's credit in Phase 7 |
+| BP-12 | The icons are Lucide's (ISC license) at a 1.5-pixel stroke, credited in the colophon (the set for CT-17) | 2, 7 | `test/featherboa-icons.test.js`; the colophon's credit | the icons built (7216b1ef); credited in the colophon (b8fcd43b) |
 | BP-13 | Fraunces starts at the specimen's settings: softness 50 and wonk on for headings, softness 100 for the paper's numeral, for BVJ to adjust on the preview (settles TY-15's start) | 1, 8 | Computed `font-variation-settings` on a heading and the numeral | built (c1bb5383) |
 | BP-14 | The italic lines are each page's own words: on Home the letter's first line, set as its opening; on About “So… who am I?”; on the 404 page “Page not found.” (settles DA-03) | 7 | Each page at 1440 | open |
 | BP-15 | Study on a phone or tablet says “Study is made for a computer. On a phone or tablet, the free LIT Bible app keeps your notes, highlights, and bookmarks.” (approved; settles SM-05) | 13 | /study at 390 | open |
 | BP-16 | The front page on a phone keeps the computer's order: the buttons right under the claim and the name, John 1 after them | 7 | Home at 390 | open |
-| BP-17 | New address: `/license` (for FP-18) | 4 | The page builds; `npm run check:links` passes | open |
-| BP-18 | New address: `/colophon` (for DA-04) | 7 | The page builds; `npm run check:links` passes | open |
+| BP-17 | New address: `/license` (for FP-18) | 4 | The page builds; `npm run check:links` passes | built (de0085a8); `check:links` with Phase 3's build |
+| BP-18 | New address: `/colophon` (for DA-04) | 7 | The page builds; `npm run check:links` passes | built (b8fcd43b); `check:links` with Phase 3's build |
 | BP-19 | New address: `/settings` for All settings (DI-19) | 4 | The page builds; `npm run check:links` passes | open |
 | BP-20 | New address: `/study/help` for the help page (ST-13) | 9 | The page builds; `npm run check:links` passes | open |
 | BP-21 | New address: `/whats-new` (BP-05) | 7 | The page builds; `npm run check:links` passes | open |
@@ -1197,7 +1198,7 @@ run's best reading, entered in the plan's queue with what was done.
 | OP-03 | Whether Source Sans 3 has the SBLGNT's text-critical signs | 12 | ⸀ and its kin drawn in Source Sans 3, or Cardo kept (TY-20) | open |
 | OP-04 | Whether Source Sans 3's served file has old-style figures | 1 | The served file's `onum` feature, for SZ-24 | answered: no; queued (Q7) |
 | OP-05 | The glossary's third opening paragraph: Claude's draft (“As you look through the entries below…”) for BVJ to approve or rewrite at the build's review | 7 | BVJ's answer at Checkpoint A | queued (Q1) |
-| OP-06 | The colophon's sentence about how the site is made: Claude drafts it, and it is decided at the build's review | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
+| OP-06 | The colophon's sentence about how the site is made: Claude drafts it, and it is decided at the build's review | 7 | BVJ's answer at Checkpoint A | queued (Q2); in place on /colophon, “Who makes it” (b8fcd43b) |
 | OP-07 | The What's New page's words: its three entries, drafted in the build | 7, 13 | BVJ's answer at Checkpoint A | queued (Q3) |
 | OP-08 | The launch's announcement, drafted in the build | 14 | BVJ's answer at Checkpoint B | queued (Q4) |
 | OP-09 | When a part is built, its rules go into the area file for its code (`src/styles/CLAUDE.md` for fonts), and the record keeps the decisions and their reasons | all (1) | Each phase's commit updates its area file | open |

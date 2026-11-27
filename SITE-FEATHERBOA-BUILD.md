@@ -745,6 +745,7 @@ Entered before the run, from BVJ's answers:
   draft: “People make every decision about this site, and much of its code
   is written with Claude, an AI model made by Anthropic. The translation is
   not: Brandon translates every word of the LIT.”
+  In place: /colophon's “Who makes it” (b8fcd43b).
 - **Q3. The What's New page's words**: the apps' entry and its date, the
   new site's entry, and the Study entry as a mock-up (Phase 7 and Phase
   13).
@@ -1019,11 +1020,12 @@ with its last commit when done; never delete a line.
   7216b1ef). What each surface's phase redraws is in the ledger's "What
   Phase 2 left to each surface's phase"
 - [ ] Phase 3: The header, the line under it, the footer, and the phone's bars
-- [ ] Phase 4: The Read page
+- [ ] Phase 4: The Read page (/license built ahead, de0085a8)
 - [ ] Phase 5: Beside scripture
 - [ ] Phase 6: Search
-- [ ] Phase 7: Learn, the front door, and every other page
-- [ ] Phase 8: Off the screen
+- [ ] Phase 7: Learn, the front door, and every other page (the colophon
+  built ahead, b8fcd43b)
+- [ ] Phase 8: Off the screen (the verse image built ahead, 60952c32)
 - [ ] Checkpoint A: the public site
 - [ ] Phase 9: Study's frame
 - [ ] Phase 10: The Notebook place
