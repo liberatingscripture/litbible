@@ -1,4 +1,4 @@
-built (de0085a8): `test/featherboa-old-addresses.test.js`, and a real load of /read#license-terms on dist lands on /license with the terms open
+# Featherboa: the ledger
 
 The build's checklist: one row for each decision in `SITE-FEATHERBOA.md`, in the record's order. That file is the specification and `SITE-FEATHERBOA-BUILD.md` the plan; a row names a decision, its phase (the plan's "Order of work"; "all (N)" for a rule every phase from N on applies), and how it is checked, so read the record's section before building it. A row's state is open, built (the commit), checked, queued (Qn, the plan's queue), or superseded → ID (the later row that holds); n/a (record only) marks history with nothing to build. A Check that starts "Kept:" confirms today's behavior still works, and "Covered by" points to the row whose check covers it. The run keeps this file current.
 
@@ -513,7 +513,7 @@ run's best reading, entered in the plan's queue with what was done.
 | FP-16 | /read becomes the picker at full size, which is also where “Read” leads without JavaScript | 4 | /read at 1440, and Read with JavaScript off | open |
 | FP-17 | Home has the picker too, as “Choose a passage ▾” on its first screen | 7 | Covered by FR-06 | open |
 | FP-18 | The license gets its own page, “License,” under About and in the footer, with the owner's words unchanged | 4 | Diff /license's words against /read's license section on `main` | built (de0085a8): its words match /read's on `main` word for word (466) |
-| FP-19 | `/read#license`, `#license-terms`, and `#sblgnt-disclaimer` forward to it, because the apps and Study link them | 4 | `test/featherboa-old-addresses.test.js` | built (de0085a8): `test/featherboa-old-addresses.test.js` |
+| FP-19 | `/read#license`, `#license-terms`, and `#sblgnt-disclaimer` forward to it, because the apps and Study link them | 4 | `test/featherboa-old-addresses.test.js` | built (de0085a8): `test/featherboa-old-addresses.test.js`, and a real load of /read#license-terms on dist lands on /license with the terms open |
 | FP-20 | BDR points the apps' link at the new page in a later release; the forwarding covers installed apps meanwhile | 14 | BDR's note in the launch list at Checkpoint B | open |
 | FP-21 | The repo's own links to the license move: `LICENSE`, `CONTRIBUTING.md`, `public/llms.txt`, the Terms, and About | 4 | Grep: no `/read#license` left in the repo | built (de0085a8), held by the same test; the records keep the old address as history, and it forwards |
 | FP-22 | The rest of /read goes where its subject lives: Continue reading is the picker's first row | 4 | Covered by FP-07 | open |
@@ -1175,7 +1175,7 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-06 | Its entries: the apps, dated to their release; the new site (“Featherboa” isn't a public name); and the Study page and its features as a mock-up near the end (words in OP-07) | 7, 13 | The three entries on /whats-new | open |
 | BP-07 | The pages no section draws (About, Commitments, the Collective, Contact, App support, Support, Courses, Podcast, Privacy, Terms, Unsubscribe, the 404 page, Release Notes, the delete-account page, and the account pages) take the foundations, the header and its line, and the footer, with their words and order as today | 7 | Each page at 1440 and 390; words diffed against `main` | open |
 | BP-08 | /read is the picker at full size under its lede | 4 | /read at 1440 | open |
-| BP-09 | /license is the owner's words in the reading column | 4 | /license at 1440 | built (de0085a8); its look at 1440 checked on the build with Phase 3 |
+| BP-09 | /license is the owner's words in the reading column | 4 | /license at 1440 | built (de0085a8; its terms at the reading size in 94a0069e): seen at 1440 on dist |
 | BP-10 | BVJ reviews those pages built, and any redrawn becomes its own decision | 7 | At Checkpoint A | open |
 | BP-11 | /apps keeps its own look and faces inside the new header and footer, since its stylesheet is the LSC site's too | 7 | /apps at 1440: only the header and footer change | open |
 | BP-12 | The icons are Lucide's (ISC license) at a 1.5-pixel stroke, credited in the colophon (the set for CT-17) | 2, 7 | `test/featherboa-icons.test.js`; the colophon's credit | the icons built (7216b1ef); credited in the colophon (b8fcd43b) |
@@ -1183,8 +1183,8 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-14 | The italic lines are each page's own words: on Home the letter's first line, set as its opening; on About “So… who am I?”; on the 404 page “Page not found.” (settles DA-03) | 7 | Each page at 1440 | open |
 | BP-15 | Study on a phone or tablet says “Study is made for a computer. On a phone or tablet, the free LIT Bible app keeps your notes, highlights, and bookmarks.” (approved; settles SM-05) | 13 | /study at 390 | open |
 | BP-16 | The front page on a phone keeps the computer's order: the buttons right under the claim and the name, John 1 after them | 7 | Home at 390 | open |
-| BP-17 | New address: `/license` (for FP-18) | 4 | The page builds; `npm run check:links` passes | built (de0085a8); `check:links` with Phase 3's build |
-| BP-18 | New address: `/colophon` (for DA-04) | 7 | The page builds; `npm run check:links` passes | built (b8fcd43b); `check:links` with Phase 3's build |
+| BP-17 | New address: `/license` (for FP-18) | 4 | The page builds; `npm run check:links` passes | built (de0085a8): the page builds, and `check:links` passes (362 pages) |
+| BP-18 | New address: `/colophon` (for DA-04) | 7 | The page builds; `npm run check:links` passes | built (b8fcd43b): the page builds, and `check:links` passes (362 pages) |
 | BP-19 | New address: `/settings` for All settings (DI-19) | 4 | The page builds; `npm run check:links` passes | open |
 | BP-20 | New address: `/study/help` for the help page (ST-13) | 9 | The page builds; `npm run check:links` passes | open |
 | BP-21 | New address: `/whats-new` (BP-05) | 7 | The page builds; `npm run check:links` passes | open |
