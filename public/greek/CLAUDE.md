@@ -169,7 +169,9 @@ labeled rows, its four word searches gathered under one "Find this word ▾"
   place in the tab's head row**, which doesn't scroll, and the heading
   moves to the top of the results as "ἄνομος in the New Testament" (what is searched: the form with
   Exact form only on, "Strong’s G435" for a number) over
-  "Appears 9 times" (BVJ, 2026-11-21, E219). Its result rows preview their verse on hover like any
+  "Appears 9 times" (BVJ, 2026-11-21, E219). Featherboa opens the results
+  in a Search tab beside the Greek in its pane instead, the text staying
+  (`SITE-FEATHERBOA.md`, "The Greek"); until it is built, this holds. Its result rows preview their verse on hover like any
   reference (`ref-preview.js`; a row for the chapter on screen is a
   button naming its verse in `data-preview-href`, and a tap on it jumps).
   **A Greek word searches at any length there too** (ὦ, ἤ; BVJ,

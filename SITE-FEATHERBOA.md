@@ -2106,6 +2106,11 @@ is the one "Study and its places" replaced.
   numbers don't need to be Green because they aren't links here”).
   Nothing happens when one is pressed, and "Color" keeps deep green for
   what can be pressed.
+- **The chosen word's other forms stay marked**, as today, with the
+  proposal's faint underline in place of today's green tint (BVJ: “Yes to
+  all three”), since green now means what can be pressed. It reads the
+  Greek's own dictionary forms, not the tagging the partner lighting
+  waits for.
 
 ### A word's card
 
@@ -2134,13 +2139,35 @@ Choosing a word opens its card under the text, in the house's plain rows:
 - **"Find this word ▾"**: one press, then today's four searches as its
   choices: this form, every form of λόγος, Strong's G3056, and words parsed
   the same. BVJ asked for each (2026-10-13 and 14), and the proposal's one
-  button would keep one. Where the results open is open (below).
+  button would keep one.
+- **Its results open in a Search tab in the Greek's own pane**, BVJ's
+  suggestion (“would it make sense for it to show in the Search tab of
+  that pane, with it easy to click back to the Greek tab?”), then “Yes to
+  all three”: right after the Greek tab, a later search reusing it, so the
+  Greek keeps its place and its chosen word one click away. Choosing a
+  result moves the LIT tab to its verse, and the Greek follows to the
+  word. **This reverses E219's results in place of the text** (with "←
+  John 1" and "See results on the search page"), by "The Study Desk"'s
+  rule that nothing is replaced and a new tab opens in the pane being
+  worked in.
 - **A note from the Greek stays** (step 4k, PR #693): from a chosen word,
-  or from a selection of the Greek ("Add a note on verse 1"). BVJ asked
-  for it in the plan after not finding it on /desk, where it works but its
-  button is a note icon alone beside the word's ×, shown only once a word
-  is chosen (BVJ, 2026-11-23). Whether the card gives it a word is open
-  (below).
+  or from a selection of the Greek ("Add a note on verse 1"). **The card's
+  button says "Add note,"** beside "Find this word ▾," as drawn (BVJ: “Yes
+  to all three”), in place of the note icon alone (BVJ, 2026-11-23). BVJ
+  asked for notes from the Greek in the plan after not finding them on
+  /desk, on Acts 2. They work on a published chapter, but a chapter still
+  being translated takes none: a note is kept on the LIT's words, and the
+  record format never anchors a mark on a draft (`STUDY-DESK-FORMAT.md`,
+  "Not covered: draft chapters"), which leaves Acts 2–28 and Revelation
+  without them.
+- **Where a chapter can't take a note, the Greek says why** (BVJ: “no
+  explanation why it's missing. If it behaves that way for others, they
+  will be just as confused”). Today's tab leaves the button and the
+  selection's menu out on a draft, without a word. "Add note" stays on
+  the card there, unavailable and legible, with its reason ("This chapter
+  is still being translated, so it can't take notes yet."), as "The kit"
+  asks of every unavailable control, and a selection of the Greek opens
+  its menu with that line unavailable and the same reason beside it.
 
 ### Kept from today
 
@@ -2178,20 +2205,6 @@ rule 17), where the proposal tucks them.
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
-- **Which pane "Find this word" opens its results in** ("The Greek").
-  Claude proposed a Search tab in place of today's results inside the tab
-  (E219), and BVJ asked: “would it make sense for it to show in the Search
-  tab of that pane, with it easy to click back to the Greek tab? Or would
-  it be in a different pane? The same pane but different tab would be
-  similar to what's already built, but closer to the new functionality.”
-  Claude's answer, for BVJ: the same pane.
-- **Whether the chosen word's other forms stay marked in the Greek**
-  ("The Greek"). Today's tab tints them green, from the Greek's own
-  dictionary forms rather than the tagging BVJ's “not yet” is about; the
-  proposal draws a faint underline.
-- **Whether the card's note button gains its word** ("The Greek"): "Add
-  note" beside "Find this word ▾," as drawn, in place of the note icon
-  alone (BVJ, 2026-11-23).
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and
