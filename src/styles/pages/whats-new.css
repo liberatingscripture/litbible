@@ -1,0 +1,60 @@
+/* =========================================================
+   What's New page (/whats-new): the site's and the apps' news, newest first,
+   in the reading column. Drawn with Featherboa's tokens, following the Display
+   tray's text size and spacing like the license page.
+   ========================================================= */
+
+.whats-new-page {
+  background-color: var(--color-page);
+  min-height: 100vh;
+  /* Follows the Display tray's text size (src/styles/CLAUDE.md). */
+  font-size: calc(1em * var(--reading-scale, 1));
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
+}
+
+.whats-new-page__inner {
+  max-width: calc(65 * var(--ch));
+  margin: 0 auto;
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  overflow-wrap: break-word;
+}
+
+.whats-new-title {
+  font-family: var(--font-display);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-4);
+}
+
+.whats-new-lede {
+  margin: 0 0 var(--space-7);
+}
+
+.whats-new-entry {
+  margin: 0 0 var(--space-7);
+  /* A linked entry scrolls clear of the sticky header. */
+  scroll-margin-top: var(--space-9);
+}
+
+.whats-new-date {
+  display: block;
+  font-family: var(--font-control);
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
+  font-weight: 600;
+  color: var(--color-text-3);
+  margin: 0 0 var(--space-1);
+}
+
+.whats-new-entry__title {
+  font-family: var(--font-display);
+  font-size: calc(var(--size-heading) * var(--reading-scale, 1));
+  line-height: var(--leading-heading);
+  font-weight: 500;
+  margin: 0 0 var(--space-3);
+}
+
+.whats-new-entry p {
+  margin: 0 0 var(--space-3);
+}

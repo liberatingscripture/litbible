@@ -226,6 +226,7 @@ workers/             # Cloudflare Workers, deployed separately, each with its ow
 | `/notebook`, `/desk`, `/sheets`, `/collections` | `notebook.astro`, `desk.astro`, `sheets.astro`, `collections.astro` | The Study Desk preview's pages (noindex, out of the sitemap and Pagefind, empty without `?desk=on`; `src/scripts/desk/CLAUDE.md`, "Routes") |
 | `/account`, `/account/connect` | `account.astro`, `account/connect.astro` | The account pages (noindex, out of the sitemap and Pagefind, one line without `?account=preview`; `src/scripts/desk/account/CLAUDE.md`, "Routes") |
 | `/release-notes` | `release-notes.astro` | The release notes by month, filterable; `/translation-updates.xml` is the same record as RSS |
+| `/whats-new` | `whats-new.astro` | News that isn't a change to the text (site and app updates, launches), written by hand in `src/lib/whats-new.mjs`, with no feed; in no menu, linked from the footer (`src/pages/CLAUDE.md`) |
 | `/apps` | `apps.astro` | Mobile-apps promo page; every section is data (`src/components/apps/CLAUDE.md`) |
 | `/app-support` | `app-support.astro` | App support form (linked from the apps; `/app-support/thanks` is the no-JS success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here); read `src/pages/CLAUDE.md` before touching its embeds |

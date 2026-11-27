@@ -74,6 +74,21 @@ an AI writes much of the code, and the one after it saying who translates
 the text, are BVJ's to word, keep, or drop** (`SITE-FEATHERBOA-BUILD.md`,
 Q2); they stay together, and "Who makes it" is marked in the file.
 
+## The What's New page (`whats-new.astro`)
+
+`/whats-new` is news that is not a change to the text: site and app updates,
+feature releases, launches. **Its entries are written by hand in
+`src/lib/whats-new.mjs`** (newest first, each `{ id, date, title, body }`),
+and **nothing writes them automatically**: no feed carries the page and the
+apps don't read it. It is **not Release Notes**, which hold changes to the
+text and are drafted from pushes to `main`. The page has no row in any header
+menu (the footer links it, and a menu carrying a "New" mark ends with "See
+what's new"), so `places.mjs` names it as a page in no place. **`src/lib/news.mjs`
+says where a header mark goes, by an entry's `id`; `whats-new.mjs` says what
+the news is**, in the same id style, so a mark can name the entry it points
+at. Words: no design code name, "Study" never "Study Desk"
+(`test/whats-new.test.js`). Each entry's date is a draft until BVJ confirms it.
+
 ## The podcast page (`found-in-translation-podcast.astro`)
 
 `/podcast` redirects here. The "All Episodes" list is RSS-driven off the

@@ -134,6 +134,17 @@ export const LEGAL = deepFreeze([
 ]);
 
 /**
+ * Two more pages in no place that the footer links, before those two: the
+ * What's New page (HD-33), which no menu lists (HD-30), and the colophon
+ * (DA-04).
+ * @type {readonly Row[]}
+ */
+export const FOOTER_PAGES = deepFreeze([
+  { key: "whats-new", label: "What’s new", href: "/whats-new" },
+  { key: "colophon", label: "How this site is made", href: "/colophon" },
+]);
+
+/**
  * Pages in no menu, by path: the name the line under the header gives each,
  * and for a page inside another (a thank-you page, a step of the account),
  * that page's address, so the name leads back to it. /search, /app-support,
@@ -153,6 +164,7 @@ const NO_PLACE = deepFreeze({
   "/app-support/thanks": { name: "App support", up: "/app-support" },
   "/unsubscribe": { name: "Unsubscribe" },
   "/colophon": { name: "How this site is made" },
+  "/whats-new": { name: "What’s new" },
 });
 
 /** Pages inside a place's row: the row they belong to, which the line names

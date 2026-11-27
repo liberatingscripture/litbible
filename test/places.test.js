@@ -8,7 +8,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { LEGAL, LICENSE_HREF, PLACES, STUDY_HREF, normalizePath, placeBy, placeOf, readPageBook, rowOf } from "../src/lib/places.mjs";
+import { FOOTER_PAGES, LEGAL, LICENSE_HREF, PLACES, STUDY_HREF, normalizePath, placeBy, placeOf, readPageBook, rowOf } from "../src/lib/places.mjs";
 
 const repo = join(import.meta.dirname, "..");
 
@@ -49,14 +49,16 @@ test("Release Notes is About's page, also listed with Read (HD-29)", () => {
   assert.equal(placeOf("/release-notes/").row, "release-notes");
 });
 
-test("every row, and the footer's own two, opens a page the site builds", () => {
+test("every row, and the footer's own four, opens a page the site builds", () => {
   const page = (href) => {
     const p = normalizePath(href).slice(1);
     return [`src/pages/${p}.astro`, `src/pages/${p}/index.astro`].some((f) => existsSync(join(repo, f)));
   };
   for (const place of PLACES) for (const row of place.rows) assert.ok(page(row.href), `${place.label} / ${row.label}: ${row.href}`);
-  for (const row of LEGAL) assert.ok(page(row.href), `${row.label}: ${row.href}`);
+  for (const row of [...FOOTER_PAGES, ...LEGAL]) assert.ok(page(row.href), `${row.label}: ${row.href}`);
   assert.deepEqual(LEGAL.map((r) => r.label), ["Privacy", "Terms of Use"]);
+  assert.deepEqual(FOOTER_PAGES.map((r) => r.label), ["What’s new", "How this site is made"], "HD-33, DA-04");
+  for (const row of FOOTER_PAGES) assert.equal(placeOf(row.href).place, null, `${row.label} is in no place (HD-30)`);
 });
 
 test("addresses are read as the site serves them", () => {
@@ -128,6 +130,7 @@ const PAGES = {
   "app-support/thanks.astro": { path: "/app-support/thanks", place: null, name: "App support", up: "/app-support" },
   "unsubscribe.astro": { path: "/unsubscribe", place: null, name: "Unsubscribe" },
   "colophon.astro": { path: "/colophon", place: null, name: "How this site is made" },
+  "whats-new.astro": { path: "/whats-new", place: null, name: "What’s new" },
 };
 
 function pageFiles(dir = "src/pages", base = "") {

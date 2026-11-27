@@ -1,0 +1,51 @@
+---
+// /whats-new: news that isn't a change to the text (site and app updates,
+// feature releases, launches). The entries are written by hand in
+// src/lib/whats-new.mjs; nothing writes this page and no feed carries it.
+// Text changes are the Release Notes'. The page has no row in any header
+// menu: the footer links it, and a menu carrying a "New" mark ends with
+// "See what's new" (src/lib/news.mjs).
+import Layout from "../layouts/Layout.astro";
+import { WHATS_NEW } from "../lib/whats-new.mjs";
+import "../styles/pages/whats-new.css";
+
+const title = "What’s new | Liberation and Inclusion Translation";
+const description =
+  "News about the LIT Bible site and apps: new features, updates, and launches. Changes to the text are in the Release Notes.";
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June", "July",
+  "August", "September", "October", "November", "December",
+];
+/** "2026-11-27" as "November 27, 2026", without a time zone in the way. */
+function written(day: string): string {
+  const [y, m, d] = day.split("-").map(Number);
+  return `${MONTHS[m - 1]} ${d}, ${y}`;
+}
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical="https://litbible.net/whats-new/"
+>
+  <article class="whats-new-page">
+    <div class="whats-new-page__inner">
+      <h1 class="whats-new-title">What’s new</h1>
+      <p class="whats-new-lede">
+        News about the site and the apps. Changes to the text itself are in the
+        <a href="/release-notes">Release Notes</a>.
+      </p>
+
+      {WHATS_NEW.map((entry) => (
+        <section class="whats-new-entry" id={entry.id} aria-labelledby={`${entry.id}-title`}>
+          <time class="whats-new-date" datetime={entry.date}>{written(entry.date)}</time>
+          <h2 class="whats-new-entry__title" id={`${entry.id}-title`}>{entry.title}</h2>
+          {entry.body.map((paragraph) => (
+            <p set:html={paragraph} />
+          ))}
+        </section>
+      ))}
+    </div>
+  </article>
+</Layout>

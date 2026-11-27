@@ -1,14 +1,14 @@
 ---
 import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
-import { LEGAL, PLACES } from "../lib/places.mjs";
+import { FOOTER_PAGES, LEGAL, PLACES } from "../lib/places.mjs";
 
 /**
  * The footer (SITE-FEATHERBOA.md, "The phone and the footer"; HD-36, BS-24):
  * the four places' groups with the header's names (src/lib/places.mjs; Study
- * only on a computer with the Study preview on, footer.css), then Privacy and
- * the Terms of Use, the brand marks, and the newsletter. Every link works
- * without JavaScript, and the phone's Menu goes to #footer-nav without it.
- * The What's New page and the colophon get their links when Phase 7 is built.
+ * only on a computer with the Study preview on, footer.css), then the What's
+ * New page, the colophon, Privacy, and the Terms of Use, the brand marks, and
+ * the newsletter. Every link works without JavaScript, and the phone's Menu
+ * goes to #footer-nav without it.
  *
  * hideNewsletter: omit the Brevo subscribe form. Used on /unsubscribe, which
  * embeds its own Brevo form — Brevo markup requires fixed ids (sib-form,
@@ -57,7 +57,7 @@ const SOCIAL = [
       </div>
 
       <ul class="footer-legal">
-        {LEGAL.map((row) => (
+        {[...FOOTER_PAGES, ...LEGAL].map((row) => (
           <li><a href={row.href}>{row.label}</a></li>
         ))}
       </ul>
