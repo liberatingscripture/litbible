@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { settle, resetDom } from "./helpers/browser-env.mjs";
 import {
-  greekNoteBody, greekNoteLabel, greekQuote, greekVerses, noteFromGreek,
+  DRAFT_NOTE_REASON, greekNoteBody, greekNoteLabel, greekQuote, greekVerses, noteFromGreek,
 } from "../src/lib/desk-note-from-greek.mjs";
 import { W } from "../src/lib/desk-greek.mjs";
 
@@ -98,10 +98,11 @@ beforeEach(() => {
   sessionStorage.removeItem("lit-desk-note-draft");
 });
 
-async function tab(onAddNote) {
+async function tab(onAddNote, { here = HERE, ...more } = {}) {
   resetDom();
-  document.body.innerHTML = `<div class="chapter-paragraphs"></div>`;
-  const t = createGreekTab({ here: HERE, visible: () => true, openVerse: () => {}, onAddNote });
+  // A draft's page has no LIT text, only the Greek (page.js, greekChapter).
+  document.body.innerHTML = here === HERE ? `<div class="chapter-paragraphs"></div>` : "";
+  const t = createGreekTab({ here, visible: () => true, openVerse: () => {}, onAddNote, ...more });
   document.body.append(t.el);
   await t.render();
   await settle(30);
@@ -110,7 +111,7 @@ async function tab(onAddNote) {
 
 const noteButton = (t) => t.el.querySelector(".desk-greek__note");
 
-test("without a way to keep notes (a draft chapter, no notebook) there is no button", async () => {
+test("without a notebook to keep notes in there is no button", async () => {
   const t = await tab(null);
   assert.equal(noteButton(t), null);
 });
@@ -287,6 +288,105 @@ test("destroy lets go of the document's selection events", async () => {
   // A selection event after destroy changes nothing and throws nothing.
   document.dispatchEvent(new Event("selectionchange"));
   await settle(120);
+});
+
+// ── A draft chapter (E232; BVJ, 2026-11-27) ───────────────────────────────
+// A draft has no LIT verses for a note to hang on, so it takes none, but the
+// way in shows all the same, unavailable, with its reason: BVJ found the
+// button simply missing on Acts 2 with "no explanation why it's missing."
+
+const ACTS_2 = { bookKey: "acts", chapter: 2, label: "Acts 2" };
+const REASON = "This chapter is still being translated, so it can’t take notes yet.";
+
+test("the reason reads like the draft stub's sentence", () => {
+  assert.equal(DRAFT_NOTE_REASON, REASON);
+});
+
+test("a draft: the chosen word's note button shows, unavailable, and says why", async () => {
+  const t = await tab(null, { here: ACTS_2, noteUnavailable: "draft" });
+  const b = noteButton(t);
+  assert.ok(b, "the button is there on a draft");
+  assert.equal(b.hidden, true, "nothing chosen, no button, as on a published chapter");
+  assert.equal(await t.selectWord(33, 1), true);
+  assert.equal(b.hidden, false, "it shows once a word is chosen");
+  assert.equal(b.getAttribute("aria-disabled"), "true");
+  assert.equal(b.disabled, false, "aria-disabled, not disabled, so it keeps its tab stop");
+  assert.notEqual(b.tabIndex, -1);
+  assert.ok(b.querySelector("svg.desk-greek__note-glyph"), "the glyph, as on a published chapter");
+  assert.equal(b.nextElementSibling, t.el.querySelector(".desk-greek__close"), "just before the ×");
+  assert.equal(b.getAttribute("aria-label"), "Add a note on verse 33 with this word", "its name stays the action");
+  const why = document.getElementById(b.getAttribute("aria-describedby"));
+  assert.equal(why?.textContent, REASON, "its description is the reason");
+  assert.equal(b.dataset.tip, `Add a note on verse 33 with this word. ${REASON}`, "the tooltip says what it is for and why it can't");
+  // Pressing it, by mouse or key, opens nothing and throws nothing (a
+  // listener's throw reaches the window as an error event).
+  const errors = [];
+  const onError = (e) => errors.push(e.message);
+  window.addEventListener("error", onError);
+  b.focus();
+  assert.equal(document.activeElement, b, "focusable");
+  b.click();
+  b.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  await settle(30);
+  window.removeEventListener("error", onError);
+  assert.deepEqual(errors, []);
+  assert.equal(document.querySelector(".desk-editor"), null, "no note editor");
+  // Letting the word go takes it away, as on a published chapter.
+  t.el.querySelector(".desk-greek__close").click();
+  assert.equal(b.hidden, true);
+});
+
+test("a draft: selecting Greek opens the same menu, its one line unavailable with the reason beside it", async () => {
+  const t = await tab(null, { here: ACTS_2, noteUnavailable: "draft" });
+  await t.selectWord(33, 1);
+  const words = [...t.el.querySelectorAll(".desk-greek__w")];
+  const sel = document.getSelection();
+  const range = document.createRange();
+  // Three words from the chosen one, all in verse 33.
+  const i = words.findIndex((w) => w.classList.contains("is-selected"));
+  range.setStart(words[i].firstChild, 0);
+  range.setEnd(words[i + 2].firstChild, words[i + 2].firstChild.length);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.dispatchEvent(new Event("selectionchange"));
+  await settle(120);
+  const menu = t.el.querySelector(".desk-greek__selmenu");
+  assert.ok(menu, "the menu shows on a draft too");
+  const item = menu.querySelector("button");
+  assert.equal(item.getAttribute("aria-disabled"), "true");
+  assert.equal(item.tabIndex, -1, "still never a tab stop");
+  assert.equal(item.querySelector(".desk-title__label").textContent, "Add a note on verse 33");
+  const hint = item.querySelector(".desk-title__hint");
+  assert.equal(hint.textContent, REASON, "the reason beside the line, for the eye");
+  assert.equal(item.getAttribute("aria-describedby"), hint.id);
+  // The menu is described by its unavailable line (describeUnavailable).
+  const described = document.getElementById(menu.getAttribute("aria-describedby"));
+  assert.equal(described?.textContent, "Add a note on verse 33 is unavailable: this chapter is still being translated, so it can’t take notes yet.");
+  const errors = [];
+  const onError = (e) => errors.push(e.message);
+  window.addEventListener("error", onError);
+  item.click();
+  await settle(30);
+  window.removeEventListener("error", onError);
+  assert.deepEqual(errors, [], "pressing it throws nothing");
+  assert.equal(document.querySelector(".desk-editor"), null, "pressing it does nothing");
+  assert.ok(t.el.querySelector(".desk-greek__selmenu"), "and the menu stays with the selection");
+  // The button beside the × covers the selection too, unavailable.
+  assert.equal(noteButton(t).getAttribute("aria-label"), "Add a note on verse 33 with the selected Greek");
+  assert.equal(noteButton(t).getAttribute("aria-disabled"), "true");
+  sel.removeAllRanges();
+  document.dispatchEvent(new Event("selectionchange"));
+  await settle(120);
+  assert.equal(t.el.querySelector(".desk-greek__selmenu"), null, "gone with the selection");
+});
+
+test("a published chapter's button is unchanged: no aria-disabled, no reason", async () => {
+  const t = await tab(() => {});
+  await t.selectWord(16, 3);
+  const b = noteButton(t);
+  assert.equal(b.getAttribute("aria-disabled"), null);
+  assert.equal(b.getAttribute("aria-describedby"), null);
+  assert.equal(b.dataset.tip, "Add a note on verse 16 with this word");
 });
 
 // ── The note editor, opened with the Greek ─────────────────────────────────

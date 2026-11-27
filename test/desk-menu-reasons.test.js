@@ -29,6 +29,10 @@ class Node {
     for (let n = this; n; n = n.parent) if (n.getAttribute("role") === role) return n;
     return null;
   }
+  contains(n) {
+    for (; n; n = n.parent) if (n === this) return true;
+    return false;
+  }
   all() { return this.children.flatMap((c) => [c, ...c.all()]); }
   querySelectorAll(sel) {
     return this.all().filter((n) => (sel.includes("aria-disabled") && n.getAttribute("aria-disabled") === "true"));
@@ -120,6 +124,21 @@ test("a nested menu describes itself, not its parent", () => {
   m.append(fly);
   const r = describeUnavailable(m, { id: "why3" });
   assert.equal(r.note.textContent, "");
+});
+
+test("a group that serves as a menu without taking focus is described too (E232), its nested menu still apart", () => {
+  const root = node("div");
+  const g = node("div");
+  g.setAttribute("role", "group");
+  root.append(g);
+  g.append(line("Add a note on verse 33", "This chapter is still being translated, so it can’t take notes yet."));
+  const fly = node("div");
+  fly.setAttribute("role", "menu");
+  fly.append(line("Add column", "Needs a wider window"));
+  g.append(fly);
+  const r = describeUnavailable(g, { id: "why5" });
+  assert.equal(r.note.textContent, "Add a note on verse 33 is unavailable: this chapter is still being translated, so it can’t take notes yet.");
+  assert.equal(g.getAttribute("aria-describedby"), "why5");
 });
 
 test("destroy takes the note and the description away", () => {
