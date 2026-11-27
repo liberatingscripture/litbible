@@ -74,9 +74,9 @@ surface:
   button's bars went in Phase 3's second part (782271a5; queue Q47).
 - **Phase 4 (the Read page)**: verse numbers and footnote letters join the
   kit's "inline" (Q16); Read View's toolbar draws its own icons (its
-  close, the faders, focus, and the cycle), as does /read's Study pill
-  (`ReadLayout.astro`); the term lens's clear chip (`.lit-clear-chip`) is
-  a translucent chip over the text.
+  close, the faders, focus, and the cycle), as did /read's Study pill
+  (`ReadLayout.astro`, gone with its layout in 246ab483); the term lens's
+  clear chip (`.lit-clear-chip`) is a translucent chip over the text.
 - **Phase 5 (beside scripture)**: a floating window's grip
   (`.lit-window__move`) takes no level, since its dots are its background
   and a level's fill would erase them; the minimized Notebook tab
@@ -115,6 +115,33 @@ surface:
 - **Phase 13 (first visit)**: the welcome and launch popovers' feature
   lists draw their own pictures (decorative, beside words, not controls).
 
+### Phase 7: what left /read
+
+Phase 4's first part (246ab483) made /read the picker at full size under its
+lede, so these left the page; FP-23 and FP-24 bring them to Home.
+`git show 7da9c1b7:src/pages/read.astro` holds them whole.
+
+- **“Ways to read”** (FP-24, FR-13): the lede “Read the LIT however suits
+  you: two ways on the web, plus free apps for iPhone and Android,” and
+  four cards. Chapter View (“Scripture pages” with the preview), to
+  /matthew-5: “One chapter at a time, with its footnotes, key terms, and
+  linked references. Nothing to set up, and it works on any device.” Read
+  View, to /read/matthew#ch-5: “A whole book on one page, read straight
+  through, with no notes and no page turns between chapters.” Study Desk,
+  badged “Available now,” to /desk/?place=matthew-5: “The whole New
+  Testament in one scroll, with your notes and the Greek alongside when
+  you want them.” Apps, badged “Available now,” to /apps: “iPhone and
+  Android apps with the whole translation offline, plus notes,
+  highlights, and daily and Lectionary readings.” Read View's card
+  doesn't come back (FP-25), and Study's takes Featherboa's names.
+- **Continue reading's chip**: now the picker's first row (FP-07), and
+  Home's first row with Phase 7 (NX-12).
+- **“What's new”**: a disclosure of the three latest release notes, each
+  linked to /release-notes/#id, then “See all release notes →” (FP-23:
+  “Latest text changes” stays on Home and with Release Notes).
+- **ReadLayout's search bar and its Study Desk pill**: gone with the
+  layout; /read keeps the header's magnifier (queue Q64).
+
 ### Where the record is unclear
 
 Found while writing and checking this ledger. Each is settled when its phase
@@ -143,7 +170,10 @@ run's best reading, entered in the plan's queue with what was done.
   Notebook." The picker's size beyond showing all 27 books unscrolled
   (FP-08 checks at 1100 by 700). Whether "jn 3 16," with no colon, resolves
   through `resolveMistypedPath`. The reader's notes' pale sunshine tint and
-  sunshine bar have no values, and the progress line no thickness.
+  sunshine bar have no values, and the progress line no thickness. The
+  first three read by the run in 246ab483: the record's order (FP-28); a
+  50rem panel, 60rem in OpenDyslexic, 492px tall (queue Q58 and Q75); and
+  “jn 3 16” through the search box's jump before the guesser (FP-04).
 - **Phase 5, beside scripture.** The width of the panel that slides over the
   right edge on a tablet (footnotes, Go deeper).
 - **Phase 7, the front door.** The front page's "Three panels" names four
@@ -222,7 +252,7 @@ run's best reading, entered in the plan's queue with what was done.
 | CO-08 | /apps' cobalt, red, and forest: the front page's feature panels only, never in reading or study | 7 | Grep: the three colors only in the home panels' rules and /apps | open |
 | CO-09 | Links stay green, in the deep green (“the dark green of the proposal”) | 1 | Links on an article and a glossary entry compute to deep green, day and night | built (c1bb5383) |
 | CO-10 | No longer green: the full green sections on Home | 7 | Home at 1440 and 390 has no green section | open |
-| CO-11 | No longer green: the round arrow buttons | 2, 4 | No round green arrow button on any page | built (f47df065): today's round arrows are the kit's plain; Phase 4 redraws them |
+| CO-11 | No longer green: the round arrow buttons | 2, 4 | No round green arrow button on any page | built (f47df065, 246ab483): the round arrows are gone, the line's ‹ › plain icons; no `nav-button` left in `src` (tested) |
 | CO-12 | No longer green: the accents sky and ocean (Site 2.0's), which leave with the home page's chat bubbles | 0, 7 | Grep: no sky or ocean value left | built (63d07ac0): no sky or ocean left |
 | CO-13 | Unchanged: the four highlighter colors | 1 | Kept: the four highlights draw by day as on `main` | built (c1bb5383, kept) |
 | CO-14 | Unchanged: the six note markers (the reader's own labels) | 1 | Kept: the six markers' colors match `main` | built (c1bb5383, kept) |
@@ -291,7 +321,7 @@ run's best reading, entered in the plan's queue with what was done.
 | CT-06 | Rename: Notebook, My Notebook, the Notebook, and My Notes become Notebook (the place) and Notes (what is in it) | 2, 5, 9, 10 | `test/featherboa-labels.test.js` | the header's part built (f47df065); the Notebook's names with Phases 5, 9, and 10 |
 | CT-07 | Rename: Sheets, My sheets, and Sheets page become Sheets | 9, 11 | `test/featherboa-labels.test.js` | open |
 | CT-08 | Rename: Add a note, Add bookmark, and Add a bookmark that moves become Add note and Add bookmark | 5 | The verse menu's and the selection panel's labels | open |
-| CT-09 | Rename: Open in Study Desk, Edit in Study Desk, and Open the Study Desk become one label, the verb with its passage, “Study Romans 8”; the proposal's “Open in Desk” is not taken | 4, 9 | `test/featherboa-labels.test.js`: no “Study Desk” a reader sees | open |
+| CT-09 | Rename: Open in Study Desk, Edit in Study Desk, and Open the Study Desk become one label, the verb with its passage, “Study Romans 8”; the proposal's “Open in Desk” is not taken | 4, 9 | `test/featherboa-labels.test.js`: no “Study Desk” a reader sees | the place line's built (246ab483); Search's second row with Phase 6, and Study's own labels with Phase 9 |
 | CT-10 | Rename: “Show” (four different controls) becomes View for what a page displays and Filter for lists | 4, 10 | No reader-facing “Show” heading in the tray or a list | open |
 | CT-11 | Rename: Display settings, Display, and Display options become Display | 4 | The tray and its button say “Display” | open |
 | CT-12 | Rename: Stay here and Stop following become one switch, Follow reading | 9 | A following tab offers the switch; no “Stay here” or “Stop following” | open |
@@ -383,7 +413,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-09 | News: where its subject lives, and a “Changed since you marked it” filter in the Notebook; nothing opens by itself, save a launch's window | 3, 10 | The header's popover never opens outside a launch | the header's part built (ec3378b6); the Notebook's filter with Phase 10 |
 | NX-10 | News behind a dot beside About (the proposal's) | 3 | None; see NX-26 | superseded → NX-26 |
 | NX-11 | Asks: the front page and the footer, never above scripture; the phone menu carries one “Get the app” row | 3, 7 | The newsletter in the footer; no ask above scripture at 390 and 1440 | the footer's newsletter kept (ec3378b6); the menu sheet's row built (782271a5); Home with Phase 7 |
-| NX-12 | Your place: “Continue: Romans 8” is the first row of the book picker and of Home, in place of “Continue reading” chips to dismiss | 4, 7 | Read Romans 8, then open the picker and Home | open |
+| NX-12 | Your place: “Continue: Romans 8” is the first row of the book picker and of Home, in place of “Continue reading” chips to dismiss | 4, 7 | Read Romans 8, then open the picker and Home | the picker's row built (246ab483); Home's with Phase 7 |
 | NX-13 | The empty state for a chapter with none of the reader's notes: “No notes on John 1 yet. Select a verse number or any words, then choose Note, Highlight, or Bookmark,” with “Show me how” | 5 | The panel's Notes tab on an unmarked chapter | open |
 | NX-14 | The foot line's first state, “Kept on this computer only” with “Back up…” | 5 | None; see NB-34 | superseded → NB-34 |
 | NX-15 | The foot line's other states: “In sync,” “Offline. Your changes are saved here.,” and “Signed out. Your notebook is still here.” with “Sign in” | 5, 13 | `test/desk-sync-status-line.test.js` rewritten to these words | open |
@@ -399,7 +429,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-25 | News shows where its subject lives, and a launch adds the window (“Yes, both”) | 3, 14 | Covered by the rows below | built (ec3378b6), by the rows below; the launch's window with Phase 14 |
 | NX-26 | Ordinary news is marked on the place it is about: a dot on the header menu that holds what changed and “New” beside the item inside it, the dot clearing once the reader opens that menu | 3 | Put an entry in the news data file; open the menu; reload | built (ec3378b6), tested; the menu sheet's marks and the Menu buttons' dots (782271a5), tested with entries; when “New” goes queued (Q31) |
 | NX-27 | A new article or episode marks Learn; a Study feature marks Study | 3 | The same, with a Learn entry and a Study entry | built (ec3378b6), tested with Learn and Study entries |
-| NX-28 | Text changes stay where reading starts, as Release Notes already is (/read's “Latest text changes,” Home's “Latest change,” and the footer; /read's moves by FP-23) | 3, 4, 7 | Release Notes reachable from the picker, Home, and the footer | the footer built (ec3378b6); the picker with Phase 4, Home with Phase 7 |
+| NX-28 | Text changes stay where reading starts, as Release Notes already is (/read's “Latest text changes,” Home's “Latest change,” and the footer; /read's moves by FP-23) | 3, 4, 7 | Release Notes reachable from the picker, Home, and the footer | the footer built (ec3378b6), and the picker (246ab483); Home with Phase 7 |
 | NX-29 | Never only under About: the preview's About menu drops its “What's new” link | 3 | The About menu with the preview has no “What's new” row | built (ec3378b6) |
 | NX-30 | A launch (the apps, Study's opening, the What's New page itself; BVJ names each) spells its mark out on its menu (“Study · New”) for a set time | 14 | The Study menu with the launch's entry set | open |
 | NX-31 | A launch adds the front page's band for its set time | 7, 14 | Home with the launch's entry set | open |
@@ -439,10 +469,10 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-26 | Without a margin, the popover is the fallback and shows the whole note, with the same “In the notes ↓” | 5 | Press a letter at 820 | open |
 | RP-27 | On a phone, a footnote opens as a sheet from the bottom, whole | 5 | Covered by PH-21 | open |
 | RP-28 | The reader's notes are Study's, which a phone doesn't have | 5 | At 390 with `?desk=on`: no margin notes | open |
-| RP-29 | One line under the header says where the reader is, and each part is a picker: “John” lists the books, “Chapter 1” the chapters | 4 | Press each part at 1440 | open |
-| RP-30 | Previous and next are plain arrows in the line, and large type at the foot | 4 | The line's arrows at 1440 | open |
-| RP-31 | The line's right end loses “Switch to Read View” | 4 | Grep: no such label | open |
-| RP-32 | The line keeps Study's way in at its right end | 4, 9 | The line at 1440 with the preview | open |
+| RP-29 | One line under the header says where the reader is, and each part is a picker: “John” lists the books, “Chapter 1” the chapters | 4 | Press each part at 1440 | built (246ab483): “John ▾ / Chapter 3 ▾” at 1440; John opens the panel at the books with focus in the field, Chapter 3 with focus on 3 |
+| RP-30 | Previous and next are plain arrows in the line, and large type at the foot | 4 | The line's arrows at 1440 | built (246ab483): plain icons named “Previous: John 2” and “Next: John 4,” unavailable at the ends and stepping over drafts as Previous and Next do; the foot's large buttons kept |
+| RP-31 | The line's right end loses “Switch to Read View” | 4 | Grep: no such label | built (246ab483): no “Switch to Read View” on a chapter (grep) |
+| RP-32 | The line keeps Study's way in at its right end | 4, 9 | The line at 1440 with the preview | built (246ab483): from 1100px with the preview, Notebook and “Study John 3” end the line; a tablet has neither (Q53); Study's own side with Phase 9 |
 | RP-33 | That way in labeled “Open in Study Desk” | 4 | None; see ST-15 | superseded → ST-15 |
 | RP-34 | Read View retires at launch (E8), and its pill goes with it | 4 | Covered by WB-44 | open |
 | RP-35 | The phone's bars are proposal 15's (one row at the top, a bar at the thumb, both hiding on a scroll down), replacing today's one row (audit F3) | 3 | Covered by PH-01 to PH-06 | built (782271a5), by PH-01 to PH-06 |
@@ -457,7 +487,7 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-44 | E106's justification of Reading alone becomes the Justify switch everywhere | 4, 9 | Covered by RP-36 and RP-40 | open |
 | RP-45 | The links that stood for Read View (the search's second jump and the picker's footer, E114) open Study at the passage like every other link into it, keeping the reader's own layout | 6, 9 | `test/desk-e114-reading-links-search.test.js` and `-tray` rewritten | open |
 | RP-46 | The search's second row reads “Open in Study Desk” | 6 | None; see ST-15 | superseded → ST-15 |
-| RP-47 | The new picker has no “Read the whole book” row | 4 | Covered by FP-11 | open |
+| RP-47 | The new picker has no “Read the whole book” row | 4 | Covered by FP-11 | built (246ab483), by FP-11 |
 | RP-48 | Proposal 14's switch on the reading page (Chapter \| Whole book) is not taken; every chapter reads on into the next | 4 | No such switch on any page | open |
 
 ## Beside scripture (BS)
@@ -500,37 +530,37 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| FP-01 | The place line is the picker: the “Go to passage” button, the reading row's search box, and /read's job all come into the line that says where the reader is | 4 | No “Go to passage” button left | open |
-| FP-02 | Pressing the book's name in the place line, or G as now, opens one panel | 4 | Press “John” and G at 1440 | open |
-| FP-03 | A field at the top (“book, chapter, or verse”): typing wins over picking, so “rom 8” offers “Go to Romans 8” at once and Enter goes there | 4 | `test/featherboa-picker.test.js` | open |
-| FP-04 | It is forgiving (“jn 3 16,” “1 cor 13,” “romans”) with the guesser the 404 page uses | 4 | `test/featherboa-picker.test.js` through `resolveMistypedPath` | open |
-| FP-05 | “Matthew intro” offers the introduction (E123) | 4 | `test/featherboa-picker.test.js` | open |
-| FP-06 | When what is typed isn't a passage, the last row is “Search for ‘forgiveness’,” and Enter runs it | 4 | Type “forgiveness”; Enter lands on /search | open |
-| FP-07 | Continue reading is its first row | 4 | After reading Romans 8, open the picker | open |
-| FP-08 | All 27 books in canonical order, with no groups, fitting the panel with no scrolling | 4 | The panel at 1100 by 700 shows all 27 without scrolling | open |
-| FP-09 | The chosen book's chapters as a grid, with its introduction under it | 4 | Choose Mark | open |
-| FP-10 | Drafts as today: a book or chapter still being translated is dimmed and still opens, now with “in progress” beside it | 4 | Acts in the grid; its dimmed words still 4.5:1 | open |
-| FP-11 | No “Read the whole book” row | 4 | Grep: no such label | open |
-| FP-12 | Release Notes at its foot | 4 | The picker's last row | open |
-| FP-13 | Keys stay: G opens the picker, / opens Search, and the arrows turn the chapter | 4 | Kept: `test/desk-keyboard-chapter.test.js` green; press each | open |
-| FP-14 | On a phone the picker opens from the chapter's name in the top row, as a sheet rising nearly to the top | 4 | Covered by PH-10 | open |
-| FP-15 | “Read” in the header opens the picker panel on a computer with JavaScript | 3, 4 | Press Read at 1440 | open |
-| FP-16 | /read becomes the picker at full size, which is also where “Read” leads without JavaScript | 4 | /read at 1440, and Read with JavaScript off | open |
+| FP-01 | The place line is the picker: the “Go to passage” button, the reading row's search box, and /read's job all come into the line that says where the reader is | 4 | No “Go to passage” button left | built (246ab483) for every page but Read View, whose own “Go to passage” goes with it in Phase 4 (Q73) |
+| FP-02 | Pressing the book's name in the place line, or G as now, opens one panel | 4 | Press “John” and G at 1440 | built (246ab483), seen at 1440: John and G open one panel; G with the line scrolled away opens it centered at the window's top (Q58) |
+| FP-03 | A field at the top (“book, chapter, or verse”): typing wins over picking, so “rom 8” offers “Go to Romans 8” at once and Enter goes there | 4 | `test/featherboa-picker.test.js` | built (246ab483), tested |
+| FP-04 | It is forgiving (“jn 3 16,” “1 cor 13,” “romans”) with the guesser the 404 page uses | 4 | `test/featherboa-picker.test.js` through `resolveMistypedPath` | built (246ab483), tested: `readTyping` reads the search box's jump first, then the 404 page's guesser |
+| FP-05 | “Matthew intro” offers the introduction (E123) | 4 | `test/featherboa-picker.test.js` | built (246ab483), tested; its words queued (Q56) |
+| FP-06 | When what is typed isn't a passage, the last row is “Search for ‘forgiveness’,” and Enter runs it | 4 | Type “forgiveness”; Enter lands on /search | built (246ab483), tested |
+| FP-07 | Continue reading is its first row | 4 | After reading Romans 8, open the picker | built (246ab483): “Continue: Romans 8” first, to the verse recorded, and hidden on the page it names (Q59) |
+| FP-08 | All 27 books in canonical order, with no groups, fitting the panel with no scrolling | 4 | The panel at 1100 by 700 shows all 27 without scrolling | built (246ab483): 27 books in order, three to a row in a panel 640px or wider; at 1100 by 700 all 27 show without scrolling (the panel 492px tall), in the text face and OpenDyslexic (Q75) |
+| FP-09 | The chosen book's chapters as a grid, with its introduction under it | 4 | Choose Mark | built (246ab483): Mark's 16 chapters with “Introduction” under them, the book's name heading the grid (Q66) |
+| FP-10 | Drafts as today: a book or chapter still being translated is dimmed and still opens, now with “in progress” beside it | 4 | Acts in the grid; its dimmed words still 4.5:1 | built (246ab483), with a draft state in the kit (Q49): Acts 2–28, Revelation, and three introductions dimmed, still opening, “in progress” beside them; the dimmed ink 5.11:1 by day and 5.68:1 on the night panel (measured); a whole draft's tab queued (Q54) |
+| FP-11 | No “Read the whole book” row | 4 | Grep: no such label | built (246ab483): no such row (grep) |
+| FP-12 | Release Notes at its foot | 4 | The picker's last row | built (246ab483): Release Notes is the picker's last row |
+| FP-13 | Keys stay: G opens the picker, / opens Search, and the arrows turn the chapter | 4 | Kept: `test/desk-keyboard-chapter.test.js` green; press each | built (246ab483): G, /, ← →, and [ ] pressed on John 3; `test/desk-keyboard-chapter.test.js` green; Escape empties the field first (Q57), and G in Read View keeps its own picker (Q69) |
+| FP-14 | On a phone the picker opens from the chapter's name in the top row, as a sheet rising nearly to the top | 4 | Covered by PH-10 | built (246ab483), by PH-10 |
+| FP-15 | “Read” in the header opens the picker panel on a computer with JavaScript | 3, 4 | Press Read at 1440 | built (246ab483): Read hangs the panel under it from 700px |
+| FP-16 | /read becomes the picker at full size, which is also where “Read” leads without JavaScript | 4 | /read at 1440, and Read with JavaScript off | built (246ab483): /read is the emblem, the title, the owner's lede unchanged, and the picker at full size, with no dialog; without JavaScript each book shows its chapters by `:target` (Q62); its frame queued (Q61) |
 | FP-17 | Home has the picker too, as “Choose a passage ▾” on its first screen | 7 | Covered by FR-06 | open |
 | FP-18 | The license gets its own page, “License,” under About and in the footer, with the owner's words unchanged | 4 | Diff /license's words against /read's license section on `main` | built (de0085a8): its words match /read's on `main` word for word (466) |
 | FP-19 | `/read#license`, `#license-terms`, and `#sblgnt-disclaimer` forward to it, because the apps and Study link them | 4 | `test/featherboa-old-addresses.test.js` | built (de0085a8): `test/featherboa-old-addresses.test.js`, and a real load of /read#license-terms on dist lands on /license with the terms open |
 | FP-20 | BDR points the apps' link at the new page in a later release; the forwarding covers installed apps meanwhile | 14 | BDR's note in the launch list at Checkpoint B | open |
 | FP-21 | The repo's own links to the license move: `LICENSE`, `CONTRIBUTING.md`, `public/llms.txt`, the Terms, and About | 4 | Grep: no `/read#license` left in the repo | built (de0085a8), held by the same test; the records keep the old address as history, and it forwards |
-| FP-22 | The rest of /read goes where its subject lives: Continue reading is the picker's first row | 4 | Covered by FP-07 | open |
+| FP-22 | The rest of /read goes where its subject lives: Continue reading is the picker's first row | 4 | Covered by FP-07 | built (246ab483), by FP-07 |
 | FP-23 | “Latest text changes” stays on Home and with Release Notes | 7 | Home's line and /release-notes | open |
 | FP-24 | “Ways to read” goes to the front page | 7 | Covered by FR-13 | open |
-| FP-25 | Read View's card goes with Read View | 4 | /read shows no Read View card | open |
+| FP-25 | Read View's card goes with Read View | 4 | /read shows no Read View card | built (246ab483): /read has no cards; “Ways to read” waits for Home (FP-24), and the notes for Phase 7 hold it |
 | FP-26 | BVJ's first answer: the rest of /read stays below the picker | 4 | None; see FP-16 | superseded → FP-16 |
-| FP-27 | The reading row's search box goes | 4 | No search field in John 3's row | open |
-| FP-28 | “Search” (magnifier and word) joins the place line, ordered Search · ‹ › · Notebook, with Study's way in | 4 | The line at 1440 in that order | open |
+| FP-27 | The reading row's search box goes | 4 | No search field in John 3's row | built (246ab483): no search field in John 3's line |
+| FP-28 | “Search” (magnifier and word) joins the place line, ordered Search · ‹ › · Notebook, with Study's way in | 4 | The line at 1440 in that order | built (246ab483): John ▾ / Chapter 3 ▾, Search, ‹ ›, Notebook, “Study John 3,” at 1440 with the preview |
 | FP-29 | The place line's way in to Study named “Open in Study Desk” | 4 | None; see ST-15 | superseded → ST-15 |
-| FP-30 | Pressing Search, or /, opens the field in place of the line, reading “Search the LIT, or go to a passage,” with results dropping below, verses first | 4, 6 | Press / on John 3 at 1440 | open |
-| FP-31 | One way in per page holds (audit U6): a reading page's is the place line's Search, and every other page keeps the header's magnifier | 3, 4 | John 3 has no magnifier in the header; /about has one | the magnifier built (ec3378b6); the place line's Search with Phase 4 |
+| FP-30 | Pressing Search, or /, opens the field in place of the line, reading “Search the LIT, or go to a passage,” with results dropping below, verses first | 4, 6 | Press / on John 3 at 1440 | the line's part built (246ab483): Search or / opens “Search the LIT, or go to a passage” in place of the line, with results below (Q67); verses first with Phase 6 |
+| FP-31 | One way in per page holds (audit U6): a reading page's is the place line's Search, and every other page keeps the header's magnifier | 3, 4 | John 3 has no magnifier in the header; /about has one | built: the magnifier (ec3378b6), and the place line's Search (246ab483); John 3's header has no magnifier, and /about's opens the strip |
 | FP-32 | What search finds and how its results look is “Search”'s: the same rows as /search | 6 | Covered by SE-31 | open |
 
 ## Display (DI)
@@ -552,7 +582,7 @@ run's best reading, entered in the plan's queue with what was done.
 | DI-13 | The finer mark choices (only highlights, say) are in All settings | 4 | /settings with the preview | open |
 | DI-14 | “Verse numbers” became “Verse and chapter numbers,” the desk's own name for its pane's switch, since it hides the chapters' headings too | 4 | Turn it off with John 3 and 4 loaded | open |
 | DI-15 | “All settings →” at the tray's foot | 4 | The tray's last row | open |
-| DI-16 | “Show the Notebook” is the Notebook button itself, on the place line | 4 | No “Show the Notebook” switch in the tray | open |
+| DI-16 | “Show the Notebook” is the Notebook button itself, on the place line | 4 | No “Show the Notebook” switch in the tray | partly built (246ab483): the Notebook is a button on the line; the tray's switch stays until the Display tray is built (Q51) |
 | DI-17 | The notes' lettering choice is gone with Playpen Sans | 5 | No lettering row anywhere | open |
 | DI-18 | No reader loses a setting | 4 | Each `localStorage` key the tray wrote is still read or migrated; /privacy names what is written | open |
 | DI-19 | All settings: one page every reader can reach from the tray, showing Study's parts only where Study is on (at /settings, BP-19) | 4 | /settings with and without the preview | open |
@@ -627,7 +657,7 @@ run's best reading, entered in the plan's queue with what was done.
 | PH-07 | The app banner stays above the row | 3 | Kept: the banner at 390 with an Android user agent | built (782271a5, kept): the banner on top at 360 and 412 with an Android user agent, the row sticking at 0 once it scrolls away |
 | PH-08 | The progress line runs along the top row's bottom edge, as on a computer, and hides with it | 3, 4 | Covered by WB-36 | open: Phase 4, with WB-36 (the row's hairline holds its place, Q37) |
 | PH-09 | Search opens the field in place of the top row, results below and verses first | 3, 6 | Press Search at 390 | built (782271a5) for the field in place of the row (Q41); verses first with Phase 6 |
-| PH-10 | “John 1 ▾” opens the picker as a sheet rising nearly to the top: the typing field first, then Continue reading, the 27 books, the chapter grid, and the introduction | 4 | At 390 | open |
+| PH-10 | “John 1 ▾” opens the picker as a sheet rising nearly to the top: the typing field first, then Continue reading, the 27 books, the chapter grid, and the introduction | 4 | At 390 | built (246ab483): at 390, “John 3 ▾” raises the sheet nearly to the top at the Large speed, focus on 3 (Q52), and Escape gives focus back to the row |
 | PH-11 | The menu is a sheet rising from the bar, not today's panel from the top corner | 3 | Press Menu at 390 | built (782271a5): 526px tall at 390 by 844, the page dimmed (Q46), focus on its × (Q43), Escape back to Menu; one sheet at every width (Q42) |
 | PH-12 | Its rows are Read, Learn, and About, each with its own, the current place marked; Study stays off a phone | 3 | At 390 with and without `?desk=on` | built (782271a5), no Study at 390 with or without `?desk=on`; its groups and marks queued (Q44) |
 | PH-13 | Then “Get the app” | 3 | The menu's last row | built (782271a5); the sheet's foot queued (Q45) |
@@ -748,7 +778,7 @@ run's best reading, entered in the plan's queue with what was done.
 |---|---|---|---|---|
 | HD-01 | Read, Study, Learn, and About, the current one underlined in green (the mark's green) | 3 | The header at 1440 on a page in each place | built (ec3378b6); widths measured in three fonts: 700px, 900 in OpenDyslexic, 1100 with Study |
 | HD-02 | The black “Read” button goes: Read is a place like the others | 3 | No filled button in the header | built (ec3378b6) |
-| HD-03 | Read opens the passage picker, as “Finding a passage” decided | 3, 4 | Covered by FP-15 | Phase 4; meanwhile Read links to /read (Q24) |
+| HD-03 | Read opens the passage picker, as “Finding a passage” decided | 3, 4 | Covered by FP-15 | built (246ab483), by FP-15; a link to /read without JavaScript and under 700px (Q24) |
 | HD-04 | The proposal's “Read View becomes a whole-book switch” falls away, since every chapter reads on into the next | 4 | No such switch built | open |
 | HD-05 | Learn, Study, and About open menus, and keep their ▾ | 3 | `test/header-menus.test.js` rewritten; each menu at 1440 | built (ec3378b6) |
 | HD-06 | No address changes, so no page gathers Learn's or About's pages for the word to lead to | 3 | No /learn page; `npm run check:links` passes | built (ec3378b6) |
@@ -760,7 +790,7 @@ run's best reading, entered in the plan's queue with what was done.
 | HD-12 | The right end always holds Aa and the account (“Sign in” until a reader signs in) | 3 | The header at 1440, signed out and in | built (ec3378b6); the entry from 700px (Q29) |
 | HD-13 | The magnifier is there on every page but the Read page, whose Search is on its place line (one way in per page) | 3 | /about and John 3 at 1440 | built (ec3378b6); on a page with its own box it goes to that box (Q30) |
 | HD-14 | Every page but Home has one line under the header that names the page, its one or two main commands at the right (“Learn / Glossary ▾ / trust,” “About / Contact”) | 3 | Each page at 1440; none on Home | built (ec3378b6); each page's commands with its phase |
-| HD-15 | The Read page's place line is this line | 4 | Covered by RP-29 | open |
+| HD-15 | The Read page's place line is this line | 4 | Covered by RP-29 | built (246ab483), by RP-29 |
 | HD-16 | A part with ▾ is a menu of what sits beside the page: “Glossary ▾” lists the entries | 3, 7 | Covered by GL-05 | open |
 | HD-17 | On Study, the title row is the line: “Fold sidebar” at its left, then “Study / Sheets ▾ / Advent 2 handout,” then the pane count and Full screen at its right | 9 | Study at 1440 with a sheet open | open |
 | HD-18 | “Sheets ▾” lists the reader's sheets and “Collections ▾” their collections, so a reader switches without the sidebar | 9, 11 | Fold the sidebar; switch sheets from the line | open |
@@ -774,7 +804,7 @@ run's best reading, entered in the plan's queue with what was done.
 | HD-26 | A page's own heading stays as written (“So… who am I?”, “Contact me”); the line under the header carries the matching name | 3, 7 | /about and /contact at 1440 | built (ec3378b6) |
 | HD-27 | Courses joins Learn when a course opens; until then /courses is in no menu | 3 | No menu links /courses | built (ec3378b6) |
 | HD-28 | Release Notes is every text change, and the What's New page everything else (site and app updates, feature releases, launches) | 7 | /release-notes and /whats-new's entries | built (1253bf85) |
-| HD-29 | Release Notes sits at the foot of Read's picker as well as under About | 3, 4 | The picker's foot and About ▾ | About ▾ and the footer built (ec3378b6); the picker's foot with Phase 4 |
+| HD-29 | Release Notes sits at the foot of Read's picker as well as under About | 3, 4 | The picker's foot and About ▾ | built: About ▾ and the footer (ec3378b6), and the picker's foot (246ab483) |
 | HD-30 | The What's New page has no row of its own | 3 | No menu has a What's New row | built (ec3378b6) |
 | HD-31 | A menu carrying a “New” mark ends with “See what's new →” | 3 | Mark a menu with a news entry, at 1440 | built (ec3378b6), tested with entries; the list is empty |
 | HD-32 | An app update marks About's Apps row | 3, 7 | An app-update entry marks Apps | built (ec3378b6), tested with an Apps entry |
@@ -915,7 +945,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NB-29 | All settings is reached from the Aa tray, as on every page | 4 | Covered by DI-15 | open |
 | NB-30 | Every /notebook link keeps working, its anchors too: `#backup` opens Back up, `#whats-new` “Changed since you marked it,” `#q=` the list filtered by its words, `#labels` Manage labels…, and any other the list | 10 | `test/featherboa-old-addresses.test.js`; open each | open |
 | NB-31 | Printing the list, drawn first from the Notes tab's More menu (now the Notebook place, ST-70) | 10 | Kept: print the Notebook's list | open |
-| NB-32 | Continue reading, already the picker's first row and Home's | 4, 7 | Kept: covered by NX-12 | open |
+| NB-32 | Continue reading, already the picker's first row and Home's | 4, 7 | Kept: covered by NX-12 | the picker's row built (246ab483); Home's with Phase 7 |
 | NB-33 | The Trash's 30 days, in the sidebar | 9 | Kept: an item older than 30 days is gone from the Trash | open |
 | NB-34 | The foot line says “browser,” not the drawing's “computer,” since a notebook is kept in one browser | 5, 9 | Grep labels: no “this computer” | open |
 
@@ -991,7 +1021,7 @@ run's best reading, entered in the plan's queue with what was done.
 | ST-12 | The address is /study, and /desk does not forward to it | 9 | `test/featherboa-old-addresses.test.js`: /study builds, /desk is the 404 page | open |
 | ST-13 | The help page moves with it (BP-20) | 9 | `test/desk-help-page.test.js` rewritten for /study/help | open |
 | ST-14 | /notebook, /sheets (with a sheet's `?id=`, present mode, and shared links), and /collections open their places on the Study page | 9 | Open each with the preview | open |
-| ST-15 | The link that opens a passage in Study is the verb and the passage, “Study Romans 8,” as the Read page's is “Read Romans 8” (not “Open study”); it only ever opens a passage | 4, 6, 9 | The place line and Search's second row, with the preview | open |
+| ST-15 | The link that opens a passage in Study is the verb and the passage, “Study Romans 8,” as the Read page's is “Read Romans 8” (not “Open study”); it only ever opens a passage | 4, 6, 9 | The place line and Search's second row, with the preview | the place line's built (246ab483): “Study John 3,” and “Study John” on an introduction, to its chapter 1 (Q65); Search's second row with Phase 6 |
 | ST-16 | Where no passage is named, the header's “Study” is the way in | 3 | Covered by HD-01 | built (ec3378b6) |
 | ST-17 | The sidebar, top to bottom: Scripture, Notebook, Sheets (the three most recent, and All sheets), Collections (the same), and Trash, with the foot “The Study Desk” drew | 9 | The sidebar at 1440 | open |
 | ST-18 | Each sidebar row opens its place in the page's panes | 9 | Press each row | open |
@@ -1179,7 +1209,7 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-05 | The What's New page is built with the rest, its entries written by hand, with no feed, at `/whats-new` | 7 | /whats-new builds, with no feed | built (1253bf85) |
 | BP-06 | Its entries: the apps, dated to their release; the new site (“Featherboa” isn't a public name); and the Study page and its features as a mock-up near the end (words in OP-07) | 7, 13 | The three entries on /whats-new | two of three drafted (1253bf85); Study's with Phase 13; the words queued (Q3) |
 | BP-07 | The pages no section draws (About, Commitments, the Collective, Contact, App support, Support, Courses, Podcast, Privacy, Terms, Unsubscribe, the 404 page, Release Notes, the delete-account page, and the account pages) take the foundations, the header and its line, and the footer, with their words and order as today | 7 | Each page at 1440 and 390; words diffed against `main` | built (bae1d1cb; the account pages, cf6f21c8); words unchanged |
-| BP-08 | /read is the picker at full size under its lede | 4 | /read at 1440 | open |
+| BP-08 | /read is the picker at full size under its lede | 4 | /read at 1440 | built (246ab483), by FP-16 |
 | BP-09 | /license is the owner's words in the reading column | 4 | /license at 1440 | built (de0085a8; its terms at the reading size in 94a0069e): seen at 1440 on dist |
 | BP-10 | BVJ reviews those pages built, and any redrawn becomes its own decision | 7 | At Checkpoint A | open |
 | BP-11 | /apps keeps its own look and faces inside the new header and footer, since its stylesheet is the LSC site's too | 7 | /apps at 1440: only the header and footer change | open |

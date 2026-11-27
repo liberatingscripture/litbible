@@ -963,7 +963,10 @@ Entered by the run:
   “Read / Books” (its heading stays “Read the LIT Online”). Other
   choices: a small Read menu now, or “Read the LIT Online” as the row's
   name. Cost: none, since Phase 4 replaces the link. Recommendation: the
-  link, and “Books” until Phase 4.
+  link, and “Books” until Phase 4. Phase 4's first part (246ab483): with
+  JavaScript from 700px Read opens the picker's panel, and otherwise it
+  stays the link to /read, which is now the picker at full size, so
+  “Books” still names it.
 - **Q25. Study's menu keeps “Help for study tools” until Phase 9**
   (HD-09). The record puts help at the foot of Study's sidebar, which
   Phase 9 builds. Meanwhile: it is the menu's last row, below a line, and
@@ -1038,7 +1041,9 @@ Entered by the run:
   /read. Its name is “Go to passage. Current: John 3” (an introduction's,
   “John · Intro”), with no draft mark. Other choice: a link to /read even
   with JavaScript. Cost: ReadMenu serves two buttons for one panel until
-  Phase 4 removes it. Recommendation: keep until Phase 4.
+  Phase 4 removes it. Recommendation: keep until Phase 4. Done in 246ab483:
+  the row's “John 3 ▾” opens the picker's sheet, ReadMenu's second button
+  (`data-rm-also`) is gone, and ReadMenu serves Read View alone.
 - **Q36. How far a scroll moves the bars** (PH-05; the ledger's “Where the
   record is unclear”). The record says any scroll up brings them back;
   Site 2.0 answered every pixel. Meanwhile: the ledger's `barState`, plus
@@ -1085,7 +1090,8 @@ Entered by the run:
   `scroll-padding-bottom` of 53px on `html` on a phone's reading pages,
   one rule for every anchor and focus scroll, which `readingLine` counts.
   Other choice: `scroll-margin-top` on `main [id]`, as Site 2.0 had.
-  Recommendation: keep.
+  Recommendation: keep. The place line isn't sticky (246ab483), so Continue
+  reading's line needs nothing more on a computer.
 - **Q41. Search in place of the top row** (PH-09, HD-13). A page's
   SearchBar renders once, with fixed ids, and its toolbar is hidden on a
   phone. Meanwhile: the bar's Search moves that one SearchBar into the row
@@ -1138,6 +1144,154 @@ Entered by the run:
   on a phone. Meanwhile: Read View is reached from /read. Other choice: a
   “Read View” row in the sheet on chapter pages. Cost: one more step on a
   phone, until Phase 4 makes the two views one. Recommendation: keep.
+  Since 246ab483 /read has no Read View card, so Read View is reached only
+  from search's second link and from old links until it retires.
+- **Q49. The kit's draft state** (FP-10). The record wants drafts dimmed
+  and saying “in progress,” and the kit had no draft state. Meanwhile:
+  `.kit-tab--draft` and `.kit-row--draft`, whose words take the third ink
+  (never opacity), still opening and still marking the current page;
+  5.11:1 by day and 5.68:1 on the night panel. Other choice: no new state,
+  “in progress” at full ink. Cost: drafts read as finished at a glance in
+  the grid. Recommendation: keep, as a kit state.
+- **Q50. The picker's markup on every page** (FP-02, FP-15). G and Read
+  open it anywhere, and the whole picker is 59 KB raw (3.7 KB gzipped) and
+  1,018 elements. Meanwhile: it waits in a `<template>` that its first
+  opening puts in place, so a page carries none of those elements live
+  (John 3: 1,060 live of 2,078), and without JavaScript no dialog opens
+  anyway. Other choice: fetch /read's picker on the first opening. Cost: a
+  wait and a loading state on the first G, and a failure path.
+  Recommendation: keep.
+- **Q51. “Show the Notebook” stays in the tray for now** (DI-16).
+  Meanwhile: the Notebook button is on the line, the tray's switch stays,
+  and turning it off hides the line's Notebook with the tab. Other choice:
+  remove the switch in this part. Cost: the tray and the first stage's tab
+  rules reworked here rather than with the Display tray. Recommendation:
+  the Display tray's part of Phase 4 removes it.
+- **Q52. The phone's “John 3 ▾” focuses chapter 3** (PH-10, FP-14). The
+  sheet's order is as written, the field first, but focus starts on the
+  chapter, as “Chapter 3” does on a computer, so at 390 the sheet opens
+  scrolled to John's grid, with the field and Continue above it, out of
+  view. Other choices: focus the field, which raises the keyboard over the
+  grid at once; or focus the sheet's ×, as the menu sheet does, which
+  shows the field and Continue but puts the chapters a scroll away.
+  Recommendation: keep.
+- **Q53. A tablet's line has no Notebook or Study** (RP-32, ST-15). From
+  700 to 1099px the line is the picker, Search, and the arrows, matching
+  ST-16; Read opens the panel from 700px. Other choice: show both from
+  700px. Cost: Study is made for a computer, and a tablet never gets the
+  preview's stamp. Recommendation: keep.
+- **Q54. A whole draft's tab** (FP-10). Revelation's tab reads “Revelation
+  in progress.” Measured: one line at 1440 and 820 in the text face and at
+  1440 in OpenDyslexic; at 768 in OpenDyslexic it wraps inside its tab,
+  which is 3px taller than its neighbors. Other choice: dim the tab and
+  keep the words for screen readers and the note under the grid. Cost: a
+  test change. Recommendation: keep; the wrap stays inside the tab and
+  moves nothing else.
+- **Q55. A book alone offers chapter 1 first** (FP-04, FP-05). “romans”
+  offers Romans 1, then its introduction. Other choice: the introduction
+  first. Cost: the search box's jump goes to chapter 1, so the two would
+  disagree. Recommendation: keep.
+- **Q56. “Go to Matthew introduction”** (FP-05). Labels take no articles,
+  and the line's arrows already say “Previous: Matthew introduction.”
+  Other choice: “Go to Matthew’s introduction.” Cost: a word, and the
+  arrows would differ. Recommendation: keep, unless BVJ prefers the
+  possessive.
+- **Q57. Escape empties the field first, then closes** (FP-13), as the
+  search box closes its results first. Other choice: Escape always closes.
+  Cost: none to build. Recommendation: keep.
+- **Q58. Where the panel hangs** (FP-02, FP-15). Meanwhile: 8px under what
+  opened it and kept 16px inside the window; G hangs it under the line's
+  book, else the header's Read, and where both are scrolled away, centered
+  at the window's top. Other choice: a centered dialog every time. Cost:
+  the panel loses its tie to what opened it. Recommendation: keep.
+- **Q59. Continue hides when it names this page** (FP-07, NX-12). Other
+  choice: always show it. Cost: a row that goes nowhere. Recommendation:
+  keep.
+- **Q60. The dialog's names** (FP-02). The dialog is “Choose passage,” its
+  × “Close picker,” and the field “Book, chapter, or verse.” Other choice:
+  “Find a passage” and “Close.” Cost: a word change. Recommendation: keep
+  (a verb, then a thing).
+- **Q61. /read's frame, and the picker's size** (FP-16, BP-08). Meanwhile:
+  /read keeps its emblem and title over the lede, at 60rem rather than the
+  content width, and like the other display pages is left to browser zoom;
+  the picker is drawn at the kit's sizes everywhere, not with the
+  `--control-scale` ReadMenu followed. Other choice: scale the picker with
+  `--control-scale`. Cost: picker.css would size the kit's controls, which
+  the kit's rules forbid. Recommendation: keep, and measure Extra large in
+  the accessibility pass.
+- **Q62. /read without JavaScript** (FP-16). Each book links to
+  `#picker-<book>` and is shown by `:target` (Matthew's first), and the
+  field is a form to /search. Other choice: all 27 books' chapters at
+  once. Cost: a long page of 260 numbers. Recommendation: keep.
+- **Q63. /read with JavaScript opens at the reader's book** (FP-07,
+  FP-16): the address's `#picker-luke`, else Continue's book, else
+  Matthew. Other choice: always Matthew. Cost: a returning reader picks
+  their book again. Recommendation: keep.
+- **Q64. /read keeps the header's magnifier** (FP-31), the strip, as on
+  every page that isn't a reading page. Other choice: none on /read, since
+  its field searches too. Cost: none to build, but /read would break
+  FP-31's rule. Recommendation: keep.
+- **Q65. “Study John” on an introduction opens chapter 1** (ST-15, CT-09),
+  since no pane shows an introduction (E173). Other choice: no Study link
+  on an introduction. Cost: no way into Study from one. Recommendation:
+  keep.
+- **Q66. The book's name heads its grid** (FP-09): an h2 in Fraunces at
+  the subhead size, which also names the grid to a screen reader. Other
+  choice: no visible heading. Cost: the grid loses its name.
+  Recommendation: keep.
+- **Q67. The line's Search keeps today's box** (FP-30). Meanwhile: the
+  SearchBar's height and its submit button under 900px, so at 1440 the
+  line grows from 37 to 59px while Search is open and the page below moves
+  down 22px. Other choice: redraw the box in this part. Cost: Phase 6's
+  redraw lands early. Recommendation: leave it to Phase 6, whose field
+  takes the line's height.
+- **Q68. /search loses “Go to passage” until Phase 6** (FP-01). Its field
+  still jumps to a reference, G and Read open the picker, and its toolbar
+  stays. Other choice: keep ReadMenu on /search. Cost: ReadMenu's Chapter
+  View mode stays alive. Recommendation: keep it removed.
+- **Q69. G in Read View presses Read View's own picker** (FP-13). The
+  dialog is on that page too, but G uses ReadMenu's trigger there. Other
+  choice: the passage picker. Cost: two pickers that disagree on one page.
+  Recommendation: keep until Read View retires, later in Phase 4.
+- **Q70. ReadMenu's Chapter View mode is dead code** (FP-01, FP-11). Its
+  Chapter View footer, with the preview's “Open Romans in Study Desk →”
+  and `&layout=reading` (E114), is never drawn now; E114's link lives only
+  in search's second jump. Other choice: strip it now. Cost: a riskier
+  diff in a file Read View still uses. Recommendation: remove it with Read
+  View.
+- **Q71. Study help's sentences** (RP-32, ST-15). `desk/help.astro` named
+  the toolbar's “Open in Study Desk” and /read's “Study Desk” button.
+  Meanwhile: four sentences name the line's “Notebook” and “Study John 3”
+  (named for the chapter being read) at the end of the line under a
+  Scripture page's header, and the chapter picker's “Open Romans in Study
+  Desk →” is gone. Other choice: leave them until Phase 9. Cost: help
+  describes buttons that are gone. Recommendation: keep; BVJ skims the
+  four sentences.
+- **Q72. The tour's search step presses the line's Search** (FP-30): it
+  shows “>” in the field, and on skip or end puts back the reader's words
+  and closes the line. Other choice: skip the step on chapters. Cost: the
+  tour loses its search step there. Recommendation: keep.
+- **Q73. FP-01's grep still finds “Go to passage,”** in ReadMenu.astro
+  alone (Read View's trigger). Other choice: leave FP-01 open until Read
+  View retires. Cost: the row stays open for a page that is leaving.
+  Recommendation: mark it built for every page but Read View.
+- **Q74. The picker's two ×** (FP-02). Its field is `type="search"`, so
+  Chrome draws its own clear × inside the field, beside the picker's
+  “Close picker” ×: two × a few pixels apart, one clearing and one closing
+  (seen at 1440). Meanwhile: both stay. Other choice: hide the browser's
+  clear button in a field that sits beside a close (the picker's, and the
+  line's Search box, which is the SearchBar's), since Escape empties the
+  field (Q57). Cost: a mouse loses its one-press clear. Recommendation:
+  hide it, decided with Phase 6's field, which redraws the SearchBar too.
+- **Q75. OpenDyslexic's picker** (FP-08, FP-09). At 50rem its three
+  columns of book names took about 630px, leaving the chapters two to a
+  row, so a long book's panel scrolled, and at 768 a chapter cell was
+  about 40px. Meanwhile: in OpenDyslexic the panel is 60rem from 700px, as
+  the window allows, and in a picker under 880px its books and chapters
+  stack: at 1440 the chapters stand five to a row, at 768 fourteen, and at
+  1100 by 700 the panel shows all 27 books without scrolling. Other
+  choice: smaller book names in OpenDyslexic. Cost: the styles' rules make
+  shrinking that font's type the last resort. Recommendation: keep.
 
 ## Questions answered before the run
 
@@ -1227,7 +1381,8 @@ with its last commit when done; never delete a line.
 - [x] Phase 3: The header, the line under it, the footer, and the phone's bars
   (782271a5; the computer's header, the line, the news marks, and the footer in
   ec3378b6)
-- [ ] Phase 4: The Read page (/license built ahead, de0085a8)
+- [ ] Phase 4: The Read page (/license built ahead, de0085a8; the place
+  line, the passage picker, and /read, 246ab483)
 - [ ] Phase 5: Beside scripture
 - [ ] Phase 6: Search
 - [ ] Phase 7: Learn, the front door, and every other page (built ahead:
