@@ -2112,7 +2112,8 @@ is the one "Study and its places" replaced.
   green with a rule under it and its other forms a lighter green (the
   text green at 22% and 12%), so both sets can show at once. **The
   proposal's faint underline is not taken** (BVJ: “I think the faint
-  underline is a mistake”). It reads the Greek's own dictionary forms,
+  underline is a mistake,” and, told the chosen word's forms are a lighter
+  green, “Yes, agree”). It reads the Greek's own dictionary forms,
   not the tagging the partner lighting waits for.
 
 ### A word's card
@@ -2181,9 +2182,112 @@ What the drawing leaves out stays (BVJ: “yes”): the text-critical signs,
 licenses require; the draggable line between the text and the card (BVJ,
 2026-10-17); following the LIT tab, with "Go to verse N"; the arrow keys
 through the words; the line saying where John 7:53–8:11 and Romans
-16:25–27 take their Greek; and a copy that pastes as plain Greek. "Build a
-search" in Search keeps the Greek search commands (`public/greek/CLAUDE.md`,
-rule 17), where the proposal tucks them.
+16:25–27 take their Greek; and a copy that pastes as plain Greek. The
+Greek search commands and their builder stay (`public/greek/CLAUDE.md`,
+rule 17). The proposal tucks them behind a "Build a search" in Search;
+that, and anything else about them, is open (below).
+
+## First visit, signing in, and sync (decided 2026-11-27)
+
+Design Directions' proposal 25 draws three screens, each with one job and
+one main button, and gives every sync state one short line. Its drawing is
+older than the account pages (built in step 4h, behind `?account=preview`)
+and than BVJ's choice of a spare key by default (BDR's level 2,
+2026-11-26: `STUDY-DESK.md`, "Decisions," recorded in PR #731; BDR's
+page "Synced notes: three privacy levels"), so some of what it says is no
+longer true. Claude proposed eight adjustments, and BVJ took them all
+(“Yes to all 8”), asking whether they take level 2 and PR #731 into
+account. Three of them come from level 2, and its plan adds the
+refinements at the end of this section.
+
+### The three screens
+
+- **The first visit is Study's empty state**: "Your notebook is empty,
+  and it is yours," with three ways to begin, "Open a chapter and mark a
+  verse," "Start a sheet from a template," and **"Take the tour"** in
+  place of the drawing's "See how Study works," as the screen's one filled
+  button. That is the acting tour, with "Start here" at Study's head
+  ("Nothing interrupts the reader"); the help page stays under Help. It
+  says "this browser," never "this computer" (the account pages' rule 22,
+  and "The Notebook"'s foot line). **Its foot offers both setting up an
+  account and signing in**, where the drawing had only "Already have a
+  notebook? Sign in," so keeping the notebook in this browser stays a
+  plain choice, as step 4j's card has it. It shows only while the
+  notebook is empty, and replaces today's first-use card.
+- **Signing in puts Apple and Google first, and "Sign in with a passkey" as
+  a quieter third** (BVJ, 2026-11-26), not three equal buttons. Apple's and
+  Google's buttons follow each provider's own rules for them, so neither is
+  one of the house's filled buttons and the screen still has no filled
+  button among the three.
+- **The drawing's sentence about locking is not true by default** ("Your
+  notebook is locked before it leaves this computer; the service stores it
+  without being able to read it"): the service keeps a spare key and hands
+  it to the reader's signed-in devices. The screen says what is true at
+  the default, with the one quiet line about the option that every setup
+  shows, in the option's name and description as BVJ chose them. Claude's
+  draft, from BDR's wording for level 2: “No passwords, and no codes by
+  email. Your notes are encrypted on our service, and we never read, sell,
+  or share them. Turn on End-to-end encryption and only you can open your
+  notes, not even LIT.” "As planned, the LIT Bible apps" loses "as
+  planned." The final words are step SK5's (below).
+- **"Save your recovery code" shows only to a reader who turns on
+  End-to-end encryption**: the default makes no recovery code, and the
+  option requires one (BVJ, 2026-11-26). **The two groups are still typed
+  back**, in place of the drawing's "I have saved it" box (BVJ, 2026-11-24:
+  “they shouldn't skip adding the two number groups,” which now holds
+  inside the option), and Done waits until both match. Print and Copy
+  stay.
+
+### Status
+
+- **The drawing's lines, in the house's words**: "Kept in this browser
+  only" with "Back up…" (and the backup reminder's "Last backed up 9 days
+  ago"), "Syncing…," "In sync," "Offline. Your changes are saved here.,"
+  "Signed out. Your notebook is still here." with "Sign in," and, for a
+  stop only the reader can settle, "This browser can't open your notebook."
+  with **"Reconnect"** in place of the drawing's "Fix…" (BVJ kept the word,
+  2026-11-24; it opens the account page, which names the real step).
+  The states the drawing leaves out get a line in the same short form,
+  and the full account's words stay BVJ's (2026-11-26).
+- **One set of words, shown at the foot of what it is about**: the Study
+  sidebar's foot, the Read page's Notebook panel ("Nothing interrupts the
+  reader"), and the header's account menu, where the line lives today on
+  every page without a panel (BVJ, 2026-11-24). The drawing gave it one
+  home, the sidebar, which a reader on About or the glossary never sees.
+- **A stop moves to the foot line and a dot, with no bar**: nothing is lost
+  while a browser is signed out or removed, since the notebook stays in it.
+  This reverses part of BVJ's 2026-11-24 call, a notice with "Reconnect"
+  on whatever page the reader is on.
+- **Two notices keep their bar on the page being read** (BVJ,
+  2026-11-25): a request that waits (to delete the account, or to replace
+  its notebook), since the seven days protect a reader only if their
+  devices say so, and a device that joined, since it can read the whole
+  notebook at once and hearing of it soon is the only defense. These are
+  the one exception to "nothing floats over the page."
+
+### The account page
+
+- **It stays a page of its own** (`/account`), as built: setup, devices,
+  the recovery code, signing out, and deleting, now with step SK4's
+  "End-to-end encryption," on and off, holding "Follows my account" and
+  "This device only." The proposal's three screens are its first steps,
+  drawn in Featherboa's look. All settings links to it ("Display"), and the
+  header's "Sign in" stays.
+
+### What level 2 and PR #731 add
+
+- **The words wait for step SK5**, which rewrites `/privacy`, `/terms/`,
+  the help page, the first-time card, the tour, and the Settings tab after
+  Fable's research on the lawyer questions, whose recommendations are
+  followed (BVJ, 2026-11-26). So the drafts here ("we never read, sell, or
+  share them" among them) are Claude's, to be checked there.
+- **The joined device's notice carries more weight under the default.** A
+  stolen Apple or Google sign-in can now get the spare key, and the
+  notice every device gives is the only protection kept on 2026-11-26;
+  step SK1 is to put a wait or a yes from another device to BVJ. So the
+  bar stays, whatever "Nothing interrupts the reader" asks elsewhere.
+- **Nothing here changes the sync, the encryption, or the record format**,
+  as the proposal says; the spare key's own changes are steps SK1 to SK5.
 
 ## Open
 
@@ -2210,6 +2314,13 @@ rule 17), where the proposal tucks them.
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
+- **The Greek search commands and the search builder** ("The Greek").
+  Only two things are decided: the Greek tab of search stays where the
+  Greek search runs ("Search"), and the commands and builder stay. Their
+  window, its name ("Search commands" today, the proposal's "Build a
+  search"), its ways in (the tray, /search, and the Search pane today),
+  and how it meets "Find this word ▾" were never put to BVJ (BVJ: “I don't
+  remember addressing Greek search in detail”).
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and
