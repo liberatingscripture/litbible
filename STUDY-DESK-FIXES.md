@@ -6063,6 +6063,31 @@ wording (E202).
   usable. Not seen: Safari, Firefox, a screen reader, and a real mouse drag
   (the pane's drag made no selection, so it was set by script).
   Status: fixed (the pull request that adds this entry).
+- **E233, rough: a phone presenting a sheet could lock mid-talk.** BVJ,
+  2026-11-27, asked whether a shared sheet's phone viewer can project a
+  presentation. It can, by mirroring the phone's screen (AirPlay, casting,
+  or an HDMI adapter), but present mode never asked the screen to stay on,
+  so a phone set to lock after 30 seconds could go dark during one long
+  screen, and a laptop's display could sleep the same way. Present mode now
+  holds a Screen Wake Lock (`keepScreenOn` in `sheet-present.js`) in the
+  room's window, on a computer and in the phone and tablet viewer alike, and
+  in the presenter view's window. The browser lets the lock go whenever the
+  page is hidden, so it is asked for again when the page shows; the room's
+  window lets it go when present mode closes, and the presenter view holds it
+  until its window closes. Where the API is missing or refuses (battery
+  saver, a permissions policy), nothing is said and present mode runs as
+  before. The API is inside the site's floors (Chrome 84, Firefox 126, and
+  Safari 16.4, the phone viewer's), `public/_headers`' Permissions-Policy
+  leaves `screen-wake-lock` at its default, and nothing is stored, so
+  `/privacy` is unchanged. The help page's Present list says the screen
+  stays on. Seen only in tests (`test/desk-present-wake-lock.test.js`,
+  happy-dom with a stubbed `navigator.wakeLock`): a lock on open, again
+  after the page is hidden and shown, let go on close (and a lock that
+  arrives after a close let go too), and no throw when the API is missing,
+  rejects, or throws. Not seen: a real phone or laptop staying awake, which
+  the Browser pane can't show; the true check is a phone set to lock after
+  30 seconds, presenting a shared sheet past that.
+  Status: fixed (the pull request that adds this entry).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the
