@@ -749,6 +749,13 @@ Entered before the run, from BVJ's answers:
 - **Q3. The What's New page's words**: the apps' entry and its date, the
   new site's entry, and the Study entry as a mock-up (Phase 7 and Phase
   13).
+  In place: /whats-new, its entries in `src/lib/whats-new.mjs`. The apps'
+  entry is dated July 20, 2026, the day the site announced them (PR #27);
+  the stores' own date is BVJ's or BDR's to give. The new site's entry is
+  dated February 10, 2027, the launch date Phase 14 sets, and its
+  paragraph on Display and the phone's bar is checked then against what
+  Phases 3 and 4 built. Both entries' words are drafts: BVJ keeps,
+  rewords, or drops each.
 - **Q4. The launch's words**: the announcement window, and the band's and
   the mark's set time (Phase 14).
 - **Q5. Study's stage at launch**: "beta," unless the opening and sync land
@@ -918,9 +925,11 @@ Entered by the run:
   licensing details are “on the Read page,” twice (the LIT's license, and
   the SBLGNT text's credits), in BVJ's words. The record moves About's
   links to /license. Meanwhile: both links go to /license, with the words
-  unchanged, so each says “Read” and opens the License page. (Study's own
-  links, its export's license line, the Sheets' terms links, and its help
-  page, moved too, as the repo's own; `llms-full.txt` with `llms.txt`.)
+  unchanged, so each says “Read” and opens the License page. (The License
+  rows in About ▾ and the footer open /license too, by `LICENSE_HREF` in
+  `src/lib/places.mjs`. Study's own links, its export's license line, the
+  Sheets' terms links, and its help page moved too, as the repo's own;
+  `llms-full.txt` with `llms.txt`.)
   Other choice: leave About's links on /read's old anchors, which forward
   to /license (the words still name a page that no longer holds it).
   Cost: two words. Recommendation: “on the License page” in both.
@@ -933,6 +942,91 @@ Entered by the run:
   cards (`build-og-images.mjs`), which no decision names, keep the cream.
   Other choice: today's `#F2F0E9`. Cost: two values. Recommendation: the
   record's two colors, so an image matches the page it came from.
+- **Q23. The pages no decision draws, as drawn** (BP-07; question 8).
+  They take the foundations with today's words and order, and five calls
+  came with it. A page's name is at the Title size, 48 to 62px ("Type":
+  "The name of a book or a page"), larger than today's on every one, and
+  /license, /colophon, and /whats-new match. Small capitals are gone
+  (eyebrows, dates, badges, the podcast's season heading), by "Labels"'
+  sentence case. A lede is at the Text size, where today's were a step
+  larger. A box that neither floats nor is pressed (the FAQ's questions,
+  the podcast's episodes) takes the 10px corner. The podcast page's photo
+  and its cover still overlap by negative margins, off the spacing scale,
+  which has no step for an overlap. Other choices: today's title sizes,
+  the capitals, ledes at the Subhead size, 6px corners. Cost: a line
+  each. Recommendation: as built; BVJ looks at each page on the preview
+  and names any to redraw, which becomes its own decision.
+- **Q24. Read is a link until the picker** (HD-02, FP-15, HD-29). The
+  record makes Read open the passage picker in place, which Phase 4
+  builds. Meanwhile: Read is a link to /read, the footer's Read group
+  lists “Books” (/read) and “Release Notes,” and /read's line reads
+  “Read / Books” (its heading stays “Read the LIT Online”). Other
+  choices: a small Read menu now, or “Read the LIT Online” as the row's
+  name. Cost: none, since Phase 4 replaces the link. Recommendation: the
+  link, and “Books” until Phase 4.
+- **Q25. Study's menu keeps “Help for study tools” until Phase 9**
+  (HD-09). The record puts help at the foot of Study's sidebar, which
+  Phase 9 builds. Meanwhile: it is the menu's last row, below a line, and
+  it is in the footer's Study group. Other choice: drop it now, which
+  leaves help reachable only from /desk's title menu. Cost: a row and a
+  test line in Phase 9. Recommendation: keep it until then.
+- **Q26. “Take the tour” waits for Home's Study panel** (NX-22). Knowing
+  who is visiting for the first time means reading Study's tour state on
+  every page, and Study's code loads only behind its gate. Meanwhile:
+  Study's menu has no tour row. Other choice: an inline check of the
+  tour's stored key in the header, without Study's code. Cost: NX-22 stays
+  open until Phase 7. Recommendation: build it with Home's Study panel in
+  Phase 7.
+- **Q27. Pages the record doesn't place** (HD-22). Meanwhile, each of
+  these is in no place, and its line gives its name alone: /search,
+  /app-support and its thank-you page, /unsubscribe, /courses,
+  /colophon, /whats-new, /delete-account, /account, /account/connect, and
+  the 404. Contact's thank-you page sits under About and Contact. Other
+  choices: /app-support under About and Apps, since it is the apps'
+  support page, and /search under Read. Cost: a line each.
+  Recommendation: /app-support under About and Apps; the rest as built.
+- **Q28. The account button's tooltip repeats “Account”** (CT-19). A
+  tooltip that repeats the button's own word adds nothing. Meanwhile:
+  kept, because removing it changes sync's `test/desk-sync-gate.test.js`,
+  and sync is off limits to this run. Other choice: drop it now. Cost: an
+  import and a test line. Recommendation: drop it in sync's next change.
+- **Q29. The account entry shows from 700px** (HD-12). It showed from
+  760px; the full header now starts at 700px, and the entry comes with it.
+  In OpenDyslexic, from 700 to 899px, it sits in the phone's row.
+  Other choice: keep it in the menu there. Cost: none now, since Phase 3's
+  second part redraws the phone. Recommendation: keep.
+- **Q30. The magnifier on a page with its own box** (HD-13; the feature
+  audit's U6). /read, /search, /articles, and an article had no
+  magnifier, since each has its own search box. Meanwhile: the magnifier
+  takes the reader to the page's box, and without JavaScript it is a link
+  to /search. Other choice: no magnifier there, as before. Cost: none.
+  Recommendation: keep it, so the header is the same on every page.
+- **Q31. When “New” goes** (NX-26). Meanwhile: a place's dot goes as soon
+  as its menu opens; a row's “New” stays while that menu is open, and an
+  entry's `until` date ends it everywhere. The phone's menu shows no marks
+  until Phase 3's second part. Other choice: clear “New” with the dot.
+  Cost: none. Recommendation: keep.
+- **Q32. /privacy names `lit-news-seen` before the first news entry**
+  (NX-25 to NX-27). Opening a menu that holds news keeps what was seen
+  under that key, on the reader's device, and /privacy lists every key
+  the site keeps; `test/news.test.js` fails if an entry goes in before
+  /privacy names it. /privacy is BVJ's page and words, so the run adds
+  nothing there, and the news list is empty, so nothing is kept yet.
+  Recommendation: BVJ words the line when the first entry goes in.
+- **Q33. The footer's layout** (HD-36). From 1100px the four groups sit
+  in a row with the newsletter beside them; below that the groups come
+  first and the newsletter under them, and a phone sets the groups two by
+  two. Release Notes is in both the Read and About groups (HD-29).
+  Other choice: the newsletter first on a phone. Cost: a line.
+  Recommendation: as built (seen at 390, 820, and 1440).
+- **Q34. A disclosure's question is at the Text size** (SZ-08; About's
+  and /license's questions). “Sizes” puts every button, tab, and menu row
+  at the Label size, 14.5px, and a disclosure's summary takes the kit's
+  plain look. A question there is a full sentence, read before its
+  answer, so it is drawn at the Text size in the controls' face, and it
+  follows the Display tray as its answer does. Other choice: the Label
+  size, which sets a long question smaller than the answer under it.
+  Cost: a line each. Recommendation: the Text size.
 
 ## Questions answered before the run
 
@@ -1020,11 +1114,14 @@ with its last commit when done; never delete a line.
   7216b1ef). What each surface's phase redraws is in the ledger's "What
   Phase 2 left to each surface's phase"
 - [ ] Phase 3: The header, the line under it, the footer, and the phone's bars
+  (the computer's header, the line, the news marks, and the footer built,
+  ec3378b6; the phone's bars and menu sheet next)
 - [ ] Phase 4: The Read page (/license built ahead, de0085a8)
 - [ ] Phase 5: Beside scripture
 - [ ] Phase 6: Search
-- [ ] Phase 7: Learn, the front door, and every other page (the colophon
-  built ahead, b8fcd43b)
+- [ ] Phase 7: Learn, the front door, and every other page (built ahead:
+  the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
+  draws but the account pages, bae1d1cb)
 - [ ] Phase 8: Off the screen (the verse image built ahead, 60952c32)
 - [ ] Checkpoint A: the public site
 - [ ] Phase 9: Study's frame

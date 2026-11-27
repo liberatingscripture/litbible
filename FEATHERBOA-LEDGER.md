@@ -196,7 +196,7 @@ run's best reading, entered in the plan's queue with what was done.
 | TY-13 | `--ch` is per face, so Source Sans 3 gets its own, and the reading measure is checked again in it | 1 | `test/featherboa-css-rules.test.js` (`--ch`, never `ch`); count characters a line per face and size | built (c1bb5383) |
 | TY-14 | Fraunces loads as its variable font (`@fontsource-variable`), in place of the static 400 and 500 | 1 | `global.css` loads the variable files only; the package's axes checked | built (c1bb5383); Q8 |
 | TY-15 | Fraunces's settings wait for the first heading drawn in it; the specimen used softness 50 with wonk on for headings, softness 100 for the numeral (the start settled by BP-13) | 1 | Computed `font-variation-settings` on a heading and on the paper's numeral | built (c1bb5383) at BP-13's start; OP-01 |
-| TY-16 | Fraunces's italic gets one large line on a front-door page, never more, and never in reading or Study (DA-01) | 7 | Italic Fraunces appears only on Home, About, and the 404 page, once each | open |
+| TY-16 | Fraunces's italic gets one large line on a front-door page, never more, and never in reading or Study (DA-01) | 7 | Italic Fraunces appears only on Home, About, and the 404 page, once each | About and the 404 built (bae1d1cb); Home with Phase 7 |
 | TY-17 | “Keep Atkinson”: controls stay Atkinson Hyperlegible Next, so two sans families stand side by side | 2 | No control computes to Source Sans 3 | built (7216b1ef, f47df065) |
 | TY-18 | The Greek moves to Source Sans 3's own in both places, replacing the C27 plan's Greek from Inter | 1, 12 | No Greek glyph draws in Inter or Crimson Text | built (c1bb5383) |
 | TY-19 | Atkinson and OpenDyslexic, which have no Greek, borrow Source Sans 3's | 1 | Greek in a footnote with Atkinson and with OpenDyslexic chosen draws in Source Sans 3 | built (c1bb5383) |
@@ -375,9 +375,9 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-06 | Two more exceptions, never over scripture: a launch's announcement window, and the app banner on phones | 5, 14 | `test/announcement-gate.test.js` kept green; the banner at 390 | open |
 | NX-07 | Status: one line at the foot of the thing it is about, changing its words, never its place (in place of the notice card atop the Notebook panel, the reminder checkbox, and a dot on a tab) | 5, 13 | The panel's foot line in each state; no notice card | open |
 | NX-08 | Teaching: the empty state, one sentence and one button, shown exactly when there is nothing else to show; Help holds the rest (tour cards over the page, with Take the tour now, Remind me later, and Don't show this again, go) | 5, 13 | A fresh profile with the preview: no tour card; the empty state shows | open |
-| NX-09 | News: where its subject lives, and a “Changed since you marked it” filter in the Notebook; nothing opens by itself, save a launch's window | 3, 10 | The header's popover never opens outside a launch | open |
+| NX-09 | News: where its subject lives, and a “Changed since you marked it” filter in the Notebook; nothing opens by itself, save a launch's window | 3, 10 | The header's popover never opens outside a launch | the header's part built (ec3378b6); the Notebook's filter with Phase 10 |
 | NX-10 | News behind a dot beside About (the proposal's) | 3 | None; see NX-26 | superseded → NX-26 |
-| NX-11 | Asks: the front page and the footer, never above scripture; the phone menu carries one “Get the app” row | 3, 7 | The newsletter in the footer; no ask above scripture at 390 and 1440 | open |
+| NX-11 | Asks: the front page and the footer, never above scripture; the phone menu carries one “Get the app” row | 3, 7 | The newsletter in the footer; no ask above scripture at 390 and 1440 | the footer's newsletter kept (ec3378b6); Home with Phase 7, the phone menu's row with Phase 3's second part |
 | NX-12 | Your place: “Continue: Romans 8” is the first row of the book picker and of Home, in place of “Continue reading” chips to dismiss | 4, 7 | Read Romans 8, then open the picker and Home | open |
 | NX-13 | The empty state for a chapter with none of the reader's notes: “No notes on John 1 yet. Select a verse number or any words, then choose Note, Highlight, or Bookmark,” with “Show me how” | 5 | The panel's Notes tab on an unmarked chapter | open |
 | NX-14 | The foot line's first state, “Kept on this computer only” with “Back up…” | 5 | None; see NB-34 | superseded → NB-34 |
@@ -388,14 +388,14 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-19 | “Start here” heads Study until the tour is taken: the first time the Notebook or the workspace opens, its first line is “Start here: Take the tour,” the view's one filled button | 13 | A fresh profile: open Study, then the Notebook | open |
 | NX-20 | It keeps its place across visits and never asks to be dismissed; taking the tour, or “I know my way around,” moves it into Help | 13 | Take the tour and reload: the line has moved into Help | open |
 | NX-21 | A reply at the first use: the first highlight, note, or bookmark adds “New here? Take the tour” to the line the action brings (“Highlighted · Undo”) | 5 | A fresh profile with the preview: highlight a verse | open |
-| NX-22 | The front door: Study's way in on Home (its panel) and the header's Study menu offer “Take the tour” to a first-time visitor | 3, 7 | A fresh profile with the preview: Home's Study panel and the Study menu | open |
-| NX-23 | The app banner stays on phones, dismissed for 90 days as today | 3 | Kept: the banner at 390 with an Android user agent; dismiss and reload | open |
+| NX-22 | The front door: Study's way in on Home (its panel) and the header's Study menu offer “Take the tour” to a first-time visitor | 3, 7 | A fresh profile with the preview: Home's Study panel and the Study menu | queued (Q26) |
+| NX-23 | The app banner stays on phones, dismissed for 90 days as today | 3 | Kept: the banner at 390 with an Android user agent; dismiss and reload | built (ec3378b6, kept) |
 | NX-24 | The stage badge is shown once, at the foot of the Study sidebar, not on every panel | 9 | The Notebook panel and Study's panes show no badge | open |
-| NX-25 | News shows where its subject lives, and a launch adds the window (“Yes, both”) | 3, 14 | Covered by the rows below | open |
-| NX-26 | Ordinary news is marked on the place it is about: a dot on the header menu that holds what changed and “New” beside the item inside it, the dot clearing once the reader opens that menu | 3 | Put an entry in the news data file; open the menu; reload | open |
-| NX-27 | A new article or episode marks Learn; a Study feature marks Study | 3 | The same, with a Learn entry and a Study entry | open |
-| NX-28 | Text changes stay where reading starts, as Release Notes already is (/read's “Latest text changes,” Home's “Latest change,” and the footer; /read's moves by FP-23) | 3, 4, 7 | Release Notes reachable from the picker, Home, and the footer | open |
-| NX-29 | Never only under About: the preview's About menu drops its “What's new” link | 3 | The About menu with the preview has no “What's new” row | open |
+| NX-25 | News shows where its subject lives, and a launch adds the window (“Yes, both”) | 3, 14 | Covered by the rows below | built (ec3378b6), by the rows below; the launch's window with Phase 14 |
+| NX-26 | Ordinary news is marked on the place it is about: a dot on the header menu that holds what changed and “New” beside the item inside it, the dot clearing once the reader opens that menu | 3 | Put an entry in the news data file; open the menu; reload | built (ec3378b6), tested; when “New” goes queued (Q31) |
+| NX-27 | A new article or episode marks Learn; a Study feature marks Study | 3 | The same, with a Learn entry and a Study entry | built (ec3378b6), tested with Learn and Study entries |
+| NX-28 | Text changes stay where reading starts, as Release Notes already is (/read's “Latest text changes,” Home's “Latest change,” and the footer; /read's moves by FP-23) | 3, 4, 7 | Release Notes reachable from the picker, Home, and the footer | the footer built (ec3378b6); the picker with Phase 4, Home with Phase 7 |
+| NX-29 | Never only under About: the preview's About menu drops its “What's new” link | 3 | The About menu with the preview has no “What's new” row | built (ec3378b6) |
 | NX-30 | A launch (the apps, Study's opening, the What's New page itself; BVJ names each) spells its mark out on its menu (“Study · New”) for a set time | 14 | The Study menu with the launch's entry set | open |
 | NX-31 | A launch adds the front page's band for its set time | 7, 14 | Home with the launch's entry set | open |
 | NX-32 | A launch adds the announcement window, kept for launches only under today's rules (one at a time, never on a session's first page or over scripture, once per reader) | 5, 14 | `test/announcement-gate.test.js` kept green | open |
@@ -482,9 +482,9 @@ run's best reading, entered in the plan's queue with what was done.
 | BS-21 | The panel's Settings tab goes, and nothing in it is lost | 5 | Each of the next eight rows reachable | open |
 | BS-22 | Settings' Show (the switches) goes to Display, merged into “Your marks,” still on the H key | 4, 5 | Covered by DI-11 | open |
 | BS-23 | Where the notebook is kept goes to the panel's foot line, “Kept in this browser only. Back up…” | 5 | The panel's foot line | open |
-| BS-24 | My sheets and My collections go to the header's Study menu and the footer's Study group, as today | 3 | The Study menu and the footer with the preview | open |
+| BS-24 | My sheets and My collections go to the header's Study menu and the footer's Study group, as today | 3 | The Study menu and the footer with the preview | built (ec3378b6) |
 | BS-25 | Print… (with notes, or with room to write) goes to the panel's title menu | 5 | Open “Notebook ▾” | open |
-| BS-26 | The notebook page goes to the title menu and the header's Study menu | 3, 5 | Both menus | open |
+| BS-26 | The notebook page goes to the title menu and the header's Study menu | 3, 5 | Both menus | Study ▾ built (ec3378b6); the title menu with Phase 5 |
 | BS-27 | Notebook actions go to the title menu, and stay in the search tray and /search | 5, 6 | All three places | open |
 | BS-28 | Take the tour goes to the title menu, beside “Start here” | 5 | The title menu | open |
 | BS-29 | Help and Feedback go to the title menu | 5 | The title menu | open |
@@ -525,7 +525,7 @@ run's best reading, entered in the plan's queue with what was done.
 | FP-28 | “Search” (magnifier and word) joins the place line, ordered Search · ‹ › · Notebook, with Study's way in | 4 | The line at 1440 in that order | open |
 | FP-29 | The place line's way in to Study named “Open in Study Desk” | 4 | None; see ST-15 | superseded → ST-15 |
 | FP-30 | Pressing Search, or /, opens the field in place of the line, reading “Search the LIT, or go to a passage,” with results dropping below, verses first | 4, 6 | Press / on John 3 at 1440 | open |
-| FP-31 | One way in per page holds (audit U6): a reading page's is the place line's Search, and every other page keeps the header's magnifier | 3, 4 | John 3 has no magnifier in the header; /about has one | open |
+| FP-31 | One way in per page holds (audit U6): a reading page's is the place line's Search, and every other page keeps the header's magnifier | 3, 4 | John 3 has no magnifier in the header; /about has one | the magnifier built (ec3378b6); the place line's Search with Phase 4 |
 | FP-32 | What search finds and how its results look is “Search”'s: the same rows as /search | 6 | Covered by SE-31 | open |
 
 ## Display (DI)
@@ -741,20 +741,20 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| HD-01 | Read, Study, Learn, and About, the current one underlined in green (the mark's green) | 3 | The header at 1440 on a page in each place | open |
-| HD-02 | The black “Read” button goes: Read is a place like the others | 3 | No filled button in the header | open |
-| HD-03 | Read opens the passage picker, as “Finding a passage” decided | 3, 4 | Covered by FP-15 | open |
+| HD-01 | Read, Study, Learn, and About, the current one underlined in green (the mark's green) | 3 | The header at 1440 on a page in each place | built (ec3378b6); widths measured in three fonts: 700px, 900 in OpenDyslexic, 1100 with Study |
+| HD-02 | The black “Read” button goes: Read is a place like the others | 3 | No filled button in the header | built (ec3378b6) |
+| HD-03 | Read opens the passage picker, as “Finding a passage” decided | 3, 4 | Covered by FP-15 | Phase 4; meanwhile Read links to /read (Q24) |
 | HD-04 | The proposal's “Read View becomes a whole-book switch” falls away, since every chapter reads on into the next | 4 | No such switch built | open |
-| HD-05 | Learn, Study, and About open menus, and keep their ▾ | 3 | `test/header-menus.test.js` rewritten; each menu at 1440 | open |
-| HD-06 | No address changes, so no page gathers Learn's or About's pages for the word to lead to | 3 | No /learn page; `npm run check:links` passes | open |
-| HD-07 | Study's rows are the Study sidebar's places: Scripture, Notebook, Sheets, and Collections | 3, 9 | Study ▾ at 1440 with `?desk=on` | open |
-| HD-08 | So the decisions that assumed a Study menu hold: “New” beside a Study feature, “Take the tour” for a first-time visitor, and sheets within reach from any page | 3 | Covered by NX-27 and NX-22 | open |
-| HD-09 | “Help for study tools” leaves the menu for the foot of Study's sidebar | 3, 9 | Study ▾ has no Help row; covered by SD-45 | open |
-| HD-10 | The name in the header is always “LIT Bible,” reversing E138 (the full name where it fits); the script that chooses between the two retires | 3 | `test/header-title.test.js` retires with the script; the header at 1440 and 1024 | open |
-| HD-11 | The full name stays in every page's tab title | 3 | Kept: each page's `<title>` | open |
-| HD-12 | The right end always holds Aa and the account (“Sign in” until a reader signs in) | 3 | The header at 1440, signed out and in | open |
-| HD-13 | The magnifier is there on every page but the Read page, whose Search is on its place line (one way in per page) | 3 | /about and John 3 at 1440 | open |
-| HD-14 | Every page but Home has one line under the header that names the page, its one or two main commands at the right (“Learn / Glossary ▾ / trust,” “About / Contact”) | 3 | Each page at 1440; none on Home | open |
+| HD-05 | Learn, Study, and About open menus, and keep their ▾ | 3 | `test/header-menus.test.js` rewritten; each menu at 1440 | built (ec3378b6) |
+| HD-06 | No address changes, so no page gathers Learn's or About's pages for the word to lead to | 3 | No /learn page; `npm run check:links` passes | built (ec3378b6) |
+| HD-07 | Study's rows are the Study sidebar's places: Scripture, Notebook, Sheets, and Collections | 3, 9 | Study ▾ at 1440 with `?desk=on` | built (ec3378b6) |
+| HD-08 | So the decisions that assumed a Study menu hold: “New” beside a Study feature, “Take the tour” for a first-time visitor, and sheets within reach from any page | 3 | Covered by NX-27 and NX-22 | NX-27 built (ec3378b6); NX-22 queued (Q26) |
+| HD-09 | “Help for study tools” leaves the menu for the foot of Study's sidebar | 3, 9 | Study ▾ has no Help row; covered by SD-45 | queued (Q25): the row stays until Phase 9 |
+| HD-10 | The name in the header is always “LIT Bible,” reversing E138 (the full name where it fits); the script that chooses between the two retires | 3 | `test/header-title.test.js` retires with the script; the header at 1440 and 1024 | built (ec3378b6) |
+| HD-11 | The full name stays in every page's tab title | 3 | Kept: each page's `<title>` | built (ec3378b6, kept) |
+| HD-12 | The right end always holds Aa and the account (“Sign in” until a reader signs in) | 3 | The header at 1440, signed out and in | built (ec3378b6); the entry from 700px (Q29) |
+| HD-13 | The magnifier is there on every page but the Read page, whose Search is on its place line (one way in per page) | 3 | /about and John 3 at 1440 | built (ec3378b6); on a page with its own box it goes to that box (Q30) |
+| HD-14 | Every page but Home has one line under the header that names the page, its one or two main commands at the right (“Learn / Glossary ▾ / trust,” “About / Contact”) | 3 | Each page at 1440; none on Home | built (ec3378b6); each page's commands with its phase |
 | HD-15 | The Read page's place line is this line | 4 | Covered by RP-29 | open |
 | HD-16 | A part with ▾ is a menu of what sits beside the page: “Glossary ▾” lists the entries | 3, 7 | Covered by GL-05 | open |
 | HD-17 | On Study, the title row is the line: “Fold sidebar” at its left, then “Study / Sheets ▾ / Advent 2 handout,” then the pane count and Full screen at its right | 9 | Study at 1440 with a sheet open | open |
@@ -762,21 +762,21 @@ run's best reading, entered in the plan's queue with what was done.
 | HD-19 | Scripture, Notebook, and Trash list nothing, so their line reads plainly (“Study / Notebook”) | 9 | Each place's line at 1440 | open |
 | HD-20 | Study's line adds no height, since the row is there already | 9 | The title row's height against `main`'s | open |
 | HD-21 | A sheet's own row (its name, “saved,” Print…, Share…, and Present) stays with its pane; alone, the sheet's name shows in both | 11 | A sheet alone and beside another at 1440 | open |
-| HD-22 | A page in no menu marks no place: Privacy, the Terms of Use, the account pages, and the 404 page | 3 | Each at 1440: nothing underlined | open |
-| HD-23 | A menu's names match the pages they open; Study's: Notebook, Sheets, and Collections, without “My” | 3 | `test/featherboa-labels.test.js`; each menu's rows | open |
+| HD-22 | A page in no menu marks no place: Privacy, the Terms of Use, the account pages, and the 404 page | 3 | Each at 1440: nothing underlined | built (ec3378b6); the pages the record doesn't place queued (Q27) |
+| HD-23 | A menu's names match the pages they open; Study's: Notebook, Sheets, and Collections, without “My” | 3 | `test/featherboa-labels.test.js`; each menu's rows | built (ec3378b6) |
 | HD-24 | About's rows: The LIT, Commitments, The Collective, Apps, Release Notes, Support, and Contact | 3 | None; overridden by BP-04 | superseded → BP-04 |
-| HD-25 | /about stays as it is, at its address, and its row is “The LIT” (not “About the LIT” or the proposal's “The translation”) | 3 | Kept: /about's words unchanged; About ▾'s first row | open |
-| HD-26 | A page's own heading stays as written (“So… who am I?”, “Contact me”); the line under the header carries the matching name | 3, 7 | /about and /contact at 1440 | open |
-| HD-27 | Courses joins Learn when a course opens; until then /courses is in no menu | 3 | No menu links /courses | open |
-| HD-28 | Release Notes is every text change, and the What's New page everything else (site and app updates, feature releases, launches) | 7 | /release-notes and /whats-new's entries | open |
-| HD-29 | Release Notes sits at the foot of Read's picker as well as under About | 3, 4 | The picker's foot and About ▾ | open |
-| HD-30 | The What's New page has no row of its own | 3 | No menu has a What's New row | open |
-| HD-31 | A menu carrying a “New” mark ends with “See what's new →” | 3 | Mark a menu with a news entry, at 1440 | open |
-| HD-32 | An app update marks About's Apps row | 3, 7 | An app-update entry marks Apps | open |
-| HD-33 | The footer links the What's New page | 3 | The footer at 1440 | open |
+| HD-25 | /about stays as it is, at its address, and its row is “The LIT” (not “About the LIT” or the proposal's “The translation”) | 3 | Kept: /about's words unchanged; About ▾'s first row | built (ec3378b6, kept) |
+| HD-26 | A page's own heading stays as written (“So… who am I?”, “Contact me”); the line under the header carries the matching name | 3, 7 | /about and /contact at 1440 | built (ec3378b6) |
+| HD-27 | Courses joins Learn when a course opens; until then /courses is in no menu | 3 | No menu links /courses | built (ec3378b6) |
+| HD-28 | Release Notes is every text change, and the What's New page everything else (site and app updates, feature releases, launches) | 7 | /release-notes and /whats-new's entries | built (1253bf85) |
+| HD-29 | Release Notes sits at the foot of Read's picker as well as under About | 3, 4 | The picker's foot and About ▾ | About ▾ and the footer built (ec3378b6); the picker's foot with Phase 4 |
+| HD-30 | The What's New page has no row of its own | 3 | No menu has a What's New row | built (ec3378b6) |
+| HD-31 | A menu carrying a “New” mark ends with “See what's new →” | 3 | Mark a menu with a news entry, at 1440 | built (ec3378b6), tested with entries; the list is empty |
+| HD-32 | An app update marks About's Apps row | 3, 7 | An app-update entry marks Apps | built (ec3378b6), tested with an Apps entry |
+| HD-33 | The footer links the What's New page | 3 | The footer at 1440 | built (1253bf85) |
 | HD-34 | The launch window introduces the What's New page when it opens | 14 | Covered by NX-33 | open |
 | HD-35 | On a phone the menu sheet lists Read, Learn, and About, each with its rows, the current place marked, then “Get the app”; Study stays off it | 3 | Covered by PH-12 and PH-13 | open |
-| HD-36 | The footer takes the same four groups and names, plus Privacy, the Terms of Use, and the newsletter | 3 | The footer at 1440 and 390 | open |
+| HD-36 | The footer takes the same four groups and names, plus Privacy, the Terms of Use, and the newsletter | 3 | The footer at 1440 and 390 | built (ec3378b6); seen at 1440, 820, and 390 (Q33) |
 
 ## The front page (FR)
 
@@ -987,7 +987,7 @@ run's best reading, entered in the plan's queue with what was done.
 | ST-13 | The help page moves with it (BP-20) | 9 | `test/desk-help-page.test.js` rewritten for /study/help | open |
 | ST-14 | /notebook, /sheets (with a sheet's `?id=`, present mode, and shared links), and /collections open their places on the Study page | 9 | Open each with the preview | open |
 | ST-15 | The link that opens a passage in Study is the verb and the passage, “Study Romans 8,” as the Read page's is “Read Romans 8” (not “Open study”); it only ever opens a passage | 4, 6, 9 | The place line and Search's second row, with the preview | open |
-| ST-16 | Where no passage is named, the header's “Study” is the way in | 3 | Covered by HD-01 | open |
+| ST-16 | Where no passage is named, the header's “Study” is the way in | 3 | Covered by HD-01 | built (ec3378b6) |
 | ST-17 | The sidebar, top to bottom: Scripture, Notebook, Sheets (the three most recent, and All sheets), Collections (the same), and Trash, with the foot “The Study Desk” drew | 9 | The sidebar at 1440 | open |
 | ST-18 | Each sidebar row opens its place in the page's panes | 9 | Press each row | open |
 | ST-19 | The sidebar marks the open place with a tint and a green bar; folded, it marks the group's icon | 9 | Open a sheet, with the sidebar open and folded | open |
@@ -1125,7 +1125,7 @@ run's best reading, entered in the plan's queue with what was done.
 | AC-20 | It gains step SK4's “End-to-end encryption,” on and off, holding “Follows my account” and “This device only” | 13 | Drawn once SK4 is on `main` | open |
 | AC-21 | The proposal's three screens are its first steps, drawn in Featherboa's look | 13 | /account's setup at 1440 | open |
 | AC-22 | All settings links to the account page | 4 | Covered by DI-21 | open |
-| AC-23 | The header's “Sign in” stays | 3 | Kept: covered by HD-12 | open |
+| AC-23 | The header's “Sign in” stays | 3 | Kept: covered by HD-12 | built (ec3378b6, kept) |
 | AC-24 | The words wait for step SK5, which rewrites /privacy, /terms/, the help page, the first-time card, the tour, and the Settings tab; the drafts here are Claude's, to be checked there | 13 | Each draft listed for SK5 | open |
 | AC-25 | The joined device's notice carries more weight under the default, so its bar stays | 13 | Covered by AC-18 | open |
 | AC-26 | Nothing here changes the sync, the encryption, or the record format; the spare key's changes are steps SK1 to SK5 | 13 | No change to `src/lib/desk-sync*.mjs` or `STUDY-DESK-FORMAT.md` | open |
@@ -1148,10 +1148,10 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| DA-01 | Taken, viii: one line of Fraunces's italic, large, on Home, About, and the 404 page, never two on a page and never in reading or Study | 7 | Covered by TY-16 | open |
-| DA-02 | It stays one large line, never a sentence of reading text | 7 | Each line at 1440 and 390 | open |
+| DA-01 | Taken, viii: one line of Fraunces's italic, large, on Home, About, and the 404 page, never two on a page and never in reading or Study | 7 | Covered by TY-16 | About and the 404 built (bae1d1cb); Home with Phase 7 |
+| DA-02 | It stays one large line, never a sentence of reading text | 7 | Each line at 1440 and 390 | About and the 404 built (bae1d1cb); Home with Phase 7 |
 | DA-03 | Each line BVJ's to choose (on Home the letter's first, “No, I don't want my kids near most Bibles, either.”, or “A Bible that's FOR everyone”) | 7 | None; settled by BP-14 | superseded → BP-14 |
-| DA-04 | Taken, ix: a colophon at /colophon, “How this site is made,” linked from the footer | 7 | The footer's link; the page builds | the page built (b8fcd43b); the footer's link with Phase 3's footer |
+| DA-04 | Taken, ix: a colophon at /colophon, “How this site is made,” linked from the footer | 7 | The footer's link; the page builds | built (b8fcd43b, 1253bf85) |
 | DA-05 | In plain words it gives the faces and why, what each color means, and the site's promises about contrast, motion, and reading without JavaScript, so it is also the accessibility statement | 7 | The page at 1440 | open |
 | DA-06 | The dare's sentence that people direct the site and an AI writes much of its code is BVJ's to word or leave out | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
 | DA-07 | If it is in, the page says as plainly who translates the text | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
@@ -1161,7 +1161,7 @@ run's best reading, entered in the plan's queue with what was done.
 | DA-11 | Declined where it is left, iv: “Notebook” doesn't become “Notes” | 9, 10 | Covered by NB-18 | open |
 | DA-12 | Declined, v: one highlighter (“Color” kept the four highlighter colors and the six note markers) | 1 | Covered by CO-13 | built (c1bb5383, kept) |
 | DA-13 | Declined, vi: pages, not a scroll | 4 | Covered by WB-01 | open |
-| DA-14 | Declined, vii: retire the header while you read | 3 | The header stays on John 3 at 1440 | open |
+| DA-14 | Declined, vii: retire the header while you read | 3 | The header stays on John 3 at 1440 | built (ec3378b6, kept) |
 
 ## Decided with the build plan (BP)
 
@@ -1170,24 +1170,24 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-01 | Featherboa and Study launch together, in one merge that is also Study's public beta, so no computer ever has the new site without Study (settles SD-66) | 14 | Phase 14's launch list | open |
 | BP-02 | Site 2.0's code is removed, and `SITE-2.0.md` stays as the record (settles WS-03) | 0 | No `data-restyle`, `restyle.css`, or `v2/` left; `SITE-2.0.md` kept | built (63d07ac0) |
 | BP-03 | Search's tab for the reader's notes is “Notebook,” not “My Notebook,” by “Controls”' rule of no “My” (overrides SE-05) | 6 | /search with the preview | open |
-| BP-04 | About's rows include License: The LIT, Commitments, License, The Collective, Apps, Release Notes, Support, Contact (overrides HD-24; FP-18 put it under About) | 3 | About ▾ at 1440; `test/featherboa-labels.test.js` | open |
-| BP-05 | The What's New page is built with the rest, its entries written by hand, with no feed, at `/whats-new` | 7 | /whats-new builds, with no feed | open |
-| BP-06 | Its entries: the apps, dated to their release; the new site (“Featherboa” isn't a public name); and the Study page and its features as a mock-up near the end (words in OP-07) | 7, 13 | The three entries on /whats-new | open |
-| BP-07 | The pages no section draws (About, Commitments, the Collective, Contact, App support, Support, Courses, Podcast, Privacy, Terms, Unsubscribe, the 404 page, Release Notes, the delete-account page, and the account pages) take the foundations, the header and its line, and the footer, with their words and order as today | 7 | Each page at 1440 and 390; words diffed against `main` | open |
+| BP-04 | About's rows include License: The LIT, Commitments, License, The Collective, Apps, Release Notes, Support, Contact (overrides HD-24; FP-18 put it under About) | 3 | About ▾ at 1440; `test/featherboa-labels.test.js` | built (ec3378b6) |
+| BP-05 | The What's New page is built with the rest, its entries written by hand, with no feed, at `/whats-new` | 7 | /whats-new builds, with no feed | built (1253bf85) |
+| BP-06 | Its entries: the apps, dated to their release; the new site (“Featherboa” isn't a public name); and the Study page and its features as a mock-up near the end (words in OP-07) | 7, 13 | The three entries on /whats-new | two of three drafted (1253bf85); Study's with Phase 13; the words queued (Q3) |
+| BP-07 | The pages no section draws (About, Commitments, the Collective, Contact, App support, Support, Courses, Podcast, Privacy, Terms, Unsubscribe, the 404 page, Release Notes, the delete-account page, and the account pages) take the foundations, the header and its line, and the footer, with their words and order as today | 7 | Each page at 1440 and 390; words diffed against `main` | built (bae1d1cb) but the account pages, whose sweep follows; words unchanged |
 | BP-08 | /read is the picker at full size under its lede | 4 | /read at 1440 | open |
 | BP-09 | /license is the owner's words in the reading column | 4 | /license at 1440 | built (de0085a8; its terms at the reading size in 94a0069e): seen at 1440 on dist |
 | BP-10 | BVJ reviews those pages built, and any redrawn becomes its own decision | 7 | At Checkpoint A | open |
 | BP-11 | /apps keeps its own look and faces inside the new header and footer, since its stylesheet is the LSC site's too | 7 | /apps at 1440: only the header and footer change | open |
 | BP-12 | The icons are Lucide's (ISC license) at a 1.5-pixel stroke, credited in the colophon (the set for CT-17) | 2, 7 | `test/featherboa-icons.test.js`; the colophon's credit | the icons built (7216b1ef); credited in the colophon (b8fcd43b) |
 | BP-13 | Fraunces starts at the specimen's settings: softness 50 and wonk on for headings, softness 100 for the paper's numeral, for BVJ to adjust on the preview (settles TY-15's start) | 1, 8 | Computed `font-variation-settings` on a heading and the numeral | built (c1bb5383) |
-| BP-14 | The italic lines are each page's own words: on Home the letter's first line, set as its opening; on About “So… who am I?”; on the 404 page “Page not found.” (settles DA-03) | 7 | Each page at 1440 | open |
+| BP-14 | The italic lines are each page's own words: on Home the letter's first line, set as its opening; on About “So… who am I?”; on the 404 page “Page not found.” (settles DA-03) | 7 | Each page at 1440 | About and the 404 built (bae1d1cb); Home with Phase 7 |
 | BP-15 | Study on a phone or tablet says “Study is made for a computer. On a phone or tablet, the free LIT Bible app keeps your notes, highlights, and bookmarks.” (approved; settles SM-05) | 13 | /study at 390 | open |
 | BP-16 | The front page on a phone keeps the computer's order: the buttons right under the claim and the name, John 1 after them | 7 | Home at 390 | open |
 | BP-17 | New address: `/license` (for FP-18) | 4 | The page builds; `npm run check:links` passes | built (de0085a8): the page builds, and `check:links` passes (362 pages) |
 | BP-18 | New address: `/colophon` (for DA-04) | 7 | The page builds; `npm run check:links` passes | built (b8fcd43b): the page builds, and `check:links` passes (362 pages) |
 | BP-19 | New address: `/settings` for All settings (DI-19) | 4 | The page builds; `npm run check:links` passes | open |
 | BP-20 | New address: `/study/help` for the help page (ST-13) | 9 | The page builds; `npm run check:links` passes | open |
-| BP-21 | New address: `/whats-new` (BP-05) | 7 | The page builds; `npm run check:links` passes | open |
+| BP-21 | New address: `/whats-new` (BP-05) | 7 | The page builds; `npm run check:links` passes | built (1253bf85) |
 
 ## Open (OP)
 
