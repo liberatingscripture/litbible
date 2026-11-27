@@ -764,6 +764,75 @@ Entered by the run:
   link's last word, kept off pictures, icons, and /apps' body as D7 was.
   Cost: one rule and one icon; the period-after-a-link case 2.0 handled
   (BVJ, 2026-11-17) comes back with it.
+- **Q7. Old-style figures** (SZ-24, OP-04). "Sizes" asks for old-style
+  figures in running text and lining figures in counts and dates, but the
+  Source Sans 3 files Fontsource serves have none (no `onum` feature);
+  Adobe's own release has them. Meanwhile: lining figures everywhere. Other
+  choices: cut a Source Sans 3 file that keeps them, with a script run by
+  hand into `public/fonts/` (as the bracket and text-critical fonts are),
+  and set `oldstyle-nums` on reading text; or drop old-style figures. Cost:
+  the script needs fonttools (Python), which isn't installed here and is
+  BVJ's go-ahead to install; one session. Recommendation: cut it with
+  Q8's file, since both need the same tool.
+- **Q8. Fraunces's file size** (TY-04, TY-14, OP-01). Only Fontsource's
+  "full" files carry softness and wonk; the Latin one is 121 KB, with all
+  four axes at every weight, and it is preloaded. The plan says to serve
+  only the axes and weights used. Meanwhile: the full file. Other choice:
+  once BVJ settles Fraunces's settings on the preview (OP-01), cut a file
+  with fonttools' instancer: weights 300 to 800, softness held to the range
+  used, wonk fixed on, into `public/fonts/` by a script run by hand. Cost:
+  fonttools (BVJ's go-ahead), one script, and a new cut if the settings
+  change later. Recommendation: cut it after OP-01, together with Q7.
+- **Q9. Source Sans 3's Latin Extended** (TY-05). The plan names Latin and
+  polytonic Greek; 29 chapters' footnotes have transliterations with ē, ō,
+  and their kin, which drew those letters from a system face in the middle
+  of a word (as Inter did). Meanwhile: served (`faces.css`), with ranges
+  that leave out the Latin file's, so a page fetches it (60 KB) only for
+  such a letter. Other choice: drop its two rules. Cost: none either way.
+  Recommendation: keep it.
+- **Q10. Values the record gives only as ratios or ranges** (CO and NI
+  rows, SZ-01, SZ-02). The run chose them and the tests hold them: the
+  night press green `#4DD383` (9.7:1 on the night page; the table says 9.6
+  for links and 9.7 for the filled button's label, which is one pair), the
+  night red `#EA8A85` (7.5:1), the night sunshine `#E2AD00`, the night float
+  `#181C18`, the hairline at 14% of the text by day and 16% by night, the
+  tints at 4% and 7.5%, the night grays at 74% and 57.8% (9.0 and 5.9:1),
+  the four night highlighter washes (words on each 8:1 or more), the
+  float's shadow, and the headline (56 to 104px) and title (48 to 62px)
+  growing with the window from about 380 to 1450 wide. The day highlight
+  is 13.4:1, where the table says 13.3: "Color" keeps today's four
+  highlighter colors, and today's yellow gives 13.4. Meanwhile: built as
+  listed (`tokens.css`). Recommendation: accept; any of them changes in
+  `tokens.css` alone.
+- **Q11. The reading sizes** (SZ-05 to SZ-07, SZ-11, TY-12; question 11).
+  Refit so Source Sans 3's small letters stand as tall as the proposal drew
+  them in Literata, each keeping the proposal's line in pixels: Scripture
+  1.33rem (21.3px) on 1.52, Text 1.13rem (18.1px) on 1.5, Margin 1rem on
+  1.4. John 1 on the preview is the specimen, ready for BVJ's look and the
+  five-reader test. Meanwhile: built. Recommendation: accept, and adjust by
+  eye if a size reads large.
+- **Q12. The motion pass's calls** (MO rows). Each moving thing took the
+  nearest of the four speeds. Large: the launch and welcome dialogs, the
+  menu's overlay and side tray, Read View's phone tools sheet, and present
+  mode's blanking and strip. Settled: the home chat's bubbles and Read
+  View's floating button. Quick: menus, popovers, tooltips (the search
+  tooltip's delay too), the footnote pill, the grips, the desk tour, and
+  What's New. Motion on hover, press, color, and chevrons became Instant:
+  the glossary's and Home's drawn underlines now appear whole, focus mode's
+  dimming switches at once, and the menu's links no longer arrive one after
+  another. E147's flash on the notes runs once at Large (260 ms; it was
+  1.6 s). Meanwhile: built. Other choices: per item. Cost: one token each.
+  Recommendation: accept, but look at the notes' flash, which may now be
+  too short to notice.
+- **Q13. A doc under a hard stop** (`src/data/chapters/CLAUDE.md`,
+  "Bracketed passages"). It says the ⟦ ⟧ patch is registered in
+  `global.css` under Inter; Phase 1 moved it to `faces.css` under Source
+  Sans 3. The hard stop covers all of `src/data/` but
+  `release-notes-skip.md`, so the run left it, and `faces.css` and
+  `src/styles/CLAUDE.md` say where the patch is. Other choice: let the run
+  edit the `CLAUDE.md` files under `src/data/`, which nothing that builds
+  the apps' content reads (the manifest takes `chapters/*.json` only).
+  Cost: none to the apps. Recommendation: allow it, for docs only.
 
 ## Questions answered before the run
 

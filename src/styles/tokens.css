@@ -1,0 +1,254 @@
+/* =========================================================
+   Featherboa's tokens (SITE-FEATHERBOA.md: "Type," "Color," "Surfaces,"
+   "Sizes, space, and the measure," "Motion," and "Night").
+
+   Every color, size, step of space, corner, shadow, and speed the site
+   draws with is named here once. Layout.astro imports this file before
+   global.css. A stylesheet points at a token; it never restates a value.
+   test/featherboa-tokens.test.js reads this file: it holds the values to
+   the record and works out the record's contrast table from them, by day
+   and by night, with the WCAG formula.
+
+   The older names in global.css (--text, --page-bg, --green-text,
+   --ink-rgb and the rest) now point here; new code uses these.
+   ========================================================= */
+
+:root {
+  /* ---------- The record's colors, by name ("Color") ----------
+     The values themselves, the same by day and by night. Each role below
+     says which one it takes. */
+  --brand-paper: #FAFAF8;
+  --brand-ink: #1D231C;
+  --brand-lit-green: #209D50;
+  --brand-deep-green: #0F6B33;
+  --brand-sunshine: #FFD23F;
+  --brand-red: #B3261E;
+
+  /* ---------- Colors by role, by day ----------
+     Each has one job. Night's values are in the two blocks below. */
+
+  /* The page: one field, everywhere ("Surfaces"). */
+  --color-page: var(--brand-paper);
+  --color-page-rgb: 250, 250, 248;
+
+  /* All text. The grays are the text color at two strengths, never a gray
+     of their own: the second ink (captions, secondary labels) and the
+     third (counts, dates). By day they are 78% and 66% of ink; night sets
+     the strengths that give the record's contrast there. */
+  --color-text: var(--brand-ink);
+  --color-text-rgb: 29, 35, 28;
+  --text-2-alpha: 0.78;
+  --text-3-alpha: 0.66;
+  --color-text-2: rgba(var(--color-text-rgb), var(--text-2-alpha));
+  --color-text-3: rgba(var(--color-text-rgb), var(--text-3-alpha));
+
+  /* The mark: the emblem, the chapter numeral, "you are here," one band on
+     the front page. Never behind small text, never words (3:1 by day). */
+  --color-mark: var(--brand-lit-green);
+
+  /* What can be pressed: links, verse numbers, footnote letters, and the
+     one filled button on a view; and the label on that button. */
+  --color-press: var(--brand-deep-green);
+  --color-on-press: #FFFFFF;
+
+  /* The reader's own. */
+  --color-own: var(--brand-sunshine);
+
+  /* Deleting and errors, and bookmarks. */
+  --color-danger: var(--brand-red);
+
+  /* Setting things apart: space first, a hairline second, a tint third.
+     The darkest tint is a selected row's; the record's table holds the
+     third ink on it to 4.8 by day and 5.4 by night. */
+  --color-hairline: rgba(var(--color-text-rgb), 0.14);
+  --color-tint: rgba(var(--color-text-rgb), 0.04);
+  --color-tint-strong: rgba(var(--color-text-rgb), 0.075);
+
+  /* What floats over the page and will go away (menus, popovers, dialogs):
+     the one shadow by day; by night a lighter surface and a hairline edge
+     in its place ("Night"). */
+  --color-float: var(--brand-paper);
+  --color-float-edge: var(--color-hairline);
+  --shadow-float: 0 1px 2px rgba(29, 35, 28, 0.08), 0 8px 28px rgba(29, 35, 28, 0.12);
+
+  /* The four highlighter colors, unchanged by day ("Color"). */
+  --hl-yellow: rgba(255, 210, 0, 0.36);
+  --hl-green: rgba(160, 210, 40, 0.36);
+  --hl-blue: rgba(70, 150, 255, 0.26);
+  --hl-pink: rgba(255, 95, 165, 0.24);
+
+  /* Keyboard focus: the same 2px ring everywhere, 2px off the control. */
+  --focus-ring: var(--color-press);
+  --focus-width: 2px;
+  --focus-offset: 2px;
+
+  /* ---------- Faces ("Type") ----------
+     Fraunces for headings, titles, heroes, and the chapter numeral; Source
+     Sans 3 for everything read at length, its Greek included; Atkinson
+     Hyperlegible Next for controls. Each stack ends in a fallback face
+     fitted to it (faces.css), so a swap moves nothing. The Display tray's
+     two faces still replace all three (global.css, "Reader-selectable font
+     modes"). */
+  --font-display: "Fraunces Variable", "Fraunces Variable Fallback", Georgia, "Times New Roman", serif;
+  --font-text: "Source Sans 3 Variable", "Source Sans 3 Fallback", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-control: "Atkinson Hyperlegible Next Variable", "Atkinson Hyperlegible Next Fallback",
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Fraunces's softness and wonk: the specimen's settings, for BVJ to
+     adjust on the preview (SITE-FEATHERBOA-BUILD.md, question 12). */
+  --fraunces-heading: "SOFT" 50, "WONK" 1;
+  --fraunces-numeral: "SOFT" 100, "WONK" 1;
+
+  /* ---------- Ten sizes, each with a job ----------
+     Headline, Title, Heading, and Subhead are Fraunces; Scripture, Text,
+     and Margin are Source Sans 3; the labels and the verse number are
+     Atkinson Hyperlegible Next. The three reading sizes are the
+     proposal's, refit for Source Sans 3: each is set so its small letters
+     stand as tall as the proposal drew them in Literata (x-heights of
+     0.484 and 0.516 of the em, measured), and each keeps the proposal's
+     line in pixels (20/1.62, 17/1.6, 15/1.5). Nothing is smaller than the
+     small label. */
+  --size-headline: clamp(3.5rem, 2.4rem + 4.5vw, 6.5rem);
+  --leading-headline: 0.95;
+  --size-title: clamp(3rem, 2.69rem + 1.31vw, 3.875rem);
+  --leading-title: 1;
+  --size-heading: 1.75rem;
+  --leading-heading: 1.15;
+  --size-subhead: 1.3125rem;
+  --leading-subhead: 1.2;
+  --size-scripture: 1.33rem;
+  --leading-scripture: 1.52;
+  --size-text: 1.13rem;
+  --leading-text: 1.5;
+  --size-margin: 1rem;
+  --leading-margin: 1.4;
+  --size-label: 0.90625rem;
+  --leading-label: 1.4;
+  --size-small-label: 0.78125rem;
+  --leading-small-label: 1.4;
+  --size-verse-number: 0.56em;
+
+  /* ---------- One spacing scale ----------
+     Every gap, padding, and margin is one of nine steps. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* ---------- Columns and targets ----------
+     A computer's reading page: a quiet side, the text, the margin. The
+     text column is where every page starts; the measure below keeps it
+     between 45 and 75 characters a line in every face and size. Study's
+     sidebar never moves. Anything pressed is 36px tall with a mouse, 44 on
+     touch, and 32 only inside Study's sidebar. */
+  --col-side: 220px;
+  --col-text: 660px;
+  --col-margin: 320px;
+  --col-sidebar: 236px;
+  --target: 36px;
+  --target-touch: 44px;
+  --target-sidebar: 32px;
+
+  /* ---------- Shapes ----------
+     Six-pixel corners on what is pressed, ten on what floats. Only
+     switches, color dots, and the emblem are round. */
+  --radius-press: 6px;
+  --radius-float: 10px;
+  --radius-round: 999px;
+
+  /* ---------- Motion: four speeds, one curve ----------
+     Instant for what is done all day (pointing, pressing, selecting,
+     switching tabs, turning a setting on); Quick for menus, popovers, and
+     tooltips; Settled for a margin note, the Notebook panel, and the phone
+     bar; Large for bottom sheets, dialogs, and present mode. Everything
+     arrives fast and settles gently, and leaving takes two thirds as long.
+     Nothing bounces and nothing loops; a reader whose device asks for less
+     motion gets none (global.css). */
+  --dur-instant: 0ms;
+  --dur-quick: 120ms;
+  --dur-settled: 180ms;
+  --dur-large: 260ms;
+  --dur-quick-out: 80ms;
+  --dur-settled-out: 120ms;
+  --dur-large-out: 173ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---------- The measure, per face ----------
+     --ch stands in for the `ch` unit: the face's "0" in em, stamped before
+     first paint through html[data-font] (below), so no font swap can move
+     a column (src/styles/CLAUDE.md, "--ch"). --char is the face's average
+     character, spaces included, measured over John 1: the unit of the 45
+     to 75 characters a reading line holds. Source Sans 3 is the default;
+     the Display tray's two faces carry their own. */
+  --ch: 0.497em;
+  --char: 0.4164em;
+}
+
+/* ---------- Night ("Night") ----------
+   The same page with the lamp off: a black with a little green in it, a
+   soft white, green lifted, sunshine dimmed. Every value is written for
+   the device's setting and for the reader's own switch. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-page: #111411;
+    --color-page-rgb: 17, 20, 17;
+    --color-text: #ECEEE8;
+    --color-text-rgb: 236, 238, 232;
+    --text-2-alpha: 0.74;
+    --text-3-alpha: 0.578;
+    --color-mark: #2DB463;
+    --color-press: #4DD383;
+    --color-on-press: #111411;
+    --color-own: #E2AD00;
+    --color-danger: #EA8A85;
+    --color-hairline: rgba(var(--color-text-rgb), 0.16);
+    --color-float: #181C18;
+    --shadow-float: none;
+    --hl-yellow: rgba(255, 176, 32, 0.295);
+    --hl-green: rgba(160, 210, 40, 0.29);
+    --hl-blue: rgba(90, 160, 255, 0.365);
+    --hl-pink: rgba(255, 95, 165, 0.39);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-page: #111411;
+  --color-page-rgb: 17, 20, 17;
+  --color-text: #ECEEE8;
+  --color-text-rgb: 236, 238, 232;
+  --text-2-alpha: 0.74;
+  --text-3-alpha: 0.578;
+  --color-mark: #2DB463;
+  --color-press: #4DD383;
+  --color-on-press: #111411;
+  --color-own: #E2AD00;
+  --color-danger: #EA8A85;
+  --color-hairline: rgba(var(--color-text-rgb), 0.16);
+  --color-float: #181C18;
+  --shadow-float: none;
+  --hl-yellow: rgba(255, 176, 32, 0.295);
+  --hl-green: rgba(160, 210, 40, 0.29);
+  --hl-blue: rgba(90, 160, 255, 0.365);
+  --hl-pink: rgba(255, 95, 165, 0.39);
+}
+
+/* ---------- The measure in the Display tray's faces ----------
+   Neither has a fallback fitted to it, so each pins its own --ch, which
+   also keeps each reader's measure (see global.css, "Reader-selectable
+   font modes"). FIRST_PAINT in src/lib/desk-margin.mjs restates these
+   three --ch values, and test/desk-margin.test.js holds them together. */
+html[data-font="dyslexic"] {
+  --ch: 0.5em;
+  --char: 0.7364em;
+}
+
+html[data-font="atkinson"] {
+  --ch: 0.648em;
+  --char: 0.4433em;
+}

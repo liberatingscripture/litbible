@@ -16,7 +16,7 @@
   padding: 8px 10px;
   border: 1px solid rgba(var(--ink-rgb), 0.16);
   border-radius: 8px;
-  color: rgba(var(--ink-rgb), 0.86);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sync[data-state="ok"] {
@@ -60,6 +60,7 @@
   background: transparent;
   color: inherit;
   font: inherit;
+  font-family: var(--font-control);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
   cursor: pointer;

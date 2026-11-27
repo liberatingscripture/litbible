@@ -89,16 +89,18 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
   }
 });
 
-test("small secondary text takes ink 0.7, 4.5:1 or more on cream and raised (XA8-3)", () => {
+// Featherboa's grays (Phase 1, "Color") put both in the third ink, which is
+// 5.1:1 on the page by day and 5.7:1 or more by night.
+test("small secondary text takes the third ink, 4.5:1 or more on every surface (XA8-3)", () => {
   for (const sel of [".desk-cmds__hint", ".desk-item__kind", ".desk-sheet__saved", ".desk-sheet__from-kind", ".desk-title__hint--about"]) {
-    assert.match(rule(sel), /color:\s*rgba\(var\(--ink-rgb\), 0\.7\)/, sel);
+    assert.match(rule(sel), /color:\s*rgba\(var\(--ink-rgb\), var\(--text-3-alpha\)\)/, sel);
   }
 });
 
-test("the desk's fields set a placeholder color of their own, ink at 0.7 (XA8-13, LV8-3)", () => {
+test("the desk's fields set a placeholder color of their own, the third ink (XA8-13, LV8-3)", () => {
   const m = css.match(/((?:[^{}]*::placeholder,?\s*)+)\{([^}]*)\}/);
   assert.ok(m, "no ::placeholder rule");
-  assert.match(m[2], /color:\s*rgba\(var\(--ink-rgb\), 0\.7\)/);
+  assert.match(m[2], /color:\s*rgba\(var\(--ink-rgb\), var\(--text-3-alpha\)\)/);
   assert.match(m[2], /opacity:\s*1/);
   assert.match(m[1], /\[class\*="desk-"\] input::placeholder/);
   assert.match(m[1], /\[class\*="desk-"\] textarea::placeholder/);

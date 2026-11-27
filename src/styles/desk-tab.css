@@ -48,8 +48,8 @@
   border-radius: 12px;
   background: var(--surface-raised);
   color: var(--text);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
   font: inherit;
+  font-family: var(--font-control);
   cursor: pointer;
 }
 
@@ -83,7 +83,7 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
    boxes, muted like the tray's list of keys. */
 .font-tray__hint {
   margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: 0.8125rem;
   line-height: 1.4;
 }
@@ -99,6 +99,7 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
   background: transparent;
   color: var(--text);
   font: inherit;
+  font-family: var(--font-control);
   font-size: 0.8125rem;
   cursor: pointer;
 }

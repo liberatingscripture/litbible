@@ -190,14 +190,14 @@ function swap(step, build, after = () => {}) {
           { opacity: 0, transform: "translateY(4px)" },
           { opacity: 1, transform: "none" },
         ],
-        { duration: 160, easing: "ease-out" }
+        { duration: 120, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" } // --dur-quick, --ease
       );
     }
     after(hadFocus);
   };
   if (reduceMotion()) return next();
   step.inert = true; // no second tap on a button that is leaving
-  step.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 100, easing: "ease-in" }).finished.then(next, next);
+  step.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 80, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" } /* --dur-quick-out */).finished.then(next, next);
 }
 
 function stepButton(label, { swatch = null, shape = null } = {}) {

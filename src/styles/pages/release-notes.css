@@ -23,8 +23,8 @@
 
 .rn-lede {
   margin: 0 auto;
-  max-width: 56ch;
-  color: rgba(var(--ink-rgb), 0.72);
+  max-width: calc(56 * var(--ch));
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   line-height: calc(1.6 + var(--reading-leading-extra, 0));
 }
 
@@ -61,11 +61,12 @@
 .rn-filter__label {
   font-size: calc(0.8rem * var(--reading-scale, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .rn-filter__select {
   font: inherit;
+  font-family: var(--font-control);
   font-size: 0.95rem;
   padding: 8px 10px;
   border-radius: 10px;
@@ -79,11 +80,11 @@
   margin: 0 0 0 auto;
   padding-bottom: 9px;
   font-size: calc(0.9rem * var(--reading-scale, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .rn-empty {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   text-align: center;
   margin-top: 32px;
   line-height: calc(1.6 + var(--reading-leading-extra, 0));
@@ -124,8 +125,7 @@
   border-right: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(-45deg);
-  color: rgba(var(--ink-rgb), 0.55);
-  transition: transform 0.15s ease;
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .rn-month[open] > .rn-month__summary::before {
@@ -154,7 +154,7 @@ html[data-size="xl"] .rn-month__summary {
 .rn-month__count {
   margin-left: auto;
   font-size: calc(0.85rem * var(--reading-scale, 1));
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   white-space: nowrap;
 }
 
@@ -191,7 +191,7 @@ html[data-size="xl"] .rn-month__summary {
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   text-decoration: none;
 }
 
@@ -236,7 +236,7 @@ html[data-size="xl"] .rn-month__summary {
   padding: 2px 7px;
   border-radius: 3px;
   background: rgba(var(--ink-rgb), 0.08);
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .rn-change[data-type="chapter_added"] .rn-change__badge,
@@ -254,7 +254,7 @@ html[data-size="xl"] .rn-month__summary {
 }
 
 .rn-change__text {
-  color: rgba(var(--ink-rgb), 0.88);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* Before → after: the old text struck through beside the new, one line per
@@ -265,13 +265,13 @@ html[data-size="xl"] .rn-month__summary {
   gap: 3px;
   font-size: calc(0.85rem * var(--reading-scale, 1));
   line-height: calc(1.5 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   overflow-wrap: anywhere;
 }
 
 .rn-diff__label {
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   white-space: nowrap;
 }
 
@@ -280,13 +280,13 @@ html[data-size="xl"] .rn-month__summary {
 }
 
 .rn-change__detail del {
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   text-decoration: line-through;
   text-decoration-thickness: 1px;
 }
 
 .rn-change__detail ins {
-  color: rgba(var(--ink-rgb), 0.9);
+  color: rgb(var(--ink-rgb));
   text-decoration: none;
   background: color-mix(in srgb, var(--green-text) 14%, transparent);
   border-radius: 3px;

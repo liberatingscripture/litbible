@@ -30,8 +30,8 @@
 }
 
 .contact-inner h1 {
-  font-family: "Crimson Text", "Crimson Fallback", var(--font-serif, serif);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 400;
   letter-spacing: -0.01em;
   line-height: 1.05;
 
@@ -42,12 +42,12 @@
 
 .contact-lead {
   margin: 0 auto 34px;
-  max-width: 38ch;
+  max-width: calc(38 * var(--ch));
 
   font-size: clamp(1.1rem, 2vw, 1.6rem);
   line-height: 1.25;
 
-  color: rgba(var(--ink-rgb), 0.92);
+  color: rgb(var(--ink-rgb));
 }
 
 .contact-logo {
@@ -77,7 +77,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 700;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .field input,
@@ -94,8 +94,6 @@
 
   padding: 16px 16px;
   font-size: 1.05rem;
-
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* The app-support form's "Which app?" select. Match the text inputs, but keep
@@ -123,7 +121,7 @@
 
 .field input::placeholder,
 .field textarea::placeholder {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   opacity: 1;
 }
 
@@ -144,14 +142,6 @@
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease;
 }
 
 /* The /contact/thanks page reuses the CTA style on a link */
@@ -165,12 +155,10 @@ a.contact-button {
   background: var(--surface-raised);
   color: var(--green-text);
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
 }
 
 .contact-button:active {
   transform: translateY(0);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
 }
 
 .contact-button:disabled {
@@ -181,10 +169,10 @@ a.contact-button {
 
 .contact-privacy {
   margin: 10px auto 0;
-  max-width: 60ch;
+  max-width: calc(60 * var(--ch));
   font-size: 0.98rem;
   line-height: 1.45;
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .contact-turnstile-row {

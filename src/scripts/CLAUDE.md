@@ -260,7 +260,8 @@ type, the labels plus padding, kerning ignored): at 360px "Share text…" and
 fonts, and in the selection panel (154px) in Inter and Atkinson. "Share
 image…" needs 119px (Inter), 111px (Atkinson) and 162px (OpenDyslexic), so
 in OpenDyslexic's selection panel it takes a line of its own, as the rule
-allows (E111; the ellipsis cost 13px).
+allows (E111; the ellipsis cost 13px). Since Featherboa's Phase 1 the
+panels' controls are in Atkinson, the controls' face, which fits.
 Featherboa draws the phone's verse sheet as Copy text, Copy link, Share
 text…, and Share image… across, with icons, then Copy with footnotes, and
 no Print (`SITE-FEATHERBOA.md`, "The phone"); until it is built, this

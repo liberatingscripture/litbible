@@ -159,15 +159,14 @@
   border: 1px solid rgba(var(--ink-rgb), 0.11);
   background: var(--surface-input);
   color: var(--text);
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
   font: inherit;
+  font-family: var(--font-control);
   cursor: pointer;
 }
 
 .tools-search-close {
   font-size: 24px;
   line-height: 1;
-  box-shadow: none;
 }
 
 @media (max-width: 640px) {

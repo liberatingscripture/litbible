@@ -64,7 +64,7 @@ html:not([data-account="open"]) [data-account-opened] {
 .account__loading,
 .account__hint,
 .account__wait {
-  color: rgba(var(--ink-rgb), 0.74);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .account__hint {

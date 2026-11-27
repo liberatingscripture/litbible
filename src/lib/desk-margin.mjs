@@ -332,16 +332,16 @@ export function widestMeasure({ viewport, parentLeft, ch, pad, width, keepLeft =
 // that leaves the column's center (`center`, as --desk-bar-center).
 //
 // It reads the Chapter View column's width from the reader's settings, from
-// these values, which test/desk-margin.test.js holds to global.css and
-// ScriptureLayout.astro. The window is the whole width the script sees,
+// these values, which test/desk-margin.test.js holds to tokens.css,
+// global.css and ScriptureLayout.astro. The window is the whole width the script sees,
 // before the page has a scrollbar, so a classic scrollbar leaves a band of
 // about 16px where it still guesses wrong.
 export const FIRST_PAINT = {
   measure: 48, // Chapter View's measure with the notebook expanded (global.css)
   pad: 32, // .scripture-main's side padding (ScriptureLayout.astro)
-  body: 1.125, // the body's font size, in rem (global.css)
-  // --ch in em, by data-font (global.css; "" is Inter, the default)
-  ch: { "": 0.63086, dyslexic: 0.5, atkinson: 0.648 },
+  body: 1.33, // the column's font size at Medium, in rem (tokens.css, --size-scripture)
+  // --ch in em, by data-font (tokens.css; "" is Source Sans 3, the default)
+  ch: { "": 0.497, dyslexic: 0.5, atkinson: 0.648 },
   // --reading-scale, by data-size (global.css; "" is Medium)
   scale: { "": 1, sm: 16 / 18, lg: 20 / 18, xl: 23 / 18 },
   // KEEP_LEFT below: the margin the column keeps on its left. PIN_MARGIN

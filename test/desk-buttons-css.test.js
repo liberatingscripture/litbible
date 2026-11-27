@@ -105,7 +105,9 @@ test("E126: the ordinary kind is one rule, and it covers the inventory", () => {
   assert.ok(kinds.indexOf(on) > kinds.indexOf(sunk), "after the sunk rule, so its whole edge is green");
 
   const off = block(kinds, list, ':is(:disabled, [aria-disabled="true"])');
-  assert.match(off, /color:\s*rgba\(var\(--ink-rgb\), 0\.7\)/, "words at 70%: 4.5:1 on every surface");
+  // Featherboa's third ink (tokens.css): 5.2:1 on the white fill by day, 5.4
+  // on the night's, 5.1 on a night float's.
+  assert.match(off, /color:\s*rgba\(var\(--ink-rgb\), var\(--text-3-alpha\)\)/, "words in the third ink: 4.5:1 on every surface");
   assert.match(off, /border-color:\s*var\(--field-border\)/, "and still a button's edge");
   assert.match(off, /box-shadow:\s*none/);
   assert.match(off, /opacity:\s*1/, "no faded opacity under it");
@@ -280,7 +282,7 @@ function tokens(css, head, marker = "--desk-btn-rest") {
   }
 }
 
-const LIGHT_ONLY = ["--desk-btn-lift-y", "--desk-btn-motion"]; // the same in every theme
+const LIGHT_ONLY = ["--desk-btn-lift-y"]; // the same in every theme
 const BUTTON_TOKENS = [
   "--desk-control",
   "--desk-btn-edge-low",
@@ -323,19 +325,19 @@ test("E126: both dark selectors carry every token, with a dark pair for every sh
   assert.equal(sets["desk.css"].dark.get("--desk-primary-edge"), "rgba(58, 191, 106, 0.7)");
 });
 
-test("E126: under reduced motion the lift and the transitions go, and the shadows stay", () => {
+// Featherboa's "Motion" (Phase 1) makes pointing and pressing Instant, so the
+// kinds have no transition at all; the lift and the shadows stay until the
+// kit (Phase 2) replaces the four kinds.
+test("E126: under reduced motion the lift goes and the shadows stay; no kind has a transition", () => {
   for (const [name, css] of [["desk.css", desk], ["desk-search.css", search]]) {
     const m = css.match(/@media \(prefers-reduced-motion: reduce\) \{\s*:root \{([^}]*)\}\s*\}/);
     assert.ok(m, `${name}: no reduced-motion block`);
     assert.match(m[1], /--desk-btn-lift-y:\s*0px/, name);
-    assert.match(m[1], /--desk-btn-motion:\s*0s/, name);
     assert.doesNotMatch(m[1], /shadow/, `${name}: the shadows still say hover and pressed`);
   }
-  // Every lift and every transition in the kinds goes through the two tokens.
+  // Every lift in the kinds goes through the token, and nothing eases into it.
   for (const t of kinds.matchAll(/transform:\s*([^;]+);/g)) assert.match(t[1], /^(none|translateY\(var\(--desk-btn-lift-y\)\))$/, t[0]);
-  for (const t of kinds.matchAll(/transition:([^;]+);/g)) {
-    for (const part of t[1].split(",")) assert.match(part, /var\(--desk-btn-motion\)/, part.trim());
-  }
+  assert.doesNotMatch(kinds, /transition:/, "pressing is Instant (Featherboa, Motion)");
 });
 
 test("E116, E117: the strips stay in view, a long label ends in “…”, and checked rows take the green rule", () => {

@@ -98,7 +98,7 @@ import Layout from "../layouts/Layout.astro";
     font-size: 1.1rem;
     line-height: 1.6;
     margin: 0 0 2rem;
-    color: rgba(var(--ink-rgb), 0.78);
+    color: rgba(var(--ink-rgb), var(--text-2-alpha));
   }
 
   .not-found__suggest {
@@ -127,8 +127,6 @@ import Layout from "../layouts/Layout.astro";
 
     background: var(--green-deep, #0f6b33);
     color: #fff;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    transition: background-color 0.2s ease, transform 0.2s ease;
   }
 
   .not-found__cta:hover {

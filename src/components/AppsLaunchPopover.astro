@@ -135,7 +135,7 @@ import AppIcons from "./apps/AppIcons.astro";
   /* Backdrop */
   .applaunch-dialog::backdrop {
     background: rgba(0, 0, 0, 0.55);
-    transition: opacity 0.25s ease;
+    transition: opacity var(--dur-large) var(--ease);
   }
 
   /* Dialog container */
@@ -144,20 +144,18 @@ import AppIcons from "./apps/AppIcons.astro";
     inset: 0;
     margin: auto;
     padding: 0;
-    border: none;
+    border: 1px solid var(--color-float-edge);
     border-radius: 12px;
-    background: var(--surface-raised, #fff);
+    background: var(--color-float);
     color: var(--text, #1d231c);
     width: min(600px, calc(100vw - 2.5rem));
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.22);
+    box-shadow: var(--shadow-float);
     /* Entry animation */
     opacity: 0;
     transform: translateY(12px) scale(0.98);
-    transition:
-      opacity 0.15s ease,
-      transform 0.15s ease;
+    transition: opacity var(--dur-large) var(--ease), transform var(--dur-large) var(--ease);
   }
 
   .applaunch-dialog[open] {
@@ -203,9 +201,6 @@ import AppIcons from "./apps/AppIcons.astro";
     color: var(--text, #1d231c);
     cursor: pointer;
     opacity: 0.6;
-    transition:
-      opacity 0.15s,
-      background 0.15s;
   }
 
   .applaunch-close:hover,
@@ -232,10 +227,9 @@ import AppIcons from "./apps/AppIcons.astro";
 
   /* Title */
   .applaunch-title {
-    font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
-      serif;
+    font-family: var(--font-display);
     font-size: clamp(1.5rem, 4vw, 2rem);
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-strong, #000);
     margin: 0 0 0.5rem 0;
     line-height: 1.2;
@@ -353,7 +347,6 @@ import AppIcons from "./apps/AppIcons.astro";
     font-size: 0.975rem;
     font-weight: 600;
     text-decoration: none;
-    transition: opacity 0.15s;
     cursor: pointer;
     /* Deep Green + white is the solid-button pairing and is theme-invariant,
        so the launch CTA reads as the same branded button in light and dark.

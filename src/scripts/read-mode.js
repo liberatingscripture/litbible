@@ -501,7 +501,7 @@ function initReadMode() {
 
       toolbar.style.transition = prefersReducedMotion
         ? "none"
-        : "transform 180ms ease";
+        : "transform var(--dur-large) var(--ease)";
 
       if (dy > threshold) {
         resetSheetDragStyles();

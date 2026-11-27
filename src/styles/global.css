@@ -1,22 +1,17 @@
-/* Self-hosted fonts (via @fontsource) — Latin subset only (site is English).
+/* Self-hosted fonts (via @fontsource). faces.css declares Featherboa's faces,
+   Fraunces and Source Sans 3 (SITE-FEATHERBOA.md, "Type"); Atkinson
+   Hyperlegible Next, the face for controls, and OpenDyslexic follow here.
    Greek and Hebrew letters come from greek-hebrew-fonts.css, imported after
-   these, which adds them under the same family names. */
-@import "@fontsource/inter/latin-400.css";
-@import "@fontsource/inter/latin-500.css";
-@import "@fontsource/inter/latin-600.css";
-@import "@fontsource/inter/latin-700.css";
-@import "@fontsource/crimson-text/latin-400.css";
-@import "@fontsource/crimson-text/latin-400-italic.css";
-@import "@fontsource/crimson-text/latin-600.css";
-@import "@fontsource/crimson-text/latin-700.css";
-@import "@fontsource/fraunces/latin-400.css";
-@import "@fontsource/fraunces/latin-500.css";
-/* Reader-selectable accessibility fonts. Both are declared here but only
-   downloaded by the browser when the matching html[data-font] rule at the
-   bottom of this file applies, so a default page load fetches neither.
-   Atkinson Hyperlegible Next is variable: one file per style covers
-   weights 200-800, so no weight is synthesized and no per-weight import
-   list has to be kept in sync with the site's usage. */
+   these, which adds them under the same family names. legacy-faces.css keeps
+   the faces the site no longer reads in declared for what still names them
+   (/apps, printing, the verse image, the Sheets); a declared face is fetched
+   only when a letter is drawn in it. The stacks are tokens (tokens.css). */
+@import "./faces.css";
+/* Atkinson Hyperlegible Next is variable: one file per style covers weights
+   200-800, so no weight is synthesized and no per-weight import list has to
+   be kept in sync with the site's usage. OpenDyslexic is downloaded only
+   when the matching html[data-font] rule below applies, so a default page
+   load fetches it never. */
 @import "@fontsource/opendyslexic/latin.css";
 @import "@fontsource/opendyslexic/latin-italic.css";
 @import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
@@ -24,135 +19,53 @@
 /* Greek and Hebrew, under the families above. Must come after them: see the
    file's header. */
 @import "./greek-hebrew-fonts.css";
-
-/* Bracket-marker glyph patch (⟦ U+27E6 / ⟧ U+27E7). These wrap the six
-   disputed-passage spans in scripture paragraphs (see "Bracketed passages"
-   in CLAUDE.md) and render inline with body text, but the Latin-only
-   subsets above don't include them — every text font here was built without
-   Mathematical Symbols-A coverage. unicode-range scopes each patch to just
-   these two codepoints under the SAME font-family name as the real face, so
-   the browser only fetches bracket-markers.otf on the six pages that
-   actually contain one, and uses it only for these two characters — every
-   other glyph still comes from the real font. Scoped to the three families
-   that can render scripture body text: Inter (default), and the two
-   reader-selectable accessibility fonts (OpenDyslexic, Atkinson Hyperlegible
-   Next Variable, which override body text everywhere via the html[data-font]
-   rules below). Regenerate the source file with `npm run build:bracket-font`
-   if the source glyphs ever change; see that script for why Noto Sans Math.
-
-   font-display is `block` here, NOT the `swap` the @fontsource faces above
-   use, and the difference is deliberate. `swap` is right for body text, where
-   showing the fallback immediately beats showing nothing. It is wrong for
-   these two: the fallback IS the failure mode this patch exists to prevent
-   (a system-font bracket, or a missing-glyph box), so swapping would flash
-   exactly the wrong glyph before correcting itself. The file is 1.7KB and
-   same-origin, so the block period is imperceptible. */
-@font-face {
-  font-family: "Inter";
-  src: url("/fonts/bracket-markers.otf") format("opentype");
-  font-display: block;
-  unicode-range: U+27E6-27E7;
-}
-@font-face {
-  font-family: "OpenDyslexic";
-  src: url("/fonts/bracket-markers.otf") format("opentype");
-  font-display: block;
-  unicode-range: U+27E6-27E7;
-}
-/* Atkinson's face is variable, declared 200 800, and a browser joins faces of
-   one family only when weight and style match exactly. Without the same range
-   here, this patch formed a set of its own that body text never reached, and
-   the brackets drew from a system font (Cambria Math on Windows) until
-   2026-10. See greek-hebrew-fonts.css, rule 4. */
-@font-face {
-  font-family: "Atkinson Hyperlegible Next Variable";
-  src: url("/fonts/bracket-markers.otf") format("opentype");
-  font-display: block;
-  font-weight: 200 800;
-  unicode-range: U+27E6-27E7;
-}
-
-/* =========================================================
-   Metric-matched fallback fonts (to minimize CLS from font swap)
-   These render during the brief window before the real font loads
-   so layout stays stable when the webfont replaces them.
-   Metrics are tuned so each fallback paints at visually matching
-   x-height / cap-height / line height to its target font.
-   ========================================================= */
-@font-face {
-  font-family: "Inter Fallback";
-  src: local("Arial");
-  size-adjust: 107.40%;
-  ascent-override: 90%;
-  descent-override: 22.43%;
-  line-gap-override: 0%;
-}
-@font-face {
-  font-family: "Crimson Fallback";
-  src: local("Georgia");
-  size-adjust: 104.72%;
-  ascent-override: 92.18%;
-  descent-override: 23.23%;
-  line-gap-override: 8.73%;
-}
-@font-face {
-  font-family: "Fraunces Fallback";
-  src: local("Georgia");
-  size-adjust: 112%;
-  ascent-override: 87.5%;
-  descent-override: 22.3%;
-  line-gap-override: 0%;
-}
+@import "./legacy-faces.css";
 
 /* =========================================================
    Global styles — Liberation and Inclusion Translation (LIT)
-   Solid colors limited to:
-   #E1DFD9, #FFFFFF, #209D50, #1D231C, #000000
-   Shadows/overlays may use rgba(0,0,0,alpha) only.
+   Colors, sizes, space, corners, shadows, and speeds are tokens
+   (tokens.css, imported first). The names below are the site's older
+   ones, kept so the stylesheets that read them follow the tokens; new code
+   reads the tokens.
    ========================================================= */
 
-/* ---------- Brand tokens (ONLY solids) ---------- */
+/* ---------- The older names, pointed at the tokens ---------- */
 :root {
-  --cream: #E1DFD9;
+  /* Fixed colors, the same in both themes: --ink is ink on any surface that
+     doesn't change with the theme (a label on LIT Green, a pinned ring);
+     --green is LIT Green as a surface, which Featherboa retires page by
+     page (it marks, never sits behind small text); --green-deep is the
+     filled button's green, white words on it in both themes until the
+     kit's filled button (Phase 2) takes the night green with dark words. */
   --white: #FFFFFF;
-  --green: #209D50;
-  /* Green as a TEXT color: #209D50 is only ~2.7:1 against cream and ~3.0:1
-     against white (WCAG AA needs 4.5:1 for normal text). Use --green-text
-     wherever green colors text on a light background; keep --green for large
-     surfaces, buttons with large/bold labels, and graphics. On dark (ink)
-     backgrounds plain --green passes and stays. */
-  --green-text: #0F6B33;
-  /* Foreground paired with a --green-text FILL (the site's standard hover):
-     white on the deep-green light fill, dark ink on the light-green dark fill.
-     Same pairing the pills encode locally as --rm-accent-fg / --rvp-accent-fg.
-     Flip it in BOTH dark blocks below alongside --green-text. */
-  --on-green-fill: #ffffff;
-  /* Deep Green: the solid-button/CTA green. White text on it is 6.6:1 (passes
-     AA at any size). Unlike --green-text (a text token that FLIPS to a light
-     green in dark mode), this is THEME-INVARIANT — do NOT redefine it in the
-     dark blocks below, or white-on-green buttons would break in dark mode.
-     Pairs with --green (LIT Green) surfaces as an intentional two-tone. */
-  --green-deep: #0F6B33;
-  --ink: #1D231C;
-  --ink-rgb: 29, 35, 28;
-  --surface-rgb: 250, 250, 248;
   --black: #000000;
+  --ink: var(--brand-ink);
+  --green: var(--brand-lit-green);
+  --green-deep: var(--brand-deep-green);
 
-  /* Semantic usage */
-  --page-bg: var(--cream); /* DEFAULT */
-  --surface: var(--cream);
-  --text: var(--ink);
-  --text-strong: var(--black);
-  --link: var(--green-text);
-  /* Raised surfaces use a near-white (not pure #FFFFFF): softer against cream and
-     consistent with the app's reading surface. --white stays pure for text/graphics. */
-  --border: #FAFAF8;
-  --surface-raised: #FAFAF8;
-  --surface-input: #FAFAF8;
-  /* A text field's border (BA144). 0.58 of ink is 3.1:1 on cream and 4.0:1 on
-     the raised surface; 3:1 is WCAG's bar for a control's boundary. It is
-     resolved on :root, so the dark blocks' --ink-rgb flips it (5.8:1 or more
-     on the dark surfaces) with no copy of its own. */
+  /* Themed. --ink-rgb is the text color's channels: rgba(var(--ink-rgb), a)
+     is the text color at a strength, by day and by night. */
+  --ink-rgb: var(--color-text-rgb);
+  --surface-rgb: var(--color-page-rgb);
+  --page-bg: var(--color-page);
+  --text: var(--color-text);
+  --text-strong: var(--color-text);
+  --link: var(--color-press);
+  --green-text: var(--color-press);
+  --on-green-fill: var(--color-on-press);
+
+  /* One field ("Surfaces"): what was cream and what was raised on it are
+     both the page now, so a card is set apart by space, then a hairline,
+     then a tint. A field's fill is the page, edged by --field-border. */
+  --surface: var(--color-page);
+  --surface-raised: var(--color-page);
+  --surface-input: var(--color-page);
+  --border: var(--color-hairline);
+
+  /* A text field's border (BA144). 0.58 of the text color is 4.0:1 on the
+     page by day and 5.9:1 by night; 3:1 is WCAG's bar for a control's
+     boundary. It resolves on :root, so a local --ink-rgb pin doesn't
+     reach it. */
   --field-border: rgba(var(--ink-rgb), 0.58);
 
   /* The Liberating Scripture Collective dove mark (components/LscMark.astro).
@@ -163,17 +76,6 @@
   --lsc-mark-disc: #1D231C;
   --lsc-mark-bird: #FAFAF8;
 
-  /* Keyboard focus ring. A focus indicator needs 3:1 against the surface it is
-     drawn on, and LIT Green is only 2.63:1 on cream and 3.35:1 on #FAFAF8, so
-     rings use the darker text green (4.97:1 on cream, 6.62:1 on white; the dark
-     blocks' #3abf6a is ~7:1 on the dark page). Every green ring in src/ reads
-     this token; the deliberate --text rings (font tray) do not.
-     The outline is drawn OUTSIDE the element, on its parent's surface, so a
-     surface that is a fixed colour in both themes (LIT Green, ink, Deep Green,
-     the black menu overlay) pins its own value, the same way the dove mark
-     pins its disc/bird pair. See CLAUDE.md for the table of pins. */
-  --focus-ring: var(--green-text);
-
   /* CTA */
   --cta-bg: var(--ink);
   --cta-text: var(--green);
@@ -183,32 +85,25 @@
   --content-max: 1200px;                 /* default readable width */
   --container-max: 1400px;               /* wider container when needed */
 
-  /* Stand-in for the ch unit, as an em fraction of the body font's "0" advance.
-     Every text column here used to be sized in `ch`, which reads well but is
-     resolved against WHICHEVER FONT IS CURRENTLY PAINTING. So a column was one
-     width under the fallback face and another once the webfont arrived, resizing
-     and (being margin-auto) re-centring the whole text block mid-load: 0.25 CLS
-     on every scripture page, the site's worst Core Web Vital. This token is
-     driven by data-font instead, which Layout.astro stamps BEFORE first paint,
-     so the width is settled from the first frame and no font swap can move it.
-     Values are each family's measured "0" advance, so every column keeps exactly
-     the width its old `Nch` gave it. Body (sans) figures only: a column set in
-     Crimson would need its own, that face's "0" being 0.504em. */
-  --ch: 0.63086em; /* Inter */
-
   /* The width of the pages around the reading surfaces: /read, /search,
      About, courses and the commitments page. Long-form reading has its own
      measure, --reading-width, below. Call sites keep a `, 72ch` fallback so
-     each rule still reads on its own. */
+     each rule still reads on its own. --ch is per face (tokens.css). */
   --content-width: calc(72 * var(--ch));
 
   /* The long-form reading measure: Chapter View, Read View, book intros and
-     article bodies. Only --reading-measure is a design choice (--ch keeps its
-     per-font value). Like --content-width it resolves against the font size
-     of the element that uses it, so a column set at the reader's text size
-     widens with it and keeps the same number of characters per line. */
+     article bodies. The text column starts at 660px and holds 45 to 75
+     characters a line in every face and at every size ("Sizes, space, and
+     the measure"): --char is the face's average character, so a larger text
+     size or a wider face shortens the count and the bounds hold it. It
+     resolves against the font size of the element that uses it, so a column
+     is sized where its text size is set.
+     With the Study Desk on, the column is still --reading-measure "0"s of
+     the face (the desk's measures, its drag, and the pre-paint placement in
+     Layout.astro all count in --ch), until Featherboa's reading page takes
+     the desk's margin (Phases 4 and 5). */
   --reading-measure: 60;
-  --reading-width: calc(var(--reading-measure) * var(--ch));
+  --reading-width: clamp(calc(45 * var(--char)), var(--col-text), calc(75 * var(--char)));
 
   /* The reader's text size and line spacing, chosen in the Display tray and
      stamped on <html> before first paint (Layout.astro). A scale and an
@@ -235,28 +130,20 @@
      short, fixed words ("Footnotes", "Chapter 3") take --reading-scale. */
   --heading-scale: var(--reading-scale);
 
-  /* Font stacks */
-  --serif: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
+  /* The display face under its older name. */
+  --serif: var(--font-display);
+}
+
+/* The Study Desk's column counts in "0"s (see --reading-width above). */
+html[data-desk] {
+  --reading-width: calc(var(--reading-measure) * var(--ch));
 }
 
 /* ---------- Dark mode (system preference) ---------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --page-bg: #0E0E0F;
-    --surface: #161617;
-    --surface-raised: #1d1d1f;
-    --surface-input: #1d1d1f;
-    --ink-rgb: 240, 240, 240;
-    --surface-rgb: 29, 29, 31;
-    --text: #F0F0F0;
-    --text-strong: #F7F7F7;
-    --link: #3abf6a;
-    --green-text: #3abf6a;
-    --on-green-fill: #1d231c;
-    --border: #2a2a2c;
     --lsc-mark-disc: #F0F0F0;
     --lsc-mark-bird: #1D231C;
-    --focus-ring: var(--green-text);
     --cta-bg: #d4d2cc;
     --cta-text: #1a1e1a;
   }
@@ -264,21 +151,8 @@
 
 /* ---------- Dark mode (explicit user toggle) ---------- */
 :root[data-theme="dark"] {
-  --page-bg: #0E0E0F;
-  --surface: #161617;
-  --surface-raised: #1d1d1f;
-  --surface-input: #1d1d1f;
-  --ink-rgb: 240, 240, 240;
-  --surface-rgb: 29, 29, 31;
-  --text: #F0F0F0;
-  --text-strong: #F7F7F7;
-  --link: #3abf6a;
-  --green-text: #3abf6a;
-  --on-green-fill: #1d231c;
-  --border: #2a2a2c;
   --lsc-mark-disc: #F0F0F0;
   --lsc-mark-bird: #1D231C;
-  --focus-ring: var(--green-text);
   --cta-bg: #d4d2cc;
   --cta-text: #1a1e1a;
 }
@@ -300,20 +174,39 @@ body {
   padding: 0;
 }
 
-/* ---------- Base typography ---------- */
+/* ---------- Base typography ----------
+   Three faces, one job each ("Type"): Source Sans 3 for what is read,
+   Fraunces for headings, Atkinson Hyperlegible Next for controls. The body
+   is set at the Text size; a reading surface sets its own (Scripture in
+   Chapter View and Read View). Text figures are lining, the only kind the
+   served Source Sans 3 has. Fraunces's softness and wonk are set once here:
+   the property inherits, and the other faces have no such axes, so they
+   ignore it; anything set in Fraunces takes them (the numeral sets its own). */
 body {
   background: var(--page-bg);
   color: var(--text);
-  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1.125rem;
-  line-height: 1.6;
+  font-family: var(--font-text);
+  font-variation-settings: var(--fraunces-heading);
+  font-size: var(--size-text);
+  line-height: var(--leading-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------- Background modes ---------- */
-/* Cream is default via --page-bg */
+/* Controls speak in Atkinson Hyperlegible Next. A form field's own words
+   (what a reader types) are text, but its face is the control's, as a
+   browser sets it apart from the page. */
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-control);
+}
+
+/* ---------- Background modes ----------
+   One field ("Surfaces"): every page is the paper, so bg-cream and bg-white
+   draw the same; bg-green is LIT Green, which leaves each page in its
+   phase. */
 body.bg-cream {
   background: var(--page-bg);
 }
@@ -328,13 +221,12 @@ body.bg-green {
    down: the font tray and the mobile overlay live in the same <header> with
    surfaces of their own, and must not inherit it. Theme-invariant, like the
    green, so it needs no dark-mode copy. */
-body.bg-green .site-header__inner,
-.site-header--green .site-header__inner {
+body.bg-green .site-header__inner {
   --focus-ring: var(--ink);
 }
 
-/* Near-white surface pages (glossary, apps): the page background is the raised
-   surface token, so the transparent header/footer blend onto it with no seam. */
+/* Near-white surface pages (glossary, apps), from when the page was cream:
+   the same paper as every page now. */
 body.bg-white {
   background: var(--surface-raised);
 }
@@ -373,17 +265,30 @@ main {
   margin-right: calc(50% - 50vw);
 }
 
-/* ---------- Headings (Crimson Text for LIT) ---------- */
+/* ---------- Headings (Fraunces) ----------
+   With its softness and wonk set as the specimen had them (tokens.css). A
+   page's title is the Title (400); a section's heading and a panel's title
+   are 500. Each page still sets its headings' sizes until its phase draws
+   it from the ten sizes. */
 h1,
 h2,
 h3,
 h4 {
-  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
-    serif;
-  font-weight: 600;
-  line-height: 1.2;
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: var(--leading-heading);
   margin: 0 0 1rem 0;
   color: var(--text-strong);
+}
+
+h1 {
+  font-weight: 400;
+  line-height: var(--leading-title);
+}
+
+h3,
+h4 {
+  line-height: var(--leading-subhead);
 }
 
 /* ---------- Body text ---------- */
@@ -439,8 +344,9 @@ a:focus {
   height: auto;
   padding: 8px 16px;
   background: var(--ink, #1d231c);
-  color: var(--cream, #e1dfd9);
-  border-radius: 4px;
+  color: var(--brand-paper, #fafaf8);
+  border-radius: var(--radius-press);
+  font-family: var(--font-control);
   font-weight: 600;
   font-size: 1rem;
   text-decoration: none;
@@ -450,8 +356,7 @@ a:focus {
 
 /* The skip link is a child of <body> but paints over the header, so where that
    header is LIT Green its ring takes the green-surface pin (see below). */
-body.bg-green .skip-link,
-body:has(.site-header--green) .skip-link {
+body.bg-green .skip-link {
   --focus-ring: var(--ink);
 }
 
@@ -465,15 +370,6 @@ body:has(.site-header--green) .skip-link {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* ---------- Shadows (allowed: rgba black only) ---------- */
-.shadow-soft {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-}
-
-.shadow-tight {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
 
@@ -533,12 +429,6 @@ body:has(.site-header--green) .skip-link {
   text-decoration: none;
 }
 
-/* Shadow instead of underline on title */
-.site-header__brand:hover .site-header__title,
-.site-header__brand:focus .site-header__title {
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
-}
-
 .site-header__logo {
   width: 48px;
   height: 48px;
@@ -547,10 +437,9 @@ body:has(.site-header--green) .skip-link {
 }
 
 .site-header__title {
-  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
-    serif;
+  font-family: var(--font-display);
   font-size: 1.85rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.02em;
   line-height: 1.1;
   color: var(--text-strong);
@@ -639,7 +528,6 @@ body:has(.site-header--green) .skip-link {
 
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 520ms ease-in-out; /* slower, deliberate */
 }
 
 .site-nav__list > li:not(.site-nav__cta-item) > a:hover::after,
@@ -700,9 +588,7 @@ body:has(.site-header--green) .skip-link {
   color: var(--green);
 
   white-space: nowrap;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 
-  transition: color 220ms ease-in-out;
 
   z-index: 0;
 }
@@ -722,7 +608,6 @@ body:has(.site-header--green) .skip-link {
 
   /* Fully clipped at rest (top inset 100%) */
   clip-path: inset(100% 0 0 0);
-  transition: clip-path 380ms ease-in-out;
 
   /* Above the ink anchor background, below the label span (z-index: 1). */
   z-index: 0;
@@ -846,13 +731,12 @@ body:has(.site-header--green) .skip-link {
   cursor: pointer;
   background: transparent;
   color: var(--text);
-  font-family: inherit;
+  font-family: var(--font-control);
   font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   white-space: nowrap;
   appearance: none;
-  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
 }
 
 /* Standard hover: solid green fill with the label flipping to the paired fg
@@ -959,7 +843,6 @@ html[data-desk] .site-nav__plain {
   background-color: var(--text-strong);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 520ms ease-in-out;
 }
 
 .site-nav__group-btn:hover::after,
@@ -971,14 +854,14 @@ html[data-desk] .site-nav__plain {
   outline: none;
 }
 
-/* The menu is its own raised surface, so it takes back the theme's tokens
-   from the green header's pins on __inner (its ink text, ink ring and ink
-   rgb would be wrong on a dark menu). */
+/* The menu is its own floating surface, so it takes back the theme's
+   tokens from the green header's pins on __inner (its ink text, ink ring,
+   and ink rgb would be wrong on a dark menu). */
 .site-nav__menu {
-  --text: var(--ink);
-  --text-strong: var(--black);
-  --ink-rgb: 29, 35, 28;
-  --focus-ring: var(--green-text);
+  --text: var(--color-text);
+  --text-strong: var(--color-text);
+  --ink-rgb: var(--color-text-rgb);
+  --focus-ring: var(--color-press);
   position: absolute;
   top: calc(100% + 12px);
   left: -12px;
@@ -987,27 +870,13 @@ html[data-desk] .site-nav__plain {
   margin: 0;
   padding: 6px;
   list-style: none;
-  background: var(--surface-raised);
+  background: var(--color-float);
   color: var(--text);
-  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  border: 1px solid var(--color-float-edge);
   border-radius: 12px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-float);
   white-space: normal;
   text-align: left;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .site-nav__menu {
-    --text: #F0F0F0;
-    --text-strong: #F7F7F7;
-    --ink-rgb: 240, 240, 240;
-  }
-}
-
-:root[data-theme="dark"] .site-nav__menu {
-  --text: #F0F0F0;
-  --text-strong: #F7F7F7;
-  --ink-rgb: 240, 240, 240;
 }
 
 .site-nav__menu[hidden] {
@@ -1292,10 +1161,10 @@ html .site-header.site-header--desk .site-header__inner {
   position: fixed;
   z-index: 2000;
   min-width: 230px;
-  background: var(--surface-raised);
-  border: 1px solid rgba(var(--ink-rgb), 0.13);
+  background: var(--color-float);
+  border: 1px solid var(--color-float-edge);
   border-radius: 14px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+  box-shadow: var(--shadow-float);
   padding: 16px;
   /* The script caps max-height to the room on the side it opens toward;
      past that the tray scrolls rather than running off the screen. */
@@ -1334,7 +1203,6 @@ html .site-header.site-header--desk .site-header__inner {
   color: var(--text);
   cursor: pointer;
   appearance: none;
-  transition: background 120ms;
 }
 
 .font-tray__close:hover { background: rgba(var(--ink-rgb), 0.08); }
@@ -1383,7 +1251,6 @@ html .site-header.site-header--desk .site-header__inner {
   padding: 7px 9px;
   border-radius: 9px;
   cursor: pointer;
-  transition: background 150ms ease;
 }
 
 .font-tray__font-option:hover {
@@ -1437,7 +1304,7 @@ html .site-header.site-header--desk .site-header__inner {
    loses. The redundant-looking .font-tray__fonts prefix is what wins it, at
    (0,2,0). Keep both parts of every selector below. */
 .font-tray__fonts .font-tray__font-label--default {
-  font-family: Inter, 'Inter Fallback', sans-serif !important;
+  font-family: var(--font-text) !important;
 }
 
 .font-tray__fonts .font-tray__font-label--dyslexic {
@@ -1463,7 +1330,6 @@ html .site-header.site-header--desk .site-header__inner {
   padding: 7px 9px;
   border-radius: 9px;
   cursor: pointer;
-  transition: background 150ms ease;
 }
 
 .font-tray__check:hover {
@@ -1570,7 +1436,6 @@ html .site-header.site-header--desk .site-header__inner {
 .font-tray__seg-text {
   font-size: 0.875rem;
   color: var(--text);
-  transition: color 150ms ease;
 }
 
 /* Selected pill: ink-on-green (~4.6:1) passes AA at this text size in both
@@ -1582,7 +1447,6 @@ html .site-header.site-header--desk .site-header__inner {
 
 .font-tray__seg-option:has(.font-tray__seg-input:checked) {
   background: var(--green);
-  transition: background 150ms ease;
 }
 
 /* Ring must stay visible on the SELECTED segment too (green bg): a --green ring
@@ -1625,14 +1489,11 @@ html .site-header.site-header--desk .site-header__inner {
   /* Match page background (green/cream per page) */
   background: inherit;
 
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-
   display: none; /* shown at collapse */
   align-items: center;
   justify-content: center;
 
   appearance: none;
-  transition: transform 180ms ease-in-out, box-shadow 180ms ease-in-out;
 }
 
 .site-header__menu-toggle:hover,
@@ -1647,7 +1508,6 @@ html .site-header.site-header--desk .site-header__inner {
 
 .site-header__menu-toggle:active {
   transform: translateY(0);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
 }
 
 /* Bars icon */
@@ -1667,8 +1527,6 @@ html .site-header.site-header--desk .site-header__inner {
   height: 2px;
   background: var(--text);
   border-radius: 2px;
-  transition: transform 240ms ease-in-out, top 240ms ease-in-out,
-    background-color 180ms ease-in-out;
 }
 
 .menu-icon::before {
@@ -1816,7 +1674,7 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   visibility: hidden;
   pointer-events: none;
 
-  transition: opacity 360ms ease-in-out, visibility 0ms linear 360ms;
+  transition: opacity var(--dur-large-out) var(--ease), visibility 0ms linear var(--dur-large-out);
 }
 
 .menu-overlay.is-open {
@@ -1824,7 +1682,7 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   visibility: visible;
   pointer-events: auto;
 
-  transition: opacity 360ms ease-in-out, visibility 0ms linear 0ms;
+  transition: opacity var(--dur-large) var(--ease), visibility 0ms linear 0ms;
 }
 
 /* Lock scroll when open */
@@ -1839,7 +1697,7 @@ html.menu-open body {
   padding: 36px 22px 34px;
 
   transform: translateY(8px);
-  transition: transform 360ms ease-in-out;
+  transition: transform var(--dur-large) var(--ease);
 }
 
 .menu-overlay.is-open .menu-overlay__panel {
@@ -1865,8 +1723,7 @@ html.menu-open body {
 .menu-overlay__nav a {
   color: var(--white);
   text-decoration: none;
-  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-control);
 
   font-size: 2.5rem;
   letter-spacing: 0.14em;
@@ -1876,7 +1733,6 @@ html.menu-open body {
   /* entrance animation */
   opacity: 0;
   transform: translateX(-28px);
-  transition: transform 520ms ease-in-out, opacity 520ms ease-in-out;
 
 }
 
@@ -1903,7 +1759,6 @@ html.menu-open body {
   font-size: 1.1rem;
   letter-spacing: 0.12em;
 
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
   text-decoration: none;
 
   /* override left-slide */
@@ -1951,7 +1806,7 @@ html:not([data-desk]) .menu-overlay__group--desk {
 .menu-overlay__heading {
   margin: 0;
   color: var(--green);
-  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+  font-family: var(--font-control);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -1974,34 +1829,6 @@ html:not([data-desk]) .menu-overlay__group--desk {
 /* The two buttons read as a pair, so Read drops its own lead-in. */
 .menu-overlay .menu-overlay__continue:not([hidden]) + .menu-overlay__cta {
   margin-top: 0;
-}
-
-/* Stagger timing (assumes order: 5 links, the Continue link, then CTA) */
-.menu-overlay.is-open .menu-overlay__nav a:nth-child(1) {
-  transition-delay: 80ms;
-}
-.menu-overlay.is-open .menu-overlay__nav a:nth-child(2) {
-  transition-delay: 140ms;
-}
-.menu-overlay.is-open .menu-overlay__nav a:nth-child(3) {
-  transition-delay: 200ms;
-}
-.menu-overlay.is-open .menu-overlay__nav a:nth-child(4) {
-  transition-delay: 260ms;
-}
-.menu-overlay.is-open .menu-overlay__nav a:nth-child(5) {
-  transition-delay: 320ms;
-}
-.menu-overlay.is-open .menu-overlay__nav a.menu-overlay__continue {
-  transition-delay: 370ms;
-}
-.menu-overlay.is-open .menu-overlay__nav a.menu-overlay__cta {
-  transition-delay: 420ms;
-}
-
-/* Closing: no lingering delays */
-.menu-overlay__nav a {
-  transition-delay: 0ms;
 }
 
 /* Smaller screens: scale typography down */
@@ -2073,9 +1900,9 @@ html:not([data-desk]) .menu-overlay__group--desk {
     /* Clears the header bar, which sits above the scrim. */
     padding: 88px 32px 32px;
     background: #101010;
-    box-shadow: -16px 0 40px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-float);
     transform: translateX(100%);
-    transition: transform 320ms ease-in-out;
+    transition: transform var(--dur-large) var(--ease);
   }
 
   .menu-overlay.is-open .menu-overlay__panel {
@@ -2109,43 +1936,23 @@ html:not([data-desk]) .menu-overlay__group--desk {
 }
 
 /* =========================================================
-   Site Header: green background mode
-   Apply by adding .site-header--green to the header element
-   ========================================================= */
-
-/* Ink text on green, same as the default header over a bg-green page (the
-   homepage look). The old white-text treatment failed WCAG AA on the small
-   nav links (white on #209D50 is 3.5:1; 4.5:1 needed) — ink is 4.6:1. */
-.site-header--green {
-  background: var(--green);
-}
-
-/* Hamburger tile: a slight tint so the button reads against the green */
-.site-header--green .site-header__menu-toggle {
-  background: rgba(0, 0, 0, 0.10);
-}
-
-/* =========================================================
    Header text on green stays ink in dark mode
    ========================================================= */
 
-/* Green header surfaces keep the brand green in dark mode (body.bg-green and
-   .site-header--green backgrounds never flip), so the text inside must not
+/* Green header surfaces keep the brand green in dark mode (body.bg-green backgrounds never flip), so the text inside must not
    pick up the dark-scheme light tokens — that lands cream on #209D50 at
    ~2.7:1. Re-pin the bar's local tokens to the light-scheme inks. Scoped to
    __inner so the font tray and mobile overlay (same <header> element, own
    dark surfaces) keep the flipped tokens. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) body.bg-green .site-header__inner,
-  :root:not([data-theme="light"]) .site-header--green .site-header__inner {
+  :root:not([data-theme="light"]) body.bg-green .site-header__inner {
     --text: var(--ink);
     --text-strong: var(--black);
     --ink-rgb: 29, 35, 28;
   }
 }
 
-:root[data-theme="dark"] body.bg-green .site-header__inner,
-:root[data-theme="dark"] .site-header--green .site-header__inner {
+:root[data-theme="dark"] body.bg-green .site-header__inner {
   --text: var(--ink);
   --text-strong: var(--black);
   --ink-rgb: 29, 35, 28;
@@ -2175,13 +1982,9 @@ a.footer-cta {
   color: var(--ink);
 
   white-space: nowrap;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 
   font-weight: 700;
 
-  transition:
-    color 220ms ease-in-out,
-    background-color 220ms ease-in-out;
 
   z-index: 0;
 }
@@ -2196,7 +1999,6 @@ a.footer-cta::before {
 
   transform-origin: top;
   transform: scaleY(1);
-  transition: transform 380ms ease-in-out;
 
   will-change: transform;
 }
@@ -2283,7 +2085,6 @@ a.footer-cta > span {
 .footer-col a {
   text-decoration: underline;
   color: var(--text-strong);
-  transition: color 160ms ease;
 }
 
 /* Hover / focus for LEFT NAV LINKS ONLY */
@@ -2328,10 +2129,6 @@ a.footer-cta > span {
   background: transparent;
   border: 1px solid var(--border);
 
-  transition:
-    background-color 180ms ease,
-    color 180ms ease,
-    transform 160ms ease;
 }
 
 /* SVG inherits color */
@@ -2517,7 +2314,7 @@ a.footer-cta > span {
   }
 
   .footer-newsletter__desc {
-    max-width: 32ch;
+    max-width: calc(32 * var(--ch));
     margin-left: auto;
     margin-right: auto;
   }
@@ -2567,7 +2364,7 @@ a.footer-cta > span {
   line-height: 1.5;
   color: var(--text);
   margin: 0;
-  max-width: 34ch;
+  max-width: calc(34 * var(--ch));
 }
 
 /* Status panels — hidden until the submit handler adds .is-visible */
@@ -2639,13 +2436,12 @@ a.footer-cta > span {
   min-width: 0;
   padding: 10px 14px;
   font-size: 0.9rem;
-  font-family: inherit;
+  font-family: var(--font-control);
   color: var(--text);
   background: var(--surface-input);
   border: 1px solid var(--field-border);
   border-right: none;
   border-radius: 8px 0 0 8px;
-  transition: border-color 160ms ease;
 }
 
 .footer-newsletter__input:focus {
@@ -2658,7 +2454,7 @@ a.footer-cta > span {
 }
 
 .footer-newsletter__input::placeholder {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   opacity: 1;
 }
 
@@ -2668,7 +2464,7 @@ a.footer-cta > span {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-family: inherit;
+  font-family: var(--font-control);
   cursor: pointer;
   white-space: nowrap;
 
@@ -2677,7 +2473,6 @@ a.footer-cta > span {
   border: 1px solid var(--green);
   border-radius: 0 8px 8px 0;
 
-  transition: background-color 180ms ease, color 180ms ease;
 }
 
 .footer-newsletter__submit:hover,
@@ -3030,23 +2825,16 @@ html[data-font="atkinson"] * {
   font-family: 'Atkinson Hyperlegible Next Variable', sans-serif !important;
 }
 
-/* Each mode carries its own --ch (see the token block up top), because neither
-   of these faces has a metric-matched fallback the way Inter and Crimson do:
-   both stacks end at plain sans-serif, which gave them the largest column swing
-   on the site when the real font landed (~10% for OpenDyslexic, ~16% for
-   Atkinson). Pinning per font also preserves each reader's existing measure,
-   notably OpenDyslexic's markedly shorter line: one shared width would have
-   lengthened it ~26%, against the buy-back-space rule these modes are built on. */
-html[data-font="dyslexic"] {
-  --ch: 0.5em;
-}
-
-html[data-font="atkinson"] {
-  --ch: 0.648em;
-}
+/* Each mode carries its own --ch and --char (tokens.css, at its foot),
+   because neither of these faces has a metric-matched fallback in its mode:
+   both stacks end at plain sans-serif, which gave them the largest column
+   swing on the site when the real font landed (~10% for OpenDyslexic, ~16%
+   for Atkinson). Pinning per font also preserves each reader's measure,
+   notably OpenDyslexic's markedly shorter line. */
 
 /* Text size and line spacing (Display tray). Medium and Normal carry no
-   attribute. The steps are 16 / 18 / 20 / 23px at the 18px body size. */
+   attribute. The steps are 16 / 18 / 20 / 23 at Medium's 18, as a scale
+   of each surface's own size. */
 html[data-size="sm"] {
   --reading-scale: calc(16 / 18);
 }
@@ -3229,13 +3017,14 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
   padding: 9px 16px;
   border: 1px solid rgba(var(--ink-rgb), 0.14);
   border-radius: 999px;
-  background: var(--surface-raised);
+  background: var(--color-float);
   color: var(--text);
   font: inherit;
+  font-family: var(--font-control);
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-float);
 }
 
 .lit-clear-chip:hover {
@@ -3247,15 +3036,14 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
    changing layout — superscript digits alone are far below comfortable
    thumb-target size. A footnote letter's overlay sits above this one where
    they meet (see the footnote rules above).
-   The resting green + dotted underline is the always-visible "tappable"
-   affordance (touch devices never see :hover). */
+   Deep green is the always-visible "pressable" mark (touch devices never
+   see :hover): what can be pressed is deep green, and nothing else is, so
+   the number needs no underline ("Color": “Deep green, no underline”). */
 .chapter-paragraphs sup.vn {
   cursor: pointer;
   position: relative;
-  color: var(--green-text, #0f6b33);
-  text-decoration: underline dotted;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+  color: var(--color-press);
+  text-decoration: none;
 }
 
 .chapter-paragraphs sup.vn::after {
@@ -3268,10 +3056,12 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
   transform: translate(-50%, -50%);
 }
 
+/* Pointed at is one step stronger, with no movement ("The kit"). */
 .chapter-paragraphs sup.vn:hover,
 .chapter-paragraphs sup.vn:active {
-  opacity: 1;
-  text-decoration-style: solid;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 /* Display tray: verse numbers and footnote letters can be turned off in Study
@@ -3358,10 +3148,10 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   max-width: calc(380px * var(--panel-scale, 1));
   padding: 12px 14px;
   border-radius: 12px;
-  background: var(--surface-raised);
+  background: var(--color-float);
   color: var(--text);
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--color-float-edge);
+  box-shadow: var(--shadow-float);
   font-size: calc(0.95rem * var(--panel-scale, 1));
   line-height: 1.55;
 }
@@ -3370,9 +3160,11 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   outline: none;
 }
 
-/* The verse menu and the selection panel are controls. */
+/* The verse menu and the selection panel are controls, in the controls'
+   face. */
 .lit-panel--menu {
   --panel-scale: var(--control-scale, 1);
+  font-family: var(--font-control);
 }
 
 /* A footnote, a key term's card and a reference preview are text to read, so
@@ -3412,7 +3204,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   font-size: calc(0.85rem * var(--panel-scale, 1));
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .lit-panel__header .lit-panel__heading {
@@ -3427,7 +3219,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   border: none;
   border-radius: 999px;
   background: rgba(var(--ink-rgb), 0.08);
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: 1.15rem;
   line-height: 1;
   cursor: pointer;
@@ -3467,7 +3259,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
 }
 
 .lit-panel__btn--error {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.85rem * var(--panel-scale, 1));
   cursor: default;
 }
@@ -3481,7 +3273,7 @@ html[data-terms="off"] .chapter-paragraphs:not([data-own-marks]) .term {
   border-top: 1px solid rgba(var(--ink-rgb), 0.12);
   font-size: calc(0.78rem * var(--panel-scale, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* Part previews are a line of scripture, so let them wrap rather than forcing
@@ -3639,10 +3431,10 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   max-width: calc(340px * var(--panel-scale, 1));
   padding: 8px 10px;
   border-radius: 12px;
-  background: var(--surface-raised);
+  background: var(--color-float);
   color: var(--text);
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--color-float-edge);
+  box-shadow: var(--shadow-float);
 }
 
 .lit-flyout__menu[hidden] {
@@ -3663,8 +3455,8 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   border-radius: 6px;
   background: var(--text);
   color: var(--surface);
-  font: 500 0.75rem/1.35 Inter, "Inter Fallback", system-ui, sans-serif;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font: 500 0.75rem/1.35 var(--font-control);
+  box-shadow: var(--shadow-float);
   pointer-events: auto;
 }
 
@@ -3791,10 +3583,6 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   cursor: grabbing;
 }
 
-.lit-panel--dragging {
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
-}
-
 .lit-panel__grip {
   flex: none;
   width: 10px;
@@ -3838,7 +3626,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 .lit-panel__hint {
   margin: 0 0 6px;
   font-size: calc(0.78rem * var(--panel-scale, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* "See in footnotes" link at the bottom of footnote popovers */
@@ -3865,9 +3653,9 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
 
 .lit-window__title {
   margin: 2px 0 4px;
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.3;
   letter-spacing: 0;
   color: var(--text);
@@ -3918,7 +3706,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   margin: 0 0 8px;
   font-size: 0.82rem;
   line-height: 1.45;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .greek-cmds .lit-window__body {
@@ -3935,7 +3723,7 @@ html[data-font="dyslexic"] .lit-panel--chips .lit-panel__btn {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .greek-cmds__heading:first-child {
@@ -3990,7 +3778,7 @@ button.greek-cmd:hover {
 }
 
 .greek-cmd__code[lang="grc"] {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: 1rem;
 }
 
@@ -3999,7 +3787,7 @@ button.greek-cmd:hover {
   font-family: inherit;
   font-size: 0.75rem;
   font-weight: 500;
-  color: rgba(var(--ink-rgb), 0.62);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .greek-cmd__means {
@@ -4009,7 +3797,7 @@ button.greek-cmd:hover {
 .greek-cmd__note {
   display: block;
   font-size: 0.75rem;
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* The builder at the top of the window (greek-builder.js, E5): a card for each
@@ -4040,7 +3828,7 @@ button.greek-cmd:hover {
 .greek-card__title {
   font-size: 0.78rem;
   font-weight: 700;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* The notation this card makes, so the reader learns it by watching. */
@@ -4056,7 +3844,7 @@ button.greek-cmd:hover {
 }
 
 .greek-card__code[lang="grc"] {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: 0.95rem;
 }
 
@@ -4067,7 +3855,7 @@ button.greek-cmd:hover {
   border: 0;
   border-radius: 6px;
   background: none;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font: inherit;
   font-size: 1.15rem;
   line-height: 1.3;
@@ -4095,7 +3883,7 @@ button.greek-cmd:hover {
 }
 
 .greek-card__word[lang="grc"] {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: 1.05rem;
 }
 
@@ -4103,15 +3891,15 @@ button.greek-cmd:hover {
   margin: 0;
   font-size: 0.8rem;
   line-height: 1.4;
-  color: rgba(var(--ink-rgb), 0.8);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .greek-card__line--quiet {
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .greek-card__lemma {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: 0.98rem;
   font-weight: 600;
   color: var(--text);
@@ -4127,7 +3915,7 @@ button.greek-cmd:hover {
   margin: 0;
   font-size: 0.72rem;
   font-weight: 700;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .greek-chips {
@@ -4178,7 +3966,7 @@ button.greek-cmd:hover {
   margin: 0;
   text-align: center;
   font-size: 0.75rem;
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .greek-close {
@@ -4314,13 +4102,13 @@ button.greek-cmd:hover {
 }
 
 .greek-ex__query {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: 1.02rem;
 }
 
 .greek-ex__says {
   font-size: 0.85rem;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* "Search commands" and its kin: a button that reads as a link. */
@@ -4348,7 +4136,7 @@ button.greek-cmd:hover {
   margin: 4px 0 0;
   font-size: 0.9rem;
   line-height: 1.45;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .greek-offer[hidden] {
@@ -4382,7 +4170,7 @@ button.greek-cmd:hover {
   padding: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   white-space: nowrap;
   cursor: pointer;
 }
@@ -4458,7 +4246,7 @@ button.greek-cmd:hover {
 .ref-preview__vn {
   font-size: 0.7em;
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* =========================================================

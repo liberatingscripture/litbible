@@ -89,7 +89,7 @@ test("E82: Pin shows on hover, focus, a link's target and while pinned, and is h
   const pin = "\\.footnotes > li\\.desk-fn";
   assert.match(css, new RegExp(`\\n${pin} > \\.desk-fn-pills > \\.desk-pin \\{\\s*opacity: 0;`));
   // It waits before hiding, so the pointer can cross the text-width line to reach it.
-  assert.match(css, /transition: opacity 120ms ease-out 400ms;/);
+  assert.match(css, /transition: opacity var\(--dur-quick\) var\(--ease\) 400ms;/);
   const shown = new RegExp(
     `${pin}:hover > \\.desk-fn-pills > \\.desk-pin,\\s*` +
       `${pin}:focus-within > \\.desk-fn-pills > \\.desk-pin,\\s*` +

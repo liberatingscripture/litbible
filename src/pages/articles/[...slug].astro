@@ -85,7 +85,6 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
   title={pageTitle}
   description={pageDescription}
   bg="cream"
-  headerClass="site-header--green"
   pageSearch
   ogImage={heroImage ? `${siteOrigin}${heroImage}` : undefined}
   ogType="article"
@@ -273,7 +272,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
 
     background: var(--surface-raised);
     border-radius: 22px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--color-hairline);
     overflow: hidden;
   }
 

@@ -304,7 +304,7 @@ const termLensJson = termLens?.marks.length
     /* Paragraph mode styling */
     .chapter-paragraphs :global(p) {
       margin: 0 0 12px;
-      line-height: calc(1.75 + var(--reading-leading-extra, 0));
+      line-height: calc(var(--leading-scripture) + var(--reading-leading-extra, 0));
     }
 
 
@@ -320,14 +320,16 @@ const termLensJson = termLens?.marks.length
       scroll-margin-top: 16px;
     }
 
-    /* Verse numbers inside paragraphs (ONLY these) */
+    /* Verse numbers inside paragraphs (ONLY these): Atkinson Hyperlegible
+       Next at 0.56 of the text, so they grow and shrink with it ("Sizes,
+       space, and the measure"), in deep green with no underline (global.css). */
     .chapter-paragraphs :global(sup.vn),
     .chapter-paragraphs :global(sup[id^="v"]) {
-      font-weight: 400; /* unbold */
-      font-size: 0.8em;
+      font-family: var(--font-control);
+      font-weight: 600;
+      font-size: var(--size-verse-number);
       line-height: 1;
       margin-right: 0;
-      opacity: 0.85; /* optional, subtle */
     }
 
     /* Footnote refs in the MAIN scripture text only */
@@ -379,11 +381,7 @@ const termLensJson = termLens?.marks.length
 
       text-decoration: none; /* no underline ever */
       user-select: none;
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
 
-      transition:
-        background-color 0.2s ease,
-        /* match ScriptureHeader timing */ transform 0.2s ease;
     }
 
     :global(.chapter-cta:hover) {
@@ -419,10 +417,12 @@ const termLensJson = termLens?.marks.length
     }
 
     /* Footnotes section */
+    /* Footnotes at full length are Text, under the chapter's Scripture size. */
     .footnotes-wrap {
       margin-top: 28px;
       padding-top: 18px;
-      border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+      border-top: 1px solid var(--color-hairline);
+      font-size: calc(var(--size-text) * var(--reading-scale, 1));
     }
 
     .footnotes-wrap h2 {
@@ -446,7 +446,7 @@ const termLensJson = termLens?.marks.length
 
     .footnotes .fn-body {
       margin: 0;
-      line-height: calc(1.6 + var(--reading-leading-extra, 0));
+      line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
       /* A raw web address in a note (Matthew 5's fn-oo) is one run of
          unbreakable characters and pushed the page sideways on a phone.
          `anywhere` breaks only a run that cannot fit a line by itself, and
@@ -488,12 +488,7 @@ const termLensJson = termLens?.marks.length
       color: var(--white, #fff);
       font-weight: 600;
 
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
 
-      transition:
-        background-color 0.18s ease,
-        color 0.18s ease,
-        transform 0.18s ease;
     }
 
     .back-to-top__link:hover {

@@ -28,10 +28,6 @@
   width: 100%;
   height: auto;
 
-  /* Real shadow (works because the SVG has pixels) */
-  filter:
-    drop-shadow(0 12px 26px rgba(0, 0, 0, 0.20))
-    drop-shadow(0 22px 44px rgba(0, 0, 0, 0.14));
 }
 
 /* Overlay layer */
@@ -57,7 +53,7 @@
 
 /* Lead statement (Fraunces) */
 .hero-lead {
-  font-family: "Fraunces", "Fraunces Fallback", serif;
+  font-family: var(--font-display);
   font-weight: 500;
   font-size: clamp(1.7rem, calc(var(--scroll-w) * 0.033), 3.2rem);
   line-height: 1.14;
@@ -65,10 +61,9 @@
   margin: 0 0 clamp(0.95rem, calc(var(--scroll-w) * 0.018), 1.85rem) 0;
 }
 
-/* Question (Inter, italic) */
+/* Question (Source Sans 3, italic) */
 .hero-question {
-  font-family: "Inter", "Inter Fallback", system-ui, -apple-system, Segoe UI,
-    Roboto, sans-serif;
+  font-family: var(--font-text);
   font-size: clamp(1.15rem, calc(var(--scroll-w) * 0.02), 1.9rem);
   line-height: 1.5;
   color: var(--text);
@@ -113,11 +108,6 @@
     height: 480px;
     max-height: 72vh;
     width: 100%;
-
-    /* Slightly stronger shadow on mobile where it reads faint */
-    filter:
-      drop-shadow(0 14px 28px rgba(0, 0, 0, 0.22))
-      drop-shadow(0 26px 52px rgba(0, 0, 0, 0.16));
   }
 
   .hero-inner {
@@ -242,7 +232,7 @@
    ========================================================= */
 
 .title-block__inner * {
-  font-family: "Crimson Text", "Crimson Fallback", serif;
+  font-family: var(--font-display);
 }
 
 /* Small lines:
@@ -278,7 +268,7 @@
 */
 .title-medium {
   font-size: clamp(2rem, 3.6vw, 2.8rem);
-  font-weight: 600;
+  font-weight: 500;
   margin: 0.22rem 0;
 }
 
@@ -289,7 +279,7 @@
 */
 .title-large {
   font-size: clamp(3.2rem, 6.4vw, 5.4rem);
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.03em;
   margin: 0.48rem 0;
 }
@@ -429,8 +419,7 @@
   background: var(--surface-raised);
   padding: 6rem 1.5rem;
 
-  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-text);
   color: var(--text);
 }
 
@@ -506,13 +495,13 @@
 
   padding: 4rem 4.5rem;
 
-  font-family: "Fraunces", "Fraunces Fallback", var(--serif, Georgia, serif);
+  font-family: var(--font-display);
 }
 
 /* Headline — uniform rhythm */
 .callout-head {
   margin: 0;
-  font-family: "Fraunces", "Fraunces Fallback", var(--serif, Georgia, serif);
+  font-family: var(--font-display);
   font-size: clamp(2.4rem, 4vw, 3.4rem);
 
   line-height: 1.22;
@@ -550,7 +539,6 @@
 
   stroke-dasharray: 260;
   stroke-dashoffset: 260;
-  transition: stroke-dashoffset 900ms ease;
 }
 
 /* Trigger underline animation when section enters viewport */
@@ -567,6 +555,7 @@
 
   padding: 14px 22px;
   min-width: 0;
+  font-family: var(--font-control);
 }
 
 /* =========================================================
@@ -590,7 +579,6 @@
 
     transform-origin: top;
     transform: scaleY(1);
-    transition: transform 380ms ease-in-out;
     will-change: transform;
   }
 
@@ -660,7 +648,7 @@
     padding: 2.75rem 2rem 4.75rem;
 
     background: var(--page-bg);
-    font-family: "Fraunces", "Fraunces Fallback", var(--serif, Georgia, serif);
+    font-family: var(--font-display);
   }
 
   .callout-head {
@@ -738,7 +726,7 @@
   line-height: 1.45;
   font-size: clamp(18px, 2.1vw, 34px);
 
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.10);
+  border: 1px solid var(--color-hairline);
 }
 
 /* Left/right alignment */
@@ -780,9 +768,7 @@
 .chat-bubble[data-animate="in"] {
   opacity: 0;
   transform: translateY(18px);
-  transition:
-    opacity 520ms ease,
-    transform 520ms ease;
+  transition: opacity var(--dur-settled) var(--ease), transform var(--dur-settled) var(--ease);
   transition-delay: var(--stagger, 0ms);
 }
 
@@ -822,7 +808,7 @@
    Questions block — green canvas + 3-card grid
    H2: serif (Crimson), white
    H3: serif (Crimson), white
-   Body: Inter, white
+   Body: Source Sans 3, white
    Images: forced square crop (object-fit)
    Buttons: full-width CTA with black curtain reveal -> green
    ========================================================= */
@@ -847,9 +833,8 @@
 }
 
 .questions-block__title {
-  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
-    serif;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 500;
   text-align: center;
   color: var(--white);
   margin: 0 0 clamp(26px, 4vw, 46px) 0;
@@ -910,19 +895,17 @@
 
 /* H3 question */
 .question-card__question {
-  font-family: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman",
-    serif;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 500;
   color: var(--white);
   margin: 0;
   font-size: clamp(2.0rem, 2.6vw, 3.2rem);
   line-height: 1.05;
 }
 
-/* Answer body (Inter) */
+/* Answer body (Source Sans 3) */
 .question-card__answer {
-  font-family: Inter, "Inter Fallback", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-text);
   /* Ink, not white: this sits directly on the green page background and can
      render below 24px, where white on #209D50 (3.5:1) fails AA's 4.5:1.
      Ink is 4.6:1 and holds in dark mode too (green page bg stays green,
@@ -970,9 +953,7 @@ a.question-cta {
   /* Text starts green on the black curtain */
   color: var(--green);
 
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
-
-  transition: color 220ms ease-in-out;
+  font-family: var(--font-control);
 }
 
 /* Green base layer */
@@ -994,7 +975,6 @@ a.question-cta::before {
   border-radius: inherit;
 
   clip-path: inset(0 0 0 0 round 16px);
-  transition: clip-path 380ms ease-in-out;
 
   z-index: -1;
 }

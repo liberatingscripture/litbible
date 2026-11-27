@@ -26,7 +26,6 @@
   --desk-btn-hover: rgba(var(--ink-rgb), 0.05);
   --desk-btn-down: rgba(0, 0, 0, 0.07);
   --desk-btn-lift-y: -1px;
-  --desk-btn-motion: 120ms;
   --desk-primary-edge: var(--green-deep);
   --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.35);
   --desk-primary-off: rgba(15, 107, 51, 0.06);
@@ -63,11 +62,10 @@
   --desk-pick-tint: rgba(58, 191, 106, 0.1);
 }
 
-/* No lift, no transition; the shadows still say hover and pressed. */
+/* No lift; the shadows still say hover and pressed. */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --desk-btn-lift-y: 0px;
-    --desk-btn-motion: 0s;
   }
 }
 
@@ -104,7 +102,7 @@
   margin: 0 0 8px;
   font-size: calc(0.82rem * var(--desk-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-cmds__more {
@@ -135,6 +133,7 @@
   background: none;
   color: var(--text);
   font: inherit;
+  font-family: var(--font-control);
   font-size: calc(0.9rem * var(--desk-ui, 1));
   text-align: left;
   text-decoration: none;
@@ -156,7 +155,7 @@
 
 .desk-cmds__hint {
   font-size: calc(0.75rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* ── 1d: search (your notebook and commands) ── */
@@ -171,6 +170,7 @@
   background: none;
   border: 0;
   font: inherit;
+  font-family: var(--font-control);
   text-align: left;
   cursor: pointer;
 }
@@ -292,6 +292,7 @@
   border-radius: 8px;
   color: var(--text);
   font: inherit;
+  font-family: var(--font-control);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -327,10 +328,6 @@
   border-bottom-color: var(--desk-btn-edge-low);
   background: var(--desk-control);
   box-shadow: var(--desk-btn-rest);
-  transition:
-    transform var(--desk-btn-motion) ease,
-    box-shadow var(--desk-btn-motion) ease,
-    background-color var(--desk-btn-motion) ease;
 }
 
 .desk-gather__btn:where(:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)):hover:not(:disabled, [aria-disabled="true"], :active) {
@@ -349,7 +346,7 @@
 .desk-gather__btn:where(:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)):is(:disabled, [aria-disabled="true"]) {
   border-color: var(--field-border);
   background: var(--desk-control);
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   box-shadow: none;
   cursor: default;
 }
@@ -363,10 +360,6 @@
   color: #fff;
   font-weight: 600;
   box-shadow: var(--desk-btn-rest);
-  transition:
-    transform var(--desk-btn-motion) ease,
-    box-shadow var(--desk-btn-motion) ease,
-    filter var(--desk-btn-motion) ease;
 }
 
 .desk-gather__btn--primary:hover:not(:disabled, [aria-disabled="true"], :active) {
@@ -408,7 +401,7 @@
 
 .desk-gather__note,
 .desk-gather__sheet-meta {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-gather :is(button, a, input):focus-visible {
@@ -461,6 +454,7 @@
   background: transparent;
   color: var(--text);
   font: inherit;
+  font-family: var(--font-control);
   text-align: left;
   cursor: pointer;
 }
@@ -523,7 +517,7 @@
 .search-page .desk-gather__row-item--picked > .result-link:active,
 .search-page .desk-gather__row-item--picked > .greek-card {
   border-color: rgba(var(--ink-rgb), 0.24);
-  box-shadow: inset 3px 0 0 var(--green-text), 0 10px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: inset 3px 0 0 var(--green-text);
 }
 
 /* Forced colors draw no fill or shadow: the primary takes a thicker edge

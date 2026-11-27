@@ -1,7 +1,7 @@
 /* =========================================================
    Articles page styles (Astro)
    Uses ONLY:
-   - solid tokens: --cream, --white, --green, --ink, --black
+   - theme tokens: --text, --text-strong, --page-bg, --color-hairline, --green-text, --green-deep, --white
    - rgba(0,0,0,alpha) for overlays/shadows only.
    ========================================================= */
 
@@ -9,8 +9,7 @@
    Hero
    ========================= */
 .articles-hero {
-  background: var(--green);
-  color: var(--white);
+  color: var(--text);
   padding: clamp(72px, 9vh, 108px) var(--gutter) 44px;
 }
 
@@ -24,30 +23,20 @@
   font-size: clamp(2.25rem, 4vw, 3.25rem);
   line-height: 1.1;
   margin: 0 0 12px;
-  color: var(--white);
+  color: var(--text-strong);
 }
 
 .articles-hero__subtitle {
   margin: 0 auto 22px;
   max-width: calc(62 * var(--ch));
   font-size: 1.05rem;
-  /* Ink at full opacity, not the hero's inherited white: at this size white
-     on #209D50 is 3.5:1 and WCAG AA needs 4.5:1; ink is 4.6:1. The title
-     above stays white — it always renders as large text (3:1 bar). */
-  color: var(--ink);
-  opacity: 1;
+  /* The second ink: secondary words on the page, following the theme. */
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .articles-hero__search {
   width: min(720px, 100%);
   margin: 0 auto;
-}
-
-/* The search input and button sit straight on the hero's fixed green, so their
-   ring is ink (4.58:1). Pinned on the form, not the hero: the results panel is
-   a sibling with a themed surface of its own and keeps the page's ring. */
-.articles-hero .searchbar__form {
-  --focus-ring: var(--ink);
 }
 
 /* Divider pill */
@@ -59,7 +48,7 @@
   width: min(520px, 100%);
   margin-left: auto;
   margin-right: auto;
-  background: rgba(0, 0, 0, 0.18);
+  background: var(--color-hairline);
 }
 
 /* =========================
@@ -82,7 +71,7 @@
 
   background: var(--surface-raised);
   border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-hairline);
   padding: 18px;
 }
 
@@ -173,11 +162,6 @@
   color: var(--white);
 
   cursor: pointer;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-  transition:
-    transform 180ms ease-in-out,
-    background-color 180ms ease-in-out,
-    color 180ms ease-in-out;
 }
 
 .btn--cta:hover,
@@ -207,7 +191,7 @@
   color: inherit;
   text-decoration: none;
 
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-hairline);
 }
 
 @media (min-width: 900px) {
@@ -282,7 +266,7 @@
   background: var(--surface-raised);
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-hairline);
 }
 
 .articles .card__link {
@@ -429,7 +413,7 @@
 
 /* =========================================================
    Tray normalization on /articles
-   The hero sets white + centered text; the tray needs ink + left.
+   The hero centers its text; the tray needs left.
    ========================================================= */
 
 /* Your wrapper in articles.astro is .articles-hero-search */
@@ -438,7 +422,7 @@
   color: var(--text);
 }
 
-/* Ensure tray content doesn't inherit hero centering / white text */
+/* Ensure tray content doesn't inherit hero centering */
 .articles-hero-search .searchbar__tray,
 .articles-hero-search .searchbar__tray * {
   text-align: left;
@@ -472,7 +456,7 @@
 
   background: var(--surface-raised);
   border-radius: 22px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-hairline);
   overflow: hidden;
 
   padding: 18px;

@@ -386,7 +386,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      the CSS Custom Highlight API. Copy text, the handout and the desk's
      anchor reader all read the verses off the page. Their face is Playpen
      Sans (`desk.css`; see `src/styles/CLAUDE.md`), or
-     Inter on "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
+     the text face (Source Sans 3) on "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
      `html[data-font]`. Featherboa drops Playpen Sans and "Plain": the notes
      take the Display face, on a sunshine tint (`SITE-FEATHERBOA.md`, "The
      reading page"); until it is built, this holds. Bookmarks show in the same `<aside>` as a red mark

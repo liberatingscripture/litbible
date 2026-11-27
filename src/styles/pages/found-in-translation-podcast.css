@@ -6,40 +6,8 @@
   /* First section background should be white */
   background: var(--surface-raised);
 
-  /* Page-scoped heading font */
-  --fit-serif: "Crimson Text", serif;
-
-  /* Curve controls */
-  --fit-curve-h: 92px;        /* height of the curve graphic */
-  --fit-curve-stroke: 10px;   /* visible “line” thickness */
-  --fit-cream: #E1DFD9;       /* match your global --cream */
-  --fit-white: #FAFAF8;       /* near-white raised surface (matches --surface-raised) */
-
-  /* SVG curves (top + bottom) */
-  --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23E1DFD9'/%3E%3C/svg%3E");
-  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%23FAFAF8'/%3E%3C/svg%3E");
-
-  --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23E1DFD9'/%3E%3C/svg%3E");
-  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%23FAFAF8'/%3E%3C/svg%3E");
-
   /* Prevent any 100vw bleed from causing horizontal scroll */
   overflow-x: clip;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .fit-page {
-    --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
-    --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
-    --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
-    --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
-  }
-}
-
-:root[data-theme="dark"] .fit-page {
-  --fit-wave-top-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
-  --fit-wave-top-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200H1440V70Q720%20130%200%2070Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
-  --fit-wave-bot-cream: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%230E0E0F'/%3E%3C/svg%3E");
-  --fit-wave-bot-white: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201440%20120'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2050Q720%20-10%201440%2050V120H0Z'%20fill='%231d1d1f'/%3E%3C/svg%3E");
 }
 
 /* Header is NOT inside .fit-page, so .fit-page .site-header won't hit.
@@ -114,7 +82,7 @@ body:has(.fit-page) .site-header.has-bg {
   padding: clamp(22px, 4vw, 54px);
   text-align: center;
 
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 
   max-width: calc(72 * var(--ch));
   margin: 0 auto;
@@ -122,7 +90,7 @@ body:has(.fit-page) .site-header.has-bg {
 
 .fit-hero__title {
   margin: 0 0 10px;
-  font-family: var(--fit-serif);
+  font-family: var(--font-display);
   font-size: clamp(2.1rem, 5vw, 4rem);
   line-height: 1.08;
   letter-spacing: 0.02em;
@@ -169,7 +137,6 @@ body:has(.fit-page) .site-header.has-bg {
   height: auto;
 
   border-radius: 30px;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(var(--ink-rgb), 0.10);
 
   display: block;
@@ -200,15 +167,7 @@ body:has(.fit-page) .site-header.has-bg {
   background: var(--green-deep);
   color: #fff;
 
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
   border: 1px solid rgba(var(--ink-rgb), 0.10);
-
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease,
-    border-color 160ms ease;
 }
 
 .fit-platform:hover {
@@ -216,7 +175,6 @@ body:has(.fit-page) .site-header.has-bg {
   background: var(--surface-raised);
   color: var(--green-text);
   border-color: rgba(var(--ink-rgb), 0.12);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
 }
 
 .fit-platform:focus-visible {
@@ -271,51 +229,26 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 /* -------------------------
-   SECTIONS (with curved breaks)
+   SECTIONS
    ------------------------- */
 
-/* Use a shared variable so we can add “curve space” cleanly */
 .fit-section {
   --fit-section-pad: clamp(42px, 6vw, 78px);
   padding: var(--fit-section-pad) 16px;
 }
 
 .fit-section--green {
-  /* The green block itself */
-  background-color: var(--green-text);
-  color: #fff;
+  /* A tint band: space and a tint set it apart, no color behind the words */
+  background: var(--color-tint);
+  color: var(--text);
+}
 
-  /* Make room so content doesn’t collide with curves */
-  padding-top: calc(var(--fit-section-pad) + var(--fit-curve-h));
-  padding-bottom: calc(var(--fit-section-pad) + var(--fit-curve-h));
+.fit-section--green a {
+  color: var(--green-text);
+}
 
-  /* Curves:
-     TOP: cream “line” (stroke) under a slightly smaller white cutout
-     BOTTOM: subtle white highlight line + cream cutout into the next cream section
-  */
-  background-image:
-    /* TOP white cutout (smaller) */
-    var(--fit-wave-top-white),
-    /* TOP cream stroke (bigger, shows as a cream line) */
-    var(--fit-wave-top-cream),
-
-    /* BOTTOM cream cutout (smaller) */
-    var(--fit-wave-bot-cream),
-    /* BOTTOM white highlight (bigger, shows as a thin white line) */
-    var(--fit-wave-bot-white);
-
-  background-repeat: no-repeat;
-  background-position:
-    top center,
-    top center,
-    bottom center,
-    bottom center;
-
-  background-size:
-    100% calc(var(--fit-curve-h) - var(--fit-curve-stroke)),
-    100% var(--fit-curve-h),
-    100% calc(var(--fit-curve-h) - var(--fit-curve-stroke)),
-    100% var(--fit-curve-h);
+.fit-section--green .fit-h2 {
+  color: var(--text-strong);
 }
 
 .fit-section--cream {
@@ -327,7 +260,7 @@ body:has(.fit-page) .site-header.has-bg {
   margin: 0 0 28px;
   text-align: center;
 
-  font-family: var(--fit-serif);
+  font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3.25rem);
   letter-spacing: 0.02em;
 }
@@ -336,7 +269,7 @@ body:has(.fit-page) .site-header.has-bg {
   margin: -6px 0 0;
   text-align: center;
 
-  font-family: var(--fit-serif);
+  font-family: var(--font-text);
   font-size: clamp(1.3rem, 2.6vw, 2rem);
   opacity: 0.92;
 }
@@ -353,8 +286,7 @@ body:has(.fit-page) .site-header.has-bg {
   border-radius: 18px;
   overflow: hidden;
 
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--color-hairline);
 }
 
 .fit-embed iframe {
@@ -458,7 +390,7 @@ body:has(.fit-page) .site-header.has-bg {
 .fit-episodes__kicker {
   margin: 0 0 28px;
   text-align: center;
-  font-family: var(--fit-serif);
+  font-family: var(--font-display);
   font-size: clamp(2.2rem, 4.6vw, 3.2rem);
   line-height: 1.1;
 }
@@ -549,7 +481,7 @@ body:has(.fit-page) .site-header.has-bg {
 .fit-episodes__kicker {
   margin: 0 0 22px;
   text-align: center;
-  font-family: var(--fit-serif);
+  font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3rem);
   letter-spacing: 0.01em;
 }
@@ -578,7 +510,6 @@ body:has(.fit-page) .site-header.has-bg {
 
   padding: clamp(16px, 2.5vw, 22px);
 
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.06);
 }
 
 /* Title */
@@ -588,7 +519,7 @@ body:has(.fit-page) .site-header.has-bg {
   font-weight: 800;
   font-size: clamp(1.2rem, 2.1vw, 1.55rem);
   line-height: 1.25;
-  color: rgba(var(--ink-rgb), 0.86);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* Link pills */
@@ -616,12 +547,10 @@ body:has(.fit-page) .site-header.has-bg {
   border-radius: 999px;
 
   background: rgba(var(--surface-rgb), 0.72);
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 
   border: 1px solid rgba(var(--ink-rgb), 0.14);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
 
-  transition: transform 140ms ease;
 }
 
 .fit-episodes .fit-ep__links a:hover {
@@ -629,7 +558,6 @@ body:has(.fit-page) .site-header.has-bg {
   background: var(--green-deep);
   color: #fff;
   border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.10);
 }
 
 .fit-episodes .fit-ep__links a:active {
@@ -669,13 +597,12 @@ body:has(.fit-page) .site-header.has-bg {
   border-radius: 50%;
   border: 1px solid rgba(var(--ink-rgb), 0.18);
   background: rgba(var(--surface-rgb), 0.6);
-  color: rgba(var(--ink-rgb), 0.6);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .fit-season-arrow:hover {
@@ -697,7 +624,6 @@ body:has(.fit-page) .site-header.has-bg {
   bottom: 4px;
   width: 48px;
   pointer-events: none;
-  transition: opacity 200ms ease;
 }
 
 .fit-season-nav-wrap::before {
@@ -746,16 +672,12 @@ body:has(.fit-page) .site-header.has-bg {
   border-radius: 999px;
   border: 1px solid rgba(var(--ink-rgb), 0.18);
   background: rgba(var(--surface-rgb), 0.6);
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease,
-    border-color 140ms ease;
 }
 
 .fit-season-nav a:hover {
@@ -774,11 +696,11 @@ body:has(.fit-page) .site-header.has-bg {
 }
 
 .fit-season-heading {
-  font-family: var(--fit-serif);
+  font-family: var(--font-display);
   font-size: clamp(1.5rem, 3vw, 2.1rem);
   font-weight: 400;
   letter-spacing: 0.04em;
-  color: rgba(var(--ink-rgb), 0.5);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   text-transform: uppercase;
   margin: 0 0 clamp(20px, 3vw, 32px);
   padding-bottom: 10px;
@@ -792,9 +714,8 @@ body:has(.fit-page) .site-header.has-bg {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.45);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   text-decoration: none;
-  transition: color 140ms ease;
 }
 
 .fit-season-top:hover {

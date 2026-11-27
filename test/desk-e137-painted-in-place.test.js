@@ -20,7 +20,7 @@ const { MIN_KEY } = await import("../src/lib/desk-start.mjs");
 const { FIRST_PAINT, MOVE_PROP, firstPaint } = await import("../src/lib/desk-margin.mjs");
 
 const root = document.documentElement;
-const CH = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16; // Inter, Medium
+const CH = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16; // Source Sans 3, Medium
 const columnWidth = () => (root.hasAttribute("data-desk-expanded") ? 48 : 52) * CH + FIRST_PAINT.pad;
 
 let viewport = 1009; // a 1024px window less its scrollbar
@@ -80,30 +80,30 @@ test("E137: the rail takes over the move the page was painted with, and the colu
   viewport = 1009;
   const { column, panel, tab } = page();
   const fp = prePaint();
-  assert.equal(fp.shift, 104);
+  assert.equal(fp.shift, 85);
   const painted = column.getBoundingClientRect().left;
-  assert.equal(Math.round(painted), 112, "painted moved: 104px left of center");
+  assert.equal(Math.round(painted), 150, "painted moved: 85px left of center");
 
   const moves = countMoves();
   const rail = createRail(panel, tab);
   // Taken over as the rail is made: its own translate, and the stamp gone.
-  assert.equal(column.style.translate, "-104px 0");
+  assert.equal(column.style.translate, "-85px 0");
   assert.equal(root.style.getPropertyValue(MOVE_PROP), "");
   assert.equal(column.getBoundingClientRect().left, painted, "in the same place");
 
   rail.show(); // as the panel does on a page that starts open
   assert.deepEqual(rail.state(), { floating: false, collapsed: false }, "expanded, in the margin");
-  assert.equal(column.style.translate, "-104px 0", "the first placement makes the same move");
+  assert.equal(column.style.translate, "-85px 0", "the first placement makes the same move");
   assert.equal(column.getBoundingClientRect().left, painted);
   assert.equal(root.hasAttribute("data-desk-expanded"), true);
-  assert.equal(root.style.getPropertyValue("--desk-bar-center"), "400.5px", "the center it was stamped with");
+  assert.equal(root.style.getPropertyValue("--desk-bar-center"), "419.5px", "the center it was stamped with");
   assert.equal(moves.count, 0, "nothing was told the column moved, since it didn't");
 
   // From here the move is the rail's as before: a wider window needs less…
   viewport = 1085;
   window.dispatchEvent(new Event("resize"));
   await settle(5);
-  assert.equal(column.style.translate, "-66px 0");
+  assert.equal(column.style.translate, "-47px 0");
   assert.equal(moves.count, 1);
   // …and one whose margin holds the notebook, none: no translate at all, and
   // no stamp left behind to bring one back.
@@ -112,7 +112,7 @@ test("E137: the rail takes over the move the page was painted with, and the colu
   await settle(5);
   assert.equal(column.style.translate, "");
   assert.equal(root.style.getPropertyValue(MOVE_PROP), "");
-  assert.equal(Math.round(column.getBoundingClientRect().left), 344, "centered");
+  assert.equal(Math.round(column.getBoundingClientRect().left), 363, "centered");
   moves.stop();
   rail.destroy();
 });
@@ -123,13 +123,13 @@ test("E137: minimizing and hiding the Notebook put the column back", () => {
   prePaint();
   const rail = createRail(panel, tab);
   rail.show();
-  assert.equal(column.style.translate, "-104px 0");
+  assert.equal(column.style.translate, "-85px 0");
   // Folded to its tab, the column is the 52 column, centered: the tab needs no room here.
   rail.collapse();
   assert.equal(root.hasAttribute("data-desk-expanded"), false);
   assert.equal(column.style.translate, "");
   rail.expand();
-  assert.equal(column.style.translate, "-104px 0");
+  assert.equal(column.style.translate, "-85px 0");
   rail.hide();
   assert.equal(column.style.translate, "");
   assert.equal(root.style.getPropertyValue("--desk-bar-center"), "");
@@ -158,7 +158,7 @@ test("E137: with no stamp the rail starts from an unmoved column, as before", ()
   rail = createRail(panel, tab);
   assert.equal(column.style.translate, "");
   rail.show({ expand: true });
-  assert.equal(column.style.translate, "-104px 0");
+  assert.equal(column.style.translate, "-85px 0");
   assert.equal(moves.count, 1);
   moves.stop();
   rail.destroy();
@@ -169,7 +169,7 @@ test("E137: a stamp is taken over only where it is drawn", () => {
   // Not while the notebook isn't marked expanded (global.css's rule needs it).
   let { column, panel, tab } = page();
   root.setAttribute("data-desk", "on");
-  root.style.setProperty(MOVE_PROP, "-104px 0");
+  root.style.setProperty(MOVE_PROP, "-85px 0");
   let rail = createRail(panel, tab);
   assert.equal(column.style.translate, "");
   assert.equal(root.style.getPropertyValue(MOVE_PROP), "", "and it doesn't linger");
@@ -179,7 +179,7 @@ test("E137: a stamp is taken over only where it is drawn", () => {
   ({ column, panel, tab } = page({ read: true }));
   root.setAttribute("data-desk", "on");
   root.setAttribute("data-desk-expanded", "");
-  root.style.setProperty(MOVE_PROP, "-104px 0");
+  root.style.setProperty(MOVE_PROP, "-85px 0");
   rail = createRail(panel, tab);
   for (const el of document.querySelectorAll(".rm-toolbar, .rm-reader")) assert.equal(el.style.translate, "");
   assert.equal(root.style.getPropertyValue(MOVE_PROP), "");
@@ -190,7 +190,7 @@ test("E137: if the desk never loads, standing down puts the column back", () => 
   viewport = 1009;
   const { column } = page();
   prePaint();
-  assert.equal(Math.round(column.getBoundingClientRect().left), 112, "painted moved");
+  assert.equal(Math.round(column.getBoundingClientRect().left), 150, "painted moved");
   standDown();
   assert.equal(root.style.getPropertyValue(MOVE_PROP), "");
   assert.equal(root.style.getPropertyValue("--desk-bar-center"), "");
@@ -203,7 +203,7 @@ test("E137: if the desk never loads, standing down puts the column back", () => 
   const next = page();
   prePaint();
   createRail(next.panel, next.tab);
-  assert.equal(next.column.style.translate, "-104px 0");
+  assert.equal(next.column.style.translate, "-85px 0");
   standDown();
   assert.equal(next.column.style.translate, "");
 });

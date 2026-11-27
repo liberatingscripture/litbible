@@ -1,9 +1,10 @@
 ---
+import "../styles/tokens.css";
 import "../styles/global.css";
 import "../styles/print.css";
 import SiteHeader from "../components/SiteHeader.astro";
-import interLatin400Url from "@fontsource/inter/files/inter-latin-400-normal.woff2";
-import crimsonLatin600Url from "@fontsource/crimson-text/files/crimson-text-latin-600-normal.woff2";
+import sourceSansLatinUrl from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2";
+import frauncesLatinUrl from "@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2";
 import SiteFooter from "../components/SiteFooter.astro";
 import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
 import AppInstallBanner from "../components/AppInstallBanner.astro";
@@ -58,13 +59,14 @@ const siteOrigin = Astro.site ? Astro.site.origin : "https://litbible.net";
 const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo-2026-ring.png`;
 
 // Critical inline style values — prevent FOUC before external stylesheet loads.
-// green pages stay green in dark mode (brand color); all others flip to dark bg.
+// Green pages stay green in dark mode (brand color); every other page is the
+// paper by day and the night page by night (tokens.css: --color-page and
+// --color-text), whatever its bg, since the cream went ("Surfaces").
 const isGreen = bg === "green";
-const isWhite = bg === "white";
-const criticalBg        = isGreen ? "#209D50" : isWhite ? "#FAFAF8" : "#E1DFD9";
-const criticalColor     = isGreen ? "#E1DFD9" : "#1d231c";
-const criticalDarkBg    = isGreen ? "#209D50" : isWhite ? "#1d1d1f" : "#0E0E0F";
-const criticalDarkColor = isGreen ? "#E1DFD9" : "#F0F0F0";
+const criticalBg        = isGreen ? "#209D50" : "#FAFAF8";
+const criticalColor     = isGreen ? "#FAFAF8" : "#1D231C";
+const criticalDarkBg    = isGreen ? "#209D50" : "#111411";
+const criticalDarkColor = isGreen ? "#FAFAF8" : "#ECEEE8";
 // scrollbar-gutter, header min-height, and main min-height are reserved here
 // (not just in global.css) so the early paint shares the final layout geometry.
 // .site-header covers the outer element; .site-header__inner covers the inner.
@@ -206,9 +208,11 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
          Colors are bg-specific so no flash occurs on green or dark-mode pages. */}
     <Fragment set:html={`<style>${criticalCSS}</style>`} />
 
-    {/* Font preloads: start fetching before CSS is parsed */}
-    <link rel="preload" href={interLatin400Url} as="font" type="font/woff2" crossorigin="anonymous" />
-    <link rel="preload" href={crimsonLatin600Url} as="font" type="font/woff2" crossorigin="anonymous" />
+    {/* Font preloads: start fetching before CSS is parsed. Source Sans 3 draws
+         every page's text and Fraunces every page's title, each one variable
+         file for all its weights (faces.css). */}
+    <link rel="preload" href={sourceSansLatinUrl} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={frauncesLatinUrl} as="font" type="font/woff2" crossorigin="anonymous" />
 
     {/* Favicons & manifest */}
     <link rel="icon" href="/favicon.ico" sizes="48x48" />

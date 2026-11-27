@@ -1,0 +1,178 @@
+/* =========================================================
+   The faces Featherboa reads in (SITE-FEATHERBOA.md, "Type"): Fraunces for
+   headings, titles, heroes, and the chapter numeral; Source Sans 3 for
+   everything read at length. Atkinson Hyperlegible Next, the face for
+   controls, and OpenDyslexic are imported in global.css, as they were.
+   The stacks that name these faces are tokens (tokens.css: --font-display,
+   --font-text, --font-control).
+
+   Each rule is written out rather than imported from the packages' CSS, so
+   the site serves only the subsets it reads: Latin, and Source Sans 3's
+   polytonic Greek (the Greek in sans text and the Greek tab's SBLGNT).
+   Every rule carries a unicode-range, so a file is fetched only on a page
+   with its letters. Source Sans 3's Latin Extended (a transliteration's
+   ē and ō, in 29 chapters) is served too, so a word never mixes
+   faces; its ranges leave out what the Latin file has, so a page fetches
+   it only for such a letter (SITE-FEATHERBOA-BUILD.md, the queue's Q9).
+
+   Fraunces is the variable font with all four of its axes (opsz, wght,
+   SOFT, WONK): Fontsource's "full" files are the only ones that carry both
+   softness and wonk, which its settings use (tokens.css, --fraunces-*).
+   Its italic is for one large line on a front-door page, so it is fetched
+   only there. Greek and Hebrew in Fraunces come from Cardo, registered
+   under the same family in greek-hebrew-fonts.css.
+   ========================================================= */
+
+/* ---------- Source Sans 3 (200 to 900, upright and italic) ---------- */
+/* Latin Extended first: where a range overlapped the Latin file's, the
+   face declared later would be tried first. */
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-latin-ext-wght-italic.woff2") format("woff2-variations");
+  unicode-range: U+0100-0130, U+0132-0151, U+0154-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-italic.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-italic.woff2") format("woff2-variations");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-italic.woff2") format("woff2-variations");
+  unicode-range: U+1F00-1FFF;
+}
+
+/* ---------- Fraunces (100 to 900, with opsz, SOFT, and WONK) ---------- */
+@font-face {
+  font-family: "Fraunces Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Fraunces Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("@fontsource-variable/fraunces/files/fraunces-latin-full-italic.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------- ⟦ ⟧, the bracket markers (U+27E6, U+27E7) ----------
+   These wrap the six disputed-passage spans in scripture paragraphs
+   ("Bracketed passages," src/data/chapters/CLAUDE.md), and no text face
+   here has them. unicode-range scopes each patch to the two characters
+   under the SAME family name as the real face, so the browser fetches
+   bracket-markers.otf only on the six pages that hold one and uses it for
+   those two characters alone. Regenerate the file with
+   `npm run build:bracket-font`.
+
+   font-display is `block` here, not `swap`: the fallback IS the failure
+   this patch exists to prevent (a system bracket, or a missing-glyph box),
+   so swapping would flash exactly the wrong glyph. The file is 1.7KB and
+   same-origin, so the block is imperceptible.
+
+   Each patch copies its family's weight and style descriptors exactly; a
+   browser joins faces of one family only when they match
+   (greek-hebrew-fonts.css, rule 4). */
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  src: url("/fonts/bracket-markers.otf") format("opentype");
+  font-display: block;
+  font-weight: 200 900;
+  unicode-range: U+27E6-27E7;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/bracket-markers.otf") format("opentype");
+  font-display: block;
+  unicode-range: U+27E6-27E7;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  src: url("/fonts/bracket-markers.otf") format("opentype");
+  font-display: block;
+  font-weight: 200 800;
+  unicode-range: U+27E6-27E7;
+}
+
+/* ---------- Fallback faces fitted to each face ----------
+   These paint in the moment before a face arrives, so a swap moves
+   nothing: each is a local face scaled so its average character (spaces
+   included, measured over John 1) is as wide as the real one's, so lines
+   break in the same places, with the real face's ascent and descent. */
+@font-face {
+  font-family: "Source Sans 3 Fallback";
+  src: local("Arial");
+  size-adjust: 93.09%;
+  ascent-override: 110%;
+  descent-override: 42.97%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Fallback";
+  src: local("Arial");
+  size-adjust: 99.11%;
+  ascent-override: 99.28%;
+  descent-override: 31.88%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fraunces Variable Fallback";
+  src: local("Georgia");
+  size-adjust: 91.6%;
+  ascent-override: 106.8%;
+  descent-override: 27.8%;
+  line-gap-override: 0%;
+}

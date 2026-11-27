@@ -121,8 +121,8 @@ companion iOS/Android apps consume.
   Cloudflare Pages. Read `scripts/CLAUDE.md`, "The toolchain's pins," before
   changing either.
 - **TypeScript** (strict, `astro/tsconfigs/strict`); **vanilla CSS** (no
-  utility framework): `global.css` plus a per-page stylesheet under
-  `src/styles/pages/`.
+  utility framework): `tokens.css` (Featherboa's colors, sizes, and speeds),
+  `global.css`, and a per-page stylesheet under `src/styles/pages/`.
 - **No client framework, no hydration.** Hand-written vanilla JS in
   `src/scripts/` is progressive enhancement only; the site is fully
   functional with JS disabled.
@@ -131,7 +131,9 @@ companion iOS/Android apps consume.
   over `dist/`) covers glossary, articles and book intros. A third, the Greek
   (`public/greek/search/`), runs only with the Study Desk preview on
   (`public/greek/CLAUDE.md`, rule 15).
-- **Fonts**: `@fontsource` faces, Latin only (`src/styles/CLAUDE.md`).
+- **Fonts**: three faces by job, Fraunces for headings, Source Sans 3 for
+  reading, Atkinson Hyperlegible Next for controls, from `@fontsource`
+  files served Latin only (`src/styles/CLAUDE.md`).
   **Icons**: simple-icons.
 
 ## Common Commands

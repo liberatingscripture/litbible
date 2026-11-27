@@ -122,7 +122,7 @@
   margin: 0.9em 0;
   padding: 0.1em 0 0.1em 0.9em;
   border-left: 3px solid rgba(var(--ink-rgb), 0.28);
-  color: rgba(var(--ink-rgb), 0.86);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-style: italic;
 }
 
@@ -263,6 +263,7 @@
   background: transparent;
   color: var(--text);
   font: inherit;
+  font-family: var(--font-control);
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   cursor: pointer;
 }

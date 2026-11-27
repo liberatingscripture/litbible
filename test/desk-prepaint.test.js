@@ -433,14 +433,14 @@ function stamps(want) {
 }
 
 test("in a window too narrow for the margin, the notebook isn't stamped expanded (BA25)", () => {
-  // 280 + 16 + 24 + 38 + 48 × 0.63086 × 18 + 32 ≈ 935.06 at the default font and
+  // 280 + 16 + 24 + 38 + 48 × 0.497 × 1.33 × 16 + 32 ≈ 897.66 at the default font and
   // size: the notebook, its edge and gap, the margin the column keeps on its
-  // left for a footnote's Pin (E81; 897 before it), and the column.
-  assert.deepEqual(run({ stored: expandedStart, viewport: 935 }).attrs, { "data-desk": "on", "data-desk-panel": "open" });
-  assert.deepEqual(run({ stored: expandedStart, viewport: 936 }).attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  // left for a footnote's Pin (E81), and the column.
+  assert.deepEqual(run({ stored: expandedStart, viewport: 897 }).attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  assert.deepEqual(run({ stored: expandedStart, viewport: 898 }).attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
   // What counts is the width less the scrollbar, which the script measures.
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 935, scrollbar: 0 }).attrs, false);
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 936, scrollbar: 0 }).attrs, true);
+  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 897, scrollbar: 0 }).attrs, false);
+  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 898, scrollbar: 0 }).attrs, true);
   // A larger text size widens the column, so a half-screen window floats it.
   const lg = { "data-size": "lg" };
   assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 945, html: lg }).attrs, false);
@@ -501,7 +501,7 @@ test("the script decides as firstPaint does, for every font, size and window", (
 // second later adds the notebook," the text shifting back and forth. The
 // column's move left came only with the desk's code. Now the script stamps it.
 
-const FONTS = { Inter: "", OpenDyslexic: "dyslexic" };
+const FONTS = { "Source Sans 3": "", OpenDyslexic: "dyslexic" };
 const SIZES = { Medium: "", "Extra large": "xl" };
 // A 1024px, an 1100px and a 1280px window, each less a 15px scrollbar.
 const WINDOWS = [1024, 1100, 1280];
@@ -509,10 +509,10 @@ const WINDOWS = [1024, 1100, 1280];
 test("E137: the move left is stamped before paint exactly as placeInMargin will make it", () => {
   // The moves a reader gets, by window, at the default root size.
   const expected = {
-    "Inter Medium": [104, 66, 0],
-    "Inter Extra large": [null, null, 52], // null: too narrow, the notebook floats and folds
-    "OpenDyslexic Medium": [48, 10, 0],
-    "OpenDyslexic Extra large": [108, 70, 0],
+    "Source Sans 3 Medium": [85, 47, 0],
+    "Source Sans 3 Extra large": [null, 118, 28], // null: too narrow, the notebook floats and folds
+    "OpenDyslexic Medium": [87, 49, 0],
+    "OpenDyslexic Extra large": [null, 120, 30],
   };
   for (const [fontName, font] of Object.entries(FONTS)) {
     for (const [sizeName, size] of Object.entries(SIZES)) {
@@ -578,9 +578,9 @@ test("E137: every font, size and window gets the move placeInMargin makes", () =
 });
 
 test("E137: nothing is stamped for a minimized, closed or hidden Notebook, or with the desk off", () => {
-  // 1009px: where an expanded notebook moves the column 104px.
+  // 1009px: where an expanded notebook moves the column 85px.
   const moved = run({ stored: expandedStart, viewport: 1009 });
-  assert.equal(moved.props[MOVE_PROP], "-104px 0");
+  assert.equal(moved.props[MOVE_PROP], "-85px 0");
   const states = [
     { "lit-desk-preview": "on" }, // open and minimized, the default
     { "lit-desk-preview": "on", "lit-desk-min": "1" },

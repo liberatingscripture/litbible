@@ -803,7 +803,7 @@ const menuData = {
                    one span of this kind — a multi-option gloss draws each
                    option's underline in turn rather than all at once. A
                    single-span title passes 0 and is unchanged. */
-                function drawInkForSpan(span, kind, order = 0) {
+                function drawInkForSpan(span, kind) {
                   const title = span.closest(".entry-title");
                   if (!title) return;
 
@@ -859,14 +859,6 @@ const menuData = {
 
                     path.setAttribute("stroke-width", strokeW.toFixed(2));
 
-                    const len = path.getTotalLength();
-                    path.style.strokeDasharray = `${len}`;
-                    path.style.strokeDashoffset = `${len}`;
-                    path.style.transition =
-                      "stroke-dashoffset 900ms cubic-bezier(0.25, 0.8, 0.25, 1)";
-                    if (order > 0) {
-                      path.style.transitionDelay = `${order * 170}ms`;
-                    }
 
                     svg.appendChild(path);
                     title.appendChild(svg);
@@ -881,10 +873,10 @@ const menuData = {
                     clearInk(title);
                     title
                       .querySelectorAll(".entries-strike")
-                      .forEach((s, i) => drawInkForSpan(s, "strike", i));
+                      .forEach((s) => drawInkForSpan(s, "strike"));
                     title
                       .querySelectorAll(".entries-underline")
-                      .forEach((s, i) => drawInkForSpan(s, "underline", i));
+                      .forEach((s) => drawInkForSpan(s, "underline"));
                   });
 
                   // reveal immediately for already-visible entries (above fold)

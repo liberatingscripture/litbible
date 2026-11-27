@@ -40,7 +40,7 @@ import SblgntCredits from "./SblgntCredits.astro";
        --reading-scale / --reading-leading-extra (see src/styles/CLAUDE.md). */
     font-size: calc(0.95rem * var(--reading-scale, 1));
     line-height: calc(1.65 + var(--reading-leading-extra, 0));
-    color: rgba(var(--ink-rgb), 0.85);
+    color: rgba(var(--ink-rgb), var(--text-2-alpha));
   }
 
   /* The paragraphs are SblgntCredits', so they need :global to be reached. */
@@ -74,7 +74,6 @@ import SblgntCredits from "./SblgntCredits.astro";
     border-right: 2px solid currentColor;
     border-bottom: 2px solid currentColor;
     transform: rotate(-45deg);
-    transition: transform 0.15s ease;
   }
 
   .scripture-disclaimer__more[open] summary::before {

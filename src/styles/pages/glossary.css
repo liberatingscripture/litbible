@@ -94,7 +94,6 @@
   color: var(--text);
   opacity: 0.7;
   cursor: pointer;
-  transition: opacity 0.2s, color 0.2s;
   user-select: none;
 }
 
@@ -114,7 +113,6 @@
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
-  transition: background 0.2s;
 }
 
 .toggle-switch::after{
@@ -126,7 +124,6 @@
   border-radius: 50%;
   top: 3px;
   left: 3px;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toggle-switch[aria-checked="true"]::after{
@@ -205,7 +202,6 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(var(--ink-rgb), 0.08);
   border-radius: 999px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   padding: 8px 16px;
 }
 
@@ -244,7 +240,7 @@
   padding-left: 12px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s;
+  transition: opacity var(--dur-quick) var(--ease);
 }
 
 .back-to-top.is-visible{
@@ -386,7 +382,6 @@
   color: var(--text);
   /* 0.6 keeps the icon above 3:1 against the page in both themes */
   opacity: 0.6;
-  transition: opacity 150ms ease, color 150ms ease;
 }
 @media (max-width: 480px){
   .entry-link{ font-size: clamp(22px, 6vw, 30px); }
@@ -531,7 +526,6 @@
 
 .entry.is-visible .entries-underline{
   text-decoration-color: var(--lit-green);
-  transition: text-decoration-color 520ms ease;
 }*/
 
 /* If any leftover old SVGs are still in markup, hide them. */
@@ -660,7 +654,6 @@
   width: 1.15rem;
   text-align: right;
   color: var(--green-text, var(--lit-green));
-  transition: transform 160ms ease;
 }
 
 .occ[open] > .occ-summary::before,
@@ -724,6 +717,7 @@
   background: transparent;
   color: var(--green-text, var(--lit-green));
   font: inherit;
+  font-family: var(--font-control);
   font-size: calc(clamp(13px, 1.2vw, 15px) * var(--reading-scale, 1));
   cursor: pointer;
 }

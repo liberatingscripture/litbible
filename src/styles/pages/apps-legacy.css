@@ -1,0 +1,41 @@
+/* =========================================================
+   /apps keeps its own look and faces inside the new header and footer
+   (SITE-FEATHERBOA-BUILD.md, question 9). Its stylesheet and section
+   components are a byte-for-byte mirror of the LSC site's
+   (src/components/apps/CLAUDE.md), which name Inter and Crimson Text and
+   read a few of the site's older tokens, so they are pinned here, in this
+   file of the site's own, at the values they had before Featherboa: the
+   body's face, size, and line; the serif (Crimson Text, through --serif);
+   and the colors /apps reads by day and by night. legacy-faces.css keeps
+   the faces declared. Moving /apps to Featherboa's faces is a change on
+   both sites, for BDR and BVJ later.
+   ========================================================= */
+
+.apps {
+  font-family: Inter, "Inter Fallback", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  --serif: "Crimson Text", "Crimson Fallback", Georgia, "Times New Roman", serif;
+  --text: #1D231C;
+  --surface-raised: #FAFAF8;
+  --green-text: #0F6B33;
+  --link: #0F6B33;
+  --green: #209D50;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .apps {
+    --text: #F0F0F0;
+    --surface-raised: #1d1d1f;
+    --green-text: #3abf6a;
+    --link: #3abf6a;
+  }
+}
+
+:root[data-theme="dark"] .apps {
+  --text: #F0F0F0;
+  --surface-raised: #1d1d1f;
+  --green-text: #3abf6a;
+  --link: #3abf6a;
+}

@@ -400,9 +400,8 @@ second draft of the mocks takes from where:
   whose passage form's Add stays ordinary. Its menu is the desk's button
   menu (`desk/button-menu.js`, the sheet gap pill's, `desk-pane__menu`),
   its caret drawn as /sheets' "Save as ▾" (E177). The members are the
-  desk's own rows (`record-rows.js`), each on a sheet (below), group names
-  are My Notebook's `.desk-np__h3` (E195), and a heading starts with
-  `.v2-rule`.
+  desk's own rows (`record-rows.js`), each on a sheet (below), and group
+  names are My Notebook's `.desk-np__h3` (E195).
 - **A passage's words, and a bookmark's verse** (E171; BVJ, 2026-11-19) are
   set as a scripture page sets them: `passageWords` (`sheets/sheet-lit.js`)
   hands over the chapter's own blocks, so paragraphs, poetry lines, italics

@@ -43,7 +43,8 @@ html[data-desk] .nbhelp {
 }
 
 .nbhelp__title {
-  font-family: var(--serif, serif);
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: calc(clamp(2.25rem, 4vw, 3rem) * var(--help-scale, 1));
   line-height: 1.1;
   margin: 0 0 0.75rem;
@@ -76,7 +77,7 @@ html[data-desk] .nbhelp {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   margin: 0 0 0.6rem;
   scroll-margin-top: 1rem;
 }
@@ -222,7 +223,8 @@ html[data-desk] .nbhelp {
 
 .nbhelp__body h2,
 .nbhelp__body h3 {
-  font-family: var(--serif, serif);
+  font-family: var(--font-display);
+  font-weight: 500;
   color: var(--text-strong);
   scroll-margin-top: 1rem;
 }

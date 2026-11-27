@@ -3,10 +3,10 @@
 // src/lib/desk-margin.mjs: where the Notebook panel goes. It fills the right
 // margin beside the reading column and moves nothing when the margin is wide
 // enough; otherwise the column moves left only as far as the panel needs.
-// The widths below are real ones: Chapter View's column is 622px at the
-// default text size with the desk's 52 measure, 787px at Extra large. (At
+// The widths below are real ones: Chapter View's column is 582px at the
+// default text size with the desk's 52 measure, 735px at Extra large. (At
 // 48, which Chapter View chapters take while the panel is open since
-// 2026-10-08, it is 577px; the rule doesn't care.)
+// 2026-10-08, it is 540px; the rule doesn't care.)
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -609,14 +609,14 @@ test("E137: firstPaint's move is the one placeInMargin makes, for every font, si
   }
 });
 
-test("E137: the moves at a 1024px, an 1100px and a 1280px window, in Inter and OpenDyslexic, at Medium and Extra large", () => {
+test("E137: the moves at a 1024px, an 1100px and a 1280px window, in Source Sans 3 and OpenDyslexic, at Medium and Extra large", () => {
   const px = (font, size) => FIRST_PAINT.ch[font] * FIRST_PAINT.scale[size] * FIRST_PAINT.body * 16;
   // Each window less a 15px scrollbar. null: the notebook floats and folds.
   const cases = [
-    ["Inter, Medium", px("", ""), [104, 66, 0]],
-    ["Inter, Extra large", px("", "xl"), [null, null, 52]],
-    ["OpenDyslexic, Medium", px("dyslexic", ""), [48, 10, 0]],
-    ["OpenDyslexic, Extra large", px("dyslexic", "xl"), [108, 70, 0]],
+    ["Source Sans 3, Medium", px("", ""), [85, 47, 0]],
+    ["Source Sans 3, Extra large", px("", "xl"), [null, 118, 28]],
+    ["OpenDyslexic, Medium", px("dyslexic", ""), [87, 49, 0]],
+    ["OpenDyslexic, Extra large", px("dyslexic", "xl"), [null, 120, 30]],
   ];
   for (const [name, ch, moves] of cases) {
     [1009, 1085, 1265].forEach((viewport, i) => {
@@ -632,14 +632,14 @@ test("E137: the moves at a 1024px, an 1100px and a 1280px window, in Inter and O
       assert.equal(fp.center, moves[i] ? viewport / 2 - moves[i] : null, where);
     });
   }
-  // BVJ's window, about 1120px: 1105px of page, the column 56px left of center.
-  assert.equal(firstPaint({ viewport: 1105, ch: px("", "") }).shift, 56);
+  // BVJ's window, about 1120px: 1105px of page, the column 37px left of center.
+  assert.equal(firstPaint({ viewport: 1105, ch: px("", "") }).shift, 37);
 });
 
-test("E137: the move ends where the margin holds the notebook, about 1217px at the default font and size", () => {
+test("E137: the move ends where the margin holds the notebook, about 1179px at the default font and size", () => {
   const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
-  assert.equal(firstPaint({ viewport: 1216, ch }).shift, 1);
-  assert.deepEqual(firstPaint({ viewport: 1217, ch }), { expanded: true, widths: null, shift: 0, center: null });
+  assert.equal(firstPaint({ viewport: 1178, ch }).shift, 1);
+  assert.deepEqual(firstPaint({ viewport: 1179, ch }), { expanded: true, widths: null, shift: 0, center: null });
   assert.deepEqual(firstPaint({ viewport: 1440, ch }), { expanded: true, widths: null, shift: 0, center: null });
 });
 
@@ -661,10 +661,10 @@ test("E137: the reader's widths move nothing, and say where the column's center 
 });
 
 // 897px until E81, when the column began keeping KEEP_LEFT (38px) on its left.
-test("firstPaint: the default font and size float the notebook below about 935px", () => {
+test("firstPaint: the default font and size float the notebook below about 898px", () => {
   const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
-  assert.equal(firstPaint({ viewport: 935, ch }).expanded, false);
-  assert.equal(firstPaint({ viewport: 936, ch }).expanded, true);
+  assert.equal(firstPaint({ viewport: 897, ch }).expanded, false);
+  assert.equal(firstPaint({ viewport: 898, ch }).expanded, true);
 });
 
 // E81 (BVJ, 2026-11-10): the left margin never gets too narrow for a
@@ -736,8 +736,9 @@ test("firstPaint keeps the widths placeWithWidths would apply, and none where th
 // FIRST_PAINT restates the stylesheets' numbers, since the pre-paint script
 // works out the column's width before any stylesheet has loaded. A change
 // to one of these needs the same change there.
-test("FIRST_PAINT matches global.css and ScriptureLayout.astro", () => {
+test("FIRST_PAINT matches tokens.css, global.css and ScriptureLayout.astro", () => {
   const css = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
+  const tokens = readFileSync(new URL("../src/styles/tokens.css", import.meta.url), "utf8");
   const layout = readFileSync(new URL("../src/layouts/ScriptureLayout.astro", import.meta.url), "utf8");
   const fix = "; update FIRST_PAINT in src/lib/desk-margin.mjs";
   const num = (re, src = css) => {
@@ -745,17 +746,17 @@ test("FIRST_PAINT matches global.css and ScriptureLayout.astro", () => {
     assert.ok(m, `${re} wasn't found${fix}`);
     return m;
   };
-  assert.equal(Number(num(/:root\s*\{[^}]*?--ch:\s*([\d.]+)em/).at(1)), FIRST_PAINT.ch[""], `Inter's --ch${fix}`);
+  assert.equal(Number(num(/:root\s*\{[^}]*?--ch:\s*([\d.]+)em/, tokens).at(1)), FIRST_PAINT.ch[""], `Source Sans 3's --ch${fix}`);
   for (const font of ["dyslexic", "atkinson"]) {
     const re = new RegExp(String.raw`html\[data-font="${font}"\]\s*\{\s*--ch:\s*([\d.]+)em`);
-    assert.equal(Number(num(re)[1]), FIRST_PAINT.ch[font], `${font}'s --ch${fix}`);
+    assert.equal(Number(num(re, tokens)[1]), FIRST_PAINT.ch[font], `${font}'s --ch${fix}`);
   }
   for (const size of ["sm", "lg", "xl"]) {
     const re = new RegExp(String.raw`html\[data-size="${size}"\]\s*\{\s*--reading-scale:\s*calc\((\d+)\s*/\s*(\d+)\)`);
     const m = num(re);
     assert.equal(Number(m[1]) / Number(m[2]), FIRST_PAINT.scale[size], `${size}'s --reading-scale${fix}`);
   }
-  assert.equal(Number(num(/Base typography[\s\S]*?body\s*\{[^}]*?font-size:\s*([\d.]+)rem/)[1]), FIRST_PAINT.body, `the body's size${fix}`);
+  assert.equal(Number(num(/--size-scripture:\s*([\d.]+)rem/, tokens)[1]), FIRST_PAINT.body, `the column's size (--size-scripture)${fix}`);
   const measure = num(/html\[data-desk\]\[data-desk-expanded\]:has\(\.scripture-layout--scripture \.scripture-main\)\s*\{\s*--reading-measure:\s*(\d+)/);
   assert.equal(Number(measure[1]), FIRST_PAINT.measure, `the expanded measure${fix}`);
   const pad = num(/\.scripture-main\s*\{[^}]*?padding:\s*\d+px\s+(\d+)px\s+\d+px;/, layout);

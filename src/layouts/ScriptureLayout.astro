@@ -403,9 +403,17 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
          itself, so the side padding is added on top (border-box). */
       .scripture-main {
         margin: 0 auto;
-        font-size: calc(1em * var(--reading-scale, 1));
+        font-size: calc(var(--size-text) * var(--reading-scale, 1));
         max-width: calc(var(--reading-width, 72ch) + 32px);
         padding: 12px 16px 64px;
+      }
+
+      /* A chapter reads at the Scripture size (tokens.css), an intro at
+         Text. FIRST_PAINT in src/lib/desk-margin.mjs restates the
+         Scripture size, since the desk's pre-paint placement measures this
+         column before any stylesheet loads. */
+      .scripture-layout--scripture .scripture-main {
+        font-size: calc(var(--size-scripture) * var(--reading-scale, 1));
       }
 
       /* Hidden-but-indexed metadata for Pagefind */
@@ -473,10 +481,6 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
            about 2px shorter. Same fix as .read-menu__desk on /read. */
         line-height: normal;
 
-        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
-        transition:
-          background-color 0.2s ease,
-          color 0.2s ease;
       }
 
       @media (prefers-color-scheme: dark) {

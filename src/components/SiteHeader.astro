@@ -304,8 +304,8 @@ const SIZE_OPTIONS = [
       "Translation" can't show in full, never an ellipsis, which once left
       "The Liberation & Inclusion Transla…" on a 1366px laptop; where it
       doesn't (a phone), as soon as the long title overflows its box.
-      OpenDyslexic is wider and always takes the short title; Atkinson's
-      metrics are near Inter's, so it measures normally.
+      OpenDyslexic is wider and always takes the short title; Atkinson
+      measures normally.
 
       KEEP THIS SCRIPT INLINE, right after the row it measures (E138; BVJ,
       2026-11-17). It was a bundled script that waited for idle time, so
@@ -442,7 +442,7 @@ const SIZE_OPTIONS = [
         border-top: 1px solid var(--border);
       }
       .site-header__noscript-nav a {
-        font-family: Inter, sans-serif;
+        font-family: var(--font-control);
         font-size: 0.9rem;
         font-weight: 500;
         color: var(--text);
@@ -480,7 +480,8 @@ const SIZE_OPTIONS = [
     </div>
     {/* Each option is named by its font and rendered in it, so the list
         previews itself. "Default" has no single font name to give: it means
-        the site's normal typography (Inter, Crimson Text, Fraunces). */}
+        the site's normal typography (Source Sans 3, Fraunces, and Atkinson
+        Hyperlegible Next for controls). */}
     <fieldset class="font-tray__row">
       <legend class="font-tray__legend">Font</legend>
       <div class="font-tray__fonts">

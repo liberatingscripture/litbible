@@ -6,26 +6,70 @@
 
 ## Fonts and theming
 
-- **Fonts**: `@fontsource` (Crimson Text, Fraunces, Inter) plus two
-  reader-selectable accessibility fonts, OpenDyslexic and Atkinson
-  Hyperlegible Next (the latter variable, via `@fontsource-variable`), set from
-  the Display tray. Playpen Sans (variable) is the Study Desk's margin-note
-  face, loaded only by the desk (Featherboa drops it, and the notes follow
-  the Display face: `SITE-FEATHERBOA.md`, "The reading page"; until it is
-  built, this holds). All of them load Latin only; Greek and Hebrew
-  letters come from Inter's own Greek, Noto Sans Hebrew and Cardo, registered
-  by character range (see "Greek and Hebrew letters," below).
-  **Featherboa changes the faces** (BVJ, 2026-11-26; decided, not built):
-  Fraunces for headings, Source Sans 3 for reading text and its Greek,
-  Atkinson Hyperlegible Next for controls, and the same on paper
-  (`SITE-FEATHERBOA.md`, "Type"). Until it is built, the faces above are the
-  site's.
+- **Three faces, one job each** (Featherboa, `SITE-FEATHERBOA.md`, "Type"),
+  named by tokens in `tokens.css`: `--font-display` (Fraunces Variable, with
+  all four axes: titles, headings, panel and pane titles, at 400 for a page's
+  title and 500 for the rest), `--font-text` (Source Sans 3 Variable:
+  everything read, its polytonic Greek included), and `--font-control`
+  (Atkinson Hyperlegible Next Variable: controls and small labels). **A
+  stylesheet names a token, never a family**; `test/featherboa-fonts.test.js`
+  allows only the three, `inherit`, a monospace stack, and the Display tray's
+  two `!important` stacks. Each stack ends in a fallback face fitted to its
+  webfont (`faces.css`), so the swap moves nothing. Fraunces's softness and
+  wonk (`--fraunces-heading`) are set once on `body`; the other faces ignore
+  the axes. The tray's OpenDyslexic and Atkinson still replace all three.
+  Playpen Sans is the Study Desk's margin-note face until Phase 4 (the notes
+  then follow the Display face: "The reading page"). Every face is served
+  Latin only, save Source Sans 3's Greek, from rules written out with their
+  ranges rather than the packages' CSS (see "Greek and Hebrew letters").
+  **Inter, Crimson Text, and the static Fraunces** stay declared in
+  `legacy-faces.css` for what moves later: printing, the handouts, and the
+  verse image (Phase 8), and a sheet's stored faces, paper, slides, and files
+  (Phase 11), each listed in the fonts test's `LATER` map, which each phase
+  empties; and /apps, whose mirrored files name Inter and Crimson, pinned at
+  their old values in `pages/apps-legacy.css`. Delete an import there when
+  the last thing that names its face has moved.
+- **Featherboa's tokens are in `tokens.css`**, imported before `global.css`:
+  the colors by role (`--color-page`, `--color-text`, `--color-mark`,
+  `--color-press`, `--color-own`, `--color-danger`, the hairline, two tints,
+  the float), the ten sizes, the spacing steps, the columns, two radii, one
+  shadow, and the speeds. `global.css`'s older names (`--text`, `--page-bg`,
+  `--green-text`, `--ink-rgb`, `--surface-raised` and the rest) point at
+  them; new code uses the tokens. `test/featherboa-tokens.test.js` holds the
+  values to the record, and `test/featherboa-contrast.test.js` works out the
+  record's contrast table from them, by day and by night.
+  - **A gray is the text at a strength**, never a gray of its own: the
+    second ink `rgba(var(--ink-rgb), var(--text-2-alpha))` (secondary
+    words), the third `var(--text-3-alpha)` (counts, dates, notes, disabled
+    words, placeholders), or full ink. Night sets its own strengths. Tokens
+    built on others resolve on `:root`, so **a surface that pins `--ink-rgb`
+    for a fixed theme pins the two alphas too** (`.sheet-copy` at the day's,
+    `.present-stage` at the night's, in `sheets-page.css`).
+  - **Space sets things apart first, a hairline second
+    (`--color-hairline`), a tint third** (`--color-tint`); no ornament.
+    **One shadow, `--shadow-float`, and only on what floats and goes away**
+    (menus, popovers, the Display tray, dialogs), with `--color-float` and
+    the `--color-float-edge` hairline; night drops it for a lighter float.
+    A card or a docked panel takes a hairline. The Study Desk's button
+    kinds keep their shadows until the kit (Phase 2).
+  - **Motion is four speeds on one curve** (`--ease`): Quick
+    (`--dur-quick`) for menus, popovers, and tooltips; Settled for notes,
+    panels, and bars; Large for sheets, dialogs, and present mode; leaving
+    takes two thirds as long (`--dur-*-out`). **Pointing, pressing,
+    selecting, toggles, and chevrons are Instant: no transition at all.**
+    Nothing loops, and reduced motion zeroes every duration in
+    `global.css`. A script that animates uses the same numbers and says
+    which token in a comment (`verse-image.js`). `test/featherboa-motion.test.js`
+    holds stylesheets and scripts to this.
+  - **LIT Green marks and is never behind words; deep green is only for
+    what can be pressed; the cream (`#E1DFD9`) is gone** and the page is
+    the paper everywhere. Home's green sections wait for Phase 7.
 - **Theming (light/dark) is a dual mechanism.** Dark-mode tokens are declared
   twice — `@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) … }`
   (follow the OS) and `:root[data-theme="dark"] … }` (explicit override) — in
-  `global.css` and mirrored in a few page stylesheets (`apps.css`,
-  `found-in-translation-podcast.css`, `translation-commitments.css`) and
-  `ReadMenu.astro`. The header "Aa" tray (`SiteHeader.astro`, heading
+  `tokens.css` and `global.css` and mirrored in a few page stylesheets and
+  components; `test/featherboa-css-rules.test.js` fails on a rule written
+  only once, on one whose two halves differ, and on a bare media query. The header "Aa" tray (`SiteHeader.astro`, heading
   **"Display"**, the one panel for every reader setting; see "The Display
   tray," below) holds Theme: a 3-state control
   (**System / Light / Dark**) persisted in `localStorage['lit-theme']`
@@ -61,7 +105,7 @@
      otherwise the list renders entirely in the active font and previews
      nothing.
   3. The width compensations are scoped to `[data-font="dyslexic"]` **only**.
-     OpenDyslexic is far wider than Inter; Atkinson is not, and must not
+     OpenDyslexic is far wider than Source Sans 3; Atkinson is not, and must not
      inherit them. They live in `home.css` (hero titles, the hero scroll's
      safe interior, the question CTA), `global.css` (mobile nav, the header's
      earlier nav collapse + phone title scale, the footer newsletter field
@@ -269,29 +313,33 @@
   width under the metric-matched fallback face and another once the webfont
   arrived: the box resized and, being `margin: 0 auto`, re-centred, sliding the
   whole text block sideways mid-load (**0.256 CLS on scripture pages**, the
-  site's worst Core Web Vital). `--ch` in `global.css` is an em fraction of the body font's "0",
-  re-declared under `html[data-font="dyslexic"]` and `[data-font="atkinson"]`;
+  site's worst Core Web Vital). `--ch` in `tokens.css` is an em fraction of the
+  text face's "0" (Source Sans 3's is 0.497em), re-declared under
+  `html[data-font="dyslexic"]` and `[data-font="atkinson"]`;
   because `Layout.astro` stamps `data-font` **before first paint**, the width is
   settled from the first frame and no font swap can move it. Write
-  `calc(72 * var(--ch))` (still reads as "72 characters"). Two shared widths
-  are built from it: **`--reading-width`** (`--reading-measure` × `--ch`) for
-  long-form reading (Chapter View, intros, Read View, article bodies), which
-  is the text column itself, so a surface with side padding adds it on top
-  (otherwise the same setting gives each view a different line). The measure
-  is **60** (owner, 2026-09-27), picked from side-by-side screenshots: about 77
-  characters a line in Inter and 85 in Atkinson, where the old 72 gave 92 and
-  102. The article card is sized from it as well (`--article-width` on the
-  article page), so the card's edges follow the text instead of leaving an
-  empty band beside it. The other width is
-  **`--content-width`** (72 × `--ch`) for the pages around it (/read, /search,
-  About, courses, commitments), which are not long-form reading and kept their
-  width when the reading measure narrowed. **Change `--reading-measure`, never
-  `--ch`, to move the reading line.** Both tokens are declared on `:root` and
-  resolve their em against the element that uses them, so size a column where
-  its text size is set (see the Display tray rules above). Two things to know
-  before touching `--ch`:
-  1. The values are **body/sans figures**. Inter's "0" is 0.631em, Crimson's
-     0.504em, so a column set in the serif needs its own number, not this token.
+  `calc(72 * var(--ch))` (still reads as "72 characters"). Beside it,
+  **`--char`** is the face's average character, spaces included (measured
+  over John 1), the unit a line's length in characters is counted in.
+  `FIRST_PAINT` in `src/lib/desk-margin.mjs` restates the three `--ch` values,
+  and `test/desk-margin.test.js` holds them together. Two shared widths:
+  **`--reading-width`** for long-form reading (Chapter View, intros, Read
+  View, article bodies), the text column itself, so a surface with side
+  padding adds it on top. Featherboa's column ("Sizes, space, and the
+  measure") is 660px (`--col-text`) held between 45 and 75 `--char` a line,
+  so a larger size or a wider face shortens the count and the bounds hold
+  it. **With the Study Desk on, it is still `--reading-measure` (60) × `--ch`**
+  (`html[data-desk]` in `global.css`), because the desk's measures, its drag,
+  and its pre-paint placement count in `--ch`, until the reading page takes
+  the desk's margin (Phases 4 and 5). The article card is sized from it as
+  well (`--article-width` on the article page), so the card's edges follow
+  the text. The other width is **`--content-width`** (72 × `--ch`) for the
+  pages around it (/read, /search, About, courses, commitments). Both are
+  declared on `:root` and resolve their em against the element that uses
+  them, so size a column where its text size is set (see the Display tray
+  rules above). Two things to know before touching `--ch`:
+  1. The values are **text-face figures**. A column set in Fraunces needs
+     its own number, not this token.
   2. `--ch` is per-font rather than one constant because the accessibility fonts
      have **no metric-matched fallback** (both stacks end at plain `sans-serif`),
      which gave them the site's largest swings — ~10% for OpenDyslexic, ~16% for
@@ -304,15 +352,17 @@
 
 - **Greek and Hebrew letters come from faces registered by character
   range** (`src/styles/greek-hebrew-fonts.css`, Study Desk C27; the owner
-  picked the faces 2026-10-05). Every site font loads Latin only, so each rule
-  there puts a Greek or Hebrew file under an existing family name, the way the
-  ⟦ ⟧ patch does, and no font stack anywhere changes. In sans-serif text,
-  Greek is Inter's own (the `@fontsource/inter` package always had it;
-  Atkinson and OpenDyslexic, which have none, take Inter's too), and Hebrew is
-  Noto Sans Hebrew. In serif text (Crimson Text, which print uses, and
-  Fraunces) both come from Cardo. A file loads only on a page with its letters.
-  The file's header carries four rules, each learned by breaking
-  it; the two that bite:
+  picked the faces 2026-10-05). Every site font loads Latin only, save Source
+  Sans 3's own polytonic Greek (`faces.css`), so each rule there puts a Greek
+  or Hebrew file under an existing family name, the way the ⟦ ⟧ patch does,
+  and no font stack anywhere changes. In the text face Greek is Source Sans
+  3's own (Atkinson and OpenDyslexic, which have none, take it too), and
+  Hebrew is Noto Sans Hebrew. In Fraunces both come from Cardo. The retired
+  faces keep theirs (Inter's Greek, Cardo under Crimson Text) in
+  `legacy-faces.css` until they go. A file loads only on a page with its
+  letters; `test/featherboa-fonts.test.js` checks that every face that sets
+  text reaches both scripts at weights its Latin has. The file's header
+  carries four rules, each learned by breaking it; the two that bite:
   1. **Copy the descriptors of a face the family already has.** A browser
      joins faces of one family by range only when weight and style match
      exactly, so a rule at a weight the family doesn't declare is never
@@ -331,31 +381,30 @@
 
 ## Brand colors, the emblem, and the LSC mark
 
-- **Two brand greens, by role (all theme-invariant).** `--green` (#209D50 "LIT
-  Green") is for large **surfaces** (heroes, questions block, chat bubbles) and
-  non-button icon accents — it carries **ink** text (4.6:1) or white *large*
-  headings, never small white text (only 3.5:1). Featherboa takes it off
-  surfaces: it marks (the emblem, the chapter numeral, "you are here," a
-  launch's band on the front page), and the front page's green sections and
-  chat go (`SITE-FEATHERBOA.md`, "Color," "The front page"); until it is
-  built, this holds. `--green-deep` (#0F6B33 "Deep
-  Green") is for **solid buttons/CTAs** with **white** labels (6.6:1). Both are
-  fixed in dark mode, so a Deep-Green button stays readable in both themes and
-  reads as an intentional second shade against LIT-Green surfaces. Do NOT use
-  `--green-text` as a *button background* — it's a link/text token that flips to
-  a light green in dark mode (white-on-it fails). For a green button, reach for
-  `--green-deep`; for green text on a light background, `--green-text`.
-  **Keyboard focus rings are a third role: `--focus-ring`**, never a green
-  written directly. It defaults to `var(--green-text)` in `:root` and both dark
-  blocks, because a focus indicator needs 3:1 against the surface and LIT Green
-  manages only 2.63:1 on cream (3.35:1 on `#FAFAF8`), while the text green is
-  4.97:1 on cream, 6.34:1 on `#FAFAF8`, and ~7–8:1 in dark (`#3abf6a`).
-  Translucent rings (`rgba(32, 157, 80, 0.35)`) fail worse still, 1.4–2.0:1,
-  so none is written by hand. The rings that use `--text` on
-  purpose (the Display tray's options, whose selected segments are green) stay as they are. Don't
-  kill a ring with `outline: none` on `:focus-visible` either: `/support`,
-  `/liberating-scripture-collective`, the about TOC, and the launch popover's
-  close button all did, which left keyboard users a 1px lift or nothing at all.
+- **The greens, by role.** `--green` (#209D50, LIT Green, `--color-mark`)
+  is a mark: the emblem, the chapter numeral, "you are here," a launch's band
+  on the front page, and non-button icon accents. It is never behind words
+  (`SITE-FEATHERBOA.md`, "Color"). Phase 1 took it off every band but Home's
+  (`.hero`, `.questions-block`, the chat, the callout, `body.bg-green`),
+  which go in Phase 7; while they last they carry **ink** text (4.6:1) or
+  white *large* headings, never small white text (3.5:1). `--green-deep`
+  (#0F6B33, Deep Green) is the solid button's fill under **white** labels
+  (6.6:1), fixed in both themes until the kit's filled button (Phase 2)
+  takes the night's press green with dark words (`--color-on-press`).
+  `--green-text` and `--link` are `--color-press`: deep green by day and
+  #4DD383 by night, for text and links, never a fill under white words,
+  which fail on it at night.
+  **Keyboard focus rings are `--focus-ring`**, never a green written
+  directly: `--color-press`, 2px (`--focus-width`), 2px off the control
+  (`--focus-offset`). A focus indicator needs 3:1 against its surface: the
+  ring is 6.3:1 on the page by day and 9.7:1 at night, where LIT Green
+  manages 3.35:1 and translucent rings 1.4 to 2.0:1, so none is written by
+  hand. The rings that use `--text` on purpose (the Display tray's options,
+  whose selected segments are green) stay as they are. Don't kill a ring
+  with `outline: none` on `:focus-visible` either: `/support`,
+  `/liberating-scripture-collective`, the about TOC, and the launch
+  popover's close button all did, which left keyboard users a 1px lift or
+  nothing at all.
 - **The site emblem ships as two SVG variants**, `public/images/lit-logo-2026.svg`
   (plain) and `lit-logo-2026-ring.svg` (with a `--green` band). Same glyph, same
   `#FAFAF8` disc — the disc is deliberately the `--surface-raised` token, so on
@@ -414,46 +463,45 @@
   nowhere broader: a pin inherits, so pinning `body.bg-green` would push ink
   into the home page's themed sections and footer, where it fails in dark mode.
   That's why the green header pins on `.site-header__inner` (the font tray and
-  menu overlay share its `<header>` with surfaces of their own), and the
-  articles hero pins on its search form rather than on itself (its results
-  panel is themed). Measured with the WCAG 2 formula:
+  menu overlay share its `<header>` with surfaces of their own). Measured with
+  the WCAG 2 formula:
 
   | Surface | Pinned where | Ring | Contrast |
   |---|---|---|---|
-  | LIT Green header bar (`body.bg-green` home, `.site-header--green` articles) | `global.css`, on `.site-header__inner` | `--ink` | 4.58:1 |
-  | Skip link, which paints over those headers from `<body>` | `global.css` | `--ink` | 4.58:1 |
-  | `.questions-block` (home) | `home.css` | `--ink` | 4.58:1 |
-  | `.courses-updates` (`/courses`) | `courses.css` | `--ink` | 4.58:1 |
-  | `.articles-hero` search form | `articles.css`, on `.searchbar__form` | `--ink` | 4.58:1 |
+  | LIT Green header bar (`body.bg-green`, home, until Phase 7) | `global.css`, on `.site-header__inner` | `--ink` | 4.58:1 |
+  | Skip link, which paints over that header from `<body>` | `global.css` | `--ink` | 4.58:1 |
+  | `.questions-block` (home, until Phase 7) | `home.css` | `--ink` | 4.58:1 |
   | `.menu-overlay` (90% black in both themes) | `global.css` | `--green` | 5.02–5.95:1 by page |
   | Menu toggle while open (it sits above the overlay) | `global.css`, `html.menu-open` | `--green` | same |
   | `.sheet-copy`, the white paper preview on `/sheets` (BA83) | `sheets-page.css` | `#0f6b33` (Deep Green) | 6.6:1 |
 
-  The default ring fails on LIT Green (1.89:1 light, 1.47:1 dark) and so does
-  cream (2.63:1), which is why ink is the pin there. No ink or Deep Green
-  surface holds a control today: every such fill in `src/` is a button or CTA
-  itself, whose ring lands on its parent. If one is added, use LSC's measured
-  values: on ink, `--green` (4.58:1); on `--green-deep`, `--cream` (4.97:1;
-  plain green there is 1.89:1). Fixed-green surfaces checked and left unpinned,
-  because nothing focusable sits on them directly: home `.hero`, the
-  `/read` `.license-band` (its controls sit on a themed card, so a pin would
-  leak into the card), the chat bubbles, and the glossary `.toggle-switch`
-  (a control, not a surface). LSC defines the same token (its PR #79). The
-  mirrored `/apps` files never name the ring; they get it from each site's
-  global `:focus-visible`, so a mirror copy needs no pin of its own.
+  The default ring fails on LIT Green, which is why ink is the pin there. No
+  ink or Deep Green surface holds a control today: every such fill in `src/`
+  is a button or CTA itself, whose ring lands on its parent. If one is
+  added, use LSC's measured values: on ink, `--green` (4.58:1); on
+  `--green-deep`, the paper (6.3:1; plain green there is 1.89:1).
+  Fixed-green surfaces checked and left unpinned, because nothing focusable
+  sits on them directly: home `.hero`, the chat bubbles, and the glossary
+  `.toggle-switch` (a control, not a surface). **Phase 1 moved the other
+  green bands to the page or a tint** (the articles header and hero,
+  `/courses`' updates, `/read`'s license band, the podcast page's section)
+  and took their pins away with them: a pin left on a themed surface fails
+  at night. LSC defines the same token (its PR #79). The mirrored `/apps`
+  files never name the ring; they get it from each site's global
+  `:focus-visible`, so a mirror copy needs no pin of its own.
 - **A text field's border is `--field-border`** (BA144, BVJ 2026-10-26):
-  `rgba(var(--ink-rgb), 0.58)`, the lowest alpha that clears WCAG's 3:1 for a
-  control's boundary on cream (3.1:1; 4.0:1 on the raised surface, 5.8:1 or
-  more in dark). A field whose fill matches its surface has no other edge, so
-  softer borders failed site-wide. Buttons, cards and dividers keep their own.
-  **It resolves on `:root`**, so a local `--ink-rgb` pin (the green header's
-  `__inner`, `/sheets`' paper and presenter) does not reach it: a field on a
-  pinned surface writes `rgba(var(--ink-rgb), 0.58)` itself. The `/contact`
-  and `/app-support` fields (`contact.css`, `.field`) take it too, beside
-  their shadow (BVJ, 2026-10-29), since their fill is only 1.28:1 on cream.
-  The desk's placeholders are ink at 0.7 (`::placeholder` in `desk.css`;
-  5.2:1 on cream, Audit 8 XA8-13), since the browser's default gray fails
-  4.5:1, and its small secondary text is 0.7 too (XA8-3).
+  `rgba(var(--ink-rgb), 0.58)`, chosen as the lowest alpha that cleared
+  WCAG's 3:1 for a control's boundary on the old cream; it is 4.0:1 on the
+  page by day and 5.9:1 by night. A field whose fill matches its surface has
+  no other edge, so softer borders failed site-wide. Buttons, cards and
+  dividers keep their own. **It resolves on `:root`**, so a local
+  `--ink-rgb` pin (the green header's `__inner`, `/sheets`' paper and
+  presenter) does not reach it: a field on a pinned surface writes
+  `rgba(var(--ink-rgb), 0.58)` itself. The `/contact` and `/app-support`
+  fields (`contact.css`, `.field`) take it too (BVJ, 2026-10-29). The
+  desk's placeholders and small secondary text are the third ink
+  (`::placeholder` in `desk.css`; 5.1:1 by day, 5.7:1 or more by night;
+  Audit 8 XA8-13 and XA8-3), since the browser's default gray fails 4.5:1.
 
 ## The Study Desk's buttons
 
@@ -464,11 +512,12 @@
   pressed), toggle, and the quiet and glyph buttons, which keep their own
   looks. One rule per kind ends `desk.css`. Its tokens, every shadow with a
   dark pair in both dark selectors, are in the comment "The desk's layers" in
-  `desk.css` and repeated in `desk-search.css`, which /search loads alone. Under
-  `prefers-reduced-motion` the lift and the transitions are zeroed by token
-  and the shadows stay. A disabled button keeps its edge and its fill and
-  says so in its words (ink at 0.7, or the text green on a disabled primary,
-  4.5:1 or more on every surface), never by fading it with `opacity`.
+  `desk.css` and repeated in `desk-search.css`, which /search loads alone.
+  Pressing is Instant (Featherboa, "Motion"), so no kind has a transition;
+  under `prefers-reduced-motion` the lift is zeroed by token and the shadows
+  stay. A disabled button keeps its edge and its fill and says so in its
+  words (the third ink, or the text green on a disabled primary, 4.5:1 or
+  more on every surface), never by fading it with `opacity`.
   **No button is the color of what lies behind it** (E159; BVJ,
   2026-11-18), in either theme: a button with an edge and no fill, or a
   segmented pill whose unchosen choices show the surface, joins a kind
@@ -481,7 +530,7 @@
   collections page's buttons and the Highlight swatches (E169). The inventory is in
   `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
 - **Featherboa replaces the four kinds** (`SITE-FEATHERBOA.md`, "Controls"
-  and "Surfaces"; decided, not built): filled, tinted, plain (words and an
+  and "Surfaces"; Phase 2 builds it): filled, tinted, plain (words and an
   icon, no box until pointed at, which E159 allows on purpose), and red
   words, with no shadow on a button at rest. Until it is built, the rules
   above hold.

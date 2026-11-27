@@ -518,17 +518,13 @@ const fallbackHref =
       padding: 10px 18px;
       font-size: 16px;
       font-weight: 500;
-      font-family: inherit;
+      font-family: var(--font-control);
       border: 1px solid rgba(var(--ink-rgb), 0.11);
       border-radius: 999px;
       background-color: var(--surface-input);
       color: var(--text);
-      box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
       cursor: pointer;
       text-decoration: none;
-      transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
     }
 
     .read-menu__trigger:hover {
@@ -548,17 +544,13 @@ const fallbackHref =
       padding: 10px 18px;
       font-size: 16px;
       font-weight: 500;
-      font-family: inherit;
+      font-family: var(--font-control);
       border: 1px solid rgba(var(--ink-rgb), 0.11);
       border-radius: 999px;
       background-color: var(--surface-input);
       color: var(--text);
-      box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
       text-decoration: none;
       white-space: nowrap;
-      transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
     }
 
     html:not([data-desk]) .read-menu__desk {
@@ -657,11 +649,11 @@ const fallbackHref =
       inset: auto;
       margin: 0;
       padding: 14px;
-      border: 1px solid rgba(var(--ink-rgb), 0.18);
+      border: 1px solid var(--color-float-edge);
       border-radius: 12px;
-      background: var(--surface-raised);
+      background: var(--color-float);
       color: var(--text);
-      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
+      box-shadow: var(--shadow-float);
       /* The picker's list is a control, so its words take the Display tray's
          gentler scale for controls (--control-scale, global.css: their own
          size up to Medium, the Large step above). The panel and each tile's
@@ -675,7 +667,7 @@ const fallbackHref =
     .read-menu__head {
       margin: 2px 2px 10px;
       font-size: calc(0.85rem * var(--control-scale, 1));
-      color: rgba(var(--ink-rgb), 0.7);
+      color: rgba(var(--ink-rgb), var(--text-3-alpha));
     }
 
     .read-menu__bar {
@@ -700,7 +692,7 @@ const fallbackHref =
       border: none;
       border-radius: 6px;
       background: transparent;
-      color: rgba(var(--ink-rgb), 0.7);
+      color: rgba(var(--ink-rgb), var(--text-3-alpha));
       cursor: pointer;
       flex: none;
       font-size: 15px;
@@ -729,7 +721,7 @@ const fallbackHref =
       padding: 5px 10px;
       font-size: calc(0.85rem * var(--control-scale, 1));
       font-weight: 600;
-      font-family: inherit;
+      font-family: var(--font-control);
       border: 1px solid rgba(var(--ink-rgb), 0.15);
       border-radius: 999px;
       background: transparent;
@@ -782,7 +774,7 @@ const fallbackHref =
       display: block;
       padding: 12px 2px;
       font-size: calc(0.85rem * var(--control-scale, 1));
-      font-family: inherit;
+      font-family: var(--font-control);
       text-align: center;
       white-space: nowrap;
       border: none;
@@ -853,7 +845,7 @@ const fallbackHref =
       gap: 10px;
       margin: 12px 2px 0;
       font-size: calc(0.78rem * var(--control-scale, 1));
-      color: rgba(var(--ink-rgb), 0.7);
+      color: rgba(var(--ink-rgb), var(--text-3-alpha));
     }
 
     .read-menu__legend .read-menu__draft-dot {
