@@ -205,6 +205,20 @@ test("reopening the page on a syncing computer shows the home, with no sign-in a
   assert.equal(w.sent.slice(before).some((r) => r.path.startsWith("/sign-in")), false);
 });
 
+test("the home never prints “null” where “Add a device” has no note", async () => {
+  // `replaceChildren` draws a null child as the word, and h() in ui.js doesn't.
+  const w = world();
+  const { page } = await setUpReader(w);
+  await page.shows(WORDS.addDevice);
+  assert.doesNotMatch(page.text(), /null/);
+  // Canceling “Show a code instead” draws the section again.
+  await page.press(WORDS.showCode);
+  await page.shows(WORDS.showCodeLede);
+  await page.press(WORDS.cancel);
+  await page.shows(WORDS.addDeviceLede);
+  assert.doesNotMatch(page.text(), /null/);
+});
+
 test("a screen whose heading repeats the page's own is not drawn twice, and every other heading is", async () => {
   // Seen 2026-11-25: “Your account” twice, the page's h1 and the home's h2 under it.
   const headings = (page) => [...page.root.querySelectorAll(".account__title")].map((el) => [el.textContent.trim(), el.classList.contains("sr-only")]);

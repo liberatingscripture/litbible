@@ -895,7 +895,7 @@ export async function showHome(ctx, note) {
         },
       );
     });
-    add.replaceChildren(h("h3", { class: "account__subhead", text: WORDS.addDevice }), h("p", { class: "account__hint", text: WORDS.addDeviceLede }), said, entry.row, h("div", { class: "account__actions" }, find, show));
+    add.replaceChildren(h("h3", { class: "account__subhead", text: WORDS.addDevice }), h("p", { class: "account__hint", text: WORDS.addDeviceLede }), ...(said ? [said] : []), entry.row, h("div", { class: "account__actions" }, find, show));
     return entry.input;
   };
 
