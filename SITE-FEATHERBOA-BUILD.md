@@ -844,7 +844,8 @@ recommendation, and BVJ's answers. The run follows them.
 The run's own record, kept current with every phase. Mark a phase `[x]`
 with its last commit when done; never delete a line.
 
-- [ ] Phase 0: Set up, clear Site 2.0, write the ledger
+- [x] Phase 0: Set up, clear Site 2.0, write the ledger (cf1cf82d; Site 2.0
+  removed in 63d07ac0)
 - [ ] Phase 1: Foundations
 - [ ] Phase 2: The kit and its words
 - [ ] Phase 3: The header, the line under it, the footer, and the phone's bars
