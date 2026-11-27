@@ -288,6 +288,12 @@ what the sync leaves to the reader:
   and a request already sent goes on at the service. `onCall` can hold a
   request to make a race exact. `sync-rig.mjs` makes devices;
   `sync-browser.mjs` makes the page.
+- **A linked page makes one request of its own once it is in step**: the
+  account notice's look at what is new, `GET /devices` (rule 11), sent after
+  reads of its own storage, so on a slow machine it can land well after the
+  status reaches `upToDate`. A test that counts the service's calls waits
+  for it first (`linkedPage` in `test/desk-sync-status-line.test.js`), or a
+  CI run counts it as the test's.
 - **End to end is a real browser against `wrangler dev`**, in
   `workers/notebook-service/` with a `.dev.vars` made for this machine
   (never the deployed preview's secret). The local service answers CORS for
