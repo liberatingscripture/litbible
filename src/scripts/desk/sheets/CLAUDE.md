@@ -1047,6 +1047,10 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   A shared sheet shows read only until "Import into my notebook", which saves
   it as a new sheet (`copyOfShared`) and turns the page into that
   sheet's own address. No storage key is added.
+  **Both viewers take Featherboa's look with the rest of the site**
+  (BVJ, 2026-11-27; `SITE-FEATHERBOA.md`, "Shared sheets"), so when it
+  is built, the phone's rules go in `desk-sheet-view.css` too, within
+  its Safari 16.4 floor; until it is built, this holds.
 
 ## Rule 22: a sheet checked before printing
 

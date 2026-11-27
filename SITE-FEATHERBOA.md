@@ -1847,6 +1847,30 @@ notice in the editor (E84).
   another tab has the sheet open, and undo.
 - **The Sheets tour (E63) is rewritten** for the new page.
 
+### Shared sheets (decided 2026-11-27)
+
+**A shared sheet takes every Featherboa decision the rest of the site
+does** (BVJ: “Make sure the shared sheets interface get the same
+Featherboa updates as the rest of the site”). That holds for both of the
+ways a shared link opens: on a computer, a place on the Study page ("Study
+and its places"), read only until "Import into my notebook"; on a phone or
+tablet, the viewer that reads, presents with taps, prints, and shares,
+with nothing saved ("Small screens"). Each shows the sheet as this section
+draws it (on a phone, fitted to the screen's width with its words at true
+size, as in a narrow pane), with "Leader's copy" or "Participant's copy,"
+the stored fonts as Style's new set shows them, and present mode's dark
+screen in Source Sans 3 and Fraunces. Its own buttons, its messages (a link
+that can't be read, a browser too old for the viewer), and its page around
+the sheet follow "Type," "Color," "Controls," "The kit," and "Night." Two
+things make the phone's viewer easy to miss when it is built:
+
+- **It loads only `desk-sheet-view.css`, never `desk.css`**
+  (`src/scripts/desk/sheets/CLAUDE.md`, rule 21), so every Featherboa rule
+  it needs goes there too, with the faces it uses (Literata among them),
+  and its test holds them.
+- **It must work at its floor, Safari 16.4** (the same rule), so a newer
+  CSS feature in Featherboa's look needs a fallback there.
+
 ### Where a sheet sits
 
 Claude's sixth adjustment fitted the drawing's frame into "The Study Desk":
@@ -2184,8 +2208,44 @@ licenses require; the draggable line between the text and the card (BVJ,
 through the words; the line saying where John 7:53–8:11 and Romans
 16:25–27 take their Greek; and a copy that pastes as plain Greek. The
 Greek search commands and their builder stay (`public/greek/CLAUDE.md`,
-rule 17). The proposal tucks them behind a "Build a search" in Search;
-that, and anything else about them, is open (below).
+rule 17), in a window of their own ("Searching the Greek," below).
+
+### Searching the Greek (decided 2026-11-27)
+
+The proposal tucks the Greek search commands and their builder behind a
+"Build a search" in Search, and they weren't put to BVJ with the rest of
+it (BVJ: “I don't remember addressing Greek search in detail”). Today a
+"Search commands" button opens their window from three places: beside
+/search's field while its type is Greek, at the foot of the tray's Greek
+group, and in the Search pane. The window's top is the builder (E5, BVJ
+2026-11-02), a card for each word, up to four, with "Examples and all
+commands" under it. Claude recommended five points, and BVJ took them
+(“Yes to 1-5 about the Greek”), then asked about the name (the last
+point).
+
+- **The window stays a window opened on request**, dragged aside and
+  keeping its place, in Featherboa's look. What it holds stays: the
+  builder on top, "Examples and all commands" under it, and nothing about
+  the notebook, since it is kept apart from Notebook actions (BVJ's
+  choice).
+- **Its one way in is a quiet link in the field's row, shown only while
+  the Greek tab is chosen**, wherever that row is: /search, the tray, and
+  Study's Search tab ("Search," "The same rows everywhere"). It replaces
+  today's three buttons. A Greek tab with nothing searched yet shows a few
+  examples where results would be, as today.
+- **It meets "Find this word ▾" through the field.** Each of the word
+  card's four searches puts the search it ran into the Search tab's field,
+  and the builder reads the field, so opening it there starts with that
+  word as its first card, ready for a second ("within 3 words of"). The
+  menu takes no fifth item.
+- **Typed commands keep working in every field that searches the Greek**,
+  and the field's placeholder keeps its example ("Try πίστις.gen or
+  *.aor.impv").
+- **Its name is open.** Claude proposed the proposal's "Build a search"
+  for the link and the window, since the builder now comes first, with the
+  commands under a heading of their own inside it. BVJ's yes took it, and
+  then BVJ asked: “I wonder about using the term Advanced Search at all?”
+  Today's name is "Search commands."
 
 ## First visit, signing in, and sync (decided 2026-11-27)
 
@@ -2350,13 +2410,9 @@ BVJ: “1, yes. 2, yes. 3, just use the apps! 4, yes.”
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
-- **The Greek search commands and the search builder** ("The Greek").
-  Only two things are decided: the Greek tab of search stays where the
-  Greek search runs ("Search"), and the commands and builder stay. Their
-  window, its name ("Search commands" today, the proposal's "Build a
-  search"), its ways in (the tray, /search, and the Search pane today),
-  and how it meets "Find this word ▾" were never put to BVJ (BVJ: “I don't
-  remember addressing Greek search in detail”).
+- **The Greek search window's name** ("The Greek," "Searching the
+  Greek"): "Build a search," as proposed and taken, or "Advanced search,"
+  which BVJ asked about. Today's is "Search commands."
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and
