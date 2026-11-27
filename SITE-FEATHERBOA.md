@@ -297,7 +297,7 @@ The renames the proposal draws:
 | Notebook, My Notebook, the Notebook, My Notes | **Notebook** (the place), **Notes** (what is in it) |
 | Sheets, My sheets, Sheets page | **Sheets** |
 | Add a note, Add bookmark, Add a bookmark that moves | **Add note**, **Add bookmark** |
-| Open in Study Desk, Edit in Study Desk, Open the Study Desk | One label, its words still open ("Study and its places"; the proposal's "Open in Desk" is not taken) |
+| Open in Study Desk, Edit in Study Desk, Open the Study Desk | One label, **Study Romans 8**, the verb with its passage ("Study and its places"; the proposal's "Open in Desk" is not taken) |
 | “Show” (four different controls) | **View** for what a page displays, **Filter** for lists |
 | Display settings, Display, Display options | **Display** |
 | Stay here, Stop following | One switch: **Follow reading** |
@@ -804,7 +804,9 @@ menu's layout, and E112's order of the Notebook's rows.
 
 - **Four tabs, in BVJ's order: Notes, Footnotes, This verse, Greek** (“yes
   but in this order”). Notes, Footnotes, and Greek each list the chapter one
-  kind at a time; This verse gathers every kind for one verse.
+  kind at a time; This verse gathers every kind for one verse. **Greek has
+  since left the panel**, so it is Notes, Footnotes, and This verse ("Study
+  and its places").
 - **The panel takes the margin's column** (“1, yes”): while it is open, the
   reader's notes are its Notes list rather than beside their lines, and
   closing it brings the margin back.
@@ -1098,7 +1100,9 @@ settled the rest point by point.
   Notebook's Greek tab where the panel runs (BVJ: “the Greek tab is still
   relevant here”), since the desk shows the Greek of draft chapters (BVJ,
   2026-10-13). A draft asked for by name, from the picker or its address,
-  still opens its own page ("Finding a passage").
+  still opens its own page ("Finding a passage"). **The line now links to
+  the chapter's Greek in Study**, since the Read page's panel has no Greek
+  tab ("Study and its places").
 
 ### The progress line
 
@@ -1895,7 +1899,14 @@ the header's.
   the right address”). The help page moves with it. /notebook, /sheets
   (with a sheet's `?id=`, present mode, and shared links), and /collections
   open their places on the Study page.
-- **The words of the link that opens a passage in Study are open** ("Open").
+- **The link that opens a passage in Study is the verb and the passage:
+  "Study Romans 8"** (BVJ: “1, yes”), as the Read page's is "Read Romans
+  8." BVJ had asked about “Open study”; Claude's reasons against it: it
+  can read as a kind of gathering (an open Bible study), more so as "Open
+  Study" with the place's capital ("Controls"), and it doesn't say what
+  opens. With places, a sheet and a collection open at their own
+  addresses, so this link only ever opens a passage. Where no passage is
+  named, the header's "Study" is the way in.
 
 ### The places
 
@@ -1977,6 +1988,22 @@ needs:
   part's left edge and above its own controls, so it never covers the
   words being written.
 
+### The Greek is Study's
+
+- **The Read page's Notebook panel loses its Greek tab**, BVJ's idea: “I
+  think we can remove the Greek tab from the (newly labeled) read page. The
+  this verse tab will still have it verse by verse, but for in depth study,
+  they should come to the Study page.” The panel is Notes, Footnotes, and
+  This verse. This reverses the Greek tab in BVJ's four of "Beside
+  scripture."
+- **This verse's Greek words open Study** at that verse, with the Greek tab
+  at the word, where today they open the panel's Greek tab (BVJ: “Fine
+  with both of those”).
+- **A draft chapter's line links to that chapter's Greek in Study** ("A
+  whole book"), since a chapter still being translated has no English yet.
+- **Study keeps the Greek**: Scripture's columns start with it beside the
+  LIT, and it is beside the Notebook ("What each place shows beside it").
+
 ### What changes in the sections before
 
 **"The Study Desk"** holds for Scripture's columns, with these changes:
@@ -2028,19 +2055,11 @@ needs:
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
-- **The words of the link that opens a passage in Study** ("Study and its
-  places"). BVJ asked about “Open study” in place of “Open in Study.”
-  Claude suggested the verb with its passage, as with Read: "Study Romans
-  8." With places, a sheet and a collection open on the Study page at their
-  own addresses, so the link only ever opens a passage.
 - **Whether a sheet in a collection opens with that collection beside it**
   ("Study and its places"), Claude's suggestion for BVJ's “easy way to
-  access collections while making a sheet.”
-- **Taking the Greek tab off the Read page's Notebook panel**, BVJ's idea
-  (2026-11-26): This verse keeps each verse's Greek, and study in depth is
-  the Study page's. Two things need a home first: This verse's Greek words
-  open the Greek tab at the word, and a draft chapter's line points to the
-  Greek tab ("A whole book").
+  access collections while making a sheet.” BVJ: “Sounds good. Does it
+  actually look good and make sense with sheets and collections being
+  separate Places?” Drawn in the mock to answer.
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and

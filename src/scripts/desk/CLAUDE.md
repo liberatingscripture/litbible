@@ -467,7 +467,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      footnote equal to the JSON's, so a new render-time transform of
      footnote HTML that adds visible text will fail there.
   10. **The Notebook panel has tabs, one module each** (Featherboa makes
-     them Notes, Footnotes, This verse, Greek, and moves Settings into a
+     them Notes, Footnotes, This verse (Greek goes to Study), and moves Settings into a
      "Notebook ▾" title menu and Display: `SITE-FEATHERBOA.md`, "Beside
      scripture"; until it is built, this holds): "My Notes"
      (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
