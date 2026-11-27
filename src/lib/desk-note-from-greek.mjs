@@ -14,6 +14,15 @@
 import { W, splitSigns } from "./desk-greek.mjs";
 import { MAX_NOTE_BODY } from "./desk-records.mjs";
 
+/**
+ * Why a draft chapter's Greek offers no note (E232; BVJ, 2026-11-27): a note
+ * from the Greek hangs on the LIT's verses, and a draft has none yet
+ * (STUDY-DESK-FORMAT.md, "Not covered: draft chapters"). The tab still shows
+ * the button and the selection's menu, unavailable, with this as their
+ * reason, so the missing note is never left unexplained.
+ */
+export const DRAFT_NOTE_REASON = "This chapter is still being translated, so it can’t take notes yet.";
+
 // The opening and closing marks round the Greek. Curly, as all reader-facing
 // quotes on the site are.
 const OPEN = "“";

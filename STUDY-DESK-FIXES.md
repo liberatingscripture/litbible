@@ -6022,6 +6022,47 @@ wording (E202).
   to 1105px. Not seen: Safari, Firefox, and BVJ's own browser after the
   fix. The rule is `src/scripts/desk/account/CLAUDE.md`, rule 17.
   Status: fixed (the pull request that adds this entry).
+- **E232, rough: a draft chapter's Greek offered no note and didn't say
+  why.** BVJ, 2026-11-27, on `litbible.net/desk` with a Greek pane at Acts
+  2:33 and a word chosen: no note button beside the word's ×, and selecting
+  Greek opened no menu, with “no explanation why it's missing. If it
+  behaves that way for others, they will be just as confused.” By design, not
+  broken: a note from the Greek (4k) is kept on the LIT's verses, and a draft
+  (`"indexed": false`; Acts 2–28 and Revelation 1–22, 49 chapters) has none
+  (`STUDY-DESK-FORMAT.md`, "Not covered: draft chapters"), so both callers
+  left `onAddNote` out and the tab drew nothing. BVJ accepted that a draft
+  can't take notes (“There's nothing to anchor a note to”) but wanted the
+  page to say so. **Decided**: drafts still take no notes, and the format and
+  the apps are unchanged; where the browser keeps a notebook, the way in
+  shows as on a published chapter, unavailable, with its reason. The button
+  (the icon alone, as BVJ chose on 2026-11-23) shows once a word is chosen or
+  Greek selected, `aria-disabled` rather than `disabled` so it keeps its tab
+  stop, in ink at 0.7 with its edge (no `opacity`), its name still the
+  action and its reason in its tooltip and its description. The selection's
+  menu opens as before, its one line unavailable with the reason under its
+  words, and the menu is described by it (`describeUnavailable`, which now
+  takes a `role="group"` menu too: this one never takes focus, so it has no
+  arrow keys to pass over the line). Pressing either does nothing. The
+  reason is `DRAFT_NOTE_REASON` (`desk-note-from-greek.mjs`): “This chapter
+  is still being translated, so it can’t take notes yet.” (BVJ kept these
+  words on seeing the screenshots, 2026-11-27.) /desk's Greek pane
+  (`desk-panes.js`) and the Notebook's Greek tab on a draft's page
+  (`panel.js`) both pass `noteUnavailable: "draft"`; without a notebook
+  nothing shows, as before. The help page's “A note from the Greek” says
+  so. The next design records the same rule (`SITE-FEATHERBOA.md`, "The
+  Greek", on PR #732's branch); this entry is today's preview only.
+  Seen in a build of the branch (the Browser pane, 1200×900): on /desk with
+  a Greek pane at Acts 2:33, and in the Notebook's Greek tab on `/acts-2/`,
+  choosing τῇ showed the button, unavailable, with its tooltip on hover and
+  on keyboard focus (Shift+Tab from the ×); neither a click nor Enter opened
+  anything. Selecting τῇ δεξιᾷ οὖν opened the menu with its line
+  unavailable and the reason under it, and a click on the line did nothing.
+  The unavailable words measure 5.82:1 in light and 7.83:1 in dark. Matthew
+  1, in the Notebook and on /desk, is unchanged: the button in full ink, its
+  tip without a reason, the editor opening with the word, the menu's line
+  usable. Not seen: Safari, Firefox, a screen reader, and a real mouse drag
+  (the pane's drag made no selection, so it was set by script).
+  Status: fixed (the pull request that adds this entry).
 
 **Work sessions** (proposed by Claude, 2026-11-02; a grouping of the open
 items above, not a decision. E4 is folded into E9, E10 is done on the

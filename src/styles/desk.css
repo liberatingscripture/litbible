@@ -4349,6 +4349,47 @@ html:has(.desk-greek__split--dragging) {
   color: currentColor;
 }
 
+/* A draft chapter takes no note (E232; BVJ, 2026-11-27), but the button and
+   the menu's line still show, unavailable: their words and glyph in ink at
+   0.7 (never faded with opacity), the button's edge kept, no hover, nothing
+   to press. The button's reason is its tip and description; the line's is
+   under its words. */
+.desk-greek__note[aria-disabled="true"],
+.desk-greek__selmenu-btn[aria-disabled="true"] {
+  color: rgba(var(--ink-rgb), 0.7);
+  cursor: default;
+}
+
+.desk-greek__note[aria-disabled="true"]:hover,
+.desk-greek__selmenu-btn[aria-disabled="true"]:hover {
+  background: transparent;
+  color: rgba(var(--ink-rgb), 0.7);
+}
+
+.desk-greek__selmenu-btn[aria-disabled="true"] {
+  align-items: flex-start;
+  white-space: normal;
+  text-align: left;
+}
+
+.desk-greek__selmenu-btn[aria-disabled="true"] .desk-greek__selmenu-glyph {
+  margin-top: 1px;
+}
+
+.desk-greek__selmenu-words {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.desk-greek__selmenu-words .desk-title__hint {
+  max-width: 16em;
+  margin-left: 0;
+  font-size: calc(0.8rem * var(--desk-ui, 1));
+  font-weight: 400;
+  white-space: normal;
+}
+
 .desk-greek__live:has(> .desk-greek__close[hidden]) .desk-greek__note {
   right: 0;
 }

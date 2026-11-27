@@ -80,7 +80,12 @@
   never a tab stop) opens the ordinary editor on the LIT's whole
   verses, the Greek quoted as `startBody` (`desk-note-from-greek.mjs`).
   Kind 2, no new field; offered only with LIT text and a notebook
-  (`onAddNote`).
+  (`onAddNote`). **A draft never hides it without a word** (E232; BVJ,
+  2026-11-27): with a notebook, both callers pass `noteUnavailable:
+  "draft"`, and the button and the menu show as on a published chapter,
+  `aria-disabled`, with `DRAFT_NOTE_REASON` as their reason (the button's
+  tip and description; the menu's line and, by `describeUnavailable`, the
+  menu's description). Without a notebook nothing shows.
 
 ## Rule 15: searching the Greek
 

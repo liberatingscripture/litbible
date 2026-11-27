@@ -35,7 +35,8 @@ export function unavailableSentences(lines) {
  * `.desk-title__label`. Call `refresh()` after any line's state or reason
  * changes while the menu is open, and `destroy()` when the menu goes away.
  *
- * @param {Element} menu the `role="menu"` element
+ * @param {Element} menu the `role="menu"` element (or a `role="group"` that
+ *   acts as one without taking focus)
  * @param {{ id: string, place?: (note: HTMLElement) => void }} options
  *   `id` names the hidden element; `place` puts it in the page (default: right
  *   after the menu, as a sibling, since a menu's own children are its items and
@@ -52,7 +53,10 @@ export function describeUnavailable(menu, { id, place } = {}) {
     const lines = [];
     for (const b of menu.querySelectorAll('[aria-disabled="true"], :disabled')) {
       // A nested menu (a flyout inside this one's markup) describes itself.
-      if (b.closest('[role="menu"]') !== menu) continue;
+      // `menu` may be a group with no menu role of its own (the Greek tab's
+      // selection menu, which never takes focus; E232).
+      const owner = b.closest('[role="menu"]');
+      if (owner && owner !== menu && menu.contains(owner)) continue;
       const hint = b.querySelector(".desk-title__hint");
       if (!hint) continue;
       lines.push({ label: b.querySelector(".desk-title__label")?.textContent, why: hint.textContent });

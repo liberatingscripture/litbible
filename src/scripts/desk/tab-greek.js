@@ -29,6 +29,15 @@
 // for a note on the LIT's whole verse or verses, its body opening with the
 // Greek in quotes (src/lib/desk-note-from-greek.mjs). Only where the chapter
 // has LIT text and the browser keeps a notebook (`onAddNote`).
+//
+// A draft chapter has no LIT verses for a note to hang on, so it takes none,
+// but it doesn't hide the way in without a word (E232; BVJ, 2026-11-27): the
+// caller hands `noteUnavailable`, the reason, and the button and the menu show
+// as they would on a published chapter, unavailable. The button is
+// `aria-disabled` (it keeps its tab stop) with the reason in its tooltip and
+// its description; the menu's line carries the reason beside it, and the menu
+// is described by it (`describeUnavailable`). Pressing either does nothing.
+// Where the browser keeps no notebook, nothing shows, as before.
 
 import { describeParse } from "../../lib/greek-parse.mjs";
 import { plainTextOf } from "../../lib/desk-greek-text.mjs";
@@ -55,7 +64,11 @@ import {
 import { make } from "./dom.js";
 import { glyph } from "./glyphs.js";
 import { setTip } from "../tip.js";
-import { greekNoteLabel, greekVerses, noteFromGreek } from "../../lib/desk-note-from-greek.mjs";
+import { describeUnavailable } from "./menu-reasons.js";
+import { DRAFT_NOTE_REASON, greekNoteLabel, greekVerses, noteFromGreek } from "../../lib/desk-note-from-greek.mjs";
+
+// Why a note can't start here, by the key a caller passes as `noteUnavailable`.
+const NOTE_UNAVAILABLE = { draft: DRAFT_NOTE_REASON };
 
 // The editions SBL's notes compare the SBLGNT with.
 const EDITIONS = [
@@ -200,6 +213,12 @@ function readTermData() {
  *   whenever the reader's scrolling changes it, which is how the Greek leads
  *   back (D9, the 1g answer). There is no "Go to verse" button then: the
  *   pane is moved with `goToVerse`.
+ *
+ *   `onAddNote` opens the note editor for a note from the Greek (4k). Without
+ *   it, `noteUnavailable` ("draft": a draft chapter where the browser keeps a
+ *   notebook) shows the way in anyway, unavailable, with its reason (E232). A
+ *   key, not the sentence, so the shell's panel.js needn't import the Greek's
+ *   helpers to pass it.
  * @returns {{ el: HTMLElement, render: () => Promise<void>,
  *   selectWord: (verse: number, t: number, opts?: { focus?: boolean }) => Promise<boolean>,
  *   goToVerse: (verse: number) => Promise<number | null>,
@@ -208,8 +227,10 @@ function readTermData() {
  */
 export function createGreekTab({
   here, visible, openVerse, source = null, startVerse = null, idSuffix = "", openHit = null, onTopVerse = null,
-  slowAfter = SLOW_LOAD_MS, onAddNote = null,
+  slowAfter = SLOW_LOAD_MS, onAddNote = null, noteUnavailable = null,
 }) {
+  // Why a note can't be added here, or null where one can (or none is offered).
+  const noteWhy = onAddNote ? null : NOTE_UNAVAILABLE[noteUnavailable] ?? null;
   const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
   const markers = source ? [] : Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
   const termData = source ? source.termData : readTermData();
@@ -267,13 +288,21 @@ export function createGreekTab({
   parseLine?.after(findNote);
   // "Add a note…" (4k), shown only while there is Greek to put in one: the
   // note glyph alone, in a square like the × beside it (BVJ, 2026-11-23),
-  // its words in its name and tooltip.
-  const noteButton = onAddNote ? make("button", "desk-greek__note") : null;
+  // its words in its name and tooltip. On a draft it shows all the same,
+  // unavailable, its reason its description (E232).
+  const noteButton = onAddNote || noteWhy ? make("button", "desk-greek__note") : null;
   if (noteButton) {
     noteButton.type = "button";
     noteButton.hidden = true;
     noteButton.innerHTML = glyph("note", "desk-greek__note-glyph");
     closeWord.before(noteButton);
+  }
+  if (noteButton && noteWhy) {
+    noteButton.setAttribute("aria-disabled", "true");
+    const why = make("span", "sr-only", noteWhy);
+    why.id = `deskGreekNoteWhy${idSuffix}`;
+    noteButton.parentElement.append(why);
+    noteButton.setAttribute("aria-describedby", why.id);
   }
   const NO_WORD = "Select a word to see its dictionary entry. Left and Right move between words, Up and Down between verses.";
   const more = el.querySelector(".desk-greek__more");
@@ -874,7 +903,9 @@ export function createGreekTab({
     if (!span) return;
     const label = greekNoteLabel(span, choice.from);
     noteButton.setAttribute("aria-label", label);
-    setTip(noteButton, label);
+    // The tip says what the button is for and, where it can't be used, why
+    // (tip.js: the tip may add the state in words); the name stays the action.
+    setTip(noteButton, noteWhy ? `${label}. ${noteWhy}` : label);
   }
 
   // A selection of the Greek also gets a small menu beside it, with that one
@@ -882,8 +913,12 @@ export function createGreekTab({
   // stays the keyboard's, so the menu never takes focus or a tab stop. It sits
   // inside the scroller, so it scrolls with the words, and waits for the
   // mouse button to come up, as the scripture's selection panel does.
+  // On a draft its one line is unavailable, its reason beside it and the
+  // menu's description, as every desk menu's disabled line (E232). The menu
+  // takes no focus, so there are no arrow keys to pass over it.
   const menu = noteButton ? make("div", "desk-greek__selmenu") : null;
   const menuButton = menu ? make("button", "desk-greek__selmenu-btn") : null;
+  let menuReasons = null;
   let pointerHeld = false;
   let menuKey = null; // the selection the menu is showing for
   let dismissedKey = null; // one Escape closed it for; it stays closed until the selection changes
@@ -893,6 +928,12 @@ export function createGreekTab({
     menuButton.type = "button";
     menuButton.tabIndex = -1;
     menu.append(menuButton);
+  }
+  if (menu && noteWhy) {
+    menuButton.setAttribute("aria-disabled", "true");
+    menuButton.setAttribute("aria-describedby", `deskGreekSelWhy${idSuffix}`);
+    // Inside the menu, since the menu itself comes and goes with the selection.
+    menuReasons = describeUnavailable(menu, { id: `deskGreekSelMenuWhy${idSuffix}`, place: (n) => menu.append(n) });
   }
 
   function hideMenu() {
@@ -912,8 +953,18 @@ export function createGreekTab({
     }
     if (key === menuKey && menu.isConnected) return;
     menuButton.innerHTML = glyph("note", "desk-greek__selmenu-glyph");
-    menuButton.append(span.endVerse > span.verse ? `Add a note on verses ${span.verse}–${span.endVerse}` : `Add a note on verse ${span.verse}`);
+    const words = span.endVerse > span.verse ? `Add a note on verses ${span.verse}–${span.endVerse}` : `Add a note on verse ${span.verse}`;
+    if (noteWhy) {
+      const hint = make("span", "desk-title__hint", noteWhy);
+      hint.id = `deskGreekSelWhy${idSuffix}`;
+      const both = make("span", "desk-greek__selmenu-words");
+      both.append(make("span", "desk-title__label", words), hint);
+      menuButton.append(both);
+    } else {
+      menuButton.append(words);
+    }
     scroller.append(menu);
+    menuReasons?.refresh();
     menuKey = key;
     placeMenu(range);
   }
@@ -947,6 +998,7 @@ export function createGreekTab({
     // A press keeps the selection it acts on.
     noteButton.addEventListener("mousedown", (e) => e.preventDefault());
     noteButton.addEventListener("click", () => {
+      if (noteWhy) return; // unavailable: its reason is its tip and description
       const choice = noteChoice();
       const made = choice && noteFromGreek(here, choice.words, choice.edges);
       if (!made) return;
@@ -954,6 +1006,7 @@ export function createGreekTab({
     });
     menu.addEventListener("mousedown", (e) => e.preventDefault());
     menuButton.addEventListener("click", () => {
+      if (noteWhy) return; // unavailable: its reason shows beside it
       const words = selectedWords();
       const made = words && noteFromGreek(here, words, selectionEdges(words));
       if (!made) return;

@@ -257,6 +257,9 @@ function mountGreek(body, env, pane) {
     // A note from the Greek (4k) is a note on the LIT's verses, so it needs
     // the chapter's LIT text (a draft has none) and a notebook to keep it.
     const notes = env.store && page && !page.draft && page.anchorText ? page : null;
+    // A draft shows the way in all the same, unavailable, with its reason
+    // (E232); without a notebook there is nothing to say.
+    const noteUnavailable = env.store && page?.draft ? "draft" : null;
     if (n !== seq) return;
     let made = null;
     made = createGreekTab({
@@ -272,6 +275,7 @@ function mountGreek(body, env, pane) {
           draft, restoreFocus, text: notes.anchorText, startBody: body,
         })
         : null,
+      noteUnavailable,
       openHit: (hit) => {
         word = { verse: hit.verse, t: hit.t };
         // A search result elsewhere: the LIT pane's way back stays (E168).
