@@ -261,7 +261,7 @@ below).
 | Study, 1100 and up | Two panes share what is left | The companion pane | A 236 sidebar that never moves |
 
 Proposals 11 (the margin), 15 (the phone), and 21 (one workspace) draw these
-rows in full. Study's row changed with 21: one to three columns of tabs, and
+rows in full. Study's row changed with 21: one to three panes of tabs, and
 a sidebar that folds ("The Study Desk").
 
 ### Targets and figures
@@ -1460,16 +1460,16 @@ Claude recommended it with ten adjustments. BVJ liked much of it and asked
 what was lost (“It feels like there are real costs though”). Fixed sides
 lose real function: “I want to be able to see search, Greek, and LIT at
 once. Or maybe Notes, Sheet, and Search.” BVJ asked for a sidebar that
-folds, one, two, or three columns, Search as a real column, columns that
+folds, one, two, or three panes, Search as a real pane, panes that
 switch, and widths that still drag. Then BVJ found the way to put it
-together, tabs in every column: “That way it's not really replacing
+together, tabs in every pane: “That way it's not really replacing
 something, it's just switching tabs.” Claude drew that as a working mock
 (Luke 3 with its Greek and footnotes, and a real search for "wilderness"),
 and BVJ took it as drawn (“Record it”).
 
 **"Study and its places" changes this section**: the page is "Study," the
 Notebook, sheets, collections, and the Trash open as places of their own,
-and what follows holds for the columns, which are now the Scripture place.
+and what follows holds for the panes, which are now the Scripture place.
 
 ### The name and the frame
 
@@ -1482,67 +1482,67 @@ and what follows holds for the columns, which are now the Scripture place.
   is a header plus the title row), and one header everywhere can mark where
   the reader is.
 - **The title row**: "Fold sidebar" (icon and word), the page's heading
-  "Study Desk," and at the right "Columns 1 2 3" and "Full screen" (the
+  "Study Desk," and at the right "Panes 1 2 3" and "Full screen" (the
   browser's own, E43).
 - **The command row and the title menu go** (E68's row, and "Study Desk ▾").
-  Each command has a home: Add pane and Layout… become the column count;
+  Each command has a home: Add pane and Layout… become the pane count;
   New sheet… and New collection… go to "New…" in the sidebar; Print… goes
   on what it prints (a sheet's Share…, the Notes tab's More menu); Display
   options is the header's Aa, as on every page; My Notebook is the
   sidebar's Notebook; Help, the tour, and feedback go to the sidebar's
   foot.
 
-### Columns of tabs
+### Panes of tabs
 
-- **One, two, or three columns**, chosen with "Columns 1 2 3" on the title
+- **One, two, or three panes**, chosen with "Panes 1 2 3" on the title
   row: always in view and in words, E68's reason for worded buttons. A
-  column is at least 280px wide. A count the window can't hold is dimmed,
+  pane is at least 280px wide. A count the window can't hold is dimmed,
   its reason ("Needs a wider window") reachable without a pointer ("The
   kit").
-- **Every column is one row of tabs**, and a tab is one thing: the LIT at a
+- **Every pane is one row of tabs**, and a tab is one thing: the LIT at a
   place (labeled with the place, "Luke 3"), Greek, Footnotes, This verse,
   Notes, a sheet or a collection (by its name), or Search. **Any kind can be
-  in any column, any number of times**: two LIT tabs compare passages, two
+  in any pane, any number of times**: two LIT tabs compare passages, two
   sheets let a reader copy from one to the other, and two searches keep two
   questions open.
-- **The row is the column's only bar.** It holds the tabs and, at its right
+- **The row is the pane's only bar.** It holds the tabs and, at its right
   end, the open tab's one or two key actions (the LIT's ‹ ›; a sheet's
   Share… and a filled Present; in a list, the commands for what is chosen,
   "The Notebook"), then More (⋯).
-- **Tabs are plain words.** The open tab in each column is underlined in
-  ink. In the column the reader is working in, the underline is green,
+- **Tabs are plain words.** The open tab in each pane is underlined in
+  ink. In the pane the reader is working in, the underline is green,
   proposal 2's "you are here," and it also shows where something new will
   open.
 - **× shows on hover or focus only.** Everything else a tab can do is in
-  More: "Open in this column ▸," "Move this tab to" Left, Middle, or Right
+  More: "Open in this pane ▸," "Move this tab to" Left, Middle, or Right
   (the keyboard's way to move it), "Pin to this passage" on a tab that
   follows, and Close. More is one of the five icons that may stand alone
   ("Controls").
 - **Tabs that don't fit fold into "2 more ▾,"** and the open tab always
   shows.
-- **What a column can show is one grouped list**: Scripture (The LIT,
+- **What a pane can show is one grouped list**: Scripture (The LIT,
   Greek, Footnotes, This verse), Yours (Notes, Sheets, Collections), and
-  Search on its own line. More's "Open in this column ▸" holds it, and an
-  empty column shows it whole.
+  Search on its own line. More's "Open in this pane ▸" holds it, and an
+  empty pane shows it whole.
 
 ### Opening, moving, and following
 
 - **Nothing is ever replaced, so nothing needs an undo.** Opening something
-  brings its tab forward if it is open in any column; otherwise it adds a
-  tab to the column marked green. To choose the column, drag the item from
+  brings its tab forward if it is open in any pane; otherwise it adds a
+  tab to the pane marked green. To choose the pane, drag the item from
   the sidebar onto it.
-- **Tabs move between columns** by dragging, or with "Move this tab to."
-  That is how columns switch places.
-- **Changing the count keeps everything.** Going down a column moves its
-  tabs into the last column still open; a new column opens empty, showing
+- **Tabs move between panes** by dragging, or with "Move this tab to."
+  That is how panes switch places.
+- **Changing the count keeps everything.** Going down a pane moves its
+  tabs into the last pane still open; a new pane opens empty, showing
   the list.
 - **Following stays**: Notes (on "This chapter"), This verse, Footnotes, and
   Greek follow the LIT tab the reader last moved in, unless pinned.
 - **Widths still drag** (BVJ: “keep the adjustable column widths”). Each
-  line between columns has its menu of steps and its own reset, as on the
-  reading page (E189), and each column count remembers its own widths, so
-  going from three columns to two and back returns the three-column sizes.
-- **A new reader starts with two columns**: the LIT, and beside it Notes,
+  line between panes has its menu of steps and its own reset, as on the
+  reading page (E189), and each pane count remembers its own widths, so
+  going from three panes to two and back returns the three-pane sizes.
+- **A new reader starts with two panes**: the LIT, and beside it Notes,
   Footnotes, This verse, and Greek, the reading page's own panel ("Beside
   scripture"), so the desk reads as the page they know with more room.
   After that, the page reopens as the reader left it.
@@ -1550,7 +1550,7 @@ and what follows holds for the columns, which are now the Scripture place.
   book"), footnotes float in the margin ("The reading page"), and Display
   reaches it.
 - **Search is a tab.** On the Study Desk the header's magnifier, or "/",
-  brings the Search tab forward or opens one in the column marked green. The
+  brings the Search tab forward or opens one in the pane marked green. The
   sidebar has no field of its own, so the page keeps one way in (audit U6).
   The tab shows /search's tabs and rows ("Search").
 - **A Sheets or Collections tab opens the last one the reader had there**,
@@ -1565,8 +1565,8 @@ and what follows holds for the columns, which are now the Scripture place.
   tour) and Feedback, the stage badge ("Nothing interrupts the reader,"
   item 5), and the line "Kept in this browser only. Back up…."
 - **It folds to a strip of icons, each with its word** ("Controls"), and
-  the page remembers whether it is folded. Three columns want a wide window
-  or a folded sidebar: in the mock, at 1,163px, each column was about 300px
+  the page remembers whether it is folded. Three panes want a wide window
+  or a folded sidebar: in the mock, at 1,163px, each pane was about 300px
   wide with the sidebar open and 360 with it folded.
 
 ### The Notebook page's tools
@@ -1594,17 +1594,17 @@ tools have a home).
 BVJ accepted less to customize (“Maybe not as customizable as what we
 already built”):
 
-- **8 of the 11 arrangements**: the seven with rows, and four columns. The
+- **8 of the 11 arrangements**: the seven with rows, and four panes. The
   fourth pane goes with them, which reverses BVJ's 2026-10-18 set of
   arrangements and the four-pane limit (`MAX_PANES`).
-- **The Layout window, and Add pane with its four directions.** The column
+- **The Layout window, and Add pane with its four directions.** The pane
   count replaces both.
 - **Dragging a pane onto another's edge to split it.** Dropping a tab on a
-  column moves it there.
+  pane moves it there.
 - **"My default."** The page reopens as the reader left it.
 
 No saved data needs moving, since the preview has one user (BVJ). A saved
-layout with rows reopens as columns.
+layout with rows reopens as panes.
 
 ### Kept
 
@@ -1629,7 +1629,7 @@ its ideas fitted into that desk, with nine adjustments, and BVJ took them
 all (“Yes, 1–9”).
 
 **"Study and its places" changes this section**: the Notebook is a place
-of its own on the Study page, its passage in the column beside it, rather
+of its own on the Study page, its passage in the pane beside it, rather
 than the Notes tab on "Everything."
 
 ### The list
@@ -1650,7 +1650,7 @@ than the Notes tab on "Everything."
 - Today every row carries Edit, Labels…, Collections…, and Delete. **Now
   clicking a row chooses it; Ctrl- or Shift-click adds more, and Space does
   the same from the keyboard.** While anything is chosen, four commands sit
-  at the end of the column's row: **Edit, Label…, Add to collection…, and
+  at the end of the pane's row: **Edit, Label…, Add to collection…, and
   Delete…**. Edit acts on one row, and Label… only on bookmarks (below); a
   command that can't act is dimmed with its reason ("The kit").
 - **The sheets' and collections' lists work the same way.** This replaces
@@ -1662,8 +1662,8 @@ than the Notes tab on "Everything."
   verse, with the note in the margin**: one click from “what did I write?”
   to “what does it say?” (the proposal's words). It is not a pane inside
   the list.
-- **If that LIT tab shares the list's column, the passage opens in the
-  column beside instead.** With one column, the LIT tab comes forward and
+- **If that LIT tab shares the list's pane, the passage opens in the
+  pane beside instead.** With one pane, the LIT tab comes forward and
   the list is one tab away. The drawing's toggle button isn't needed.
 
 ### Changed since you marked it
@@ -1753,9 +1753,9 @@ Desk, with an idea of their own, which is open ("Where a sheet sits," below).
 - **The page sits on a tinted desk, the one exception to "Surfaces."** The
   proposal's reason: here the page stands for a real sheet of paper with
   real edges. The page stays white paper in either theme, as today.
-- **Where the column holds the paper's width, the page shows as pages**,
+- **Where the pane holds the paper's width, the page shows as pages**,
   broken where print will break it (today's print layout, BVJ 2026-11-10).
-  In a narrower column the page fits the column with its words at their true
+  In a narrower pane the page fits the pane with its words at their true
   size and no page breaks drawn, rather than shrinking the type.
 - **Edit and Preview (E209) retire**: the page being edited is the preview.
   The drawing's two view icons aren't taken, since an icon stands alone only
@@ -1850,11 +1850,11 @@ notice in the editor (E84).
 ### Where a sheet sits
 
 Claude's sixth adjustment fitted the drawing's frame into "The Study Desk":
-the sheet a tab in any column, Print…, Share…, and Present at its row's
+the sheet a tab in any pane, Print…, Share…, and Present at its row's
 right end (where that section allows one or two actions and puts Print in
 Share…), and the template's name and "saved" beside the copy tabs. BVJ
 answered “Maybe”: a full page at real proportions won't fit in three
-columns. BVJ's idea: “clicking sheets in the sidebar should give the page
+panes. BVJ's idea: “clicking sheets in the sidebar should give the page
 its own layout, with one tab that's flexible, and the size of one column in
 the three column layout, and one tab that's the sheet editor, and the size
 of two columns in the three column layout.” **It grew into places: a sheet
@@ -1864,8 +1864,8 @@ opens as a place of its own on the Study page** ("Study and its places").
 
 This settles where a sheet sits ("Sheets"), and with it how the Notebook,
 collections, and the Trash open. BVJ's idea was a layout of a sheet's own,
-since a page at the paper's proportions won't fit beside two more columns.
-Then, from the proposal's drawing, where the sheet is the only column, BVJ
+since a page at the paper's proportions won't fit beside two more panes.
+Then, from the proposal's drawing, where the sheet is the only pane, BVJ
 asked whether a sheet should always be shown that way, whether the Notebook
 should too (“I know we decided to have that button just bring up the Notes
 column, but we can revisit it”), and where collections fit (“Let's
@@ -1890,10 +1890,22 @@ the header's.
 - **The title row has no heading** (BVJ: “I don't think it needs the word
   ‘study’ at the top as a title. It's already visually tied to the word
   ‘study’ by the underlined ‘Study’ in the header nav.”). The row holds
-  "Fold sidebar" at its left and the column count and "Full screen" at its
-  right. A place's name is its column's title ("Advent 2 handout ▾"), and
+  "Fold sidebar" at its left and the pane count and "Full screen" at its
+  right. A place's name is its pane's title ("Advent 2 handout ▾"), and
   the sidebar marks the place. The page keeps "Study" as a heading for
   screen readers, out of sight, since every page has one.
+- **The word is "pane," not "column"** (BVJ: “Panes”). BVJ asked: “Is
+  ‘Columns’ the right word to use? ‘Panes’ or ‘Sections’ could also work.
+  A column could be two columns of the same text, like on a document.”
+  Claude agreed and recommended "Panes": a pane divides the window, not
+  the text (a mail program's reading pane), so "Panes 1 2" over a sheet
+  can't read as setting the page in two columns, and the preview and its
+  help page already say "pane." "Sections" suggests parts of a document,
+  and "panel" is the Read page's Notebook panel. So the title row reads
+  "Panes 1 2 3" ("Panes 1 2" in a place), More says "Open in this pane ▸,"
+  and an empty one says "This pane is empty." The reading page keeps
+  "column" for its text column, a layout. Study's sections here say "pane"
+  since; BVJ's quoted words keep theirs.
 - **The reading page is "the Read page."** BVJ: “The first tab in the
   header nav, with the scripture pages, can be referred to as the Read
   page.” **This replaces E130's "Scripture page(s),"** the name planned for
@@ -1920,37 +1932,37 @@ the header's.
 - **The sidebar, top to bottom**: Scripture, Notebook, Sheets (the three
   most recent, and All sheets), Collections (the same), and Trash, with the
   foot "The Study Desk" drew. Each row opens its place in the page's
-  columns. The sidebar marks the place that is open with a tint and a green
+  panes. The sidebar marks the place that is open with a tint and a green
   bar; folded, it marks the group's icon.
-- **Scripture is "The Study Desk"'s columns of tabs**: Columns 1 2 3, any of
-  its kinds in any column, following, and the widths, all as decided there.
+- **Scripture is "The Study Desk"'s panes of tabs**: Panes 1 2 3, any of
+  its kinds in any pane, following, and the widths, all as decided there.
   BVJ weighed "Desk" and "Workspace" for its name too, “since it's more
   than scripture happening there, but you're right that it's the primary
   focus.” It is also the word the place's own lists use: the first group of
-  what a column can show, and Search's first tab. **The row shows the
+  what a pane can show, and Search's first tab. **The row shows the
   passage it holds at its right**, where the Notebook shows its count
   ("Scripture … Luke 3"; BVJ: “Yes”).
 - **The Notebook, a sheet, and a collection are places of their own**: the
-  place's own column, and beside it a column of tabs. Their title row shows
-  "Columns 1 2," never 3. **A sheet starts with one column, or two when it
+  place's own pane, and beside it a pane of tabs. Their title row shows
+  "Panes 1 2," never 3. **A sheet starts with one pane, or two when it
   is in a collection** (below); **the Notebook and a collection start with
   two**, the list and the passage beside it.
   Each place keeps its own count and what is beside it, and Scripture keeps
-  its columns while the reader is elsewhere.
-- **Beside a sheet, the column keeps its own width** (320px at first) and
+  its panes while the reader is elsewhere.
+- **Beside a sheet, the pane keeps its own width** (320px at first) and
   the page takes the rest; the Notebook and a collection start half and
-  half. Every line drags, with its menu and its reset (E189). The column
+  half. Every line drags, with its menu and its reset (E189). The pane
   beside is on the right, as drawn.
-- **The Trash is one column**, with no Columns control: each row with
+- **The Trash is one pane**, with no Panes control: each row with
   Restore, and "Empty trash…" at the row's end, which asks first.
 - **The header's magnifier and "/" open Search beside the place's own
-  column**, making the second column if there was one column. In the Trash
+  pane**, making the second pane if there was one pane. In the Trash
   they open Search in Scripture; in Scripture they work as "The Study Desk"
   says.
 
 ### What each place shows beside it
 
-Each place does one job, so the column beside it offers what that job
+Each place does one job, so the pane beside it offers what that job
 needs:
 
 | Place | Its job | Tabs beside it | Opens with |
@@ -1971,13 +1983,13 @@ needs:
   place, always; from the sidebar or All sheets, at first, and after that
   as the reader left it. A sheet in more than one collection opens with
   the one the reader came from, else the one it was added to last. A sheet
-  in none starts with one column.
+  in none starts with one pane.
 - **The tab beside is for using the collection; its place is for tending
   it.** The tab's first line names it ("The collection this sheet is in")
   and links to its place ("Open Wilderness"). Under it are the
   collection's groups and items, each cut to three lines, with this sheet
   shown but not offered. Choosing rows (Ctrl or Shift adds) brings a bar
-  to the column's foot, "2 chosen · Clear · Add to sheet," which adds them
+  to the pane's foot, "2 chosen · Clear · Add to sheet," which adds them
   after the part chosen on the page; or a row drags onto the page, where a
   green line shows where it lands. A note goes on as a text part headed
   "From my notes · Luke 3:8." Ordering, removing, and renaming stay in the
@@ -1992,7 +2004,7 @@ needs:
   "Footnotes…."
 - **Search is in every set**, so the magnifier never takes the reader away
   from their work.
-- **The empty column and "Open in this column ▸" list only the place's
+- **The empty pane and "Open in this pane ▸" list only the place's
   set**, and the LIT tab's More offers **"Open in Scripture"** at the same
   passage, for anything a place doesn't hold.
 - **No Greek beside a sheet.** Claude was least sure of this one (a leader
@@ -2000,11 +2012,11 @@ needs:
 
 ### A sheet's page
 
-- **Alone, the page shows at true size** wherever the column holds the
+- **Alone, the page shows at true size** wherever the pane holds the
   paper and its margin (a Letter page needs about 880px).
-- **With a column beside it, the page scales down to 80% at most, then
+- **With a pane beside it, the page scales down to 80% at most, then
   reflows** at true type size with no page breaks drawn, as "Sheets" said
-  of a narrow column. With the column beside at 320px, true size needs a
+  of a narrow pane. With the pane beside at 320px, true size needs a
   window about 1,450px wide with the sidebar open, or 1,275px with it
   folded; 80% needs about 1,280px or 1,110px. In the mock's 1,163px window
   the page reflowed with the sidebar open and showed at 86% with it folded.
@@ -2029,19 +2041,19 @@ needs:
   with both of those”).
 - **A draft chapter's line links to that chapter's Greek in Study** ("A
   whole book"), since a chapter still being translated has no English yet.
-- **Study keeps the Greek**: Scripture's columns start with it beside the
+- **Study keeps the Greek**: Scripture's panes start with it beside the
   LIT, and it is beside the Notebook ("What each place shows beside it").
 
 ### What changes in the sections before
 
-**"The Study Desk"** holds for Scripture's columns, with these changes:
+**"The Study Desk"** holds for Scripture's panes, with these changes:
 
-- **Sheets and collections leave the columns**, since they open as places.
-  What a column can show is Scripture (The LIT, Greek, Footnotes, This
+- **Sheets and collections leave the panes**, since they open as places.
+  What a pane can show is Scripture (The LIT, Greek, Footnotes, This
   verse), Yours (Notes), and Search. "A Sheets or Collections tab opens the
   last one" becomes the place's title, whose name is still a menu (another,
   a new one, or all). Two sheets side by side are now a sheet with another
-  beside it, and dragging an item from the sidebar onto a column goes.
+  beside it, and dragging an item from the sidebar onto a pane goes.
 - **The Notes tab lists the chapter** ("This chapter"), with a link to the
   Notebook ("All 128 in the Notebook"). "Everything" is the Notebook place,
   so in the table of /notebook's tools the list and its filters, Manage
@@ -2054,9 +2066,9 @@ needs:
 
 - **The Notebook is a place, not the Notes tab on "Everything."** Choosing
   a note takes the LIT tab beside it to the note's verse, and with one
-  column it opens the second. The rule for a LIT tab sharing the list's
-  column goes.
-- **When the commands for what is chosen don't fit the column**, the count
+  pane it opens the second. The rule for a LIT tab sharing the list's
+  pane goes.
+- **When the commands for what is chosen don't fit the pane**, the count
   goes first, then "Add to collection…" and "Label…" move into More.
 
 ## Open

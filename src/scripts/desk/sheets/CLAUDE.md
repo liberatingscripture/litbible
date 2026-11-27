@@ -20,9 +20,9 @@ retire (E209), the screen says "Leader's copy" and "Participant's copy"
 Next (`sans` and `handwriting` leave the format's set), and present mode
 sets its words in Source Sans 3. **A sheet opens as a place of its own on
 the Study page** (the desk's new name; `SITE-FEATHERBOA.md`, "Study and its
-places"), not a pane: alone, its page at true size; beside a column of The
-LIT, Search, Notes, a collection, or another sheet, it scales down to 80%
-and then reflows. Until it is built, the rules here hold.
+places"), not a tab in a desk pane: alone, its page at true size; beside a
+pane of The LIT, Search, Notes, a collection, or another sheet, it scales
+down to 80% and then reflows. Until it is built, the rules here hold.
 
 ## The sheet editor runs on `document.execCommand`
 

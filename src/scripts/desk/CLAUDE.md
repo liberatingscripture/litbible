@@ -949,7 +949,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      fills with `src/scripts/desk/desk-page.js` when `[data-desk-page]` is
      present. It isn't a reading surface (no Notebook panel; not in
      `READING_SURFACES`), and the announcement gate treats it as scripture.
-     Featherboa remakes it as "Study" (/study): one to three columns of tabs
+     Featherboa remakes it as "Study" (/study): one to three panes of tabs
      beside a sidebar that folds, under the site's header, with no command
      row, rows, fourth pane, Layout window, edge split or "My default", and
      the Notebook, sheets, collections and Trash as places of their own

@@ -24,8 +24,9 @@ it holds. Computer only; the apps carry it untouched.
 
 **Featherboa opens a collection as a place of its own on the Study page**
 (the desk's new name; `SITE-FEATHERBOA.md`, "Study and its places"), not a
-pane: its list, with The LIT, Search, or Notes in the column beside it, and
-it can open beside a sheet. Until it is built, the rules here hold.
+tab in a desk pane: its list, with The LIT, Search, or Notes in the pane
+beside it, and it can open beside a sheet. Until it is built, the rules
+here hold.
 
 ## Where the code is
 
