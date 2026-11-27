@@ -79,40 +79,25 @@ body.bg-cream > main {
 }
 
 .whats-new__trigger {
-  display: inline-flex;
-  align-items: center;
+  /* The kit's plain button: its dot and chevron are all this adds. */
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(var(--ink-rgb), 0.18);
-  background: var(--surface-raised);
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.whats-new__trigger:hover {
-  border-color: rgba(var(--ink-rgb), 0.35);
-  color: rgb(var(--ink-rgb));
-}
-
-.whats-new__trigger[aria-expanded="true"] {
-  border-color: var(--green-text, #0f6b33);
-  color: var(--green-text, #0f6b33);
 }
 
 .whats-new__dot {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--green, #209d50);
   flex-shrink: 0;
 }
 
 .whats-new__chevron {
-  font-size: 0.75rem;
-  line-height: 1;
+  display: inline-flex;
+}
+
+.whats-new__chevron .icon {
+  width: 1em;
+  height: 1em;
 }
 
 .whats-new__trigger[aria-expanded="true"] .whats-new__chevron {
@@ -129,7 +114,7 @@ body.bg-cream > main {
 
   background: var(--color-float);
   border: 1px solid var(--color-float-edge);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
   box-shadow: var(--shadow-float);
   padding: 20px;
 
@@ -204,7 +189,7 @@ body.bg-cream > main {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   background: rgba(var(--ink-rgb), 0.08);
   color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
@@ -271,7 +256,7 @@ body.bg-cream > main {
 
 .view-card {
   background: var(--surface-raised);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
   padding: 24px;
   border: 1px solid rgba(var(--ink-rgb), 0.12);
   display: flex;
@@ -284,7 +269,7 @@ body.bg-cream > main {
   display: inline-block;
   margin: 0 0 10px;
   padding: 2px 9px;
-  border-radius: 999px;
+  border-radius: var(--radius-press);
   background: rgba(var(--ink-rgb), 0.06);
   color: var(--green-text, #0f6b33);
   font-size: 0.72rem;
@@ -384,7 +369,7 @@ html[data-desk="on"] .view-card__badge--apps {
   margin-top: 8px;
 
   background: var(--surface-raised);
-  border-radius: 20px;
+  border-radius: var(--radius-float);
   padding: 26px 24px;
 
   border: 1px solid rgba(var(--ink-rgb), 0.14);
@@ -450,7 +435,7 @@ html[data-desk="on"] .view-card__badge--apps {
 
 .license-faq-item {
   border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
   background: rgba(var(--surface-rgb), 0.65);
   backdrop-filter: blur(10px);
   overflow: hidden;
@@ -460,17 +445,14 @@ html[data-desk="on"] .view-card__badge--apps {
 
 .license-faq-q {
   list-style: none;
-  cursor: pointer;
-  font-family: var(--font-display);
   font-size: clamp(1rem, 0.5vw + 0.9rem, 1.15rem);
-  font-weight: 500;
   line-height: 1.4;
+  width: 100%;
+  min-height: 0;
   padding: 16px 20px;
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  color: rgb(var(--ink-rgb));
+  text-align: left;
+  white-space: normal;
   user-select: none;
 }
 
@@ -478,25 +460,14 @@ html[data-desk="on"] .view-card__badge--apps {
   display: none;
 }
 
-.license-faq-q::after {
-  content: "＋";
-  font-size: 1.15rem;
-  line-height: 1;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  transform-origin: center;
+.license-faq-q .icon {
+  width: 1.15rem;
+  height: 1.15rem;
   flex-shrink: 0;
 }
 
-.license-faq-item[open] .license-faq-q::after {
-  content: "–";
-  transform: translateY(-1px);
-  opacity: 0.8;
-}
-
-.license-faq-q:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 12px;
+.license-faq-item[open] .license-faq-q .icon {
+  transform: rotate(180deg);
 }
 
 .license-faq-body {

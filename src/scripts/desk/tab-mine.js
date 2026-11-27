@@ -78,6 +78,7 @@
 // when it is in the chapter being read. With nothing kept in that chapter a
 // line says so, and the list shows the nearest records instead of staying put.
 
+import { icon } from "../../lib/icons.mjs";
 import { shortQuote } from "../../lib/desk-notes.mjs";
 import { COLORS, canEdit } from "../../lib/desk-records.mjs";
 import { isFollowing } from "../../lib/desk-bookmarks.mjs";
@@ -126,9 +127,7 @@ import { colorOf, highlightedWords, keepLines, nameOf, readChapterLines } from "
 import { scroller } from "./dom.js";
 
 // A note's caret in the list: down to show the rest, turned up while open.
-const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
+const ICON_CARET = icon("down", { size: 16 });
 
 // The words of a highlight shown in the list: about this many.
 const HIGHLIGHT_WORDS = 24;

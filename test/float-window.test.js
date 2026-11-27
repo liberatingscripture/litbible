@@ -44,6 +44,9 @@ class StubElement {
   }
   closest() { return null; }
   focus() {}
+  // A <template>'s content, for iconNode (src/lib/icons.mjs): the close
+  // button's icon is an element like any other here.
+  get content() { return { firstElementChild: new StubElement("svg") }; }
 }
 
 function fire(type, ev = {}) {

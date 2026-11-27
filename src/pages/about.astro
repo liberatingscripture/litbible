@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Icon from "../components/Icon.astro";
 import "../styles/pages/about.css";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
@@ -66,7 +67,7 @@ const unfinishedList = joinList(unfinished);
             aria-controls="about-toc-tray"
           >
             <span class="sr-only">Toggle section navigation</span>
-            <span class="about-toc__icon" aria-hidden="true"></span>
+            <Icon name="down" />
           </button>
         </div>
 
@@ -524,7 +525,7 @@ const unfinishedList = joinList(unfinished);
       <div class="faq">
         <details class="faq-item">
           <summary class="faq-q"
-            >What makes this the “best” translation?</summary
+            >What makes this the “best” translation?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>Short answer: it isn’t.</p>
@@ -546,7 +547,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Should I only read this translation?</summary>
+          <summary class="faq-q">Should I only read this translation?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>Please don’t.</p>
             <p>
@@ -563,7 +564,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Who is this translation for?</summary>
+          <summary class="faq-q">Who is this translation for?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               The LIT is for readers who want to engage Scripture thoughtfully:
@@ -579,7 +580,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Is this a paraphrase or commentary?</summary>
+          <summary class="faq-q">Is this a paraphrase or commentary?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               No. The LIT is translated directly from the original languages,
@@ -599,7 +600,7 @@ const unfinishedList = joinList(unfinished);
         <details class="faq-item">
           <summary class="faq-q">
             Why does the language sometimes sound unfamiliar or unsettling?
-          </summary>
+          <Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               Much traditional Bible language has accumulated centuries of
@@ -619,7 +620,7 @@ const unfinishedList = joinList(unfinished);
         <details class="faq-item">
           <summary class="faq-q">
             Is this translation driven by a political or ideological agenda?
-          </summary>
+          <Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               Every translation reflects values. Decisions about wording,
@@ -646,7 +647,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >How confident are you in this translation?</summary
+            >How confident are you in this translation?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -666,7 +667,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">What texts are available right now?</summary>
+          <summary class="faq-q">What texts are available right now?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               {unfinished.length ? (
@@ -694,7 +695,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">When will the translation be finished?</summary
+          <summary class="faq-q">When will the translation be finished?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>That’s hard to say.</p>
@@ -716,7 +717,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Can I quote or share this translation?</summary
+          <summary class="faq-q">Can I quote or share this translation?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -731,7 +732,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >What if I strongly disagree with a translation choice?</summary
+            >What if I strongly disagree with a translation choice?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -751,7 +752,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >What Greek text is the LIT translated from?</summary
+            >What Greek text is the LIT translated from?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -770,7 +771,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >Is the LIT Bible part of a nonprofit?</summary
+            >Is the LIT Bible part of a nonprofit?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>

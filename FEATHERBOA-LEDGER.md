@@ -53,6 +53,62 @@ For Featherboa: the bottom bar takes `translateY(100%)` with the same state; the
 "Motion"'s Settled (180 ms, the one curve), leaving at two thirds; the progress line rides the
 top row's bottom edge and hides with it.
 
+### What Phase 2 left to each surface's phase
+
+Phase 2 put every control on the kit by its old name (queue Q15) and kept
+its size. These are drawn as they were, each for the phase that redraws its
+surface:
+
+- **Phase 3 (the header and footer)**: the header's narrow Study link shows
+  the notebook icon alone, as it did before; the account button's drawing
+  and the menu button's bars are the header's own, not from `icons.mjs`;
+  the footer's brand marks stand alone (Q17); the About group's other names
+  ("What's new" becomes "Release Notes," "Names" in "Four places"). The
+  footer's groups (HD-36, BS-24) were Site 2.0's, behind its preview, and
+  went with it in Phase 0: `git show 63d07ac0^:src/components/SiteFooter.astro`
+  has its `FOOTER_GROUPS` and `SOCIAL` lists to start from.
+- **Phase 4 (the Read page)**: verse numbers and footnote letters join the
+  kit's "inline" (Q16); Read View's toolbar draws its own icons (its
+  close, the faders, focus, and the cycle), as does /read's Study pill
+  (`ReadLayout.astro`); the term lens's clear chip (`.lit-clear-chip`) is
+  a translucent chip over the text.
+- **Phase 5 (beside scripture)**: a floating window's grip
+  (`.lit-window__move`) takes no level, since its dots are its background
+  and a level's fill would erase them; the minimized Notebook tab
+  (`.desk-tab`) is plain, green words in an edge strip with no card; a
+  note's "Show all" caret (`.desk-item__more`) is the down icon alone,
+  which CT-19 doesn't allow, so it gains a word or becomes "more." Icons
+  still drawn by hand (Q20), for Lucide's: the Pin (`pins.js`'s
+  `ICON_PIN`, `glyphs.js`'s `THUMBTACK_INNER`), the Notebook panel's fold
+  and its Study icon (`panel.js`), the Notebook tab's icon, and the
+  margin's kind and note markers (`glyphs.js`).
+- **Phase 6 (search)**: a result's "›" is drawn by CSS (`.result-link::after`),
+  and the result cards keep their fill and edge.
+- **Phase 7 (the other pages)**: four controls (queue Q18): the
+  glossary's sort switch (`.toggle-switch`), its "Where it appears" rows
+  (`.occ-title`, in capitals at 0.9 opacity, and `.occ-summary`), and its
+  back-to-top button (the "up" icon alone), and About's contents toggle
+  (the "down" icon alone). Also the articles index's featured card.
+- **Phase 9 (Study's frame)**: icons still drawn by hand (Q20): the pane's
+  lock, grip, flag, and shape (`desk-page.js`), the Show eye
+  (`lit-show.js`), the way back's arrow (`lit-back.js`, an arrow, since
+  the bar's chevrons step a chapter: Lucide's `arrow-left`), the "open on
+  its page" icon (`glyphs.js`), and the Search pane's sort
+  (`search-pane.js`).
+- **Phase 10 (the Notebook place)**: the change notice's refresh icon
+  (`change-notice.js`) is drawn by hand (Q20).
+- **Phase 11 (Sheets)**: the rich editor's text box (`.desk-rich-editor`),
+  a field with a toolbar inside, keeps `--desk-field`; a sheet's pick row
+  whose checkbox is unavailable (`.desk-sheet__pick:has(input:disabled)`)
+  has no level; /sheets' copy link (`.sheets-page__copy-link`) draws its
+  own filled button, as `sheets-page.css` stays on the kit test's LATER;
+  the text tools (`sheet-text.js`) and /sheets' copy icon (`sheet-page.js`)
+  are drawn by hand (Q20).
+- **Phase 12 (the Greek)**: the Greek's words that open their details take
+  no level (queue Q16).
+- **Phase 13 (first visit)**: the welcome and launch popovers' feature
+  lists draw their own pictures (decorative, beside words, not controls).
+
 ### Where the record is unclear
 
 Found while writing and checking this ledger. Each is settled when its phase

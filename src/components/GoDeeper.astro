@@ -8,6 +8,7 @@
 // Past the first two episodes or three articles, the rest wait behind a
 // "N more" disclosure (owner, 2026-09-28). It is a <details>, so it works
 // without JS and the page never shifts when it loads.
+import Icon from "./Icon.astro";
 import {
   goDeeperFor,
   type ArticleItem,
@@ -74,7 +75,7 @@ const moreLabel = (row: Row) => {
                   );
                   return g === 0 ? list : (
                     <details class="go-deeper__more">
-                      <summary>{moreLabel(row)}</summary>
+                      <summary>{moreLabel(row)}<Icon name="down" /></summary>
                       {list}
                     </details>
                   );
@@ -92,7 +93,7 @@ const moreLabel = (row: Row) => {
   .go-deeper {
     margin: 28px 0 8px;
     padding: 18px 20px 6px;
-    border-radius: 14px;
+    border-radius: var(--radius-press);
     background: var(--surface-raised);
     border: 1px solid rgba(var(--ink-rgb), 0.1);
   }
@@ -172,8 +173,6 @@ const moreLabel = (row: Row) => {
   .go-deeper__more summary {
     width: fit-content;
     font-size: calc(0.9rem * var(--reading-scale, 1));
-    color: var(--link);
-    cursor: pointer;
     list-style: none;
   }
 
@@ -181,29 +180,18 @@ const moreLabel = (row: Row) => {
     display: none;
   }
 
-  .go-deeper__more summary::after {
-    content: "";
-    display: inline-block;
-    width: 0.4em;
-    height: 0.4em;
-    margin-left: 0.45em;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: translateY(-0.2em) rotate(45deg);
+  .go-deeper__more summary :global(.icon) {
+    width: 1em;
+    height: 1em;
+    flex: none;
+  }
+
+  .go-deeper__more[open] summary :global(.icon) {
+    transform: rotate(180deg);
   }
 
   .go-deeper__more[open] summary {
     margin-bottom: 8px;
-  }
-
-  .go-deeper__more[open] summary::after {
-    transform: translateY(0.05em) rotate(-135deg);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .go-deeper__more summary::after {
-      transition: none;
-    }
   }
 
   @media print {

@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Icon from "../components/Icon.astro";
 import "../styles/pages/release-notes.css";
 import releaseNotes from "../data/release-notes.json";
 import { releaseNoteLinker } from "../lib/release-note-linker";
@@ -92,6 +93,7 @@ const TYPE_LABEL: Record<string, string> = {
             {months.map((month, i) => (
               <details class="rn-month" open={i === 0} data-default-open={i === 0 ? "" : undefined}>
                 <summary class="rn-month__summary">
+                  <Icon name="down" />
                   <h2 class="rn-month__title">{month.label}</h2>
                   <span class="rn-month__count" data-total={month.count}>
                     {plural(month.count)}

@@ -11,6 +11,7 @@
 // changes (another tab, an undo), and the record is read fresh before each
 // write, so a stale popover can't overwrite a newer edit.
 
+import { icon } from "../../lib/icons.mjs";
 import { labelIds, labelMap, liveLabels, planNewLabelOn, planSetLabel } from "../../lib/desk-labels.mjs";
 import { kindName, planWrite } from "../../lib/desk-store-core.mjs";
 import { closePanel, showPanel } from "../lit-panel.js";
@@ -42,7 +43,7 @@ export async function openLabelsPopover({ trigger, store, ctx, recordId, name = 
   panel.innerHTML = `
     <div class="lit-panel__header">
       <p class="lit-panel__heading" id="deskLabelsTitle${n}">Labels</p>
-      <button type="button" class="lit-panel__close" aria-label="Close">×</button>
+      <button type="button" class="lit-panel__close" aria-label="Close">${icon("close")}</button>
     </div>
     ${name ? `<p class="desk-labels__for"></p>` : ""}
     <ul class="desk-labels__list"></ul>

@@ -68,7 +68,7 @@ html[data-desk] .nbhelp {
   padding: 1rem 1.25rem 1.1rem;
   border: 1px solid rgba(var(--ink-rgb), 0.16);
   border-left: 3px solid var(--green-text);
-  border-radius: 6px;
+  border-radius: var(--radius-float);
   background-color: var(--surface-raised);
 }
 
@@ -111,11 +111,10 @@ html[data-desk] .nbhelp {
   text-underline-offset: 3px;
 }
 
+/* The ring is the site's; a link's takes the pressed corner. */
 .nbhelp__toc a:focus-visible,
 .nbhelp__body a:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-press);
 }
 
 .nbhelp__toc-part {

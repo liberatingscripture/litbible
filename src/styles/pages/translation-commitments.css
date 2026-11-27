@@ -104,7 +104,7 @@ body:has(.tc-page) .site-header__inner {
   place-items: center;
 
   background: var(--surface-raised);
-  border-radius: 999px;
+  border-radius: var(--radius-press);
   overflow: hidden;
 
   border: 1px solid rgba(var(--ink-rgb), 0.10);
@@ -167,7 +167,7 @@ body:has(.tc-page) .site-header__inner {
   /* key change: contrast against cream page */
   background: var(--page-bg);
   border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 28px;
+  border-radius: var(--radius-float);
 
   /* give spine breathing room */
   padding: clamp(22px, 3.2vw, 38px);
@@ -185,7 +185,7 @@ body:has(.tc-page) .site-header__inner {
   top: 18px;
   bottom: 18px;
   width: 8px;
-  border-radius: 999px;
+  border-radius: 0;
   opacity: 0.55;
   background: linear-gradient(
     to bottom,
@@ -224,7 +224,7 @@ body:has(.tc-page) .site-header__inner {
 /* Mobile */
 @media (max-width: 520px) {
   .tc-narrative__inner {
-    border-radius: 22px;
+    border-radius: var(--radius-float);
     padding: 18px 16px;
     padding-left: 26px;
   }

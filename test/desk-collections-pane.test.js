@@ -110,7 +110,7 @@ test("the pane opens on the list; a row opens its collection and keeps it in the
   await until(() => title(p) === "Advent series", 3000, "the collection");
   assert.equal(p.field.value, c.id, "kept on the pane in the layout (decision 26)");
   assert.equal(document.activeElement, p.el.querySelector(".desk-sheet__list-title"), "focus is on its title");
-  const back = byText(p.el, "button", "‹ All collections");
+  const back = byText(p.el, "button", "All collections");
   assert.ok(back.closest(".desk-sheet__top"), "in the Sheets pane's top row");
   click(back);
   await until(() => title(p) === "My collections", 3000, "the list again");
@@ -160,7 +160,7 @@ test("E190: the pane's New collection opens its form under the title row, as a S
   const made = (await store.all()).find((r) => r.kind === "collection");
   assert.equal(p.field.value, made.id, "kept in the layout");
   assert.match(barText(), /^Advent series made\./);
-  click(byText(p.el, "button", "‹ All collections"));
+  click(byText(p.el, "button", "All collections"));
   await until(() => title(p) === "My collections", 3000, "the list again");
   assert.equal(p.el.querySelector(".collection-page__new").hidden, true, "shut again");
   assert.equal(byText(p.el, "button", "New collection").classList.contains("desk-sheet__btn--primary"), true);
@@ -200,7 +200,7 @@ test("two Collections panes at once keep their own order switch and keys", async
   assert.deepEqual([...names(a)], ["collection-order-pa"]);
   assert.deepEqual([...names(b)], ["collection-order-pb"]);
   // Opening one in a pane leaves the other alone.
-  click(byText(a.el, "button", "‹ All collections"));
+  click(byText(a.el, "button", "All collections"));
   await until(() => title(a) === "My collections");
   assert.equal(title(b), "Twice");
   assert.equal(b.field.value, c.id);

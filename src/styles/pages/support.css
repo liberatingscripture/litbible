@@ -60,7 +60,7 @@
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 22px;
+  border-radius: var(--radius-float);
 
   border: 1px solid rgba(var(--ink-rgb), 0.10);
 }
@@ -115,35 +115,10 @@
   justify-content: flex-start;
 }
 
+/* The kit's filled (.button--primary) and tinted buttons; this page sets
+   only where they sit. */
 .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0.65rem 0.9rem;
-  border-radius: 12px;
   text-decoration: none;
-
-  border: 1px solid rgba(var(--ink-rgb), 0.15);
-  background: rgba(var(--surface-rgb), 0.55);
-  color: var(--text);
-
-}
-
-.button:hover,
-.button:focus-visible {
-  transform: translateY(-1px);
-  opacity: 0.92;
-}
-
-.button--primary {
-  background: var(--green-deep);
-  color: #fff;
-  border-color: transparent;
-}
-
-.button--outline {
-  background: transparent;
 }
 
 /* =========================================================
@@ -185,7 +160,7 @@
   --support-surface-soft: rgba(var(--surface-rgb), 0.35);
 
   padding: clamp(1rem, 2.5vw, 1.5rem);
-  border-radius: 22px;
+  border-radius: var(--radius-float);
 
   background:
     linear-gradient(
@@ -240,7 +215,7 @@
 
 .support-band__card {
   border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
   padding: 1rem;
 
   /* Use the same surface color so everything feels coherent */
@@ -294,7 +269,7 @@
 
 .support-card {
   border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
   padding: 1rem;
 
   background: rgba(var(--surface-rgb), 0.55);

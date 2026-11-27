@@ -79,6 +79,7 @@
 //   the sheet stays an unwritten draft, which nothing writes (`persistDraft`
 //   does nothing), so the sheet the tour shows goes when it ends.
 
+import { iconNode } from "../../../lib/icons.mjs";
 import { plannedTotal } from "../../../lib/desk-present.mjs";
 import { canEdit } from "../../../lib/desk-records.mjs";
 import { SHEET_LIMITS, SHEET_TEXT_SIZE, SHEET_TEXT_SIZES, sheetTextScale, sheetTextSize } from "../../../lib/desk-sheet-format.mjs";
@@ -793,7 +794,8 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const wrap = make("div", "desk-sheet__sheet-view");
     sheetView = wrap;
     header = make("div", "desk-sheet__top");
-    const back = button("‹ All sheets", "desk-sheet__btn desk-sheet__btn--quiet");
+    const back = button("All sheets", "desk-sheet__btn desk-sheet__btn--quiet");
+    back.prepend(iconNode("back"));
     back.addEventListener("click", async () => {
       flushAll();
       await saving;
@@ -936,7 +938,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     aboutBox.setAttribute("role", "note");
     aboutBox.hidden = true;
     aboutWords = make("p", "desk-sheet__about-words");
-    const hide = button("×", "desk-sheet__icon");
+    const hide = button(iconNode("close"), "desk-sheet__icon");
     hide.setAttribute("aria-label", "Hide this description");
     setTip(hide, "Hide this description");
     hide.addEventListener("click", hideAbout);
@@ -1175,7 +1177,7 @@ export function createSheetEditor({ store, ctx, idSuffix, getSheet, setSheet, sh
     const head = make("div", "desk-sheet__insert-head");
     const title = make("p", "desk-sheet__insert-title", `Add a passage after ${name}`);
     title.id = `deskSheetInsertTitle-${idSuffix}-${m.id}`;
-    const close = button("×", "desk-sheet__icon");
+    const close = button(iconNode("close"), "desk-sheet__icon");
     close.setAttribute("aria-label", "Close");
     close.addEventListener("click", () => closeInsertForm(true));
     head.append(title, close);

@@ -271,7 +271,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     padding: var(--article-card-pad);
 
     background: var(--surface-raised);
-    border-radius: 22px;
+    border-radius: var(--radius-float);
     border: 1px solid var(--color-hairline);
     overflow: hidden;
   }
@@ -299,8 +299,8 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     background: none;
 
     overflow: hidden;
-    border-top-left-radius: 22px;
-    border-top-right-radius: 22px;
+    border-top-left-radius: var(--radius-float);
+    border-top-right-radius: var(--radius-float);
   }
 
   .article__hero-img {
@@ -391,7 +391,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     padding: 0.8rem 1rem;
     background: var(--surface);
     border-left: 4px solid var(--green);
-    border-radius: 14px;
+    border-radius: var(--radius-float);
   }
 
   /* Mobile */
@@ -407,12 +407,12 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     line-height: 1.6;
     background: var(--surface);
     padding: 1rem;
-    border-radius: 14px;
+    border-radius: var(--radius-float);
   }
   .article__body :global(code) {
     background: var(--surface);
     padding: 0.12rem 0.35rem;
-    border-radius: 8px;
+    border-radius: var(--radius-press);
   }
 
   /* Tags */
@@ -430,7 +430,7 @@ const indexTagsJoined = hyphensToSpacesForIndex(tags.join(", "));
     align-items: center;
     font-size: calc(0.85rem * var(--reading-scale, 1));
     padding: 6px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-press);
     background: var(--surface);
     border: 1px solid var(--green);
     color: var(--text);

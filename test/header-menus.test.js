@@ -11,9 +11,9 @@ test("header C shows only behind the desk preview's gate, and today's links only
   assert.match(css, /html:not\(\[data-desk\]\) \.menu-overlay__group--desk \{\s*display: none;/);
 });
 
-test("the Study group is the desk's, and its Study Desk link takes the page's place", () => {
+test("the Study group is the desk's, and its Scripture link takes the page's place", () => {
   assert.match(header, /key: "study",\s*label: "Study",\s*desk: true,/);
-  assert.match(header, /\{ href: deskHref, label: "Study Desk"/);
+  assert.match(header, /\{ href: deskHref, label: "Scripture"/);
   assert.match(read("src/layouts/ScriptureLayout.astro"), /deskHref=\{showDeskPill \? deskPlaceHref : undefined\}/);
 });
 

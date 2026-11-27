@@ -12,6 +12,7 @@
 // allows more. Going ahead holds for this page view until the counts change,
 // so a leader who prints and then copies is asked once.
 
+import { iconNode } from "../../../lib/icons.mjs";
 import { commercialFindings } from "../../../lib/desk-sheet-lit.mjs";
 import { buttons, make } from "../dom.js";
 
@@ -101,7 +102,7 @@ export function confirmCommercial(findings, opener, verb) {
 
     const go = button(`${verb} anyway`);
     const cancel = button("Cancel");
-    const x = button("×", "lit-panel__close sheets-page__dialog-x");
+    const x = button(iconNode("close"), "lit-panel__close sheets-page__dialog-x");
     x.setAttribute("aria-label", "Close");
     const row = make("div", "sheets-page__dialog-actions");
     row.append(go, cancel);

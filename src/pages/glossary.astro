@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Layout from "../layouts/Layout.astro";
+import Icon from "../components/Icon.astro";
 import { BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
 import { linkGlossaryCrossRefs } from "../lib/glossary-crossrefs.mjs";
@@ -276,7 +277,7 @@ const menuData = {
               type="button"
               aria-label="Back to top"
               class="back-to-top"
-            >↑</button>
+            ><Icon name="up" /></button>
           </div>
         </div>
 

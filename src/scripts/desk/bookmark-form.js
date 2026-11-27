@@ -12,6 +12,7 @@
 // verse) are src/lib/desk-bookmarks.mjs and desk-bookmark-change.mjs, applied
 // in the one transaction that writes.
 
+import { icon } from "../../lib/icons.mjs";
 import { BOOKMARK_NAME_MAX, canFollowMore, MAX_FOLLOWING } from "../../lib/desk-bookmarks.mjs";
 import { bookmarkPlace, placeLabel, planBookmarkEdit, roomAt } from "../../lib/desk-bookmark-change.mjs";
 import { numberWord } from "../../lib/desk-wording.mjs";
@@ -57,7 +58,7 @@ export function openBookmarkForm({ trigger, store, ctx, record, restoreFocus = n
   panel.innerHTML = `
     <div class="lit-panel__header">
       <p class="lit-panel__heading" id="deskBookmarkTitle${n}">Edit bookmark</p>
-      <button type="button" class="lit-panel__close" aria-label="Close">×</button>
+      <button type="button" class="lit-panel__close" aria-label="Close">${icon("close")}</button>
     </div>
     <div class="desk-bookmark-form__field">
       <label for="deskBookmarkVerse${n}">Verse</label>

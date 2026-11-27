@@ -124,31 +124,13 @@
    Buttons
    ========================================================= */
 
+/* The kit's filled (.button--primary) and tinted buttons; this page sets
+   only where they sit and the size they keep. */
 .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.65rem 0.9rem;
-  border-radius: 12px;
   text-decoration: none;
-  border: 1px solid rgba(var(--ink-rgb), 0.15);
-  background: rgba(var(--surface-rgb), 0.55);
-  color: var(--text);
   /* A button keeps its size: it sets none of its own, so this undoes the
      scale it would inherit from .lsc and .lsc-content. */
   font-size: calc(1em / var(--reading-scale, 1));
-}
-
-.button:hover,
-.button:focus-visible {
-  transform: translateY(-1px);
-  opacity: 0.92;
-}
-
-.button--primary {
-  background: var(--green-deep);
-  color: #fff;
-  border-color: transparent;
 }
 
 /* =========================================================
@@ -203,7 +185,7 @@
 
 .lsc-card {
   border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
   padding: 1rem;
   background: rgba(var(--surface-rgb), 0.55);
   backdrop-filter: blur(10px);
@@ -240,7 +222,7 @@
 .card-carousel__viewport {
   width: 100%;
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: var(--radius-float);
 }
 
 .card-carousel__track {
@@ -274,23 +256,7 @@
   margin-top: 0.85rem;
 }
 
-.card-carousel__btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.15);
-  background: rgba(var(--surface-rgb), 0.65);
-  color: var(--text);
-  cursor: pointer;
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.card-carousel__btn:hover,
-.card-carousel__btn:focus-visible {
-  transform: translateY(-1px);
-  opacity: 0.9;
-}
+/* The arrows are the kit's plain buttons. */
 
 /* =========================================================
    Responsive: reduce visible count as space shrinks
@@ -478,7 +444,7 @@
 .lsc-breakout {
   position: relative;
   padding: clamp(0.85rem, 2vw, 1.15rem);
-  border-radius: 22px;
+  border-radius: var(--radius-float);
   background:
     linear-gradient(
       to bottom,
@@ -489,7 +455,7 @@
 }
 
 .lsc-breakout .card-carousel__viewport {
-  border-radius: 18px;
+  border-radius: var(--radius-float);
 }
 
 .lsc-card {

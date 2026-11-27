@@ -7,6 +7,7 @@
 // Cookie: lit_welcome_v2 (30-day expiry) — already set for anyone who dismissed
 // it, so reinstating as-is would show it to new visitors only.
 import LscMark from "./LscMark.astro";
+import Icon from "./Icon.astro";
 ---
 
 <dialog
@@ -22,30 +23,7 @@ import LscMark from "./LscMark.astro";
       class="welcome-close"
       aria-label="Close welcome message"
     >
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <line
-          x1="4"
-          y1="4"
-          x2="16"
-          y2="16"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"></line>
-        <line
-          x1="16"
-          y1="4"
-          x2="4"
-          y2="16"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"></line>
-      </svg>
+      <Icon name="close" />
     </button>
 
     <div class="welcome-logo">
@@ -133,7 +111,7 @@ import LscMark from "./LscMark.astro";
     margin: auto;
     padding: 0;
     border: 1px solid var(--color-float-edge);
-    border-radius: 12px;
+    border-radius: var(--radius-float);
     background: var(--color-float);
     color: var(--text, #1d231c);
     width: min(600px, calc(100vw - 2.5rem));
@@ -177,25 +155,6 @@ import LscMark from "./LscMark.astro";
     position: absolute;
     top: 1rem;
     right: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--text, #1d231c);
-    cursor: pointer;
-    opacity: 0.6;
-  }
-
-  .welcome-close:hover,
-  .welcome-close:focus-visible {
-    opacity: 1;
-    background: rgba(var(--ink-rgb, 29, 35, 28), 0.08);
-    outline: none;
   }
 
   /* Logo */
@@ -246,7 +205,7 @@ import LscMark from "./LscMark.astro";
     align-items: flex-start;
     gap: 0.875rem;
     background: rgba(var(--ink-rgb, 29, 35, 28), 0.04);
-    border-radius: 8px;
+    border-radius: var(--radius-float);
     padding: 0.75rem 1rem;
   }
 
@@ -286,36 +245,7 @@ import LscMark from "./LscMark.astro";
 
   .welcome-cta-primary,
   .welcome-cta-secondary {
-    display: inline-block;
-    padding: 0.65rem 1.5rem;
-    border-radius: 6px;
-    font-size: 0.975rem;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .welcome-cta-primary {
-    background: var(--cta-bg, #1d231c);
-    color: var(--cta-text, #209d50);
-  }
-
-  .welcome-cta-secondary {
-    background: transparent;
-    color: var(--text-strong, #000);
-    border: 1.5px solid rgba(var(--ink-rgb, 29, 35, 28), 0.25);
-  }
-
-  .welcome-cta-primary:hover,
-  .welcome-cta-primary:focus-visible {
-    opacity: 0.85;
-    text-decoration: none;
-    outline-offset: 3px;
-  }
-
-  .welcome-cta-secondary:hover,
-  .welcome-cta-secondary:focus-visible {
-    background: rgba(var(--ink-rgb, 29, 35, 28), 0.06);
+    display: inline-flex;
     text-decoration: none;
   }
 </style>

@@ -122,7 +122,8 @@ companion iOS/Android apps consume.
   changing either.
 - **TypeScript** (strict, `astro/tsconfigs/strict`); **vanilla CSS** (no
   utility framework): `tokens.css` (Featherboa's colors, sizes, and speeds),
-  `global.css`, and a per-page stylesheet under `src/styles/pages/`.
+  `global.css`, `kit.css` (every control, drawn once), and a per-page
+  stylesheet under `src/styles/pages/`.
 - **No client framework, no hydration.** Hand-written vanilla JS in
   `src/scripts/` is progressive enhancement only; the site is fully
   functional with JS disabled.
@@ -134,7 +135,8 @@ companion iOS/Android apps consume.
 - **Fonts**: three faces by job, Fraunces for headings, Source Sans 3 for
   reading, Atkinson Hyperlegible Next for controls, from `@fontsource`
   files served Latin only (`src/styles/CLAUDE.md`).
-  **Icons**: simple-icons.
+  **Icons**: Lucide's, generated into `src/lib/icons.mjs` (`npm run
+  build:icons`); simple-icons for brands' marks.
 
 ## Common Commands
 

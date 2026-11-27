@@ -30,6 +30,7 @@
 // Returns `{ el, addButton, addMenu, layoutButton, printButton, hang(win, button),
 // showAddKinds(direction), closeAdd({ focus }), newSheet(), newCollection(), refresh() }`.
 
+import { iconNode, icon } from "../../lib/icons.mjs";
 import { KINDS, addPane, addPaneNeeds, addWhy, collectionPaneFor, panes, sheetPaneFor, whyText } from "../../lib/desk-layout.mjs";
 import { HELP_HREF } from "../../lib/desk-first-use.mjs";
 import { el } from "./dom.js";
@@ -37,9 +38,7 @@ import { newTabMark } from "./glyphs.js";
 import { describeUnavailable } from "./menu-reasons.js";
 import { setTip } from "../tip.js";
 
-const ICON_CARET = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"
-  stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
+const ICON_CARET = icon("down", { size: 12 });
 
 // The least height a menu or window under the row is cut to (fitBelow).
 const MIN_ROOM = 160;
@@ -177,7 +176,8 @@ export function createCommandRow({ row, getLayout, panesBox, commit, announce, i
   function drawAdd() {
     addMenu.replaceChildren();
     if (addStep) {
-      const back = item(`‹ ${DIRECTIONS.find((d) => d.id === addStep).label}`);
+      const back = item(DIRECTIONS.find((d) => d.id === addStep).label);
+      back.prepend(iconNode("back"));
       back.addEventListener("click", () => { addStep = null; drawAdd(); enabled()[0]?.focus(); });
       addMenu.append(back);
       for (const k of KINDS) {

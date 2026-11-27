@@ -72,7 +72,7 @@ const why = (b) => document.getElementById(b.getAttribute("aria-describedby"))?.
 const labels = (top) =>
   [...top.children]
     .flatMap((c) => (c.matches("a, button") ? [c] : c.matches(".desk-sheet__top-end") ? [...c.querySelectorAll("button")] : []))
-    .map((b) => b.firstChild?.textContent ?? b.textContent);
+    .map((b) => [...b.childNodes].find((n) => n.localName !== "svg")?.textContent ?? b.textContent);
 const templates = async () => (await here.all()).filter(isOwnTemplate);
 const passage = () => makeModule("passage", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16 });
 const sheetOf = (title, modules = [makeModule("text", { html: "<h2>Opening</h2>" }), passage()], extra = {}) =>
@@ -80,13 +80,13 @@ const sheetOf = (title, modules = [makeModule("text", { html: "<h2>Opening</h2>"
 
 test("in a Sheets pane it is in the header row, after the other actions on the whole sheet", async () => {
   const top = await editorOn(sheetOf("Lent study"));
-  assert.deepEqual(labels(top), ["‹ All sheets", "Present", "Print or share", "Open on its own page", "Save as template"]);
+  assert.deepEqual(labels(top), ["All sheets", "Present", "Print or share", "Open on its own page", "Save as template"]);
   assert.ok(!editor.el.querySelector(".desk-sheet__license, .desk-sheet__modules")?.contains(keepIn(top)), "not at the sheet's foot");
 });
 
 test("on /sheets/' editor it follows ‹ All sheets, before Preview", async () => {
   const top = await editorOn(sheetOf("Lent study"), { page: true });
-  assert.deepEqual(labels(top), ["‹ All sheets", "Save as template", "Preview"]);
+  assert.deepEqual(labels(top), ["All sheets", "Save as template", "Preview"]);
 });
 
 // E209 (BVJ, 2026-11-20): the button that leaves /sheets/' editor for the

@@ -15,7 +15,7 @@
   margin: 0 0 12px;
   padding: 8px 10px;
   border: 1px solid rgba(var(--ink-rgb), 0.16);
-  border-radius: 8px;
+  border-radius: var(--radius-float);
   color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
@@ -52,31 +52,17 @@
   margin-top: 4px;
 }
 
+/* "Reconnect": a plain button, the kit's. While a pass it started runs it is
+   busy (aria-disabled, so it keeps focus), drawn as the kit's unavailable. */
 .desk-sync__again {
   margin: 8px 0 0;
   padding: 5px 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.35);
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-family: var(--font-control);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
-  font-weight: 600;
+  line-height: inherit;
   cursor: pointer;
 }
 
-.desk-sync__again:hover {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
-.desk-sync__again:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
 .desk-sync__again[aria-disabled="true"] {
-  opacity: 0.55;
   cursor: default;
 }
 
@@ -114,7 +100,7 @@ html[data-desk-account="news"] .site-header__account-btn::after {
   right: 5px;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-press); /* on 8px, round */
   background: var(--green-text);
 }
 

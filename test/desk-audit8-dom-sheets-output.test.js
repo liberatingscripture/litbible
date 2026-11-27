@@ -149,8 +149,8 @@ test("the presenter view moves focus to Blank before it disables the focused Nex
   await showPresenterView({ root, sheet, store: null });
   const controls = root.querySelector(".present-presenter__controls");
   const named = (label) => [...controls.querySelectorAll("button")].find((b) => b.textContent === label);
-  const next = named("Next ›");
-  const prev = named("‹ Previous");
+  const next = named("Next");
+  const prev = named("Previous");
   const blank = named("Blank the room’s screen");
   next.focus();
   while (!next.disabled) next.click();

@@ -38,6 +38,7 @@ import { pullBackSelectionEnd } from "../lib/selection-end.mjs";
 import { markEmphasis, handoutPlain, handoutHtml, VN_ON, VN_OFF, FN_ON, FN_OFF } from "../lib/handout-rich.mjs";
 import { showPanel, closePanel, holdPanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
+import { iconNode } from "../lib/icons.mjs";
 import {
   PANEL_EDGE,
   actionRows,
@@ -711,7 +712,7 @@ function openVerseMenu(
   closeBtn.type = "button";
   closeBtn.className = "lit-panel__close";
   closeBtn.setAttribute("aria-label", "Close");
-  closeBtn.textContent = "×";
+  closeBtn.append(iconNode("close"));
   closeBtn.addEventListener("click", closePanel);
   header.append(heading, closeBtn);
   panel.appendChild(header);

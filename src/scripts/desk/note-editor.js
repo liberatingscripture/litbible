@@ -18,6 +18,7 @@
 // changed it since (BA6). If one did, or deleted it, nothing is written and the
 // editor stays open with the reader's words, saying so.
 
+import { icon } from "../../lib/icons.mjs";
 import { MARKERS, MAX_NOTE_BODY, createRecord, currentMarker, proseTarget, verseCopyFor } from "../../lib/desk-records.mjs";
 import { MARKER_NAMES, shortQuote } from "../../lib/desk-notes.mjs";
 import { noteSavedMessage } from "../../lib/desk-announce.mjs";
@@ -98,7 +99,7 @@ export function openNoteEditor({
   panel.innerHTML = `
     <div class="lit-panel__header">
       <p class="lit-panel__heading" id="deskEditorTitle${n}">${editing ? "Edit note" : "New note"}</p>
-      <button type="button" class="lit-panel__close" aria-label="Close">×</button>
+      <button type="button" class="lit-panel__close" aria-label="Close">${icon("close")}</button>
     </div>
     <figure class="desk-editor__quote">
       ${words ? `<blockquote>${escapeHtml(shortQuote(words, 24))}</blockquote>` : ""}

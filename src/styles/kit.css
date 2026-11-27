@@ -84,6 +84,15 @@
   height: 20px;
 }
 
+/* An icon in any control sits at its word's size, as the glyph it
+   replaces did; the kit's classes size theirs above and below. */
+:where(button, a, summary, [role="button"], [role="tab"], [role="menuitem"]) > .icon {
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.25em;
+}
+
 .kit-btn > .icon,
 .kit-row > .icon,
 .kit-tab > .icon {
@@ -196,7 +205,7 @@
    ========================================================= */
 
 /* ---------- Filled: the one main action; a view uses it once ---------- */
-:is(.kit-btn--filled) {
+:is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go))) {
   border: 1px solid transparent;
   border-radius: var(--radius-press);
   background: var(--color-press);
@@ -206,21 +215,21 @@
 }
 
 @media (hover: hover) {
-  :is(.kit-btn--filled):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go))):hover:not(:disabled, [aria-disabled="true"]) {
     background: color-mix(in srgb, var(--color-press) 86%, var(--color-text));
   }
 }
 
-:is(.kit-btn--filled):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go))):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
   background: color-mix(in srgb, var(--color-press) 74%, var(--color-text));
 }
 
-:is(.kit-btn--filled)[aria-pressed="true"] {
+:is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go)))[aria-pressed="true"] {
   font-weight: 700;
 }
 
 /* Unavailable, it keeps a light fill of its own green and says so in it. */
-:is(.kit-btn--filled):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go))):is(:disabled, [aria-disabled="true"]) {
   border-color: color-mix(in srgb, var(--color-press) 40%, transparent);
   background: color-mix(in srgb, var(--color-press) 10%, transparent);
   color: var(--color-press);
@@ -228,7 +237,7 @@
 }
 
 /* ---------- Tinted: the usual next step, and a chip in a set ---------- */
-:is(.kit-btn--tinted) {
+:is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back)) {
   border: 1px solid transparent;
   border-radius: var(--radius-press);
   background: color-mix(in srgb, var(--color-press) 10%, transparent);
@@ -238,20 +247,20 @@
 }
 
 @media (hover: hover) {
-  :is(.kit-btn--tinted):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back)):hover:not(:disabled, [aria-disabled="true"]) {
     background: color-mix(in srgb, var(--color-press) 16%, transparent);
   }
 }
 
-:is(.kit-btn--tinted):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back)):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
   background: color-mix(in srgb, var(--color-press) 22%, transparent);
 }
 
-:is(.kit-btn--tinted)[aria-pressed="true"] {
+:is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back))[aria-pressed="true"] {
   font-weight: 700;
 }
 
-:is(.kit-btn--tinted):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back)):is(:disabled, [aria-disabled="true"]) {
   color: rgba(var(--color-text-rgb), var(--text-3-alpha));
   cursor: not-allowed;
 }
@@ -261,7 +270,7 @@
    what lies behind it) is relaxed for these on purpose ("Controls"): a
    plain command has no box to lose. A toggle that is on fills and grows
    heavier; a menu button whose menu is open fills. */
-:is(.kit-btn--plain, .kit-icon) {
+:is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class]))) {
   border: 1px solid transparent;
   border-radius: var(--radius-press);
   background: transparent;
@@ -271,26 +280,26 @@
 }
 
 @media (hover: hover) {
-  :is(.kit-btn--plain, .kit-icon):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class]))):hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--color-tint);
   }
 }
 
-:is(.kit-btn--plain, .kit-icon):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class]))):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
   background: var(--color-tint-strong);
 }
 
-:is(.kit-btn--plain, .kit-icon)[aria-pressed="true"] {
+:is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class])))[aria-pressed="true"] {
   font-weight: 700;
 }
 
-:is(.kit-btn--plain, .kit-icon):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class]))):is(:disabled, [aria-disabled="true"]) {
   color: rgba(var(--color-text-rgb), var(--text-3-alpha));
   cursor: not-allowed;
 }
 
 /* ---------- Destructive: red words, never a fill ---------- */
-:is(.kit-btn--danger) {
+:is(.kit-btn--danger, :where(.desk-item__delete, .desk-verse__remove, .desk-notice__delete, .desk-np__danger-button, .desk-editor__delete, .desk-editor__discard, .desk-sheet__btn[data-focus-key^="delete"], .desk-item__stop[data-focus-key^="rule-remove"], .account__button--danger)) {
   border: 1px solid transparent;
   border-radius: var(--radius-press);
   background: transparent;
@@ -300,22 +309,22 @@
 }
 
 @media (hover: hover) {
-  :is(.kit-btn--danger):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-btn--danger, :where(.desk-item__delete, .desk-verse__remove, .desk-notice__delete, .desk-np__danger-button, .desk-editor__delete, .desk-editor__discard, .desk-sheet__btn[data-focus-key^="delete"], .desk-item__stop[data-focus-key^="rule-remove"], .account__button--danger)):hover:not(:disabled, [aria-disabled="true"]) {
     background: color-mix(in srgb, var(--color-danger) 8%, transparent);
   }
 }
 
-:is(.kit-btn--danger):is(:active, [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--danger, :where(.desk-item__delete, .desk-verse__remove, .desk-notice__delete, .desk-np__danger-button, .desk-editor__delete, .desk-editor__discard, .desk-sheet__btn[data-focus-key^="delete"], .desk-item__stop[data-focus-key^="rule-remove"], .account__button--danger)):is(:active, [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
   background: color-mix(in srgb, var(--color-danger) 14%, transparent);
 }
 
-:is(.kit-btn--danger):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-btn--danger, :where(.desk-item__delete, .desk-verse__remove, .desk-notice__delete, .desk-np__danger-button, .desk-editor__delete, .desk-editor__discard, .desk-sheet__btn[data-focus-key^="delete"], .desk-item__stop[data-focus-key^="rule-remove"], .account__button--danger)):is(:disabled, [aria-disabled="true"]) {
   color: rgba(var(--color-text-rgb), var(--text-3-alpha));
   cursor: not-allowed;
 }
 
 /* ---------- List row: a menu's item, a list's entry ---------- */
-:is(.kit-row) {
+:is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)) {
   border: 1px solid transparent;
   border-radius: var(--radius-press);
   background: transparent;
@@ -325,25 +334,25 @@
 }
 
 @media (hover: hover) {
-  :is(.kit-row):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)):hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--color-tint);
   }
 }
 
-:is(.kit-row):is(:active, [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)):is(:active, [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
   background: var(--color-tint-strong);
 }
 
 /* The one that is chosen, or where the reader is. A row whose markup can't
    carry the state (a label around a radio button) is named in the second
    list. */
-:is(.kit-row):is([aria-selected="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
-:is(.kit-row--on) {
+:is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)):is([aria-selected="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+:is(.kit-row--on, :where(.font-tray__font-option:has(.font-tray__font-input:checked), .greek-cmd.is-target, .desk-sheet__pick:has(:checked))) {
   background: var(--color-tint-strong);
   font-weight: 700;
 }
 
-:is(.kit-row):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)):is(:disabled, [aria-disabled="true"]) {
   color: rgba(var(--color-text-rgb), var(--text-3-alpha));
   cursor: not-allowed;
 }
@@ -351,7 +360,7 @@
 /* ---------- Tabs, and a row of choices ----------
    On is a green underline and a heavier weight, in place of today's
    green-filled pills. */
-:is(.kit-tab) {
+:is(.kit-tab, :where(.font-tray__seg-option, .sort-btn, .pager-btn, .read-menu__cell, .desk-panel__tabs [role="tab"], .desk-seg__option, .desk-greek__choice, .desk-search__choice, .desk-ws__shape, .desk-editor__marker)) {
   border: 1px solid transparent;
   border-radius: var(--radius-press);
   background: transparent;
@@ -361,19 +370,23 @@
 }
 
 @media (hover: hover) {
-  :is(.kit-tab):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-tab, :where(.font-tray__seg-option, .sort-btn, .pager-btn, .read-menu__cell, .desk-panel__tabs [role="tab"], .desk-seg__option, .desk-greek__choice, .desk-search__choice, .desk-ws__shape, .desk-editor__marker)):hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--color-tint);
   }
 }
 
-:is(.kit-tab):is([aria-selected="true"], [aria-pressed="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
-:is(.kit-tab--on) {
+:is(.kit-tab, :where(.font-tray__seg-option, .sort-btn, .pager-btn, .read-menu__cell, .desk-panel__tabs [role="tab"], .desk-seg__option, .desk-greek__choice, .desk-search__choice, .desk-ws__shape, .desk-editor__marker)):is([aria-selected="true"], [aria-pressed="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+:is(.kit-tab--on, :where(.font-tray__seg-option:has(.font-tray__seg-input:checked), .pager-btn--current, .read-menu__cell--current, .desk-seg__option:has(:checked), .desk-editor__marker:has(:checked))) {
   box-shadow: inset 0 -2px 0 var(--color-press);
+  /* Square below, so the underline runs straight to both ends (an inset
+     shadow follows a rounded corner up). */
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   color: var(--color-text);
   font-weight: 700;
 }
 
-:is(.kit-tab):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-tab, :where(.font-tray__seg-option, .sort-btn, .pager-btn, .read-menu__cell, .desk-panel__tabs [role="tab"], .desk-seg__option, .desk-greek__choice, .desk-search__choice, .desk-ws__shape, .desk-editor__marker)):is(:disabled, [aria-disabled="true"]) {
   color: rgba(var(--color-text-rgb), var(--text-3-alpha));
   cursor: not-allowed;
 }
@@ -383,7 +396,7 @@
    that sit in a line of text and read as its links do ("Color": deep
    green is what can be pressed). No box; pointed at, underlined; its
    panel open, a tint behind it. */
-:is(.kit-inline) {
+:is(.kit-inline, :where(.greek-cmd-link, .read-menu__reading-link, .desk-greek__fn, .desk-greek__starter, .desk-home__tour, .desk-home__backup, .desk-search__pick-clear, .desk-gather__btn--quiet)) {
   border: 0;
   background: none;
   color: var(--color-press);
@@ -392,23 +405,23 @@
 }
 
 @media (hover: hover) {
-  :is(.kit-inline):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-inline, :where(.greek-cmd-link, .read-menu__reading-link, .desk-greek__fn, .desk-greek__starter, .desk-home__tour, .desk-home__backup, .desk-search__pick-clear, .desk-gather__btn--quiet)):hover:not(:disabled, [aria-disabled="true"]) {
     text-decoration: underline;
   }
 }
 
-:is(.kit-inline):is(:active, [aria-expanded="true"], [aria-pressed="true"]):not(:disabled, [aria-disabled="true"]) {
+:is(.kit-inline, :where(.greek-cmd-link, .read-menu__reading-link, .desk-greek__fn, .desk-greek__starter, .desk-home__tour, .desk-home__backup, .desk-search__pick-clear, .desk-gather__btn--quiet)):is(:active, [aria-expanded="true"], [aria-pressed="true"]):not(:disabled, [aria-disabled="true"]) {
   background: var(--color-tint-strong);
 }
 
-:is(.kit-inline):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-inline, :where(.greek-cmd-link, .read-menu__reading-link, .desk-greek__fn, .desk-greek__starter, .desk-home__tour, .desk-home__backup, .desk-search__pick-clear, .desk-gather__btn--quiet)):is(:disabled, [aria-disabled="true"]) {
   color: rgba(var(--color-text-rgb), var(--text-3-alpha));
   cursor: not-allowed;
 }
 
 /* ---------- Field ----------
    Its fill is the page's, so its edge is --field-border (3:1). */
-:is(.kit-field) {
+:is(.kit-field, :where(.footer-newsletter__input, .greek-card__word, .subscribe-strip__form input[type="email"], .field input, .field textarea, .field select, .glossary-toc__inner select, .signup input[type="email"], .unsub-form__input, .searchbar__input, .searchbar__book, .searchbar__mode, .rn-filter__select, .desk-pick__filter, .desk-bookmark-form__verse, .desk-bookmark-form__name, .desk-mine__field input, .desk-mine__field select, .desk-labels__input, .desk-np input[type="search"], .desk-np input[type="text"], .desk-np select, .desk-passage__field, .desk-editor__body, .desk-rich-link__field, .desk-sheet__title, .desk-sheet__subtitle, .desk-sheet__minutes input, .desk-sheet__lines input, .desk-sheet__ref input, .desk-sheet__hint, .desk-sheet__size-select, .desk-sheet__hint-text, .desk-search__input, .desk-search__select, .account__input)) {
   border: 1px solid var(--field-border);
   border-radius: var(--radius-press);
   background: var(--color-page);
@@ -416,46 +429,50 @@
   font-family: var(--font-control);
 }
 
-:is(.kit-field)::placeholder {
+:is(.kit-field, :where(.footer-newsletter__input, .greek-card__word, .subscribe-strip__form input[type="email"], .field input, .field textarea, .field select, .glossary-toc__inner select, .signup input[type="email"], .unsub-form__input, .searchbar__input, .searchbar__book, .searchbar__mode, .rn-filter__select, .desk-pick__filter, .desk-bookmark-form__verse, .desk-bookmark-form__name, .desk-mine__field input, .desk-mine__field select, .desk-labels__input, .desk-np input[type="search"], .desk-np input[type="text"], .desk-np select, .desk-passage__field, .desk-editor__body, .desk-rich-link__field, .desk-sheet__title, .desk-sheet__subtitle, .desk-sheet__minutes input, .desk-sheet__lines input, .desk-sheet__ref input, .desk-sheet__hint, .desk-sheet__size-select, .desk-sheet__hint-text, .desk-search__input, .desk-search__select, .account__input))::placeholder {
   color: rgba(var(--color-text-rgb), var(--text-3-alpha));
   opacity: 1;
 }
 
 @media (hover: hover) {
-  :is(.kit-field):hover:not(:disabled, [aria-disabled="true"], [readonly], :focus) {
+  :is(.kit-field, :where(.footer-newsletter__input, .greek-card__word, .subscribe-strip__form input[type="email"], .field input, .field textarea, .field select, .glossary-toc__inner select, .signup input[type="email"], .unsub-form__input, .searchbar__input, .searchbar__book, .searchbar__mode, .rn-filter__select, .desk-pick__filter, .desk-bookmark-form__verse, .desk-bookmark-form__name, .desk-mine__field input, .desk-mine__field select, .desk-labels__input, .desk-np input[type="search"], .desk-np input[type="text"], .desk-np select, .desk-passage__field, .desk-editor__body, .desk-rich-link__field, .desk-sheet__title, .desk-sheet__subtitle, .desk-sheet__minutes input, .desk-sheet__lines input, .desk-sheet__ref input, .desk-sheet__hint, .desk-sheet__size-select, .desk-sheet__hint-text, .desk-search__input, .desk-search__select, .account__input)):hover:not(:disabled, [aria-disabled="true"], [readonly], :focus) {
     border-color: rgba(var(--color-text-rgb), var(--text-2-alpha));
   }
 }
 
-:is(.kit-field):is(:disabled, [aria-disabled="true"], [readonly]) {
+:is(.kit-field, :where(.footer-newsletter__input, .greek-card__word, .subscribe-strip__form input[type="email"], .field input, .field textarea, .field select, .glossary-toc__inner select, .signup input[type="email"], .unsub-form__input, .searchbar__input, .searchbar__book, .searchbar__mode, .rn-filter__select, .desk-pick__filter, .desk-bookmark-form__verse, .desk-bookmark-form__name, .desk-mine__field input, .desk-mine__field select, .desk-labels__input, .desk-np input[type="search"], .desk-np input[type="text"], .desk-np select, .desk-passage__field, .desk-editor__body, .desk-rich-link__field, .desk-sheet__title, .desk-sheet__subtitle, .desk-sheet__minutes input, .desk-sheet__lines input, .desk-sheet__ref input, .desk-sheet__hint, .desk-sheet__size-select, .desk-sheet__hint-text, .desk-search__input, .desk-search__select, .account__input)):is(:disabled, [aria-disabled="true"], [readonly]) {
   background: var(--color-tint);
   color: rgba(var(--color-text-rgb), var(--text-2-alpha));
 }
 
-:is(.kit-field):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-field, :where(.footer-newsletter__input, .greek-card__word, .subscribe-strip__form input[type="email"], .field input, .field textarea, .field select, .glossary-toc__inner select, .signup input[type="email"], .unsub-form__input, .searchbar__input, .searchbar__book, .searchbar__mode, .rn-filter__select, .desk-pick__filter, .desk-bookmark-form__verse, .desk-bookmark-form__name, .desk-mine__field input, .desk-mine__field select, .desk-labels__input, .desk-np input[type="search"], .desk-np input[type="text"], .desk-np select, .desk-passage__field, .desk-editor__body, .desk-rich-link__field, .desk-sheet__title, .desk-sheet__subtitle, .desk-sheet__minutes input, .desk-sheet__lines input, .desk-sheet__ref input, .desk-sheet__hint, .desk-sheet__size-select, .desk-sheet__hint-text, .desk-search__input, .desk-search__select, .account__input)):is(:disabled, [aria-disabled="true"]) {
   cursor: not-allowed;
 }
 
 /* ---------- Color dot ----------
    On draws a ring of the press green beside its 3:1 edge, a change of
    shape as well as color. */
-:is(.kit-dot) {
+:is(.kit-dot, :where(.desk-swatch:where(button)[data-color])) {
   border: 1px solid var(--field-border);
   border-radius: var(--radius-round);
   background: var(--kit-dot, transparent);
+  /* A dot has no words of its own, but one may hold a sample (Highlight's
+     "ab"), which takes the controls' face rather than the browser's. */
+  font-family: var(--font-control);
+  font-weight: 600;
 }
 
 @media (hover: hover) {
-  :is(.kit-dot):hover:not(:disabled, [aria-disabled="true"]) {
+  :is(.kit-dot, :where(.desk-swatch:where(button)[data-color])):hover:not(:disabled, [aria-disabled="true"]) {
     border-color: var(--color-text);
   }
 }
 
-:is(.kit-dot):is([aria-pressed="true"], [aria-checked="true"], [aria-selected="true"]) {
+:is(.kit-dot, :where(.desk-swatch:where(button)[data-color])):is([aria-pressed="true"], [aria-checked="true"], [aria-selected="true"]) {
   box-shadow: 0 0 0 2px var(--color-press);
 }
 
-:is(.kit-dot):is(:disabled, [aria-disabled="true"]) {
+:is(.kit-dot, :where(.desk-swatch:where(button)[data-color])):is(:disabled, [aria-disabled="true"]) {
   cursor: not-allowed;
 }
 
@@ -522,35 +539,41 @@
    said (BA149): every control a button's border, on and chosen ones
    Highlight, unavailable ones GrayText. */
 @media (forced-colors: active) {
-  :is(.kit-btn--filled),
-  :is(.kit-btn--tinted),
-  :is(.kit-btn--plain, .kit-icon),
-  :is(.kit-btn--danger),
-  :is(.kit-row),
-  :is(.kit-tab) {
+  :is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go))),
+  :is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back)),
+  :is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class]))),
+  :is(.kit-btn--danger, :where(.desk-item__delete, .desk-verse__remove, .desk-notice__delete, .desk-np__danger-button, .desk-editor__delete, .desk-editor__discard, .desk-sheet__btn[data-focus-key^="delete"], .desk-item__stop[data-focus-key^="rule-remove"], .account__button--danger)),
+  :is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)),
+  :is(.kit-tab, :where(.font-tray__seg-option, .sort-btn, .pager-btn, .read-menu__cell, .desk-panel__tabs [role="tab"], .desk-seg__option, .desk-greek__choice, .desk-search__choice, .desk-ws__shape, .desk-editor__marker)) {
     border-color: ButtonBorder;
   }
 
-  :is(.kit-btn--filled)[aria-pressed="true"],
-  :is(.kit-btn--tinted)[aria-pressed="true"],
-  :is(.kit-btn--plain, .kit-icon):is([aria-pressed="true"], [aria-expanded="true"]),
-  :is(.kit-row):is([aria-selected="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
-  :is(.kit-row--on),
-  :is(.kit-tab):is([aria-selected="true"], [aria-pressed="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
-  :is(.kit-tab--on),
-  :is(.kit-dot):is([aria-pressed="true"], [aria-checked="true"], [aria-selected="true"]) {
+  :is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go)))[aria-pressed="true"],
+  :is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back))[aria-pressed="true"],
+  :is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class]))):is([aria-pressed="true"], [aria-expanded="true"]),
+  :is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)):is([aria-selected="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+  :is(.kit-row--on, :where(.font-tray__font-option:has(.font-tray__font-input:checked), .greek-cmd.is-target, .desk-sheet__pick:has(:checked))),
+  :is(.kit-tab, :where(.font-tray__seg-option, .sort-btn, .pager-btn, .read-menu__cell, .desk-panel__tabs [role="tab"], .desk-seg__option, .desk-greek__choice, .desk-search__choice, .desk-ws__shape, .desk-editor__marker)):is([aria-selected="true"], [aria-pressed="true"], [aria-checked="true"], [aria-current]:not([aria-current="false"])),
+  :is(.kit-tab--on, :where(.font-tray__seg-option:has(.font-tray__seg-input:checked), .pager-btn--current, .read-menu__cell--current, .desk-seg__option:has(:checked), .desk-editor__marker:has(:checked))),
+  :is(.kit-dot, :where(.desk-swatch:where(button)[data-color])):is([aria-pressed="true"], [aria-checked="true"], [aria-selected="true"]) {
     border-color: Highlight;
     border-width: 2px;
   }
 
-  :is(.kit-btn--filled):is(:disabled, [aria-disabled="true"]),
-  :is(.kit-btn--tinted):is(:disabled, [aria-disabled="true"]),
-  :is(.kit-btn--plain, .kit-icon):is(:disabled, [aria-disabled="true"]),
-  :is(.kit-btn--danger):is(:disabled, [aria-disabled="true"]),
-  :is(.kit-row):is(:disabled, [aria-disabled="true"]),
-  :is(.kit-tab):is(:disabled, [aria-disabled="true"]) {
+  :is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go))):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-btn--tinted, :where(.site-header__cta, .footer-cta, .lit-panel--chips .lit-panel__btn, .menu-overlay__continue, .greek-chip, .greek-builder__add, .greek-builder__again, .rm-page .rm-resume-chip button, .searchbar__submit, .not-found__cta--outline, .chapter-cta--prev, .greek-lemma-btn, .suggest-word, .search-ref__link--read, .fit-platform, .fit-episodes .fit-ep__links a, a.question-cta, .button:not(.button--primary), .continue-reading__link, .desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-home-card__choose, .footer-newsletter__submit, .fit-season-nav a, .desk-gather__go, .desk-search__btn--primary, .desk-swatch[data-choice="all"], .desk-lit__back)):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-btn--plain, .kit-icon, :where(.site-header__font-toggle, .site-header__search, .site-header__desk, .site-header__account-link, .site-header__account-btn, .site-header__menu-toggle, .site-nav__group-btn, .site-header__search-close, .font-tray__close, .lit-panel__close, .greek-card__x, .greek-cmds__summary, .rm-page .rm-toolbar button, .rm-page .rm-toolbar a, .tools-search-toggle, .tools-search-close, .reading-view-pill, .applaunch-close, .litab__x, .go-deeper__more summary, .scripture-disclaimer__more summary, .nav-button, .welcome-close, .welcome-cta-secondary, .back-to-top__link, .see-more-btn, .about-toc__toggle, button.back-to-top, .card-carousel__btn, .continue-reading__forget, .whats-new__trigger, .read-menu__trigger, .read-menu__desk, .read-menu__close, .read-menu__back, .searchbar__tip, .license-faq-q, .occ-more, .faq-q, .rn-month__summary, .fit-season-arrow, .desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-pane__kind, .desk-pane__close, .desk-passage__step, .desk-item__edit, .desk-item__more, .desk-item__stop:not([data-focus-key^="rule-remove"]), .desk-item__tag, .desk-verse__step, .desk-mine__more-button, .desk-mine__add, .desk-note__more, .desk-note__edit, .desk-np__more, .desk-np__restore-all, .desk-np__new-label button, .desk-np__rename button, .desk-np__ask button:not(.desk-np__danger-button), .desk-editor__cancel, .desk-notice__show, .desk-panel__reset, .desk-panel__print-button, .desk-panel__collapse, .desk-panel__desk, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choices-more, .desk-greek__hits-more, .desk-greek__close, .desk-greek__note, .desk-dp__retry, .desk-wn__again, .desk-wn__more, .desk-undo__undo, .desk-undo__choice, .desk-undo__quiet, .desk-undo__close, .desk-undo__link, .desk-search__btn:not(.desk-search__btn--primary), .desk-search__add, .desk-search__away, .desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"]), .desk-sheet__icon, .desk-sheet__after-btn, .desk-tour__back, .desk-tour__skip, .desk-sheet__tour, .desk-offer__later, .desk-offer__never, .desk-labels__add, .desk-ws__menu-actions button, .desk-rich-link__button:not(.desk-rich-link__button--primary), .desk-rich-tool, .desk-backup__save, .desk-backup__file-button, .desk-backup__cancel, .desk-fns__verse, .desk-flag, .desk-circle, .desk-tab, .font-tray__reset, .desk-sync__again, .desk-title__button, .account__more-ways summary, .desk-greek__comment summary, .desk-chapter__rows summary, .desk-sheet__notes-summary, .social-links a, .desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet), .account__button:not(.account__button--primary, .account__button--danger), .desk-editor__actions > button:not([class]))):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-btn--danger, :where(.desk-item__delete, .desk-verse__remove, .desk-notice__delete, .desk-np__danger-button, .desk-editor__delete, .desk-editor__discard, .desk-sheet__btn[data-focus-key^="delete"], .desk-item__stop[data-focus-key^="rule-remove"], .account__button--danger)):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-row, :where(.lit-panel__btn:not(.lit-panel--chips .lit-panel__btn), .font-tray__font-option, .font-tray__check, button.greek-cmd, .greek-ex, .searchbar__link--button, .desk-title__item, .desk-pane__menu-item, .desk-rich-menu__item, .desk-greek__selmenu-btn, .desk-pick__row, .desk-greek__hit, .desk-sheet__from-item, .desk-sheet__open, .desk-note__hit, .desk-verse__go, .desk-item__go, .desk-print-menu__choices > :is(a, button), .desk-gather__sheet, .desk-cmds__row, .desk-command)):is(:disabled, [aria-disabled="true"]),
+  :is(.kit-tab, :where(.font-tray__seg-option, .sort-btn, .pager-btn, .read-menu__cell, .desk-panel__tabs [role="tab"], .desk-seg__option, .desk-greek__choice, .desk-search__choice, .desk-ws__shape, .desk-editor__marker)):is(:disabled, [aria-disabled="true"]) {
     border-color: GrayText;
     color: GrayText;
+  }
+
+  /* The one main action keeps its weight where fills are forced away: a
+     thicker edge (Audit 8, XA8-7). */
+  :is(.kit-btn--filled, :where(.menu-overlay__cta, .rm-page .rm-fab, .applaunch-cta-primary, .litab__cta, .welcome-cta-primary, .not-found__cta:not(.not-found__cta--outline), .chapter-cta--next, .search-ref__link:not(.search-ref__link--read), .btn--cta, .contact-button, .signup__button, .unsub-form__submit, .button--primary, .desk-sheet__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__save, .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary, .desk-backup__import, .account__button--primary, .desk-gather__btn--primary:not(.desk-gather__go))) {
+    border-width: 2px;
   }
 
   .kit-switch::before {

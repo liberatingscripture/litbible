@@ -1,7 +1,7 @@
 /* =========================================================
    Articles page styles (Astro)
    Uses ONLY:
-   - theme tokens: --text, --text-strong, --page-bg, --color-hairline, --green-text, --green-deep, --white
+   - theme tokens: --text, --text-strong, --page-bg, --color-hairline, --green-text, --white
    - rgba(0,0,0,alpha) for overlays/shadows only.
    ========================================================= */
 
@@ -70,7 +70,7 @@
   margin-bottom: 28px;
 
   background: var(--surface-raised);
-  border-radius: 18px;
+  border-radius: var(--radius-float);
   border: 1px solid var(--color-hairline);
   padding: 18px;
 }
@@ -141,34 +141,9 @@
   color: #ff8a7d;
 }
 
-.subscribe-strip__form input[type="email"] {
-  height: 48px;
-  border-radius: 12px;
-  border: 1px solid var(--field-border);
-  background: var(--surface-input);
-  color: var(--text);
-  padding: 0 14px;
-  font-size: 1rem;
-}
-
-/* CTA button */
+/* CTA button: the kit draws it (filled); the form's row sizes it. */
 .btn--cta {
-  height: 48px;
-  padding: 0 16px;
-  border-radius: 12px;
-  border: 2px solid var(--green-deep);
-
-  background: var(--green-deep);
-  color: var(--white);
-
-  cursor: pointer;
-}
-
-.btn--cta:hover,
-.btn--cta:focus {
-  transform: translateY(-2px);
-  background: var(--surface-raised);
-  color: var(--green-text);
+  white-space: nowrap;
 }
 
 /* =========================
@@ -184,7 +159,7 @@
   display: grid;
   gap: 16px;
 
-  border-radius: 22px;
+  border-radius: var(--radius-float);
   overflow: hidden;
 
   background: var(--surface-raised);
@@ -264,7 +239,7 @@
    ========================= */
 .articles .card {
   background: var(--surface-raised);
-  border-radius: 18px;
+  border-radius: var(--radius-float);
   overflow: hidden;
   border: 1px solid var(--color-hairline);
 }
@@ -377,7 +352,7 @@
 
   font-size: 0.85rem;
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-press);
 
   background: var(--surface-raised);
   border: 1px solid var(--green);
@@ -455,7 +430,7 @@
   margin-inline: auto;
 
   background: var(--surface-raised);
-  border-radius: 22px;
+  border-radius: var(--radius-float);
   border: 1px solid var(--color-hairline);
   overflow: hidden;
 
@@ -479,7 +454,7 @@
 
 .article__hero {
   margin: 8px 0 18px;
-  border-radius: 18px;
+  border-radius: var(--radius-float);
   overflow: hidden;
   background: var(--page-bg);
 }

@@ -1,5 +1,6 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
+import Icon from "../components/Icon.astro";
 import { BOOKS as books, bookKeyToLabel } from "../data/books.js";
 import { prepareStudyParagraph } from "../lib/chapter-html";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
@@ -288,7 +289,7 @@ const termLensJson = termLens?.marks.length
             {/* Back to top (excluded from Pagefind indexing + excerpts) */}
             <div class="back-to-top" data-pagefind-ignore>
               <a class="back-to-top__link" href="#chapter-title">
-                Back to top ↑
+                Back to top<Icon name="up" />
               </a>
             </div>
           </>
@@ -360,49 +361,14 @@ const termLensJson = termLens?.marks.length
     /* Big, consistent button size */
     :global(.chapter-cta) {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
+      gap: 0.5em;
       width: clamp(240px, 42%, 420px);
       min-height: 56px;
-
-      padding: 14px 22px;
-      border-radius: 14px;
-
-      background-color: var(--green-deep, #0f6b33);
-      color: var(--white, #fff);
-
-      font-size: 16px;
-      font-weight: 400;
-      letter-spacing: 0; /* match ScriptureHeader buttons */
       line-height: 1.15;
       text-align: center;
       white-space: normal;
-
       text-decoration: none; /* no underline ever */
       user-select: none;
-
-    }
-
-    :global(.chapter-cta:hover) {
-      background-color: var(--ink); /* match ScriptureHeader hover */
-      transform: translateY(-1px);
-      text-decoration: none;
-    }
-
-    /* Inject arrows consistently via CSS (instead of hard-coding in labels) */
-    :global(.chapter-cta--prev)::before {
-      content: "◀ ";
-      display: inline-block;
-      width: 1.2em;
-      text-align: left;
-    }
-
-    :global(.chapter-cta--next)::after {
-      content: " ▶";
-      display: inline-block;
-      width: 1.2em;
-      text-align: right;
     }
 
     @media (max-width: 560px) {
@@ -476,25 +442,8 @@ const termLensJson = termLens?.marks.length
     }
 
     .back-to-top__link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 18px;
-      border-radius: 999px;
       text-decoration: none;
       user-select: none;
-
-      background: var(--green-deep, #0f6b33);
-      color: var(--white, #fff);
-      font-weight: 600;
-
-
-    }
-
-    .back-to-top__link:hover {
-      background: var(--surface-raised);
-      color: var(--green-deep, #0f6b33);
-      transform: translateY(-1px);
     }
 
     /* Hidden but still indexable */

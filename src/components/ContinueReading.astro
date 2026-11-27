@@ -4,6 +4,8 @@
 // JavaScript, no storage, or a first visit, nothing renders at all.
 // `class` is for the host page's spacing; put margins on it, not on a
 // wrapper, so a hidden chip takes no room.
+import Icon from "./Icon.astro";
+
 interface Props {
   class?: string;
 }
@@ -20,7 +22,7 @@ const { class: className } = Astro.props;
     data-continue-forget
     aria-label="Forget where I was reading"
   >
-    <span aria-hidden="true">×</span>
+    <Icon name="close" />
   </button>
 </div>
 
@@ -32,10 +34,7 @@ const { class: className } = Astro.props;
   .continue-reading {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    border: 1px solid rgba(var(--ink-rgb), 0.28);
-    border-radius: 999px;
-    background: var(--surface-raised);
+    gap: var(--space-1);
     font-size: 1rem;
     line-height: 1.4;
   }
@@ -53,33 +52,6 @@ const { class: className } = Astro.props;
   }
 
   .continue-reading__link {
-    padding: 8px 6px 8px 18px;
-    color: var(--green-text);
-    font-weight: 600;
     text-decoration: none;
-  }
-
-  .continue-reading__link:hover {
-    text-decoration: underline;
-  }
-
-  .continue-reading__forget {
-    display: inline-grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    margin-right: 4px;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: rgba(var(--ink-rgb), var(--text-3-alpha));
-    font-size: 1.25rem;
-    line-height: 1;
-    cursor: pointer;
-  }
-
-  .continue-reading__forget:hover {
-    background: rgba(var(--ink-rgb), 0.08);
-    color: var(--text);
   }
 </style>

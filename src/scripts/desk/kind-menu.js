@@ -24,6 +24,7 @@
 // greyed like a reason, but not a disabled line, and heard as the item's
 // description.
 
+import { iconNode, icon } from "../../lib/icons.mjs";
 import {
   KINDS,
   SIZINGS,
@@ -287,7 +288,8 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
         return;
       }
       const label = SIDES.find((s) => s.id === side).label;
-      const back = menuItem(`‹ ${label}`);
+      const back = menuItem(label);
+      back.prepend(iconNode("back"));
       back.addEventListener("click", () => { buildAdd(fly, null); fly.children[0]?.focus(); });
       fly.append(back);
       kindMenu?.fly?.reasons.refresh();
@@ -339,9 +341,7 @@ export function createKindMenu({ getLayout, panesBox, paneEls, commit, announce,
       b.setAttribute("aria-haspopup", "menu");
       b.setAttribute("aria-expanded", "false");
       const more = el("span", "desk-title__more");
-      more.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-        <path d="M9 6l6 6-6 6" /></svg>`;
+      more.innerHTML = icon("forward", { size: 14 });
       b.append(more);
       b.addEventListener("click", () => {
         if (b.getAttribute("aria-disabled") !== "true") openFly(def, b);

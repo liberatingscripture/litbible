@@ -23,6 +23,7 @@
 import { BOOKS, bookKeyToLabel } from "../data/books.js";
 import { versesFromLinkText, previewNumbers } from "../lib/ref-text-verses.mjs";
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
+import { iconNode } from "../lib/icons.mjs";
 
 // The Greek tab's search results are previewed too (they link a verse, with a
 // ?greek= word parameter the preview ignores; one for the chapter on screen is
@@ -101,7 +102,7 @@ function buildPanel(ref, draft) {
   close.type = "button";
   close.className = "lit-panel__close";
   close.setAttribute("aria-label", "Close preview");
-  close.textContent = "×";
+  close.append(iconNode("close"));
   close.addEventListener("click", closePanel);
   header.appendChild(close);
   panel.appendChild(header);

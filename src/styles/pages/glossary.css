@@ -107,7 +107,7 @@
   position: relative;
   width: 44px;
   height: 24px;
-  border-radius: 12px;
+  border-radius: var(--radius-round);
   background: var(--lit-green);
   border: none;
   cursor: pointer;
@@ -121,7 +121,7 @@
   width: 18px;
   height: 18px;
   background: #fff;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   top: 3px;
   left: 3px;
 }
@@ -201,17 +201,12 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(var(--ink-rgb), 0.08);
-  border-radius: 999px;
+  border-radius: var(--radius-float);
   padding: 8px 16px;
 }
 
 .glossary-toc__inner select{
-  border: none;
-  background: transparent;
   font-size: 15px;
-  color: var(--text);
-  cursor: pointer;
-  outline: none;
   padding: 2px 4px;
   width: 220px;
 }
@@ -223,21 +218,6 @@
 }
 
 .back-to-top{
-  border: none;
-  background: transparent;
-  color: var(--lit-green);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  /* 24px target (WCAG 2.5.8): the arrow stays the same size */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  min-height: 24px;
-  padding: 2px 4px;
-  border-left: 1px solid rgba(var(--ink-rgb), 0.12);
-  padding-left: 12px;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-quick) var(--ease);
@@ -246,10 +226,6 @@
 .back-to-top.is-visible{
   opacity: 1;
   pointer-events: auto;
-}
-
-.back-to-top:hover{
-  color: var(--lit-ink);
 }
 
 /* =========================================================
@@ -378,7 +354,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: var(--radius-press);
   color: var(--text);
   /* 0.6 keeps the icon above 3:1 against the page in both themes */
   opacity: 0.6;
@@ -599,9 +575,7 @@
 
 .occ-title:focus-visible,
 .occ-summary:focus-visible{
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: var(--radius-press);
 }
 
 /* Kept as a heading so the entry still appears in the document outline and
@@ -709,24 +683,9 @@
 /* Injected by script only — a no-JS page has every link already, so there is
    nothing for this to reveal and it is never rendered. */
 .occ-more{
-  display: inline-block;
+  display: inline-flex;
   margin: 0 0 0.6rem 1.15rem;
-  padding: 0.28rem 0.7rem;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--green-text, var(--lit-green));
-  font: inherit;
-  font-family: var(--font-control);
   font-size: calc(clamp(13px, 1.2vw, 15px) * var(--reading-scale, 1));
-  cursor: pointer;
-}
-
-.occ-more:hover{ border-color: rgba(var(--ink-rgb), 0.4); }
-
-.occ-more:focus-visible{
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce){

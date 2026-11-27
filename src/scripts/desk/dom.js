@@ -7,12 +7,14 @@
 
 /**
  * An element with a class and text. `text` is set with textContent, so it is
- * never read as markup; null or undefined sets none.
+ * never read as markup; null or undefined sets none. A Node (an icon) is
+ * appended instead.
  */
 export function make(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
+  if (text && typeof text === "object") e.append(text);
+  else if (text != null) e.textContent = text;
   return e;
 }
 

@@ -3,11 +3,30 @@
 // Audit 8, batch F (the desk's CSS). A stylesheet has no behavior to run in
 // node, so what is held here is the source that carries each fix: a later edit
 // that puts a faint border, a faint ink or a bare `outline: none` back fails
-// here rather than in a reader's window.
+// here rather than in a reader's window. Since Featherboa's Phase 2 the
+// desk's buttons and fields are kit.css's, so a fix that lives in a control's
+// look is held where the kit draws it, and the desk's control by its level.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+
+import { namesOf } from "../scripts/lib/kit-lists.mjs";
+
+const kit = readFileSync(new URL("../src/styles/kit.css", import.meta.url), "utf8");
+
+/** The body of the rule that draws a level's look: `:is(.kit-x, :where(...)) { ... }`. */
+function kitLook(anchor) {
+  const m = kit.match(new RegExp(`\\n:is\\(${anchor.replace(/[.-]/g, "\\$&")}, [^{]*\\)\\) \\{([^}]*)\\}`));
+  assert.ok(m, `no look rule for ${anchor}`);
+  return m[1];
+}
+
+/** Asserts each name is one of a level's names in kit.css. */
+function takes(level, names) {
+  const list = namesOf(kit, level);
+  for (const n of names) assert.ok(list.includes(n), `${n} is the kit's ${level}`);
+}
 
 // desk-search.css holds the search rows' rules and desk-sheet-view.css a
 // sheet's text and buttons since LG8-10; read as one sheet.
@@ -26,33 +45,28 @@ function rule(selector) {
 }
 
 test("the Sheets editor's text fields take --field-border (XA8-2, BA144)", () => {
-  for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input"]) {
-    assert.match(rule(sel), /border:\s*1px solid var\(--field-border\)/, sel);
-  }
-  // The sheet's Text size select (E101) is a field like the hint's.
-  assert.match(rule("select.desk-sheet__hint,\nselect.desk-sheet__size-select,\n.desk-sheet__hint-text"), /border:\s*1px solid var\(--field-border\)/);
-  // Title and Subtitle are fields like the rest since E89: a whole edge and
-  // a fill of their own, never the page's (they had a bottom line only).
-  const title = rule(".desk-sheet__title,\n.desk-sheet__subtitle");
-  assert.match(title, /border:\s*1px solid var\(--field-border\)/);
-  assert.match(title, /background:\s*var\(--desk-field\)/);
+  // Every field's edge is the kit's: --field-border, all the way round.
+  assert.match(kitLook(".kit-field"), /border:\s*1px solid var\(--field-border\)/);
+  // The minutes, the sheet's Text size select (E101) and the hint's, and
+  // Title and Subtitle (a whole edge since E89; they had a bottom line only).
+  takes("field", [".desk-sheet__minutes input", ".desk-sheet__hint", ".desk-sheet__size-select", ".desk-sheet__hint-text", ".desk-sheet__title", ".desk-sheet__subtitle"]);
+  // The rich text editor is a field with its toolbar inside, which the kit
+  // has no level for, so it draws the field's edge itself.
+  assert.match(rule(".desk-rich-editor"), /border:\s*1px solid var\(--field-border\)/);
 });
 
 test("the desk's fields, cards and controls stand apart from what they sit on (E89)", () => {
-  // Fields take the field fill, never the card's, the pane's or the page's.
-  for (const sel of [".desk-rich-editor", ".desk-sheet__minutes input", ".desk-sheet__lines input", ".desk-sheet__ref input", ".desk-passage__field"]) {
-    assert.match(rule(sel), /background:\s*var\(--desk-field\)/, sel);
+  // Fields take the kit's field fill, the page's own color, on every card and
+  // pane; none sets a fill of its own, so no rule's order can give one the
+  // card's (E190, E191: the notebook page's raised fill once won on the
+  // collections page; BVJ, 2026-11-19: "have the field be white").
+  assert.match(kitLook(".kit-field"), /background:\s*var\(--color-page\)/);
+  takes("field", [".desk-sheet__minutes input", ".desk-sheet__lines input", ".desk-sheet__ref input", ".desk-passage__field", ".desk-pick__filter", '.desk-np input[type="search"]', '.desk-np input[type="text"]', ".desk-np select"]);
+  for (const sel of ['.desk-np input[type="search"],\n.desk-np input[type="text"],\n.desk-np select', ".collection-page__new :is(input, textarea).desk-pick__filter"]) {
+    assert.doesNotMatch(rule(sel), /background|border/, sel);
   }
-  // On the collections page, whose root is .desk-np too, the notebook page's
-  // field rule (the raised fill) would win over those, so the page's fields
-  // say it again, later in the file (E190, E191; BVJ, 2026-11-19: "have the
-  // field be white").
-  const notebookFields = css.indexOf('.desk-np input[type="search"],\n.desk-np input[type="text"]');
-  assert.ok(notebookFields > 0, "no rule for the notebook page's fields");
-  for (const sel of [".desk-np .desk-sheet__ref input", ".collection-page__new :is(input, textarea).desk-pick__filter"]) {
-    assert.match(rule(sel), /background:\s*var\(--desk-field\)/, sel);
-    assert.ok(css.indexOf(`\n${sel} {`) > notebookFields, `${sel} comes after the notebook page's rule`);
-  }
+  // The rich text editor draws its own (above): the field's fill on its card.
+  assert.match(rule(".desk-rich-editor"), /background:\s*var\(--desk-field\)/);
   // Cards take the card fill and edge.
   // A collection's members are each a sheet's part, in the same rule (E192).
   for (const sel of [".desk-sheet__module,\n.collection-page__member", ".desk-sheet__sheet", ".desk-sheet__passage-form", ".desk-sheet__ask"]) {
@@ -67,24 +81,16 @@ test("the desk's fields, cards and controls stand apart from what they sit on (E
   const paneCards = rule(".desk-pane :is(.desk-sheet, .desk-collections)");
   assert.match(paneCards, /--desk-card:\s*var\(--desk-pane-card\)/);
   assert.doesNotMatch(paneCards, /background/);
-  // Controls take a 3:1 edge and the control fill: since E126 one rule, the
-  // ordinary kind, says it for the template choices, the command row, the
-  // panes' lock and every sheet button in the Sheets pane and on /sheets but
-  // the primary one, and the pills' rule for the chips
-  // (test/desk-buttons-css.test.js holds the whole inventory).
-  const ordinary = css.match(/\n:is\((\.desk-cmdrow__btn,[^{]*?)\) \{([^}]*)\}/);
-  assert.ok(ordinary, "no rule for the ordinary kind (E126)");
-  for (const sel of [".desk-sheet__choice", ".desk-cmdrow__btn", ".desk-pane__pin", ".desk-sheet__btn:where(:not(.desk-sheet__btn--primary))"]) {
-    assert.ok(`, ${ordinary[1]}, `.includes(`, ${sel}, `), sel);
-  }
-  assert.match(ordinary[2], /border:\s*1px solid var\(--field-border\)/);
-  assert.match(ordinary[2], /background:\s*var\(--desk-control\)/);
-  const pills = css.match(/\n:is\(\.desk-pin, [^{]*\.desk-sheet__chip[^{]*?\) \{([^}]*)\}/);
-  assert.ok(pills, "no rule for the pills");
-  assert.match(pills[1], /border:\s*1px solid var\(--field-border\)/);
-  // The layers' dark values are declared in both of desk.css's dark blocks,
-  // and --desk-control in desk-search.css's two as well (/search's own copy).
-  for (const [dark, count] of [["--desk-pane-card: #262628;", 2], ["--desk-field: var(--surface);", 2], ["--desk-control: rgba(var(--ink-rgb), 0.07);", 4]]) {
+  // Controls are the kit's, which holds every state to 4.5:1 words and 3:1
+  // edges (test/featherboa-kit.test.js; test/desk-buttons-css.test.js holds
+  // the desk's inventory): the template choices are list rows, the command
+  // row and the panes' lock plain buttons, and the chips tinted.
+  takes("row", [".desk-sheet__from-item"]);
+  takes("plain", [".desk-cmdrow__btn", ".desk-pane__pin", ".desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^=\"delete\"])"]);
+  takes("tinted", [".desk-pin", ".desk-sheet__chip"]);
+  // The layers' dark values are declared in both of desk.css's dark blocks;
+  // the buttons' own (--desk-control and the rest) went with the kinds.
+  for (const [dark, count] of [["--desk-pane-card: #262628;", 2], ["--desk-field: var(--surface);", 2], ["--desk-control", 0]]) {
     assert.equal(css.split(dark).length - 1, count, dark);
   }
 });
@@ -97,16 +103,16 @@ test("small secondary text takes the third ink, 4.5:1 or more on every surface (
   }
 });
 
-test("the desk's fields set a placeholder color of their own, the third ink (XA8-13, LV8-3)", () => {
-  const m = css.match(/((?:[^{}]*::placeholder,?\s*)+)\{([^}]*)\}/);
-  assert.ok(m, "no ::placeholder rule");
-  assert.match(m[2], /color:\s*rgba\(var\(--ink-rgb\), var\(--text-3-alpha\)\)/);
-  assert.match(m[2], /opacity:\s*1/);
-  assert.match(m[1], /\[class\*="desk-"\] input::placeholder/);
-  assert.match(m[1], /\[class\*="desk-"\] textarea::placeholder/);
-  assert.match(m[1], /input\[class\*="desk-"\]::placeholder/);
-  // Both themes read the same rule: the dark blocks flip --ink-rgb itself.
-  assert.doesNotMatch(m[2], /#|rgb\(\d/);
+test("the desk's fields show their placeholder in the third ink (XA8-13, LV8-3)", () => {
+  // The kit's field draws it, at full strength (Firefox fades a placeholder
+  // by itself); the desk's own rule went once every desk field was the kit's.
+  const m = kit.match(/\n:is\(\.kit-field, [^{]*\)\)::placeholder \{([^}]*)\}/);
+  assert.ok(m, "no ::placeholder rule in the kit");
+  assert.match(m[1], /color:\s*rgba\(var\(--color-text-rgb\), var\(--text-3-alpha\)\)/);
+  assert.match(m[1], /opacity:\s*1/);
+  // Both themes read the same rule: the dark blocks flip the text's rgb.
+  assert.doesNotMatch(m[1], /#|rgb\(\d/);
+  assert.doesNotMatch(css, /::placeholder/, "a desk rule of its own would draw over the kit's");
 });
 
 test("a focused element scrolls clear of the undo bar while it is up (XA8-14)", () => {
@@ -129,11 +135,15 @@ test("a narrow Sheets pane lets a row's buttons wrap under its name (LV8-5)", ()
 test("aria-disabled Keep, Delete and the bookmark form's Save look busy (batch request)", () => {
   assert.match(rule('.desk-notice__actions button[aria-disabled="true"]'), /cursor:\s*progress/);
   assert.match(rule('.desk-bookmark-form .desk-editor__save[aria-disabled="true"]'), /cursor:\s*progress/);
-  // A busy button doesn't take the hover look either: the notice's Delete is
-  // an ordinary button and its Keep the card's primary (E126), and neither
-  // kind's hover reaches a disabled or aria-disabled button.
-  assert.match(css, /:where\(\.desk-notice__actions\) button:where\(:not\(\.desk-notice__keep\)\)[^{]*\):hover:not\(:disabled, \[aria-disabled="true"\]/);
-  assert.match(css, /\.desk-notice__actions \.desk-notice__keep[^{)]*\):hover:not\(:disabled, \[aria-disabled="true"\], :active\)/);
+  // A busy button doesn't take the hover look either: the notice's Keep and
+  // the form's Save are the kit's filled, its Delete the kit's danger, and
+  // no level's hover reaches a disabled or aria-disabled button.
+  takes("filled", [".desk-notice__keep", ".desk-editor__save"]);
+  takes("danger", [".desk-notice__delete"]);
+  for (const anchor of [".kit-btn--filled", ".kit-btn--danger"]) {
+    // (A hover rule may sit inside @media (hover: hover), indented.)
+    assert.match(kit, new RegExp(`\\n\\s*:is\\(${anchor.replace(/[.-]/g, "\\$&")}, [^{]*\\)\\):hover:not\\(:disabled, \\[aria-disabled="true"\\]\\) \\{`), anchor);
+  }
 });
 
 test("the Sheets editor's states have forced-colors rules (XA8-7)", () => {
@@ -142,12 +152,18 @@ test("the Sheets editor's states have forced-colors rules (XA8-7)", () => {
   const end = css.indexOf("M6: Print with my notes", start);
   const block = css.slice(start, end);
   assert.match(block, /@media \(forced-colors: active\)/);
-  assert.match(block, /\.desk-sheet__chip\[aria-pressed="true"\]\s*\{[^}]*border:\s*2px solid Highlight/);
+  // A chip that is on, and every button's edge, are the kit's: a 2px edge in
+  // Highlight, and ButtonBorder.
+  takes("tinted", [".desk-sheet__chip"]);
+  takes("plain", [".desk-sheet__after-btn"]);
+  const forced = kit.slice(kit.indexOf("@media (forced-colors: active)"));
+  assert.match(forced, /:is\(\.kit-btn--tinted, [^{]*\)\)\[aria-pressed="true"\],[^{]*\{\s*border-color:\s*Highlight;\s*border-width:\s*2px;/);
+  assert.match(forced, /:is\(\.kit-btn--plain, [^{]*\{\s*border-color:\s*ButtonBorder;/);
   assert.match(block, /\.desk-sheet__drop\s*\{[^}]*border-top:\s*3px solid Highlight/);
   assert.match(block, /\.desk-rich-editor:focus-within\s*\{[^}]*outline:\s*2px solid Highlight/);
-  // The primary button's edge is with the buttons, in desk-sheet-view.css (LG8-10).
-  const view = readFileSync(new URL("../src/styles/desk-sheet-view.css", import.meta.url), "utf8");
-  assert.match(view, /@media \(forced-colors: active\) \{\s*\.desk-sheet__btn--primary\s*\{[^}]*border:\s*2px solid ButtonText/);
-  assert.match(block, /\.desk-sheet__after-btn\s*\{[^}]*border:\s*1px solid ButtonText/);
+  // The main action keeps a thicker edge: the kit's, for every filled
+  // button, the Sheets' primary among them.
+  takes("filled", [".desk-sheet__btn--primary"]);
+  assert.match(forced, /The one main action keeps its weight[^*]*\*\/\s*:is\(\.kit-btn--filled, [^{]*\{\s*border-width:\s*2px;/);
   assert.match(block, /\.desk-sheet__meter > span\s*\{[^}]*background:\s*Highlight/);
 });

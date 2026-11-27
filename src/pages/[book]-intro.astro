@@ -195,48 +195,14 @@ const isDraft = isDraftIntro(bookKey);
 
     :global(.chapter-cta) {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
+      gap: 0.5em;
       width: clamp(240px, 42%, 420px);
       min-height: 56px;
-
-      padding: 14px 22px;
-      border-radius: 14px;
-
-      background-color: var(--green-deep, #0f6b33);
-      color: var(--white, #fff);
-
-      font-size: 16px;
-      font-weight: 400;
-      letter-spacing: 0; /* match ScriptureHeader buttons */
       line-height: 1.15;
       text-align: center;
       white-space: normal;
-
       text-decoration: none; /* no underline ever */
-
-    }
-
-    :global(.chapter-cta:hover) {
-      background-color: var(--ink); /* match ScriptureHeader hover */
-      transform: translateY(-1px);
-      text-decoration: none;
-    }
-
-    /* Inject arrows consistently via CSS (instead of hard-coding in labels) */
-    :global(.chapter-cta--prev)::before {
-      content: "◀ ";
-      display: inline-block;
-      width: 1.2em;
-      text-align: left;
-    }
-
-    :global(.chapter-cta--next)::after {
-      content: " ▶";
-      display: inline-block;
-      width: 1.2em;
-      text-align: right;
+      user-select: none;
     }
 
     @media (max-width: 560px) {

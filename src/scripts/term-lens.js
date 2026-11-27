@@ -39,6 +39,7 @@
 // attaches each chapter it fetches through the same export.
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 import { markOrigin } from "../lib/term-words.mjs";
+import { iconNode } from "../lib/icons.mjs";
 
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 250;
@@ -225,7 +226,7 @@ function buildCard(container, data, span, mark) {
   close.type = "button";
   close.className = "lit-panel__close";
   close.setAttribute("aria-label", "Close");
-  close.textContent = "×";
+  close.append(iconNode("close"));
   close.addEventListener("click", closePanel);
   header.appendChild(close);
   panel.appendChild(header);

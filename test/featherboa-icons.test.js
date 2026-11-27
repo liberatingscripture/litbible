@@ -7,10 +7,11 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { repo } from "./helpers/featherboa-css.mjs";
+import { labelSources } from "./helpers/featherboa-labels.mjs";
 import { ICONS, STANDALONE, mayStandAlone, icon } from "../src/lib/icons.mjs";
 
 const RECORD = ["read", "notebook", "sheet", "collection", "highlight", "note", "bookmark", "copy", "share", "print", "layout", "new", "search", "close", "back", "more"];
@@ -67,39 +68,25 @@ test("each drawing is Lucide's, as lucide-static ships it (npm run build:icons)"
 
 // ---------- No typed glyph stands in for an icon ----------
 
-/** Text with its comments blanked: block comments (markup's braced ones
- *  too), whole-line // comments, and markup's <!-- --> ones. */
-function withoutComments(text) {
-  return text
-    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
-    .replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, " "))
-    .replace(/^\s*\/\/.*$/gm, "");
-}
-
-/** Typed glyphs that may stay, each with its reason: never on a control. */
+/** Typed glyphs that may stay, each with its reason: never on a control.
+ *  An entry with no text covers its whole file. */
 const ALLOWED = [
-  // { file, text, why }
+  { file: "src/pages/desk/help.astro", why: "help's prose names the icons a reader sees (Phase 13 rewrites help)" },
+  { file: "src/lib/desk-first-use.mjs", text: "× closes it", why: "a tour's prose names the close icon (Phase 13 rewrites the tours)" },
+  { file: "src/lib/desk-first-use.mjs", text: "× removes it", why: "a tour's prose names the close icon (Phase 13 rewrites the tours)" },
+  { file: "src/scripts/desk/tab-greek.js", text: '.join(" › ")', why: "a separator between a domain and its subdomain in a line of text" },
 ];
 
 const GLYPHS = /[×‹›▾▸]/;
 
 test("typed glyphs (× ‹ › ▾ ▸) no longer stand in for icons", () => {
   const found = [];
-  (function walk(dir) {
-    for (const e of readdirSync(join(repo, dir), { withFileTypes: true })) {
-      const rel = `${dir}/${e.name}`;
-      if (e.isDirectory()) {
-        if (rel === "src/components/apps" || rel === "src/content") continue;
-        walk(rel);
-      } else if (/\.(astro|js|mjs|ts)$/.test(e.name)) {
-        const lines = withoutComments(readFileSync(join(repo, rel), "utf8")).split("\n");
-        lines.forEach((line, i) => {
-          if (!GLYPHS.test(line)) return;
-          const allowed = ALLOWED.some((a) => a.file === rel && line.includes(a.text));
-          if (!allowed) found.push(`${rel}:${i + 1}: ${line.trim().slice(0, 140)}`);
-        });
-      }
-    }
-  })("src");
+  for (const { rel, lines } of labelSources()) {
+    lines.forEach((line, i) => {
+      if (!GLYPHS.test(line)) return;
+      const allowed = ALLOWED.some((a) => a.file === rel && (a.text === undefined || line.includes(a.text)));
+      if (!allowed) found.push(`${rel}:${i + 1}: ${line.trim().slice(0, 140)}`);
+    });
+  }
   assert.deepEqual(found, [], `${found.length} lines type a glyph:\n${found.join("\n")}`);
 });

@@ -14,6 +14,7 @@
 // Its dismissal is separate from the Android app banner's (AppInstallBanner.astro).
 import PlatformIcon from "./apps/PlatformIcon.astro";
 import AppIcons from "./apps/AppIcons.astro";
+import Icon from "./Icon.astro";
 
 ---
 
@@ -30,31 +31,8 @@ import AppIcons from "./apps/AppIcons.astro";
       class="applaunch-close"
       aria-label="Close app announcement"
     >
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <line
-          x1="4"
-          y1="4"
-          x2="16"
-          y2="16"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"></line>
-        <line
-          x1="16"
-          y1="4"
-          x2="4"
-          y2="16"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"></line>
-      </svg>
-    </button>
+      <Icon name="close" />
+        </button>
 
     <AppIcons size={84} class="applaunch-logo" />
 
@@ -145,7 +123,7 @@ import AppIcons from "./apps/AppIcons.astro";
     margin: auto;
     padding: 0;
     border: 1px solid var(--color-float-edge);
-    border-radius: 12px;
+    border-radius: var(--radius-float);
     background: var(--color-float);
     color: var(--text, #1d231c);
     width: min(600px, calc(100vw - 2.5rem));
@@ -189,24 +167,6 @@ import AppIcons from "./apps/AppIcons.astro";
     position: absolute;
     top: 1rem;
     right: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--text, #1d231c);
-    cursor: pointer;
-    opacity: 0.6;
-  }
-
-  .applaunch-close:hover,
-  .applaunch-close:focus-visible {
-    opacity: 1;
-    background: rgba(var(--ink-rgb, 29, 35, 28), 0.08);
   }
 
   /* AppIcons handles its own sizing and Android tiling; this only places the
@@ -260,7 +220,7 @@ import AppIcons from "./apps/AppIcons.astro";
     align-items: flex-start;
     gap: 0.875rem;
     background: rgba(var(--ink-rgb, 29, 35, 28), 0.04);
-    border-radius: 8px;
+    border-radius: var(--radius-float);
     padding: 0.75rem 1rem;
   }
 
@@ -325,7 +285,7 @@ import AppIcons from "./apps/AppIcons.astro";
     display: block;
     flex: none;
     background: #fff;
-    border-radius: 8px;
+    border-radius: var(--radius-press);
     border: 1px solid rgba(var(--ink-rgb, 29, 35, 28), 0.12);
   }
 
@@ -341,26 +301,8 @@ import AppIcons from "./apps/AppIcons.astro";
   }
 
   .applaunch-cta-primary {
-    display: inline-block;
-    padding: 0.65rem 1.5rem;
-    border-radius: 6px;
-    font-size: 0.975rem;
-    font-weight: 600;
+    display: inline-flex;
     text-decoration: none;
-    cursor: pointer;
-    /* Deep Green + white is the solid-button pairing and is theme-invariant,
-       so the launch CTA reads as the same branded button in light and dark.
-       The --cta-bg/--cta-text pair the retired popover used inverts in dark
-       mode and lands as a neutral grey chip. */
-    background: var(--green-deep, #0f6b33);
-    color: #fff;
-  }
-
-  .applaunch-cta-primary:hover,
-  .applaunch-cta-primary:focus-visible {
-    opacity: 0.85;
-    text-decoration: none;
-    outline-offset: 3px;
   }
 </style>
 

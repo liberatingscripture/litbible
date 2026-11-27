@@ -50,8 +50,8 @@
     **One shadow, `--shadow-float`, and only on what floats and goes away**
     (menus, popovers, the Display tray, dialogs), with `--color-float` and
     the `--color-float-edge` hairline; night drops it for a lighter float.
-    A card or a docked panel takes a hairline. The Study Desk's button
-    kinds keep their shadows until the kit (Phase 2).
+    A card or a docked panel takes a hairline, and no button casts a
+    shadow.
   - **Motion is four speeds on one curve** (`--ease`): Quick
     (`--dur-quick`) for menus, popovers, and tooltips; Settled for notes,
     panels, and bars; Large for sheets, dialogs, and present mode; leaving
@@ -388,9 +388,12 @@
   (`.hero`, `.questions-block`, the chat, the callout, `body.bg-green`),
   which go in Phase 7; while they last they carry **ink** text (4.6:1) or
   white *large* headings, never small white text (3.5:1). `--green-deep`
-  (#0F6B33, Deep Green) is the solid button's fill under **white** labels
-  (6.6:1), fixed in both themes until the kit's filled button (Phase 2)
-  takes the night's press green with dark words (`--color-on-press`).
+  (#0F6B33, Deep Green) is no button's fill since the kit: the filled
+  button is `--color-press` under `--color-on-press` words, deep green
+  under white by day (6.6:1) and the night's press green under dark words.
+  What still takes `--green-deep`, fixed in both themes, is a mark that
+  isn't a control (Study's "New" badge, a sheet's meter) and /sheets' own
+  buttons until Phase 11.
   `--green-text` and `--link` are `--color-press`: deep green by day and
   #4DD383 by night, for text and links, never a fill under white words,
   which fail on it at night.
@@ -399,8 +402,14 @@
   (`--focus-offset`). A focus indicator needs 3:1 against its surface: the
   ring is 6.3:1 on the page by day and 9.7:1 at night, where LIT Green
   manages 3.35:1 and translucent rings 1.4 to 2.0:1, so none is written by
-  hand. The rings that use `--text` on purpose (the Display tray's options,
-  whose selected segments are green) stay as they are. Don't kill a ring
+  hand. **One rule draws it** (KT-07): global.css's `:focus-visible`, from
+  the three tokens. A control never draws its own ring; the one exception
+  is a row that fills a scrolling list or menu edge to edge, whose ring is
+  drawn 2px inside it (`outline-offset: -2px`) because an outside one is
+  clipped. `test/featherboa-kit.test.js` ("focus is the one ring") holds
+  every `:focus` rule to this. The rings that use `--text` on purpose (the
+  Display tray's options, whose selected segments are green) are named in
+  its `OWN_RINGS`. Don't kill a ring
   with `outline: none` on `:focus-visible` either: `/support`,
   `/liberating-scripture-collective`, the about TOC, and the launch
   popover's close button all did, which left keyboard users a 1px lift or
@@ -498,42 +507,76 @@
   `--ink-rgb` pin (the green header's `__inner`, `/sheets`' paper and
   presenter) does not reach it: a field on a pinned surface writes
   `rgba(var(--ink-rgb), 0.58)` itself. The `/contact` and `/app-support`
-  fields (`contact.css`, `.field`) take it too (BVJ, 2026-10-29). The
-  desk's placeholders and small secondary text are the third ink
-  (`::placeholder` in `desk.css`; 5.1:1 by day, 5.7:1 or more by night;
-  Audit 8 XA8-13 and XA8-3), since the browser's default gray fails 4.5:1.
+  fields (`contact.css`, `.field`) take it too (BVJ, 2026-10-29). Every
+  field's placeholder is the third ink (the kit field's `::placeholder`;
+  5.1:1 by day, 5.7:1 or more by night; Audit 8 XA8-13 and XA8-3), as is
+  the desk's small secondary text, since the browser's default gray fails
+  4.5:1.
 
-## The Study Desk's buttons
+## The kit
 
-- **The Study Desk's buttons are four kinds** (E126; BVJ, 2026-11-12):
-  primary (Deep Green, white words, at most one per pane or view, edged in
-  dark themes with the text green at 70%), ordinary (`--desk-control` with a
-  `--field-border` edge, a shadow at rest, a 1px lift on hover, sunk when
-  pressed), toggle, and the quiet and glyph buttons, which keep their own
-  looks. One rule per kind ends `desk.css`. Its tokens, every shadow with a
-  dark pair in both dark selectors, are in the comment "The desk's layers" in
-  `desk.css` and repeated in `desk-search.css`, which /search loads alone.
-  Pressing is Instant (Featherboa, "Motion"), so no kind has a transition;
-  under `prefers-reduced-motion` the lift is zeroed by token and the shadows
-  stay. A disabled button keeps its edge and its fill and says so in its
-  words (the third ink, or the text green on a disabled primary, 4.5:1 or
-  more on every surface), never by fading it with `opacity`.
-  **No button is the color of what lies behind it** (E159; BVJ,
-  2026-11-18), in either theme: a button with an edge and no fill, or a
-  segmented pill whose unchosen choices show the surface, joins a kind
-  instead (`.desk-seg` takes the pills' fill and edge, and every Pin, the
-  reading pages' too, is a flat toggle). The light fill stays
-  white (BVJ chose it over a gray step, sky, and sunshine), 1.05:1 on a
-  near-white sheet, and the 3:1 edge and the shadow are what carry it there.
-  **Measure it with a notebook that holds records, and with every menu,
-  window, and tab opened**: E159's sweep of empty pages missed the
-  collections page's buttons and the Highlight swatches (E169). The inventory is in
-  `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look".
-- **Featherboa replaces the four kinds** (`SITE-FEATHERBOA.md`, "Controls"
-  and "Surfaces"; Phase 2 builds it): filled, tinted, plain (words and an
-  icon, no box until pointed at, which E159 allows on purpose), and red
-  words, with no shadow on a button at rest. Until it is built, the rules
-  above hold.
+- **Every control is drawn once, in `kit.css`** (Featherboa, "Controls"
+  and "The kit"), loaded after `global.css` on every page: filled (the one
+  main action; a view uses it once), tinted (the usual next step, and a
+  chip in a set), plain (everything else, and an icon alone), red words
+  (deleting, never filled), the list row, tabs and a row of choices, a
+  field, a checkbox (`:root`'s accent-color), a switch, and two the record
+  doesn't list: a press inside a line of text ("inline") and a color dot
+  (queue Q16). Five states: at rest, pointed at (one step stronger, never
+  a movement or a shadow), pressed or on (a fill, or a green underline,
+  and 700), focus (`global.css`'s ring), and unavailable (legible, never
+  `opacity`). Corners are 6px on what is pressed and 10px on what floats;
+  only a switch, a color dot, and the emblem are round. **A screen that
+  needs something the kit lacks is a design conversation before it is a
+  line of code**: a queue entry, not a new rule.
+- **Words on a button are deep green; a tab's and a row's are the ink**,
+  green only when on (queue Q14).
+- **The kit's other names** (queue Q15): until a surface's phase redraws
+  its markup with the kit's classes (`kit-btn kit-btn--plain`,
+  `kit-row`, …), its controls take the kit's looks by name. Each level is
+  one list, `:is(<kit class>, :where(<names>))`, so a name has the kit
+  class's weight and no more, and the same list opens every rule of the
+  level. **Add or remove a name only with `node scripts/kit-names.mjs`**,
+  which keeps the lists alike. Outside `kit.css`, a control's rule says
+  only where it sits and how big it is: never its fill, edge, corners,
+  words' color, face, weight, capitals, shadow, or opacity. A control
+  keeps its size until its surface is redrawn; an element inside a
+  control that holds reading text (a note's excerpt in a row) sets its own
+  face on itself.
+- **Icons** are Lucide's (`src/lib/icons.mjs`, generated by
+  `npm run build:icons`; `<Icon name="…" />` in `.astro` files, `icon()` or
+  `iconNode()` in scripts). An icon stands alone only if it is search,
+  close, back, forward, or more, with a name for screen readers; every
+  other icon keeps its word. Typed glyphs (× ‹ › ▾ ▸) never stand in for
+  one.
+- **The tests**: `test/featherboa-kit.test.js` (each control and state,
+  the lists alike, no look outside `kit.css`, no `accent-color` outside it
+  either (it colors only a form's controls, whatever the selector is
+  called), nothing moving or casting a shadow when pointed at or pressed,
+  nothing faded when unavailable, the contrast of every state by day and
+  by night), `featherboa-shapes` (the
+  two radii and the one shadow), `featherboa-icons`, and
+  `featherboa-spacing` (the spacing scale in the new stylesheets, `kit.css`
+  first). The static test can't see a control styled by class alone until
+  its name is in a list, so **check a surface in the browser**
+  (`scripts/kit-audit.js`): every visible control should take exactly one
+  level, with every menu, tray,
+  and popover opened, and no link or label drawn as a button (a fill or an
+  edge at rest) outside the kit.
+
+## Study's buttons
+
+- **Study's buttons are the kit's** (Featherboa Phase 2, in place of
+  E126's four kinds): each desk control takes one level by name in
+  `kit.css`, desk CSS says only its place and size, and
+  `test/desk-buttons-css.test.js` holds it (the inventory by level is in
+  `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets look").
+  **No tinted or filled button is the color of what lies behind it**
+  (E159; BVJ, 2026-11-18), in either theme; Featherboa relaxes that for
+  plain commands only (CT-26). **Measure it with a notebook that holds
+  records, and with every menu, window, and tab opened**
+  (`scripts/kit-audit.js`): E159's sweep of empty pages missed the
+  collections page's buttons and the Highlight swatches (E169).
 
 ## Site 2.0 is gone
 

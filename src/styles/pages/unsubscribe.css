@@ -37,7 +37,7 @@
   font-size: 0.875rem;
   line-height: 1.4;
   padding: 0.6rem 0.75rem;
-  border-radius: 6px;
+  border-radius: var(--radius-press);
   border: 1px solid transparent;
 }
 
@@ -75,7 +75,7 @@
 
 .unsub-form__row {
   display: flex;
-  gap: 0;
+  gap: var(--space-2);
 }
 
 .unsub-form__input {
@@ -83,60 +83,10 @@
   min-width: 0;
   padding: 10px 14px;
   font-size: 0.9rem;
-  font-family: var(--font-control);
-  color: var(--text);
-  background: var(--surface-input);
-  border: 1px solid var(--field-border);
-  border-right: none;
-  border-radius: 8px 0 0 8px;
-}
-
-.unsub-form__input:focus {
-  border-color: var(--green-text);
-}
-
-.unsub-form__input:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.unsub-form__input::placeholder {
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-  opacity: 1;
 }
 
 .unsub-form__submit {
-  padding: 10px 18px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-family: var(--font-control);
-  cursor: pointer;
   white-space: nowrap;
-
-  color: var(--ink);
-  background: var(--green);
-  border: 1px solid var(--green);
-  border-radius: 0 8px 8px 0;
-
-}
-
-.unsub-form__submit:hover,
-.unsub-form__submit:focus {
-  background: var(--ink);
-  color: var(--green);
-}
-
-.unsub-form__submit:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-/* Only disabled while a submit is in flight. */
-.unsub-form__submit:disabled {
-  opacity: 0.6;
-  cursor: default;
 }
 
 .unsub-form__field-error {
@@ -156,13 +106,6 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .unsub-form__input,
-  .unsub-form__submit {
-    transition: none;
-  }
 }
 
 @media (max-width: 720px) {

@@ -555,55 +555,6 @@
 
   padding: 14px 22px;
   min-width: 0;
-  font-family: var(--font-control);
-}
-
-/* =========================================================
-   Desktop: make the curtain visibly wipe (not just fade)
-   ========================================================= */
-@media (min-width: 901px) {
-  a.callout-cta.footer-cta {
-    overflow: hidden;
-    isolation: isolate;
-  }
-
-  /* Curtain ABOVE background, BELOW text */
-  a.callout-cta.footer-cta::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: var(--green);
-    border-radius: inherit;
-
-    z-index: 0;
-
-    transform-origin: top;
-    transform: scaleY(1);
-    will-change: transform;
-  }
-
-  a.callout-cta.footer-cta:hover::before,
-  a.callout-cta.footer-cta:focus::before {
-    transform: scaleY(0);
-  }
-
-  a.callout-cta.footer-cta > span {
-    position: relative;
-    z-index: 1;
-  }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .callout-underline-path {
-    transition: none;
-  }
-
-  @media (min-width: 901px) {
-    a.callout-cta.footer-cta::before {
-      transition: none;
-    }
-  }
 }
 
 /* =========================================================
@@ -675,7 +626,6 @@
     line-height: 1;
     white-space: nowrap;
 
-    border-radius: 12px;
     box-sizing: border-box;
 
     margin: 0;
@@ -720,7 +670,7 @@
   width: fit-content;
   max-width: min(720px, 92%);
   padding: 20px 26px;
-  border-radius: 28px;
+  border-radius: var(--radius-float);
   background: var(--surface-raised);
   color: var(--text);
   line-height: 1.45;
@@ -825,6 +775,13 @@
   /* Same reason for the focus ring: the question CTAs sit on the band, where
      ink is 4.58:1 and the page's green ring is not. */
   --focus-ring: var(--ink);
+  /* A fixed LIT Green surface: the kit's tokens are pinned here, so a tinted
+     button is ink on the band in both themes (4.58:1), not deep green. */
+  --color-press: #111411;
+  --color-on-press: #ECEEE8;
+  --color-text: #111411;
+  --color-text-rgb: 17, 20, 17;
+  --color-page: #209D50;
 }
 
 .questions-block__inner {
@@ -873,7 +830,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1; /* force square */
-  border-radius: 32px;
+  border-radius: var(--radius-float);
   overflow: hidden;
 }
 
@@ -918,99 +875,22 @@
 }
 
 /* =========================================================
-   Full-width CTA button — black curtain lifts to reveal green
-   (matches your header CTA palette/behavior)
-   IMPORTANT: targets your actual HTML class .question-cta
+   Full-width CTA button: the kit's tinted button, with the band's tokens
+   pinned above. Only its size and place are set here.
    ========================================================= */
 
 a.question-cta {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-
   display: inline-flex;
   width: 100%;
-  justify-content: center;
-  align-items: center;
-
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-weight: 700;
-
-  /* NEW: keep labels on one line + consistent height */
-  white-space: nowrap;
   min-height: 72px;
-
-  /* NEW: allow a tiny shrink before wrapping would ever happen */
-  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
-
   padding: 18px 22px;
-  border-radius: 14px;
-
-  border: 2px solid var(--ink);
-
-  /* Text starts green on the black curtain */
-  color: var(--green);
-
-  font-family: var(--font-control);
 }
 
-/* Green base layer */
-a.question-cta::after {
-  content: "";
-  position: absolute;
-  inset: -2px; /* prevents corner peeking */
-  background: var(--green);
-  border-radius: inherit;
-  z-index: -2;
-}
-
-/* Black curtain layer */
-a.question-cta::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  background: var(--ink);
-  border-radius: inherit;
-
-  clip-path: inset(0 0 0 0 round 16px);
-
-  z-index: -1;
-}
-
-/* Hover/focus: lift the curtain to reveal green */
-a.question-cta:hover::before,
-a.question-cta:focus::before {
-  clip-path: inset(0 0 100% 0 round 16px);
-}
-
-/* End-state text: ink on green. Pinned to --ink (not --text) so it stays ink
-   on the revealed LIT-green base in BOTH themes — --text is light in dark mode,
-   which would drop to ~3.3:1 on green. Ink-on-green is 4.6:1. */
-a.question-cta:hover,
-a.question-cta:focus {
-  color: var(--ink);
-  text-decoration: none;
-}
-
-/* Text above layers */
 a.question-cta > span {
-  position: relative;
-  z-index: 1;
   text-align: center;
   line-height: 1.15;
-
-  /* NEW: ensure the span itself never wraps */
   white-space: nowrap;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  a.question-cta::before,
-  a.question-cta {
-    transition: none;
-  }
 }
 
 /* Dyslexic font is wider — allow button text to wrap rather than clip */

@@ -28,7 +28,7 @@
 /* The collapsed notebook: a tab at the window's edge, clear of the text
    (TAB_WIDTH and TAB_EDGE in src/lib/desk-margin.mjs), starting level with
    the page's heading and pinned 16px from the top as the reader scrolls,
-   like the panel it stands for. */
+   like the panel it stands for. A plain button, the kit's. */
 .desk-tab {
   display: none;
 }
@@ -44,17 +44,9 @@
   gap: 8px;
   padding: 12px 0 14px;
   pointer-events: auto;
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text);
-  font: inherit;
-  font-family: var(--font-control);
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
-}
-
-.desk-tab:hover {
-  background: linear-gradient(rgba(var(--ink-rgb), 0.06), rgba(var(--ink-rgb), 0.06)) var(--surface-raised);
 }
 
 /* While the rest of the desk loads after a press of the tab. */
@@ -88,24 +80,15 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
   line-height: 1.4;
 }
 
-/* "Reset widths" in the tray, shown only while the reader has set widths. The
-   look is the Edit button's (.desk-panel__reset, in desk.css). */
+/* "Reset widths" in the tray, shown only while the reader has set widths: a
+   plain button, the kit's, as the Notebook's Edit is (.desk-panel__reset). */
 .font-tray__reset {
   align-self: flex-start;
   margin-top: 8px;
   padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-family: var(--font-control);
   font-size: 0.8125rem;
+  line-height: inherit;
   cursor: pointer;
-}
-
-.font-tray__reset:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .font-tray__reset[hidden] {
@@ -141,7 +124,7 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
   right: 5px;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-press); /* on 8px, round */
   background: var(--green-text);
 }
 

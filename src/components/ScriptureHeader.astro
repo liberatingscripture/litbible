@@ -1,4 +1,5 @@
 ---
+import Icon from "./Icon.astro";
 import { bookKeyToLabel } from "../data/books.js";
 import { navFor } from "../lib/chapter-nav-data.mjs";
 
@@ -91,11 +92,11 @@ const headingText = !bookKey
     {
       prevHref ? (
         <a class="nav-button" href={prevHref} rel="prev" aria-label={`Previous: ${prevLabel}`}>
-          <span class="nav-button__arrow" aria-hidden="true">‹</span>
+          <Icon name="back" />
         </a>
       ) : (
         <span class="nav-button nav-button--disabled" aria-disabled="true">
-          <span class="nav-button__arrow" aria-hidden="true">‹</span>
+          <Icon name="back" />
         </span>
       )
     }
@@ -103,11 +104,11 @@ const headingText = !bookKey
     {
       nextHref ? (
         <a class="nav-button" href={nextHref} rel="next" aria-label={`Next: ${nextLabel}`}>
-          <span class="nav-button__arrow" aria-hidden="true">›</span>
+          <Icon name="forward" />
         </a>
       ) : (
         <span class="nav-button nav-button--disabled" aria-disabled="true">
-          <span class="nav-button__arrow" aria-hidden="true">›</span>
+          <Icon name="forward" />
         </span>
       )
     }
@@ -115,7 +116,7 @@ const headingText = !bookKey
 </header>
 
 <style>
-  /* Previous/Next are 44px round ‹ › buttons either side of the title at every
+  /* Previous/Next are 44px plain ‹ › buttons either side of the title at every
      width (owner, 2026-10-14; first the phone layout, audit F3). The nav
      covers the header, so the buttons sit on the edges of the text column.
      Each keeps its accessible name ("Previous: Romans 7"); the bottom buttons
@@ -146,35 +147,13 @@ const headingText = !bookKey
 
   .nav-button {
     pointer-events: auto;
-    width: 44px;
-    height: 44px;
-    padding: 0;
     margin: 0;
-    border: 0;
-    border-radius: 999px;
-    background-color: var(--green-deep, #0f6b33);
-    color: #fff;
-    cursor: pointer;
-    font-size: 26px;
-    line-height: 1;
     text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .nav-button:hover:not(.nav-button--disabled) {
-    background-color: var(--ink);
-    transform: translateY(-1px);
   }
 
   .nav-button--disabled {
     visibility: hidden;
     pointer-events: none;
-  }
-
-  .nav-button__arrow {
-    margin-top: -3px;
   }
 
   @media (min-width: 641px) {

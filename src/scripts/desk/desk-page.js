@@ -57,6 +57,7 @@
 // default, and which of the two opens the page. The default is an
 // arrangement, not a passage (BA53): it opens where the reader last was.
 
+import { icon } from "../../lib/icons.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
   ARRANGEMENTS,
@@ -137,12 +138,9 @@ import { createLeadReporter } from "./desk-lead.js";
 import { startPaneMove } from "./pane-move.js";
 import { wireLine } from "./line-menu.js";
 
-const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
+const ICON_CARET = icon("down", { size: 14 });
 
-const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" /></svg>`;
+const ICON_CLOSE = icon("close", { size: 16 });
 
 const ICON_GRIP = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"
   focusable="false"><circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" />

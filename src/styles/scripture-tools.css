@@ -155,18 +155,7 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  border-radius: 999px;
-  border: 1px solid rgba(var(--ink-rgb), 0.11);
-  background: var(--surface-input);
-  color: var(--text);
-  font: inherit;
-  font-family: var(--font-control);
   cursor: pointer;
-}
-
-.tools-search-close {
-  font-size: 24px;
-  line-height: 1;
 }
 
 @media (max-width: 640px) {

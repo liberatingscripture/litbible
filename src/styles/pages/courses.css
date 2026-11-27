@@ -90,56 +90,19 @@
 .signup input[type="email"] {
   width: min(680px, 92vw);
   height: 72px;
-
   padding: 0 22px;
   font-size: 1.6rem;
-
-  border: 1px solid var(--field-border);
-  border-radius: 6px;
-
-  background: var(--surface-raised);
-  color: var(--text);
 }
 
-.signup input[type="email"]::placeholder {
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-  opacity: 1;
-}
-
+/* The kit's filled button; this page's room is the only thing set here. */
 .signup__button {
-  border: none;
-  cursor: pointer;
-
-  background: var(--surface-raised);
-  color: var(--green-text);
-
-  padding: 14px 34px;
-  border-radius: 10px;
-
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.signup__button:hover {
-  transform: translateY(-1px);
-}
-
-.signup__button:active {
-  transform: translateY(0);
-}
-
-.signup__button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
+  white-space: nowrap;
 }
 
 /* Same visual as the button, but rendered as an anchor (jumps to the
    footer newsletter form — the Brevo form can't be duplicated up here) */
 .signup__button--link {
-  display: inline-block;
+  display: inline-flex;
   text-decoration: none;
 }
 
@@ -175,12 +138,6 @@
 }
 
 
-/* Focus states */
-.signup input[type="email"]:focus,
-.signup__button:focus {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 3px;
-}
 
 @media (max-width: 520px) {
   .signup input[type="email"] {

@@ -1,6 +1,7 @@
 ---
 // src/pages/read.astro
 import ReadLayout from "../layouts/ReadLayout.astro";
+import Icon from "../components/Icon.astro";
 import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
 import "../styles/pages/read.css";
 import SblgntCredits from "../components/SblgntCredits.astro";
@@ -88,9 +89,7 @@ const TYPE_LABEL: Record<string, string> = {
           >
             <span class="whats-new__dot" aria-hidden="true" />
             <span>What’s new</span>
-            <span class="whats-new__chevron" aria-hidden="true">
-              ▾
-            </span>
+            <span class="whats-new__chevron" aria-hidden="true"><Icon name="down" /></span>
           </button>
 
           <div class="whats-new__panel" id="whatsNewPanel">
@@ -218,6 +217,7 @@ const TYPE_LABEL: Record<string, string> = {
           <details class="license-faq-item" id="license-terms">
             <summary class="license-faq-q">
               View full license terms and permissions for church, study, and commercial use
+              <Icon name="down" />
             </summary>
             <div class="license-faq-body">
               <p>
@@ -310,6 +310,7 @@ const TYPE_LABEL: Record<string, string> = {
           <details class="license-faq-item" id="sblgnt-disclaimer">
             <summary class="license-faq-q">
               Source text and translation credits (SBLGNT)
+              <Icon name="down" />
             </summary>
             <div class="license-faq-body sblgnt-credits">
               <SblgntCredits />

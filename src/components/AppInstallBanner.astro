@@ -17,8 +17,10 @@
  * else sees nothing and there's no layout flash. With JS off it never appears
  * (the /apps page and footer still link to the app) — pure progressive
  * enhancement. Styling uses the site's global tokens (--surface-raised, --text,
- * --green-deep, --ink-rgb), so it's theme-correct with no dark-mode rules here.
+ * --ink-rgb) and the kit's buttons, so it's theme-correct with no dark-mode
+ * rules here.
  */
+import Icon from "./Icon.astro";
 ---
 
 <aside id="lit-app-banner" class="litab" data-platform="android" hidden aria-label="Get the LIT Bible app on Google Play">
@@ -29,7 +31,7 @@
       <span>Free. No account, no ads.</span>
     </div>
     <a class="litab__cta" href="https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share" target="_blank" rel="external noopener noreferrer">Get app</a>
-    <button class="litab__x" type="button" aria-label="Dismiss">&times;</button>
+    <button class="litab__x" type="button" aria-label="Dismiss"><Icon name="close" /></button>
   </div>
 </aside>
 
@@ -71,7 +73,7 @@
   .litab__icon {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
+    border-radius: var(--radius-press);
     flex: none;
     box-sizing: border-box;
   }
@@ -102,27 +104,10 @@
   }
   .litab__cta {
     flex: none;
-    background: var(--green-deep);
-    color: #fff;
     text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 16px;
-    border-radius: 999px;
     white-space: nowrap;
-  }
-  .litab__cta:active {
-    opacity: 0.9;
   }
   .litab__x {
     flex: none;
-    background: none;
-    border: 0;
-    color: rgba(var(--ink-rgb), var(--text-3-alpha));
-    font-size: 22px;
-    line-height: 1;
-    padding: 6px 8px;
-    min-width: 40px;
-    cursor: pointer;
   }
 </style>

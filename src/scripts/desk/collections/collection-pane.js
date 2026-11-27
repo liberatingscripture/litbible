@@ -4,7 +4,7 @@
 // decisions 26 to 36): the second home of the list (collection-list.js) and
 // of one collection (collection-view.js), beside the /collections page. It
 // has the Sheets pane's shape (decision 26): it opens on the list, a row opens
-// that collection, and "‹ All collections" goes back. Which collection it
+// that collection, and "All collections" goes back. Which collection it
 // shows is the layout's (`setPaneCollection`, handed in by desk-panes.js as
 // `getCollection` and `setCollection`), so a reload keeps it.
 //
@@ -88,7 +88,7 @@ export function createCollectionPane({ store, ctx, paneId, getCollection, setCol
     ...viewHost({ store, ctx, base: BASE, chapterText, passageText, parse }),
     root: el,
     idSuffix: paneId,
-    backLabel: "‹ All collections",
+    backLabel: "All collections",
     headingTag: "h3",
     headingClass: "desk-sheet__list-title",
     // The list's title and "New collection" share a row, as a Sheets pane's

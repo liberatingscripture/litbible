@@ -39,7 +39,6 @@ const kitCss = readFileSync(join(repo, KIT), "utf8");
  *  by the phase that draws them. Each phase empties its entries. */
 export const LATER = new Map([
   ["src/styles/pages/sheets-page.css", 11], // the Sheets page, its paper and present mode
-  ["src/styles/desk-sheet-view.css", 11], // a shared sheet on a phone
   ["src/styles/print.css", 8], // the printed page
 ]);
 
@@ -193,6 +192,18 @@ function rulesOf({ rel, css }) {
 
 const SOURCES = styleSources().filter(({ rel }) => !isMirrored(rel));
 
+/** A mark drawn on a control, not its look: a dot or a count the reader
+ *  needs (news, something due). Each with its file, its selector as written,
+ *  and why. */
+export const MARKS = [
+  // { file, selector, why }
+  { file: "src/styles/desk.css", selector: ".desk-title__button[data-desk-due]::after", why: "the dot that says a backup is due (E113)" },
+  { file: "src/styles/desk.css", selector: ".desk-title__item[data-desk-due]::after", why: "the dot that says a backup is due (E113)" },
+  { file: "src/styles/desk-tab.css", selector: ".desk-tab:is([data-desk-nudge], [data-desk-due])::after", why: "the dot on the Notebook's tab: a first record kept (E74) or a backup due (E113)" },
+  { file: "src/styles/desk-sync.css", selector: 'html:is([data-desk-sync="stopped"], [data-desk-account="waiting"]) :is(.desk-tab, [data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after', why: "the dot that says the sync has stopped or a request waits on the account" },
+  { file: "src/styles/desk-sync.css", selector: 'html[data-desk-account="news"] .site-header__account-btn::after', why: "the dot that says something is new on the account" },
+];
+
 // ---------- The kit's parts ----------
 
 /** The declarations of each state of a level, read from kit.css. */
@@ -301,6 +312,7 @@ test("no control's look is drawn outside kit.css", () => {
     for (const rule of rulesOf(src)) {
       if (inExemptMedia(rule.context)) continue;
       for (const sel of splitList(rule.selector)) {
+        if (MARKS.some((m) => m.file === src.rel && m.selector === sel.trim())) continue;
         const subject = subjectOf(sel);
         const why = controlReason(subject);
         if (!why) continue;
@@ -312,6 +324,74 @@ test("no control's look is drawn outside kit.css", () => {
     }
   }
   assert.deepEqual(found, [], `${found.length} rules draw a control's look outside kit.css:\n${found.join("\n")}`);
+});
+
+// accent-color colors nothing but a form's controls, so it is the kit's
+// wherever it is set, whatever the selector is named (a class ending in
+// "-input" isn't caught above).
+test("a checkbox's, a radio's, and a range's color is the kit's alone", () => {
+  const found = [];
+  for (const src of SOURCES) {
+    if (src.rel === KIT || LATER.has(src.rel)) continue;
+    for (const rule of rulesOf(src)) {
+      if (inExemptMedia(rule.context)) continue;
+      if (rule.decls.some((d) => d.prop === "accent-color")) found.push(`${src.rel}:${rule.line} ${rule.selector}`);
+    }
+  }
+  assert.deepEqual(found, [], `${found.length} rules set accent-color outside kit.css:\n${found.join("\n")}`);
+});
+
+// KT-07: focus is the one ring, global.css's :focus-visible (2px of
+// --focus-ring, 2px off the control). A rule that draws a ring of its own on
+// focus keeps that width, color, and offset, or draws it 2px inside a row
+// that fills a scrolling list or menu edge to edge, where an outside ring is
+// clipped. The rings drawn in --text on purpose are named, with why.
+const OWN_RINGS = [
+  { file: "src/styles/global.css", selector: ".font-tray__font-input:focus-visible", why: "the Display tray's chosen options are green, so its ring is --text" },
+  { file: "src/styles/global.css", selector: ".font-tray__check-input:focus-visible", why: "the Display tray's chosen options are green, so its ring is --text" },
+  { file: "src/styles/global.css", selector: ".font-tray__seg-input:focus-visible + .font-tray__seg-text", why: "the Display tray's chosen options are green, so its ring is --text" },
+];
+const RING_WIDTH = /^(2px|var\(--focus-width(, ?2px)?\))$/;
+const RING_COLOR = /^var\(--focus-ring(, ?#[0-9a-f]{3,6})?\)$/i;
+const RING_OFFSET = /^(2px|-2px|var\(--focus-offset(, ?2px)?\)|calc\(-1 \* var\(--focus-offset(, ?2px)?\)\))$/;
+
+test("focus is the one ring: 2px of --focus-ring, 2px off the control", () => {
+  const found = [];
+  for (const src of SOURCES) {
+    if (LATER.has(src.rel)) continue;
+    const rules = rulesOf(src);
+    // A ring moved to a pseudo-element that covers the whole row.
+    const moved = new Set(rules.flatMap((r) => splitList(r.selector).map((s) => s.trim()))
+      .filter((s) => /::(after|before)$/.test(s)).map((s) => s.replace(/::(after|before)$/, "")));
+    for (const rule of rules) {
+      if (inExemptMedia(rule.context)) continue;
+      for (const sel of splitList(rule.selector)) {
+        if (!/:focus(-visible)?\b/.test(sel)) continue;
+        if (OWN_RINGS.some((r) => r.file === src.rel && r.selector === sel.trim())) continue;
+        const bad = [];
+        for (const d of rule.decls) {
+          if (d.prop === "outline") {
+            const parts = d.value.split(/\s+(?![^(]*\))/);
+            if (/^(none|0)$/.test(d.value)) {
+              // Only a mouse's focus loses the ring.
+              if (/:focus-visible/.test(sel) && !/:not\(:focus-visible\)/.test(sel) && !moved.has(sel.trim())) bad.push("outline: none on :focus-visible");
+              continue;
+            }
+            const width = parts.find((p) => /^(\d|var\(--focus-width)/.test(p));
+            const color = parts.find((p) => /^(var\(--|#|rgb|transparent|currentcolor|Highlight)/i.test(p) && !/--focus-width/.test(p));
+            if (!width || !RING_WIDTH.test(width)) bad.push(`width ${width}`);
+            // A transparent ring draws nothing but in forced colors, where it
+            // is the ring; the control shows its focus some other way.
+            if (!color || !(RING_COLOR.test(color) || color === "transparent")) bad.push(`color ${color}`);
+          } else if (d.prop === "outline-width" && !RING_WIDTH.test(d.value)) bad.push(`width ${d.value}`);
+          else if (d.prop === "outline-color" && !RING_COLOR.test(d.value)) bad.push(`color ${d.value}`);
+          else if (d.prop === "outline-offset" && !RING_OFFSET.test(d.value)) bad.push(`offset ${d.value}`);
+        }
+        if (bad.length) found.push(`${src.rel}:${rule.line} ${sel.trim()}: ${bad.join(", ")}`);
+      }
+    }
+  }
+  assert.deepEqual(found, [], `${found.length} focus rings are not the one ring:\n${found.join("\n")}`);
 });
 
 test("pointed at and pressed move nothing and cast no shadow", () => {

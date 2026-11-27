@@ -67,7 +67,7 @@ function paneHost(idSuffix, shows = null) {
     ...viewHost({ store, ctx, base: "/", chapterText: async () => null, passageText: async () => "For God so loved the world.", parse: () => null }),
     root,
     idSuffix,
-    backLabel: "‹ All collections",
+    backLabel: "All collections",
     shows,
     calls,
     open(id) {
@@ -135,7 +135,7 @@ test("with no addresses, the list's rows and the way back are buttons that call 
   row.click();
   await until(() => h.root.querySelector(".sheets-page__title")?.textContent === "Lent", 3000, "the collection");
   assert.deepEqual(h.calls, [["open", c.id]]);
-  const back = byText(h.root, "button", "‹ All collections");
+  const back = byText(h.root, "button", "All collections");
   assert.ok(back);
   back.click();
   await until(() => h.root.querySelector(".sheets-page__title")?.textContent === "My collections", 3000, "the list");

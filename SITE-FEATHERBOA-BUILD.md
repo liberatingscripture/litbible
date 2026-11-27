@@ -833,6 +833,86 @@ Entered by the run:
   edit the `CLAUDE.md` files under `src/data/`, which nothing that builds
   the apps' content reads (the manifest takes `chapters/*.json` only).
   Cost: none to the apps. Recommendation: allow it, for docs only.
+- **Q14. Tabs and list rows keep the ink** (KT-06; "Color"). "Color"
+  makes deep green the color of what can be pressed, and the kit draws the
+  words of filled, tinted, plain, and red buttons in it. A tab's and a
+  list row's words are names (a pane's, a menu item's), so the kit keeps
+  them in the ink (a tab at the second strength) and gives green only to
+  "on," the underline. Meanwhile: built so. Other choice: every pressable
+  word in deep green, tabs and rows too. Cost: two declarations in
+  `kit.css`. Recommendation: keep the ink, since a menu of green words
+  reads as a page of links.
+- **Q15. The kit's other names** (KT-04; Phase 2's "Done when").
+  Rewriting every control's markup with the kit's classes now would touch
+  some 300 places that the phases after this one redraw anyway.
+  Meanwhile: today's names take the kit's looks by name, listed level by
+  level in `kit.css` (`scripts/kit-names.mjs` keeps the lists alike), and
+  each surface's phase moves its markup to the kit's classes and takes its
+  names out. A control keeps its size (height, padding, text size) until
+  then, so nothing jumps between phases; the label size and the 36px
+  target arrive with each redraw. Other choice: rewrite the markup now.
+  Cost: about two sessions more now, and the same markup redrawn again by
+  its phase. Recommendation: accept.
+- **Q16. Two controls the record doesn't list** (KT-01, KT-02). The ten
+  have no place for a press inside a line of text (a footnote letter, a
+  key term, a reference, a "More" at a paragraph's end) or for a color dot
+  (Highlight's swatches, a label's color), which "Shapes" names among the
+  round things. Meanwhile: the kit draws both, "inline" (the text's own
+  face and weight in deep green, underlined when pointed at, a tint while
+  its panel is open) and "dot" (a 24px circle with a 3:1 edge and a green
+  ring when chosen). Verse numbers and footnote letters join "inline" with
+  the Read page (Phase 4), which draws them without an underline
+  ("Color"). The Greek's words that open their details (the Greek tab's
+  words and signs, This verse's Greek words) are presses inside a line
+  too: they take no level until Phase 12 redraws the Greek, This verse's
+  keeping its own hover tint, since "inline" would color every Greek word
+  deep green. Other choices: inline presses as plain buttons (a box in the
+  line), and dots as tinted chips. Cost: none now; each is one set of
+  rules in `kit.css`. Recommendation: accept both.
+- **Q17. The footer's brand marks stand alone** (CT-19). Facebook,
+  Threads, Bluesky, and Instagram are four links in the footer, each a
+  brand's mark with no word beside it. "Icons" lets an icon stand alone
+  only if it is one of five, but a brand's mark is its name rather than an
+  icon from the set, and every site draws these links this way. Meanwhile:
+  the marks stay alone, each named for screen readers ("Liberation and
+  Inclusion Translation on Facebook," as today), drawn by the kit's plain
+  level (no box until pointed at) in place of the outlined square they
+  had. Other choice: a word beside each mark ("Facebook"). Cost: four
+  short words in the footer, which Phase 3 redraws anyway.
+  Recommendation: keep the marks alone.
+- **Q18. Four controls wait for Phase 7** (CT-19, KT-02; Phase 2's "Done
+  when"). On the glossary, the sort switch (a green track whose two
+  labels fade to 0.7), the "Where it appears" rows (in capitals, at 0.9),
+  and the back-to-top button (an arrow alone); on About, the contents
+  toggle (an arrow alone, beside the words "On this page"). Phase 7
+  redraws each as the record says: the sort becomes a switch in the
+  "Glossary ▾" list, "Where it appears" moves to the margin, the jump list
+  becomes that menu, and About's contents go on a sheet. Meanwhile: left
+  as they were, and listed in the ledger's notes for Phase 7. Other
+  choice: an interim fix for each now. Cost: an hour, thrown away by
+  Phase 7. Recommendation: wait for Phase 7.
+- **Q19. The LIT pane's way back is tinted at every width** (CT-22,
+  CT-23, E168). On 2026-11-19 BVJ found the way back's arrow alone, drawn
+  quietly, “subtle and easy to miss,” and had it read as a button whenever
+  it shows only its arrow, and as a quiet link while it names its place.
+  The kit draws an icon alone plain (no box until pointed at), and a
+  level can't change with a pane's width. Meanwhile: tinted at every width
+  (a box at rest, its place's name included), and its arrow stays an
+  arrow, not the set's back chevron, since the bar's chevrons step a
+  chapter. Other choice: plain at every width, as every other icon alone.
+  Cost: one line in `kit.css`. Recommendation: tinted, for BVJ's reason.
+- **Q20. Icons the record doesn't name** (CT-17, CT-20, KT-01). The
+  record's sixteen lack some the screens need: forward (one of the five
+  that may stand alone), the ▾ that marks a menu and its twin pointing up,
+  Trash (the folded sidebar's), a check, and the phone's menu. Meanwhile:
+  each is Lucide's, at the set's stroke, in `src/lib/icons.mjs` (forward,
+  down, up, trash, check, menu), so the set stays one set. Study still
+  draws some icons of its own (the Pin, the Notebook panel's fold, the
+  pane's lock, grip, and flag, the Show eye, the way back's arrow, the
+  sort, the refresh, the Sheets editor's text tools): each surface's phase
+  takes Lucide's for them as it redraws the surface (the ledger's notes
+  list them). Other choice: only the sixteen, with words where an icon is
+  missing. Cost: none now. Recommendation: accept.
 
 ## Questions answered before the run
 

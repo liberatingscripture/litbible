@@ -84,87 +84,26 @@
 .field textarea,
 .field select {
   width: 100%;
-  /* The site's field edge (BA144; BVJ, 2026-10-29): the fill is only 1.28:1
-     on cream, so without it the field's only edge was the shadow. */
-  border: 1px solid var(--field-border);
-  border-radius: 10px;
-
-  background: var(--surface-raised);
-  color: var(--text);
-
   padding: 16px 16px;
   font-size: 1.05rem;
 }
 
-/* The app-support form's "Which app?" select. Match the text inputs, but keep
-   a comfortable tap target and the native chevron. */
-.field select {
-  appearance: none;
-  cursor: pointer;
-  /* room for a chevron drawn as a background image */
-  padding-right: 44px;
-  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
-    linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position:
-    calc(100% - 20px) calc(1.4em),
-    calc(100% - 15px) calc(1.4em);
-  background-size:
-    5px 5px,
-    5px 5px;
-  background-repeat: no-repeat;
-}
-
+/* The app-support form's "Which app?" select keeps the native chevron. */
 .field textarea {
   resize: vertical;
   min-height: 160px;
 }
 
-.field input::placeholder,
-.field textarea::placeholder {
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-  opacity: 1;
-}
-
-/* CTA-style button (green base → white on hover + lift) */
+/* The send button is the kit's filled button; the form centers it. */
 .contact-button {
   justify-self: center;
-
-  border: 2px solid var(--green-deep);
-  cursor: pointer;
-
-  background: var(--green-deep);
-  color: #ffffff;
-
-  padding: 14px 34px;
-  border-radius: 12px;
-
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 
-/* The /contact/thanks page reuses the CTA style on a link */
+/* The /contact/thanks page reuses it on a link */
 a.contact-button {
-  display: inline-block;
+  display: inline-flex;
   justify-self: center;
   text-decoration: none;
-}
-
-.contact-button:hover {
-  background: var(--surface-raised);
-  color: var(--green-text);
-  transform: translateY(-2px);
-}
-
-.contact-button:active {
-  transform: translateY(0);
-}
-
-.contact-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
 }
 
 .contact-privacy {
@@ -189,7 +128,7 @@ a.contact-button {
   display: none;
   margin: 0;
   padding: 14px 18px;
-  border-radius: 10px;
+  border-radius: var(--radius-press);
   font-size: 0.95rem;
   line-height: 1.5;
   text-align: center;
@@ -225,12 +164,4 @@ a.contact-button {
   color: #ffb4b4;
 }
 
-/* Focus states */
-.field input:focus,
-.field textarea:focus,
-.field select:focus,
-.contact-button:focus {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 3px;
-}
 

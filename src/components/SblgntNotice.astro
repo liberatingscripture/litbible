@@ -7,6 +7,7 @@
 // disclosure (FIXLIST V5); the wording is SblgntCredits.astro's, shared
 // with /read. print.css keeps it on paper, in small type, disclosure open.
 import SblgntCredits from "./SblgntCredits.astro";
+import Icon from "./Icon.astro";
 ---
 
 <section
@@ -17,7 +18,7 @@ import SblgntCredits from "./SblgntCredits.astro";
   <div class="scripture-disclaimer__inner">
     <SblgntCredits part="line" />
     <details class="scripture-disclaimer__more">
-      <summary>Source text and license</summary>
+      <summary>Source text and license<Icon name="down" /></summary>
       <SblgntCredits part="rest" />
     </details>
   </div>
@@ -53,45 +54,25 @@ import SblgntCredits from "./SblgntCredits.astro";
   }
 
   .scripture-disclaimer__more summary {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    cursor: pointer;
     list-style: none;
-    font-weight: 500;
-    color: var(--green-text);
   }
 
   .scripture-disclaimer__more summary::-webkit-details-marker {
     display: none;
   }
 
-  .scripture-disclaimer__more summary::before {
-    content: "";
-    width: 0.45em;
-    height: 0.45em;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(-45deg);
+  .scripture-disclaimer__more summary :global(.icon) {
+    width: 1em;
+    height: 1em;
+    flex: none;
   }
 
-  .scripture-disclaimer__more[open] summary::before {
-    transform: rotate(45deg);
-  }
-
-  .scripture-disclaimer__more summary:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  .scripture-disclaimer__more[open] summary :global(.icon) {
+    transform: rotate(180deg);
   }
 
   .scripture-disclaimer__more[open] summary {
     margin-bottom: 6px;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .scripture-disclaimer__more summary::before {
-      transition: none;
-    }
-  }
 </style>

@@ -123,7 +123,7 @@
 
 .faq-item {
   border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
   background: rgba(var(--surface-rgb), 0.65);
   backdrop-filter: blur(10px);
   overflow: hidden;
@@ -131,41 +131,24 @@
 
 .faq-q {
   list-style: none;
-  cursor: pointer;
-
-  font-family: var(--font-display);
-  font-size: calc(clamp(1.15rem, 0.55vw + 1.05rem, 1.35rem) * var(--reading-scale, 1));
-  line-height: 1.25;
-
-  padding: 16px 16px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  width: 100%;
+  text-align: left;
 }
 
 .faq-q::-webkit-details-marker {
   display: none;
 }
 
-.faq-q::after {
-  content: "＋";
-  font-size: calc(1.15rem * var(--reading-scale, 1));
-  line-height: 1;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  transform-origin: center;
+.faq-q .icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
 }
 
-.faq-item[open] .faq-q::after {
-  content: "–";
-  transform: translateY(-1px);
-  opacity: 0.8;
-}
-
-.faq-q:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 12px;
+.faq-item[open] .faq-q .icon {
+  transform: rotate(180deg);
 }
 
 .faq-a {
@@ -245,7 +228,7 @@
   backdrop-filter: blur(12px);
 
   border: 1px solid rgba(var(--ink-rgb), 0.10);
-  border-radius: 16px;
+  border-radius: var(--radius-float);
 
   overflow: hidden; /* keeps tray edges clean */
 }
@@ -268,65 +251,19 @@
   color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
-/* Toggle button (mobile only) */
+/* Toggle button (mobile only): the kit draws it (plain); its chevron turns
+   when the tray is open. */
 .about-toc__toggle {
-  width: 44px;
-  height: 44px;
-
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 12px;
-  background: rgba(var(--surface-rgb), 0.65);
-
   display: none; /* shown on mobile */
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
 }
 
-.about-toc__toggle:hover,
-.about-toc__toggle:focus-visible {
-  transform: translateY(-1px);
+.about-toc__toggle .icon {
+  width: 1em;
+  height: 1em;
 }
 
-/* Hamburger icon, morphs into X via .is-open */
-.about-toc__icon {
-  position: relative;
-  width: 20px;
-  height: 14px;
-
-  /* Middle bar (no extra span needed) */
-  background:
-    linear-gradient(rgba(var(--ink-rgb), 0.85), rgba(var(--ink-rgb), 0.85)) center / 100% 2px no-repeat;
-}
-
-.about-toc__icon::before,
-.about-toc__icon::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: rgba(var(--ink-rgb), 0.85);
-}
-
-.about-toc__icon::before { top: 2px; }
-.about-toc__icon::after  { bottom: 2px; }
-
-/* Open state: X */
-.about-toc.is-open .about-toc__icon {
-  background-size: 0 2px; /* hide middle bar */
-}
-
-.about-toc.is-open .about-toc__icon::before {
-  top: 6px;
-  transform: rotate(45deg);
-}
-
-.about-toc.is-open .about-toc__icon::after {
-  bottom: 6px;
-  transform: rotate(-45deg);
+.about-toc__toggle[aria-expanded="true"] .icon {
+  transform: rotate(180deg);
 }
 
 /* Tray + list */
@@ -344,30 +281,14 @@
   gap: 10px;
 }
 
-/* Calm TOC CTA treatment (uses footer-cta styling, but no curtain) */
+/* Calm TOC CTA treatment (uses footer-cta, but no curtain) */
 .about-toc a.footer-cta.about-toc__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: none;
-  padding: 10px 16px;
-  letter-spacing: 0.04em;
   white-space: nowrap;
-
 }
 
 /* Disable curtain in this context */
 .about-toc a.footer-cta.about-toc__cta::before {
   content: none !important;
-}
-
-.about-toc a.footer-cta.about-toc__cta:hover,
-.about-toc a.footer-cta.about-toc__cta:focus-visible {
-  opacity: 0.86;
-  transform: translateY(-1px);
 }
 
 /* ---------------------------------------------------------

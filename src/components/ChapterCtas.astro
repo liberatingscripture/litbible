@@ -4,6 +4,7 @@
 // over drafts, so a note under the buttons names what was stepped over:
 // otherwise Luke 22's "Next" landing on the John introduction reads as a
 // broken link. Button styling stays with each page (.chapter-ctas), as before.
+import Icon from "./Icon.astro";
 import { navFor } from "../lib/chapter-nav-data.mjs";
 
 interface Props {
@@ -25,12 +26,14 @@ const notes = showSkipped
     <nav class="chapter-ctas" aria-label="Chapter navigation">
       {prev && (
         <a class="chapter-cta chapter-cta--prev" href={prev.href} aria-label={`Go to ${prev.label}`}>
+          <Icon name="back" />
           {prev.label}
         </a>
       )}
       {next && (
         <a class="chapter-cta chapter-cta--next" href={next.href} aria-label={`Go to ${next.label}`}>
           {next.label}
+          <Icon name="forward" />
         </a>
       )}
     </nav>
