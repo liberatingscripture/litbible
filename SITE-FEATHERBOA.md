@@ -2163,8 +2163,10 @@ Choosing a word opens its card under the text, in the house's plain rows:
 - **Where a chapter can't take a note, the Greek says why** (BVJ: “no
   explanation why it's missing. If it behaves that way for others, they
   will be just as confused”). Today's tab leaves the button and the
-  selection's menu out on a draft, without a word. "Add note" stays on
-  the card there, unavailable and legible, with its reason ("This chapter
+  selection's menu out on a draft, without a word. BVJ: “the button and
+  selection menu should still be visible but disabled with a message.”
+  "Add note" stays on the card there, unavailable and legible, with its
+  reason ("This chapter
   is still being translated, so it can't take notes yet."), as "The kit"
   asks of every unavailable control, and a selection of the Greek opens
   its menu with that line unavailable and the same reason beside it.
