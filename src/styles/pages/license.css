@@ -80,11 +80,10 @@
   transform: rotate(180deg);
 }
 
+/* The owner's words at the page's reading size, in full ink, following the
+   Display tray's text size and spacing like the rest of the page. */
 .license-faq-body {
   padding: 0 var(--space-5) var(--space-5);
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: var(--color-text-2);
 }
 
 .license-faq-body p { margin: 0 0 var(--space-3); }
@@ -93,7 +92,8 @@
 .license-faq-body li { margin-bottom: var(--space-2); }
 .license-faq-body h2 {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  line-height: var(--leading-subhead);
   font-weight: 500;
   margin: var(--space-5) 0 var(--space-2);
 }
@@ -103,8 +103,8 @@
   margin: var(--space-5) 0;
 }
 .license-faq-body .sblgnt-credits {
-  font-size: 0.875rem;
-  color: var(--color-text-3);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  color: var(--color-text-2);
 }
 .license-faq-body .sblgnt-credits p { margin: 0 0 var(--space-3); }
 .license-faq-body .sblgnt-credits a {
