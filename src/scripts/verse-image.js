@@ -27,35 +27,41 @@ import {
   REF_FONT,
   SANS_FONT,
   LINE_HEIGHT,
-  BAR,
+  fitRef,
   fitText,
+  footLine,
   hangsInMargin,
   imageAddress,
   imageFileName,
-  refBlockHeight,
   textTop,
 } from "../lib/verse-image.mjs";
 import { isAppPlatform } from "./announcement-gate.js";
 
 const EMBLEM_URL = "/images/lit-logo-2026-ring.svg";
 
-let assets = null;
+let emblemReady = null;
 
-/** The three faces and the emblem, loaded once per page. */
-function loadAssets() {
-  if (!assets) {
-    const fonts = [VERSE_FONT(40), REF_FONT(40), SANS_FONT(30)].map((f) =>
-      document.fonts.load(f).catch(() => null)
-    );
+/**
+ * The faces and the emblem. The emblem loads once per page; the faces load
+ * for the text about to be drawn (`sample`), since the site's faces are split
+ * by character range and a canvas fetches none by itself (a transliteration's
+ * ē comes from the Latin Extended file, which loads only for such a letter).
+ * Both Source Sans 3 weights and Fraunces are asked for.
+ */
+async function loadAssets(sample) {
+  if (!emblemReady) {
     const emblem = new Image();
     emblem.src = EMBLEM_URL;
-    const emblemReady = emblem.decode().then(
+    emblemReady = emblem.decode().then(
       () => emblem,
       () => null
     );
-    assets = Promise.all([emblemReady, ...fonts]).then(([img]) => ({ emblem: img }));
   }
-  return assets;
+  const fonts = [VERSE_FONT(40), REF_FONT(40), SANS_FONT(28)].map((f) =>
+    document.fonts.load(f, sample).catch(() => null)
+  );
+  const [emblem] = await Promise.all([emblemReady, ...fonts]);
+  return { emblem };
 }
 
 function measurer(ctx, font) {
@@ -63,6 +69,11 @@ function measurer(ctx, font) {
     ctx.font = font(px);
     return (s) => ctx.measureText(s).width;
   };
+}
+
+/** Every character the image will draw, for the faces' character ranges. */
+function faceSample({ text, ref, url }) {
+  return `${text} ${ref} ${WORDMARK} ${imageAddress(url)}`;
 }
 
 let scratch = null;
@@ -87,20 +98,12 @@ function draw({ text, ref, address }, lookKey, sizeKey, emblem) {
   ctx.fillStyle = look.bg;
   ctx.fillRect(0, 0, spec.W, spec.H);
 
-  // The lockup, as on the share cards: the ringed emblem, then the wordmark.
+  // The verse, centered in its box between the top and the foot line.
   const M = spec.margin;
-  if (emblem) ctx.drawImage(emblem, M, spec.lockupY, spec.emblem, spec.emblem);
-  ctx.font = SANS_FONT(spec.wordmark);
-  ctx.fillStyle = look.mark;
-  ctx.fillText(WORDMARK, M + spec.emblem + 22, spec.lockupY + spec.emblem / 2 + spec.wordmark * 0.36);
-
-  // The verse, then the bar and the reference, centred together between the
-  // lockup and the address.
   const set = fitText(measurer(ctx, VERSE_FONT), text, spec);
   const lineH = set.px * LINE_HEIGHT;
   const top = textTop(spec);
-  const blockH = set.lines.length * lineH + refBlockHeight(spec);
-  const y = top + Math.max(0, (spec.bottom - top - blockH) / 2);
+  const y = top + Math.max(0, (spec.bottom - top - set.lines.length * lineH) / 2);
 
   ctx.font = VERSE_FONT(set.px);
   ctx.fillStyle = look.text;
@@ -112,21 +115,23 @@ function draw({ text, ref, address }, lookKey, sizeKey, emblem) {
     baseline += lineH;
   }
 
-  let ry = y + set.lines.length * lineH + BAR.gap;
-  ctx.fillStyle = look.bar;
-  ctx.fillRect(M + 4, ry, BAR.width, BAR.height);
-  ry += BAR.height + BAR.after + spec.ref * 0.78;
-  ctx.font = REF_FONT(spec.ref);
+  // The foot line: the emblem and the reference at the left; the name over
+  // the address, right-aligned, at the right.
+  const small = footLine(spec).right.px;
+  ctx.font = SANS_FONT(small);
+  const rightW = Math.max(ctx.measureText(WORDMARK).width, ctx.measureText(address).width);
+  const refPx = fitRef(measurer(ctx, REF_FONT), ref, spec, rightW);
+  const foot = footLine(spec, { refPx });
+  if (emblem) ctx.drawImage(emblem, foot.emblem.x, foot.emblem.y, foot.emblem.size, foot.emblem.size);
+  ctx.font = REF_FONT(foot.ref.px);
   ctx.fillStyle = look.text;
-  ctx.fillText(ref, M, ry);
-  const refW = ctx.measureText(ref + " ").width;
-  ctx.fillStyle = look.accent;
-  ctx.fillText("LIT", M + refW, ry);
-
-  // The chapter's address, bottom right, where the share cards put the site's.
-  ctx.font = SANS_FONT(spec.address);
-  ctx.fillStyle = look.accent;
-  ctx.fillText(address, spec.W - M - ctx.measureText(address).width, spec.addressY);
+  ctx.fillText(ref, foot.ref.x, foot.ref.y);
+  ctx.font = SANS_FONT(small);
+  ctx.fillStyle = look.quiet;
+  ctx.textAlign = "right";
+  ctx.fillText(WORDMARK, foot.right.x, foot.right.nameY);
+  ctx.fillText(address, foot.right.x, foot.right.addressY);
+  ctx.textAlign = "left";
 
   return canvas;
 }
@@ -297,7 +302,7 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
     what = content();
     start.textContent = "Preparing…";
     start.setAttribute("aria-busy", "true");
-    await loadAssets();
+    await loadAssets(faceSample(what));
     if (mine !== gen) return;
     fitting = sizesThatFit(what.text);
     if (!fitting.length) return fail("Too long for an image. Try fewer verses.");
@@ -343,7 +348,7 @@ export function imageStep({ content, onStart = () => {}, onDone }) {
   function chooseLook(lookKey) {
     // Draw both sizes now, while the reader decides, so the last tap can hand
     // the phone a finished image (see the header).
-    making = loadAssets().then(async ({ emblem }) => {
+    making = loadAssets(faceSample(what)).then(async ({ emblem }) => {
       for (const size of fitting) {
         made[size] = await toBlob(
           draw({ ...what, address: imageAddress(what.url) }, lookKey, size, emblem)

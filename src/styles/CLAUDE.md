@@ -23,8 +23,8 @@
   Latin only, save Source Sans 3's Greek, from rules written out with their
   ranges rather than the packages' CSS (see "Greek and Hebrew letters").
   **Inter, Crimson Text, and the static Fraunces** stay declared in
-  `legacy-faces.css` for what moves later: printing, the handouts, and the
-  verse image (Phase 8), and a sheet's stored faces, paper, slides, and files
+  `legacy-faces.css` for what moves later: printing and the handouts
+  (Phase 8), and a sheet's stored faces, paper, slides, and files
   (Phase 11), each listed in the fonts test's `LATER` map, which each phase
   empties; and /apps, whose mirrored files name Inter and Crimson, pinned at
   their old values in `pages/apps-legacy.css`. Delete an import there when

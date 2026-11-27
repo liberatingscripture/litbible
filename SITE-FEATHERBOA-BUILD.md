@@ -923,6 +923,15 @@ Entered by the run:
   Other choice: leave About's links on /read's old anchors, which forward
   to /license (the words still name a page that no longer holds it).
   Cost: two words. Recommendation: “on the License page” in both.
+- **Q22. The verse image's Paper and Ink take Featherboa's two colors**
+  (OS-20, "Color"). "The rest stays: Ink and Paper" could keep today's
+  colors, the share cards' bright cream `#F2F0E9`; "Color" gives Paper
+  `#FAFAF8` the page and Ink `#1D231C` all text, with grays as ink at 78%.
+  Meanwhile: Paper is `#FAFAF8` with ink text, Ink is `#1D231C` with paper
+  text, and the name and address are the text at 78%. The link-preview
+  cards (`build-og-images.mjs`), which no decision names, keep the cream.
+  Other choice: today's `#F2F0E9`. Cost: two values. Recommendation: the
+  record's two colors, so an image matches the page it came from.
 
 ## Questions answered before the run
 

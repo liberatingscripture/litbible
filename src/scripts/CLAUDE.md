@@ -314,16 +314,30 @@ page drawn by the same code:
    "Share image…", then Ink or Paper, then Square or Story, then the share
    sheet or the download. Each question is one row the height of a button,
    so the panel never moves while it changes.
-2. **Two looks**: Ink, the share cards' own palette, and Paper, its light
-   sibling. **Both sizes**: 1080 square and 1080×1920 story, whose content
-   stays inside the area Instagram's own controls leave clear.
-3. **The verse in Crimson Text**, the reference in Fraunces, the wordmark and
-   address in Inter. The text is Copy text's (`joinPieces`, footnote letters
-   and bracket markers gone, poetry kept as lines) without the inline verse
-   numbers, since the reference names the verses. Featherboa sets the
-   verse in Source Sans 3 and puts the emblem, the reference (Fraunces),
-   the name, and the address in one small line, the green bar gone
-   (`SITE-FEATHERBOA.md`, "Off the screen"); until it is built, this holds.
+2. **Two looks**: Ink and Paper, Featherboa's two colors (`#1D231C` and
+   `#FAFAF8`), each the other's ground (queue Q22). **Both sizes**: 1080
+   square and 1080×1920 story, whose content stays inside the area
+   Instagram's own controls leave clear.
+3. **The verse in Source Sans 3** (the screen's 400), **the reference in
+   Fraunces** (500, as a heading), and **one small line under the verse**
+   (Featherboa, `SITE-FEATHERBOA.md`, "Off the screen"): the emblem and the
+   reference at the left, "Liberation & Inclusion Translation" over the
+   address (Source Sans 3, 500, in the quiet ink) right-aligned at the right.
+   There is no green bar and no lockup at the top; the emblem is the only
+   green, and Inter is gone from the image. The text is Copy text's
+   (`joinPieces`, footnote letters and bracket markers gone, poetry kept as
+   lines) without the inline verse numbers, since the reference names the
+   verses. The sizes are proportions of the 1080px width, one rule for both
+   (`FOOT` in `verse-image.mjs`): margin 96, emblem 72, reference 40, small
+   line 28, so Story is the same layout, taller (its box sits inside the
+   apps' clear area). The reference steps down a pixel at a time, to 28, when
+   it would run into the name (`fitRef`). **The canvas names the faces as CSS
+   does** (`"Source Sans 3 Variable"`, `"Fraunces Variable"`), and the script
+   loads them with `document.fonts.load(font, sample)` **for the text it is
+   about to draw**, since `faces.css` splits the files by character range and
+   a canvas fetches none itself. A canvas can't set Fraunces's softness and
+   wonk, so its reference is drawn with the font's defaults. Each look's text
+   colors hold 4.5:1 on its background (`test/verse-image.test.js`).
 4. **The chapter's own address** on the image ("litbible.net/john-3"), always
    the site's name whatever host drew it. The owner counts it as the link back
    the license's social-media exception asks for. The share sheet also gets
@@ -331,8 +345,9 @@ page drawn by the same code:
 5. **Length is measured, not counted.** The text is set at the largest size
    that fits, lines balanced, down to a floor that stays readable where the
    image is seen (40px on a square, about 13px in a phone's feed; 44px on a
-   story), and a size whose floor can't hold it isn't offered. About 100
-   words of prose fit a square and 135 a story; poetry fits less. When
+   story), and a size whose floor can't hold it isn't offered. The box is
+   the whole space above the foot line, so more fits than the 100 and 135
+   words of prose measured in the first design; poetry fits less. When
    neither fits, the button says so instead of offering colors.
 
 **Safari only opens the share sheet from a fresh tap**, the same rule that

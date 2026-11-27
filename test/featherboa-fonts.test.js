@@ -35,7 +35,6 @@ const FACE_FILES = new Set([
 // Each phase deletes its lines here.
 const LATER = new Map([
   ["src/styles/print.css", 8],
-  ["src/lib/verse-image.mjs", 8],
   ["src/scripts/desk/print-notes.js", 8],
   ["src/scripts/desk/print-link.js", 8],
   ["src/styles/desk-sheet-view.css", 11],
