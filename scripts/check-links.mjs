@@ -3,8 +3,12 @@
 // that any #fragment resolves to a real element id on the target page. No
 // network requests — this only reads dist/, so it's fast and CI-safe.
 //
+// It first fails a dist/ that publishes one of the repo's Claude docs (a
+// CLAUDE.md, a page made from one, or a sitemap entry for one), which the
+// build should have taken out (src/lib/claude-docs-guard.mjs).
+//
 // Run AFTER `npm run build` (it needs dist/). Wired into CI as
-// `npm run check:links`. Exits 1 with a grouped report when links are broken.
+// `npm run check:links`. Exits 1 with a report on either failure.
 //
 // Resolution mirrors Astro's directory build format:
 //   /            -> dist/index.html
@@ -16,6 +20,10 @@
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import {
+  findClaudeDocFiles,
+  findClaudeDocSitemapUrls,
+} from "../src/lib/claude-docs-guard.mjs";
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, "dist");
@@ -163,6 +171,19 @@ async function main() {
     process.exit(1);
   }
 
+  const published = [
+    ...(await findClaudeDocFiles(DIST)),
+    ...(await findClaudeDocSitemapUrls(DIST)),
+  ];
+  if (published.length) {
+    console.error(
+      "\ncheck-links: the built site publishes the repo's Claude docs, " +
+        "which astro.config.mjs should leave out:\n",
+    );
+    for (const entry of published) console.error(`    ✗ ${entry}`);
+    process.exit(1);
+  }
+
   const htmlFiles = await walkHtml(DIST);
 
   // Cache: resolved dist file -> Set of ids (lazy). The linking pages we scan
@@ -247,7 +268,7 @@ async function main() {
   }
 
   console.log(
-    `check-links: OK — scanned ${htmlFiles.length} pages, checked ${linksChecked} internal links, no broken targets or fragments.`,
+    `check-links: OK — scanned ${htmlFiles.length} pages, checked ${linksChecked} internal links, no broken targets or fragments, and no Claude doc published.`,
   );
 }
 

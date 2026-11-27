@@ -178,13 +178,16 @@ breaks, the one-page protocol is `workers/notebook-service/RUNBOOK.md`.**
   leans on two files the **site** serves, `apple-app-site-association` and
   `assetlinks.json` in `public/.well-known/`: if either stops being served
   as it is, the apps lose their passkeys for the site along with their
-  links. **Sign in with Apple and with Google are built and off.** Turning
-  them on will add the variables `GOOGLE_CLIENT_IDS`, `APPLE_CLIENT_IDS`,
-  `APPLE_TEAM_ID`, and `APPLE_KEY_ID`, and one Worker secret,
-  `APPLE_PRIVATE_KEY` (in the secrets table below as not yet set). All of
-  those come from BDR's Apple developer account and Google Cloud project,
-  which are two more dashboards this service will then depend on: record
-  them here when they are in use.
+  links. **Sign in with Apple is on in the preview (2026-11-27), for the
+  iOS app to test; Sign in with Google is built and off.** Apple's are the
+  variables `APPLE_CLIENT_IDS`, `APPLE_TEAM_ID`, and `APPLE_KEY_ID` in
+  `wrangler.jsonc` and one Worker secret, `APPLE_PRIVATE_KEY` (the secrets
+  table below). They come from **BDR's Apple developer account**, a
+  dashboard the preview now depends on: its Certificates, Identifiers &
+  Profiles page holds the app's identifier with Sign in with Apple and the
+  key, and only there can the key be revoked or a new one made. Google's,
+  `GOOGLE_CLIENT_IDS`, will come from BDR's Google Cloud project, the next
+  dashboard to record here when it is in use.
 - **Turnstile before a new account is on in the preview** (built in step
   4h, 2026-11-24; configured 2026-11-25). It is a third Turnstile widget,
   the notebook service's own, apart from the two forms': Managed, for the
@@ -401,7 +404,7 @@ deploy workflow on; the rest are not set yet:
 | `CLOUDFLARE_ACCOUNT_ID` | the same environment | The account's ID. Not a secret in itself; kept beside the token. |
 | `NOTEBOOK_PREVIEW_SECRET` | the same environment, optional | The same value as `PREVIEW_SECRET`, so that a deploy can run its own check against the preview. Change the two together. |
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | GitHub environments `notebook-production` (the deploy, BVJ as required reviewer) and `notebook-production-rollback` (the rollback, no reviewer; BVJ, 2026-11-26), **neither of which exists yet** | Production's own copy of the two above, for the workflow's production jobs. Made when BVJ decides to deploy production (the service's README, "Production," step 4): limit both environments to `main`, and add BVJ as a required reviewer of the deploy's alone. The token may be a second one with the same four permissions, or the preview's. Same kill switch. |
-| `APPLE_PRIVATE_KEY` | Worker secret, **not yet set** (2026-11-24) | The Sign in with Apple key from BDR's Apple developer account: the whole text of its `.p8` file. Sign in with Apple stays off until it and its three variables are set (the service's README, "Apple and Google"). When it is: BVJ types it at Wrangler's own prompt, `npx wrangler secret put APPLE_PRIVATE_KEY --env preview`. The service uses it to sign the short-lived token Apple asks for when it trades a sign-in's code or revokes a refresh token, and for nothing else. If it leaks: revoke the key in the Apple developer account (Certificates, Identifiers & Profiles, Keys), make a new one, and set the new key and its `APPLE_KEY_ID`. Apple lets a key be downloaded once, so a lost file means a new key. |
+| `APPLE_PRIVATE_KEY` | Worker secret of the notebook service's preview, **set 2026-11-27**, and required there; not set in production | The Sign in with Apple key from BDR's Apple developer account: the whole text of its `.p8` file. Sign in with Apple is on where it and its three variables are set (the service's README, "Apple and Google"). BVJ set it from the file, `Get-Content -Raw "<path>" \| npx wrangler secret put APPLE_PRIVATE_KEY --env preview`. **The preview's key is temporary** (BVJ, 2026-11-27): it reached a conversation with an assistant, so BDR makes a new one before production, and the preview takes it too. The service uses it to sign the short-lived token Apple asks for when it trades a sign-in's code or revokes a refresh token, and for nothing else. If it leaks: revoke the key in the Apple developer account (Certificates, Identifiers & Profiles, Keys), make a new one, and set the new key and its `APPLE_KEY_ID`. Apple lets a key be downloaded once, so a lost file means a new key. |
 | `TURNSTILE_SECRET` | Worker secret of the notebook service's preview, **set 2026-11-25**, and required there; not set in production | The secret key of the notebook service's own Turnstile widget (not the /contact form's secret of the same name, which belongs to the forms' Worker). With its public partner, the variable `TURNSTILE_SITE_KEY`, it turns on the check before a new account (the service's README, "Turnstile before a new account"). BVJ typed it at Wrangler's own prompt, `npx wrangler secret put TURNSTILE_SECRET --env preview`; production takes the same when it is deployed. If it leaks: rotate the secret in the widget's settings in the Turnstile dashboard and set the new one. |
 
 The workflow is switched by two repository **variables** (not secrets):

@@ -4,6 +4,15 @@
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
 
+## A Markdown file saved here is published
+
+Astro makes a public page of every `.md` file in this folder and the ones
+under it (it skips only a name that starts with `_` or `.`), so don't save a
+note or a README here. A `CLAUDE.md` is the exception: Claude Code loads it
+only by that name, so it can't be renamed out of Astro's way, and the build
+takes its page out of `dist/` and the sitemap instead (`scripts/CLAUDE.md`,
+"Build Pipeline," step 10). The dev server still shows it.
+
 ## The privacy page and the Terms of Use (`privacy.astro`, `terms.astro`)
 
 They are the LIT Bible's policy for the website, both apps, and the

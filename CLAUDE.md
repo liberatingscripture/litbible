@@ -147,7 +147,8 @@ npm run preview           # Build + astro preview locally
 npm run check             # Type-check .astro/.ts files (astro check)
 npm run validate:chapters # Validate all chapter JSON (structure + references)
 npm run fix:chapters      # Re-serialize chapter JSON to normalize formatting
-npm run check:links       # Verify every internal href/#fragment in dist/ resolves
+npm run check:links       # Verify every internal href/#fragment in dist/ resolves,
+                          #   and that no CLAUDE.md shipped
 npm test                  # The node:test suite. Two roots: test/**/*.js and
                           #   scripts/reconcile/test/**/*.mjs; a new test root is
                           #   invisible to CI until its glob is added to the script

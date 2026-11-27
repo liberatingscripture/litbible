@@ -16,8 +16,8 @@ This is steps 4c, 4e, and 4f of the plan in `STUDY-DESK.md` ("Order of work,"
 4). **What it is today: the whole interface, under test, and deployed as a
 preview at `https://notebook-preview.litbible.net` (since 2026-11-23, test
 data only).** A passkey signs in (step 4e, 2026-11-24). Sign in with Apple
-and with Google are built and off, and have never met either provider
-("Apple and Google" below). Deleting an account, the requests that wait
+is on in the preview since 2026-11-27, for the iOS app to test, and Sign in
+with Google is built and off ("Apple and Google" below). Deleting an account, the requests that wait
 seven days, the hourly run, and the limits are built (step 4f, 2026-11-24;
 "The account work" below). **Production is prepared and not deployed**
 ("Production" below): no reader's notebook is on any service yet. The
@@ -87,17 +87,17 @@ what each must and must not have.
 | `PASSKEY_ORIGINS` | variable | Where a passkey's answer may come from, comma separated: the website's origin, and each Android signing certificate as `android:apk-key-hash:…` ("Passkeys" below) |
 | `PASSKEY_LOCAL_ORIGINS` | variable | The preview only: the website's dev server (`http://localhost:4321`), with the relying party `localhost`. Read only where `ENVIRONMENT` is `preview`; production never sets it |
 | `GOOGLE_CLIENT_IDS` | variable, **not set** | The OAuth client ids a Google identity token may be issued to, comma separated. Sign in with Google is off until it is set |
-| `APPLE_CLIENT_IDS` | variable, **not set** | The client ids an Apple identity token may be issued to (a bundle id, a Services ID), comma separated |
-| `APPLE_TEAM_ID`, `APPLE_KEY_ID` | variables, **not set** | The Apple developer team, and the id of its Sign in with Apple key |
-| `APPLE_PRIVATE_KEY` | Wrangler secret, **not set** | That key, the text of the `.p8` file. Sign in with Apple is off until all four of Apple's are set |
+| `APPLE_CLIENT_IDS` | variable, **set in the preview** (2026-11-27), not in production | The client ids an Apple identity token may be issued to (a bundle id, a Services ID), comma separated. The preview's is the iOS app's bundle id alone; a Services ID joins it when the website offers Apple |
+| `APPLE_TEAM_ID`, `APPLE_KEY_ID` | variables, **set in the preview** (2026-11-27), not in production | The Apple developer team, and the id of its Sign in with Apple key (the ten characters in the `.p8` file's name) |
+| `APPLE_PRIVATE_KEY` | Wrangler secret, **set in the preview** (2026-11-27) and required there, not in production | That key, the text of the `.p8` file. Sign in with Apple is off until all four of Apple's are set. **The preview's key is to be replaced before production** ("Apple and Google" below) |
 | `TURNSTILE_SITE_KEY` | variable, **set in the preview** (2026-11-25), not in production | The site key of the notebook service's Turnstile widget. Public by design: `GET /sign-in` hands it to the website, which shows the widget with it ("Turnstile before a new account" below) |
 | `TURNSTILE_SECRET` | Wrangler secret, **set in the preview** (2026-11-25) and required there, not in production | That widget's secret key. The check is off until both this and the site key are set |
 
 No value of a secret is written in this repository, in a pull request, or in a
 conversation with an assistant. `DISASTER-RECOVERY.md` records names only.
-**No identifier of Apple's or Google's is written here either**: they come
-from BDR's Apple developer account and Google Cloud project, and none was
-guessed.
+**Apple's and Google's identifiers are written only in `wrangler.jsonc`**, as
+they arrive from BDR's Apple developer account and Google Cloud project, and
+none is guessed.
 
 ## Run it locally
 
@@ -352,7 +352,7 @@ when the preview is wiped: every test account and session goes with it.
 
 A passkey signs in on the preview ("Passkeys" below). The preview's own way
 in stays beside it, unchanged by step 4e, because a client under test needs
-accounts without a ceremony and Apple and Google are off: the preview hands a
+accounts without a ceremony (and Apple is on for the iOS app alone): the preview hands a
 session for a named test account to whoever holds the preview's secret
 (`src/preview.js`; `STUDY-DESK-ENCRYPTION.md`, "The preview's way in").
 
@@ -430,24 +430,41 @@ in both apps. The requests are in `STUDY-DESK-ENCRYPTION.md`, "Signing in" and
 
 ## Apple and Google
 
-**Both are built, off, and have never met their provider.** Each is routed
-only when its configuration is present, and answers "not found" until then,
-exactly as the preview's way in does where it is off. The identifiers come
-from BDR's Apple developer account and Google Cloud project
+**Apple is on in the preview (2026-11-27), for the iOS app to test; Google is
+built and off. Neither has yet met its provider.** Each is routed only when
+its configuration is present, and answers "not found" until then, exactly as
+the preview's way in does where it is off. The identifiers come from BDR's
+Apple developer account and Google Cloud project
 (`STUDY-DESK-FOR-THE-APPS.md`, "Waiting to hear from the apps").
+
+**Apple in the preview**: the client id is the iOS app's bundle id alone, so
+an identity token from the app signs in and one from a web flow is refused
+(`audience`) until a Services ID joins it. The website offers no Apple button
+until its own `PROVIDER_CLIENTS` names that Services ID
+(`src/scripts/desk/account/CLAUDE.md`, rule 19). **The preview's key is
+temporary** (BVJ, 2026-11-27): its text reached a conversation with an
+assistant when the file was attached by mistake, so BDR makes a new key before
+production and the preview takes it too (`RUNBOOK.md`, (5), is the swap).
+Apple's server-to-server notifications are still not built (the spec's "Still
+open," 73).
 
 **To turn one on** (BVJ's to do, since it changes the deployed service):
 
 1. Add the variables to `env.preview.vars` in `wrangler.jsonc`:
    `GOOGLE_CLIENT_IDS` for Google; `APPLE_CLIENT_IDS`, `APPLE_TEAM_ID`, and
    `APPLE_KEY_ID` for Apple. They are identifiers, not secrets, and go
-   through a pull request like any change.
-2. For Apple, BVJ sets the key once, typing it at Wrangler's own prompt:
-   `npx wrangler secret put APPLE_PRIVATE_KEY --env preview`, then pastes the
-   whole text of the `.p8` file, `-----BEGIN PRIVATE KEY-----` line and all.
-   Add `APPLE_PRIVATE_KEY` to `secrets.required` in `wrangler.jsonc` in the
-   same pull request, so a deploy without it fails loudly, and record its
-   name in `DISASTER-RECOVERY.md`.
+   through a pull request like any change. Apple names a key's file
+   `AuthKey_<key id>.p8`.
+2. For Apple, BVJ sets the key **before the merge**, from the `.p8` file
+   itself, in this directory:
+   `Get-Content -Raw "<path to the .p8>" | npx wrangler secret put APPLE_PRIVATE_KEY --env preview`
+   (PowerShell; `npx wrangler secret put APPLE_PRIVATE_KEY --env preview < <path>`
+   in a POSIX shell). Wrangler reads a value piped in whole; pasting at its
+   prompt risks keeping only the first line, since the key runs to several.
+   Never attach the file to a conversation with an assistant. Add
+   `APPLE_PRIVATE_KEY` to `secrets.required` in `wrangler.jsonc` in the same
+   pull request, so a deploy without it fails loudly, and record its name in
+   `DISASTER-RECOVERY.md`.
 3. Merge. The workflow deploys, and `GET /sign-in` then lists the provider.
 
 **What to check the day the ids arrive**, since none of this has run against
@@ -913,7 +930,9 @@ everything else that must be true before readers can make an account.
 
 **What it would run, for a reader**: everything the preview runs, without
 the preview's way in. A passkey signs in. Apple and Google stay off until
-BDR's identifiers are configured, exactly as on the preview.
+their identifiers are configured here. Apple's are the preview's, with the
+replacement key's id and its own `APPLE_PRIVATE_KEY` secret, required as on
+the preview.
 
 **BVJ's steps, in order, when the day comes.** Each creates or changes
 something on Cloudflare or GitHub.
@@ -1001,8 +1020,10 @@ never undoes one. `migrations/0001` to `0003` are what the preview runs;
 Nothing below changes a request that exists; each adds beside it.
 
 **Step 4e, sign-in, is built** (2026-11-24). What it left:
-- **Apple and Google are off** until BDR's identifiers are configured
-  ("Apple and Google" above), and the first real sign-in with each is owed.
+- **Apple is on in the preview for the iOS app (2026-11-27), and Google is
+  off** until BDR's identifiers are configured ("Apple and Google" above).
+  The first real sign-in with each is owed; for Apple, BDR's test from the
+  app is it. The preview's Apple key is to be replaced before production.
 - **No real passkey has met the service** ("Passkeys" above).
 - The preview's way in stays for the apps' sessions and automated tests. It
   stays off in production.
@@ -1017,7 +1038,7 @@ Nothing below changes a request that exists; each adds beside it.
   and production takes the same two when it is deployed; the apps' side
   waits on BDR.
 - **Apple's revoke has never met Apple**, like the rest of Sign in with
-  Apple. When the identifiers arrive, delete an Apple test account and see
+  Apple. With Apple on in the preview, delete an Apple test account and see
   the app gone from the Apple Account's "Sign in with Apple" list.
 - **Whether an account should ever be deleted with Apple unreachable** is
   open (the spec's "Still open," 65). As built it never is.

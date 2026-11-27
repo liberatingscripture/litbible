@@ -198,6 +198,11 @@ because nothing carried them there. This file is what carries them now.
       entry below): the bundle id `com.litbible.app` and the team id
       `9KL9F7A3CR`. The Services ID, the key and its id, and the return
       address are still BDR's.
+    - **Apple, answered for the iOS app** (2026-11-27): BDR sent the key,
+      and Sign in with Apple is on in the preview (the entry of that date
+      in the list). Still BDR's: **a new key before production** (this
+      one is temporary), and the Services ID with its two return addresses
+      if the website or the Android app will offer Apple.
 13. **The eighteen choices sign-in had to make** (asked 2026-11-24, the
     first entry below): `STUDY-DESK-ENCRYPTION.md`, “Still open,” 41 to
     58. Every one was the website's Claude's. **BVJ has said yes to
@@ -457,6 +462,36 @@ because nothing carried them there. This file is what carries them now.
     own choices for you.
 
 ## The list
+
+### 2026-11-27, Sign in with Apple is on in the preview, for the iOS app
+
+`notebook-preview.litbible.net` now takes Sign in with Apple from the iOS
+app (ask 12). Its client id is the bundle id `com.litbible.app` alone, its
+team `9KL9F7A3CR`, and its key the one BDR sent BVJ (key id `AFNXV8W456`),
+set as the Worker secret `APPLE_PRIVATE_KEY`. What an app's session will
+see:
+
+- `GET /sign-in` lists Apple, and `POST /sign-in/apple` is routed.
+- A token issued to any other client (a Services ID, so any web flow) is
+  refused `token_refused`, reason `audience`, until a Services ID is added.
+- Nothing else changes: passkeys, the preview's way in, and Turnstile are
+  as they were.
+
+**BDR's test is the first time any of this meets Apple.** What to watch,
+from `workers/notebook-service/README.md`, “Apple and Google”: the token's
+claims (`iss`, `aud`, and a `nonce` that comes back as the exact challenge
+the app gave the SDK, unhashed), the code traded on a first sign-in, and
+Apple's revoke when an Apple way in is removed or the account deleted. A
+refusal names the claim; tell the website here if one surprises you.
+
+**The key is temporary** (BVJ, 2026-11-27): its text reached a
+conversation with an assistant when the file was attached there by
+mistake. **BDR: before production, please make a new Sign in with Apple
+key and send the `.p8` to BVJ privately**; BVJ sets it from the file
+without opening it, and the preview takes the new one too. Still not
+built: Apple's server-to-server notifications (the spec's “Still open,”
+73). Google stays off, and the website offers no Apple button until it
+has a Services ID.
 
 ### 2026-11-26, a spare key by default: BVJ chose BDR's level 2
 

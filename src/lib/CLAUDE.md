@@ -13,7 +13,10 @@
                      #   a data-verse span), draft-chapters.mjs (single source
                      #   for indexed:false draft data, and for draft intros —
                      #   used by astro.config.mjs, ReadMenu, and the /read
-                     #   lede), chapter-nav.mjs + chapter-nav-data.mjs (the one
+                     #   lede), claude-docs-guard.mjs (keeps every CLAUDE.md
+                     #   out of the built site, for astro.config.mjs and
+                     #   check:links: scripts/CLAUDE.md, "Build Pipeline"),
+                     #   chapter-nav.mjs + chapter-nav-data.mjs (the one
                      #   Previous/Next rule, which steps over drafts, and its
                      #   build shell), fetchPodcastEpisodes.ts +
                      #   podcast-feed-core.ts (shell/core split: the shell holds

@@ -103,8 +103,8 @@ the root's CI job. **The root suite's stand-in for this service**
 order of `src/rows.js`, `src/session.js`, and `src/check.js` by hand: a
 change to any of them needs the same change there.
 **Sign-in is built (step 4e, 2026-11-24)**: a passkey with `litbible.net` as
-the relying party works; Sign in with Apple and with Google are built, off,
-and have never met either provider. **The account work is built (step 4f,
+the relying party works; Sign in with Apple is on in the preview for the
+iOS app to test (2026-11-27), and Sign in with Google is built and off. **The account work is built (step 4f,
 2026-11-24)**: deleting an account, the requests that wait seven days, an
 hourly run, and limits by address. Its README is the working reference (run,
 test, deploy, roll back, wipe, "Passkeys," "Apple and Google," "The account
@@ -160,9 +160,15 @@ work," "Production," and what each later step plugs in and where), and
     with no dependency; the header of `src/webauthn.js` says why, and
     `test/webauthn.test.js` holds it to the W3C's published examples.
     Don't add a switch that skips a check to make a test pass.
-  - **No identifier of Apple's or Google's is in the repo, and none is
-    guessed**: both stay off until BDR's are configured. The tests use
-    made-up ones (`test/idp.js`).
+  - **Apple's and Google's identifiers are only in `wrangler.jsonc`, and
+    none is guessed**: each provider stays off until BDR's are configured.
+    Apple's are set in the preview alone (2026-11-27: the iOS app's bundle
+    id, the team, and the key's id), with its key as the Wrangler secret
+    `APPLE_PRIVATE_KEY`, required there. **That key is temporary** (BVJ):
+    BDR makes a new one before production. A `.p8` file is set from the
+    file by path (README, "Apple and Google"), never opened, pasted, or
+    attached in a conversation. The tests use made-up identifiers
+    (`test/idp.js`).
   - **Turnstile before a new account (`src/turnstile.js`) is on only where
     both `TURNSTILE_SITE_KEY` (a variable) and `TURNSTILE_SECRET` (a
     secret) are set**, and checks only a request with an `Origin` (a

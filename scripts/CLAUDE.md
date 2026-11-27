@@ -144,7 +144,18 @@ silence is its failure mode.
    reference the cards via Layout's `ogImage` prop plus
    `twitter:card=summary_large_image`. A website asset, NOT part of the app
    contract: it must never move under `public/api/`.
-10. `astro build` — compiles the site to `dist/`.
+10. `astro build` — compiles the site to `dist/`. **No `CLAUDE.md` ships.**
+    Astro would publish one under `src/pages/` (it makes a page of every
+    `.md` there) or under `public/` (it copies that folder as it is). Claude
+    Code loads an area doc only by that name, beside its code, so none can be
+    renamed or moved, and Astro skips a page file by name only for a leading
+    `_` or `.`. So when the build ends, `claudeDocsGuard()` (in
+    `astro.config.mjs`) deletes every `CLAUDE.md`, and any page made from
+    one, from `dist/`, and the sitemap filter drops its address.
+    `check:links` fails a built site that still has either. The one rule is
+    `src/lib/claude-docs-guard.mjs`, held by
+    `test/claude-docs-guard.test.js`. The dev server is left alone, since
+    nothing it serves is published.
 11. `pagefind --site dist` — indexes glossary + article + book-intro pages
    into `dist/pagefind/` (scripture chapter pages are deliberately not
    Pagefind-indexed; see `src/scripts/CLAUDE.md`, "Search").

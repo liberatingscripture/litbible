@@ -4,6 +4,9 @@
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
 
+- **Everything in this folder is published as it is, except a `CLAUDE.md`**
+  at any depth, which the build deletes from `dist/` (`scripts/CLAUDE.md`,
+  "Build Pipeline," step 10). Put no other internal file here.
 - **Security headers / CSP** live in `public/_headers` (deploy-only — `dev`
   and `astro preview` don't apply them). The CSP is deliberately split (owner
   decision 2026-07-10): an ENFORCED header carries only structural directives
