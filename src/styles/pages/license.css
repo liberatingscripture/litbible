@@ -6,7 +6,7 @@
    ========================================================= */
 
 .license-page {
-  background-color: var(--page-bg);
+  background-color: var(--color-page);
   min-height: 100vh;
   /* Follows the Display tray's text size (src/styles/CLAUDE.md). */
   font-size: calc(1em * var(--reading-scale, 1));
@@ -84,7 +84,7 @@
   padding: 0 var(--space-5) var(--space-5);
   font-size: 0.95rem;
   line-height: 1.65;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
+  color: var(--color-text-2);
 }
 
 .license-faq-body p { margin: 0 0 var(--space-3); }
@@ -104,7 +104,7 @@
 }
 .license-faq-body .sblgnt-credits {
   font-size: 0.875rem;
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
+  color: var(--color-text-3);
 }
 .license-faq-body .sblgnt-credits p { margin: 0 0 var(--space-3); }
 .license-faq-body .sblgnt-credits a {

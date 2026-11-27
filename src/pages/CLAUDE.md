@@ -58,6 +58,22 @@ inline (`public/CLAUDE.md`). Installed apps keep the old link until a later
 release, so **don't remove the forwarding**. The page's script opens a
 disclosure when the address names it. Its words change only with the owner.
 
+## The colophon (`colophon.astro`)
+
+"How this site is made" at `/colophon`, linked from the footer (Featherboa,
+"The dares," ix): the faces and why, what each color means, and the promises
+about contrast, motion, and reading without JavaScript, so it is also the
+site's accessibility statement. **Every fact on it follows the site's code and
+the record** (`SITE-FEATHERBOA.md`: "Type," "Color," "Night," "Motion,"
+"Sizes, space, and the measure," "The kit"), so when one of those changes,
+change the page: `test/colophon.test.js` holds the faces to `faces.css` and
+`tokens.css`, the colors, speeds, and target sizes to the tokens, and the
+licenses to the font packages and `icons.mjs`. Say only what the code does;
+a promise the site doesn't keep yet stays off the page. **Its sentence that
+an AI writes much of the code, and the one after it saying who translates
+the text, are BVJ's to word, keep, or drop** (`SITE-FEATHERBOA-BUILD.md`,
+Q2); they stay together, and "Who makes it" is marked in the file.
+
 ## The podcast page (`found-in-translation-podcast.astro`)
 
 `/podcast` redirects here. The "All Episodes" list is RSS-driven off the

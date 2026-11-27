@@ -1,0 +1,269 @@
+---
+// /colophon: "How this site is made" (Featherboa, "The dares," ix). The faces
+// and why, what each color means, and the site's promises about contrast,
+// motion, and reading without JavaScript, so it is also the site's
+// accessibility statement. Every fact follows the site's code and the record
+// (src/pages/CLAUDE.md, "The colophon"); test/colophon.test.js holds the
+// faces and the colors to their files.
+//
+// "Who makes this" carries queue Q2's sentence about the AI, as Claude drafted
+// it. It is BVJ's to word, keep, or drop (SITE-FEATHERBOA-BUILD.md, Q2); if it
+// stays, the sentence after it says who translates the text, and the two stay
+// together.
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/colophon.css";
+
+const title = "How this site is made | Liberation and Inclusion Translation";
+const description =
+  "The typefaces, colors, and promises behind the LIT Bible website: contrast, motion, and reading without JavaScript. It is also our accessibility statement.";
+
+const colors = [
+  {
+    name: "Paper",
+    hex: "#FAFAF8",
+    swatch: "var(--brand-paper)",
+    job: "The page. Every page is this one color.",
+  },
+  {
+    name: "Ink",
+    hex: "#1D231C",
+    swatch: "var(--brand-ink)",
+    job: "All words. The grays you see are ink at a lighter strength, never a separate gray.",
+  },
+  {
+    name: "LIT Green",
+    hex: "#209D50",
+    swatch: "var(--brand-lit-green)",
+    job: "A mark: the emblem, the chapter number, “you are here.” It is never behind small words, and never the color of words.",
+  },
+  {
+    name: "Deep green",
+    hex: "#0F6B33",
+    swatch: "var(--brand-deep-green)",
+    job: "What you can press: links, verse numbers, footnote letters, and the one main button on a page.",
+  },
+  {
+    name: "Sunshine",
+    hex: "#FFD23F",
+    swatch: "var(--brand-sunshine)",
+    job: "Yours: what you highlight and mark. (Highlights also come in green, blue, and pink.)",
+  },
+  {
+    name: "Red",
+    hex: "#B3261E",
+    swatch: "var(--brand-red)",
+    job: "Deleting, errors, and bookmarks.",
+  },
+];
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical="https://litbible.net/colophon/"
+>
+  <article class="colophon-page">
+    <div class="colophon-page__inner">
+      <header>
+        <h1 class="colophon-title" id="colophon-title">How this site is made</h1>
+        <p class="colophon-lede">
+          This page says how the LIT Bible website is built and what it
+          promises you as a reader. It is also our accessibility statement:
+          what we have done so that people with different eyes, hands, and
+          devices can read the LIT, and how to tell us when we fall short.
+        </p>
+      </header>
+
+      <section aria-labelledby="colophon-who">
+        <h2 id="colophon-who">Who makes it</h2>
+        {/* Queue Q2: BVJ's to word, keep, or drop. Keep these two sentences together. */}
+        <p>
+          People make every decision about this site, and much of its code is
+          written with Claude, an AI model made by Anthropic. The translation
+          is not: Brandon translates every word of the LIT.
+        </p>
+      </section>
+
+      <section aria-labelledby="colophon-type">
+        <h2 id="colophon-type">The type</h2>
+        <p>Three typefaces, each with one job.</p>
+        <ul>
+          <li>
+            <strong>Fraunces</strong> for titles and headings. It is a serif
+            with soft, slightly quirky shapes, and it gives the site its voice.
+          </li>
+          <li>
+            <strong>Source Sans 3</strong> for everything you read at length:
+            scripture, footnotes, introductions, articles, and the glossary.
+            Its Greek letters are drawn for it, so the Greek matches the
+            English around it.
+          </li>
+          <li>
+            <strong>Atkinson Hyperlegible Next</strong> for buttons, menus, and
+            small labels. It was designed so that letters people often confuse
+            look different from one another.
+          </li>
+        </ul>
+        <p>
+          <strong>Why no serif for reading?</strong> The British Dyslexia
+          Association recommends sans-serif faces for readers with dyslexia,
+          and one study of adults with dyslexia found them easier to read. The
+          research is thin and mixed, and it finds no difference in reading
+          speed for readers in general, so the choice costs no one anything. Serifs
+          stay in headings, where they are short and large.
+        </p>
+        <p>
+          <strong>Your choices.</strong> The “Aa” button in the header opens
+          Display, where you can change the text size (four steps), the space
+          between lines, and the typeface. Besides the default, you can choose
+          Atkinson Hyperlegible for all text, or OpenDyslexic, a typeface
+          designed for readers with dyslexia. Your choices are kept on your own
+          device.
+        </p>
+      </section>
+
+      <section aria-labelledby="colophon-color">
+        <h2 id="colophon-color">Color</h2>
+        <p>
+          Every color has one job, so a color tells you something. When green
+          means “you can press this,” you learn it on your first page.
+        </p>
+        <dl class="colophon-colors">
+          {colors.map((c) => (
+            <div class="colophon-color">
+              <dt>
+                <span class="colophon-swatch" style={`background-color: ${c.swatch}`} aria-hidden="true"></span>
+                {c.name} <span class="colophon-hex">{c.hex}</span>
+              </dt>
+              <dd>{c.job}</dd>
+            </div>
+          ))}
+        </dl>
+        <p>
+          <strong>At night</strong> the page is a black with a little green in
+          it (<span class="colophon-hex">#111411</span>), and the words are a
+          soft white (<span class="colophon-hex">#ECEEE8</span>), because pure
+          white on pure black glares. Green gets brighter and highlights get
+          softer. Choose Light, Dark, or your device’s own setting in Display.
+          Without JavaScript, the site follows your device.
+        </p>
+        <p>
+          Color never carries meaning alone: a tab or setting that is on is
+          also heavier, not only a different color.
+        </p>
+      </section>
+
+      <section aria-labelledby="colophon-contrast">
+        <h2 id="colophon-contrast">Contrast, focus, and size</h2>
+        <p>
+          We measure contrast with the standard formula (the one behind WCAG,
+          the Web Content Accessibility Guidelines). Our promises, by day and
+          by night:
+        </p>
+        <ul>
+          <li>
+            <strong>Words stand out from the page behind them by at
+            least 4.5 to 1</strong>, by day and by night, in every state of a
+            control. Scripture is about 15 to 1. A button that is
+            unavailable stays readable: it never fades away.
+          </li>
+          <li>
+            <strong>Edges you need to see, and the focus ring, are at least 3
+            to 1.</strong> LIT Green is used only for marks and large numbers,
+            which is why green words are always the deeper green.
+          </li>
+          <li>
+            <strong>If you use a keyboard, you can always see where you
+            are.</strong> One ring, the same everywhere, draws around the
+            control you are on. It is about 6 to 1 against the page by day and
+            10 to 1 at night.
+          </li>
+          <li>
+            <strong>Controls are big enough to press</strong> on the reading
+            pages: at least 36 pixels tall with a mouse and 44 on a touch
+            screen.
+          </li>
+          <li>
+            <strong>Lines are 45 to 75 characters long</strong>, the range
+            typographers and Bible publishers agree on. A larger text size
+            makes lines shorter, never longer.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="colophon-motion">
+        <h2 id="colophon-motion">Motion</h2>
+        <p>
+          Things move only to show where something came from, and then get out
+          of the way. There are four speeds, all on one curve that starts fast
+          and settles gently:
+        </p>
+        <ul>
+          <li><strong>Instant</strong> for what you do all day: pointing, pressing, choosing a tab, turning a setting on.</li>
+          <li><strong>Quick</strong> (0.12 seconds) for menus, popovers, and tooltips.</li>
+          <li><strong>Settled</strong> (0.18 seconds) for notes, panels, and bars.</li>
+          <li><strong>Large</strong> (0.26 seconds) for sheets and dialogs.</li>
+        </ul>
+        <p>
+          Nothing bounces. If your device is set to reduce motion, the site
+          turns its movement off.
+        </p>
+      </section>
+
+      <section aria-labelledby="colophon-js">
+        <h2 id="colophon-js">Reading without JavaScript</h2>
+        <p>
+          Reading does not depend on JavaScript. Every chapter, introduction,
+          article, and glossary entry is an ordinary page that loads and reads with
+          JavaScript off. The tools that act on what you read, such as the
+          Display settings, the verse menu, and search, need it.
+        </p>
+      </section>
+
+      <section aria-labelledby="colophon-built">
+        <h2 id="colophon-built">What it is built with</h2>
+        <p>
+          The site is made with Astro, which builds every page ahead of time,
+          so what reaches you is plain HTML and CSS. Its JavaScript is written
+          by hand, with no framework. It is hosted on Cloudflare.
+        </p>
+        <p>
+          There are no ads, and nothing is sold. The site counts page views
+          with Cloudflare Web Analytics, which uses no cookies and does not
+          follow you from site to site. The details are in our{" "}
+          <a href="/privacy/">privacy policy</a>.
+        </p>
+      </section>
+
+      <section aria-labelledby="colophon-credits">
+        <h2 id="colophon-credits">Credits and licenses</h2>
+        <ul>
+          <li>
+            Fraunces, Source Sans 3, Atkinson Hyperlegible Next, OpenDyslexic,
+            Noto Sans Hebrew (for Hebrew), and Cardo (for Greek and Hebrew in
+            headings) are each used under the
+            <a href="https://openfontlicense.org" target="_blank" rel="noopener noreferrer">SIL Open Font License</a>.
+          </li>
+          <li>
+            The icons are from
+            <a href="https://lucide.dev" target="_blank" rel="noopener noreferrer">Lucide</a>,
+            used under the ISC license.
+          </li>
+          <li>
+            The translation’s own license, and the credits for the source text,
+            are on the <a href="/license/">license page</a>.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="colophon-report">
+        <h2 id="colophon-report">Tell us when something is wrong</h2>
+        <p>
+          If something here is hard to see, hard to press, or does not work for
+          you, please tell us, and say what device or assistive technology you
+          use. Write through the <a href="/contact/">contact page</a>.
+        </p>
+      </section>
+    </div>
+  </article>
+</Layout>
