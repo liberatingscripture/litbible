@@ -1,4 +1,4 @@
-# Featherboa: the ledger
+built (de0085a8): `test/featherboa-old-addresses.test.js`, and a real load of /read#license-terms on dist lands on /license with the terms open
 
 The build's checklist: one row for each decision in `SITE-FEATHERBOA.md`, in the record's order. That file is the specification and `SITE-FEATHERBOA-BUILD.md` the plan; a row names a decision, its phase (the plan's "Order of work"; "all (N)" for a rule every phase from N on applies), and how it is checked, so read the record's section before building it. A row's state is open, built (the commit), checked, queued (Qn, the plan's queue), or superseded → ID (the later row that holds); n/a (record only) marks history with nothing to build. A Check that starts "Kept:" confirms today's behavior still works, and "Covered by" points to the row whose check covers it. The run keeps this file current.
 
