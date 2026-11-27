@@ -15,7 +15,7 @@ import assert from "node:assert/strict";
 import { IDBFactory } from "fake-indexeddb";
 
 import "./helpers/browser-env.mjs";
-import { bodies, freshBrowser, handTimers, moment, note, until } from "./helpers/sync-browser.mjs";
+import { bodies, count, freshBrowser, handTimers, moment, note, until } from "./helpers/sync-browser.mjs";
 import { createFakeService, join } from "./helpers/fake-notebook-service.mjs";
 import { firstDevice, memoryNotebook, nextDevice, settleAll, testClock } from "./helpers/sync-rig.mjs";
 import { SERVICES, SYNC_DB, SYNC_META, readLink } from "../src/lib/desk-sync-link.mjs";
@@ -110,6 +110,9 @@ async function linkedBrowser({ before = [], uncut = false } = {}) {
     keyring: mine.keyring,
   });
   await inStep(connector);
+  // The account's notice asks what is new once the page is in step (as linkedPage in
+  // desk-sync-status-line.test.js waits for): a test that counts the calls counts only its own.
+  await until(() => count(service, "GET", "/devices") === 1, "the account notice's look at what is new");
   return { ...browser, env, other, mine, store, connector };
 }
 

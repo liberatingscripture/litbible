@@ -10,7 +10,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import "./helpers/browser-env.mjs";
-import { freshBrowser, moment, note, until } from "./helpers/sync-browser.mjs";
+import { count, freshBrowser, moment, note, until } from "./helpers/sync-browser.mjs";
 import { changeKey, join } from "./helpers/fake-notebook-service.mjs";
 import { firstDevice, testClock } from "./helpers/sync-rig.mjs";
 import { SERVICES, SLOT_EVENT } from "../src/lib/desk-sync-link.mjs";
@@ -54,6 +54,10 @@ async function linkedPage({ timed = false } = {}) {
     keyring: mine.keyring,
   });
   await until(() => state(connector) === "upToDate", "the notebook in step");
+  // In step, the account's notice (sync/account-notice.js) asks what is new, `GET /devices`, after
+  // reads of its own storage and a keyring. The request is the page's, not the test's: once it has
+  // reached the service, a test that counts the calls counts only what it did itself.
+  await until(() => count(browser.service, "GET", "/devices") === 1, "the account notice's look at what is new");
   return { ...browser, slots, other, mine, store, connector };
 }
 

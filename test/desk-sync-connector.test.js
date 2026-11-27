@@ -51,6 +51,9 @@ async function linkedBrowser({ before = [], theirs = [] } = {}) {
     keyring: mine.keyring,
   });
   await inStep(connector);
+  // The account's notice asks what is new once the page is in step (as linkedPage in
+  // desk-sync-status-line.test.js waits for): a test that counts the calls counts only its own.
+  await until(() => count(browser.service, "GET", "/devices") === 1, "the account notice's look at what is new");
   return { ...browser, other, mine, store, connector };
 }
 
