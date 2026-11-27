@@ -1,78 +1,63 @@
 ---
 import SearchBar from "./SearchBar.astro";
 import Icon from "./Icon.astro";
+import { PLACES, STUDY_HREF, normalizePath, placeOf } from "../lib/places.mjs";
+import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
 
+// The header (SITE-FEATHERBOA.md, "Four places: the header"): "LIT Bible"
+// always, then the four places, Read, Study, Learn, and About, with the one
+// the page is in underlined in the mark's green, and at the right end the
+// magnifier, Aa, and the account. The places and their rows are
+// src/lib/places.mjs, which the line under the header (PlaceLine.astro) and
+// the footer read too.
+//
+// - Read is a link to /read. Learn, Study, and About are <details> menus, so
+//   they open without JavaScript; header-menus.js adds the keys, one open at
+//   a time, and closing on a press elsewhere.
+// - Study shows only on a computer with the Study preview on (html[data-desk],
+//   stamped before paint, at 1100px and up; header.css), so nothing moves.
+// - The full header holds from 700px (900px in OpenDyslexic). Below that,
+//   today's phone row stays: the brand, the magnifier, Aa, and the menu
+//   button over the overlay below, until Phase 3's second part draws the
+//   phone's two bars and its menu sheet.
+// - News marks (src/lib/news.mjs) are drawn hidden, only for the entries the
+//   list holds; header-menus.js shows the ones a reader hasn't seen.
+//
+// search: "strip" (the magnifier opens a search strip under the header),
+// "page" (the page has its own search box, which the magnifier takes the
+// reader to), or "none" (the Read page, whose search is its own row, and
+// Study's own header). Without JavaScript the magnifier is a link to /search.
+// deskTitle: Study's own header (/desk, BVJ 2026-10-21), at every width: the
+// emblem and "LIT Bible" as the home link, the page's title centered, and
+// then the menu button. desk-page.js turns the title into a menu and moves
+// Aa into it (E15), so Aa is in the markup but leaves the bar once Study is
+// up. No places and no search.
+// deskHref: where Study's "Scripture" goes. A chapter or an introduction
+// passes its toolbar pill's address (?place=), so the two never disagree.
 // scriptureControls: "study" on a chapter page (verse numbers and footnote
 // letters), "read" in Read View (numbers only: it prints no footnote
 // letters, and its numbers setting hides the chapter headings too).
-// headerSearch: a search icon beside "Aa" that opens a search strip under
-// the header, on pages with no search box of their own (see Layout's
-// pageSearch). Without JS the icon is a plain link to /search.
-// The Study Desk link beside "Aa" is on the home page only (deskLink; BVJ,
-// 2026-11-06, E50), and only where header C's groups don't show (a window
-// under 760px, or OpenDyslexic's earlier fold): the Study group replaces it. Scripture pages and /read carry their own pill in the page
-// (ScriptureLayout's toolbar, ReadMenu's row), and no other page has one. The
-// name is written out beside the glyph so the new tool can be found. It is
-// hidden by global.css unless <html data-desk> is set (a computer with the
-// preview on; see Layout.astro), so it shows from first paint without moving
-// the header. desk-gate.js loads the desk.
-// deskTitle: the Study Desk's own header (/desk, BVJ 2026-10-21), at every
-// width: the emblem and "LIT Bible" as the home link, the page's title
-// centered, and then the menu button. desk-page.js turns the title into a
-// menu and moves Aa into it (E15), so Aa is in the markup but leaves the bar
-// once the desk is up.
-// No nav row and no search.
-// deskHref: where the Study group's "Scripture" goes. A chapter or an
-// introduction passes its toolbar pill's address (?place=), so
-// the two never disagree; every other page opens plain /desk/.
-const { class: className = "", scriptureControls, headerSearch = false, deskTitle, deskLink = false, deskHref = "/desk/" } = Astro.props;
+const { class: className = "", scriptureControls, search = "strip", deskTitle, deskHref = STUDY_HREF } = Astro.props;
 
-// The header's groups (S12 step 5, header C; STUDY-DESK.md, BVJ 2026-11-08).
-// A computer with the desk preview on gets them as three menus in place of
-// the five links below; global.css chooses from the pre-paint data-desk
-// stamp, so nothing flashes. The phone menu shows them under headings for
-// everyone (BVJ: "Having just the part change on mobile early is ok"), with
-// Study only when the desk is on. `phone: false` keeps a link off the phone
-// menu, which has room for fewer.
-// The Study group launches with the desk (src/scripts/desk/CLAUDE.md,
-// "Launching").
-type NavLink = { href: string; label: string; short?: string; sep?: boolean; phone?: boolean };
-type NavGroup = { key: string; label: string; desk?: boolean; links: NavLink[] };
-const NAV_GROUPS: NavGroup[] = [
-  {
-    key: "learn",
-    label: "Learn",
-    links: [
-      { href: "/glossary", label: "Glossary" },
-      { href: "/articles", label: "Articles" },
-      { href: "/found-in-translation-podcast", label: "Podcast" },
-    ],
-  },
-  {
-    key: "study",
-    label: "Study",
-    desk: true,
-    links: [
-      { href: deskHref, label: "Scripture" },
-      { href: "/notebook/", label: "Notebook" },
-      { href: "/sheets/", label: "Sheets" },
-      { href: "/collections/", label: "Collections" },
-      { href: "/desk/help/", label: "Help for study tools", sep: true, phone: false },
-    ],
-  },
-  {
-    key: "about",
-    label: "About",
-    links: [
-      { href: "/about", label: "About the LIT" },
-      { href: "/translation-commitments", label: "Translation commitments", short: "Commitments" },
-      { href: "/liberating-scripture-collective", label: "Liberating Scripture Collective", phone: false },
-      { href: "/release-notes", label: "What’s new", phone: false },
-      { href: "/support", label: "Support", sep: true },
-      { href: "/contact", label: "Contact" },
-    ],
-  },
-];
+type Place = (typeof PLACES)[number];
+type Row = Place["rows"][number];
+
+const path = normalizePath(Astro.url.pathname);
+const where = placeOf(path);
+const hrefOf = (row: Row) => (row.key === "scripture" ? deskHref : row.href);
+// aria-current: "page" on the link to this page, "true" on the place it is
+// in and on a row it is inside (an article, under Articles).
+const currentOf = (row: Row) =>
+  where.row === row.key && !row.also && PLACES.find((p) => p.key === where.place)?.rows.includes(row)
+    ? where.current
+    : undefined;
+const placeCurrent = (place: Place) =>
+  where.place !== place.key ? undefined : !place.menu && normalizePath(place.href) === path ? "page" : "true";
+
+// The news the list holds, by place and by row: the marks are drawn hidden
+// for these alone, so an empty list draws nothing.
+const newsPlaces = new Set(NEWS.map((entry) => entry.place));
+const newsRows = new Set(NEWS.map((entry) => `${entry.place}:${entry.row}`));
 
 // Text size steps. The visible letters are the usual abbreviations; the
 // radios carry the words for screen readers.
@@ -86,11 +71,8 @@ const SIZE_OPTIONS = [
 
 <header class={`site-header ${deskTitle ? "site-header--desk" : ""} ${className}`.replace(/\s+/g, " ").trim()}>
   <div class="site-header__inner">
-    <a
-      href="/"
-      class="site-header__brand"
-      aria-label="The Liberation and Inclusion Translation home"
-    >
+    {/* "LIT Bible" always (HD-10); the full name is in every page's tab title (HD-11). */}
+    <a href="/" class="site-header__brand">
       <img
         src="/images/lit-logo-2026-ring.svg"
         alt=""
@@ -100,128 +82,73 @@ const SIZE_OPTIONS = [
         loading="eager"
         decoding="async"
       />
-      {/* The desk's header always takes the short title, so it carries no
-          long one, and no title-fit script (after the row, below). */}
-      <span class="site-header__title">
-        {!deskTitle && (
-          <span class="title-long">
-            <span class="title-prefix">The Liberation &amp; Inclusion</span><span
-              class="title-truncatable">Translation</span
-            >
-          </span>
-        )}
-        <span class="title-alt">LIT Bible</span>
-        <span class="sr-only">The Liberation and Inclusion Translation</span>
-      </span>
+      <span class="site-header__title">LIT Bible<span class="sr-only">, the Liberation and Inclusion Translation, home</span></span>
     </a>
 
     {deskTitle && <h1 class="site-header__page-title">{deskTitle}</h1>}
 
-    {/* Desktop nav */}
     {!deskTitle && (
-    <nav class="site-nav" aria-label="Primary">
-      <ul class="site-nav__list">
-        {/* Today's links, for a computer without the desk preview. */}
-        <li class="site-nav__plain"><a href="/about">About</a></li>
-        <li class="site-nav__plain"><a href="/translation-commitments">Commitments</a></li>
-        <li class="site-nav__plain"><a href="/glossary">Glossary</a></li>
-        <li class="site-nav__plain"><a href="/found-in-translation-podcast">Podcast</a></li>
-        <li class="site-nav__plain"><a href="/articles">Articles</a></li>
-        {/* Header C's menus, for a computer with it (header-menus.js). A
-            menu needs JS, and so does the desk stamp that shows them. */}
-        {NAV_GROUPS.map((group) => (
-          <li class={`site-nav__group${group.desk ? " site-nav__group--desk" : ""}`} data-nav-group>
-            <button
-              type="button"
-              class="site-nav__group-btn"
-              aria-expanded="false"
-              aria-controls={`navMenu-${group.key}`}
-            >{group.label}<Icon name="down" /></button>
-            <ul class="site-nav__menu" id={`navMenu-${group.key}`} hidden>
-              {group.links.map((link, i) => (
-                <>
-                  {link.sep && <li class="site-nav__menu-sep" role="separator"></li>}
-                  <li>
-                    <a href={link.href}>{link.label}</a>
-                  </li>
-                </>
-              ))}
-            </ul>
-          </li>
-        ))}
-
-        <li class="site-nav__cta-item">
-          <a href="/read" class="site-header__cta" aria-label="Read the LIT"><span class="cta-hold">Read</span></a>
-          {/* Desktop: search and Aa sit after READ */}
-          <div class="site-header__nav-tools">
-            {headerSearch && (
-              <a href="/search" class="site-header__search site-header__search--nav" data-search-toggle aria-label="Search">
-                <Icon name="search" />
-              </a>
-            )}
-            <button
-              class="site-header__font-toggle site-header__font-toggle--nav"
-              type="button"
-              aria-expanded="false"
-              aria-controls="fontTray"
-              data-font-toggle
-            >
-              <span aria-hidden="true">Aa</span>
-              <span class="sr-only">Display</span>
-            </button>
-            {deskLink && (
-              <a
-                class="site-header__desk site-header__desk--nav"
-                href="/desk/"
-                data-desk-toggle
-              >
-                <Icon name="notebook" />
-                <span class="site-header__desk-label">Study</span>
-              </a>
-            )}
-            {/* The account's way in (step 4h; BVJ, 2026-11-24): “Sign in,” and once this browser's
-                notebook is linked to an account, a small account button with a menu. In the
-                markup for everyone and shown only with data-desk and data-account (global.css),
-                both stamped before paint, so the row never moves. It is drawn hidden until
-                desk/account/header-entry.js has read which of the two this browser gets. */}
-            <span class="site-header__account site-header__account--nav" data-account-entry>
-              <a class="site-header__account-link" href="/account/" data-account-signin>Sign in</a>
-              <button
-                type="button"
-                class="site-header__account-btn"
-                aria-expanded="false"
-                aria-controls="accountMenu-nav"
-                data-account-button
-                hidden
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4.5 20.5c.6-4 3.6-6 7.5-6s6.9 2 7.5 6" />
-                </svg>
-                <span class="sr-only">Account</span>
-              </button>
-              <div class="site-nav__menu site-header__account-menu" id="accountMenu-nav" data-account-menu hidden>
-                <div data-desk-sync-slot hidden></div>
-                <a href="/account/">Account and devices</a>
-                <a href="/account/#sign-out">Sign out</a>
-              </div>
-            </span>
-          </div>
-        </li>
-      </ul>
-    </nav>
+      <nav class="site-nav" aria-label="Primary">
+        <ul class="site-nav__list">
+          {PLACES.map((place) =>
+            !place.menu ? (
+              <li class={`site-nav__item site-nav__item--${place.key}`}>
+                <a class="kit-tab site-nav__place" href={place.href} aria-current={placeCurrent(place)}>{place.label}</a>
+              </li>
+            ) : (
+              <li class={`site-nav__item site-nav__item--${place.key}`}>
+                <details class="site-nav__group" name="site-nav" data-nav-group={place.key}>
+                  <summary class="kit-tab site-nav__place" aria-current={placeCurrent(place)}>
+                    {place.label}<Icon name="down" />
+                    {newsPlaces.has(place.key) && (
+                      <span class="site-nav__dot" data-news-dot={place.key} hidden><span class="sr-only">, new</span></span>
+                    )}
+                  </summary>
+                  <ul class="site-nav__menu">
+                    {place.rows.map((row) => (
+                      <>
+                        {row.separate && <li class="site-nav__menu-sep" role="separator"></li>}
+                        <li>
+                          <a class="kit-row" href={hrefOf(row)} aria-current={currentOf(row)}>
+                            {row.label}
+                            {newsRows.has(`${place.key}:${row.key}`) && (
+                              <span class="site-nav__new" data-news-row={`${place.key}:${row.key}`} hidden><span class="sr-only">, </span>New</span>
+                            )}
+                          </a>
+                        </li>
+                      </>
+                    ))}
+                    {newsPlaces.has(place.key) && (
+                      <>
+                        <li class="site-nav__menu-sep" role="separator" data-news-more={place.key} hidden></li>
+                        <li data-news-more={place.key} hidden>
+                          <a class="kit-row" href={WHATS_NEW_HREF}>See what’s new →</a>
+                        </li>
+                      </>
+                    )}
+                  </ul>
+                </details>
+              </li>
+            ),
+          )}
+        </ul>
+      </nav>
     )}
 
     <div class="site-header__actions">
       {deskTitle && <div class="site-header__desk-tools" data-desk-header-tools></div>}
-      {headerSearch && (
-        <a href="/search" class="site-header__search site-header__search--actions" data-search-toggle aria-label="Search">
+      {search === "strip" && (
+        <a href="/search" class="kit-icon site-header__search" data-search-toggle aria-label="Search">
+          <Icon name="search" />
+        </a>
+      )}
+      {search === "page" && (
+        <a href="/search" class="kit-icon site-header__search" data-search-here aria-label="Search">
           <Icon name="search" />
         </a>
       )}
       <button
-        class="site-header__font-toggle site-header__font-toggle--actions"
+        class="kit-btn kit-btn--plain site-header__font-toggle"
         type="button"
         aria-expanded="false"
         aria-controls="fontTray"
@@ -230,42 +157,25 @@ const SIZE_OPTIONS = [
         <span aria-hidden="true">Aa</span>
         <span class="sr-only">Display</span>
       </button>
-      {deskLink && (
-        <a
-          class="site-header__desk site-header__desk--actions"
-          href="/desk/"
-          data-desk-toggle
-        >
-          <Icon name="notebook" />
-          <span class="site-header__desk-label">Study</span>
-        </a>
-      )}
-      {/* The account's way in (step 4h; BVJ, 2026-11-24): “Sign in,” and once this browser's
-          notebook is linked to an account, a small account button with a menu. In the
-          markup for everyone and shown only with data-desk and data-account (global.css),
-          both stamped before paint, so the row never moves. It is drawn hidden until
-          desk/account/header-entry.js has read which of the two this browser gets. */}
-      <span class="site-header__account site-header__account--actions" data-account-entry>
-        <a class="site-header__account-link" href="/account/" data-account-signin>Sign in</a>
+      {/* The account (step 4h; BVJ, 2026-11-24; AC-23): “Sign in,” and once this browser's
+          notebook is linked to an account, “Account” with a menu. In the markup for everyone
+          and shown only with data-desk and data-account (header.css), both stamped before
+          paint, so the row never moves. It is drawn hidden until desk/account/header-entry.js
+          has read which of the two this browser gets. */}
+      <span class="site-header__account" data-account-entry>
+        <a class="kit-btn kit-btn--plain site-header__account-link" href="/account/" data-account-signin>Sign in</a>
         <button
           type="button"
-          class="site-header__account-btn"
+          class="kit-btn kit-btn--plain site-header__account-btn"
           aria-expanded="false"
-          aria-controls="accountMenu-actions"
+          aria-controls="accountMenu"
           data-account-button
           hidden
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4.5 20.5c.6-4 3.6-6 7.5-6s6.9 2 7.5 6" />
-          </svg>
-          <span class="sr-only">Account</span>
-        </button>
-        <div class="site-nav__menu site-header__account-menu" id="accountMenu-actions" data-account-menu hidden>
+        >Account<Icon name="down" /></button>
+        <div class="site-nav__menu site-header__account-menu" id="accountMenu" data-account-menu hidden>
           <div data-desk-sync-slot hidden></div>
-          <a href="/account/">Account and devices</a>
-          <a href="/account/#sign-out">Sign out</a>
+          <a class="kit-row" href="/account/">Account and devices</a>
+          <a class="kit-row" href="/account/#sign-out">Sign out</a>
         </div>
       </span>
       <button
@@ -282,173 +192,49 @@ const SIZE_OPTIONS = [
     </div>
   </div>
 
-  {/* Which title the header shows: the long one where it fits, else "LIT
-      Bible". Where the nav shows (a computer), the swap comes as soon as
-      "Translation" can't show in full, never an ellipsis, which once left
-      "The Liberation & Inclusion Transla…" on a 1366px laptop; where it
-      doesn't (a phone), as soon as the long title overflows its box.
-      OpenDyslexic is wider and always takes the short title; Atkinson
-      measures normally.
-
-      KEEP THIS SCRIPT INLINE, right after the row it measures (E138; BVJ,
-      2026-11-17). It was a bundled script that waited for idle time, so
-      every page in a window too narrow for the long title painted the long
-      title and then swapped it, up to two seconds later: in every phone, in
-      a computer's window from about 1100 to 1440px, and in every
-      OpenDyslexic window. Run here, the title is chosen before the first
-      paint. The stylesheets are in (an inline script waits for them),
-      data-font and data-desk are stamped in <head>, and
-      `scrollbar-gutter: stable` gives the row its final width before the
-      page is long enough to scroll.
-
-      WHEN it measures matters as much, because of the fonts. A font is
-      fetched when a layout first needs it, cached or not, and is usable a
-      few milliseconds later. Measured at once, the row is in its fallbacks,
-      which are wider (the long title by 56px, the nav by up to 31px): for
-      some 90px of window widths above each threshold that chose the short
-      title and put the long one back, and the layout the measurement
-      forces makes the browser paint sooner, into just that gap. So it
-      measures nothing at once. It asks for the fonts the row is drawn in
-      and measures when they have all settled, which for cached fonts is
-      before the first paint, and in the same turn when they are in memory
-      (going from page to page). The first animation frame measures if the
-      fonts haven't by then, so a font still on the network leaves the
-      fallback's own answer on screen, never an unmeasured title, and
-      changes it as it changes the letters. Don't measure at parse time;
-      don't wait on fonts.ready, which is settled already while a page
-      parses with nothing loading; and don't skip a face fonts.check() calls
-      loaded: a cached face reads so as soon as a layout has asked for it,
-      before it can be drawn.
-
-      After that it re-measures only when the row's width or the reader's
-      font changes: on a phone, showing and hiding the address bar fires
-      resize all through a scroll, and each measurement relays out the
-      document. data-font is in that guard because the Display tray announces
-      a font change by a synthetic resize, which leaves the width alone. The
-      observer is on the row, whose width follows the window, where the
-      title's own stays put while it shows the short text. One thing changes
-      the title's room without changing the row: the account's entry going
-      from "Sign in" to its narrower button, or back, after the page has
-      painted (rare: desk/account/header-entry.js says when, with
-      lit:header-tools). The Study Desk's header carries no long title and
-      no script. test/header-title.test.js runs this text. */}
-  {!deskTitle && (
-    <script is:inline>
-      (() => {
-        const root = document.documentElement;
-        const row = document.querySelector(".site-header__inner");
-        const title = row && row.querySelector(".site-header__title");
-        const long = title && title.querySelector(".title-long");
-        const word = title && title.querySelector(".title-truncatable");
-        const short = title && title.querySelector(".title-alt");
-        if (!long || !word || !short) return;
-        const nav = row.querySelector(".site-nav");
-        const show = (useShort) => {
-          long.style.display = useShort ? "none" : "flex";
-          short.style.display = useShort ? "inline" : "none";
-        };
-        const measure = () => {
-          if (root.getAttribute("data-font") === "dyslexic") return show(true);
-          show(false);
-          show(
-            nav && getComputedStyle(nav).display !== "none"
-              ? word.scrollWidth > word.clientWidth + 1
-              : title.scrollWidth > title.clientWidth + 2,
-          );
-        };
-        let width = -1;
-        let font = "";
-        const measureIfChanged = () => {
-          const w = row.clientWidth;
-          const f = root.getAttribute("data-font") || "";
-          if (w === width && f === font) return;
-          width = w;
-          font = f;
-          measure();
-        };
-        const again = () => {
-          width = -1;
-          measureIfChanged();
-        };
-        const later = () => requestAnimationFrame(measureIfChanged);
-        later();
-        if (document.fonts) {
-          const faces = new Set();
-          for (const el of row.querySelectorAll(
-            ".site-header__title, .site-nav__list > li > a, .site-nav__list > li > button, .site-header__actions > *",
-          )) {
-            const style = getComputedStyle(el);
-            faces.add(style.fontWeight + " 1em " + style.fontFamily.split(",")[0]);
-          }
-          Promise.all([...faces].map((face) => document.fonts.load(face))).then(again, again);
-        }
-        if (window.ResizeObserver) new ResizeObserver(later).observe(row);
-        window.addEventListener("resize", later, { passive: true });
-        document.addEventListener("lit:header-tools", again);
-      })();
-    </script>
-  )}
-
-  {headerSearch && (
+  {search === "strip" && (
     <div class="site-header__search-strip" id="headerSearch" hidden>
       <div class="site-header__search-inner">
         <SearchBar placeholder="Search the LIT Bible" />
-        <button type="button" class="site-header__search-close" aria-label="Close search">
+        <button type="button" class="kit-icon site-header__search-close" aria-label="Close search">
           <Icon name="close" />
         </button>
       </div>
     </div>
   )}
 
-  {/* No-JS navigation fallback. Under 1100px the real nav collapses to the
-       JS-only overlay, whose toggle does nothing without JS. Render a plain
-       nav row (only shown < 1101px, where .site-nav is hidden) and hide the
-       JS-only toggles. Mirrors SiteFooter's noscript pattern: <style is:inline>
-       with global selectors, since the styled elements are Astro-scoped.
-       Keep this link list in sync with the desktop nav above. */}
+  {/* Without JavaScript: the places and their menus work as they are (links
+       and <details>), but Aa and the menu button do nothing, so they go, and
+       below the full header's width a row of two links stands in: Read, and
+       Menu, which goes to the footer's links, as the phone's bar will
+       ("The phone," "Without JavaScript"). A <style is:inline> with global
+       selectors, as the footer's noscript note is. */}
   <noscript>
     <style is:inline>
-      /* JS-only controls do nothing without JS — hide both toggles at every
-         width. !important beats the scoped display rules on these buttons. */
       .site-header__menu-toggle,
       .site-header__font-toggle { display: none !important; }
-      /* Fallback nav: only under 1101px, where the real .site-nav is hidden.
-         On desktop the real nav works without JS, so keep the fallback out. */
       .site-header__noscript-nav {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 0.15rem 0.4rem;
-        padding: 0.4rem var(--gutter) 0.7rem;
-        border-top: 1px solid var(--border);
+        gap: var(--space-1);
+        padding: var(--space-1) var(--space-3) var(--space-2);
+        border-top: 1px solid var(--color-hairline);
       }
-      .site-header__noscript-nav a {
-        font-family: var(--font-control);
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: var(--text);
-        text-decoration: none;
-        padding: 0.3rem 0.5rem;
-        border-radius: var(--radius-press);
-      }
-      @media (min-width: 1101px) {
+      @media (min-width: 700px) {
         .site-header__noscript-nav { display: none; }
       }
-      /* The desk's header has no nav row at any width. */
+      /* Study's own header has no places at any width. */
       .site-header--desk .site-header__noscript-nav { display: flex; }
     </style>
     <nav class="site-header__noscript-nav" aria-label="Primary">
-      <a href="/about">About</a>
-      <a href="/translation-commitments">Commitments</a>
-      <a href="/glossary">Glossary</a>
-      <a href="/found-in-translation-podcast">Podcast</a>
-      <a href="/articles">Articles</a>
-      <a href="/read">Read</a>
+      <a class="kit-btn kit-btn--plain" href="/read">Read</a>
+      <a class="kit-btn kit-btn--plain" href="#footer-nav">Menu</a>
     </nav>
   </noscript>
 
   {/* Shared tray — position: fixed, placed by JS beside whichever button opened it
-       (the two header buttons, or Read View's toolbar Aa) */}
+       (the header's Aa, or Read View's toolbar Aa) */}
 
   <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
     <div class="font-tray__header">
@@ -582,7 +368,10 @@ const SIZE_OPTIONS = [
     </fieldset>
   </div>
 
-  {/* Mobile overlay menu */}
+  {/* Today's menu overlay, for a window narrower than the full header and for
+      Study's own header, fed by the places (src/lib/places.mjs) until Phase
+      3's second part makes it the phone's menu sheet. Read is its button at
+      the foot; Study's group shows only with the preview (global.css). */}
   <div class="menu-overlay" id="mobileMenu" aria-hidden="true">
     <div
       class="menu-overlay__panel"
@@ -592,24 +381,24 @@ const SIZE_OPTIONS = [
       tabindex="-1"
     >
       <nav class="menu-overlay__nav" aria-label="Primary (mobile)">
-        {/* Below 360px the header has no room for its search icon, so search
+        {/* Below 360px the header has no room for its magnifier, so search
             moves in here (global.css shows it only there). */}
-        {headerSearch && (
+        {search === "strip" && (
           <a href="/search" class="menu-overlay__search" data-search-toggle>Search</a>
         )}
         {/* The groups under headings, with no menu inside the menu. */}
-        {NAV_GROUPS.map((group) => (
+        {PLACES.filter((place) => place.menu).map((place) => (
           <div
-            class={`menu-overlay__group${group.desk ? " menu-overlay__group--desk" : ""}`}
+            class={`menu-overlay__group menu-overlay__group--${place.key}`}
             role="group"
-            aria-labelledby={`menuGroup-${group.key}`}
+            aria-labelledby={`menuGroup-${place.key}`}
           >
-            <p class="menu-overlay__heading" id={`menuGroup-${group.key}`}>{group.label}</p>
-            {group.links.filter((link) => link.phone !== false).map((link) => (
-              <a href={link.href}>{link.short ?? link.label}</a>
+            <p class="menu-overlay__heading" id={`menuGroup-${place.key}`}>{place.label}</p>
+            {place.rows.map((row) => (
+              <a href={hrefOf(row)} aria-current={currentOf(row)}>{row.label}</a>
             ))}
-            {/* A window too narrow for the header's own way in (under 760px) has it here. */}
-            {group.desk && <a href="/account/" class="menu-overlay__account">Account</a>}
+            {/* A window narrower than the full header has the account's way in here. */}
+            {place.study && <a href="/account/" class="menu-overlay__account">Account</a>}
           </div>
         ))}
 
@@ -656,6 +445,7 @@ const SIZE_OPTIONS = [
       const bgRegions = () => [
         ...document.querySelectorAll(".skip-link"),
         document.getElementById("main-content"),
+        document.querySelector(".place-line"),
         document.querySelector(".site-footer"),
         document.querySelector(".footer-license-band"),
       ].filter(Boolean);
@@ -929,7 +719,8 @@ const SIZE_OPTIONS = [
           } else {
             root.setAttribute('data-font', v);
           }
-          // The header title measures itself against the active font
+          // What was measured in the old face (the margin's notes, a floating
+          // window) is measured again
           window.dispatchEvent(new Event('resize'));
           try {
             v === 'default'

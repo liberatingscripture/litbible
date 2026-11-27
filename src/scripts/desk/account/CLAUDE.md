@@ -167,7 +167,7 @@ without the switch. The announcement popover stays off all three
     item), the one-line notes on the two pages, `data-account-opened` on
     `/delete-account/` and its rule in `account.css`, the header's rule
     (`html[data-desk][data-account="open"] .site-header__account` in
-    `global.css`), whether `/account/` stays noindex, and the production
+    `header.css`), whether `/account/` stays noindex, and the production
     service's origin in `SERVICES`. **Step 4j's words go with it**
     (2026-11-25): `/privacy`'s “Accounts are not open yet.” paragraph
     under “Accounts and sync” and its “Until accounts open…” sentence,
@@ -225,49 +225,45 @@ without the switch. The announcement popover stays off all three
     key is offered.
 17. **The header's entry** (BVJ, 2026-11-24): “Sign in” at the end of the
     header's tools, only with the Study Desk on, on a computer, with
-    accounts open; once the browser is linked, a small account button whose
+    accounts open (AC-23); once the browser is linked, “Account ▾,” whose
     menu holds the sync's status (the status line's own slot), “Account and
-    devices,” and “Sign out.” “Study Desk ▾” is unchanged. Under 760px it
-    is “Account” in the phone menu's Study group. Five things to keep:
+    devices,” and “Sign out.” “Study Desk ▾” is unchanged. Below the full
+    header's width (700px) it is “Account” in the menu overlay's Study
+    group. Five things to keep:
     - **It reads only the link** (`peekLink`), so it brings no encryption
       and starts no sync, and `test/desk-sync-gate.test.js` holds its two
       imports. A reader signed in but not yet linked still sees “Sign in.”
-    - **It is in the markup twice** (`SiteHeader.astro`: the nav's tools
-      and the actions), as the search button is, and hidden by one rule in
-      `global.css`. Until its state is known it keeps its room and shows
-      nothing, so the row never moves.
+    - **It is in the markup once**, at the end of the header's tools
+      (`SiteHeader.astro`), and shown by one rule in `header.css` from
+      the full header's width (in Study's own header at every width). Until
+      its state is known it keeps its room and shows nothing, so the row
+      never moves.
     - **It is as wide as what it shows, and the room is right from the
       first paint** (E231; BVJ, 2026-11-25: the button keeping the words'
       width left a gap, and “the rest of the header scoots over to stay
-      next to it”). The button is narrower than “Sign in,” and which of
-      the two a browser gets is read after the page has painted. So
+      next to it”). The button and “Sign in” are not one width, and which
+      of the two a browser gets is read after the page has painted. So
       `header-entry.js` keeps a note of what it showed
       (`localStorage['lit-desk-account-last']`, "in" or absent; the note
       is Claude's choice of means), `Layout.astro`'s pre-paint script
-      stamps it as `data-account-last="in"`, and `global.css` holds the
+      stamps it as `data-account-last="in"`, and `header.css` holds the
       button's room where it says so and the words' otherwise. **The note
       is a hint: what shows always comes from the notebook.** Where the
       two differ (linked, or signed out, in another tab), the tools move
-      once, the note is put right, and `lit:header-tools` on `document`
-      has the title fitted again (`src/components/CLAUDE.md`, “The
-      header's title swap”); `desk-gate.js` sends the same when the
-      entry's script fails to load and the plain link shows. Two of the
-      four files can't import, so `test/desk-account-header.test.js`
-      holds the key, the stamp, and the event to one name each. Never fix
-      a width on the entry. The title-fit script counts the entry's room,
-      which costs the long title some widths: measured 5px apart
-      (2026-11-25, down to 1105px), `/` and a chapter show “LIT Bible” up
-      to 1215px with “Sign in” and up to 1180px with the button
-      (`/about/`: 1260 and 1225px).
+      once and the note is put right; where the entry's script fails to
+      load, `desk-gate.js` shows the plain link. The pre-paint script
+      can't import, so `test/desk-account-header.test.js` holds the key
+      and the stamp to one name each. Never fix a width on the entry.
     - **`start()` can be called again**, and the account page does: when
       it links the browser or stops syncing, and on a visit whose stamp
       wasn't there before paint, so `desk-gate.js` never drew the entry (a
       linked browser with the switch off).
-    - **Both buttons are tiles**, as the search and Aa buttons are
-      (Claude's choice, which BVJ kept, 2026-11-25: green text beside the
-      green “Read” read as a second primary). Site 2.0's `restyle.css`,
-      which drew them, went in Featherboa's Phase 0; Featherboa's kit
-      draws them from Phase 2.
+    - **Both are the kit's plain buttons**, as Aa is: “Sign in,” and
+      “Account” with the ▾ the places' menus have, since an icon alone is
+      only for the five that may stand alone (CT-19; `src/styles/CLAUDE.md`,
+      “The kit”). Its tooltip (`setTip`) repeats the word for now, and
+      `test/desk-sync-gate.test.js` lists `tip.js` among the module's
+      imports.
 18. **One screen at a time, and its heading takes focus** (`screens` in
     `ui.js`), except the page's first, which leaves focus alone: taking it
     on load scrolled `/delete-account/` to its box. A heading that repeats

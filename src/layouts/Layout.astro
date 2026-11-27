@@ -2,8 +2,12 @@
 import "../styles/tokens.css";
 import "../styles/global.css";
 import "../styles/kit.css";
+import "../styles/header.css";
+import "../styles/footer.css";
 import "../styles/print.css";
 import SiteHeader from "../components/SiteHeader.astro";
+import PlaceLine from "../components/PlaceLine.astro";
+import { placeOf } from "../lib/places.mjs";
 import sourceSansLatinUrl from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2";
 import frauncesLatinUrl from "@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2";
 import SiteFooter from "../components/SiteFooter.astro";
@@ -31,13 +35,15 @@ const {
   // prints no footnote letters) on /read/<book>.
   scriptureControls,
   // True on pages that carry their own search box (chapters, intros, /read,
-  // Read View, /search, articles). Every other page gets the header's
-  // search icon instead, so each page has exactly one way in (audit U6).
+  // Read View, /search, articles). The header's magnifier takes the reader
+  // to that box there, and opens its own strip everywhere else, so a page
+  // never shows two (audit U6). The Read page (chapters, intros, Read View)
+  // has no magnifier at all (HD-13).
   pageSearch = false,
-  // The Study Desk's own header (/desk): the page's title, centered, in
-  // place of the nav, and no search (SiteHeader's deskTitle).
+  // Study's own header (/desk): the page's title, centered, in place of the
+  // places, and no search (SiteHeader's deskTitle).
   deskTitle,
-  // Where the header's Study group sends "Study Desk": a chapter or an
+  // Where the header's Study menu sends "Scripture": a chapter or an
   // introduction passes its toolbar pill's ?place= address (ScriptureLayout).
   deskHref,
   // Which reading surface this page is, for the Study Desk ("chapter",
@@ -47,10 +53,10 @@ const {
   deskSurface,
 } = Astro.props;
 
-// The header's Study Desk link is on the home page only (BVJ, 2026-11-06,
-// E50). Scripture pages and /read carry their own pill in the page, where a
-// reader is already looking at a passage; no other page has one.
-const deskLink = Astro.url.pathname === "/";
+// Where this page is among the four places (src/lib/places.mjs): the
+// header underlines its place, and the line under the header names it.
+const where = placeOf(Astro.url.pathname);
+const search = deskTitle || where.readPage ? "none" : pageSearch ? "page" : "strip";
 
 // Auto-generate canonical URL from site config when not explicitly provided.
 // Astro.site is set via `site:` in astro.config.mjs.
@@ -255,7 +261,16 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} deskTitle={deskTitle} deskLink={deskLink} deskHref={deskHref} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} search={search} deskTitle={deskTitle} deskHref={deskHref} />
+    {/* A page puts its one or two main commands at the line's right with
+        slot="place-line" (none does yet). */}
+    {where.line && !deskTitle && (
+      Astro.slots.has("place-line") ? (
+        <PlaceLine where={where}><slot name="place-line" slot="commands" /></PlaceLine>
+      ) : (
+        <PlaceLine where={where} />
+      )
+    )}
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

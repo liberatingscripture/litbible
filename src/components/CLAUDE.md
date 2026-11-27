@@ -4,64 +4,86 @@
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
 
-## The header's title swap
+## The header, the line under it, and the footer
 
-- **The header's title is chosen before first paint; keep its script
-  inline** (E138; BVJ, 2026-11-17). `SiteHeader.astro` shows "The Liberation &
-  Inclusion Translation" where it fits and "LIT Bible" where it doesn't (never
-  an ellipsis on a computer; always the short one in OpenDyslexic).
-  Featherboa's header always says "LIT Bible," and this script retires
-  (`SITE-FEATHERBOA.md`, "Four places: the header"); until it is built,
-  this holds. The choice needs a measurement, made by an `is:inline` script right after
-  `.site-header__inner`, so the first paint already has the right title.
-  A bundled script that waited for idle time made every page with a narrow
-  window (every phone, a computer from about 1100 to 1440px, every
-  OpenDyslexic window) paint the long title and then swap it. **Don't move it
-  back to a bundled or deferred script.** It depends on three things staying true:
-  stylesheets in `<head>`, `data-font` and `data-desk` stamped there, and
-  `scrollbar-gutter: stable` on `<html>` (the row has its final width
-  before the page can scroll).
-  **When it measures matters as much as where it sits: never while the
-  page is parsing.** A font is fetched when a layout first needs it, cached
-  or not, and can be drawn a few milliseconds later; until then the row is
-  in its fallbacks, which are wider (the long title by 56px, the nav by up
-  to 31px). A measurement made at once therefore picks the short title
-  across some 90px of widths above each threshold, and the layout it
-  forces makes Chrome paint sooner, into just that gap (a version that
-  measured at once painted the wrong title for some 50 ms in about one
-  new-tab load in eleven). So the script
-  asks for every font the row is drawn in (`document.fonts.load`) and
-  measures when all have settled, which for cached fonts is before first
-  paint. The first animation frame measures if they haven't by then, so a
-  font still on the network gets the fallback's own answer, and the title
-  changes when the letters do. Don't add a measurement at parse time,
-  don't wait on `fonts.ready` (settled already while a page parses with
-  nothing loading), and don't skip a face `fonts.check()` calls loaded (a
-  cached face reads so as soon as a layout has asked for it, before it can
-  be drawn).
-  **It measures only when the row's width or the font changes, so
-  whatever changes the tools' width after the paint says so**:
-  `lit:header-tools` on `document`, and the script fits the title again at
-  once. One thing sends it today, the account's entry going from “Sign
-  in” to its narrower button or back (E231; rare, since the room is
-  normally right from first paint: `src/scripts/desk/account/CLAUDE.md`,
-  rule 17). A new control that changes width after the paint sends it too.
-  `test/header-title.test.js` holds the script's place and runs its text.
-  Check a change in headless Chrome by which title's text was painted
-  (Element Timing on `.title-prefix` and `.title-alt`), in new tabs and
-  same-tab navigations both, sweeping the widths across each threshold: the
-  Browser pane can't show a first paint, frames run before it that are
-  never shown, a sampler reading in an animation-frame callback runs ahead
-  of the script's own and sees a title that frame never paints, and a
-  handful of fixed widths misses the bands where the fallback and the font
-  disagree. Read View's whole book is the heaviest page to try.
+Featherboa's Phase 3, part one (`SITE-FEATHERBOA.md`, "Four places: the
+header" and "The phone and the footer"). The phone's two bars and its menu
+sheet are part two; until they are built, a window narrower than the full
+header keeps today's row (the brand, the magnifier, Aa, the menu button)
+over the menu overlay (`global.css`), fed by the same places.
+
+- **One list of places, `src/lib/places.mjs`** (pure; `test/places.test.js`):
+  Read, Study, Learn, and About with their rows, and `placeOf(path)`, which
+  says which place a page is in, which row it is, its name, and whether it
+  gets the line under the header. The header, the line, the footer, and the
+  menu overlay all draw from it, so a page's name or a row's address changes
+  there and nowhere else. **A new page needs an answer there**: a row in a
+  place's menu, a page inside a row (`INSIDE`, as an article is inside
+  Articles), or a page in no place (`NO_PLACE`, with its name).
+  `test/places.test.js` fails on a page under `src/pages/` with none. Read
+  is a link to /read, not a menu (HD-02), until Phase 4's book picker; Study's
+  "Help for study tools" sits below a line until Phase 9 moves help.
+- **The header** (`SiteHeader.astro`, `header.css`): "LIT Bible" always
+  (HD-10; a visually hidden tail names the translation in full, and every
+  `<title>` keeps the full name, HD-11). The places are the kit's tabs; the
+  one the page is in carries `aria-current` and the tab's underline in LIT
+  Green (`--color-mark`). Learn, Study, and About are `<details>` sharing one
+  `name`, so they open, and their links work, without JavaScript;
+  `header-menus.js` adds the keys (Arrow Down or Up on a place opens its
+  menu at the first or last row, then the arrows, Home, End, and Escape back
+  to the place), one menu open at a time, and closing on a press elsewhere
+  or Tab out. **Study shows only with `html[data-desk]` from 1100px**
+  (ST-16), in the footer too, so a tablet or a narrow window has Read,
+  Learn, and About. The full header holds from 700px, from 900px in
+  OpenDyslexic (an estimate from the places' widths, not yet measured). Its
+  right end is the magnifier, Aa, and the account's entry
+  (`src/scripts/desk/account/CLAUDE.md`, rule 17).
+- **The magnifier has three modes**, which `Layout.astro` picks (HD-13):
+  `"strip"` opens the search strip under the header (`header-search.js`);
+  `"page"`, on a page passing `pageSearch`, takes the reader to the page's
+  own box, since `SearchBar` renders once a page; `"none"` on the Read page
+  (a chapter, an introduction, Read View), whose search is its toolbar's, and
+  in Study's own header. Without JavaScript it is a link to /search.
+- **Without JavaScript**, Aa and the menu button go (a `<noscript>` style),
+  and below the full header's width a row of two links stands in: Read, and
+  Menu, which goes to the footer's links (`#footer-nav`).
+- **The line under the header** (`PlaceLine.astro`; HD-14, HD-22) is on
+  every page but Home, the Read page, and Study's own pages. It names the
+  place and the page ("Learn / Glossary"), or the page alone for a page in
+  no place, the place a link up when the page is inside a row ("Learn /
+  Articles" over an article). Its right end takes one or two of the page's
+  main commands through Layout's `place-line` slot (none does yet); nothing
+  else goes at its left. A page keeps its own heading. It never prints, and
+  the menu overlay makes it inert while open.
+- **News marks** (`src/lib/news.mjs`; NX-26, NX-27, NX-29, HD-31): a list,
+  empty until there is news, of `{ id, place, row, until }`. SiteHeader draws
+  a dot on the place, "New" beside the row, and "See what’s new →" at the
+  menu's foot, hidden, for each entry; `header-menus.js` shows what this
+  browser hasn't seen, and opening the menu sees it (the dot goes at once,
+  the rest when the menu closes), kept in `localStorage['lit-news-seen']`.
+  **An empty list draws nothing and reads no storage.** Before the first
+  entry the What's New page must exist and `/privacy` must name the key:
+  `test/news.test.js` fails otherwise, and `test/desk-storage-keys.test.js`
+  allows the key until then. Read has no menu, so news never marks it, and
+  About has no "What's new" row (NX-29). The menu overlay shows no marks
+  until part two.
+- **The footer** (`SiteFooter.astro`, `footer.css`; HD-36, BS-24): the same
+  four places as groups under their names (Study as in the header), then
+  Privacy, the Terms of Use, and the brand marks, with the newsletter beside
+  them from 1100px and under them below that. All of it works without
+  JavaScript. The newsletter's own rules and the license band under the
+  footer stay in `global.css`.
+- **Home lies on LIT Green until Phase 7**, so `header.css` pins the ink on
+  the places and the tools there, not on the row: the menus are floats of
+  their own and keep the theme's colors and ring.
+
 ## The announcement popover
 
 Featherboa keeps it **for launches only** (the apps, the Study Desk's
 opening, the What's New page; BVJ names each), under the rules below;
-ordinary news is marked on the header menu it belongs to
-(`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"). Until Featherboa
-is built, this section holds as written.
+ordinary news is marked on the header menu it belongs to ("News marks,"
+above; `SITE-FEATHERBOA.md`, "Nothing interrupts the reader"). Until
+Featherboa is built, this section holds as written.
 
 - **One announcement popover at a time.** `Layout.astro` renders exactly ONE
   popover component (currently `AppsLaunchPopover.astro`, the iOS/Android

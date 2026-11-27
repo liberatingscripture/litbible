@@ -120,9 +120,9 @@ means each of these, in one change:
     sitemap filter, the `lit_last_read` records Read View writes). Delete
     `test/read-view-retirement.test.js`'s guard that nothing imports the
     retirement rules, and rewrite its two "with the preview on" tests.
-12. **Header C** (S12 step 5) goes live with the flip by itself: its rules
-    read `html[data-desk]`, which item 1 keeps. Decide then whether tablets,
-    which never get the stamp, keep the five plain links (`.site-nav__plain`).
+12. **The header's Study place** goes live with the flip by itself: its
+    rules read `html[data-desk]` (from 1100px), which item 1 keeps; a tablet,
+    which never gets the stamp, has Read, Learn, and About.
 13. **E130's labels** (BVJ, 2026-11-12): with the preview on, "Chapter View"
     reads "Scripture page" or "Scripture pages" (`searchbar.js`, `search.js`,
     `ReadMenu.astro`, `read/[book].astro`, `read-mode.js` and `.css`,
@@ -481,11 +481,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      start; "Hide my marks" and H fold it to its tab and un-hiding opens it
      again, NB-1; BVJ, 2026-11-03.) **Where the Study Desk button is** (BVJ, 2026-10-30,
      changed 2026-11-06, E50): a link to /desk, never a toggle (the panel
-     wires `button[data-desk-toggle]` only). **The home page keeps the
-     header's** "Study" link (`SiteHeader`'s `deskLink`, which `Layout`
-     sets for `/` alone; still `data-desk-toggle`, so global.css shows it with
-     the desk on; Featherboa gives it a panel on the front page instead,
-     `SITE-FEATHERBOA.md`, "The front page," until then this holds). **Scripture pages, chapters and book introductions, put a
+     wires `button[data-desk-toggle]` only). **Every page's header has Study** (from 1100px; its Scripture
+     row is /desk; `src/components/CLAUDE.md`). **Scripture pages, chapters and book introductions, put a
      pill in the toolbar's right slot**, the old "Switch to Read View" pill's
      design and classes (`ScriptureLayout.astro`, `.reading-view-right--desk`
      beside the Read View wrapper, which stays hidden while the preview is on;
@@ -495,10 +492,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `desk-passage.mjs`. **/read has a "Study Desk"
      pill matching "Go to passage"** (`.read-menu__desk`), linking
      to plain `/desk/`. Both pills are in the markup for everyone and shown
-     only under `html[data-desk]`. **No other page has a Study Desk button in
-     the header**: articles, the glossary, Read View, /notebook and /sheets
-     reach the desk by other routes (the Notebook panel's lamp link, /sheets'
-     "Edit in Study Desk", /notebook's "Open the Study Desk" under its title).
+     only under `html[data-desk]`.
      **Its names** (BVJ, 2026-10-26; BA138, BA139): the panel is "the
      Notebook," capitalized wherever a control or a sentence names the panel
      ("Minimize the Notebook," "Show in Notebook"); lowercase "notebook" means
@@ -1009,7 +1003,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (`readingArrival`). desk-page.js saves either as the last layout,
        strips both. The toolbar's "Study Desk" pill carries the chapter
        (`ScriptureLayout.astro`'s `deskPlaceHref`), as do the header's Study
-       group (`Layout.astro`'s `deskHref`) and the Notebook panel's header
+       menu's Scripture row (`deskHref`) and the Notebook panel's header
        link, which reads the pill's address (BVJ, 2026-11-10: all three
        alike). A new link into /desk at a passage uses `place`, never the
        stored layout.

@@ -107,17 +107,18 @@
   3. The width compensations are scoped to `[data-font="dyslexic"]` **only**.
      OpenDyslexic is far wider than Source Sans 3; Atkinson is not, and must not
      inherit them. They live in `home.css` (hero titles, the hero scroll's
-     safe interior, the question CTA), `global.css` (mobile nav, the header's
-     earlier nav collapse + phone title scale, the footer newsletter field
-     above 721px, the reader panels' chip buttons' side padding),
-     `ReadMenu.astro` (grid floors), `read-mode.css` (Read View's toolbar
-     floor and its sheet buttons' side padding), and `SiteHeader.astro` (the
-     forced short title). Prefer **buying back space over shrinking type** —
-     an accessibility font is the last thing that should be made smaller. The
-     header hands the nav to the hamburger below 1400px rather than
-     compressing it; the hero scroll's interior is widened before its type is
-     eased; only the phone-width header title, where there is genuinely no
-     space left, scales down.
+     safe interior, the question CTA), `global.css` (the menu overlay's
+     links, the reader panels' chip buttons' side padding), `header.css`
+     (the full header from 900px rather than 700px, and the phone title's
+     scale), `ReadMenu.astro` (grid floors), and `read-mode.css` (Read
+     View's toolbar floor and its sheet buttons' side padding). Prefer
+     **buying back space over shrinking type** — an accessibility font is the
+     last thing that should be made smaller. The header keeps the menu button
+     until 900px rather than compressing the places; the hero scroll's
+     interior is widened before its type is eased; only the phone-width
+     header title, where there is genuinely no space left, scales down. (The
+     footer's email field gives up its own width in every font, so it needs
+     no rule of OpenDyslexic's.)
      The one shared mechanism is the **callout CTA**: the clamp that keeps it
      inside the viewport applies to every font, and only its `--cta-overhang`
      value is per-font. Don't re-scope it to dyslexic — it overflows in all
@@ -147,8 +148,8 @@
   phone's a sheet rising from its bottom bar, `SITE-FEATHERBOA.md`, "The
   phone"; until it is built, this holds). The header stays above
   the scrim, so the toggle is the close button. Either way the menu lists
-  header C's groups under headings (`.menu-overlay__group`, S12 step 5), its
-  Study group only with `html[data-desk]`.
+  the places with menus as groups under headings (`.menu-overlay__group`,
+  from `src/lib/places.mjs`), its Study group only with `html[data-desk]`.
 - **Text size, line spacing, verse numbers, footnote letters and key terms
   are the rest of the Display tray**, and follow the font's pattern exactly:
   an attribute on `<html>` stamped before first paint by `Layout.astro`,
@@ -472,8 +473,9 @@
   nowhere broader: a pin inherits, so pinning `body.bg-green` would push ink
   into the home page's themed sections and footer, where it fails in dark mode.
   That's why the green header pins on `.site-header__inner` (the font tray and
-  menu overlay share its `<header>` with surfaces of their own). Measured with
-  the WCAG 2 formula:
+  menu overlay share its `<header>` with surfaces of their own, and the
+  header's menus, floats of their own, take the theme's ring back in
+  `header.css`). Measured with the WCAG 2 formula:
 
   | Surface | Pinned where | Ring | Contrast |
   |---|---|---|---|

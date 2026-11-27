@@ -1,7 +1,15 @@
 ---
 import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
+import { LEGAL, PLACES } from "../lib/places.mjs";
 
 /**
+ * The footer (SITE-FEATHERBOA.md, "The phone and the footer"; HD-36, BS-24):
+ * the four places' groups with the header's names (src/lib/places.mjs; Study
+ * only on a computer with the Study preview on, footer.css), then Privacy and
+ * the Terms of Use, the brand marks, and the newsletter. Every link works
+ * without JavaScript, and the phone's Menu goes to #footer-nav without it.
+ * The What's New page and the colophon get their links when Phase 7 is built.
+ *
  * hideNewsletter: omit the Brevo subscribe form. Used on /unsubscribe, which
  * embeds its own Brevo form — Brevo markup requires fixed ids (sib-form,
  * error-message, success-message), so two forms on one page collide.
@@ -22,101 +30,55 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
  * appears in _headers' connect-src and form-action but not script-src.
  */
 const { hideNewsletter = false } = Astro.props;
+
+// The brand marks stand alone, each named in its aria-label (queue Q17).
+const SOCIAL = [
+  { name: "Facebook", href: "https://www.facebook.com/LiberationAndInclusionTranslation", path: siFacebook.path },
+  { name: "Threads", href: "https://www.threads.com/@lit.bible", path: siThreads.path },
+  { name: "Bluesky", href: "https://bsky.app/profile/litbible.net", path: siBluesky.path },
+  { name: "Instagram", href: "https://instagram.com/lit.bible", path: siInstagram.path },
+];
 ---
 
 <footer class="site-footer">
   <div class="footer-inner">
-    <div class="footer-left">
-      <nav class="footer-nav" aria-label="Footer navigation">
-        <div class="footer-col">
-          <h2>Learn</h2>
-          <ul>
-            <li><a href="/about">About</a></li>
-            <li><a href="/translation-commitments">Commitments</a></li>
-            <li><a href="/glossary">Glossary</a></li>
-            <li><a href="/articles">Articles</a></li>
-            <li><a href="/found-in-translation-podcast">Podcast</a></li>
-            <li><a href="/read">Read</a></li>
-            <li><a href="/release-notes">What’s new</a></li>
-            <li><a href="/apps">Apps</a></li>
-          </ul>
-        </div>
+    <nav class="footer-nav" id="footer-nav" aria-label="Footer navigation">
+      <div class="footer-groups">
+        {PLACES.map((place) => (
+          <div class={`footer-group footer-group--${place.key}`}>
+            <h2 class="footer-group__heading">{place.label}</h2>
+            <ul class="footer-group__rows">
+              {place.rows.map((row) => (
+                <li><a href={row.href}>{row.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
 
-        <div class="footer-col">
-          <h2>Connect</h2>
-          <ul>
-            <li><a href="/contact">Contact</a></li>
-            <li><a href="/support">Support</a></li>
-            <li>
-              <a
-                href="/liberating-scripture-collective"
-                aria-label="About the Liberating Scripture Collective"
-                title="Liberating Scripture Collective"
-              >
-                About LSC
-              </a>
-            </li>
-            <li><a href="/privacy">Privacy</a></li>
-            <li><a href="/terms">Terms of Use</a></li>
-          </ul>
+      <ul class="footer-legal">
+        {LEGAL.map((row) => (
+          <li><a href={row.href}>{row.label}</a></li>
+        ))}
+      </ul>
 
-          <ul class="social-links" aria-label="Social media">
-            <li>
-              <a
-                href="https://www.facebook.com/LiberationAndInclusionTranslation"
-                aria-label="Liberation and Inclusion Translation on Facebook"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siFacebook.path}></path>
-                </svg>
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://www.threads.com/@lit.bible"
-                aria-label="Liberation and Inclusion Translation on Threads"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siThreads.path}></path>
-                </svg>
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://bsky.app/profile/litbible.net"
-                aria-label="Liberation and Inclusion Translation on Bluesky"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siBluesky.path}></path>
-                </svg>
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://instagram.com/lit.bible"
-                aria-label="Liberation and Inclusion Translation on Instagram"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siInstagram.path}></path>
-                </svg>
-              </a>
-            </li>
-
-          </ul>
-        </div>
-      </nav>
-    </div>
+      <ul class="social-links" aria-label="Social media">
+        {SOCIAL.map((site) => (
+          <li>
+            <a
+              href={site.href}
+              aria-label={`Liberation and Inclusion Translation on ${site.name}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d={site.path}></path>
+              </svg>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
 
     <div class="footer-right">
       {!hideNewsletter && (

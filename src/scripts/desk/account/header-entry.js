@@ -2,8 +2,8 @@
 //
 // The header's way into an account (the plan's step 4h; BVJ, 2026-11-24):
 // “Sign in” at the end of the header's tools, and, once this browser's
-// notebook is linked to an account, a small account button whose menu holds
-// the sync's status, “Account and devices,” and “Sign out.”
+// notebook is linked to an account, “Account ▾,” whose menu holds the sync's
+// status, “Account and devices,” and “Sign out.”
 //
 // desk-gate.js loads this only on a computer with the Study Desk on and with
 // accounts opened in this browser. It is one small read (does the notebook
@@ -22,20 +22,19 @@
 //
 // THE ENTRY IS AS WIDE AS WHAT IT SHOWS (E231; BVJ, 2026-11-25: with the
 // button holding “Sign in”'s width there was a gap beside it, and “the rest
-// of the header scoots over to stay next to it”). The button is narrower than
-// the words, and which of the two a browser gets is read from the notebook,
-// after the page has painted. So this module leaves a note of what it showed
-// (LAST_KEY, in local storage), Layout.astro's pre-paint script stamps it on
-// <html> (LAST_ATTR), and global.css holds the button's room from the first
-// paint where it says “in.” Nothing beside the entry moves on a page load,
-// in either case. The note is only that: what shows always comes from the
-// notebook. Where the two differ (another tab linked this browser, or signed
-// it out), the tools move once, the note is put right, and TOOLS_EVENT has
-// the header's title fitted again, since the room for it changed.
+// of the header scoots over to stay next to it”). The button and the words
+// are not one width, and which of the two a browser gets is read from the
+// notebook, after the page has painted. So this module leaves a note of what
+// it showed (LAST_KEY, in local storage), Layout.astro's pre-paint script
+// stamps it on <html> (LAST_ATTR), and header.css holds the button's room
+// from the first paint where it says “in.” Nothing beside the entry moves on
+// a page load, in either case. The note is only that: what shows always comes
+// from the notebook. Where the two differ (another tab linked this browser,
+// or signed it out), the tools move once and the note is put right.
 //
-// The menu is a disclosure, as the header's Learn, Study, and About are
-// (src/scripts/header-menus.js): a button with aria-expanded over plain links
-// and at most one button. Arrow Down or Up on the button opens it at its
+// The menu is a disclosure, as the header's Learn, Study, and About menus are
+// (src/scripts/header-menus.js, where each is a <details>): a button with
+// aria-expanded over plain links and at most one button. Arrow Down or Up on the button opens it at its
 // first or last item, the arrows, Home, and End move among them, Escape closes
 // it and returns to the button, and a press elsewhere or Tab out closes it.
 
@@ -47,9 +46,6 @@ export const LAST_KEY = "lit-desk-account-last";
 
 /** The same on `<html>`, stamped before paint by Layout.astro, which repeats the key since it can't import. */
 export const LAST_ATTR = "data-account-last";
-
-/** Sent on `document` when the header's tools changed width after they were painted (SiteHeader.astro's title script hears it). */
-export const TOOLS_EVENT = "lit:header-tools";
 
 function ownStorage() {
   try {
@@ -92,12 +88,8 @@ export async function start({ doc = globalThis.document, idb = globalThis.indexe
 
   const root = doc.documentElement;
   const now = linked ? "in" : "out";
-  // What an entry not yet drawn has held room for since the first paint (global.css).
-  const stamped = root.getAttribute(LAST_ATTR) === "in" ? "in" : "out";
-  let moved = false;
   for (const entry of entries) {
     const { link, button, menu } = parts(entry);
-    if ((entry.getAttribute("data-account-state") ?? stamped) !== now) moved = true;
     if (linked && link && button) {
       link.hidden = true;
       button.hidden = false;
@@ -121,7 +113,6 @@ export async function start({ doc = globalThis.document, idb = globalThis.indexe
   }
   if (linked) root.setAttribute(LAST_ATTR, "in");
   else root.removeAttribute(LAST_ATTR);
-  if (moved) doc.dispatchEvent(new CustomEvent(TOOLS_EVENT));
   const fresh = linked ? entries.filter((entry) => !wired.has(entry)) : [];
   if (fresh.length) {
     for (const entry of fresh) wired.add(entry);

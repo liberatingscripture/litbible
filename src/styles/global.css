@@ -370,192 +370,18 @@ body.bg-green .skip-link {
 
 
 /* =========================================================
-   Site header — grid-based, LSC-style contraction + overlay menu
+   The header, the line under it, and the footer are header.css's and
+   footer.css's (Featherboa, Phase 3). The menu overlay and the Display
+   tray stay here until Phase 3's second part draws the phone's bars.
    ========================================================= */
 
-.site-header {
-  position: relative;
-  /* Above scripture/read-mode toolbars (max ~320) so the overhanging Aa
-     button stays clickable on those pages; below the mobile menu overlay
-     system (9999+) so that still layers correctly. */
-  z-index: 500;
-  /* The height of the header's small buttons (search, Aa, Study Desk) and of
-     the Read button beside them, so the four share one row height. */
-  --header-tool-height: 36px;
-}
-
-/* ---------------------------------------------------------
-   Header row: BRAND | NAV (includes CTA) | ACTIONS (hamburger)
---------------------------------------------------------- */
-.site-header__inner {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 16px 12px;
-
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  column-gap: 18px;
-}
-
-/* ---------------------------------------------------------
-   Brand lockup
---------------------------------------------------------- */
-.site-header__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  text-decoration: none;
-  color: var(--text);
-  min-width: 0;
-  /* The brand is a grid item in the header's first column, which is 1fr. A
-     grid item stretches to fill its column by default, so the link (and its
-     hover and focus box) covered the whole gap up to the title or nav, and
-     on /desk, /notebook and /sheets, where the page title sits in the middle,
-     clicking the empty space went home. Size it to the emblem and wordmark.
-     max-width keeps it inside the column, so a title too long for the column
-     still clips at the column's edge, as it did when the link stretched. */
-  justify-self: start;
-  max-width: 100%;
-}
-
-/* Remove underline on brand hover/focus */
-.site-header__brand:hover,
-.site-header__brand:focus {
-  text-decoration: none;
-}
-
-.site-header__logo {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 auto;
-  display: block;
-}
-
-.site-header__title {
-  font-family: var(--font-display);
-  font-size: 1.85rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  color: var(--text-strong);
-
-  white-space: nowrap;
-  overflow: hidden;
-  min-width: 0;
-
-  display: flex;
-  align-items: baseline;
-}
-
-/* The full title — flex row so prefix stays rigid */
-.site-header__title .title-long {
-  display: flex;
-  align-items: baseline;
-  gap: 0.32em;
-  min-width: 0;
-}
-
-/* The fixed prefix must not shrink or clip */
-.site-header__title .title-prefix {
-  flex-shrink: 0;
-}
-
-/* Only "Translation" truncates letter-by-letter */
-.site-header__title .title-truncatable {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  flex: 0 1 auto;
-}
-
-/* Alternate short title: hidden by default. SiteHeader.astro's inline script
-   swaps it in before first paint where the long title doesn't fit. */
-.site-header__title .title-alt {
-  display: none;
-  flex-shrink: 0;
-}
-
-/* ---------------------------------------------------------
-   Primary nav (centered on desktop)
---------------------------------------------------------- */
-.site-nav {
-  display: flex;
-  justify-content: center;
-  min-width: 0;
-}
-
-.site-nav__list {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  margin: 0;
-  padding: 0;
-  white-space: nowrap;
-}
-
-/* Nav link base */
-.site-nav__list > li:not(.site-nav__cta-item) > a {
-  color: var(--text);
-  font-size: 0.9rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 500;
-  text-decoration: none;
-  user-select: none;
-}
-
-/* ---------------------------------------------------------
-   The plain nav links (the Read button is the kit's): pointed at, an
-   underline, with no movement.
---------------------------------------------------------- */
-.site-nav__list > li:not(.site-nav__cta-item) > a:hover,
-.site-nav__list > li:not(.site-nav__cta-item) > a:focus {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
-}
-
-/* ---------------------------------------------------------
-   CTA inside nav (desktop position)
---------------------------------------------------------- */
-.site-nav__cta-item {
-  margin-left: 22px;
-}
-
-/* =========================================================
-   The header's Read button: a tinted button (kit.css), which draws its
-   fill, words, edge, and corners. Only its size and place are here.
-   ========================================================= */
-.site-nav__cta-item > a.site-header__cta {
-  position: relative;
-  text-decoration: none;
-  user-select: none;
-  font-size: 0.85rem;
-  /* As tall as the search and Aa buttons beside it (BVJ, 2026-11-20). The
-     label is centered in that height. */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--header-tool-height, 36px);
-  padding: 0 26px;
-  white-space: nowrap;
-}
-
-/* Ensures the label stays above anything behind it */
-.site-nav__cta-item > a.site-header__cta > span {
-  position: relative;
-}
-
-/* The Read buttons (this one and the phone menu's) keep the size they had
-   when they said "Read Now" (BVJ, 2026-11-20). The hidden ::before is a
-   block set in the old two words, so the span is as wide as the wider of
-   the two and "Read" centers in it, in every font, at every padding, with no
-   measured number to drift (the old label's width is Inter's, Atkinson's or
-   OpenDyslexic's, whichever is painting). It has no height, so the button
-   stays one line tall, and visibility: hidden keeps it from being read,
-   found or selected. Don't tidy it away as dead markup. */
+/* The menu overlay's Read button keeps the size it had when it said "Read
+   Now" (BVJ, 2026-11-20). The hidden ::before is a block set in the old two
+   words, so the span is as wide as the wider of the two and "Read" centers
+   in it, in every font, at every padding, with no measured number to drift
+   (the old label's width is whichever face is painting). It has no height,
+   so the button stays one line tall, and visibility: hidden keeps it from
+   being read, found or selected. Don't tidy it away as dead markup. */
 .cta-hold {
   display: inline-block;
   text-align: center;
@@ -569,446 +395,9 @@ body.bg-green .skip-link {
   visibility: hidden;
 }
 
-/* Reduced motion */
-
-
-/* ---------------------------------------------------------
-   Actions container (hamburger lives here)
---------------------------------------------------------- */
-.site-header__actions {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
 /* =========================================================
-   Accessibility font toggle + tray
+   The Display tray (the header's Aa, or Read View's toolbar Aa)
    ========================================================= */
-
-/* Desktop: search and Aa sit in the header's row, after READ (E76,
-   2026-11-10). They floated below it, out of the header's flow, so they hung
-   over the top of every page and two pages padded themselves to clear them. */
-.site-nav__cta-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.site-header__nav-tools {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Mobile: hide the nav's pair; the actions pair stays in normal flow (left of
-   the hamburger) */
-@media (max-width: 1100px) {
-  .site-header__nav-tools {
-    display: none;
-  }
-}
-
-/* Desktop: hide the actions pair — specificity 020 beats base rule 010 */
-@media (min-width: 1101px) {
-  .site-header__actions .site-header__font-toggle--actions,
-  .site-header__actions .site-header__search--actions,
-  .site-header__actions .site-header__desk--actions {
-    display: none;
-  }
-}
-
-.site-header__font-toggle,
-.site-header__search,
-.site-header__desk,
-.site-header__account-link,
-.site-header__account-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--header-tool-height, 36px);
-  padding: 0 12px;
-  cursor: pointer;
-  font-size: 0.8125rem;
-  white-space: nowrap;
-  appearance: none;
-}
-
-/* These are the kit's plain buttons (kit.css): no box until pointed at.
-   Keyboard focus uses the global :focus-visible ring. */
-
-.site-header__font-toggle:focus:not(:focus-visible),
-.site-header__search:focus:not(:focus-visible),
-.site-header__desk:focus:not(:focus-visible),
-.site-header__account-link:focus:not(:focus-visible),
-.site-header__account-btn:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* The search icon (audit U6): a square version of the Aa tile beside it */
-.site-header__search {
-  padding: 0 9px;
-  text-decoration: none;
-}
-
-/* The Study Desk button (BVJ, 2026-10-29: a link to /desk, no longer the
-   Notebook's toggle): the Aa tile with the notebook glyph and its name
-   written out, so a new tool is found without hunting. In a window
-   too narrow for the header's row it folds to the glyph alone (the name
-   stays in its accessible name). */
-.site-header__desk {
-  gap: 6px;
-  padding: 0 12px 0 9px;
-  text-decoration: none;
-}
-
-@media (max-width: 640px) {
-  .site-header__desk {
-    padding: 0 9px;
-  }
-
-  .site-header__desk-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
-}
-
-/* ---------------------------------------------------------
-   Header C: the links grouped into Learn, Study and About (S12 step 5;
-   STUDY-DESK.md, BVJ 2026-11-08). Behind the desk preview's own gate: a
-   computer with html[data-desk] gets the three menus in place of the five
-   links, and every other reader today's links. The stamp is set before first
-   paint (Layout.astro), so the header never flashes from one to the other.
-   The menus are header-menus.js. Launches with the desk.
---------------------------------------------------------- */
-html:not([data-desk]) .site-nav__group,
-html[data-desk] .site-nav__plain {
-  display: none;
-}
-
-.site-nav__group {
-  position: relative;
-}
-
-/* The group's button takes the nav links' look. */
-.site-nav__group-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: var(--header-tool-height, 36px);
-  padding: 0 12px;
-  font-size: 0.9rem;
-  line-height: 1.2;
-  cursor: pointer;
-  user-select: none;
-}
-
-.site-nav__group-btn .icon {
-  width: 1em;
-  height: 1em;
-  flex: none;
-}
-
-.site-nav__group-btn[aria-expanded="true"] .icon {
-  transform: rotate(180deg);
-}
-
-.site-nav__group-btn:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* The menu is its own floating surface, so it takes back the theme's
-   tokens from the green header's pins on __inner (its ink text, ink ring,
-   and ink rgb would be wrong on a dark menu). */
-.site-nav__menu {
-  --text: var(--color-text);
-  --text-strong: var(--color-text);
-  --ink-rgb: var(--color-text-rgb);
-  --focus-ring: var(--color-press);
-  position: absolute;
-  top: calc(100% + 12px);
-  left: -12px;
-  z-index: 50;
-  min-width: 270px;
-  margin: 0;
-  padding: 6px;
-  list-style: none;
-  background: var(--color-float);
-  color: var(--text);
-  border: 1px solid var(--color-float-edge);
-  border-radius: var(--radius-float);
-  box-shadow: var(--shadow-float);
-  white-space: normal;
-  text-align: left;
-}
-
-.site-nav__menu[hidden] {
-  display: none;
-}
-
-/* While one is open the header stacks above the page, as it does for the
-   search strip, so the Notebook panel in the margin can't paint over it. */
-.site-header:has(.site-nav__menu:not([hidden])) {
-  z-index: 1000;
-}
-
-.site-nav__menu a {
-  display: block;
-  padding: 9px 12px;
-  border-radius: var(--radius-press);
-  color: var(--text);
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.site-nav__menu a:hover,
-.site-nav__menu a:focus-visible {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.site-nav__menu-sep {
-  margin: 6px 8px;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
-}
-
-/* The Study group is the home page's Study Desk button now (Part 2's way
-   1), so the button gives way wherever the groups show. */
-@media (min-width: 1101px) {
-  html[data-desk] .site-header__desk {
-    display: none;
-  }
-}
-
-/* The account's way in (the plan's step 4h; BVJ, 2026-11-24): "Sign in," or a
-   small account button with a menu once this browser's notebook is linked to
-   an account. It shows only on a computer with the Study Desk on (data-desk)
-   and with accounts opened in this browser (data-account), both stamped
-   before paint, so the row is settled when the title is measured. Its two
-   copies follow the header's other pairs: the nav's from 1101px (1401px in
-   OpenDyslexic), the actions' below that, down to 760px, where header C's
-   groups fold away and the menu's "Account" takes over. The Study Desk's
-   own header has no nav, so the actions' copy shows there at every width.
-   The entry is drawn hidden until desk/account/header-entry.js has read
-   which of the two this browser gets (data-account-state). It is as wide as
-   what it shows, so the tools sit beside it with no gap (E231; BVJ,
-   2026-11-25), and until it is drawn it holds the room of what this browser
-   showed last: the button's where data-account-last says "in" (stamped
-   before paint from that module's note), the link's otherwise. So nothing
-   beside it moves when it is drawn. */
-.site-header__account {
-  display: none;
-  position: relative;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.site-header__account:not([data-account-state]) > * {
-  visibility: hidden;
-}
-
-html[data-account-last="in"] .site-header__account:not([data-account-state]) .site-header__account-link {
-  display: none;
-}
-
-html[data-account-last="in"] .site-header__account:not([data-account-state]) .site-header__account-btn {
-  display: inline-flex;
-}
-
-.site-header__account-link {
-  text-decoration: none;
-}
-
-.site-header__account-btn {
-  padding: 0 9px;
-}
-
-.site-header__account-link[hidden],
-.site-header__account-btn[hidden] {
-  display: none;
-}
-
-.site-nav__menu.site-header__account-menu {
-  left: auto;
-  right: 0;
-  width: min(320px, calc(100vw - 24px));
-  min-width: 0;
-}
-
-.menu-overlay .menu-overlay__nav a.menu-overlay__account {
-  display: none;
-}
-
-@media (min-width: 760px) {
-  html[data-desk][data-account="open"] .site-header__account {
-    display: inline-flex;
-  }
-}
-
-@media (min-width: 1101px) {
-  html[data-desk][data-account="open"]:not([data-font="dyslexic"]) .site-header:not(.site-header--desk) .site-header__account--actions {
-    display: none;
-  }
-}
-
-@media (min-width: 1401px) {
-  html[data-desk][data-account="open"][data-font="dyslexic"] .site-header:not(.site-header--desk) .site-header__account--actions {
-    display: none;
-  }
-}
-
-html[data-desk][data-account="open"] .site-header--desk .site-header__account--actions {
-  display: inline-flex;
-}
-
-@media (max-width: 759px) {
-  html[data-desk][data-account="open"] .menu-overlay .menu-overlay__nav a.menu-overlay__account {
-    display: block;
-  }
-}
-
-/* Three short menus need about 735px, so with them the whole header holds
-   down to 760px instead of folding into the menu button at 1100px. Search
-   and Aa stay in the row's own pair here, as below 1101px today.
-   OpenDyslexic keeps its own fold at 1400px (the reader-font section). */
-@media (min-width: 760px) and (max-width: 1100px) {
-  html[data-desk]:not([data-font="dyslexic"]) .site-header__inner {
-    grid-template-columns: minmax(0, 1fr) auto auto;
-  }
-
-  html[data-desk]:not([data-font="dyslexic"]) .site-nav {
-    display: flex;
-  }
-
-  html[data-desk]:not([data-font="dyslexic"]) .site-nav__list {
-    gap: 18px;
-  }
-
-  html[data-desk]:not([data-font="dyslexic"]) .site-nav__cta-item {
-    margin-left: 8px;
-  }
-
-  html[data-desk]:not([data-font="dyslexic"]) .site-nav__cta-item > a.site-header__cta {
-    padding: 0 16px;
-  }
-
-  html[data-desk]:not([data-font="dyslexic"]) .site-header__menu-toggle,
-  html[data-desk]:not([data-font="dyslexic"]) .site-header__desk {
-    display: none;
-  }
-
-  html[data-desk]:not([data-font="dyslexic"]) .site-header__title .title-truncatable {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-/* The strip it opens, under the header's top row. A raised band of its own,
-   so the default focus ring and text colours hold on the green home header
-   too. While it's open the header stacks above the page, so the results tray
-   (inside the header) isn't painted under a sticky element further down. */
-.site-header__search-strip {
-  background: var(--surface-raised);
-  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
-  padding: 12px var(--gutter);
-}
-
-.site-header:has(.site-header__search-strip:not([hidden])) {
-  z-index: 1000;
-}
-
-.site-header__search-inner {
-  max-width: 720px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.site-header__search-inner .searchbar {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.site-header__search-close {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-/* The Study Desk's own header (/desk; SiteHeader's deskTitle, BVJ
-   2026-10-21), at every width: brand | the page's title, centered | the
-   desk's tools, Aa and the menu button. The two outer columns share what's
-   left equally, so the title sits on the window's center line. It spans the
-   window, as the panes below it do, so its edges line up with theirs.
-   The selector outranks the narrower windows' header grids (the 1100px fold
-   and the desk's own 760–1100px rule above), which took the third column
-   away and pushed the title, and the menu hung under it, off the right edge
-   (Audit 8, LV8-4). */
-html .site-header.site-header--desk .site-header__inner {
-  max-width: none;
-  padding-left: 16px;
-  padding-right: 16px;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-}
-
-.site-header--desk .site-header__title .title-alt {
-  display: inline;
-}
-
-.site-header__page-title {
-  margin: 0;
-  font-size: 1.375rem;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-.site-header--desk .site-header__actions {
-  justify-self: end;
-}
-
-.site-header--desk .site-header__menu-toggle,
-.site-header--desk .site-header__actions .site-header__font-toggle--actions {
-  display: inline-flex;
-}
-
-.site-header__desk-tools {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-/* Under 360px the short title and three header buttons don't fit (the title
-   ran 20–36px into them at 320px), so the icon gives way to a Search item in
-   the phone menu. The title keeps its size, per the "buy back space" rule. */
-.menu-overlay__nav a.menu-overlay__search {
-  display: none;
-}
-
-@media (max-width: 359px) {
-  .site-header__actions .site-header__search--actions {
-    display: none;
-  }
-
-  .menu-overlay__nav a.menu-overlay__search {
-    display: revert;
-  }
-}
 
 
 
@@ -1252,11 +641,6 @@ html .site-header.site-header--desk .site-header__inner {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .site-header__font-toggle,
-  .site-header__search,
-  .site-header__desk,
-  .site-header__account-link,
-  .site-header__account-btn,
   .font-tray__font-option,
   .font-tray__check,
   .font-tray__seg-text,
@@ -1276,8 +660,6 @@ html .site-header.site-header--desk .site-header__inner {
   height: 52px;
   padding: 0;
   cursor: pointer;
-
-  display: none; /* shown at collapse */
   align-items: center;
   justify-content: center;
 
@@ -1364,57 +746,6 @@ html.menu-open .site-header__menu-toggle .menu-icon::after {
   html.menu-open .site-header__menu-toggle .menu-icon::after {
     forced-color-adjust: none;
     background: ButtonText;
-  }
-}
-
-/* =========================================================
-   Pre-collapse tuning
-   (avoid overlap by tightening slightly)
-   ========================================================= */
-
-/* =========================================================
-   Collapse breakpoint
-   - hide desktop nav
-   - show hamburger
-   ========================================================= */
-
-@media (max-width: 1100px) {
-  .site-header__inner {
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 12px;
-  }
-
-  .site-nav {
-    display: none;
-  }
-
-  .site-header__menu-toggle {
-    display: inline-flex;
-  }
-
-  /* No gradual truncation on mobile — title fits fully or swaps to LIT Bible */
-  .site-header__title .title-truncatable {
-    overflow: visible;
-    text-overflow: clip;
-  }
-}
-
-/* Small screens: tighter gutters */
-@media (max-width: 640px) {
-  .site-header__inner {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-}
-
-/* Narrowest phones: "LIT Bible" at 1.85rem needs 129px in Atkinson against
-   the 123px the row can spare at 320px, so the wordmark lost its last
-   letters; Inter fits with exactly 0px to spare, which is its own warning.
-   Ease both. OpenDyslexic has its own, larger reduction in the reader-font
-   section and out-specifies this. */
-@media (max-width: 360px) {
-  .site-header__title {
-    font-size: 1.7rem;
   }
 }
 
@@ -1570,17 +901,17 @@ html.menu-open body {
   display: none;
 }
 
-/* The phone menu's groups (header C): a heading over each group's links,
-   never a menu inside the menu. Live for every reader (BVJ, 2026-11-08);
-   the Study group only with the desk preview on. The links are smaller than
-   the old flat list's so ten of them and three headings fit a phone. */
+/* The phone menu's groups, the places with menus (src/lib/places.mjs): a
+   heading over each group's links, never a menu inside the menu. The Study
+   group only with the Study preview on. The links are smaller than the old
+   flat list's so Learn's and About's eleven and their headings fit a phone. */
 .menu-overlay__group {
   display: grid;
   gap: clamp(4px, 1.4vh, 12px);
   justify-items: inherit;
 }
 
-html:not([data-desk]) .menu-overlay__group--desk {
+html:not([data-desk]) .menu-overlay__group--study {
   display: none;
 }
 
@@ -1755,296 +1086,6 @@ a.footer-cta {
   white-space: nowrap;
 }
 
-/* ================================
-   Site Footer Section
-   ================================ */
-
-.site-footer {
-  border-top: 1px solid var(--border);
-  padding: 4rem 2rem;
-  background: var(--surface-raised);
-}
-
-.footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: start;
-  column-gap: 3rem;
-}
-
-/* =========================
-   Left area
-   ========================= */
-
-.footer-left {
-  grid-column: 1;
-  justify-self: start;
-}
-
-.footer-nav {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-}
-
-.footer-col h2 {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.footer-col ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-col li {
-  margin-bottom: 0.75rem;
-}
-
-/* Base link styling (TEXT LINKS ONLY) */
-.footer-col a {
-  text-decoration: underline;
-  color: var(--text-strong);
-}
-
-/* Hover / focus for LEFT NAV LINKS ONLY */
-.footer-col a:hover,
-.footer-col a:focus {
-  color: var(--green-text);
-}
-
-/* =========================
-   Social links
-   ========================= */
-
-.footer-col .social-links {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  transform: translateX(-8px); /* desktop/default: shift left */
-}
-
-/* Mobile: nudge right a bit */
-@media (max-width: 720px) {
-  .footer-col .social-links {
-    transform: translateX(0); /* tune: 4px–12px */
-  }
-}
-
-/* A brand mark alone, with its name in aria-label: the kit's plain level
-   draws it. Only where it sits and its size here. */
-.footer-col .social-links a {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  text-decoration: none;
-}
-
-/* SVG inherits color */
-.footer-col .social-links svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-}
-
-/* =========================
-   Right area
-   ========================= */
-
-.footer-right {
-  grid-column: 2;
-  justify-self: start;
-
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-}
-
-/* Footer — Narrow desktop / tablet ONLY (does not affect mobile) */
-@media (min-width: 721px) and (max-width: 860px) {
-  .footer-inner {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: 1.75rem;
-  }
-
-  .footer-nav {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 1.25rem 2rem;
-  }
-
-  .footer-col,
-  .footer-left,
-  .footer-right,
-  .footer-nav {
-    min-width: 0;
-  }
-
-  .footer-col .social-links {
-    position: static;
-    left: auto;
-    right: auto;
-    bottom: auto;
-
-    flex-wrap: wrap;
-    row-gap: 0.75rem;
-    margin-top: 2rem;
-    /* remove max-width unless you want tighter wrapping */
-  }
-}
-
-
-/* =========================
-   Footer — Mid-width fix (tablet)
-   ========================= */
-@media (max-width: 1248px) {
-  .footer-inner {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas: "left right";
-    row-gap: 2.5rem;
-    column-gap: 2rem;
-  }
-
-  .footer-left {
-    grid-area: left;
-    min-width: 0;
-  }
-
-  .footer-right {
-    grid-area: right;
-    min-width: 0;
-
-    /* your desktop centers everything; at mid widths that looks odd + wastes space */
-    align-items: flex-start;
-  }
-}
-
-/* =========================
-   Footer — Mobile layout fix
-   Desktop unchanged.
-   Mobile order:
-   left → newsletter → license
-   + Nav stays 2 columns
-   + Social icons move below both columns
-   + Headings stay above links
-   ========================= */
-
-@media (max-width: 720px) {
-  /* Stop horizontal scroll from any leftover padding/absolute behavior */
-  .site-footer {
-    overflow-x: hidden;
-  }
-
-  .footer-inner {
-    display: grid;
-    grid-template-columns: 1fr;
-
-    /* Mobile stacking order */
-    grid-template-areas:
-      "left"
-      "newsletter";
-
-    row-gap: 2.25rem;
-    column-gap: 0;
-  }
-
-  /* LEFT (nav) */
-  .footer-left {
-    grid-area: left;
-    grid-column: auto;
-    justify-self: stretch;
-  }
-
-  /* Nav: 2 columns on mobile */
-  .footer-nav {
-    display: grid;
-
-    /* KEY CHANGE: columns size to their content */
-    grid-template-columns: max-content max-content;
-
-    /* Center the two columns as a unit */
-    justify-content: center;
-
-    /* Keep your existing spacing */
-    gap: 1.75rem 3rem; /* adjust column gap here */
-    align-items: start;
-
-    position: relative;
-    padding-bottom: 4.25rem;
-  }
-
-  /* Footer columns stay stacked: heading above links */
-  .footer-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  /* Social icons: full-width row below both columns */
-  .footer-col .social-links {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-
-    margin: 0;
-    padding: 0;
-  }
-
-  /* RIGHT wrapper — normal block on mobile, sits in newsletter grid area */
-  .footer-right {
-    grid-area: newsletter;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .footer-newsletter {
-    align-items: center;
-    text-align: center;
-  }
-
-  .footer-newsletter__desc {
-    max-width: calc(32 * var(--ch));
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .footer-newsletter__row {
-    width: 100%;
-    max-width: 320px;
-  }
-
-  /* The email field's intrinsic width (~196px, from the input's default
-     size) is the min-content of this whole column, so .footer-right sized
-     itself to 320px inside a 256px grid area at a 320px viewport and the
-     overflow-x:hidden above clipped ~32px off the Subscribe button rather
-     than scrolling the page. Zero the field so it contributes nothing
-     intrinsically, and let the form fill the column so flex-grow hands the
-     field the width that is actually available (~132px at 320px). Font
-     agnostic: the field's default size drives this in all three. */
-  .footer-newsletter__form {
-    width: 100%;
-  }
-
-  .footer-newsletter__input {
-    width: 0;
-  }
-}
-
 /* =========================
    Footer — Newsletter
    ========================= */
@@ -2056,11 +1097,12 @@ a.footer-cta {
 }
 
 .footer-newsletter__heading {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  font-weight: 700;
+  line-height: var(--leading-label);
 }
 
 .footer-newsletter__desc {
@@ -2556,93 +1598,6 @@ html[data-font="dyslexic"] .menu-overlay__nav a {
 @media (max-width: 400px) {
   html[data-font="dyslexic"] .menu-overlay__nav a {
     font-size: 1.2rem;
-  }
-}
-
-/* Header: collapse to the hamburger earlier. The desktop nav row measures
-   ~1009px in OpenDyslexic (vs ~747px in Inter), which leaves the brand's
-   minmax(0, 1fr) column nothing to work with: it shrinks to ~54px and
-   .site-header__title's overflow:hidden clips the wordmark to zero width,
-   so the nav appears to sit on top of the site title. Nothing here can be
-   solved by swapping to the short title — "LIT Bible" alone is ~213px in
-   OpenDyslexic, and check() in SiteHeader.astro already forces it.
-   Brand (48px logo + 14px gap + 213px title) + 18px gaps + 24px padding +
-   the nav needs ~1344px, so hand the nav to the overlay below 1400px and
-   keep every label at its readable size. Mirrors the 1100px block above,
-   which still governs the other two fonts. */
-@media (max-width: 1400px) {
-  html[data-font="dyslexic"] .site-header__inner {
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 12px;
-  }
-
-  html[data-font="dyslexic"] .site-nav {
-    display: none;
-  }
-
-  html[data-font="dyslexic"] .site-header__menu-toggle {
-    display: inline-flex;
-  }
-
-  html[data-font="dyslexic"] .site-header__title .title-truncatable {
-    overflow: visible;
-    text-overflow: clip;
-  }
-
-  /* The nav is gone, so its search and Aa go with it and the actions pair
-     takes over. Needs to out-specify the min-width:1101px rule that hides it. */
-  html[data-font="dyslexic"] .site-header__nav-tools {
-    display: none;
-  }
-
-  html[data-font="dyslexic"]
-    .site-header__actions
-    .site-header__font-toggle--actions,
-  html[data-font="dyslexic"]
-    .site-header__actions
-    .site-header__search--actions,
-  html[data-font="dyslexic"]
-    .site-header__actions
-    .site-header__desk--actions {
-    display: inline-flex;
-  }
-}
-
-/* …except under 360px, where the search icon moves into the phone menu for
-   every font (see .menu-overlay__search). Needs the same specificity, later. */
-@media (max-width: 359px) {
-  html[data-font="dyslexic"]
-    .site-header__actions
-    .site-header__search--actions {
-    display: none;
-  }
-}
-
-/* Phones: even the short title overruns the row once the logo and the
-   Aa/hamburger pair (~110px in OpenDyslexic) take their share — 213px of
-   wordmark into ~171px of space at 375px. Scale it with the viewport so it
-   fits from 320px up instead of being silently clipped. */
-@media (max-width: 640px) {
-  html[data-font="dyslexic"] .site-header__title {
-    font-size: clamp(0.95rem, 4.6vw, 1.85rem);
-  }
-}
-
-/* Footer newsletter: the email field's intrinsic width (from its size
-   attribute) is ~327px in OpenDyslexic, and with "Subscribe" at ~170px the
-   row's max-content reaches ~497px — wider than its 1fr grid track, so
-   .footer-right blows the track out and pushes the page sideways (~61px at
-   920px, on every page, since this is SiteFooter). Zeroing the width lets
-   flex-grow size the field from the space that's actually there, keeping
-   the field and button joined on one line.
-
-   Bounded to the two-column footer on purpose: below 721px the grid is a
-   single 1fr column and .footer-right centers instead of shrink-to-fit, so
-   there is no track to blow out and a zero-width field would collapse to
-   ~29px against the button's 170px. */
-@media (min-width: 721px) {
-  html[data-font="dyslexic"] .footer-newsletter__input {
-    width: 0;
   }
 }
 
@@ -3814,14 +2769,14 @@ button.greek-cmd {
    so it needs no room reserved here. Its styles (the panel, its list, the
    undo bar) are in src/styles/desk.css and load with the desk. */
 
-/* Every Notebook button (the header's two, Read View's toolbar) is in the
-   markup for everyone and shown only with the desk on, and only on a page
-   with the Notebook panel: the :has() list is the first column selector of
-   each entry in READING_SURFACES (src/scripts/desk-frame.js), which
+/* Every Notebook button (Read View's toolbar's) is in the markup for
+   everyone and shown only with the desk on, and only on a page with the
+   Notebook panel: the :has() list is the first column selector of each
+   entry in READING_SURFACES (src/scripts/desk-frame.js), which
    test/desk-frame.test.js checks. Intros, articles and the glossary come
    back to it only with PROSE_NOTES (E124).
    !important because each button sits under a more specific display rule of
-   its own (the header's nav/actions pairs, Read View's toolbar buttons). */
+   its own (Read View's toolbar buttons). */
 html:not([data-desk]) [data-desk-toggle],
 html[data-desk-show="off"] button[data-desk-toggle],
 .site-header--desk [data-desk-toggle] {
@@ -3833,14 +2788,11 @@ html[data-desk-show="off"] button[data-desk-toggle],
 body:not(:has(.scripture-layout--scripture .scripture-main, .rm-page .rm-reader)) button[data-desk-toggle] {
   display: none !important;
 }
-/* The header's "Study Desk" links go to /desk, so they need no reading column.
-   They are on the home page only now (BVJ, 2026-11-06, E50; SiteHeader's
-   deskLink), give way to header C's Study group wherever it shows, and are
-   never in the desk's own header, which is already there. The
-   scripture toolbar's and /read's Study Desk pills are plain links too, shown
-   by their own rules (ScriptureLayout, ReadMenu) with the preview on. Only the
-   buttons that open the panel (Read View's toolbar) are held to the reading
-   surfaces above. */
+/* The ways into Study are links to /desk, so they need no reading column:
+   the header's Study menu (a computer with the preview on; header.css), and
+   the scripture toolbar's and /read's Study Desk pills, each shown by its own
+   rule (ScriptureLayout, ReadMenu). Only the buttons that open the panel
+   (Read View's toolbar) are held to the reading surfaces above. */
 
 /* The narrower reading measures for the desk, on for the preview only until
    the desk is released. --ch is untouched. 52 (from 60; BVJ, 2026-10-05),

@@ -72,9 +72,8 @@ if (document.documentElement.dataset.desk === "on" && document.documentElement.d
     .then((m) => m.start())
     .catch((err) => {
       console.error("Study Desk: the header’s account entry didn’t load", err);
-      // The plain link still works without the script. It may be wider than the room kept: the title is fitted again.
+      // The plain link still works without the script, so it shows.
       for (const entry of document.querySelectorAll("[data-account-entry]")) entry.setAttribute("data-account-state", "out");
-      document.dispatchEvent(new CustomEvent("lit:header-tools"));
     });
 }
 

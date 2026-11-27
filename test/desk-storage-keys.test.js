@@ -15,8 +15,9 @@
 //
 // A found key must be named on /privacy as <code>key</code>, or be in ALLOWLIST
 // with a reason. ALLOWLIST is for keys the page describes in prose rather than
-// by name (the Display tray's settings, the Read View place, keyboard shortcuts)
-// and nothing else. Cookies are checked by the last test: a rendered component's
+// by name (the Display tray's settings, the Read View place, keyboard shortcuts),
+// and the header's news marks' key, which nothing writes while the news list is
+// empty, and nothing else. Cookies are checked by the last test: a rendered component's
 // cookie is named on /privacy, and the page's count of them is right.
 
 import { test } from "node:test";
@@ -52,6 +53,7 @@ const ALLOWLIST = new Map([
   ["lit_last_read", "the chapter you last read (prose on /privacy; the record is src/scripts/last-read.js)"],
   ["lit_app_banner_dismissed", "the Android app banner, closed (prose on /privacy)"],
   ["lit_pv", "session count of pageviews for the app announcement (session storage, prose on /privacy)"],
+  ["lit-news-seen", "the header's news marks (src/lib/news.mjs): written only once the news list holds an entry, and test/news.test.js fails if one is added before /privacy names this key"],
 ]);
 
 function sources(dir, out = []) {

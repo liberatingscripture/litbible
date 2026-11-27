@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { declarations, repo } from "./helpers/featherboa-css.mjs";
 
 /** Featherboa's new stylesheets, each held to the scale whole. */
-const NEW = ["src/styles/kit.css", "src/styles/pages/license.css", "src/styles/pages/colophon.css"];
+const NEW = ["src/styles/kit.css", "src/styles/pages/license.css", "src/styles/pages/colophon.css", "src/styles/header.css", "src/styles/footer.css"];
 
 const SPACING = /^(margin|padding)(-(top|right|bottom|left|block|inline)(-(start|end))?)?$|^(gap|row-gap|column-gap)$/;
 const STEP = /^(0|auto|var\(--space-[1-9]\))$/;

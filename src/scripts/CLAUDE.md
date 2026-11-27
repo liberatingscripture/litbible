@@ -16,9 +16,10 @@ From the root's project tree.
                      #   shares; ref-preview, scripture reference previews;
                      #   last-read + continue-reading, "Continue reading";
                      #   term-lens, the Chapter View term underline and card;
-                     #   header-search, the header's search strip;
-                     #   header-menus, header C's Learn, Study and About
-                     #   menus (a computer with the desk preview on);
+                     #   header-search, the header's magnifier (its
+                     #   search strip, or the page's own box);
+                     #   header-menus, the header's Learn, Study, and
+                     #   About menus and their news marks;
                      #   keyboard-shortcuts; print-radios, which sets every
                      #   radio button back after the print dialog (Edge
                      #   clears them all; see "Printing and handouts");
@@ -571,15 +572,19 @@ License page of their own, forwarding /read's old anchors:
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`
     to `Layout`: chapters, intros and drafts (through `ScriptureLayout`),
-    `/read`, Read View, `/search`, and the articles pages. Every other page
-    gets a search icon beside the header's "Aa". Without JS it's a link to
-    `/search`; with JS (`header-search.js`) it opens a strip under the header
-    holding the ordinary `SearchBar`, so its results tray is the one chapter
-    pages use, and Escape closes the tray and then the strip. Under 360px there
-    is no room for a third header button (the short title ran 20–36px into
-    them at 320px, in every font), so the icon moves into the phone menu as
-    "Search". **A new page with its own `SearchBar` must pass `pageSearch`**,
-    or it renders two. Featherboa keeps the rule but moves a reading
+    `/read`, Read View, `/search`, and the articles pages. The header's
+    magnifier beside "Aa" is on every page but the Read page (a chapter, an
+    introduction, Read View, whose box is the toolbar's; HD-13) and /desk,
+    whose search is a pane. Without JS
+    it's a link to `/search`. With JS (`header-search.js`), on a page with
+    its own box it takes the reader to that box; on any other it opens a
+    strip under the header holding the ordinary `SearchBar`, so its results
+    tray is the one chapter pages use, and Escape closes the tray and then
+    the strip. Under 360px there is no room for a third header button (the
+    short title ran 20–36px into them at 320px, in every font), so the icon
+    moves into the phone menu as "Search", or leaves the page's own box as
+    the way in. **A new page with its own `SearchBar` must pass
+    `pageSearch`**, or it renders two. Featherboa keeps the rule but moves a reading
     page's way in: the toolbar's box goes, and "Search" on the place line
     opens it in place of the line, while the passage picker gains a typing
     field of its own (`SITE-FEATHERBOA.md`, "Finding a passage"); until it

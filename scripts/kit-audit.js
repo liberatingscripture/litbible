@@ -7,7 +7,7 @@
 // then call
 //
 //   await kitAudit.pages(["/", "/john-3", "/search?q=love"], { width: 1440, theme: "dark" })
-//   await kitAudit.opened("/john-3", [["[data-font-toggle]", ""], [".site-nav__group-btn", "Study"]])
+//   await kitAudit.opened("/john-3", [["[data-font-toggle]", ""], [".site-nav__place", "Learn"]])
 //
 // Each page loads in a same-origin iframe of the given width, so one tab
 // covers many pages, widths, and themes. A page whose own script reloads

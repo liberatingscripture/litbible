@@ -1,0 +1,42 @@
+---
+// The line under the header (SITE-FEATHERBOA.md, "The line under the
+// header"; HD-14, HD-22, HD-26): on every page but Home, it names the page,
+// "Learn / Glossary," "About / Contact," or the page's name alone for a page
+// in no place, with the page's one or two main commands at its right (the
+// "commands" slot; its left stays empty). The page's own heading stays as
+// written below it. Quiet: words in the controls' face, no box, no button's
+// look. Not on the Read page, whose place line is Phase 4's, nor on Study's
+// pages, whose title row becomes theirs in Phase 9 (src/lib/places.mjs,
+// `line`). Layout.astro draws it between the header and <main>.
+//
+// where: placeOf()'s answer for this page (src/lib/places.mjs).
+import { placeBy } from "../lib/places.mjs";
+
+const { where } = Astro.props;
+const place = where.place ? placeBy(where.place) : null;
+const commands = Astro.slots.has("commands");
+---
+
+<div class="place-line">
+  <div class="place-line__inner">
+    <p class="place-line__trail">
+      {place && (
+        <>
+          <span class="place-line__place">{place.label}</span><span class="sr-only">, </span><span
+            class="place-line__sep"
+            aria-hidden="true">/</span>
+        </>
+      )}
+      {where.up ? (
+        <a class="place-line__page" href={where.up}>{where.name}</a>
+      ) : (
+        <span class="place-line__page" aria-current="page">{where.name}</span>
+      )}
+    </p>
+    {commands && (
+      <div class="place-line__commands">
+        <slot name="commands" />
+      </div>
+    )}
+  </div>
+</div>

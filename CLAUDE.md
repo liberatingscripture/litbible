@@ -49,7 +49,7 @@ below unless it is already loaded.** Rules that keep this from decaying:
 | `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |
 | `src/content/CLAUDE.md` | Articles, glossary entries, the /apps collections; the apps' glossary feed |
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
-| `src/components/CLAUDE.md` | The header's title swap (an inline script); the announcement popover |
+| `src/components/CLAUDE.md` | The header, the line under it, and the footer: the four places (`src/lib/places.mjs`), their menus, the news marks (`src/lib/news.mjs`); the announcement popover |
 | `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
 | `src/pages/CLAUDE.md` | The privacy page and the Terms of Use; the podcast page's embeds; the 404 page's address guessing; measuring Read View |
 | `scripts/CLAUDE.md` | The toolchain's pins (Node, Astro), commands run by hand, **the apps' sync contract**, the build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
@@ -122,8 +122,8 @@ companion iOS/Android apps consume.
   changing either.
 - **TypeScript** (strict, `astro/tsconfigs/strict`); **vanilla CSS** (no
   utility framework): `tokens.css` (Featherboa's colors, sizes, and speeds),
-  `global.css`, `kit.css` (every control, drawn once), and a per-page
-  stylesheet under `src/styles/pages/`.
+  `global.css`, `kit.css` (every control, drawn once), `header.css` and
+  `footer.css`, and a per-page stylesheet under `src/styles/pages/`.
 - **No client framework, no hydration.** Hand-written vanilla JS in
   `src/scripts/` is progressive enhancement only; the site is fully
   functional with JS disabled.
