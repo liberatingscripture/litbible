@@ -862,6 +862,28 @@ with its last commit when done; never delete a line.
 - [ ] Phase 14: The launch switch
 - [ ] Checkpoint B: the whole build
 
+**Baselines** (Phase 0), from a build of `main` at `18166ff7`, gzip at
+level 9, a page counting its HTML, its stylesheets, and the scripts it loads
+at once (`import`s followed, not dynamic ones):
+
+- **Fonts**: 43 files, 1,560,020 bytes in `dist/_astro/`. Playpen Sans
+  576,192; OpenDyslexic 463,988; Atkinson Hyperlegible Next 110,864; Crimson
+  Text 102,788; Inter's Latin 96,744 and its Greek 81,480; Cardo 79,732;
+  Fraunces (static 400 and 500) 35,968; Noto Sans Hebrew 12,264. Preloaded:
+  67,676 on Home, 49,676 on John 3.
+- **Home**: 83,148 bytes (HTML 27,421; CSS 27,108 in 3 files; scripts
+  28,619 in 15 modules). After Phase 0's removal of 2.0: 68,001.
+- **John 3** (`dist/john-3/`): 108,982 bytes (HTML 34,591; CSS 25,436 in 4
+  files; scripts 48,955 in 24 modules). After Phase 0: 101,778.
+- **Contrast** (WCAG 2), by day: ink `#1D231C` on the cream `#E1DFD9`
+  12.03, on the card `#FAFAF8` 15.35; ink at 78% on the cream 6.57, on the
+  card 7.63; at 60% 3.89 and 4.24; deep green `#0F6B33` on the cream 4.97,
+  on the card 6.34; white on deep green 6.62; LIT Green `#209D50` on the
+  cream 2.63, on the card 3.35; ink on LIT Green 4.58. By night: text
+  `#F0F0F0` on the page `#0E0E0F` 16.93, on the surface `#161617` 15.87, on
+  a raised surface `#1D1D1F` 14.77; the night green `#3ABF6A` on the page
+  8.12, on a raised surface 7.08.
+
 ## The brief for the session that builds it
 
 Pasted to start the run, once BVJ approves this file and PR #732 has

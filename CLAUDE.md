@@ -348,6 +348,7 @@ Area files list their own key modules; these are the cross-cutting ones.
 | `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-*.md` | The Study Desk's planning record, its Phase 5 log (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits. Grep, never read whole |
 | `API-2-FORMAT.md` | The content API, version 2, beside version 1; opens with the manifest rule that protects installed apps |
 | `SITE-FEATHERBOA.md`, `SITE-FEATHERBOA-BUILD.md` | Site Design: Featherboa, the next design, which replaces Site 2.0: BVJ's decisions as they are made, and what is open; then the plan for building it (order of work, checks, the questions' queue). Read the first before a design or font change |
+| `FEATHERBOA-LEDGER.md` | Featherboa's build checklist: one row per decision in `SITE-FEATHERBOA.md`, with its phase, its check, and its state, and notes for later phases. The build keeps it current |
 | `SITE-2.0.md` | Site 2.0, the design Featherboa replaced (built behind a preview stamp, never launched, its code removed in Featherboa's Phase 0): the record of its plan and decisions, none of which carries over |
 | `IMAGE-CREDITS.md` | Source, creator and terms of every image by others; a new stock image gets a row |
 | `DISASTER-RECOVERY.md` | Every dashboard and secret behind the deploy (names only), the DNS inventory, the from-zero redeploy. Update it when an integration, secret, or DNS record changes |
