@@ -703,7 +703,10 @@ the named styles the same day). The
 mock's sheet showed bold, italic, headings, bulleted lists, quotations and
 links; the blank canvas wanted more. The same set holds in every text
 module (the record can't tell a canvas from a template), and it can grow
-later (`sheetFormat` 2) but never shrink.
+later (`sheetFormat` 2) but never shrink. (Featherboa takes `sans` and
+`handwriting` out of the fonts and draws `serif` in Literata, BVJ agreeing
+since no app reads sheets yet: `SITE-FEATHERBOA.md`, "Sheets"; until it is
+built, this holds.)
 
 | Group | Tags |
 |---|---|

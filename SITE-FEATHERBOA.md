@@ -70,6 +70,7 @@ face, is out: it is a serif (BVJ had taken it for a sans).
 | Hebrew in sans text | Noto Sans Hebrew | the same |
 | Greek and Hebrew in Fraunces | Cardo | the same |
 | Paper (printing a chapter, an introduction, or a Read View book; handouts; a sheet's paper copy; its slides) and the verse image | **The same as the screen**: Fraunces headings, Source Sans 3 text | Crimson Text (the verse image: the verse in Crimson Text, the reference in Fraunces, the address in Inter) |
+| A sheet's serif, a leader's choice for a handout's words ("Sheets") | **Literata** | Crimson Text |
 
 What each choice carries with it:
 
@@ -178,6 +179,8 @@ then puts boxes in the box, so it takes the boxes away. BVJ took it
   go away. Menus, popovers, and dialogs have it; nothing else does.
 - **No ornament**: the sunshine bar over titles (gone already under
   "Color"), the Marks, and the emblem watermark (Site 2.0's 404 and forms).
+- **One exception: a sheet's page in its editor sits on a tinted desk**,
+  since it stands for a real sheet of paper ("Sheets").
 - **The stage badge stays while the Study Desk is in a stage** (BVJ: “The
   preview badge shouldn't go while it's still a preview. It's not a
   decoration. It's information.”). The proposal counts it as ornament and
@@ -1438,7 +1441,7 @@ to drop it on screen don't apply.”).
 
 A sheet printed from the Study Desk uses this same page: the same head,
 faces, and footer. Leader and participant copies differ in content, never
-in look. The rest of a sheet's paper copy is proposal 23's.
+in look. The rest of a sheet's paper copy is in "Sheets."
 
 ## The Study Desk (decided 2026-11-26)
 
@@ -1718,6 +1721,132 @@ today.
 - **The foot line says "browser,"** not the drawing's "computer," since a
   notebook is kept in one browser.
 
+## Sheets (decided 2026-11-26)
+
+Design Directions' proposal 23, "Sheets: the page you are making is the
+page you see." A sheet is a handout, printed in a leader's copy and a
+participant's copy, and the proposal calls it the most original tool in the
+Study Desk. Today its editor carries a word processor's toolbar under each
+part and a page toolbar of ten commands. The proposal shows the page at its
+real proportions, in the site's own faces, with three commands in view.
+Claude recommended it with ten adjustments. BVJ took nine, the second with a
+serif kept (below), and answered the sixth, where a sheet sits in the Study
+Desk, with an idea of their own, which is open ("Where a sheet sits," below).
+
+### The page
+
+- **The editor is the page.** A sheet is edited on the page as it prints, at
+  the paper's proportions (Letter or A4), with its parts set as they print
+  rather than as cards.
+- **The page sits on a tinted desk, the one exception to "Surfaces."** The
+  proposal's reason: here the page stands for a real sheet of paper with
+  real edges. The page stays white paper in either theme, as today.
+- **Where the column holds the paper's width, the page shows as pages**,
+  broken where print will break it (today's print layout, BVJ 2026-11-10).
+  In a narrower column the page fits the column with its words at their true
+  size and no page breaks drawn, rather than shrinking the type.
+- **Edit and Preview (E209) retire**: the page being edited is the preview.
+  The drawing's two view icons aren't taken, since an icon stands alone only
+  for search, close, back, forward, and more ("Controls"), and the copy tabs
+  already choose what is shown.
+- **A chosen part has a green bar at its left** and shows its own controls
+  in a small line at its top, as the drawn "Leader only · 10 minutes" does:
+  Leader only, minutes, Move, Remove, and a passage's blanks and footnotes.
+  None of it prints.
+- **A leader-only part has a dashed rule and a plain label**, and is gone
+  from the participant's copy.
+
+### Formatting
+
+- **A small bar holds Bold, Italic, Link, Paragraph ▾, and List ▾**:
+  Paragraph, Heading, Subheading, and Quotation; bulleted and numbered lists,
+  with indent and outdent. **"More formatting ▾" holds the rest**:
+  Underline, Strikethrough, Superscript, Subscript, Alignment, Style (font,
+  size, text color, and background), Horizontal line, and Clear formatting.
+  BVJ's set (2026-10-18) stays whole; only the first look is quieter. The
+  proposal would have made font, size, color, and alignment the site's to
+  set, with "More formatting" as its fallback if BVJ kept them.
+- **The bar shows whenever a part has the cursor**, not only over a
+  selection, since Paragraph and List act where the cursor is. Tab from the
+  text reaches it, and it never covers the words being chosen. It replaces
+  today's toolbar under the part (SH5-6).
+- **Style's fonts are Source Sans 3 (the default), Literata, Fraunces, and
+  Atkinson Next.** BVJ kept a serif for a sheet's words: “keep either
+  Crimson Text or Literata as a serif option for readers. (Fraunces isn't
+  good for body text).” Claude picked Literata of the two: it was made for
+  reading at length on screens, its small letters stand nearer Source Sans
+  3's, it has the Greek with its accents (Crimson Text has none, so a Greek
+  word falls back to another face), and one variable file serves every
+  size. A leader chooses it for their own handout; the site's own reading
+  face stays sans ("Type").
+- **"Sans" (Inter) and "Handwriting" (Playpen Sans) leave the format's
+  set**, since those faces leave the site and nothing outside it reads them
+  (BVJ: “The apps haven't built anything with sheets yet, so no need to keep
+  anything for the apps' sake”). A stored one, which only the preview's
+  sheets can hold, shows in the default face. "Serif" is drawn in Literata.
+  This changes the set in `STUDY-DESK-FORMAT.md` ("can grow later … but
+  never shrink") when it is built.
+
+### Names
+
+- **"Leader's copy" and "Participant's copy," everywhere on screen**: the
+  copy tabs over the page, the page's title, Copy's status, a saved file's
+  properties, and the Share dialog's choice. This undoes half of E95, where
+  the screen says "Leader version" and the paper "Leader copy." The paper
+  keeps the other half: the leader's says "Leader's copy," and the
+  participant's says nothing.
+- **"Key terms box" becomes "Key terms"** in the Add row.
+
+### Commands
+
+- **Three stay in view: Print…, Share…, and a filled Present.** Where they
+  sit waits on "Where a sheet sits," below.
+- **More (⋯) holds the rest**: Copy, Save as ▸ (the documents and the
+  slides), Show QR codes, Import, Save as template, and the paper (Letter or
+  A4), as drawn, and also the sheet's text size (E101) and Add answer key
+  (on the participant's copy only, and never remembered, E102), which the
+  drawing left out.
+- **The Add row at the page's end**: Passage…, Text, Question, From my
+  notes…, Space to write, Page break, and Key terms. The drawing drops Page
+  break; it stays. Adding between parts stays too.
+
+### Starting one
+
+**New sheet… lists the seven templates, each with one line on who it is
+for**, as today's chooser does. The template's longer description stays a
+notice in the editor (E84).
+
+### Present
+
+- **The room's screen stays dark in either theme**, with today's strip:
+  ‹ ›, Reveal, Footnotes, Blank, the screen count, Presenter view, and
+  Close. The presenter view and its minutes are kept.
+- **Its words are Source Sans 3 and its titles Fraunces**, as on paper. The
+  drawing set the verses in Literata.
+- **A blank stays covered until it is revealed.** The drawing shows the
+  words not yet revealed in gray, which would let the room read a blank's
+  answer before Reveal.
+
+### Kept
+
+- The License card and the commercial check (E94), the "what prints"
+  notice, sharing and its dialog (with "Include the answer key"), "Import
+  into my notebook" as a shared sheet's one filled button, the warning when
+  another tab has the sheet open, and undo.
+- **The Sheets tour (E63) is rewritten** for the new page.
+
+### Where a sheet sits (open)
+
+Claude's sixth adjustment fitted the drawing's frame into "The Study Desk":
+the sheet a tab in any column, Print…, Share…, and Present at its row's
+right end (where that section allows one or two actions and puts Print in
+Share…), and the template's name and "saved" beside the copy tabs. BVJ
+answered “Maybe”: a full page at real proportions won't fit in three
+columns. BVJ's idea: “clicking sheets in the sidebar should give the page
+its own layout, with one tab that's flexible, and the size of one column in
+the three column layout, and one tab that's the sheet editor, and the size
+of two columns in the three column layout.” How it is worked out is open.
+
 ## Open
 
 - **The rest of the two proposals, and every page**, each decided again
@@ -1743,6 +1872,8 @@ today.
   can change based on context). Under them is the Greek behind it.”
 - **How Featherboa is gated and launched.** Site 2.0 rides `data-restyle`
   (`SITE-2.0.md`, "At launch").
+- **Where a sheet sits in the Study Desk**, from BVJ's idea of a layout of
+  its own ("Sheets").
 
 When a part is built, its rules go into the area file for its code
 (`src/styles/CLAUDE.md` for fonts), and this file keeps the decisions and

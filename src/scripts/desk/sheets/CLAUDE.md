@@ -12,6 +12,15 @@
 The code moved here from `src/scripts/desk/` on 2026-11-08 (STUDY-DESK.md,
 S12, step 0), so older records name the files without `sheets/`.
 
+**Featherboa remakes the Sheets** (`SITE-FEATHERBOA.md`, "Sheets"): the
+editor becomes the page itself at the paper's proportions, a small bar with
+"More formatting" replaces each part's toolbar (SH5-6), Edit and Preview
+retire (E209), the screen says "Leader's copy" and "Participant's copy"
+(E95), Style's fonts become Source Sans 3, Literata, Fraunces, and Atkinson
+Next (`sans` and `handwriting` leave the format's set), and present mode
+sets its words in Source Sans 3. Where a sheet sits in the Study Desk is
+still open. Until it is built, the rules here hold.
+
 ## The sheet editor runs on `document.execCommand`
 
 **The sheet editor runs on `document.execCommand`** (12 calls through
