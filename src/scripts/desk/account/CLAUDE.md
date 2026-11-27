@@ -268,7 +268,11 @@ without the switch. The announcement popover stays off all three
     `ui.js`), except the page's first, which leaves focus alone: taking it
     on load scrolled `/delete-account/` to its box. A heading that repeats
     the page's own h1 is kept for a screen reader and not drawn. A button
-    is busy (`aria-disabled`), never `disabled`, while its step runs. A
+    is busy (`aria-disabled`), never `disabled`, while its step runs.
+    **Its look is the kit's** (Featherboa): the scripts give each button
+    `kit-btn` with `--filled`, `--danger`, or `--plain` by its kind, and
+    the field `kit-field`, beside the old `account__` names, which stay
+    as hooks; `account.css` says only where each sits. A
     step that waited checks `ui.live()` before it draws. **An “Are you
     sure” is `confirmBox`, shown with `focusConfirm`** (Audit 9, AC9-1):
     focus goes to its question, never to the button that does it; the

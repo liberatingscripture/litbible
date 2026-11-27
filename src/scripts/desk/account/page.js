@@ -358,7 +358,7 @@ export async function start({ root = document.querySelector("[data-account-page]
   function deletePart(after) {
     if (S.account?.waiting?.what === "delete") return null;
     const holder = h("div", { class: "account__delete" });
-    const opener = h("button", { type: "button", class: "account__button account__button--danger", text: WORDS.deleteOpen });
+    const opener = h("button", { type: "button", class: "account__button account__button--danger kit-btn kit-btn--danger", text: WORDS.deleteOpen });
     opener.addEventListener("click", () => {
       if (holder.querySelector(".account__confirm")) return;
       const atOnce = deletesAtOnce(S.account);

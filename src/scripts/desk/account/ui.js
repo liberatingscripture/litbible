@@ -111,14 +111,14 @@ export function screens(root, { log = (...args) => console.error("LIT Bible acco
 
 /** A button that runs a step through `ui.run`. `kind` is "primary", "quiet", or "danger". */
 export function button(ui, label, step, { kind = "quiet", ...props } = {}) {
-  const b = h("button", { type: "button", class: `account__button account__button--${kind}`, text: label, ...props });
+  const b = h("button", { type: "button", class: `account__button account__button--${kind} kit-btn kit-btn--${kind === "primary" ? "filled" : kind === "danger" ? "danger" : "plain"}`, text: label, ...props });
   b.addEventListener("click", () => ui.run(b, () => step(b)));
   return b;
 }
 
 /** A text field with its label above it. Returns { row, input }. */
 export function field(label, { id, hint, ...props } = {}) {
-  const input = h("input", { type: "text", id, class: "account__input", autocomplete: "off", autocapitalize: "off", spellcheck: "false", ...props });
+  const input = h("input", { type: "text", id, class: "account__input kit-field", autocomplete: "off", autocapitalize: "off", spellcheck: "false", ...props });
   const row = h("div", { class: "account__field" }, h("label", { for: id, class: "account__label", text: label }), input, hint ? h("p", { class: "account__hint", text: hint }) : null);
   return { row, input };
 }
@@ -137,7 +137,7 @@ export function confirmBox(ui, { ask, yes, kind = "primary", onYes, onCancel }) 
   const id = `account-confirm-${++asked}`;
   const box = h("div", { class: "account__confirm", role: "group", "aria-labelledby": id }, h("p", { id, class: "account__confirm-ask", tabindex: "-1", text: ask }));
   const doIt = button(ui, yes, onYes, { kind, "aria-describedby": id });
-  const cancel = h("button", { type: "button", class: "account__button account__button--quiet", text: WORDS.cancel });
+  const cancel = h("button", { type: "button", class: "account__button account__button--quiet kit-btn kit-btn--plain", text: WORDS.cancel });
   const dismiss = () => {
     if (doIt.getAttribute("aria-disabled") === "true") return;
     box.remove();

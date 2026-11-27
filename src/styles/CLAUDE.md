@@ -182,9 +182,9 @@
        reader reads: Chapter View, book intros, Read View, article pages,
        the glossary, /search's results, the release notes, About, Privacy,
        Translation Commitments, the Collective's page, /license, the
-       colophon, What's New, the source-text
-       notice, and the three panels of text (a footnote's popover, a key
-       term's card, a reference preview). The extra goes on every block
+       colophon, What's New, the account pages, the source-text notice,
+       and the three panels of text (a footnote's popover, a key term's
+       card, a reference preview). The extra goes on every block
        that can wrap; a title, a one-line label and a button keep their line.
      - **`--heading-scale`** is the same scale for a page's title, except on
        a phone (640px and under), where a title never grows past its own

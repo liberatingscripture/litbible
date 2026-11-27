@@ -1,29 +1,37 @@
 /* =========================================================
    The account page (/account/, /account/connect/) and the box on
-   /delete-account/
+   /delete-account/, drawn with Featherboa's tokens
    =========================================================
-   The frame and every part src/scripts/desk/account/ draws. Theme tokens
-   only (--text, --surface-raised, --ink-rgb, --green-text, --field-border),
-   so the dark theme needs no rules of its own. Every button and field is
-   kit.css's: one filled button a screen (the primary), a step that deletes
-   in red words (danger), everything else plain. */
+   The frame and every part src/scripts/desk/account/ draws. Every button and
+   field takes its look and size from kit.css by the kit's own classes (the
+   scripts' class strings carry them beside the old names, which stay as
+   hooks): one filled button a screen (the primary), a step that deletes in
+   red words (danger), everything else plain. This file says where they sit.
+   The page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (src/styles/CLAUDE.md). */
 
 .account-page {
   max-width: calc(72 * var(--ch));
   margin: 0 auto;
-  padding: clamp(2rem, 4vw, 3.5rem) var(--gutter, 1.25rem) 5rem;
+  padding: var(--space-7) var(--space-5) var(--space-9);
+  background-color: var(--color-page);
+  color: var(--color-text);
+  font-size: calc(1em * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
 }
 
 .account-page__title {
-  margin: 0 0 1.25rem;
+  margin: 0 0 var(--space-5);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
 }
 
-/* The sheet every screen sits on. */
+/* The box every screen sits in: a hairline, not a shadow. */
 .account-sheet {
-  padding: clamp(1.25rem, 3vw, 2rem);
-  border: 1px solid rgba(var(--ink-rgb), 0.16);
+  padding: var(--space-5);
+  border: 1px solid var(--color-hairline);
   border-radius: var(--radius-float);
-  background: var(--surface-raised);
+  background: var(--color-page);
 }
 
 /* Closed, and open: the page's own note shows until accounts are open here. */
@@ -41,9 +49,9 @@ html:not([data-account="open"]) [data-account-opened] {
 }
 
 .account__title {
-  margin: 0 0 0.75rem;
-  font-size: 1.375rem;
-  line-height: 1.25;
+  margin: 0 0 var(--space-3);
+  font-size: calc(var(--size-heading) * var(--heading-scale, 1));
+  line-height: var(--leading-heading);
 }
 
 .account__title:focus,
@@ -52,62 +60,55 @@ html:not([data-account="open"]) [data-account-opened] {
 }
 
 .account__heading {
-  margin: 2rem 0 0.75rem;
-  font-size: 1.0625rem;
-  line-height: 1.3;
+  margin: var(--space-6) 0 var(--space-3);
+  font-size: calc(var(--size-subhead) * var(--heading-scale, 1));
+  line-height: var(--leading-subhead);
 }
 
 .account__subhead {
-  margin: 1.25rem 0 0.5rem;
-  font-size: 1rem;
+  margin: var(--space-5) 0 var(--space-2);
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
 }
 
 .account__loading,
 .account__hint,
 .account__wait {
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
+  color: var(--color-text-2);
 }
 
 .account__hint {
-  margin: 0.35rem 0 0;
-  font-size: 0.9375rem;
-  line-height: 1.5;
+  margin: var(--space-1) 0 0;
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
 }
 
 /* What a step answered: a result, and a failure. Both are sentences. */
 .account__status,
 .account__alert,
 .account__note {
-  margin: 0 0 1rem;
-  padding: 0.6rem 0.8rem;
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-float);
-  border: 1px solid rgba(var(--ink-rgb), 0.16);
-  background: rgba(var(--ink-rgb), 0.04);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-tint);
 }
 
 .account__alert {
-  border-color: var(--field-border);
+  border-color: var(--color-danger);
   border-inline-start-width: 4px;
 }
 
 .account__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  margin: 1rem 0 0;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
 }
 
 .account__actions--stack {
   flex-direction: column;
   align-items: flex-start;
-}
-
-.account__button {
-  min-height: 44px;
-  padding: 0.5rem 1rem;
-  font-size: inherit;
-  line-height: 1.3;
-  cursor: pointer;
 }
 
 /* Busy while its step runs (aria-disabled, so it keeps focus), drawn as the
@@ -117,33 +118,33 @@ html:not([data-account="open"]) [data-account-opened] {
 }
 
 .account__field {
-  margin: 0.9rem 0 0;
+  margin: var(--space-4) 0 0;
 }
 
 .account__fields {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1rem;
+  gap: 0 var(--space-4);
 }
 
 .account__label {
   display: block;
-  margin-bottom: 0.3rem;
+  margin-bottom: var(--space-1);
+  font-family: var(--font-control);
   font-weight: 600;
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
 }
 
 .account__input {
   width: 100%;
   max-width: calc(34 * var(--ch));
-  min-height: 44px;
-  padding: 0.45rem 0.65rem;
-  font-size: inherit;
-  line-height: inherit;
 }
 
-/* The first-time choice: two options, each a title and a sentence. */
+/* The first-time choice: two options, each a title and a sentence. The
+   chosen one has a green edge, a tint, and a heavier title. */
 .account__choices {
-  margin: 1rem 0 0;
+  margin: var(--space-4) 0 0;
   padding: 0;
   border: 0;
 }
@@ -151,47 +152,53 @@ html:not([data-account="open"]) [data-account-opened] {
 .account__choice {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0 0.7rem;
-  margin: 0 0 0.6rem;
-  padding: 0.8rem 0.9rem;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
+  gap: 0 var(--space-3);
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-text-3);
   border-radius: var(--radius-press);
 }
 
 .account__choice:has(input:checked) {
-  border-color: var(--green-text);
-  box-shadow: inset 0 0 0 1px var(--green-text);
+  border-color: var(--color-press);
+  background: var(--color-tint);
 }
 
 .account__choice input {
-  margin-top: 0.3rem;
+  margin-top: var(--space-1);
 }
 
 .account__choice-title {
   display: block;
+  font-weight: 600;
+}
+
+.account__choice:has(input:checked) .account__choice-title {
   font-weight: 700;
 }
 
 .account__choice-body {
   display: block;
-  margin-top: 0.15rem;
+  margin-top: var(--space-1);
 }
 
 .account__choice .account__hint {
   grid-column: 2;
 }
 
-/* A code the reader copies down: large, spaced, never broken inside a group. */
+/* A code the reader copies down: large, spaced, never broken inside a group.
+   Its monospace face and letter-spacing stay, to make a code that is typed
+   back readable; it is the one place this page leaves the three faces. */
 .account__code {
-  margin: 1rem 0;
-  padding: 0.9rem 1rem;
-  border: 1px dashed var(--field-border);
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 1px dashed var(--color-text-3);
   border-radius: var(--radius-float);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 1.25rem;
+  font-size: var(--size-subhead);
   font-weight: 600;
   letter-spacing: 0.06em;
-  line-height: 1.6;
+  line-height: var(--leading-text);
   overflow-wrap: normal;
   word-break: keep-all;
 }
@@ -200,7 +207,7 @@ html:not([data-account="open"]) [data-account-opened] {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0 1.25rem;
+  gap: 0 var(--space-5);
 }
 
 .account__qr {
@@ -212,33 +219,39 @@ html:not([data-account="open"]) [data-account-opened] {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: var(--radius-press);
+  border-radius: var(--radius-float);
 }
 
 .account__more-ways {
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
 }
 
-/* "More ways": a plain button, the kit's. */
+/* "More ways": the kit's plain look by name (kit.css's lists), at the Label
+   size and the target's height, with the disclosure's own marker. */
 .account__more-ways summary {
+  min-height: var(--target);
+  padding: var(--space-2);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
   cursor: pointer;
 }
 
 /* "You don't need an account": set apart, and quiet. */
 .account__aside {
-  margin: 1.75rem 0 0;
-  padding: 0.9rem 1rem;
-  border: 1px dashed rgba(var(--ink-rgb), 0.4);
+  margin: var(--space-6) 0 0;
+  padding: var(--space-4);
+  border: 1px dashed var(--color-text-3);
   border-radius: var(--radius-float);
 }
 
 .account__aside-title {
-  margin: 0 0 0.35rem;
-  font-size: 1rem;
+  margin: 0 0 var(--space-1);
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
 }
 
 .account__aside p {
-  margin: 0.35rem 0 0;
+  margin: var(--space-1) 0 0;
 }
 
 /* A step asked for in place, a stop, and a notice. */
@@ -246,9 +259,9 @@ html:not([data-account="open"]) [data-account-opened] {
 .account__stop,
 .account__notice,
 .account__waiting {
-  margin: 0.75rem 0;
-  padding: 0.8rem 0.9rem;
-  border: 1px solid var(--field-border);
+  margin: var(--space-3) 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-hairline);
   border-radius: var(--radius-float);
 }
 
@@ -260,8 +273,8 @@ html:not([data-account="open"]) [data-account-opened] {
 }
 
 .account__notice ul {
-  margin: 0 0 0.6rem;
-  padding-left: 1.1rem;
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-4);
 }
 
 .account__list {
@@ -271,8 +284,8 @@ html:not([data-account="open"]) [data-account-opened] {
 }
 
 .account__item {
-  padding: 0.7rem 0;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.16);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-hairline);
 }
 
 .account__item:first-child {
@@ -287,15 +300,15 @@ html:not([data-account="open"]) [data-account-opened] {
 .account__item .account__button,
 .account__row .account__button,
 .account__delete .account__button {
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
 }
 
 .account__more {
-  margin-left: 0.6rem;
+  margin-left: var(--space-3);
 }
 
 .account__add {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 /* The sync's status line (src/styles/desk-sync.css) names itself "Sync." On this page it sits

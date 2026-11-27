@@ -710,7 +710,7 @@ export async function showHome(ctx, note) {
     const parts = ctx.basicsParts(again);
     waiting.replaceChildren(...(parts.waiting ? [parts.waiting] : []));
     const out = h("div", { class: "account__delete" });
-    const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: WORDS.signOut, "data-account-signout": true });
+    const opener = h("button", { type: "button", class: "account__button account__button--quiet kit-btn kit-btn--plain", text: WORDS.signOut, "data-account-signout": true });
     opener.addEventListener("click", () => {
       if (out.querySelector(".account__confirm")) return;
       out.append(
@@ -771,7 +771,7 @@ export async function showHome(ctx, note) {
   const drawKey = () => {
     const where = whereKeyLives(H.lists);
     const box = h("div", { class: "account__row" }, h("p", { text: where === "account" ? WORDS.keyAccount : WORDS.keyDevice }));
-    const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: where === "account" ? WORDS.keyToDevice : WORDS.keyToAccount });
+    const opener = h("button", { type: "button", class: "account__button account__button--quiet kit-btn kit-btn--plain", text: where === "account" ? WORDS.keyToDevice : WORDS.keyToAccount });
     opener.addEventListener("click", () =>
       where === "account"
         ? ask(box, opener, { ask: WORDS.keyToDeviceAsk, yes: WORDS.keyToDeviceYes, onYes: () => changeWithCode(switchToDeviceOnly, WORDS.keyChanged) })
@@ -802,7 +802,7 @@ export async function showHome(ctx, note) {
       }
       row.append(h("p", { class: "account__item-name", text: entry.name }), h("p", { class: "account__hint", text: deviceLine({ platform: entry.platform, added: entry.added, own, locale: ctx.locale }) }));
       if (own) {
-        const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: WORDS.rename });
+        const opener = h("button", { type: "button", class: "account__button account__button--quiet kit-btn kit-btn--plain", text: WORDS.rename });
         opener.addEventListener("click", () => {
           if (row.querySelector(".account__field")) return;
           const name = field(WORDS.renameLabel, { id: "account-device-name", maxlength: "60", value: entry.name });
@@ -817,7 +817,7 @@ export async function showHome(ctx, note) {
         });
         row.append(opener);
       } else {
-        const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: WORDS.remove, "aria-label": `${WORDS.remove} ${entry.name}` });
+        const opener = h("button", { type: "button", class: "account__button account__button--quiet kit-btn kit-btn--plain", text: WORDS.remove, "aria-label": `${WORDS.remove} ${entry.name}` });
         opener.addEventListener("click", () =>
           ask(row, opener, { ask: removeAsk(entry.name), yes: WORDS.removeYes, kind: "danger", onYes: () => changeWithCode((rest) => removeDevices({ ...rest, ids: [entry.id] }), WORDS.keyChanged) }),
         );
@@ -902,7 +902,7 @@ export async function showHome(ctx, note) {
   const drawRecovery = () => {
     const has = hasRecoveryCode(H.lists);
     const box = h("div", { class: "account__row" }, h("p", { text: has ? WORDS.recoveryHave : WORDS.recoveryNone }));
-    const opener = h("button", { type: "button", class: "account__button account__button--quiet", text: has ? WORDS.recoveryNew : WORDS.recoveryFirst });
+    const opener = h("button", { type: "button", class: "account__button account__button--quiet kit-btn kit-btn--plain", text: has ? WORDS.recoveryNew : WORDS.recoveryFirst });
     opener.addEventListener("click", () => {
       if (has) return ask(box, opener, { ask: WORDS.recoveryNewAsk, yes: WORDS.recoveryNewYes, onYes: () => changeWithCode(newRecoveryCode, WORDS.keyChanged) });
       // A first code needs no change of key: a holder is added under the key there is.

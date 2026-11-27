@@ -94,7 +94,6 @@ const DANGER = [
   ".desk-editor__discard",
   ".desk-np__danger-button",
   '.desk-sheet__btn[data-focus-key^="delete"]',
-  ".account__button--danger",
 ];
 // A command, a template, a sheet to add to, a print: each a list row.
 const ROW = [".desk-cmds__row", ".desk-command", ".desk-sheet__from-item", ".desk-gather__sheet", ".desk-print-menu__choices > :is(a, button)"];

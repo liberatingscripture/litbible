@@ -21,6 +21,7 @@ const NEW = [
   // The pages no decision draws (BP-07): on the scale since Phase 7. The
   // podcast page's stays out, for its photo and cover's overlap (queue Q23).
   "src/styles/pages/about.css",
+  "src/styles/pages/account.css",
   "src/styles/pages/contact.css",
   "src/styles/pages/courses.css",
   "src/styles/pages/liberating-scripture-collective.css",
