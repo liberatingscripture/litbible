@@ -232,7 +232,7 @@ test("when the sync has stopped, the button says so, and the menu holds the reas
   assert.deepEqual(went, ["/account/"]);
 });
 
-test("SiteHeader.astro's entry has the parts this module reads, once, and the menu overlay its own link", () => {
+test("SiteHeader.astro's entry has the parts this module reads, once, and the menu sheet its own row", () => {
   const source = readFileSync(new URL("../src/components/SiteHeader.astro", import.meta.url), "utf8");
   const count = (text) => source.split(text).length - 1;
   for (const part of [
@@ -248,7 +248,12 @@ test("SiteHeader.astro's entry has the parts this module reads, once, and the me
     assert.equal(count(part), 1, `${part}: once, at the end of the header's tools`);
   }
   assert.match(source, />Account<Icon name="down" \/><\/button>/, "the button says its word, then the menu's ▾");
-  assert.equal(count('class="menu-overlay__account"'), 1, "and the menu's own link, for a window too narrow for the entry");
+  const sheet = readFileSync(new URL("../src/components/MenuSheet.astro", import.meta.url), "utf8");
+  assert.equal(
+    sheet.split('<li class="menu-sheet__account"><a class="kit-row" href="/account/">Account</a></li>').length - 1,
+    1,
+    "and the menu sheet's own row, for a window too narrow for the entry",
+  );
   // check:links holds a fragment to an element on the page it names, so the page's sheet carries the id.
   const page = readFileSync(new URL("../src/pages/account.astro", import.meta.url), "utf8");
   assert.equal(page.split('id="sign-out" data-account-page="account"').length - 1, 1, "“Sign out” lands on the account page's sheet");

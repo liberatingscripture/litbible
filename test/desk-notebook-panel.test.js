@@ -81,9 +81,10 @@ test("a second Save while the first is in flight is ignored (NB3-13)", () => {
 test("the skip link is out of the tab order when the Notebook is off, and the menu makes every skip link inert (NB3-10)", () => {
   assert.match(read(`${dir}panel.js`), /setAttribute\("data-desk-skip", ""\)/);
   assert.match(read("src/styles/desk-tab.css"), /html\[data-desk-show="off"\] \.skip-link\[data-desk-skip\]\s*\{\s*display: none;/);
-  const header = read("src/components/SiteHeader.astro");
-  assert.match(header, /\.\.\.document\.querySelectorAll\("\.skip-link"\)/);
-  assert.match(header, /for \(const el of bgRegions\(\)\) el\.inert = open;/);
+  // The menu is a modal <dialog>, so everything outside it, every skip link
+  // included, is inert while it is open.
+  assert.match(read("src/components/MenuSheet.astro"), /<dialog class="menu-sheet" id="menuSheet"/);
+  assert.match(read("src/scripts/header-menus.js"), /sheet\.showModal\(\);/);
 });
 
 test("My Notes leaves sheets out before anything is counted (LV3-3)", () => {

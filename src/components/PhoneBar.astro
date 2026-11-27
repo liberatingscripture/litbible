@@ -1,0 +1,88 @@
+---
+import Icon from "./Icon.astro";
+import { navFor } from "../lib/chapter-nav-data.mjs";
+import { NEWS } from "../lib/news.mjs";
+
+// The bar at the thumb on a phone's reading page, a chapter or a book's
+// introduction (SITE-FEATHERBOA.md, "The phone"; PH-02 to PH-06, PH-26):
+// Previous, Search, Menu, and Next, each an icon with its word under it, on
+// the page's own surface under a hairline, never a shadow. Under 700px it
+// takes the place of the toolbar and of the round buttons beside the title
+// (ScriptureHeader.astro), with the header's reading row above (SiteHeader's
+// `picker`); from 700px it is not drawn, and the big Previous and Next at
+// the chapter's foot stay at every width.
+//
+// Without JavaScript all four are plain links that never hide (PH-26):
+// Previous and Next to their pages, Search to /search, and Menu to the
+// footer's links (#footer-nav), which hold the same places as the menu
+// sheet. With it, Search opens the page's search field in place of the top
+// row and both bars hide together on a scroll down (phone-bars.js), and Menu
+// opens the menu sheet (MenuSheet.astro, header-menus.js).
+//
+// Previous and Next come from the one shared rule (src/lib/chapter-nav.mjs),
+// as the title's buttons and the foot's do, and are named for where they go
+// ("Previous: Romans 7"). Matthew's introduction has no Previous and
+// Revelation 22 no Next: that one is drawn unavailable, in its place, so the
+// other three never move.
+//
+// bookKey: the page's book; chapter: its number, or "intro".
+
+interface Props {
+  bookKey: string;
+  chapter: number | "intro";
+}
+
+const { bookKey, chapter } = Astro.props;
+const key = String(bookKey ?? "")
+  .trim()
+  .toLowerCase()
+  .replace(/\s+/g, "");
+const { prev, next } = navFor(key, chapter);
+
+// The menu buttons carry a dot while a place in the sheet has news this
+// browser hasn't seen (NX-26; header-menus.js shows it). Study is never in
+// the sheet on a phone, so only Learn's and About's news count here.
+const news = NEWS.some((entry) => entry.place === "learn" || entry.place === "about");
+---
+
+<nav class="phone-bar" aria-label="Chapters, search, and menu" data-phone-bar data-pagefind-ignore>
+  {
+    prev ? (
+      <a class="kit-btn kit-btn--plain phone-bar__item" href={prev.href} rel="prev" aria-label={`Previous: ${prev.label}`}>
+        <Icon name="back" />
+        <span class="phone-bar__word">Previous</span>
+      </a>
+    ) : (
+      <a class="kit-btn kit-btn--plain phone-bar__item" role="link" aria-disabled="true">
+        <Icon name="back" />
+        <span class="phone-bar__word">Previous</span>
+      </a>
+    )
+  }
+  <a class="kit-btn kit-btn--plain phone-bar__item" href="/search" data-bar-search>
+    <Icon name="search" />
+    <span class="phone-bar__word">Search</span>
+  </a>
+  <a class="kit-btn kit-btn--plain phone-bar__item" href="#footer-nav" data-menu-toggle>
+    <Icon name="menu" />
+    <span class="phone-bar__word">Menu</span>
+    {news && <span class="site-nav__dot" data-news-menu hidden><span class="sr-only">, new</span></span>}
+  </a>
+  {
+    next ? (
+      <a class="kit-btn kit-btn--plain phone-bar__item" href={next.href} rel="next" aria-label={`Next: ${next.label}`}>
+        <Icon name="forward" />
+        <span class="phone-bar__word">Next</span>
+      </a>
+    ) : (
+      <a class="kit-btn kit-btn--plain phone-bar__item" role="link" aria-disabled="true">
+        <Icon name="forward" />
+        <span class="phone-bar__word">Next</span>
+      </a>
+    )
+  }
+</nav>
+
+<script>
+  import "../scripts/phone-bars.js";
+</script>

@@ -100,11 +100,17 @@ export function continueLabel(r) {
   return `${bookKeyToLabel(r.book)} ${r.chapter}`;
 }
 
-/** The reading line for `markers`, in px from the top of the window. */
+/** The reading line for `markers`, in px from the top of the window: never
+ *  above where a link to a verse puts its number, which on a phone's reading
+ *  page is below the top bar too (the page's scroll-padding, header.css). */
 export function readingLine(markers) {
   let landing = 0;
   try {
-    if (markers[0]) landing = (parseFloat(window.getComputedStyle(markers[0]).scrollMarginTop) || 0) + LANDING_SLACK;
+    if (markers[0]) {
+      const margin = parseFloat(window.getComputedStyle(markers[0]).scrollMarginTop) || 0;
+      const padding = parseFloat(window.getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+      landing = padding + margin + LANDING_SLACK;
+    }
   } catch {
     /* no styles to read: the fraction alone */
   }
@@ -170,14 +176,12 @@ export function trackStudyView(root) {
 }
 
 /**
- * Fill every Continue link on the page, or leave them hidden when there is
- * nothing to continue. Wrappers ([data-continue-reading]) carry a forget
- * button; the phone menu's link ([data-continue-menu]) does not.
+ * Fill every Continue link on the page ([data-continue-reading], each with a
+ * forget button), or leave them hidden when there is nothing to continue.
  */
 export function mountContinueReading() {
   const record = loadLastRead();
   const wrappers = Array.from(document.querySelectorAll("[data-continue-reading]"));
-  const menuLinks = Array.from(document.querySelectorAll("a[data-continue-menu]"));
   if (!record) return;
 
   const href = continueHref(record);
@@ -188,18 +192,13 @@ export function mountContinueReading() {
     if (text) text.textContent = label;
   };
 
-  for (const link of menuLinks) {
-    fill(link);
-    link.hidden = false;
-  }
-
   for (const wrapper of wrappers) {
     const link = wrapper.querySelector("a[data-continue-link]");
     if (link) fill(link);
     wrapper.hidden = false;
     wrapper.querySelector("[data-continue-forget]")?.addEventListener("click", () => {
       clearLastRead();
-      for (const el of [...wrappers, ...menuLinks]) el.hidden = true;
+      for (const el of wrappers) el.hidden = true;
       // The button just vanished under the keyboard user's focus. Both pages
       // that carry one put it straight under the page's h1, so land there.
       const heading = document.querySelector("h1");

@@ -8,6 +8,7 @@ import SearchBar from "../components/SearchBar.astro";
 import ScriptureHeader from "../components/ScriptureHeader.astro";
 import PrintCredit from "../components/PrintCredit.astro";
 import SblgntNotice from "../components/SblgntNotice.astro";
+import PhoneBar from "../components/PhoneBar.astro";
 import Icon from "../components/Icon.astro";
 import { bookKeyToLabel } from "../data/books.js";
 
@@ -131,13 +132,22 @@ const deskPlaceLabel =
     ? `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} 1`
     : `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
 const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
+// The phone's two bars (SITE-FEATHERBOA.md, "The phone"): the header's row
+// names the chapter as the picker, as the toolbar's picker does ("John 3,"
+// "John · Intro"), and PhoneBar.astro is the bar at the thumb. A chapter or
+// an introduction, drafts included; never Read View or /search.
+const phonePicker = isScriptureLike
+  ? headerKind === "intro"
+    ? `${bookKeyToLabel(pagefindBook)} · Intro`
+    : `${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1}`
+  : undefined;
 // Which reading surface this is, for the Study Desk's pre-paint stamps
 // (Layout.astro, desk-frame.js's hasPanel; E124): a chapter, drafts included,
 // or a book's introduction, which has no Notebook panel in version 1.
 const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === "intro" ? "intro" : undefined;
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskHref={showDeskPill ? deskPlaceHref : undefined} deskSurface={deskSurface}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskHref={showDeskPill ? deskPlaceHref : undefined} deskSurface={deskSurface} picker={phonePicker}>
   <slot slot="head" name="head" />
 
   {/* Fetch the previous or next chapter as soon as a reader shows intent
@@ -154,7 +164,8 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
           "where": {
             "selector_matches": [
               ".chapter-nav a.nav-button",
-              ".chapter-ctas a.chapter-cta"
+              ".chapter-ctas a.chapter-cta",
+              ".phone-bar a[rel]"
             ]
           },
           "eagerness": "moderate"
@@ -177,18 +188,11 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
             </div>
 
             <div class="scripture-tools__center" aria-label="Search the LIT">
-              {/* Phones, with JS: search starts as this button and opens in
-                  place of the row (see the script after this section). */}
-              {showToolsSearch ? (
-                <button type="button" class="tools-search-toggle" aria-label="Search" aria-expanded="false" hidden>
-                  <Icon name="search" />
-                </button>
-              ) : null}
+              {/* On a phone the toolbar gives way to the two bars, and the
+                  bar's Search moves this field into the top row while it is
+                  open (phone-bars.js). */}
               {showToolsSearch ? (
                 <SearchBar />
-              ) : null}
-              {showToolsSearch ? (
-                <button type="button" class="tools-search-close" aria-label="Close search" hidden><Icon name="close" /></button>
               ) : null}
             </div>
 
@@ -228,45 +232,6 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
         </section>
       )
     }
-
-    {/* The compact phone toolbar (audit F3). Runs while the page is still
-        parsing, right after the toolbar, so the one-row layout is in place
-        before first paint and nothing shifts. Without JS phones keep the
-        stacked toolbar, whose search field works on its own. */}
-    {isScriptureLike && (showToolsReadMenu || showToolsSearch) && (
-      <script is:inline>
-          (() => {
-            const tools = document.querySelector(".scripture-layout .scripture-tools");
-            if (!tools) return;
-            tools.setAttribute("data-compact", "");
-            const toggle = tools.querySelector(".tools-search-toggle");
-            const close = tools.querySelector(".tools-search-close");
-            if (!toggle || !close) return;
-            toggle.hidden = false;
-            close.hidden = false;
-            const input = tools.querySelector(".searchbar__input");
-            const open = () => {
-              tools.setAttribute("data-search-open", "");
-              toggle.setAttribute("aria-expanded", "true");
-              input && input.focus();
-            };
-            const shut = () => {
-              if (!tools.hasAttribute("data-search-open")) return;
-              tools.removeAttribute("data-search-open");
-              toggle.setAttribute("aria-expanded", "false");
-              const bar = tools.querySelector("[data-searchbar]");
-              if (bar) bar.dataset.open = "false";
-              toggle.focus();
-            };
-            toggle.addEventListener("click", open);
-            close.addEventListener("click", shut);
-            tools.addEventListener("keydown", (e) => {
-              if (e.key === "Escape") shut();
-            });
-          })();
-      </script>
-    )}
-
 
     <div
       class="scripture-main"
@@ -380,6 +345,10 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
     </div>
 
     <SblgntNotice />
+
+    {isScriptureLike && (
+      <PhoneBar bookKey={pagefindBook} chapter={headerKind === "intro" ? "intro" : (headerChapter ?? 1)} />
+    )}
 
     <style>
       /* The reader's text size (Display tray) is set here rather than on the

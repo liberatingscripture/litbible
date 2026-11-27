@@ -106,7 +106,10 @@ const fallbackHref =
 
   <script is:inline>
     (() => {
-      const root = document.currentScript?.previousElementSibling;
+      // The nav is this script's sibling in the wrap, with the icons'
+      // template between them, so it is found by its class, not as the
+      // previous sibling (which is the template).
+      const root = document.currentScript?.parentElement?.querySelector(":scope > nav.read-menu");
       if (!(root instanceof HTMLElement)) return;
       // No native popover support: keep the plain fallback link.
       if (!("showPopover" in HTMLElement.prototype)) return;
@@ -189,8 +192,33 @@ const fallbackHref =
       trigger.setAttribute("popovertarget", panel.id);
       trigger.setAttribute("popovertargetaction", "toggle");
 
+      // A second way in (SITE-FEATHERBOA.md, "The phone"; PH-01): on a
+      // chapter or an introduction the header's top bar names the chapter as
+      // a link to /read marked data-rm-also, made here into another invoker
+      // of this same panel, until Phase 4 draws the picker as a sheet. The
+      // panel hangs from whichever invoker opened it, and its close returns
+      // focus there. Read View's toolbar picker takes none.
+      const invokers = [trigger];
+      if (!isRead) {
+        for (const also of document.querySelectorAll("a[data-rm-also]")) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = also.className;
+          b.innerHTML = also.innerHTML;
+          b.setAttribute("data-rm-also", "");
+          b.setAttribute("aria-haspopup", "dialog");
+          b.setAttribute("aria-expanded", "false");
+          b.setAttribute("popovertarget", panel.id);
+          b.setAttribute("popovertargetaction", "toggle");
+          also.replaceWith(b);
+          invokers.push(b);
+        }
+      }
+      let opener = trigger;
+      for (const b of invokers) b.addEventListener("click", () => (opener = b));
+
       function positionPanel() {
-        const r = trigger.getBoundingClientRect();
+        const r = opener.getBoundingClientRect();
         // The stylesheet owns the width (560px times the Display tray's
         // scale for controls); it is read back so the two can't disagree.
         // While the panel is still hidden the value isn't a length yet, and
@@ -249,7 +277,7 @@ const fallbackHref =
       // Explicit close for the panel: on touch layouts (notably the reading
       // toolbar's bottom sheet) the panel can cover its own trigger, and a
       // tap outside would light-dismiss the sheet along with the picker —
-      // this closes just the picker and hands focus back to the trigger.
+      // this closes just the picker and hands focus back to what opened it.
       function closeBtn() {
         const b = document.createElement("button");
         b.type = "button";
@@ -258,7 +286,7 @@ const fallbackHref =
         b.append(ic("close"));
         b.addEventListener("click", () => {
           panel.hidePopover();
-          trigger.focus();
+          opener.focus();
         });
         return b;
       }
@@ -393,7 +421,7 @@ const fallbackHref =
       // is the way up). Study mode keeps its book-grid opening.
       panel.addEventListener("toggle", (e) => {
         const isOpen = e.newState === "open";
-        trigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        for (const b of invokers) b.setAttribute("aria-expanded", isOpen ? "true" : "false");
         if (!isOpen) return;
         if (isRead && curBook && books[curBook]) showChapters(curBook);
         else showBooks("");
@@ -432,7 +460,7 @@ const fallbackHref =
     })();
   </script>
 
-  {/* After the script, which finds the nav as its previous sibling. The /read
+  {/* After the script, which finds the nav in this wrap as it runs. The /read
       landing puts its Study Desk pill here (E50); everywhere else is empty. */}
   <slot />
 

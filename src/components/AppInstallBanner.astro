@@ -30,8 +30,8 @@ import Icon from "./Icon.astro";
       <strong>LIT Bible</strong>
       <span>Free. No account, no ads.</span>
     </div>
-    <a class="litab__cta" href="https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share" target="_blank" rel="external noopener noreferrer">Get app</a>
-    <button class="litab__x" type="button" aria-label="Dismiss"><Icon name="close" /></button>
+    <a class="kit-btn kit-btn--filled litab__cta" href="https://play.google.com/store/apps/details?id=com.litbible.app&pcampaignid=web_share" target="_blank" rel="external noopener noreferrer">Get app</a>
+    <button class="kit-icon litab__x" type="button" aria-label="Dismiss"><Icon name="close" /></button>
   </div>
 </aside>
 
@@ -102,10 +102,13 @@ import Icon from "./Icon.astro";
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* The kit's filled button and its close (kit.css): the banner sets only
+     where they sit. A link keeps no underline when pointed at. */
   .litab__cta {
     flex: none;
+  }
+  .litab__cta:is(:hover, :focus) {
     text-decoration: none;
-    white-space: nowrap;
   }
   .litab__x {
     flex: none;

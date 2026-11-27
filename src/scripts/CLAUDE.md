@@ -19,7 +19,12 @@ From the root's project tree.
                      #   header-search, the header's magnifier (its
                      #   search strip, or the page's own box);
                      #   header-menus, the header's Learn, Study, and
-                     #   About menus and their news marks;
+                     #   About menus, the menu sheet every "Menu" opens,
+                     #   and their news marks; phone-bars, a phone's two
+                     #   reading bars (Search in the top row, hiding
+                     #   together on a scroll down); link-button, a link
+                     #   that answers as a button once a script takes it
+                     #   over (the bar's Search and Menu);
                      #   keyboard-shortcuts; print-radios, which sets every
                      #   radio button back after the print dialog (Edge
                      #   clears them all; see "Printing and handouts");
@@ -575,20 +580,25 @@ License page of their own, forwarding /read's old anchors:
     `/read`, Read View, `/search`, and the articles pages. The header's
     magnifier beside "Aa" is on every page but the Read page (a chapter, an
     introduction, Read View, whose box is the toolbar's; HD-13) and /desk,
-    whose search is a pane. Without JS
-    it's a link to `/search`. With JS (`header-search.js`), on a page with
-    its own box it takes the reader to that box; on any other it opens a
-    strip under the header holding the ordinary `SearchBar`, so its results
-    tray is the one chapter pages use, and Escape closes the tray and then
-    the strip. Under 360px there is no room for a third header button (the
-    short title ran 20–36px into them at 320px, in every font), so the icon
-    moves into the phone menu as "Search", or leaves the page's own box as
-    the way in. **A new page with its own `SearchBar` must pass
+    whose search is a pane. On a phone a chapter's or an introduction's
+    toolbar is hidden, and the bar's Search moves that same box into the top
+    row while it is open (`phone-bars.js`), so the page still has one.
+    Without JS the magnifier is a link to `/search`. With JS
+    (`header-search.js`), on a page with its own box it takes the reader to
+    that box; on any other it opens a strip under the header holding the
+    ordinary `SearchBar`, so its results tray is the one chapter pages use,
+    and Escape closes the tray and then the strip. Under 360px there is no
+    room for a third header button (the short title ran 20–36px into them at
+    320px, in every font), nor under 380px in OpenDyslexic beside its wider
+    "Menu" (measured), so the icon moves into the menu sheet as its Search
+    row, or leaves the page's own box as the way in. **A new page with its own `SearchBar` must pass
     `pageSearch`**, or it renders two. Featherboa keeps the rule but moves a reading
     page's way in: the toolbar's box goes, and "Search" on the place line
     opens it in place of the line, while the passage picker gains a typing
-    field of its own (`SITE-FEATHERBOA.md`, "Finding a passage"); until it
-    is built, this holds.
+    field of its own (`SITE-FEATHERBOA.md`, "Finding a passage"). A phone
+    has the first part (the bar's Search opens the box in place of its top
+    row, which names the passage); the picker's typing field, and all of it
+    on a computer, wait for Phase 4. Until then, this holds.
 ## Continue reading, Read View's landing, and keyboard shortcuts
 
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
@@ -596,16 +606,18 @@ License page of their own, forwarding /read's old anchors:
   `src/scripts/last-read.js`. Chapter View writes it on arrival (at a `#vN`
   verse) and as the reader scrolls, taking the last verse number above the
   reading line, 10% of the way down the window (BVJ, 2026-10-29; it was 30%)
-  but never above where a link to a verse puts its number (`readingLine`).
+  but never above where a link to a verse puts its number (`readingLine`),
+  which counts the scroll padding a phone's top row adds.
   Read View writes it whenever it saves its own per-book resume position,
   with the verse at the same line (which can be in the chapter before the
   one its toolbar names). `read-mode.js` is loaded through `?url`, so Vite serves it
   unbundled and it **cannot import**: it announces each save with an
   `rm:position` event, and a bundled script in `read/[book].astro` records
   it. Draft chapters are never recorded. `ContinueReading.astro` (home title
-  block, top of /read) and a button in the phone menu offer it back, hidden
-  until a record exists, so no JS or no storage means nothing renders; the ×
-  forgets it everywhere. Featherboa offers it as the first row of the book
+  block, top of /read) offers it back, hidden until a record exists, so no
+  JS or no storage means nothing renders; the × forgets it everywhere. The
+  menu sheet doesn't offer it: on a phone it waits for Phase 4's picker
+  (PH-14). Featherboa offers it as the first row of the book
   picker and of Home instead, with nothing to dismiss
   (`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"); the record is
   unchanged. The Study Desk's LIT pane on /desk writes it too
@@ -627,7 +639,9 @@ License page of their own, forwarding /read's old anchors:
   Don't make that first landing smooth again: this replaced it after the owner
   saw the switch land "at random places within the book" (2026-09-27).
 - **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
-  2026-09-28): `/` search (a Search pane on /desk), `g` Go to passage, and
+  2026-09-28): `/` search (a Search pane on /desk; on a phone's reading
+  page the bar's Search), `g` Go to passage (the toolbar's picker, or the
+  top row's on a phone), and
   ← → or `[` `]` for the
   previous and next chapter (Chapter View's top Previous/Next, found by their
   `rel="prev"` / `rel="next"`, the neighboring `#ch-N` in Read View, or on

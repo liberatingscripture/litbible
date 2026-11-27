@@ -24,7 +24,7 @@ being read** (BVJ, 2026-11-25), by the sync's own code:
 the first-time choice (step 4j). Sign in with Apple and with Google are built
 and off (rule 19). **The choices Claude made while building are BVJ's
 now** (2026-11-25, “yes” to each of the eight listed under step 4h): the
-header's tiles, its “Sign out,” and “Account” in the phone menu (rule
+header's tiles, its “Sign out,” and “Account” in the menu sheet (rule
 17), a heading not drawn twice (rule 18), no announcement here
 (“Routes”), “approved from this browser,” the one press of rule 20,
 and rule 21's three seconds. **The Turnstile check is on in the
@@ -228,8 +228,10 @@ without the switch. The announcement popover stays off all three
     accounts open (AC-23); once the browser is linked, “Account ▾,” whose
     menu holds the sync's status (the status line's own slot), “Account and
     devices,” and “Sign out.” “Study Desk ▾” is unchanged. Below the full
-    header's width (700px) it is “Account” in the menu overlay's Study
-    group. Five things to keep:
+    header's width (700px), with accounts open, it is an “Account” row at
+    the foot of the menu sheet (`MenuSheet.astro`, `header.css`); Study's
+    own header, which shows the entry at every width, leaves that row out.
+    Five things to keep:
     - **It reads only the link** (`peekLink`), so it brings no encryption
       and starts no sync, and `test/desk-sync-gate.test.js` holds its two
       imports. A reader signed in but not yet linked still sees “Sign in.”

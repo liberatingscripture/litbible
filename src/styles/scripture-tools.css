@@ -129,11 +129,9 @@
   }
 }
 
-/* The Read View pill's short label, and the phone search controls, are
-   off everywhere until a rule below turns them on. */
-.rvp-short,
-.tools-search-toggle,
-.tools-search-close {
+/* The Read View pill's short label is off everywhere until the tablet band
+   turns it on. */
+.rvp-short {
   display: none;
 }
 
@@ -143,116 +141,14 @@
   }
 }
 
-/* Phones with JS (data-compact, set by ScriptureLayout's inline script): one
-   row of passage picker, search button and Read View button, 44px tall.
-   Search opens in place of the row, with a × to close it. Without JS the
-   stacked layout above stays. (audit F3) */
-.tools-search-toggle,
-.tools-search-close {
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  cursor: pointer;
-}
-
-@media (max-width: 640px) {
-  .scripture-tools[data-compact] {
-    padding: 10px 12px 4px;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__inner {
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    width: 100%;
-    gap: 8px;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__left,
-  .scripture-tools[data-compact] .scripture-tools__center,
-  .scripture-tools[data-compact] .scripture-tools__right {
-    grid-row: 1;
-    margin: 0;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__left {
-    grid-column: 1;
-    justify-self: stretch;
-    min-width: 0;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__center {
-    grid-column: 2;
-    width: auto;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__right {
-    grid-column: 3;
-  }
-
-  .scripture-tools[data-compact] .read-menu-wrap,
-  .scripture-tools[data-compact] .read-menu {
-    width: 100%;
-  }
-
-  .scripture-tools[data-compact] .read-menu__trigger {
-    width: 100%;
-    min-width: 0;
-    height: 44px;
-    padding: 0 14px;
-  }
-
-  .scripture-tools[data-compact] .searchbar {
+/* On a phone, a chapter's or an introduction's toolbar gives way to the
+   phone's two bars (SiteHeader's reading row and PhoneBar.astro; PH-06):
+   the picker is the row's, and the search field opens in the row's place,
+   moved there from here by phone-bars.js. The search page's and Read
+   View's toolbars stay. */
+@media (max-width: 699px) {
+  .scripture-layout--scripture .scripture-tools,
+  .scripture-layout--intro .scripture-tools {
     display: none;
-  }
-
-  .scripture-tools[data-compact] .tools-search-toggle {
-    display: inline-flex;
-  }
-
-  .scripture-tools[data-compact] .reading-view-right {
-    margin-top: 0;
-  }
-
-  .scripture-tools[data-compact] .reading-view-pill {
-    min-width: 0;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-  }
-
-  .scripture-tools[data-compact] .rvp-full {
-    display: none;
-  }
-
-  /* Search open: the field and × take the row. */
-  .scripture-tools[data-search-open] .scripture-tools__left,
-  .scripture-tools[data-search-open] .scripture-tools__right,
-  .scripture-tools[data-search-open] .tools-search-toggle {
-    display: none;
-  }
-
-  .scripture-tools[data-search-open] .scripture-tools__center {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .scripture-tools[data-search-open] .searchbar {
-    display: block;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .scripture-tools[data-search-open] .tools-search-close {
-    display: inline-flex;
-  }
-
-  /* The results tray spans the whole row, under the × as well. */
-  .scripture-tools[data-search-open] .searchbar__panel {
-    right: auto;
-    width: calc(100vw - 24px);
   }
 }

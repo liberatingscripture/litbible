@@ -1,6 +1,7 @@
 ---
 import SearchBar from "./SearchBar.astro";
 import Icon from "./Icon.astro";
+import MenuSheet from "./MenuSheet.astro";
 import { PLACES, STUDY_HREF, normalizePath, placeOf } from "../lib/places.mjs";
 import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
 
@@ -16,12 +17,19 @@ import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
 //   a time, and closing on a press elsewhere.
 // - Study shows only on a computer with the Study preview on (html[data-desk],
 //   stamped before paint, at 1100px and up; header.css), so nothing moves.
-// - The full header holds from 700px (900px in OpenDyslexic). Below that,
-//   today's phone row stays: the brand, the magnifier, Aa, and the menu
-//   button over the overlay below, until Phase 3's second part draws the
-//   phone's two bars and its menu sheet.
+// - The full header holds from 700px (900px in OpenDyslexic). Below that
+//   the row is the brand, the magnifier, Aa, and "Menu," which opens the
+//   menu sheet (MenuSheet.astro, drawn after the header) from the window's
+//   foot, as it does in Study's own header at every width.
+// - On a phone's reading page (a chapter or an introduction, under 700px)
+//   the row is the phone's top bar (SITE-FEATHERBOA.md, "The phone"; PH-01):
+//   the emblem, named "Home," the chapter's name as the picker, and Aa.
+//   "LIT Bible" leaves it, and "Menu" is the bar's at the thumb
+//   (PhoneBar.astro); phone-bars.js opens the search field in the row's
+//   place and hides it with the bar on a scroll down.
 // - News marks (src/lib/news.mjs) are drawn hidden, only for the entries the
-//   list holds; header-menus.js shows the ones a reader hasn't seen.
+//   list holds; header-menus.js shows the ones a reader hasn't seen, on the
+//   places here, in the menu sheet, and as a dot on "Menu."
 //
 // search: "strip" (the magnifier opens a search strip under the header),
 // "page" (the page has its own search box, which the magnifier takes the
@@ -37,7 +45,11 @@ import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
 // scriptureControls: "study" on a chapter page (verse numbers and footnote
 // letters), "read" in Read View (numbers only: it prints no footnote
 // letters, and its numbers setting hides the chapter headings too).
-const { class: className = "", scriptureControls, search = "strip", deskTitle, deskHref = STUDY_HREF } = Astro.props;
+// picker: the chapter's name on a chapter or an introduction ("John 3,"
+// "John · Intro"), which makes the row the phone's top bar under 700px.
+// Without JavaScript it is a link to /read; ReadMenu's script makes it a
+// second way to open the page's passage picker until Phase 4 redraws it.
+const { class: className = "", scriptureControls, search = "strip", deskTitle, picker, deskHref = STUDY_HREF } = Astro.props;
 
 type Place = (typeof PLACES)[number];
 type Row = Place["rows"][number];
@@ -69,9 +81,11 @@ const SIZE_OPTIONS = [
 ];
 ---
 
-<header class={`site-header ${deskTitle ? "site-header--desk" : ""} ${className}`.replace(/\s+/g, " ").trim()}>
+<header class={`site-header ${deskTitle ? "site-header--desk" : ""} ${picker ? "site-header--reading" : ""} ${className}`.replace(/\s+/g, " ").trim()}>
   <div class="site-header__inner">
-    {/* "LIT Bible" always (HD-10); the full name is in every page's tab title (HD-11). */}
+    {/* "LIT Bible" always (HD-10); the full name is in every page's tab title (HD-11).
+        On a phone's reading page the name leaves the row and the emblem alone
+        is the way home, named "Home" (PH-01). */}
     <a href="/" class="site-header__brand">
       <img
         src="/images/lit-logo-2026-ring.svg"
@@ -83,7 +97,26 @@ const SIZE_OPTIONS = [
         decoding="async"
       />
       <span class="site-header__title">LIT Bible<span class="sr-only">, the Liberation and Inclusion Translation, home</span></span>
+      {picker && <span class="sr-only site-header__home">Home</span>}
     </a>
+
+    {/* The chapter's name as the picker (PH-01), and the search field's place
+        when the bar's Search opens it there (PH-09; phone-bars.js moves the
+        page's SearchBar in and out). Both only on a phone's reading page. */}
+    {picker && (
+      <a class="kit-btn kit-btn--plain site-header__picker" href="/read" data-rm-also>
+        <span class="sr-only">Go to passage. Current:&nbsp;</span>
+        <span class="site-header__picker-label">{picker}</span>
+        <Icon name="down" />
+      </a>
+    )}
+    {picker && (
+      <div class="site-header__find" id="phoneFind" data-phone-find hidden>
+        <button type="button" class="kit-icon site-header__find-close" aria-label="Close search" data-phone-find-close>
+          <Icon name="close" />
+        </button>
+      </div>
+    )}
 
     {deskTitle && <h1 class="site-header__page-title">{deskTitle}</h1>}
 
@@ -178,16 +211,22 @@ const SIZE_OPTIONS = [
           <a class="kit-row" href="/account/#sign-out">Sign out</a>
         </div>
       </span>
+      {/* Opens the menu sheet (header-menus.js). Its icon isn't one that
+          stands alone, so it keeps its word; under 400px (430px in
+          OpenDyslexic) the word alone, for the room "LIT Bible" needs
+          (header.css). */}
       <button
-        class="site-header__menu-toggle"
+        class="kit-btn kit-btn--plain site-header__menu-toggle"
         type="button"
-        aria-label="Open menu"
-        aria-controls="mobileMenu"
+        aria-controls="menuSheet"
         aria-expanded="false"
         aria-haspopup="dialog"
+        data-menu-toggle
       >
-        <span class="menu-icon" aria-hidden="true"></span>
-        <span class="sr-only">Menu</span>
+        <Icon name="menu" />Menu
+        {newsPlaces.size > 0 && (
+          <span class="site-nav__dot" data-news-menu hidden><span class="sr-only">, new</span></span>
+        )}
       </button>
     </div>
   </div>
@@ -206,9 +245,10 @@ const SIZE_OPTIONS = [
   {/* Without JavaScript: the places and their menus work as they are (links
        and <details>), but Aa and the menu button do nothing, so they go, and
        below the full header's width a row of two links stands in: Read, and
-       Menu, which goes to the footer's links, as the phone's bar will
-       ("The phone," "Without JavaScript"). A <style is:inline> with global
-       selectors, as the footer's noscript note is. */}
+       Menu, which goes to the footer's links, as the phone's bar does
+       ("The phone," "Without JavaScript"). A phone's reading page needs
+       neither: its picker goes to /read and its bar has Menu. A <style
+       is:inline> with global selectors, as the footer's noscript note is. */}
   <noscript>
     <style is:inline>
       .site-header__menu-toggle,
@@ -226,6 +266,7 @@ const SIZE_OPTIONS = [
       }
       /* Study's own header has no places at any width. */
       .site-header--desk .site-header__noscript-nav { display: flex; }
+      .site-header--reading .site-header__noscript-nav { display: none; }
     </style>
     <nav class="site-header__noscript-nav" aria-label="Primary">
       <a class="kit-btn kit-btn--plain" href="/read">Read</a>
@@ -368,163 +409,12 @@ const SIZE_OPTIONS = [
     </fieldset>
   </div>
 
-  {/* Today's menu overlay, for a window narrower than the full header and for
-      Study's own header, fed by the places (src/lib/places.mjs) until Phase
-      3's second part makes it the phone's menu sheet. Read is its button at
-      the foot; Study's group shows only with the preview (global.css). */}
-  <div class="menu-overlay" id="mobileMenu" aria-hidden="true">
-    <div
-      class="menu-overlay__panel"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Site menu"
-      tabindex="-1"
-    >
-      <nav class="menu-overlay__nav" aria-label="Primary (mobile)">
-        {/* Below 360px the header has no room for its magnifier, so search
-            moves in here (global.css shows it only there). */}
-        {search === "strip" && (
-          <a href="/search" class="menu-overlay__search" data-search-toggle>Search</a>
-        )}
-        {/* The groups under headings, with no menu inside the menu. */}
-        {PLACES.filter((place) => place.menu).map((place) => (
-          <div
-            class={`menu-overlay__group menu-overlay__group--${place.key}`}
-            role="group"
-            aria-labelledby={`menuGroup-${place.key}`}
-          >
-            <p class="menu-overlay__heading" id={`menuGroup-${place.key}`}>{place.label}</p>
-            {place.rows.map((row) => (
-              <a href={hrefOf(row)} aria-current={currentOf(row)}>{row.label}</a>
-            ))}
-            {/* A window narrower than the full header has the account's way in here. */}
-            {place.study && <a href="/account/" class="menu-overlay__account">Account</a>}
-          </div>
-        ))}
-
-        {/* Filled and shown by last-read.js for a returning reader */}
-        <a href="/read/" class="menu-overlay__continue" data-continue-menu hidden>
-          Continue: <span data-continue-label></span>
-        </a>
-        <a href="/read" class="menu-overlay__cta" aria-label="Read the LIT"><span class="cta-hold">Read</span></a>
-      </nav>
-    </div>
-  </div>
-
   <script>
-    import "../scripts/continue-reading.js";
     import "../scripts/header-search.js";
     import "../scripts/keyboard-shortcuts.js";
     import "../scripts/desk-gate.js";
     import "../scripts/header-menus.js";
     import "../scripts/print-radios.js";
-  </script>
-
-  <script>
-    // @ts-nocheck
-    (() => {
-      const toggle = document.querySelector(".site-header__menu-toggle");
-      const overlay = document.getElementById("mobileMenu");
-      const panel = overlay?.querySelector(".menu-overlay__panel");
-
-      if (!toggle || !overlay || !panel) return;
-
-      let lastActive = null;
-
-      // Background regions to remove from the tab order and a11y tree while
-      // the dialog is open. Deliberately excludes .site-header__inner (the
-      // menu toggle that closes the dialog lives inside it, and there's no
-      // in-panel close button) — the existing Tab-cycle handler below keeps
-      // keyboard focus off the rest of the still-live header instead. inert
-      // covers everything outside the header; the manual trap covers the
-      // header itself. The AppsLaunchPopover <dialog> and the font tray
-      // (hidden until opened) need no handling — both are already out of the
-      // tab order/a11y tree when closed.
-      // Read each time, not once: the Study Desk adds a second skip link
-      // ("Skip to the Notebook") after this script has run (NB3-10).
-      const bgRegions = () => [
-        ...document.querySelectorAll(".skip-link"),
-        document.getElementById("main-content"),
-        document.querySelector(".place-line"),
-        document.querySelector(".site-footer"),
-        document.querySelector(".footer-license-band"),
-      ].filter(Boolean);
-
-      const setOpenState = (open) => {
-        overlay.classList.toggle("is-open", open);
-        overlay.setAttribute("aria-hidden", open ? "false" : "true");
-
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-
-        for (const el of bgRegions()) el.inert = open;
-
-        // Defer scroll-lock to the next frame so the paint of the visual
-        // open/close state isn't blocked by a full layout recalculation
-        // (overflow:hidden on <body> triggers relayout of the entire page).
-        requestAnimationFrame(() => {
-          document.documentElement.classList.toggle("menu-open", open);
-        });
-      };
-
-      const openMenu = () => {
-        lastActive = document.activeElement;
-        setOpenState(true);
-        // Defer focus so the opening paint commits first; focus() forces
-        // layout and would otherwise stack two sync layouts into this tick.
-        requestAnimationFrame(() => panel.focus({ preventScroll: true }));
-      };
-
-      const closeMenu = () => {
-        setOpenState(false);
-        (lastActive?.focus ? lastActive : toggle).focus?.({
-          preventScroll: true,
-        });
-      };
-
-      const isOpen = () => overlay.classList.contains("is-open");
-
-      toggle.addEventListener("click", (e) => {
-        e.preventDefault();
-        isOpen() ? closeMenu() : openMenu();
-      });
-
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) closeMenu();
-      });
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && isOpen()) closeMenu();
-      });
-
-      overlay.querySelectorAll("a").forEach((a) => {
-        a.addEventListener("click", () => {
-          // Defer DOM mutations so the browser can paint the click feedback first.
-          // For navigation links the page unloads before rAF fires — no visible effect.
-          requestAnimationFrame(closeMenu);
-        });
-      });
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "Tab" || !isOpen()) return;
-
-        const focusables = panel.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        );
-        if (!focusables.length) return;
-
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      });
-    })();
   </script>
 
   <script>
@@ -789,3 +679,7 @@ const SIZE_OPTIONS = [
   </script>
 
 </header>
+
+{/* The menu sheet (PH-11 to PH-15): every menu button opens it, the header's
+    here and a phone's bar on a reading page. */}
+<MenuSheet search={search} deskHref={deskHref} account={!deskTitle} />

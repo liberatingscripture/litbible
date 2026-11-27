@@ -46,6 +46,10 @@ const {
   // Where the header's Study menu sends "Scripture": a chapter or an
   // introduction passes its toolbar pill's ?place= address (ScriptureLayout).
   deskHref,
+  // The chapter's name on a chapter or an introduction ("John 3"), which
+  // makes the header's row the phone's top bar under 700px (SiteHeader's
+  // picker; ScriptureLayout passes it, with the bar at the thumb).
+  picker,
   // Which reading surface this page is, for the Study Desk ("chapter",
   // "intro", "read", "article", "glossary"; the kinds in desk-frame.js's
   // ALL_SURFACES). The pre-paint script stamps the Notebook panel's state
@@ -79,11 +83,13 @@ const criticalDarkColor = isGreen ? "#FAFAF8" : "#ECEEE8";
 // .site-header covers the outer element; .site-header__inner covers the inner.
 // main{min-height:50svh} keeps the early paint from starting at height:0
 // before content arrives, avoiding a large layout shift on long pages.
+// A phone's reading page reserves its top bar's height instead (header.css,
+// "The phone's top bar").
 // The dark block mirrors global.css's dual mechanism so the pre-paint data-theme
 // attribute overrides it on first paint: the media rule is guarded with
 // :not([data-theme="light"]) (so a forced-light user on a dark OS gets no dark
 // frame), and an explicit :root[data-theme="dark"] rule forces dark on any OS.
-const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}`;
+const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}@media(max-width:699px){.site-header--reading,.site-header--reading .site-header__inner{min-height:52px}}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}`;
 
 // What the desk's pre-paint script needs to repeat src/lib/desk-margin.mjs's
 // firstPaint (BA25, BA30).
@@ -261,7 +267,7 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} search={search} deskTitle={deskTitle} deskHref={deskHref} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} search={search} deskTitle={deskTitle} picker={picker} deskHref={deskHref} />
     {/* A page puts its one or two main commands at the line's right with
         slot="place-line" (none does yet). */}
     {where.line && !deskTitle && (

@@ -64,11 +64,12 @@ if (strip && toggles.length) {
     toggle.addEventListener("click", (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
-      // The phone menu's Search item (under 360px). The menu closes itself a
-      // frame after any link click, handing focus back and lifting the inert
-      // it put on the page, so open once that has happened, and give focus
-      // back to the menu button later, since this item goes with the menu.
-      if (toggle.closest(".menu-overlay")) {
+      // The menu sheet's Search row (under 360px). The sheet closes itself a
+      // frame after any link click, handing focus back and letting the page
+      // out of its modal inert (header-menus.js), so open once that has
+      // happened, and give focus back to the menu button later, since this
+      // row goes with the sheet.
+      if (toggle.closest(".menu-sheet")) {
         const menuButton = document.querySelector(".site-header__menu-toggle");
         requestAnimationFrame(() => requestAnimationFrame(() => open(menuButton)));
         return;

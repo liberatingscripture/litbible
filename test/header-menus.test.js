@@ -3,18 +3,19 @@
 // The header (SITE-FEATHERBOA.md, "Four places: the header"; Featherboa's
 // Phase 3): "LIT Bible," then Read, Study, Learn, and About from
 // src/lib/places.mjs, Read a link and the other three <details> menus, and
-// the news marks on them (src/lib/news.mjs). The first tests hold
-// SiteHeader.astro, Layout.astro, and the stylesheets to the record, since
-// happy-dom has no layout and Astro doesn't run here; the rest drive
-// src/scripts/header-menus.js over the header's own markup, written out
-// below from the same places, with a list of news, a day, and storage of
-// their own.
+// the news marks on them (src/lib/news.mjs); and the menu sheet the "Menu"
+// buttons open (MenuSheet.astro; "The phone," "The menu"). The first tests
+// hold SiteHeader.astro, MenuSheet.astro, Layout.astro, and the stylesheets
+// to the record, since happy-dom has no layout and Astro doesn't run here;
+// the rest drive src/scripts/header-menus.js over the header's and the
+// sheet's own markup, written out below from the same places, with a list
+// of news, a day, and storage of their own.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-import "./helpers/browser-env.mjs";
+import { settle } from "./helpers/browser-env.mjs";
 import { PLACES, STUDY_HREF } from "../src/lib/places.mjs";
 import { SEEN_KEY, WHATS_NEW_HREF } from "../src/lib/news.mjs";
 
@@ -22,6 +23,8 @@ const { start } = await import("../src/scripts/header-menus.js");
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const header = read("src/components/SiteHeader.astro");
+const sheetMarkup = read("src/components/MenuSheet.astro");
+const script = read("src/scripts/header-menus.js");
 const layout = read("src/layouts/Layout.astro");
 const headerCss = read("src/styles/header.css");
 const footerCss = read("src/styles/footer.css");
@@ -53,13 +56,32 @@ test("Study shows on a computer with the Study preview on, from 1100px, in the h
   assert.match(headerCss, /@media \(min-width: 1100px\) \{\s*html\[data-desk\] \.site-nav__item--study \{\s*display: block;/);
   assert.match(footerCss, /\.footer-group--study \{\s*display: none;\s*\}/);
   assert.match(footerCss, /@media \(min-width: 1100px\) \{\s*html\[data-desk\] \.footer-group--study \{\s*display: block;/);
-  assert.match(globalCss, /html:not\(\[data-desk\]\) \.menu-overlay__group--study \{\s*display: none;/, "and the menu overlay's group only with the preview");
+  assert.match(headerCss, /\.menu-sheet__group--study \{\s*display: none;\s*\}/);
+  assert.match(headerCss, /@media \(min-width: 1100px\) \{\s*html\[data-desk\] \.menu-sheet__group--study \{\s*display: block;/, "and the menu sheet's group where the header has it");
+  assert.ok(script.includes('const STUDY_QUERY = "(min-width: 1100px)";'), "its news counts only there too");
 });
 
-test("the full header holds from 700px, 900px in OpenDyslexic; narrower, today's row and menu button stay", () => {
+test("the full header holds from 700px, 900px in OpenDyslexic; narrower, the row's “Menu” opens the menu sheet", () => {
   assert.match(headerCss, /\.site-nav \{\s*display: none;/);
   assert.match(headerCss, /@media \(min-width: 700px\) \{[^@]*html:not\(\[data-font="dyslexic"\]\) \.site-nav \{\s*display: flex;[^@]*html:not\(\[data-font="dyslexic"\]\) \.site-header__menu-toggle \{\s*display: none;/);
   assert.match(headerCss, /@media \(min-width: 900px\) \{[^@]*html\[data-font="dyslexic"\] \.site-nav \{\s*display: flex;[^@]*html\[data-font="dyslexic"\] \.site-header__menu-toggle \{\s*display: none;/);
+  assert.match(header, /<button\s+class="kit-btn kit-btn--plain site-header__menu-toggle"\s+type="button"\s+aria-controls="menuSheet"\s+aria-expanded="false"\s+aria-haspopup="dialog"\s+data-menu-toggle\s*>\s*<Icon name="menu" \/>Menu/, "the kit's plain button: its icon and its word");
+  assert.ok(header.includes("<MenuSheet search={search} deskHref={deskHref} account={!deskTitle} />"), "the header draws the sheet, after itself");
+  assert.doesNotMatch(header + globalCss + headerCss, /menu-overlay|mobileMenu|menu-open/, "the menu overlay is gone");
+});
+
+test("the menu sheet: a modal <dialog> titled “Menu,” the places as groups with their rows, then Search, Account, and “Get the app” (PH-11 to PH-15, HD-35)", () => {
+  assert.ok(sheetMarkup.includes('<dialog class="menu-sheet" id="menuSheet" aria-labelledby="menuSheetTitle" data-menu-sheet>'));
+  assert.ok(sheetMarkup.includes('<h2 class="menu-sheet__title" id="menuSheetTitle">Menu</h2>'));
+  assert.ok(sheetMarkup.includes('<button type="button" class="kit-icon menu-sheet__close" aria-label="Close menu" data-menu-close>'), "its × is the kit's icon button, named");
+  assert.ok(sheetMarkup.includes("{PLACES.map((place) => ("), "every place from the one list, Read included");
+  assert.ok(sheetMarkup.includes('aria-current={where.place === place.key ? "true" : undefined}'), "the place the page is in is marked");
+  assert.ok(sheetMarkup.includes('<a class="kit-row" href={hrefOf(row)} aria-current={currentOf(row)}>'), "its rows are the kit's, the page's own on");
+  assert.ok(sheetMarkup.includes('<li class="menu-sheet__search"><a class="kit-row" href="/search" data-search-toggle>Search</a></li>'));
+  assert.ok(sheetMarkup.includes('<li><a class="kit-row" href="/apps">Get the app</a></li>'), "NX-11");
+  assert.ok(script.includes("sheet.showModal()"), "opened modally: the page behind, the line under the header included, goes inert");
+  assert.match(headerCss, /\.menu-sheet__panel \{[^}]*background: var\(--color-float\);[^}]*box-shadow: var\(--shadow-float\);/, "a float");
+  assert.match(headerCss, /\.menu-sheet \{[^}]*max-width: var\(--col-text\);/, "no wider than the text column");
 });
 
 test("Study's Scripture row goes where the page's Study pill goes", () => {
@@ -88,8 +110,8 @@ test("the line under the header is on every page but Home, scripture, and Study'
   assert.ok(layout.includes('import PlaceLine from "../components/PlaceLine.astro";'));
   assert.match(layout, /\{where\.line && !deskTitle && \(/);
   assert.match(read("src/styles/print.css"), /\.site-header,\s*\.place-line,/);
-  // The menu overlay makes the rest of the page inert while it is open, the line included.
-  assert.ok(header.includes('document.querySelector(".place-line"),'));
+  // The menu sheet is a modal dialog, so the rest of the page, the line
+  // included, is inert while it is open (the sheet's test, above).
 });
 
 test("the header's and the footer's stylesheets load on every page, after the kit", () => {
@@ -333,3 +355,208 @@ test("a note a browser kept from older news is read, and pared to what is still 
     learn.el.open = true;
     assert.deepEqual(JSON.parse(storage.getItem(SEEN_KEY)), ["apps-2-0", "glossary-shalom", "podcast-season-4"]);
   }));
+
+// ── The menu sheet ─────────────────────────────────────────────────────
+
+/** The header as draw() has it with its "Menu" button, the menu sheet as
+ *  MenuSheet.astro draws it, and the phone bar's Menu, a link until the
+ *  script takes it over; each news mark drawn hidden. */
+function drawSheet(news = []) {
+  const parts = draw(news);
+  const newsPlaces = new Set(news.map((e) => e.place));
+  const newsRows = new Set(news.map((e) => `${e.place}:${e.row}`));
+  const menuDot = '<span class="site-nav__dot" data-news-menu hidden><span class="sr-only">, new</span></span>';
+  document
+    .querySelector(".site-header")
+    .insertAdjacentHTML(
+      "beforeend",
+      `<button class="kit-btn kit-btn--plain site-header__menu-toggle" type="button" aria-controls="menuSheet" aria-expanded="false" aria-haspopup="dialog" data-menu-toggle>Menu${newsPlaces.size ? menuDot : ""}</button>`,
+    );
+  const rowHtml = (place, row) =>
+    `${row.separate ? '<li class="site-nav__menu-sep" role="separator"></li>' : ""}<li><a class="kit-row" href="${row.href}">${row.label}${
+      newsRows.has(`${place.key}:${row.key}`) ? `<span class="site-nav__new" data-news-row="${place.key}:${row.key}" hidden><span class="sr-only">, </span>New</span>` : ""
+    }</a></li>`;
+  const more = (place) =>
+    newsPlaces.has(place.key)
+      ? `<li class="site-nav__menu-sep" role="separator" data-news-more="${place.key}" hidden></li><li data-news-more="${place.key}" hidden><a class="kit-row" href="${WHATS_NEW_HREF}">See what’s new →</a></li>`
+      : "";
+  const groups = PLACES.map(
+    (place) =>
+      `<div class="menu-sheet__group menu-sheet__group--${place.key}"><h3 class="menu-sheet__heading" id="menuSheet-${place.key}">${place.label}${
+        newsPlaces.has(place.key) ? `<span class="site-nav__dot" data-news-dot="${place.key}" hidden><span class="sr-only">, new</span></span>` : ""
+      }</h3><ul class="menu-sheet__rows" aria-labelledby="menuSheet-${place.key}">${place.rows.map((row) => rowHtml(place, row)).join("")}${more(place)}</ul></div>`,
+  ).join("");
+  const barNews = news.some((e) => e.place === "learn" || e.place === "about");
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    `<dialog class="menu-sheet" id="menuSheet" aria-labelledby="menuSheetTitle" data-menu-sheet><div class="menu-sheet__panel"><div class="menu-sheet__head"><h2 class="menu-sheet__title" id="menuSheetTitle">Menu</h2><button type="button" class="kit-icon menu-sheet__close" aria-label="Close menu" data-menu-close>Close</button></div><nav class="menu-sheet__nav" aria-labelledby="menuSheetTitle"><div class="menu-sheet__groups">${groups}</div><ul class="menu-sheet__foot"><li><a class="kit-row" href="/apps">Get the app</a></li></ul></nav></div></dialog>` +
+      `<nav class="phone-bar" data-phone-bar><a class="kit-btn kit-btn--plain phone-bar__item" href="#footer-nav" data-menu-toggle>Menu${barNews ? menuDot : ""}</a></nav>`,
+  );
+  const sheet = document.getElementById("menuSheet");
+  return {
+    ...parts,
+    sheet,
+    close: sheet.querySelector("[data-menu-close]"),
+    headerMenu: document.querySelector(".site-header [data-menu-toggle]"),
+    barMenu: document.querySelector(".phone-bar [data-menu-toggle]"),
+    glossaryRow: sheet.querySelector(".menu-sheet__group--learn a"),
+    sheetDot: (place) => sheet.querySelector(`[data-news-dot="${place}"]`),
+    sheetRow: (id) => sheet.querySelector(`[data-news-row="${id}"]`),
+    headerDot: (place) => document.querySelector(`.site-nav [data-news-dot="${place}"]`),
+    menuDots: () => [...document.querySelectorAll("[data-news-menu]")],
+  };
+}
+
+/** Draws the header and the sheet, starts the script on them (the sheet
+ *  showing Study's group only when `wide`), and stops it after `fn`. A link
+ *  pressed here goes nowhere, since happy-dom would follow it. */
+async function withSheet({ news = [], storage = memory(), wide = false, modal = true } = {}, fn) {
+  const parts = drawSheet(news);
+  if (!modal) Object.defineProperty(parts.sheet, "showModal", { value: undefined });
+  const stop = start({ doc: document, news, today: TODAY, storage, wide: () => wide });
+  const stay = (event) => {
+    if (event.target.closest?.("a[href]")) event.preventDefault();
+  };
+  document.addEventListener("click", stay, true);
+  try {
+    await fn({ ...parts, storage });
+  } finally {
+    document.removeEventListener("click", stay, true);
+    stop();
+  }
+}
+
+test("the drawing above is MenuSheet.astro's", () => {
+  for (const part of [
+    '<div class={`menu-sheet__group menu-sheet__group--${place.key}`}>',
+    '<ul class="menu-sheet__rows" aria-labelledby={`menuSheet-${place.key}`}>',
+    '<span class="site-nav__dot" data-news-dot={place.key} hidden><span class="sr-only">, new</span></span>',
+    '<span class="site-nav__new" data-news-row={`${place.key}:${row.key}`} hidden><span class="sr-only">, </span>New</span>',
+    '<li class="site-nav__menu-sep" role="separator" data-news-more={place.key} hidden></li>',
+    '<a class="kit-row" href={WHATS_NEW_HREF}>See what’s new →</a>',
+  ]) {
+    assert.ok(sheetMarkup.includes(part), part);
+  }
+  assert.ok(header.includes('<span class="site-nav__dot" data-news-menu hidden><span class="sr-only">, new</span></span>'), "the header's Menu carries the dot");
+  assert.ok(read("src/components/PhoneBar.astro").includes('<span class="site-nav__dot" data-news-menu hidden><span class="sr-only">, new</span></span>'), "and the bar's");
+});
+
+test("either menu button opens the sheet as a modal dialog, both say so, and focus moves to its ×", () =>
+  withSheet({}, ({ sheet, close, headerMenu, barMenu, learn }) => {
+    assert.equal(barMenu.getAttribute("role"), "button", "the bar's link becomes a button");
+    assert.equal(barMenu.getAttribute("aria-controls"), "menuSheet");
+    assert.equal(barMenu.getAttribute("aria-haspopup"), "dialog");
+    assert.equal(barMenu.getAttribute("aria-expanded"), "false");
+
+    learn.el.open = true;
+    headerMenu.click();
+    assert.equal(sheet.open, true);
+    assert.equal(learn.el.open, false, "a header menu that was open closes");
+    assert.equal(headerMenu.getAttribute("aria-expanded"), "true");
+    assert.equal(barMenu.getAttribute("aria-expanded"), "true");
+    assert.equal(document.activeElement === close, true, "focus is on the ×");
+    close.click();
+
+    barMenu.click();
+    assert.equal(sheet.open, true, "the bar's opens the same sheet");
+    assert.equal(location.hash, "", "and doesn't go to the footer");
+    close.click();
+  }));
+
+test("it closes on its ×, on Escape, on a press on the dimmed page, and a frame after one of its links; focus goes back to the button that opened it", () =>
+  withSheet({}, async ({ sheet, close, headerMenu, barMenu, glossaryRow }) => {
+    barMenu.click();
+    close.click();
+    assert.equal(sheet.open, false, "its ×");
+    assert.equal(headerMenu.getAttribute("aria-expanded"), "false");
+    assert.equal(barMenu.getAttribute("aria-expanded"), "false");
+    assert.equal(document.activeElement === barMenu, true, "focus is back on the bar's Menu");
+
+    headerMenu.click();
+    key(close, "Escape");
+    assert.equal(sheet.open, false, "Escape");
+    assert.equal(document.activeElement === headerMenu, true, "and on the header's");
+
+    headerMenu.click();
+    sheet.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    assert.equal(sheet.open, false, "a press outside the panel lands on the dialog itself");
+
+    headerMenu.click();
+    glossaryRow.click();
+    assert.equal(sheet.open, true, "a link: not at once, so the press draws");
+    await settle();
+    assert.equal(sheet.open, false, "a frame later");
+
+    headerMenu.click();
+    glossaryRow.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: true }));
+    await settle();
+    assert.equal(sheet.open, true, "a click that opens a tab leaves it open");
+    close.click();
+  }));
+
+test("Tab stays inside the sheet, and a page brought back whole finds it closed", () =>
+  withSheet({}, ({ sheet, close, headerMenu }) => {
+    headerMenu.click();
+    const stops = [...sheet.querySelectorAll("a[href], button:not([disabled])")];
+    const last = stops.at(-1);
+    last.focus();
+    key(last, "Tab");
+    assert.equal(document.activeElement === close, true, "from the last stop to the first");
+    close.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true }));
+    assert.equal(document.activeElement === last, true, "and back");
+
+    const shown = new Event("pageshow");
+    Object.defineProperty(shown, "persisted", { value: true });
+    window.dispatchEvent(shown);
+    assert.equal(sheet.open, false);
+    assert.equal(headerMenu.getAttribute("aria-expanded"), "false");
+  }));
+
+test("where a browser has no modal dialog, the bar's Menu stays a link to the footer's links", () =>
+  withSheet({ modal: false }, ({ barMenu, headerMenu, sheet }) => {
+    assert.equal(barMenu.hasAttribute("role"), false);
+    headerMenu.click();
+    assert.equal(sheet.open, false);
+  }));
+
+test("the sheet's news: a dot on the menu buttons until it opens, its marks while it is open, none after", async () => {
+  const storage = memory();
+  await withSheet({ news: NEWS, storage }, ({ sheet, close, headerMenu, sheetDot, sheetRow, headerDot, menuDots }) => {
+    assert.equal(menuDots().length, 2);
+    for (const dot of menuDots()) assert.equal(dot.hidden, false, "the header's Menu and the bar's carry a dot");
+    assert.equal(sheetDot("learn").hidden, false);
+    assert.equal(sheetRow("learn:glossary").hidden, false);
+    assert.deepEqual(storage.log, [`get ${SEEN_KEY}`], "read once, as the page loads");
+
+    headerMenu.click();
+    assert.deepEqual(JSON.parse(storage.getItem(SEEN_KEY)), ["glossary-shalom", "podcast-season-4", "apps-2-0"], "opening it sees what it holds");
+    for (const dot of menuDots()) assert.equal(dot.hidden, true, "the buttons' dots go at once");
+    assert.equal(headerDot("learn").hidden, true, "as do the header's own");
+    assert.equal(sheetDot("learn").hidden, false, "the sheet's stay while the reader looks");
+    assert.equal(sheetRow("about:apps").hidden, false);
+    for (const el of sheet.querySelectorAll("[data-news-more]")) assert.equal(el.hidden, false);
+
+    close.click();
+    assert.equal(sheetDot("learn").hidden, true, "and go when it closes");
+    assert.equal(sheetRow("learn:glossary").hidden, true);
+    for (const el of sheet.querySelectorAll("[data-news-more]")) assert.equal(el.hidden, true);
+  });
+
+  await withSheet({ news: NEWS, storage }, ({ menuDots }) => {
+    for (const dot of menuDots()) assert.equal(dot.hidden, true, "the next page remembers");
+  });
+});
+
+test("Study's news counts on the menu buttons only where the sheet shows Study", async () => {
+  const news = [{ id: "sheets-present", place: "study", row: "sheets" }];
+  await withSheet({ news }, ({ menuDots }) => {
+    assert.equal(menuDots().length, 1, "the bar draws no dot for Study, never in its sheet");
+    assert.equal(menuDots()[0].hidden, true, "a phone or a narrow window: no Study in the sheet");
+  });
+  await withSheet({ news, wide: true }, ({ menuDots, headerMenu, sheetDot }) => {
+    assert.equal(menuDots()[0].hidden, false, "a computer with the preview, from 1100px");
+    headerMenu.click();
+    assert.equal(menuDots()[0].hidden, true);
+    assert.equal(sheetDot("study").hidden, false);
+  });
+});

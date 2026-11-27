@@ -6,17 +6,17 @@
 
 ## The header, the line under it, and the footer
 
-Featherboa's Phase 3, part one (`SITE-FEATHERBOA.md`, "Four places: the
-header" and "The phone and the footer"). The phone's two bars and its menu
-sheet are part two; until they are built, a window narrower than the full
-header keeps today's row (the brand, the magnifier, Aa, the menu button)
-over the menu overlay (`global.css`), fed by the same places.
+Featherboa's Phase 3 (`SITE-FEATHERBOA.md`, "Four places: the header,"
+"The phone and the footer," "The phone," and "The menu"). Narrower than
+the full header the row is the brand, the magnifier, Aa, and "Menu," which
+opens the menu sheet; a chapter or an introduction on a phone has the
+phone's two bars instead (`src/layouts/CLAUDE.md`).
 
 - **One list of places, `src/lib/places.mjs`** (pure; `test/places.test.js`):
   Read, Study, Learn, and About with their rows, and `placeOf(path)`, which
   says which place a page is in, which row it is, its name, and whether it
   gets the line under the header. The header, the line, the footer, and the
-  menu overlay all draw from it, so a page's name or a row's address changes
+  menu sheet all draw from it, so a page's name or a row's address changes
   there and nowhere else. **A new page needs an answer there**: a row in a
   place's menu, a page inside a row (`INSIDE`, as an article is inside
   Articles), or a page in no place (`NO_PLACE`, with its name).
@@ -37,7 +37,39 @@ over the menu overlay (`global.css`), fed by the same places.
   Learn, and About. The full header holds from 700px, from 900px in
   OpenDyslexic (an estimate from the places' widths, not yet measured). Its
   right end is the magnifier, Aa, and the account's entry
-  (`src/scripts/desk/account/CLAUDE.md`, rule 17).
+  (`src/scripts/desk/account/CLAUDE.md`, rule 17). Narrower, "Menu" (the
+  kit's plain button, its icon and its word; the word alone under 400px,
+  430px in OpenDyslexic, measured)
+  takes the places' room.
+- **A phone's reading row** (PH-01, PH-05 to PH-09): a page that passes
+  Layout a `picker` (a chapter or an introduction, `ScriptureLayout`) gets
+  `site-header--reading`, which under 700px is the emblem alone (named
+  "Home"), the chapter's name centered as the picker, and Aa, sticky at the
+  window's top below the app banner (`AppInstallBanner.astro`, which scrolls
+  away), with `PhoneBar.astro` at the thumb (Previous, Search, Menu, Next).
+  Without JavaScript the picker is a link to /read; with it, ReadMenu turns
+  the link (`data-rm-also`) into a second button for the toolbar's own
+  picker panel, which hangs from whichever button opened it. The row's
+  `site-header__find` is where the bar's Search puts the page's search
+  field (`phone-bars.js`). The header's own "Menu" isn't drawn there: the
+  bar's is.
+- **The menu sheet** (`MenuSheet.astro`, drawn by SiteHeader after the
+  header; `header-menus.js`; PH-11 to PH-15, HD-35): one sheet rising from
+  the window's foot for every "Menu" button (the header's, narrower than the
+  full header and in Study's own header at every width, and the phone
+  bar's), no wider than the text column. A modal `<dialog>` titled "Menu"
+  with its ×: the page behind dims and goes inert, focus moves to the × and
+  stays inside, and Escape, a tap on the dimmed page, the ×, or one of its
+  links closes it and gives focus back to the button that opened it. Its
+  groups are the places, Read and Learn down the left and About down the
+  right (Study a third column only where the header shows it), the place
+  the page is in underlined in LIT Green and the page's row on; then Search
+  (under 360px, 380px in OpenDyslexic, on a page whose magnifier opens the
+  strip), Account (under
+  700px with accounts open; not in Study's header, which has the entry), and
+  "Get the app" (NX-11). Continue reading isn't there: it waits for Phase
+  4's picker (PH-14). Without a modal dialog or JavaScript it never opens,
+  and the bar's Menu stays a link to the footer's links.
 - **The magnifier has three modes**, which `Layout.astro` picks (HD-13):
   `"strip"` opens the search strip under the header (`header-search.js`);
   `"page"`, on a page passing `pageSearch`, takes the reader to the page's
@@ -46,7 +78,8 @@ over the menu overlay (`global.css`), fed by the same places.
   in Study's own header. Without JavaScript it is a link to /search.
 - **Without JavaScript**, Aa and the menu button go (a `<noscript>` style),
   and below the full header's width a row of two links stands in: Read, and
-  Menu, which goes to the footer's links (`#footer-nav`).
+  Menu, which goes to the footer's links (`#footer-nav`). A phone's reading
+  row doesn't draw them: its picker and the bar's four links do that work.
 - **The line under the header** (`PlaceLine.astro`; HD-14, HD-22) is on
   every page but Home, the Read page, and Study's own pages. It names the
   place and the page ("Learn / Glossary"), or the page alone for a page in
@@ -54,7 +87,7 @@ over the menu overlay (`global.css`), fed by the same places.
   Articles" over an article). Its right end takes one or two of the page's
   main commands through Layout's `place-line` slot (none does yet); nothing
   else goes at its left. A page keeps its own heading. It never prints, and
-  the menu overlay makes it inert while open.
+  the menu sheet, a modal dialog, makes it inert while open.
 - **News marks** (`src/lib/news.mjs`; NX-26, NX-27, NX-29, HD-31): a list,
   empty until there is news, of `{ id, place, row, until }`. SiteHeader draws
   a dot on the place, "New" beside the row, and "See what’s new →" at the
@@ -65,8 +98,11 @@ over the menu overlay (`global.css`), fed by the same places.
   entry the What's New page must exist and `/privacy` must name the key:
   `test/news.test.js` fails otherwise, and `test/desk-storage-keys.test.js`
   allows the key until then. Read has no menu, so news never marks it, and
-  About has no "What's new" row (NX-29). The menu overlay shows no marks
-  until part two.
+  About has no "What's new" row (NX-29). The menu sheet draws the same
+  marks on its groups and rows, and each "Menu" button a dot while a place
+  the sheet shows has unseen news; opening the sheet sees what it shows
+  (Study only where the header shows it): the buttons' dots go at once, the
+  sheet's own marks when it closes.
 - **The footer** (`SiteFooter.astro`, `footer.css`; HD-36, BS-24): the same
   four places as groups under their names (Study as in the header), then
   Privacy, the Terms of Use, and the brand marks, with the newsletter beside

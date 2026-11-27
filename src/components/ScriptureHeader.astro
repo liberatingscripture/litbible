@@ -116,11 +116,11 @@ const headingText = !bookKey
 </header>
 
 <style>
-  /* Previous/Next are 44px plain ‹ › buttons either side of the title at every
-     width (owner, 2026-10-14; first the phone layout, audit F3). The nav
-     covers the header, so the buttons sit on the edges of the text column.
-     Each keeps its accessible name ("Previous: Romans 7"); the bottom buttons
-     stay big. */
+  /* Previous/Next are 44px plain ‹ › buttons either side of the title from
+     700px (owner, 2026-10-14, "at every width," until the phone's bar took
+     them there: PH-06, below). The nav covers the header, so the buttons sit
+     on the edges of the text column. Each keeps its accessible name
+     ("Previous: Romans 7"); the bottom buttons stay big. */
   .scripture-header {
     position: relative;
     text-align: center;
@@ -164,6 +164,32 @@ const headingText = !bookKey
     .chapter-title {
       font-size: calc(32px * var(--heading-scale, 1));
       line-height: 1.8;
+    }
+  }
+
+  /* On a phone the two bars carry this row (SITE-FEATHERBOA.md, "The
+     phone"; PH-06): the chapter's name is the top bar's picker, and
+     Previous and Next are the bottom bar's. The title stays the page's
+     heading for screen readers, the verse menu's reference, and search,
+     drawn for none of them; the round buttons go. Screen only: a printed
+     page is narrower than 700px too, and keeps its title. */
+  @media screen and (max-width: 699px) {
+    .scripture-header {
+      margin: 0;
+    }
+
+    .chapter-title {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+
+    .chapter-nav {
+      display: none;
     }
   }
 </style>

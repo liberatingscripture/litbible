@@ -107,10 +107,13 @@
   3. The width compensations are scoped to `[data-font="dyslexic"]` **only**.
      OpenDyslexic is far wider than Source Sans 3; Atkinson is not, and must not
      inherit them. They live in `home.css` (hero titles, the hero scroll's
-     safe interior, the question CTA), `global.css` (the menu overlay's
-     links, the reader panels' chip buttons' side padding), `header.css`
-     (the full header from 900px rather than 700px, and the phone title's
-     scale), `ReadMenu.astro` (grid floors), and `read-mode.css` (Read
+     safe interior, the question CTA), `global.css` (the reader panels'
+     chip buttons' side padding), `header.css` (the full header from 900px
+     rather than 700px, the phone title's scale, the magnifier moving into
+     the menu sheet under 380px and "Menu"'s icon leaving under 430px, and
+     the phone bar's edges and gaps given up under 375px, its Previous,
+     Search, and Next showing their icons alone under 360px),
+     `ReadMenu.astro` (grid floors), and `read-mode.css` (Read
      View's toolbar floor and its sheet buttons' side padding). Prefer
      **buying back space over shrinking type** — an accessibility font is the
      last thing that should be made smaller. The header keeps the menu button
@@ -127,8 +130,8 @@
      the content edge and the word spills right, and text overflow adds to
      `scrollWidth` without widening any element's box. This has bitten three
      places on the home page alone (`.title-large`, the hero quote, the
-     overlay's "Commitments"), always as "the text looks pushed right" plus
-     unexplained horizontal scroll. When hunting it, **bisect by hiding
+     retired menu overlay's "Commitments"), always as "the text looks
+     pushed right" plus unexplained horizontal scroll. When hunting it, **bisect by hiding
      sections** — an element-by-element scan for overflowing boxes finds
      nothing, and `position: fixed` overlays report as false positives.
      Fix by giving the word room, not by breaking it: `overflow-wrap` and
@@ -141,15 +144,17 @@
      breaks a run only after every hyphen and space has been used and only
      when it cannot fit a line by itself. Never `word-break: break-all` or
      hyphenation, and don't carry the rule to a page's body text.
-- **The hamburger menu is a side tray on a computer** (BVJ, 2026-11-04):
-  under `@media (hover: hover) and (pointer: fine)` the `.menu-overlay` panel
-  slides in from the right over a lighter scrim, a narrow desktop window
-  included. Touch screens keep the full-screen menu (Featherboa makes the
-  phone's a sheet rising from its bottom bar, `SITE-FEATHERBOA.md`, "The
-  phone"; until it is built, this holds). The header stays above
-  the scrim, so the toggle is the close button. Either way the menu lists
-  the places with menus as groups under headings (`.menu-overlay__group`,
-  from `src/lib/places.mjs`), its Study group only with `html[data-desk]`.
+- **The menu is one sheet rising from the window's foot** (Featherboa,
+  "The phone" and "The menu"; `header.css`, "The menu sheet"), whatever
+  the width or the input, so it looks the same everywhere: a modal
+  `<dialog>` no wider than the text column (`--col-text`), a float (its own
+  surface, edge, top corners, and the one shadow) over the page dimmed to
+  40% black, rising at the Large speed and leaving at two thirds of it
+  (`@starting-style` and `allow-discrete`, so a browser without them simply
+  shows and hides it). Its groups are the places (`src/lib/places.mjs`),
+  in two columns, a third for Study only with `html[data-desk]` from 1100px.
+  It replaced the menu overlay (a side tray on a computer from BVJ's call
+  of 2026-11-04, full screen on a touch screen).
 - **Text size, line spacing, verse numbers, footnote letters and key terms
   are the rest of the Display tray**, and follow the font's pattern exactly:
   an attribute on `<html>` stamped before first paint by `Layout.astro`,
@@ -473,18 +478,17 @@
   is **pin where focusable controls sit directly on the fixed surface**, and
   nowhere broader: a pin inherits, so pinning `body.bg-green` would push ink
   into the home page's themed sections and footer, where it fails in dark mode.
-  That's why the green header pins on `.site-header__inner` (the font tray and
-  menu overlay share its `<header>` with surfaces of their own, and the
-  header's menus, floats of their own, take the theme's ring back in
-  `header.css`). Measured with the WCAG 2 formula:
+  That's why the green header pins on `.site-header__inner` (the font tray
+  shares its `<header>` with a surface of its own, the header's menus,
+  floats of their own, take the theme's ring back in `header.css`, and the
+  menu sheet is drawn after the header, outside the pin). Measured with the
+  WCAG 2 formula:
 
   | Surface | Pinned where | Ring | Contrast |
   |---|---|---|---|
   | LIT Green header bar (`body.bg-green`, home, until Phase 7) | `global.css`, on `.site-header__inner` | `--ink` | 4.58:1 |
   | Skip link, which paints over that header from `<body>` | `global.css` | `--ink` | 4.58:1 |
   | `.questions-block` (home, until Phase 7) | `home.css` | `--ink` | 4.58:1 |
-  | `.menu-overlay` (90% black in both themes) | `global.css` | `--green` | 5.02–5.95:1 by page |
-  | Menu toggle while open (it sits above the overlay) | `global.css`, `html.menu-open` | `--green` | same |
   | `.sheet-copy`, the white paper preview on `/sheets` (BA83) | `sheets-page.css` | `#0f6b33` (Deep Green) | 6.6:1 |
 
   The default ring fails on LIT Green, which is why ink is the pin there. No
@@ -593,7 +597,7 @@
 ## Forced colors
 
 - **In forced colors (Windows contrast themes) a background draws nothing.**
-  An icon made of backgrounds, like the header's Menu bars, vanishes, and a
+  An icon made of backgrounds (the old header's Menu bars were one) vanishes, and a
   button with no border vanishes with it (BA149). Under
   `@media (forced-colors: active)`, give such a mark
   `forced-color-adjust: none` and a system color (`ButtonText`), and the

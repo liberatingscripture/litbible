@@ -69,10 +69,12 @@ function openSearch() {
     document.dispatchEvent(new CustomEvent("lit:search-open"));
     return true;
   }
-  // Chapter View's phone toolbar keeps its search behind a button.
-  const toggle = document.querySelector(".tools-search-toggle");
-  if (visible(toggle) && toggle.getAttribute("aria-expanded") !== "true") {
-    toggle.click();
+  // A phone's reading page keeps its search behind the bar's Search, which
+  // opens the field in place of the top row (phone-bars.js; still a link to
+  // /search until that script has made it a button).
+  const barSearch = document.querySelector("[data-bar-search]");
+  if (visible(barSearch) && barSearch.getAttribute("aria-expanded") === "false") {
+    barSearch.click();
     return true;
   }
   const input = document.getElementById("site-search-input");
@@ -85,9 +87,10 @@ function openSearch() {
 }
 
 function openPicker() {
-  // ReadMenu swaps its fallback link for a button of the same class.
-  // Until then it is still the no-JS link, which would navigate away.
-  const trigger = Array.from(document.querySelectorAll("button.read-menu__trigger")).find(visible);
+  // ReadMenu swaps its fallback link for a button of the same class, and the
+  // phone's top bar's chapter name (data-rm-also) for another; until then
+  // each is still the no-JS link, which would navigate away.
+  const trigger = Array.from(document.querySelectorAll("button.read-menu__trigger, button[data-rm-also]")).find(visible);
   if (!trigger) return false;
   trigger.click();
   return true;

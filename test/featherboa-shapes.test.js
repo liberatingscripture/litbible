@@ -67,9 +67,7 @@ test("what wears the shadow is a float: the float's surface in the same rule", (
       // A tooltip is the one float drawn in the text's own color (its words
       // in the page's), so it reads as a label and not as a menu.
       const ok = bg && (/var\(--color-float\)/.test(bg.value) || /^var\(--text\)$/.test(bg.value.trim()));
-      // The menu's side tray (Phase 3 makes it a float like the others).
-      const later = /\.menu-overlay__panel$/.test(key);
-      if (!ok && !later) bad.push(`${rel}:${wears.line} ${key} (background: ${bg ? bg.value : "none"})`);
+      if (!ok) bad.push(`${rel}:${wears.line} ${key} (background: ${bg ? bg.value : "none"})`);
     }
   }
   assert.deepEqual(bad, []);

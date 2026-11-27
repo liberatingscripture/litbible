@@ -3,9 +3,10 @@
    SITE-FEATHERBOA.md, "Four places: the header"). "LIT Bible," the four
    places as the kit's tabs, the one the page is in underlined in the mark's
    green, their menus as floats of the kit's rows, and at the right end the
-   magnifier, Aa, and the account, each the kit's own. The phone's row and
-   the menu overlay under 700px stay as they were (global.css) until Phase
-   3's second part draws the phone's bars.
+   magnifier, Aa, and the account, each the kit's own. Under the full
+   header's width the row is the brand, the tools, and "Menu," which opens
+   the menu sheet; a phone's reading page has the phone's two bars instead
+   (SITE-FEATHERBOA.md, "The phone"). Both are at the end of this file.
 
    Widths ("Sizes, space, and the measure"): the full header from 700px,
    from 900px in OpenDyslexic, whose places are wider; Study at 1100px and
@@ -16,13 +17,14 @@
 .site-header {
   position: relative;
   /* Above scripture's and Read View's toolbars (up to about 320), so a menu
-     hanging over them stays pressable; below the menu overlay (9999 and up). */
+     hanging over them stays pressable. The menu sheet is a modal dialog, in
+     the top layer above everything. */
   z-index: 500;
 }
 
 /* While a menu or the search strip is open, the header stacks above the
    page, so the Notebook panel in the margin can't paint over it. */
-.site-header:has(.site-nav__group[open], .site-header__account-menu:not([hidden]), .site-header__search-strip:not([hidden])) {
+.site-header:has(.site-nav__group[open], .site-header__account-menu:not([hidden]), .site-header__search-strip:not([hidden]), .site-header__find:not([hidden])) {
   z-index: 1000;
 }
 
@@ -251,7 +253,7 @@
    account. It shows only with the Study preview on (data-desk) and accounts
    opened in this browser (data-account), both stamped before paint, from
    the full header's width (and in Study's own header at every width); a
-   narrower window has "Account" in the menu overlay. It is drawn hidden until
+   narrower window has "Account" in the menu sheet. It is drawn hidden until
    desk/account/header-entry.js has read which of the two this browser gets
    (data-account-state). It is as wide as what it shows (E231), and until it
    is drawn it holds the room of what this browser showed last: the button's
@@ -298,20 +300,23 @@ html[data-desk][data-account="open"] .site-header--desk .site-header__account {
   display: inline-flex;
 }
 
-.menu-overlay .menu-overlay__nav a.menu-overlay__account {
+/* So the menu sheet's Account row stands in for it under 700px (Study's
+   own header, which shows it at every width, draws its sheet without one). */
+.menu-sheet__account {
   display: none;
 }
 
 @media (max-width: 699px) {
-  html[data-desk][data-account="open"] .menu-overlay .menu-overlay__nav a.menu-overlay__account {
+  html[data-desk][data-account="open"] .menu-sheet__account {
     display: block;
   }
 }
 
 /* Under 360px the row has no room for the magnifier, so search moves into
-   the menu overlay (its Search item), and a page with its own box keeps
-   that box. */
-.menu-overlay__nav a.menu-overlay__search {
+   the menu sheet (its Search row), and a page with its own box keeps that
+   box. OpenDyslexic's wider "Menu" needs the room under 380px: at 360 it cut
+   the last 8px off "LIT Bible" (measured), and at 375 left 2px. */
+.menu-sheet__search {
   display: none;
 }
 
@@ -320,15 +325,43 @@ html[data-desk][data-account="open"] .site-header--desk .site-header__account {
     display: none;
   }
 
-  .menu-overlay__nav a.menu-overlay__search {
-    display: revert;
+  .menu-sheet__search {
+    display: block;
+  }
+}
+
+@media (max-width: 379px) {
+  html[data-font="dyslexic"] .site-header__actions .site-header__search {
+    display: none;
+  }
+
+  html[data-font="dyslexic"] .menu-sheet__search {
+    display: block;
   }
 }
 
 /* ---------- The full header, from 700px (900px in OpenDyslexic) ---------- */
 
+/* Below it, "Menu" opens the menu sheet. Its icon isn't one that stands
+   alone, so it keeps its word; the word alone where the icon would cut into
+   "LIT Bible" beside the magnifier and Aa. Measured, the icon first fits at
+   390px (it shows from 400) and at about 412px in OpenDyslexic, whose "LIT
+   Bible" grows with the window (it shows from 430). It holds the news dot. */
 .site-header__menu-toggle {
   display: inline-flex;
+  position: relative;
+}
+
+@media (max-width: 399px) {
+  .site-header__menu-toggle > .icon {
+    display: none;
+  }
+}
+
+@media (max-width: 429px) {
+  html[data-font="dyslexic"] .site-header__menu-toggle > .icon {
+    display: none;
+  }
 }
 
 @media (min-width: 700px) {
@@ -488,4 +521,420 @@ a.place-line__page {
   align-items: center;
   gap: var(--space-2);
   margin-left: auto;
+}
+
+/* =========================================================
+   The phone's top bar (SITE-FEATHERBOA.md, "The phone"; PH-01, PH-05 to
+   PH-07, PH-09): on a chapter or an introduction under 700px (SiteHeader's
+   picker), one row of the emblem, which goes home, the chapter's name as
+   the picker, and Aa, on the page's surface over a hairline. It stays at
+   the window's top as the page scrolls, below the app banner, which scrolls
+   away, and leaves with the bar at the thumb on a scroll down (the motion
+   is after the bar). Screen only: paper has no bars.
+   ========================================================= */
+
+.site-header__picker,
+.site-header__home,
+.site-header__find {
+  display: none;
+}
+
+@media screen and (max-width: 699px) {
+  .site-header.site-header--reading {
+    position: sticky;
+    top: 0;
+    min-height: 0;
+    background: var(--color-page);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  /* Emblem | the chapter, centered | Aa. The outer columns share what is
+     left equally, so the name sits on the window's center line. */
+  .site-header--reading .site-header__inner {
+    grid-template-columns: minmax(var(--target-touch), 1fr) minmax(0, auto) minmax(var(--target-touch), 1fr);
+    column-gap: var(--space-2);
+    min-height: calc(var(--target-touch) + 2 * var(--space-1));
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* The emblem alone is the way home: a target, the emblem a little inside
+     it, named "Home" for a screen reader. */
+  .site-header--reading .site-header__brand {
+    justify-content: center;
+    min-width: var(--target-touch);
+    min-height: var(--target-touch);
+  }
+
+  .site-header--reading .site-header__logo {
+    width: calc(var(--target-touch) - var(--space-1));
+    height: calc(var(--target-touch) - var(--space-1));
+  }
+
+  .site-header--reading .site-header__title {
+    display: none;
+  }
+
+  .site-header--reading .site-header__home {
+    display: inline;
+  }
+
+  /* "John 3 ▾": the kit's plain button, its name cut short with an
+     ellipsis before it would push Aa off the row. */
+  .site-header--reading .site-header__picker {
+    display: inline-flex;
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .site-header__picker-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .site-header--reading .site-header__actions {
+    justify-self: end;
+  }
+
+  /* Menu is the bar's, at the thumb. */
+  .site-header--reading .site-header__menu-toggle {
+    display: none;
+  }
+
+  /* Search in place of the row (PH-09): the page's own search field, which
+     phone-bars.js moves in while it is open, and its close. Its results
+     hang below the row and scroll inside themselves. */
+  .site-header--reading .site-header__find:not([hidden]) {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .site-header--reading[data-search-open] :is(.site-header__brand, .site-header__picker, .site-header__actions) {
+    display: none;
+  }
+
+  .site-header__find .searchbar {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* The row stays put while the page scrolls, so a long list of results
+     scrolls inside its tray, which stops above the bar at the thumb. */
+  .site-header__find .searchbar__panel-inner {
+    max-height: calc(100dvh - var(--space-9) - var(--space-6));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* A link to a verse, a footnote, or a heading stops below the row. */
+  html:has(.site-header--reading) {
+    scroll-padding-top: calc(var(--target-touch) + 2 * var(--space-1) + 1px);
+    scroll-padding-bottom: calc(var(--target-touch) + 2 * var(--space-1) + 1px);
+  }
+}
+
+/* =========================================================
+   The bar at the thumb (PhoneBar.astro; PH-02 to PH-04, PH-26): Previous,
+   Search, Menu, and Next on a chapter or an introduction under 700px, the
+   kit's plain buttons a target tall with the word under the icon, on the
+   page's surface under a hairline, never a shadow. Without JavaScript the
+   four are links and it never leaves.
+   ========================================================= */
+
+.phone-bar {
+  display: none;
+}
+
+@media screen and (max-width: 699px) {
+  .phone-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 500;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(min-content, 1fr));
+    grid-auto-rows: minmax(var(--target-touch), auto);
+    column-gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-page);
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .phone-bar__item {
+    position: relative;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+  }
+
+  .phone-bar__item:is(:hover, :focus) {
+    text-decoration: none;
+  }
+
+  /* The news dot sits at the menu icon's shoulder. */
+  .phone-bar .site-nav__dot {
+    right: auto;
+    left: calc(50% + var(--space-2));
+  }
+
+  /* The page's foot clears the bar. */
+  body:has(.phone-bar) {
+    padding-bottom: var(--space-8);
+  }
+}
+
+/* OpenDyslexic's four words want 332px with the buttons' own room
+   (measured), and the bar's edges and gaps 28 more, so under 375px the bar
+   gives up its edges and gaps. Under 360px that is still not enough, so
+   Previous, Search, and Next show their icons alone, three of the five
+   that may stand alone (back, search, forward), their words still their
+   names; Menu keeps its word. */
+@media screen and (max-width: 374px) {
+  html[data-font="dyslexic"] .phone-bar {
+    column-gap: 0;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+@media screen and (max-width: 359px) {
+  html[data-font="dyslexic"] .phone-bar__item:not([data-menu-toggle]) .phone-bar__word {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
+
+/* ---------- Both bars leave together (PH-05) ----------
+   phone-bars.js writes html[data-bars]: "away" while the page scrolls down
+   past the row's own place, gone on any scroll up. Settled, leaving two
+   thirds as long ("Motion"); reduced motion zeroes it (global.css). */
+
+@media screen and (max-width: 699px) {
+  .site-header.site-header--reading,
+  .phone-bar {
+    transition: transform var(--dur-settled) var(--ease);
+  }
+
+  html[data-bars~="away"] .site-header.site-header--reading {
+    transform: translateY(-100%);
+    transition: transform var(--dur-settled-out) var(--ease);
+  }
+
+  html[data-bars~="away"] .phone-bar {
+    transform: translateY(100%);
+    transition: transform var(--dur-settled-out) var(--ease);
+  }
+}
+
+/* =========================================================
+   The menu sheet (MenuSheet.astro; PH-11 to PH-15, HD-35): one sheet rising
+   from the window's foot, whichever menu button opens it, no wider than the
+   text column. A modal <dialog> (header-menus.js): the page behind dims and
+   goes still. Large, leaving two thirds as long ("Motion"). A float: its
+   own surface, edge, corners, and shadow. It is drawn after the header,
+   outside the green header's pins, so it keeps the theme's colors and ring
+   on every page.
+   ========================================================= */
+
+.menu-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--col-text);
+  height: auto;
+  max-height: none;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  overflow: visible;
+  transform: translateY(100%);
+  transition:
+    transform var(--dur-large-out) var(--ease),
+    overlay var(--dur-large-out) var(--ease) allow-discrete,
+    display var(--dur-large-out) var(--ease) allow-discrete;
+}
+
+.menu-sheet[open] {
+  transform: none;
+  transition:
+    transform var(--dur-large) var(--ease),
+    overlay var(--dur-large) var(--ease) allow-discrete,
+    display var(--dur-large) var(--ease) allow-discrete;
+}
+
+@starting-style {
+  .menu-sheet[open] {
+    transform: translateY(100%);
+  }
+}
+
+.menu-sheet::backdrop {
+  background: rgba(0, 0, 0, 0);
+  transition:
+    background-color var(--dur-large-out) var(--ease),
+    overlay var(--dur-large-out) var(--ease) allow-discrete,
+    display var(--dur-large-out) var(--ease) allow-discrete;
+}
+
+.menu-sheet[open]::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  transition:
+    background-color var(--dur-large) var(--ease),
+    overlay var(--dur-large) var(--ease) allow-discrete,
+    display var(--dur-large) var(--ease) allow-discrete;
+}
+
+@starting-style {
+  .menu-sheet[open]::backdrop {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+/* The page behind stays where it is while the sheet is open. */
+html:has(.menu-sheet[open]) {
+  overflow: hidden;
+}
+
+.menu-sheet__panel {
+  box-sizing: border-box;
+  max-height: calc(100dvh - var(--space-7));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-float);
+  border: 1px solid var(--color-float-edge);
+  border-bottom: 0;
+  border-radius: var(--radius-float) var(--radius-float) 0 0;
+  box-shadow: var(--shadow-float);
+}
+
+.menu-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) 0 var(--space-4);
+}
+
+.menu-sheet__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--size-subhead);
+  font-weight: 500;
+  line-height: var(--leading-subhead);
+}
+
+.menu-sheet__nav {
+  padding: var(--space-2) var(--space-3) var(--space-4);
+}
+
+/* Read and Learn down the left, About down the right. */
+.menu-sheet__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-4);
+  row-gap: var(--space-3);
+  align-items: start;
+}
+
+.menu-sheet__group--read {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.menu-sheet__group--learn {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.menu-sheet__group--about {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+/* Study, where the header shows it (ST-16): never on a phone. */
+.menu-sheet__group--study {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  html[data-desk] .menu-sheet__group--study {
+    display: block;
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  html[data-desk] .menu-sheet__groups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  html[data-desk] .menu-sheet__group--learn {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  html[data-desk] .menu-sheet__group--about {
+    grid-column: 3;
+  }
+}
+
+.menu-sheet__rows,
+.menu-sheet__foot {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A group's name: the controls' face, small and quiet, never the mark's
+   green in its words (NI-18); the place the page is in has the mark's line
+   under it, as its tab does in the header. */
+.menu-sheet__heading {
+  margin: 0;
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  color: var(--color-text-2);
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  font-weight: 700;
+  line-height: var(--leading-label);
+}
+
+.menu-sheet__heading[aria-current]:not([aria-current="false"]) {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-mark);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+.menu-sheet__heading .site-nav__dot {
+  position: static;
+  vertical-align: middle;
+}
+
+.menu-sheet__heading .site-nav__dot:not([hidden]) {
+  display: inline-block;
+  margin-left: var(--space-2);
+}
+
+/* Search, Account, and "Get the app," under a hairline. */
+.menu-sheet__foot {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-hairline);
+}
+
+/* A link in the kit's look keeps no underline when pointed at. */
+.menu-sheet :is(.kit-row, .kit-btn, .kit-icon):is(:hover, :focus) {
+  text-decoration: none;
 }
