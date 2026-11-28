@@ -15,6 +15,8 @@
 // with an arrow leaving it, for a link that opens a passage's own page in a
 // new tab (the LIT pane's bar, the Search pane's rows; E34, E35).
 
+import { icon } from "../../lib/icons.mjs";
+
 const PATHS = {
   note: `<g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h13M3 11h10M3 16h6"/><path d="M14.5 20.5l1-3.6 5.4-5.4a1.8 1.8 0 0 1 2.6 2.6l-5.4 5.4z" stroke-linejoin="round"/></g>`,
   emphasis: `<circle cx="12" cy="12" r="11" fill="#D93025"/><path d="M12 6v8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.6" fill="#fff"/>`,
@@ -72,7 +74,8 @@ export function addKindGlyph(el, kind) {
 
 /**
  * A link's "open on its page in a new tab" icon (E35), drawn in the text colour. Decorative: the link names itself.
- * Its class tells restyle.css's new-tab mark (E71) that the link already shows one (E135).
+ * Its class tells a site-wide new-tab mark that the link already shows one (E135); Site 2.0's
+ * restyle.css drew that mark until Featherboa's Phase 0 removed it.
  */
 export const OPEN_PAGE_ICON = `<svg class="desk-open-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
   stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -97,8 +100,5 @@ export function newTabMark() {
  * names its step.
  */
 export function chevronIcons(size = 16) {
-  const svg = (d) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="${d}" /></svg>`;
-  return { prev: svg("M15 6l-6 6 6 6"), next: svg("M9 6l6 6-6 6") };
+  return { prev: icon("back", { size }), next: icon("forward", { size }) };
 }

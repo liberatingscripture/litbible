@@ -1,9 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import EmblemMark from "../components/EmblemMark.astro";
-// Site 2.0's look of this page, behind the data-restyle stamp. Its rules
-// outweigh the scoped <style> below (src/styles/v2/notfound.css, the header).
-import "../styles/v2/notfound.css";
 ---
 
 <Layout
@@ -15,7 +11,6 @@ import "../styles/v2/notfound.css";
     <div class="not-found__inner">
       <img
         class="not-found__logo"
-        data-v1
         src="/images/lit-logo-2026-ring.svg"
         alt="Liberation and Inclusion Translation logo"
         width="140"
@@ -24,7 +19,7 @@ import "../styles/v2/notfound.css";
         decoding="async"
       />
 
-      <h1 class="not-found__title v2-bar">Page not found</h1>
+      <h1 class="not-found__title">Page not found</h1>
 
       <p class="not-found__lead">
         The page you’re looking for doesn’t exist, may have moved, or the link
@@ -34,14 +29,13 @@ import "../styles/v2/notfound.css";
       <p class="not-found__suggest" data-not-found-suggest hidden></p>
 
       <nav class="not-found__actions" aria-label="Quick links">
-        <a class="not-found__cta" href="/read">Read the LIT</a>
-        <a class="not-found__cta not-found__cta--outline" href="/search"
+        <a class="not-found__cta kit-btn kit-btn--filled" href="/read">Read the LIT</a>
+        <a class="not-found__cta not-found__cta--outline kit-btn kit-btn--tinted" href="/search"
           >Search</a
         >
         <a class="not-found__link" href="/">Go to the home page</a>
       </nav>
     </div>
-    <EmblemMark class="v2-watermark not-found__mark" />
   </section>
 </Layout>
 
@@ -82,7 +76,7 @@ import "../styles/v2/notfound.css";
     align-items: center;
     justify-content: center;
     min-height: 60vh;
-    padding: clamp(48px, 10vh, 96px) 16px;
+    padding: var(--space-9) var(--space-5);
     text-align: center;
   }
 
@@ -92,73 +86,43 @@ import "../styles/v2/notfound.css";
 
   .not-found__logo {
     display: block;
-    margin: 0 auto 2rem;
+    margin: 0 auto var(--space-6);
   }
 
+  /* The page's one italic line: its own heading, in Fraunces's italic. */
   .not-found__title {
-    font-size: clamp(2rem, 5vw, 3rem);
-    margin: 0 0 1rem;
+    font-style: italic;
+    font-size: var(--size-title);
+    line-height: var(--leading-title);
+    margin: 0 0 var(--space-4);
   }
 
   .not-found__lead {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin: 0 0 2rem;
-    color: rgba(var(--ink-rgb), 0.78);
+    font-size: var(--size-text);
+    line-height: var(--leading-text);
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-2);
   }
 
   .not-found__suggest {
-    font-size: 1.1rem;
-    margin: -1rem 0 2rem;
+    font-size: var(--size-text);
+    line-height: var(--leading-text);
+    margin: 0 0 var(--space-6);
   }
 
   .not-found__actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
-    margin-bottom: 1.5rem;
-  }
-
-  .not-found__cta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-
-    background: var(--green-deep, #0f6b33);
-    color: #fff;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    transition: background-color 0.2s ease, transform 0.2s ease;
-  }
-
-  .not-found__cta:hover {
-    background: var(--ink, #1d231c);
-    transform: translateY(-1px);
-    text-decoration: none;
-  }
-
-  .not-found__cta--outline {
-    background: transparent;
-    color: var(--ink, #1d231c);
-    border: 2px solid var(--ink, #1d231c);
-    box-shadow: none;
-  }
-
-  .not-found__cta--outline:hover {
-    background: var(--ink, #1d231c);
-    color: #fff;
+    gap: var(--space-3);
+    margin: var(--space-5) 0;
   }
 
   .not-found__link {
     display: block;
     width: 100%;
-    margin-top: 4px;
-    font-size: 0.95rem;
+    margin-top: var(--space-1);
+    font-size: var(--size-margin);
+    line-height: var(--leading-margin);
   }
 </style>

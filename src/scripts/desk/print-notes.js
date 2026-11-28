@@ -51,7 +51,7 @@ import {
 import { markPieces } from "../../lib/desk-print-notes.mjs";
 import { glyph } from "./glyphs.js";
 import { fillNoteWords } from "./note-words.js";
-import { chapterBlocks, chapterTextFor, pageChapter, readBook, readChapterBlocks } from "./page.js";
+import { chapterBlocks, chapterTextFor, pageChapter, pageTextBox, readBook, readChapterBlocks } from "./page.js";
 import { onVerses } from "../../lib/desk-print-part.mjs";
 import { printLook } from "./print-look.js";
 
@@ -159,7 +159,7 @@ export function surface() {
   if (here) {
     return {
       bookKey: here.bookKey,
-      container: document.querySelector(".chapter-paragraphs"),
+      container: pageTextBox(),
       blocksOf: () => Array.from(chapterBlocks()).filter((b) => !b.matches("[data-desk-print-extra]")),
       only: here.chapter,
     };
@@ -224,8 +224,7 @@ export async function printFonts(noteText = "") {
     document.fonts.load('12pt "Crimson Text"', page),
     document.fonts.load('italic 12pt "Crimson Text"', page),
     document.fonts.load('bold 12pt "Crimson Text"', page),
-    document.fonts.load('500 10pt "Playpen Sans"', noteText),
-    document.fonts.load('10pt Inter', noteText),
+    document.fonts.load('10pt "Source Sans 3 Variable"', noteText),
   ].map((p) => p.catch(() => []));
   const patience = new Promise((resolve) => setTimeout(resolve, 2500));
   await Promise.race([Promise.all(loads).then(() => document.fonts.ready), patience]);

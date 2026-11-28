@@ -1,9 +1,13 @@
 ---
-// The big Previous/Next buttons at the foot of a chapter or intro page. Where
-// they go comes from the shared rule (src/lib/chapter-nav.mjs), which steps
-// over drafts, so a note under the buttons names what was stepped over:
-// otherwise Luke 22's "Next" landing on the John introduction reads as a
-// broken link. Button styling stays with each page (.chapter-ctas), as before.
+// The way on at the foot of a chapter or an introduction: Previous and Next
+// in large type in deep green, since they can be pressed, never a filled
+// button (SITE-FEATHERBOA.md, "The reading page"; RP-08, WB-10: “John 2 →,”
+// with “Luke 24” back). Where they go comes from the shared rule
+// (src/lib/chapter-nav.mjs), which steps over drafts, and from a chapter over
+// introductions, so a note under them names the drafts stepped over. A
+// chapter shows it at its foot without JavaScript; with it, the chapters read
+// on and only the book's end shows one (src/scripts/read-on.js).
+import Icon from "./Icon.astro";
 import { navFor } from "../lib/chapter-nav-data.mjs";
 
 interface Props {
@@ -11,12 +15,19 @@ interface Props {
   chapter: number | "intro";
   /** A draft page says where the text stands itself, so it skips the note. */
   showSkipped?: boolean;
+  /**
+   * The book's way on after reading on (read-on.js places it after the last
+   * entry) skips the note about drafts going back: they are the entries just
+   * above it ("Acts 2–28"), and it would name them as the last chapter's foot
+   * does ("Acts 2–27").
+   */
+  showPrevSkipped?: boolean;
 }
 
-const { bookKey, chapter, showSkipped = true } = Astro.props;
+const { bookKey, chapter, showSkipped = true, showPrevSkipped = true } = Astro.props;
 const { prev, next, prevSkipped, nextSkipped } = navFor(bookKey, chapter);
 const notes = showSkipped
-  ? [prevSkipped, nextSkipped].filter((s) => s !== null).map((s) => s.sentence)
+  ? [showPrevSkipped ? prevSkipped : null, nextSkipped].filter((s) => s !== null).map((s) => s.sentence)
   : [];
 ---
 
@@ -24,13 +35,15 @@ const notes = showSkipped
   (prev || next) && (
     <nav class="chapter-ctas" aria-label="Chapter navigation">
       {prev && (
-        <a class="chapter-cta chapter-cta--prev" href={prev.href} aria-label={`Go to ${prev.label}`}>
+        <a class="kit-inline chapter-cta chapter-cta--prev" href={prev.href} aria-label={`Go to ${prev.label}`}>
+          <Icon name="back" />
           {prev.label}
         </a>
       )}
       {next && (
-        <a class="chapter-cta chapter-cta--next" href={next.href} aria-label={`Go to ${next.label}`}>
+        <a class="kit-inline chapter-cta chapter-cta--next" href={next.href} aria-label={`Go to ${next.label}`}>
           {next.label}
+          <Icon name="forward" />
         </a>
       )}
     </nav>
@@ -39,10 +52,41 @@ const notes = showSkipped
 {notes.length > 0 && <p class="chapter-ctas__note">{notes.join(" ")}</p>}
 
 <style>
+  /* The links are the kit's "inline" press (deep green, underlined when
+     pointed at), so the row sets only the type they inherit and where they
+     sit: Fraunces at the Heading size, whose line is the 36px target. A lone
+     Next keeps to the right. */
+  .chapter-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4) var(--space-6);
+    margin: var(--space-6) 0 var(--space-4);
+    font-family: var(--font-display);
+    font-size: calc(var(--size-heading) * var(--reading-scale, 1));
+    line-height: 1.3;
+  }
+
+  .chapter-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .chapter-cta--next {
+    margin-left: auto;
+  }
+
+  .chapter-cta :global(.icon) {
+    width: 0.8em;
+    height: 0.8em;
+    flex: none;
+  }
+
   .chapter-ctas__note {
-    margin: 0 0 14px;
-    text-align: center;
-    font-size: 0.95rem;
-    color: rgba(var(--ink-rgb), 0.75);
+    margin: 0 0 var(--space-4);
+    font-size: calc(var(--size-label) * var(--reading-scale, 1));
+    color: rgba(var(--ink-rgb), var(--text-2-alpha));
   }
 </style>

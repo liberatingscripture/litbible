@@ -15,7 +15,6 @@ import {
   formatReferenceLabel,
   makeStudyReferenceHref,
   makeStudyBookHref,
-  readingJumpLink,
   normalizePhrase,
   buildPfQuery,
   escapeHtml,
@@ -23,6 +22,7 @@ import {
   parseScripturePath,
   scriptureResultTitle,
   glossaryTermFromResult,
+  glossaryTermsFromDom,
   enrichSearchResult,
   topicsIndexSubjectItem,
   bucketSearchResults,
@@ -32,6 +32,7 @@ import {
   searchVerses,
   rankVerseHits,
   verseHitLabel,
+  highlightVerseHit,
   verseHitHref,
   loadTopicsIndex,
   loadPagefind,
@@ -47,10 +48,19 @@ import {
   notePickedMode,
   showModeFor,
   loadGreekSearch,
-  showGreekHere,
   MODE_LABELS,
 } from "./search-core.js";
 import { hasGreek } from "../lib/greek-detect.mjs";
+import {
+  referenceRowsHtml,
+  studyHrefFor,
+  verseRowHtml,
+  titleRowHtml,
+  chaptersLineHtml,
+  glossaryLineHtml,
+  glossaryLineEntries,
+  seeAllHref,
+} from "../lib/search-rows.mjs";
 
 // The Greek search itself, loaded by the first Greek query (LG-6), so a reader
 // who never makes one downloads none of it. Whatever draws a Greek result runs
@@ -84,11 +94,8 @@ const _initSearchbars = async () => {
     const status = root.querySelector(".searchbar__status");
     const groupsEl = root.querySelector("[data-groups]");
     // The filters (book, type and their tips) are the tray's even where a page
-    // has moved them: on /search the 2.0 look puts them in the page's left pane
-    // (startV2Search in v2-search.js), often before this runs at idle. The
-    // tray then found no menus and skipped its setup, so whether /search had
-    // its completion and tips depended on which came first. SearchBar is on a
-    // page once (its ids are fixed), so the book menu's id finds them.
+    // has moved them. SearchBar is on a page
+    // once (its ids are fixed), so the book menu's id finds them.
     const filters =
       root.querySelector(".searchbar__filters") ??
       document.getElementById("searchbar-book")?.closest(".searchbar__filters");
@@ -99,6 +106,10 @@ const _initSearchbars = async () => {
       root.querySelector(".searchbar__mode") ?? filters?.querySelector(".searchbar__mode");
     const closeBtn = root.querySelector(".searchbar__close");
     const fullLink = root.querySelector(".searchbar__full");
+    // The page's own address for "See all results" is written into the link as
+    // a search is made, so the base is read once.
+    const fullBase = fullLink?.getAttribute("href") || "/search";
+    const buildBtn = root.querySelector("[data-build-search]");
     const commandsLink = root.querySelector("[data-search-commands]");
     const jumpRow = root.querySelector("[data-jump]");
     const activeFiltersEl = root.querySelector("[data-active-filters]");
@@ -119,104 +130,6 @@ const _initSearchbars = async () => {
       !jumpRow
     )
       continue;
-
-    // -----------------------------
-    // Tooltip behavior (viewport-clamped, stable on mobile)
-    // -----------------------------
-    const tipButtons = Array.from((filters ?? root).querySelectorAll(".searchbar__tip"));
-    let activeTip = null;
-    const lockedTips = new Set();
-
-    function closeAllTips() {
-      for (const b of tipButtons) b.dataset.tipOpen = "false";
-      lockedTips.clear();
-      activeTip = null;
-    }
-
-    function positionTip(btn) {
-      const tip = btn.querySelector(".searchbar__tooltip");
-      if (!tip) return;
-
-      const pad = 12;
-      const gap = 10;
-
-      // Ensure it's measurable
-      btn.dataset.tipOpen = "true";
-
-      const btnRect = btn.getBoundingClientRect();
-      const tipRect = tip.getBoundingClientRect();
-
-      let left = btnRect.left + btnRect.width / 2 - tipRect.width / 2;
-      left = Math.max(
-        pad,
-        Math.min(left, window.innerWidth - tipRect.width - pad),
-      );
-
-      // Prefer above; if not enough room, place below
-      let top = btnRect.top - tipRect.height - gap;
-      if (top < pad) top = btnRect.bottom + gap;
-
-      top = Math.max(
-        pad,
-        Math.min(top, window.innerHeight - tipRect.height - pad),
-      );
-
-      btn.style.setProperty("--tip-x", `${left}px`);
-      btn.style.setProperty("--tip-y", `${top}px`);
-    }
-
-    function openTip(btn) {
-      if (activeTip && activeTip !== btn) activeTip.dataset.tipOpen = "false";
-      activeTip = btn;
-      btn.dataset.tipOpen = "true";
-      requestAnimationFrame(() => positionTip(btn));
-    }
-
-    for (const btn of tipButtons) {
-      btn.dataset.tipOpen = "false";
-
-      btn.addEventListener("mouseenter", () => openTip(btn));
-      btn.addEventListener("mouseleave", () => {
-        if (!lockedTips.has(btn)) {
-          btn.dataset.tipOpen = "false";
-          if (activeTip === btn) activeTip = null;
-        }
-      });
-
-      btn.addEventListener("focus", () => openTip(btn));
-      btn.addEventListener("blur", () => {
-        if (!lockedTips.has(btn)) {
-          btn.dataset.tipOpen = "false";
-          if (activeTip === btn) activeTip = null;
-        }
-      });
-
-      // Click locks open; second click closes
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (lockedTips.has(btn)) {
-          lockedTips.delete(btn);
-          btn.dataset.tipOpen = "false";
-          if (activeTip === btn) activeTip = null;
-        } else {
-          lockedTips.add(btn);
-          openTip(btn);
-        }
-      });
-    }
-
-    // Close tips when clicking elsewhere
-    root.addEventListener("click", (e) => {
-      if (!e.target.closest(".searchbar__tip")) closeAllTips();
-    });
-    document.addEventListener("click", (e) => {
-      if (!owns(e.target)) closeAllTips();
-    });
-
-    window.addEventListener("resize", () => {
-      if (activeTip) requestAnimationFrame(() => positionTip(activeTip));
-    });
 
     const MIN_QUERY_LEN = 3; // 3-4 char queries are exact-only
     // Greek words can be one or two letters (ὁ, ἐν), so a Greek query needs
@@ -427,7 +340,6 @@ const _initSearchbars = async () => {
       if (pinnedOpen) return;
       root.dataset.open = "false";
       clearGhost();
-      closeAllTips();
     }
 
     async function ensurePagefind() {
@@ -443,6 +355,9 @@ const _initSearchbars = async () => {
     }
 
     // jump = null | { kind:"ref", ... } | { kind:"book", bookKey }
+    // The reference answers the search first: "Go to John 3:16," and with the
+    // Study preview "Study John 3:16" (SE-17, ST-15; the rows are
+    // src/lib/search-rows.mjs's).
     function renderJump(jump) {
       if (!jump) {
         jumpRow.hidden = true;
@@ -451,45 +366,21 @@ const _initSearchbars = async () => {
       }
 
       const isBook = jump.kind === "book";
-      // A book's introduction has no Read View link: Shift+Enter does what Enter does.
+      // A book's introduction has no Study link: Shift+Enter does what Enter does.
       const intro = isBook && jump.intro === true;
-      const studyHref = isBook
-        ? makeStudyBookHref(jump.bookKey)
-        : makeStudyReferenceHref(jump);
-      // Read View, or with the Study Desk preview on its Reading layout (E114).
-      const reading = readingJumpLink(jump);
-      const readHint = reading.desk
-        ? isBook ? "whole book, in Study Desk" : "in Study Desk, Reading layout"
-        : isBook ? "whole book, in Read View" : "in Read View, whole book";
-      // E130: with the Study Desk preview on, the Scripture page wording; it becomes everyone's at launch (desk/CLAUDE.md, Launching, item 13).
-      const scripturePage = reading.desk;
-      const label = isBook
-        ? bookKeyToLabel(jump.bookKey)
-        : formatReferenceLabel(jump);
+      const goHref = isBook ? makeStudyBookHref(jump.bookKey) : makeStudyReferenceHref(jump);
+      const label = isBook ? bookKeyToLabel(jump.bookKey) : formatReferenceLabel(jump);
+      const desk = deskEnabled();
 
       jumpRow.hidden = false;
       jumpRow.innerHTML = `
-        <div class="searchbar__jump-links">
-          <a class="searchbar__jump-link" href="${studyHref}">
-            <span>Jump to <strong>${label}</strong></span>
-            <span class="searchbar__jump-hint">${
-              scripturePage
-                ? (isBook ? "book introduction" : "Scripture page, with notes")
-                : (isBook ? "intro, in Chapter View" : "in Chapter View, with notes")
-            }</span>
-          </a>
-          ${intro ? "" : `<a class="searchbar__jump-link searchbar__jump-link--read" href="${escapeHtml(reading.href)}">
-            <span>Jump to <strong>${label}</strong></span>
-            <span class="searchbar__jump-hint">${readHint}</span>
-          </a>`}
-        </div>
+        <div class="search-answers">${referenceRowsHtml(
+          { label, goHref, studyHref: studyHrefFor(jump), intro },
+          { desk },
+        )}</div>
         <div class="searchbar__jump-meta">
-          <span class="searchbar__jump-keys">
-            ${intro
-              ? `Enter: ${scripturePage ? "Scripture page" : "Chapter View"}`
-              : `Enter: ${scripturePage ? "Scripture page" : "Chapter View"} &nbsp;&middot;&nbsp; Shift+Enter: ${reading.desk ? "Study Desk" : "Read View"}`}
-          </span>
-          <button type="button" class="searchbar__jump-search" data-jump-search>
+          ${desk && !intro ? `<span class="searchbar__jump-keys">Enter: Go to &nbsp;&middot;&nbsp; Shift+Enter: Study</span>` : ""}
+          <button type="button" class="kit-btn kit-btn--plain searchbar__jump-search" data-jump-search>
             Search for this instead
           </button>
         </div>
@@ -509,13 +400,13 @@ const _initSearchbars = async () => {
       return !!(
         jumpRow &&
         jumpRow.hidden === false &&
-        jumpRow.querySelector(".searchbar__jump-link")
+        jumpRow.querySelector(".search-answer__link")
       );
     }
 
     function doJump(preferRead = false) {
       const links = Array.from(
-        jumpRow.querySelectorAll("a.searchbar__jump-link"),
+        jumpRow.querySelectorAll("a.search-answer__link"),
       );
       if (!links.length) return false;
 
@@ -552,100 +443,55 @@ const _initSearchbars = async () => {
       closePanel();
     }
 
-    function renderGroups({ glossary, subject, articles, keyword, intros = [] }) {
-      const glossaryCount = glossary.length;
-      const subjectCount = subject.length;
-      const articlesCount = articles.length;
-      const keywordCount = keyword.length;
-      const introsCount = intros.length;
+    // The tray's rows: the chapters line and the glossary line over the verses,
+    // then the introductions and articles that matched (SE-20, SE-21, SE-31).
+    // Where the reader picked the type itself (the menu), its matches are
+    // listed whole instead of in a line.
+    function renderGroups({ glossary, subject, articles, keyword, intros = [], counts = {}, q = "", bookKey = "" }) {
+      const show = (m) => activeMode === "all" || activeMode === m;
+      const titleRows = (items) =>
+        `<ol class="search-rows">${items.map(({ title, href }) => titleRowHtml({ title, href })).join("")}</ol>`;
+      const group = (title, items) =>
+        items.length ? `<div class="searchbar__group"><div class="searchbar__group-title">${title}</div>${titleRows(items)}</div>` : "";
+      let out = "";
 
-      if (
-        !glossaryCount &&
-        !subjectCount &&
-        !articlesCount &&
-        !keywordCount &&
-        !introsCount
-      ) {
-        groupsEl.innerHTML = "";
-        return;
+      // The glossary still answers first (SE-21), as on /search: one line for
+      // an entry whose own word is what was typed, never one that only uses
+      // the word in its prose. With the Glossary type picked, its matches are
+      // listed whole instead, below.
+      const named =
+        activeMode === "all" ? glossaryLineEntries(q, glossaryTermsFromDom(), base) : [];
+      if (named.length) {
+        out += `<p class="search-line">${glossaryLineHtml({
+          term: named[0].term,
+          href: named[0].href,
+          count: named.length,
+        })}</p>`;
       }
-
-      const renderList = (items) => {
-        return `
-          <ol class="searchbar__results">
-            ${items
-              .map(
-                ({ title, href }) => `
-                  <li class="searchbar__result">
-                    <a class="searchbar__link" href="${href}">
-                      <div class="searchbar__title">${title}</div>
-                    </a>
-                  </li>
-                `,
-              )
-              .join("")}
-          </ol>
-        `;
-      };
-
-      groupsEl.innerHTML = `
-        ${
-          glossaryCount && (activeMode === "all" || activeMode === "glossary")
-            ? `
-              <div class="searchbar__group">
-                <div class="searchbar__group-title">${MODE_LABELS.glossary}</div>
-                ${renderList(glossary)}
-              </div>
-            `
-            : ""
-        }
-        ${
-          subjectCount && (activeMode === "all" || activeMode === "subject")
-            ? `
-              <div class="searchbar__group">
-                <div class="searchbar__group-title">${MODE_LABELS.subject}</div>
-                ${renderList(subject)}
-              </div>
-            `
-            : ""
-        }
-        ${
-          introsCount && (activeMode === "all" || activeMode === "intro")
-            ? `
-              <div class="searchbar__group">
-                <div class="searchbar__group-title">${MODE_LABELS.intro}</div>
-                ${renderList(intros)}
-              </div>
-            `
-            : ""
-        }
-        ${
-          articlesCount && (activeMode === "all" || activeMode === "article")
-            ? `
-              <div class="searchbar__group">
-                <div class="searchbar__group-title">${MODE_LABELS.article}</div>
-                ${renderList(articles)}
-              </div>
-            `
-            : ""
-        }
-        ${
-          keywordCount && (activeMode === "all" || activeMode === "keyword")
-            ? `
-              <div class="searchbar__group">
-                <div class="searchbar__group-title">${MODE_LABELS.keyword}</div>
-                ${renderList(keyword)}
-              </div>
-            `
-            : ""
-        }
-      `;
+      if (show("subject") && counts.subject) {
+        out +=
+          activeMode === "subject"
+            ? group("Chapters about it", subject)
+            : `<p class="search-line">${chaptersLineHtml({
+                first: subject[0].title,
+                count: counts.subject,
+                query: q,
+                href: fullSearchHref(q, bookKey, "subject"),
+              })}</p>`;
+      }
+      if (activeMode === "glossary" && counts.glossary) out += group("Glossary", glossary);
+      if (show("keyword") && keyword.length) {
+        out += `<ol class="search-rows">${keyword.map((v) => verseRowHtml(v)).join("")}</ol>`;
+      }
+      if (show("intro")) out += group("Introductions", intros);
+      if (show("article")) out += group("Articles", articles);
+      groupsEl.innerHTML = out;
     }
 
     // The /search address for a query, keeping the book filter in force.
     function fullSearchHref(q, bookKey, mode) {
       const url = new URL(
-        fullLink?.getAttribute("href") || "/search",
+        fullBase,
         window.location.origin,
       );
       url.searchParams.set("q", q);
@@ -665,6 +511,31 @@ const _initSearchbars = async () => {
       withCommands().then((m) =>
         m.openGreekCommands({ field: input, filter, typeSelect: modeSelect }),
       );
+    }
+
+    // "Build a search…" (GK-34): one quiet link in the field's row, shown only
+    // while the Greek is what is searched. On /search the page's script owns it.
+    function syncBuild() {
+      if (!buildBtn || pinnedOpen) return;
+      buildBtn.hidden = !(
+        greekSearchEnabled() &&
+        (modeSelect.value === "greek" || isGreekQuery(input.value))
+      );
+    }
+    if (buildBtn && !pinnedOpen) {
+      buildBtn.addEventListener("click", () => openCommands());
+      input.addEventListener("input", syncBuild);
+      modeSelect.addEventListener("change", syncBuild);
+    }
+
+    // "See all results →" opens /search on the same tab, with the query, the
+    // type, and the book (SE-32). Nothing to open for an empty box, a command,
+    // or on /search itself.
+    function syncSeeAll(q, bookKey) {
+      if (!fullLink) return;
+      const show = !pinnedOpen && Boolean(q) && !isCmd(q);
+      fullLink.hidden = !show;
+      if (show) fullLink.setAttribute("href", fullSearchHref(q, bookKey, activeMode === "all" ? "" : activeMode));
     }
 
     // The tray's quiet "Notebook actions" link (E31), for the Study Desk preview only:
@@ -758,20 +629,13 @@ const _initSearchbars = async () => {
         <div class="searchbar__group-title">Greek</div>
         ${body}
         ${rows ? `<ol class="searchbar__results">${rows}</ol>` : ""}
-        <div class="searchbar__group-foot">${all}<button type="button" class="greek-cmd-link" data-greek-cmds>Search commands</button></div>
+        <div class="searchbar__group-foot">${all}<button type="button" class="kit-btn kit-btn--plain" data-greek-cmds>Build a search…</button></div>
         ${greekCredit()}`;
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
-        if (link) {
-          // A result for the chapter on screen opens the Notebook's Greek tab
-          // in place; anywhere else the link loads the chapter as usual.
-          if (showGreekHere(shown[Number(link.dataset.greekHit)])) {
-            e.preventDefault();
-            closePanel();
-          }
-          return;
-        }
+        // A Greek result is a link to Study at the word (greekHref).
+        if (link) return;
         if (e.target.closest?.("[data-greek-cmds]")) {
           openCommands(pointTo);
           return;
@@ -850,15 +714,8 @@ const _initSearchbars = async () => {
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
-        if (link) {
-          // A result for the chapter on screen opens the Notebook's Greek tab
-          // in place; anywhere else the link loads the chapter as usual.
-          if (showGreekHere(hits[Number(link.dataset.greekHit)])) {
-            e.preventDefault();
-            closePanel();
-          }
-          return;
-        }
+        // A Greek result is a link to Study at the word (greekHref).
+        if (link) return;
         const btn = e.target.closest?.("[data-greek-lemma]");
         if (!btn) return;
         e.preventDefault();
@@ -971,6 +828,8 @@ const _initSearchbars = async () => {
     async function runSearch(q) {
       const mySeq = ++searchSeq;
       showModeFor(modeSelect, q);
+      syncBuild();
+      syncSeeAll(q, activeBook);
       syncNotesLine(false);
       syncOffer(q);
 
@@ -1098,13 +957,16 @@ const _initSearchbars = async () => {
           status.textContent =
             hasJump && !sCount
               ? ""
-              : `${sCount} topic match${sCount === 1 ? "" : "es"}`;
+              : `${sCount} ${sCount === 1 ? "chapter" : "chapters"} about it`;
 
           renderGroups({
             glossary: [],
             subject: subjectItems,
             articles: [],
             keyword: [],
+            counts: { subject: sCount },
+            q: qUnquoted,
+            bookKey: keywordBook,
           });
 
           return;
@@ -1213,8 +1075,9 @@ const _initSearchbars = async () => {
         const keywordItems = rankVerseHits(verseHits)
           .slice(0, 6)
           .map((h) => ({
-            title: verseHitLabel(h),
+            label: verseHitLabel(h),
             href: verseHitHref(h),
+            html: highlightVerseHit(h),
           }));
 
         const gCount = glossaryMatches.length;
@@ -1232,22 +1095,23 @@ const _initSearchbars = async () => {
         const showK = activeMode === "all" || activeMode === "keyword";
 
         // With a jump row or a command showing, a zero count reads as a
-        // failed search, so only the kinds that matched are listed.
+        // failed search, so only the kinds that matched are listed. Each is
+        // named as /search's tabs name it, never "topic" (SE-15).
         const parts = [];
         if (nCount)
           parts.push(`${nCount} ${(notebook.nouns ?? ["notebook match", "notebook matches"])[nCount === 1 ? 0 : 1]}`);
         if (showG && gCount)
-          parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
+          parts.push(`${gCount} glossary ${gCount === 1 ? "entry" : "entries"}`);
         if (showS && (sCount || !(hasJump || commands.length)))
-          parts.push(`${sCount} topic match${sCount === 1 ? "" : "es"}`);
+          parts.push(`${sCount} ${sCount === 1 ? "chapter" : "chapters"} about it`);
         if (showI && iCount)
-          parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
+          parts.push(`${iCount} ${iCount === 1 ? "introduction" : "introductions"}`);
         if (showA && aCount)
-          parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
+          parts.push(`${aCount} ${aCount === 1 ? "article" : "articles"}`);
         if (showK && versesFailed) parts.push(VERSES_FAILED);
         else if (showK && (kCount || !(hasJump || commands.length)))
           parts.push(
-            `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
+            `${kCount} ${kCount === 1 ? "verse" : "verses"}` +
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
           );
         status.textContent = parts.join(sep);
@@ -1261,7 +1125,11 @@ const _initSearchbars = async () => {
           articles: articleItems,
           keyword: keywordItems,
           intros: introItems,
+          counts: { subject: sCount, glossary: gCount },
+          q: qUnquoted,
+          bookKey: keywordBook,
         });
+
         // Commands, then the notebook's matches, ahead of everything else.
         if (desk) {
           desk.renderTray(groupsEl, {
@@ -1360,7 +1228,7 @@ const _initSearchbars = async () => {
       if (pinnedOpen) return;
 
       const url = new URL(
-        fullLink?.getAttribute("href") || "/search",
+        fullBase,
         window.location.origin,
       );
 
@@ -1380,6 +1248,7 @@ const _initSearchbars = async () => {
     }
 
     function clearForShortQuery() {
+      syncSeeAll("", "");
       syncNotesLine(false);
       offerSeq++;
       if (offerLine) offerLine.hidden = true;

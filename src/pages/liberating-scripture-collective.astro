@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/liberating-scripture-collective.css";
-import "../styles/v2/collective.css";
 
 import CardCarousel from "../components/CardCarousel.astro";
 import LscMark from "../components/LscMark.astro";
@@ -34,8 +33,8 @@ import LscMark from "../components/LscMark.astro";
   </Fragment>
   <div class="lsc">
     {/* HERO */}
-    <header class="lsc-hero v2-bar">
-      <p class="eyebrow v2-label">An initiative rooted in the LIT Bible</p>
+    <header class="lsc-hero">
+      <p class="eyebrow">An initiative rooted in the LIT Bible</p>
 
       <div class="lsc-lockup">
         <LscMark size={180} class="lsc-logo lsc-logo--hero" />
@@ -55,11 +54,11 @@ import LscMark from "../components/LscMark.astro";
       </p>
 
       <div class="lsc-actions" aria-label="Primary actions">
-        <a class="button button--primary" href="/support/#donate">Donate</a>
-        <a class="button" href="https://liberatingscripture.org/" target="_blank" rel="noopener noreferrer"
+        <a class="button button--primary kit-btn kit-btn--filled" href="/support/#donate">Donate</a>
+        <a class="button kit-btn kit-btn--tinted" href="https://liberatingscripture.org/" target="_blank" rel="noopener noreferrer"
           >Visit liberatingscripture.org</a
         >
-        <a class="button" href="/support/">Get involved</a>
+        <a class="button kit-btn kit-btn--tinted" href="/support/">Get involved</a>
       </div>
     </header>
 
@@ -286,10 +285,10 @@ import LscMark from "../components/LscMark.astro";
       </p>
 
       <div class="lsc-actions" aria-label="Connection links">
-        <a class="button button--primary" href="/support/">Get involved</a>
-        <a class="button" href="/support/#donate">Donate</a>
+        <a class="button kit-btn kit-btn--tinted" href="/support/">Get involved</a>
+        <a class="button kit-btn kit-btn--tinted" href="/support/#donate">Donate</a>
         <a
-          class="button"
+          class="button kit-btn kit-btn--tinted"
           href="https://liberatingscripture.org/contact"
           target="_blank"
           rel="noopener noreferrer">Contact (liberatingscripture.org)</a

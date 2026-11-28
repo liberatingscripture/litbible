@@ -1,7 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
 import { BOOKS, BOOK_ORDER } from "../src/data/books.js";
 import { readViewRedirects, studyAddress, studyContinueHref, studyRecord } from "../src/lib/read-view-retirement.mjs";
 
@@ -87,46 +86,29 @@ test("Continue reading goes to Chapter View whichever view the record came from"
   assert.equal(studyContinueHref({ book: "john", chapter: 3, verse: 16, view: "study" }), "/john-3/#v16");
 });
 
-// ---- dormant until 8c -----------------------------------------------------------
+// ---- switched on (Featherboa, Phase 4; WB-44) ----------------------------------
 
-test("nothing in the site imports the retirement rules before the launch cutover", () => {
-  const files = [];
-  const walk = (dir) => {
-    for (const name of readdirSync(dir)) {
-      const full = join(dir, name);
-      if (statSync(full).isDirectory()) walk(full);
-      else if (/\.(astro|js|mjs|ts)$/.test(name)) files.push(full);
-    }
-  };
-  walk("src");
-  walk("scripts");
-  const users = files
-    .filter((f) => !/read-view-retirement\.mjs$|read-view-redirect\.js$/.test(f))
-    .filter((f) => /read-view-retirement|read-view-redirect/.test(readFileSync(f, "utf8")));
-  assert.deepEqual(users, [], "wire these in at 8c, and then delete this test");
+const page = readFileSync("src/pages/read/[book].astro", "utf8");
+
+test("each book's old page forwards with these rules, keeping its anchor", () => {
+  assert.match(page, /import "\.\.\/\.\.\/scripts\/read-view-redirect\.js";/);
+  const script = readFileSync("src/scripts/read-view-redirect.js", "utf8");
+  assert.match(script, /import \{ studyAddress \} from "\.\.\/lib\/read-view-retirement\.mjs";/);
+  assert.match(script, /window\.location\.replace\(to\)/, "replace, so Back skips the old address");
 });
 
-// ---- the preview's swaps (html[data-desk="on"]) --------------------------------
-
-test("with the preview on, /read swaps the Read View card for the Study Desk card", () => {
-  const page = readFileSync("src/pages/read.astro", "utf8");
-  const css = readFileSync("src/styles/pages/read.css", "utf8");
-  assert.match(page, /view-card--read/);
-  assert.match(page, /view-card--desk/);
-  assert.match(page, /href="\/desk\/\?place=matthew-5"/);
-  // Both cards are in the page; the attribute decides which one shows.
-  assert.match(css, /\.view-card--desk\s*\{\s*display:\s*none/);
-  assert.match(css, /html\[data-desk="on"\] \.view-card--desk\s*\{\s*display:\s*flex/);
-  assert.match(css, /html\[data-desk="on"\] \.view-card--read\s*\{\s*display:\s*none/);
-  // "Available now" goes with the preview from the apps card to the desk card.
-  assert.match(css, /html\[data-desk="on"\] \.view-card__badge--apps\s*\{\s*display:\s*none/);
+test("without scripts it goes to the book's first chapter, and it is never indexed", () => {
+  assert.match(page, /const first = `\/\$\{bookKey\}-1\/`;/);
+  assert.match(page, /<noscript><meta http-equiv="refresh" content=\{`0; url=\$\{first\}`\} \/><\/noscript>/);
+  assert.match(page, /<meta name="robots" content="noindex" \/>/);
+  assert.match(page, /<a href=\{first\}>/, "a link to follow where a browser refreshes nothing");
+  const config = readFileSync("astro.config.mjs", "utf8");
+  assert.match(config, /if \(slug\.startsWith\('read\/'\)\) return false;/, "out of the sitemap");
 });
 
-test("with the preview on, the chapter picker's footer link opens the Study Desk", () => {
-  const menu = readFileSync("src/components/ReadMenu.astro", "utf8");
-  assert.match(menu, /dataset\.desk === "on"/);
-  // In its Reading layout at the book's chapter 1 (E114).
-  assert.match(menu, /"\/desk\/\?place=" \+ crossViewKey \+ "-1&layout=reading"/);
-  assert.match(menu, / in Study Desk →/);
-  assert.match(menu, / in Read View →/, "everyone else keeps Read View");
+test("Read View's page, script, styles, and toolbar are gone", () => {
+  for (const file of ["src/components/ReadMenu.astro", "src/scripts/read-mode.js", "src/styles/read-mode.css"]) {
+    assert.equal(existsSync(file), false, `${file} retired with Read View`);
+  }
+  assert.doesNotMatch(page, /Layout|ReadMenu|read-mode/, "the old page is only its forwarding");
 });

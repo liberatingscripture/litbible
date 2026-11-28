@@ -5,14 +5,24 @@
 import { bookKeyToLabel } from "../../data/books.js";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { footnotesFromDom } from "../../lib/desk-footnotes.mjs";
+import { readOnPrefix } from "../../lib/read-on.mjs";
 import { readBook } from "./page-kind.js";
 
-/** The Chapter View chapter this page shows, or null (an intro, a draft, Read View, any other page). */
+/**
+ * The page's own chapter's text. A chapter's page reads on into the chapters
+ * around it (src/scripts/read-on.js), so the first `.chapter-paragraphs` in
+ * the document may be one loaded above: the page's is its article's.
+ */
+export function pageTextBox() {
+  return document.querySelector("article.chapter > .chapter-paragraphs");
+}
+
+/** The chapter this page shows, or null (an intro, a draft, any other page). */
 export function pageChapter() {
   const article = document.querySelector("article.chapter[data-last-read-book]");
   const bookKey = article?.dataset.lastReadBook;
   const chapter = Number(article?.dataset.lastReadChapter);
-  if (!bookKey || !chapter || !document.querySelector(".chapter-paragraphs")) return null;
+  if (!bookKey || !chapter || !pageTextBox()) return null;
   return { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` };
 }
 
@@ -30,9 +40,9 @@ export function greekChapter() {
   return { bookKey, chapter, label: `${bookKeyToLabel(bookKey)} ${chapter}` };
 }
 
-/** Chapter View's scripture blocks. */
+/** The page's own chapter's scripture blocks. */
 export function chapterBlocks() {
-  return document.querySelector(".chapter-paragraphs")?.children ?? [];
+  return pageTextBox()?.children ?? [];
 }
 
 /**
@@ -77,6 +87,141 @@ export function readChapterBlocks(chapter) {
 // one, so a chapter on /desk is a box, not the page.
 const deskTexts = new Set();
 
+/* ── A chapter's page that reads on ─────────────────────────────────── */
+
+// A published chapter's page reads on into the rest of its book
+// (src/scripts/read-on.js, which tells the page through `lit:read-on`), so
+// like a LIT pane's its text holds many chapters: the page's own and every
+// one loaded beside it. Its column is one of the desk's texts, and what
+// draws marks on many chapters (lit-records.js, highlights.js,
+// verse-labels.js, the margin's readingSource) draws them there too.
+
+/** Whether this page reads on (a published chapter's). */
+export function readsOnPage() {
+  return Boolean(document.querySelector("#read-on-data"));
+}
+
+const readingText = readsOnPage() ? document.querySelector(".scripture-main") : null;
+if (readingText) deskTexts.add(readingText);
+
+/**
+ * The reading page's chapters as { box, bookKey, chapter }, in the page's
+ * order: its own and every published chapter loaded beside it (a draft's
+ * entry has no text). Empty on any other page.
+ */
+export function readingChapterBoxes() {
+  if (!readingText) return [];
+  const here = pageChapter();
+  const out = [];
+  for (const box of readingText.querySelectorAll(
+    "article.chapter > .chapter-paragraphs, .read-on__chapter[data-book][data-chapter] > .chapter-paragraphs",
+  )) {
+    const article = box.parentElement;
+    if (article.matches("article.chapter")) {
+      if (here) out.push({ box, bookKey: here.bookKey, chapter: here.chapter });
+    } else {
+      out.push({ box, bookKey: article.dataset.book, chapter: Number(article.dataset.chapter) });
+    }
+  }
+  return out;
+}
+
+/**
+ * A verse's number on this page, in its own chapter or one it reads on into
+ * (whose ids carry the chapter: `john-4-v16`), or null.
+ */
+export function verseNumber(bookKey, chapter, verse) {
+  const here = pageChapter();
+  if (here && here.bookKey === bookKey && here.chapter === chapter) return document.getElementById(`v${verse}`);
+  return readingText ? document.getElementById(`${readOnPrefix(bookKey, chapter)}v${verse}`) : null;
+}
+
+/**
+ * The entry read-on.js made on this page for a chapter it reads on into (a
+ * run of drafts is one entry, naming its chapters in `data-chapters`), or null.
+ */
+function loadedEntry(bookKey, chapter) {
+  if (!readingText) return null;
+  for (const box of readingText.querySelectorAll(".read-on__chapter[data-book]")) {
+    if (box.dataset.book !== bookKey) continue;
+    const chapters = (box.dataset.chapters ?? box.dataset.chapter ?? "").split(/\s+/).map(Number);
+    if (chapters.includes(chapter)) return box;
+  }
+  return null;
+}
+
+/**
+ * A chapter this page holds, as the Notebook names it while the reader is in
+ * it: `{ bookKey, chapter, label, plural, draft, failed }`, its label the
+ * heading the reader sees there ("Luke 23–24" for a run of drafts, which
+ * `plural` marks; "Acts" for a book wholly in draft is one). The page's own
+ * chapter, a draft's page's, or one it reads on into; null for a chapter the
+ * page doesn't hold.
+ */
+export function chapterOnPage(bookKey, chapter) {
+  if (!bookKey || !chapter) return null;
+  const label = `${bookKeyToLabel(bookKey)} ${chapter}`;
+  const here = pageChapter();
+  if (here && here.bookKey === bookKey && here.chapter === chapter) return { ...here, plural: false, draft: false, failed: false };
+  const draftPage = document.querySelector("article.chapter[data-draft-book]");
+  if (draftPage?.dataset.draftBook === bookKey && Number(draftPage.dataset.draftChapter) === chapter) {
+    return { bookKey, chapter, label, plural: false, draft: true, failed: false };
+  }
+  const entry = loadedEntry(bookKey, chapter);
+  if (!entry) return null;
+  const heading = document.getElementById(entry.getAttribute("aria-labelledby") ?? "")?.textContent.trim() || label;
+  const run = (entry.dataset.chapters ?? "").split(/\s+/).filter(Boolean).length > 1;
+  return {
+    bookKey,
+    chapter,
+    label: heading,
+    plural: run && heading !== bookKeyToLabel(bookKey),
+    draft: entry.classList.contains("read-on__chapter--draft"),
+    failed: entry.classList.contains("read-on__chapter--failed"),
+  };
+}
+
+/**
+ * A chapter's footnotes on this page, for the Notebook's Footnotes tab, in
+ * the shape footnotes-view.js draws (as chapter-page.js reads a fetched
+ * page): `{ bookKey, chapter, draft, footnotes: [{ id, pinId, label, verse }],
+ * footnoteBody(id) }`. `id` is the note's id on this page and `pinId` its id
+ * on its chapter's own page, which is what a pin names: a chapter read on
+ * into carries its prefix (`john-4-fn-a`). Null for a chapter the page
+ * doesn't hold or that didn't load.
+ */
+export function chapterFootnotes(bookKey, chapter) {
+  const at = chapterOnPage(bookKey, chapter);
+  if (!at || at.failed) return null;
+  const footnoteBody = (id) => document.getElementById(id)?.querySelector(".fn-body") ?? null;
+  if (at.draft) return { bookKey, chapter, draft: true, footnotes: [], footnoteBody };
+  const here = pageChapter();
+  const own = here && here.bookKey === bookKey && here.chapter === chapter;
+  const article = own ? pageTextBox()?.parentElement : loadedEntry(bookKey, chapter);
+  const text = article?.querySelector(":scope > .chapter-paragraphs");
+  if (!text) return null;
+  const prefix = own ? "" : readOnPrefix(bookKey, chapter);
+  const footnotes = Array.from(article.querySelectorAll(":scope > .footnotes-wrap ol.footnotes > li[id]"), (li) => {
+    const anchor = text.querySelector(`a[href="#${CSS.escape(li.id)}"]`);
+    const verse = Number(anchor?.closest("[data-verse]")?.getAttribute("data-verse"));
+    return {
+      id: li.id,
+      pinId: prefix && li.id.startsWith(prefix) ? li.id.slice(prefix.length) : li.id,
+      label: li.querySelector(".footnote-backlink")?.textContent.trim() ?? "",
+      verse: Number.isFinite(verse) && verse > 0 ? verse : null,
+    };
+  });
+  return { bookKey, chapter, draft: false, footnotes, footnoteBody };
+}
+
+/** A chapter's Go deeper section on this page, its own or one it reads on into, or null. */
+export function goDeeperOf(bookKey, chapter) {
+  const here = pageChapter();
+  if (here && here.bookKey === bookKey && here.chapter === chapter) return document.querySelector("article.chapter > .go-deeper");
+  if (!readingText) return null;
+  return readingText.querySelector(`.read-on__chapter[data-book="${bookKey}"][data-chapter="${Number(chapter)}"] > .go-deeper`);
+}
+
 /**
  * Fired on document when a LIT pane's text comes or goes, and when a chapter
  * comes into a pane's text or the pane clears it to go elsewhere
@@ -85,6 +230,13 @@ const deskTexts = new Set();
 export const DESK_TEXTS_EVENT = "lit:desk-texts";
 
 const told = () => document.dispatchEvent(new CustomEvent(DESK_TEXTS_EVENT));
+
+// A chapter loaded on the reading page comes into its text as a pane's would.
+if (readingText) {
+  document.addEventListener("lit:read-on", (e) => {
+    if (e.detail?.type === "loaded") told();
+  });
+}
 
 /**
  * Put a LIT pane's text (the element holding its chapters' sections) on the
@@ -159,6 +311,10 @@ export function onDeskChapters(fn) {
 export function deskChapterBoxes() {
   const out = [];
   for (const container of deskTextsNow()) {
+    if (container === readingText) {
+      out.push(...readingChapterBoxes());
+      continue;
+    }
     for (const section of container.querySelectorAll(".desk-lit__chapter[data-key]")) {
       const box = section.querySelector(".chapter-paragraphs");
       const chapter = Number(section.dataset.chapter);
@@ -169,14 +325,14 @@ export function deskChapterBoxes() {
 }
 
 /**
- * A chapter's anchor text from whichever view this page is: Chapter View's
- * chapter, one chapter of the book Read View shows, or, on /desk, the first
- * LIT pane showing it. Null when the page doesn't show that chapter. Read
- * fresh, like chapterText.
+ * A chapter's anchor text from whichever view this page is: the page's
+ * chapter or one it reads on into, or, on /desk, the first LIT pane showing
+ * it. Null when the page doesn't show that chapter. Read fresh, like
+ * chapterText.
  */
 export function chapterTextFor(bookKey, chapter) {
   const here = pageChapter();
-  if (here) return here.bookKey === bookKey && here.chapter === chapter ? chapterText() : null;
+  if (here && here.bookKey === bookKey && here.chapter === chapter) return chapterText();
   if (deskTexts.size) {
     const at = deskChapterBoxes().find((c) => c.bookKey === bookKey && c.chapter === chapter);
     return at ? pageAnchorText(at.box.children) : null;

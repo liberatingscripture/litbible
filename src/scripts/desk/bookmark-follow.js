@@ -324,7 +324,10 @@ function onThisPage(href) {
  *   LIT pane it came from. Null without a store.
  */
 export function initBookmarkFollow({ store, ctx, tell = null, page: pageKind = null, place = null, panes = null }) {
-  const page = pageKind ?? pageBookOf(window.location.pathname);
+  // The page as its address names it now: a chapter's page reads on into the
+  // chapters around it and its address follows the one being read
+  // (src/scripts/read-on.js), so a report from John 4 is judged on John 4's.
+  const pageNow = () => pageKind ?? pageBookOf(window.location.pathname);
   /**
    * The flag with the pane it follows from (E153). On /desk that is the
    * leading LIT pane when the follow starts or the page opens, kept while it
@@ -450,7 +453,7 @@ export function initBookmarkFollow({ store, ctx, tell = null, page: pageKind = n
   async function moveItHere() {
     const mine = readFlag();
     // On /desk, the leading LIT pane's place as it is now (E28).
-    const pos = (place ? positionOnPage(place(), page) : null) ?? latest;
+    const pos = (place ? positionOnPage(place(), pageNow()) : null) ?? latest;
     if (!mine || !pos) return false;
     let plan = null;
     await store.change(async ({ get }) => {
@@ -490,7 +493,7 @@ export function initBookmarkFollow({ store, ctx, tell = null, page: pageKind = n
       if (position && position.verse == null) return;
       settling = false;
     }
-    const pos = positionOnPage(position, page);
+    const pos = positionOnPage(position, pageNow());
     if (!pos) return;
     latest = pos;
     latestPane = pane;

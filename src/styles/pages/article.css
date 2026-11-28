@@ -1,0 +1,251 @@
+/* An article, drawn as Featherboa draws a page of reading (Phase 7,
+   SITE-FEATHERBOA.md, "The glossary and articles"; WB-39): the Read page's
+   column, margin, and faces, with no card around it. A Fraunces title, the
+   author and date on one small line under it, the picture at the column's
+   width, the words in Source Sans 3 at the reading size, tags at the foot,
+   and footnotes in the margin where a piece has them. Spacing is the scale
+   alone (--space-*). */
+
+.article-shell {
+  padding: var(--space-3) 0 var(--space-9);
+  font-family: var(--font-text);
+  color: var(--color-text);
+}
+
+/* ---------- The column ----------
+   The search box above and the article share it, placed as ScriptureLayout
+   places .scripture-main: a 220 quiet side, the text, a 320 margin, centered
+   together. The Study Desk's frame takes the column over with html[data-desk]. */
+
+.article-top__inner,
+.article__card {
+  box-sizing: border-box;
+  max-width: calc(var(--reading-width, 72ch) + 32px);
+  margin: 0 auto;
+  padding-inline: var(--space-3);
+}
+
+@media screen and (min-width: 1100px) {
+  html:not([data-desk]) .article-top__inner,
+  html:not([data-desk]) .article__card {
+    position: relative;
+    margin-inline: 0;
+    left: max(
+      0px,
+      calc((100% - var(--reading-width)) / 2 - (var(--col-margin) - var(--col-side)) / 2 - 16px),
+      min(calc((100% - var(--reading-width)) / 2 - 16px), calc(var(--col-side) - 16px))
+    );
+  }
+}
+
+.article-top__search {
+  margin: 0 0 var(--space-5);
+}
+
+.article__card {
+  position: relative;
+}
+
+/* ---------- Title, byline, picture ---------- */
+
+.article__header {
+  margin: var(--space-4) 0 var(--space-4);
+}
+
+.article__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  font-weight: 400;
+  line-height: var(--leading-title);
+  letter-spacing: normal;
+  color: var(--color-text);
+}
+
+.article__byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+  color: var(--color-text-2);
+}
+
+.article__dot {
+  color: var(--color-text-3);
+}
+
+.article__dek {
+  margin: var(--space-3) 0 0;
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  color: var(--color-text-2);
+}
+
+/* The picture, at the column's width (not edge to edge), under the title and
+   byline. Its alt text and credit are the page's, unchanged. */
+.article__hero {
+  margin: 0 0 var(--space-5);
+  border-radius: var(--radius-press);
+  overflow: hidden;
+}
+
+.article__hero-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---------- The words ---------- */
+
+.article__body {
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+}
+
+.article__body :is(p, ul, ol) {
+  margin: 0 0 var(--space-3);
+}
+
+.article__body :is(ul, ol) {
+  padding-left: var(--space-5);
+}
+
+.article__body :is(h2, h3) {
+  margin: var(--space-6) 0 var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: var(--leading-heading);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-text);
+}
+
+.article__body h2 {
+  font-size: calc(var(--size-heading) * var(--reading-scale, 1));
+}
+
+.article__body h3 {
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  line-height: var(--leading-subhead);
+}
+
+/* A link whose words are a web address is one unbreakable run; it breaks only
+   when it can't fit a line by itself (src/styles/CLAUDE.md, the font's
+   rule 4). */
+.article__body a {
+  color: var(--color-press);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  overflow-wrap: break-word;
+}
+
+.article__body blockquote {
+  margin: var(--space-4) 0;
+  padding: var(--space-1) var(--space-3);
+  border-left: 2px solid var(--color-mark);
+  color: var(--color-text);
+}
+
+.article__body pre {
+  overflow-x: auto;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-tint);
+  border-radius: var(--radius-press);
+  line-height: 1.6;
+}
+
+.article__body code {
+  padding: 0 var(--space-1);
+  background: var(--color-tint);
+  border-radius: var(--radius-press);
+}
+
+.article__body pre code {
+  padding: 0;
+  background: none;
+}
+
+.article__body img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- Footnotes, in the margin where a piece has them ----------
+   Built as a place, not content: no article carries footnotes today. A
+   footnotes section a Markdown renderer writes sits in the margin column from
+   1300px (with the Study panel off, where the text column is the page's own),
+   and under the text, in the margin's size, elsewhere. */
+
+.article__body :is(section.footnotes, section[data-footnotes]) {
+  margin-top: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+  font-family: var(--font-text);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: var(--leading-margin);
+  color: var(--color-text-2);
+}
+
+@media screen and (min-width: 1300px) {
+  html:not([data-desk]) .article__body :is(section.footnotes, section[data-footnotes]) {
+    position: absolute;
+    top: 0;
+    left: calc(100% - var(--space-3) + var(--space-5));
+    width: calc(var(--col-margin) - var(--space-5));
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+/* ---------- Tags, at the foot ---------- */
+
+.article__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.article__tags .tag {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-press);
+  font-family: var(--font-control);
+  font-size: var(--size-small-label);
+  line-height: var(--leading-small-label);
+  color: var(--color-text-2);
+}
+
+/* ---------- The foot ---------- */
+
+.article__bottom-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+}
+
+@media print {
+  .article-top__inner,
+  .article__bottom-nav {
+    display: none !important;
+  }
+}
+
+/* The Study Desk's frame places the column itself. */
+html[data-desk] .article-top__inner,
+html[data-desk] .article__card {
+  margin-inline: auto;
+}

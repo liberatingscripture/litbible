@@ -1,14 +1,28 @@
 // src/scripts/header-search.js
 //
-// The header's search icon (audit U6), on pages with no search box of their
-// own. Without JS the icon is a plain link to /search. With JS it opens a
-// strip under the header holding the ordinary SearchBar, so the results tray
-// is the same one chapter pages use.
+// The header's magnifier (audit U6; HD-13), on every page but the Read page.
+// Without JS it is a plain link to /search. With JS, on a page with no search
+// box of its own it opens a strip under the header holding the ordinary
+// SearchBar, so the results tray is the same one chapter pages use; on a page
+// with its own box (data-search-here) it takes the reader to that box, so a
+// page never shows two.
 //
 // Escape closes the results tray first (searchbar.js does that), then the
 // strip. The strip is in the page flow, so it scrolls with the header rather
 // than floating over the text. Other scripts can open it with the
 // "lit:search-open" event (the "/" keyboard shortcut does).
+
+for (const here of document.querySelectorAll("[data-search-here]")) {
+  here.addEventListener("click", (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const box = document.getElementById("site-search-input");
+    if (!box || box.offsetParent === null) return; // no box showing: /search it is
+    event.preventDefault();
+    box.scrollIntoView({ block: "nearest" });
+    box.focus({ preventScroll: true });
+    box.select();
+  });
+}
 
 const strip = document.getElementById("headerSearch");
 const toggles = Array.from(document.querySelectorAll("[data-search-toggle]"));
@@ -50,11 +64,12 @@ if (strip && toggles.length) {
     toggle.addEventListener("click", (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
-      // The phone menu's Search item (under 360px). The menu closes itself a
-      // frame after any link click, handing focus back and lifting the inert
-      // it put on the page, so open once that has happened, and give focus
-      // back to the menu button later, since this item goes with the menu.
-      if (toggle.closest(".menu-overlay")) {
+      // The menu sheet's Search row (under 360px). The sheet closes itself a
+      // frame after any link click, handing focus back and letting the page
+      // out of its modal inert (header-menus.js), so open once that has
+      // happened, and give focus back to the menu button later, since this
+      // row goes with the sheet.
+      if (toggle.closest(".menu-sheet")) {
         const menuButton = document.querySelector(".site-header__menu-toggle");
         requestAnimationFrame(() => requestAnimationFrame(() => open(menuButton)));
         return;

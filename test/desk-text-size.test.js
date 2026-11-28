@@ -11,6 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { allNames } from "../scripts/lib/kit-lists.mjs";
 
 const read = (name) =>
   readFileSync(new URL(`../src/styles/${name}`, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
@@ -100,17 +101,32 @@ test("every size the desk's stylesheets set multiplies by a scale", () => {
   }
 });
 
-test("running text adds the tray's line spacing; bars and a sheet's passage keep theirs", () => {
-  // A line height of 1.4 or more is running text (a title, a one-line label
-  // or a control is tighter), so it adds --desk-leading. Two kinds keep a
-  // plain one on purpose: a bar, whose height must not move with the
-  // setting, and a sheet's passage, which is the sheet's and not the pane's.
+// The kit's controls (kit.css's other names), by class.
+const kitClasses = new Set(
+  Object.values(allNames(readFileSync(new URL("../src/styles/kit.css", import.meta.url), "utf8")))
+    .flat()
+    .flatMap((n) => [...n.replace(/:(?:not|has)\([^)]*\)/g, "").matchAll(/\.([\w-]+)/g)].map((m) => m[1])),
+);
+
+/** Whether every selector in a list is one of the kit's controls. */
+const isControl = (sel) =>
+  sel.split(/,(?![^(]*\))/).every((s) => {
+    const subject = s.trim().split(/[\s>+~]+/).filter(Boolean).pop() || "";
+    return [...subject.replace(/:(?:not|has)\([^)]*\)/g, "").matchAll(/\.([\w-]+)/g)].some((m) => kitClasses.has(m[1]));
+  });
+
+test("running text adds the tray's line spacing; bars, controls and a sheet's passage keep theirs", () => {
+  // A line height of 1.4 or more is running text (a title or a one-line
+  // label is tighter), so it adds --desk-leading. Three kinds keep a plain
+  // one on purpose: a bar, whose height must not move with the setting; a
+  // control (one of the kit's names), for the same reason; and a sheet's
+  // passage, which is the sheet's and not the pane's.
   const kept = /^\.desk-pane__head, \.desk-passage, \.desk-panel__head, \.desk-panel__tabs$|desk-sheet__words/;
   for (const [name, css] of [["desk.css", desk], ["desk-search.css", search]]) {
     const plain = [];
     for (const [sel, ruleBody] of screenRules(css)) {
       const m = ruleBody.match(/(?:^|;)\s*line-height:\s*([0-9.]+)\s*(?:;|$)/);
-      if (m && Number(m[1]) >= 1.4 && !kept.test(sel)) plain.push(`${sel} { line-height: ${m[1]} }`);
+      if (m && Number(m[1]) >= 1.4 && !kept.test(sel) && !isControl(sel)) plain.push(`${sel} { line-height: ${m[1]} }`);
     }
     assert.deepEqual(plain, [], `${name}: add var(--desk-leading, 0) to a block of text's line height`);
   }
@@ -142,16 +158,25 @@ test("the rows the desk adds to a shared panel take that panel's own scale", () 
 
 test("the panel's header gives up its badge before its buttons", () => {
   // Larger words can ask for more than a 280px panel has. The name and badge
-  // share one clipped row, so the badge wraps out of sight whole and the
-  // Study Desk link and the minimize button stay in the panel.
+  // share one clipped row, a target tall, so the badge wraps out of sight
+  // whole and the title's menu button and the minimize button stay in the
+  // panel (the Study Desk link left the head in Featherboa's Phase 5). The
+  // clip keeps room around the row for a focused button's ring, which it cut
+  // to a sliver beside the badge, and the margin gives the room back; the
+  // row gap is wider than that room, so the badge's second line still starts
+  // past the clip.
   const name = body(".desk-panel__name");
   assert.match(name, /flex-wrap:\s*wrap;/);
   assert.match(name, /overflow:\s*hidden;/);
-  assert.match(name, /height:\s*36px;/);
+  assert.match(name, /--ring-room:\s*calc\(var\(--focus-width, 2px\) \+ var\(--focus-offset, 2px\)\);/);
+  assert.match(name, /height:\s*calc\(var\(--target\) \+ 2 \* var\(--ring-room\)\);/);
+  assert.match(name, /padding:\s*var\(--ring-room\);/);
+  assert.match(name, /margin:\s*calc\(-1 \* var\(--ring-room\)\);/);
+  assert.match(name, /gap:\s*var\(--space-2\);/);
   const panelJs = readFileSync(new URL("../src/scripts/desk/panel.js", import.meta.url), "utf8");
   assert.match(
     panelJs,
-    /<div class="desk-panel__name">\s*<h2 class="desk-panel__title"[^>]*>Notebook<\/h2>\s*<span class="desk-panel__badge">[^<]*<\/span>\s*<\/div>\s*<a class="desk-panel__desk"/,
+    /<div class="desk-panel__name">\s*<h2 class="desk-panel__title"[^>]*><button[^>]*>[\s\S]*?>Notebook<\/span>[\s\S]*?<\/button><\/h2>\s*<span class="desk-panel__badge">[^<]*<\/span>\s*<\/div>\s*<button type="button" class="kit-icon desk-panel__collapse"/,
   );
 });
 

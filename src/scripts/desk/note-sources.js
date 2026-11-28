@@ -1,7 +1,8 @@
 // src/scripts/desk/note-sources.js
 //
 // What a page holds notes on, for the margin (notes-margin.js) and the
-// Notebook's list: a Chapter View chapter's verses, or (STUDY-DESK.md N11,
+// Notebook's list: a chapter's verses, and on a chapter's page that reads on
+// those of every chapter loaded beside it (readingSource), or (STUDY-DESK.md N11,
 // provisional, 2026-10-08) a glossary entry's or an article's own text. The
 // same margin and the same switch serve both (decision 9 under "the margin
 // switch"); only how a note is found on the page differs.
@@ -28,13 +29,27 @@
 //                   on the page (lost, or in an entry the glossary's filter
 //                   hides) is left out
 //   owns(record)    whether a note is one of this page's
+// and may give:
+//   rect()          the box the margin runs beside, where that is more than
+//                   textBox (the reading page's chapters, top to bottom)
+//   watch(fn)       calls fn when the text gains chapters, to load again
+//   verseNumber(r)  the verse number a record sits on
 
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
 import { placeProse, proseAnchorText } from "../../lib/desk-prose-anchor.mjs";
 import { placeRecord, proseTarget } from "../../lib/desk-records.mjs";
 import { currentSlug, forChapter, forProse } from "../../lib/desk-store-core.mjs";
 import articleSlugs from "../../data/article-slugs.json";
-import { chapterBlocks, chapterText, pageChapter } from "./page.js";
+import {
+  chapterBlocks,
+  chapterText,
+  chapterTextFor,
+  pageChapter,
+  pageTextBox,
+  readingChapterBoxes,
+  readsOnPage,
+  verseNumber,
+} from "./page.js";
 
 // prosePage lives in page-kind.js, which the first stage carries
 // (note-settings.js reads it), and PROSE_NOTES in desk-frame.js, which
@@ -52,10 +67,69 @@ const toRange = (pts) => {
   return range;
 };
 
-/** A Chapter View chapter's notes and bookmarks, on its verses. */
+/**
+ * A chapter's page that reads on (src/scripts/read-on.js): the notes,
+ * bookmarks and highlights of its own chapter and of every chapter loaded
+ * beside it, each on its own verses, in one margin down the column.
+ */
+export function readingSource() {
+  const here = pageChapter();
+  const textBox = pageTextBox();
+  if (!here || !textBox || !readsOnPage()) return null;
+  const sameChapter = (c, r) => c.bookKey === r.bookKey && c.chapter === r.chapter;
+  return {
+    textBox,
+    rect() {
+      const boxes = readingChapterBoxes();
+      const own = textBox.getBoundingClientRect();
+      const top = (boxes[0]?.box ?? textBox).getBoundingClientRect().top;
+      const bottom = (boxes.at(-1)?.box ?? textBox).getBoundingClientRect().bottom;
+      return { left: own.left, right: own.right, width: own.width, top, bottom, height: bottom - top };
+    },
+    lineEl: () => {
+      const first = chapterBlocks()[0];
+      return first?.querySelector("p") ?? first ?? textBox;
+    },
+    async load(store) {
+      const lists = await Promise.all(
+        readingChapterBoxes().map(async (c) => forChapter(await store.byChapter(c.bookKey, c.chapter), c.bookKey, c.chapter)),
+      );
+      const mine = lists.flat();
+      return {
+        notes: mine.filter((r) => r.kind === "note"),
+        bookmarks: mine.filter((r) => r.kind === "bookmark"),
+        highlights: mine.filter((r) => r.kind === "highlight"),
+      };
+    },
+    placed(records) {
+      const texts = new Map(); // each chapter's text, read once per drawing
+      const out = [];
+      for (const r of records) {
+        const key = `${r.bookKey} ${r.chapter}`;
+        if (!texts.has(key)) texts.set(key, chapterTextFor(r.bookKey, r.chapter));
+        const text = texts.get(key);
+        if (!text) continue;
+        const at = placeRecord(text, r);
+        if (at.status === "lost" || at.start == null) continue;
+        const pts = offsetsToRange(text, at.start, at.end);
+        if (pts) out.push({ record: r, range: toRange(pts) });
+      }
+      return out;
+    },
+    owns: (r) => r?.kind === "note" && readingChapterBoxes().some((c) => sameChapter(c, r)),
+    watch(fn) {
+      document.addEventListener("lit:read-on", (e) => {
+        if (e.detail?.type === "loaded") fn();
+      });
+    },
+    verseNumber: (r) => verseNumber(r.bookKey, r.chapter, r.verse),
+  };
+}
+
+/** A chapter's notes and bookmarks, on its verses. */
 export function studySource() {
   const here = pageChapter();
-  const textBox = document.querySelector(".chapter-paragraphs");
+  const textBox = pageTextBox();
   if (!here || !textBox) return null;
   return {
     textBox,

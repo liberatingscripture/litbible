@@ -72,9 +72,8 @@ if (document.documentElement.dataset.desk === "on" && document.documentElement.d
     .then((m) => m.start())
     .catch((err) => {
       console.error("Study Desk: the header’s account entry didn’t load", err);
-      // The plain link still works without the script. It may be wider than the room kept: the title is fitted again.
+      // The plain link still works without the script, so it shows.
       for (const entry of document.querySelectorAll("[data-account-entry]")) entry.setAttribute("data-account-state", "out");
-      document.dispatchEvent(new CustomEvent("lit:header-tools"));
     });
 }
 
@@ -104,6 +103,14 @@ if (shellHere) {
   import("./desk/sheets/sheet-page.js").catch((err) => {
     console.error("Study Desk: the sheet page didn't load", err);
     standDown(); // its "Loading" line gives way to the note again (BA153)
+  });
+} else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-settings-page]")) {
+  // All settings (/settings/, DI-19): every reader's part is the page's own
+  // script; Study's (the finer marks, backup, the Notebook panel's start,
+  // Delete in bulk) is this one.
+  import("./desk/settings-page.js").catch((err) => {
+    console.error("Study Desk: All settings didn't load", err);
+    standDown(); // its "Loading" line goes, and the page is every reader's again (BA153)
   });
 } else if (document.documentElement.dataset.desk === "on" && document.querySelector("[data-collections-page]")) {
   // The collections page (/collections/, D13): the list, and one collection.

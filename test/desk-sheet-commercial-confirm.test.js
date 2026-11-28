@@ -93,7 +93,7 @@ test("going ahead holds until the counts change, and the × cancels", async () =
   answer = g.ask(opener, "Print");
   await settle(20);
   assert.ok(dialog(), "asked again after the counts moved");
-  press("×");
+  [...dialog().querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === "Close").click();
   assert.equal(await answer, false);
 });
 

@@ -15,6 +15,7 @@
 // announce twice. The list is drawn again whenever the notebook changes
 // (another tab, an undo).
 
+import { icon } from "../../../lib/icons.mjs";
 import { canEdit } from "../../../lib/desk-records.mjs";
 import {
   ITEM_KINDS,
@@ -204,7 +205,7 @@ export async function openCollectionsPopover({ trigger, store, ctx, recordId, na
   panel.innerHTML = `
     <div class="lit-panel__header">
       <p class="lit-panel__heading" id="deskCollectionsTitle${n}">Collections</p>
-      <button type="button" class="lit-panel__close" aria-label="Close">×</button>
+      <button type="button" class="lit-panel__close" aria-label="Close">${icon("close")}</button>
     </div>
     ${name ? `<p class="desk-labels__for"></p>` : ""}
     <ul class="desk-labels__list"></ul>

@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/privacy.css";
-import "../styles/v2/privacy.css";
 ---
 
 <Layout
@@ -30,9 +29,9 @@ import "../styles/v2/privacy.css";
     })} />
   </Fragment>
 
-  <article class="privacy-page v2-frame" aria-labelledby="privacy-title">
+  <article class="privacy-page" aria-labelledby="privacy-title">
 
-    <header class="privacy-header v2-frame__head v2-bar">
+    <header class="privacy-header">
       <div class="privacy-header__inner">
         <h1 id="privacy-title" class="privacy-title">Privacy Policy</h1>
         <p class="privacy-effective">
@@ -61,30 +60,10 @@ import "../styles/v2/privacy.css";
       </div>
     </header>
 
-    <nav class="privacy-toc v2-frame__toc" data-v2 data-pagefind-ignore aria-label="On this page">
-      <p class="v2-label">On this page</p>
-      <ul>
-        <li><a href="#privacy-short">In short</a></li>
-        <li><a href="#privacy-scope">Scope</a></li>
-        <li><a href="#privacy-collect">What we collect</a></li>
-        <li><a href="#privacy-accounts">Accounts and sync</a></li>
-        <li><a href="#privacy-reading-data">Your reading data (app)</a></li>
-        <li><a href="#privacy-content-updates">Content updates (app)</a></li>
-        <li><a href="#privacy-widget">The home screen widget (app)</a></li>
-        <li><a href="#privacy-external-links">External links</a></li>
-        <li><a href="#privacy-sharing">Sharing (app)</a></li>
-        <li><a href="#privacy-third-party">Third-party software (app)</a></li>
-        <li><a href="#privacy-choices">Your choices</a></li>
-        <li><a href="#privacy-children">Children</a></li>
-        <li><a href="#privacy-changes">Changes to this policy</a></li>
-        <li><a href="#privacy-contact">Contact</a></li>
-      </ul>
-    </nav>
-
-    <div class="privacy-body v2-frame__text">
+    <div class="privacy-body">
 
       <section aria-labelledby="privacy-short">
-        <h2 id="privacy-short" class="v2-rule">In short</h2>
+        <h2 id="privacy-short">In short</h2>
         <ul>
           <li>
             Reading the LIT needs no account. The website and the apps keep
@@ -109,7 +88,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-scope">
-        <h2 id="privacy-scope" class="v2-rule">Scope</h2>
+        <h2 id="privacy-scope">Scope</h2>
         <p>
           This policy applies to the LIT Bible website at litbible.net, the
           companion iOS and Android apps, and the optional LIT Bible account
@@ -124,7 +103,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-collect">
-        <h2 id="privacy-collect" class="v2-rule">What we collect</h2>
+        <h2 id="privacy-collect">What we collect</h2>
         <p>
           <strong>Website:</strong> The site collects personal information only
           when you choose to give it:
@@ -170,8 +149,7 @@ import "../styles/v2/privacy.css";
           apps, so it doesn’t reappear. It contains no personal data and
           expires after 365 days. A few settings are kept in your browser’s
           local storage and never leave your device: your display settings
-          (font, theme, text size, line spacing, what the page shows, and
-          whether focus mode is on in Read View),
+          (font, theme, text size, line spacing, justification, and what the page shows),
           whether you have turned keyboard shortcuts off, the place you last reached in
           each book in Read View, the chapter you last read (so the site
           can offer to take you back to it), and whether you have closed the
@@ -202,13 +180,13 @@ import "../styles/v2/privacy.css";
           <li><code>lit-desk-tab</code>: which of the Notebook’s tabs you chose last.</li>
           <li><code>lit-desk-min</code>: whether the Notebook is minimized.</li>
           <li><code>lit-desk-start</code>: how the panel opens on each page.</li>
-          <li><code>lit-desk-show</code>: whether the Display menu’s “Show the Notebook” is off.</li>
+          <li><code>lit-desk-show</code>: an older note that the Display menu’s “Show the Notebook” was off. That switch is gone, so the note is removed the next time you read a chapter with Study on.</li>
           <li><code>lit-desk-notes</code>: whether your notes show.</li>
           <li><code>lit-desk-note-font</code>: which font your notes are shown in.</li>
           <li><code>lit-desk-bookmarks</code>: whether your bookmarks show.</li>
           <li><code>lit-desk-highlights</code>: whether your highlights show.</li>
           <li><code>lit-desk-read-highlights</code>: whether your highlights show in Read View.</li>
-          <li><code>lit-desk-hide</code>: whether “Hide my marks” is on.</li>
+          <li><code>lit-desk-hide</code>: while “Your marks” is off, which of your notes, highlights, and bookmarks were showing, so turning it on shows them again.</li>
           <li><code>lit-desk-home</code>: where you chose to keep the notebook.</li>
           <li><code>lit-desk-remind</code>: when you asked to be reminded to back up your notebook again, if you chose “Remind me tomorrow” or “Not this week.”</li>
           <li><code>lit-desk-tour</code>: which steps of the notebook tour you have seen, and your answer when it was offered.</li>
@@ -314,7 +292,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-accounts">
-        <h2 id="privacy-accounts" class="v2-rule">Accounts and sync</h2>
+        <h2 id="privacy-accounts">Accounts and sync</h2>
         <p>
           <strong>Accounts are not open yet.</strong> They are being tested,
           and this section describes how they work, for the few people
@@ -496,7 +474,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-reading-data">
-        <h2 id="privacy-reading-data" class="v2-rule">Your reading data (app)</h2>
+        <h2 id="privacy-reading-data">Your reading data (app)</h2>
         <p>
           <strong>On both platforms:</strong> Everything you create in the app
           (highlights, notes, and your reading position) is stored privately on
@@ -531,7 +509,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-content-updates">
-        <h2 id="privacy-content-updates" class="v2-rule">Content updates (app)</h2>
+        <h2 id="privacy-content-updates">Content updates (app)</h2>
         <p>
           <strong>On both platforms:</strong> The app periodically checks
           litbible.net servers for Bible translation text updates. During this
@@ -542,7 +520,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-widget">
-        <h2 id="privacy-widget" class="v2-rule">The home screen widget (app)</h2>
+        <h2 id="privacy-widget">The home screen widget (app)</h2>
         <p>
           <strong>On both platforms:</strong> The LIT Bible widget displays
           lectionary readings and liturgical calendar information. All widget
@@ -552,7 +530,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-external-links">
-        <h2 id="privacy-external-links" class="v2-rule">External links</h2>
+        <h2 id="privacy-external-links">External links</h2>
         <p>
           Two pages also show other companies’ content inside the page: the
           <a href="/found-in-translation-podcast/">podcast page</a> plays the
@@ -596,7 +574,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-sharing">
-        <h2 id="privacy-sharing" class="v2-rule">Sharing (app)</h2>
+        <h2 id="privacy-sharing">Sharing (app)</h2>
         <p>
           <strong>On both platforms:</strong> When you select text and choose
           Share, your device’s standard share sheet opens. The selected passage
@@ -607,7 +585,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-third-party">
-        <h2 id="privacy-third-party" class="v2-rule">Third-party software (app)</h2>
+        <h2 id="privacy-third-party">Third-party software (app)</h2>
         <p>
           <strong>On iOS,</strong> the app uses one third-party software
           library: <strong>GRDB</strong>, an open-source database library that
@@ -630,7 +608,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-choices">
-        <h2 id="privacy-choices" class="v2-rule">Your choices</h2>
+        <h2 id="privacy-choices">Your choices</h2>
         <p>
           Wherever you live, you can ask what we hold about you, and ask us to
           correct or delete it, by writing to us through the
@@ -657,7 +635,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-children">
-        <h2 id="privacy-children" class="v2-rule">Children</h2>
+        <h2 id="privacy-children">Children</h2>
         <p>
           Anyone can read the LIT, use the apps, and keep a notebook on their
           own device; none of that needs an account or asks your age. An
@@ -677,7 +655,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-changes">
-        <h2 id="privacy-changes" class="v2-rule">Changes to this policy</h2>
+        <h2 id="privacy-changes">Changes to this policy</h2>
         <p>
           If this policy changes in a way that matters for your data, we will
           update the effective date above, say what changed at the top of this
@@ -688,7 +666,7 @@ import "../styles/v2/privacy.css";
       </section>
 
       <section aria-labelledby="privacy-contact">
-        <h2 id="privacy-contact" class="v2-rule">Contact</h2>
+        <h2 id="privacy-contact">Contact</h2>
         <p>
           Questions about this policy can be directed to the LIT Bible team at
           <a href="/contact">litbible.net/contact</a>.
@@ -698,9 +676,4 @@ import "../styles/v2/privacy.css";
     </div>
   </article>
 
-  <script>
-    // Site 2.0: marks the contents rail's current section (only with the
-    // restyle's stamp; see the module's header).
-    import "../scripts/v2-frame.js";
-  </script>
 </Layout>

@@ -17,7 +17,7 @@
 // (last-read.js), kept in this browser and never a notebook record, and the
 // Notebook shows it first with no bookmark mark. Read View's per-book places
 // (`lit_rm_resume_<book>`) are no longer listed (E9: the reader never made
-// them); read-mode.js keeps writing them for Read View's own use.
+// them), and nothing writes them since Read View retired (Featherboa, Phase 4).
 //
 // The rule for when a bookmark moves (C25): a bookmark with the switch on
 // follows the reader only while they stay in the book they opened it into.
@@ -307,19 +307,14 @@ export function throttleDelay(lastWriteAt, now, gap = MOVE_EVERY_MS) {
 /* ── Continue reading ────────────────────────────────────────────────── */
 
 /**
- * Continue reading's address, in the view it was kept in. This restates
- * last-read.js's continueHref, which a Node test can import to hold the two
- * together (test/desk-bookmarks.test.js).
+ * Continue reading's address: the chapter's page, at the verse when there is
+ * one, whichever view kept it (Read View's records too, since it retired in
+ * Featherboa's Phase 4). This restates last-read.js's continueHref, which a
+ * Node test can import to hold the two together (test/desk-bookmarks.test.js).
  */
 export function lastReadHref(r) {
-  if (r.view === "read") {
-    const anchor = r.verse ? `${r.book}-${r.chapter}-v${r.verse}` : `ch-${r.chapter}`;
-    return `/read/${r.book}/#${anchor}`;
-  }
   return `/${r.book}-${r.chapter}/${r.verse ? `#v${r.verse}` : ""}`;
 }
-
-const VIEW_NAMES = { study: "Scripture page", read: "Read View" };
 
 /**
  * The one row the Notebook keeps above its list, from the last-read record, or
@@ -331,7 +326,8 @@ export function continueItem(lastRead) {
   const where = `${bookKeyToLabel(lastRead.book)} ${lastRead.chapter}${lastRead.verse ? `:${lastRead.verse}` : ""}`;
   return {
     title: where,
-    detail: `Continue reading · ${VIEW_NAMES[lastRead.view] ?? "Scripture page"}`,
+    // One reading page now (the Read page), so the row names no view.
+    detail: "Continue reading",
     href: lastReadHref(lastRead),
     bookKey: lastRead.book,
   };

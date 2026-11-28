@@ -268,6 +268,9 @@
   --text: #1d231c;
   --text-strong: #000;
   --ink-rgb: 29, 35, 28;
+  /* the day's strengths of the grays (tokens.css) */
+  --text-2-alpha: 0.78;
+  --text-3-alpha: 0.66;
   --green-text: #0f6b33;
   /* Its links sit on the white, so their ring is pinned too, or dark theme's
      would be 2.4:1 on it (BA83; src/styles/CLAUDE.md, fixed surfaces). */
@@ -347,8 +350,8 @@
 
 /* The paper names no display face: every title on it is the paper's own
    Crimson Text, as the sheet's headings are (BVJ, 2026-11-22: it shouldn't use
-   Fraunces at all). Bold is set, not inherited, since the restyle gives a
-   heading 600 and the title should print as the other titles do. */
+   Fraunces at all). Bold is set, not inherited, so the title prints as the
+   other titles do whatever weight a heading is given on the screen. */
 .sheet-copy__title {
   margin: 0;
   font-size: calc(24pt * var(--sheet-text-scale, 1));
@@ -459,14 +462,14 @@
 }
 
 /* A link to another site (a footnote's Isaiah or Deuteronomy, which the linker
-   sends to Sefaria) gets restyle.css's new-tab mark after it. The paper has no
-   use for it, and it cost the page twice: it is a box filled with the text
-   color, which print.css clears from every ::after, so on paper it drew
-   nothing and still held 1.2em of the line, a gap before the semicolon that
-   follows the reference (E215). Gone on screen too, so the preview breaks its
-   lines and pages as the paper does. The saved files and Copy never had it:
-   they read the elements, and a pseudo-element isn't one. !important, since
-   restyle.css names the link by its target. */
+   sends to Sefaria) had Site 2.0's new-tab mark after it, and the paper has no
+   use for one: a box filled with the text color, which print.css clears from
+   every ::after, so on paper it drew nothing and still held 1.2em of the line,
+   a gap before the semicolon that follows the reference (E215). The rule stays
+   so no mark drawn later can do the same, on screen too, so the preview breaks
+   its lines and pages as the paper does. The saved files and Copy never had
+   it: they read the elements, and a pseudo-element isn't one. !important,
+   since a mark is named by the link's target. */
 .sheet-copy a[target="_blank"]::after {
   display: none !important;
 }
@@ -770,9 +773,9 @@
 
 .sheets-page__check-head {
   margin: 0 0 0.5rem;
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: calc(1.05rem * var(--sheet-ui, 1));
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: normal;
   line-height: 1.4;
 }
@@ -1021,6 +1024,7 @@
   background: var(--green-deep);
   color: #fff;
   font: inherit;
+  font-family: var(--font-control);
   cursor: pointer;
 }
 
@@ -1067,9 +1071,9 @@
   padding: 6px;
   border: 1px solid rgba(var(--ink-rgb), 0.14);
   border-radius: 12px;
-  background: var(--surface-raised);
+  background: var(--color-float);
   color: var(--text);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-float);
   font-size: calc(0.9375rem * var(--sheet-ui, 1));
   /* sheet-save.js cuts it to the room above the window's foot (E179). */
   overflow-y: auto;
@@ -1096,7 +1100,7 @@
   margin: 0;
   padding: 4px 10px 2px;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .sheets-page__save-item {
@@ -1111,6 +1115,7 @@
   background: transparent;
   color: var(--text);
   font: inherit;
+  font-family: var(--font-control);
   line-height: 1.3;
   text-align: left;
   cursor: pointer;
@@ -1128,7 +1133,7 @@
 
 .sheets-page__save-hint {
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* ── On paper ──────────────────────────────────────────────────────────── */
@@ -1257,6 +1262,9 @@ html[data-presenting] body {
   --text: var(--present-words);
   --text-strong: #fff;
   --ink-rgb: 242, 238, 228;
+  /* the night's strengths of the grays (tokens.css) */
+  --text-2-alpha: 0.74;
+  --text-3-alpha: 0.578;
   --green-text: var(--present-accent);
   --focus-ring: var(--green);
   --desk-rich-red: #ff8a80;
@@ -1514,7 +1522,7 @@ html[data-presenting] body {
 .sheet-blank--present > * {
   grid-area: 1 / 1;
   justify-self: center;
-  transition: opacity 0.25s ease, visibility 0.25s;
+  transition: opacity var(--dur-large) var(--ease), visibility var(--dur-large);
 }
 
 .sheet-blank--present[data-revealed="false"] > .sheet-blank__answer,
@@ -1579,7 +1587,7 @@ html[data-presenting] body {
   border-radius: 0.6rem;
   background: rgba(0, 0, 0, 0.78);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--dur-large) var(--ease);
   font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
   font-size: 0.9rem;
 }
@@ -1819,13 +1827,13 @@ html[data-presenter] .sheets-page {
 
 /* 0.7 keeps it at 4.5:1 or more on the light page (BA143). */
 .present-notes__blanks li.is-revealed {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .present-notes__line,
 .present-notes__none {
   margin: 0.5rem 0 0;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .present-notes__part {
@@ -1847,7 +1855,7 @@ html[data-presenter] .sheets-page {
 .present-presenter__keys {
   margin: 1.25rem 0 0;
   font-size: calc(0.9rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 @media print {

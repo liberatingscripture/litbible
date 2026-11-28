@@ -4,55 +4,72 @@
 > Claude Code loads this file by itself the first time a session reads a file
 > in this directory.
 
-- **On a phone, Chapter View's toolbar is one row** (audit F3, owner
-  2026-09-28). Featherboa replaces the computer's toolbar with the place
-  line (`SITE-FEATHERBOA.md`, "The reading page" and "Finding a passage")
-  and the phone's with one row at the top and a bar of four at the thumb,
-  the round ‹ › there included ("The phone"); until it is built, this
-  holds. At 640px and below the passage picker, a search button and an
-  icon-only Read View link share one 44px row; search opens in place of the
-  row, and its × or Escape closes it and returns focus to the button. The top
-  Previous/Next are round ‹ › buttons beside the title **at every width**
-  (owner, 2026-10-14), on the text column's own edges, and keep their names
-  ("Previous: Romans 7"); the big buttons at the foot stay. Tablets (641–900px) get one
-  row with a short "Read View" label. The one-row layout hangs off
-  `data-compact`, which an inline script in `ScriptureLayout.astro` sets
-  while the page is still parsing, right after the toolbar, so it is in place
-  before first paint. **Keep that script inline**: a bundled module runs after
-  first paint, and the whole toolbar would visibly jump. Without JS a phone
-  keeps the stacked toolbar, whose search field works on its own.
-  The toolbar's right slot holds two pills in `.reading-view-right` wrappers,
-  one at a time: "Switch to Read View" (chapters only) and, with the Study Desk
-  preview on, "Open in Study Desk" (chapters and introductions; E50, rule 10
-  in `src/scripts/desk/CLAUDE.md`). Both use the `.reading-view-pill` look and
-  the `rvp-full`/`rvp-short` labels, so every width rule above covers both.
+- **A chapter or an introduction has the place line, not a toolbar**
+  (Featherboa's Phase 4; `SITE-FEATHERBOA.md`, "The reading page" and
+  "Finding a passage"; RP-29 to RP-32, FP-27, FP-28). `ScriptureLayout`
+  passes Layout a `readingLine` (`{ book, chapter, studyHref }`, chapter
+  `"intro"` on an introduction), and Layout draws `PlaceLine.astro`'s
+  reading half under the header, drafts included: "John ▾ / Chapter 3 ▾"
+  (each part opens the passage picker, the book at the books and the
+  chapter at its grid; links to /read without JS), then Search, ‹ ›, the
+  Notebook, and "Study John 3". **Search** opens the page's one `SearchBar`
+  ("Search the LIT, or go to a passage") in place of the line
+  (`place-line.js`; a link to /search without JS), and `/` presses it.
+  **‹ ›** are plain icons named for where they go ("Previous: John 2", from
+  `navFor`, which steps over drafts), disabled at the ends; the big
+  buttons at the foot stay. **The Notebook and "Study John 3"** (a link to
+  `/desk/?place=john-3`; "Study John" at chapter 1 on an introduction,
+  `deskPlaceHref`) show only from 1100px under `html[data-desk]`
+  (`header.css`), the Notebook only beside a reading column (`global.css`),
+  so a tablet's line is the picker, Search, and the arrows. The line isn't
+  sticky, so the reading line of Continue reading (`last-read.js`) needs
+  nothing for it. The toolbar, its "Go to passage" (ReadMenu), "Switch to
+  Read View," and the title's round ‹ › are gone, and Read View retired in
+  Phase 4.
+- **On a chapter's page the line follows the chapter being read**, since the
+  page reads on into the chapters around it (`src/scripts/read-on.js`;
+  `src/scripts/CLAUDE.md`, "Reading on through a book"). "Chapter 4 ▾,"
+  the arrows (from the `nav` map `[slug].astro` writes into
+  `#read-on-data`, the one rule's Previous and Next for every chapter of
+  the book), "Study John 4," the phone row's name and arrows, and the
+  title change with it; the address changes by `replaceState`, so Back
+  leaves the book. **The progress line** is the line's bottom edge in
+  place of its border, or the phone row's (`header.css`, from
+  `--read-progress` on `<html>`, the verses before the reading line over
+  the book's: `bookProgress`, `src/lib/read-on.mjs`), a pseudo-element
+  scaled along the edge, so it adds no height and nothing a screen reader
+  meets (WB-33 to WB-36, PH-08). The row hides with `html[data-bars]`, and the line
+  with it.
+- **On a phone the two bars do the line's work** (Featherboa's Phase 3;
+  `SITE-FEATHERBOA.md`, "The phone"; PH-01 to PH-10, PH-26). Under 700px the
+  line isn't drawn: `ScriptureLayout` passes Layout a `picker` ("John 3",
+  "John · Intro"), which turns SiteHeader's row into the reading row (the
+  emblem, named "Home"; the chapter's name, which opens the passage
+  picker's sheet at the chapter; Aa), sticky under the app banner, and
+  draws `PhoneBar.astro` at the thumb: Previous, Search, Menu, Next. The
+  title is drawn for no one on screen while staying the page's h1
+  (`ScriptureHeader.astro`, screen only: a printed page is narrower than
+  700px too). The bar's Search moves the line's `SearchBar` into the row
+  while it is open, so the page still has one; Menu opens the menu sheet
+  (`src/components/CLAUDE.md`). Both bars hide together on a scroll down
+  past the row's place and come back on any scroll up
+  (`src/lib/phone-bars.mjs` is the rule, `phone-bars.js` writes
+  `html[data-bars]`), never while the picker, search, the tray, or the
+  menu is open. Without JS the row never leaves, the name goes to /read,
+  Search to /search, and Menu to the footer's links. Layout's critical CSS
+  holds the row's 52px from the first paint.
 - **Chapter navigation is prefetched, never prerendered.** `ScriptureLayout`
-  carries speculation rules that prefetch the Previous/Next buttons' and the
-  bottom chapter links' targets at `moderate` eagerness. Don't upgrade it to
+  carries speculation rules that prefetch the place line's ‹ ›, the phone
+  bar's Previous and Next, and the bottom chapter links' targets
+  (`.place-line a[rel]`, `.phone-bar a[rel]`, `.chapter-ctas a.chapter-cta`)
+  at `moderate` eagerness. Don't upgrade it to
   prerender: a prerendered page runs its scripts, so it would count a pageview
   toward the app popover's `lit_pv` gate (`src/components/CLAUDE.md`, "One announcement popover at a time"), could
   open the popover in a page nobody has seen yet, and may log an analytics visit
   for a chapter nobody opened. None of those scripts check
-  `document.prerendering`. Featherboa loads the next and previous chapters
-  into the page itself as the reader nears them (`SITE-FEATHERBOA.md`, "A
-  whole book"); until it is built, this holds.
-- **A page with its own search box can still give the header a search
-  button** (Site 2.0; BVJ, 2026-11-17: "The header can have a search button
-  so that a non-article-defaulted option is available"). `SearchBar` can be
-  on a page once (its ids are fixed), so a `pageSearch` page has no header
-  strip. Such a page passes `headerSearchLink` to `Layout`, and `SiteHeader`
-  (`searchLink`) draws the same icon as a plain link to `/search`, in the
-  nav tools, the phone's actions, and the menu. It carries `data-v2`, so it
-  shows only with the restyle's stamp, and no `data-search-toggle`, so
-  `header-search.js` leaves it alone. The articles index and the article
-  page pass it.
-- **Site 2.0 adds to two layouts, and both additions are inert without the
-  restyle's stamp** (`SITE-2.0.md`). `ScriptureLayout` imports
-  `v2/scripture.css` and a bundled `v2-scripture.js`: the scripture sheet is
-  a painted layer (`.scripture-main::before`), so no markup changed, and on
-  a phone the toolbar hides on a scroll down and returns on any scroll up
-  (BVJ, 2026-11-17), by a `data-v2-bar` attribute the module sets on
-  `.scripture-tools`. That module may be bundled where the `data-compact`
-  script above may not: it changes nothing before the first scroll.
-  `SearchLayout` has a `v2Pane` slot between the toolbar and the results,
-  which /search fills with its left pane (`data-v2`).
+  `document.prerendering`. With JavaScript a chapter's page loads the
+  chapters around it into itself (read-on.js: `fetch` and `DOMParser`, so
+  a loaded chapter runs none of its page's scripts and counts no `lit_pv`),
+  fetching the next published chapter's page once at the start, and it
+  answers the arrows itself; the rules stay for readers without it and for
+  the way on into the next book.

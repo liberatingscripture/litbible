@@ -57,6 +57,7 @@
 // default, and which of the two opens the page. The default is an
 // arrangement, not a passage (BA53): it opens where the reader last was.
 
+import { icon } from "../../lib/icons.mjs";
 import { recordReference } from "../../lib/desk-store-core.mjs";
 import {
   ARRANGEMENTS,
@@ -107,6 +108,7 @@ import {
 import { markNames } from "../../lib/desk-lit-marks.mjs";
 import { noWayLinkLabel, noWayMessage, replacedMessage } from "../../lib/desk-search-pane.mjs";
 import { chapterPath, formatPassage, parsePassage, parsePlaceParam, passageLabel, sameChapter, startingPassage } from "../../lib/desk-passage.mjs";
+import { parseAddress } from "../../lib/desk-study.mjs";
 import { createPrintMenu } from "./print-menu.js";
 import { loadLastRead } from "../last-read.js";
 import { initActions } from "./actions.js";
@@ -130,19 +132,15 @@ import { el } from "./dom.js";
 import { OPEN_PAGE_ICON } from "./glyphs.js";
 import { createKindMenu } from "./kind-menu.js";
 import { createTitleMenu } from "./title-menu.js";
-import { factsFromStore, paintDots, startReminder } from "./reminder.js";
 import { createCommandRow } from "./command-row.js";
 import { setTip } from "../tip.js";
 import { createLeadReporter } from "./desk-lead.js";
 import { startPaneMove } from "./pane-move.js";
 import { wireLine } from "./line-menu.js";
 
-const ICON_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
+const ICON_CARET = icon("down", { size: 14 });
 
-const ICON_CLOSE = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" /></svg>`;
+const ICON_CLOSE = icon("close", { size: 16 });
 
 const ICON_GRIP = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"
   focusable="false"><circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" />
@@ -419,10 +417,10 @@ async function start() {
     if (lit) said.push(replacedMessage("lit", lit.kind, { at: passageLabel(passage) }));
     if (said.length) sayReplaced(said.join(" "), before);
     else if (none) {
-      // greekHref's address (greek-search.mjs), written out: that module is
-      // the Greek search's, which this page never imports statically.
+      // The link is the verse's own page: still true, though the word isn't
+      // shown there (the Greek is only in Study).
       const base = chapterPath(passage.bookKey, passage.chapter);
-      noWay("greek", none.reason, { search: true, href: base ? `${base}?greek=${passage.verse}.${hit.t}#v${passage.verse}` : null });
+      noWay("greek", none.reason, { search: true, href: base ? `${base}#v${passage.verse}` : null });
     }
   };
   // Where the leading LIT pane's Back goes (E168), for the Search pane's line.
@@ -738,13 +736,9 @@ async function start() {
     layoutWindow: { open: openMenu, close: closeMenu },
     printWindow: { open: openPrintMenu, close: closePrintMenu },
   });
-  // The backup reminder (E113): its dot on the title and its My Notebook item,
-  // and its bar, read from this page's own notebook.
-  if (store) {
-    startReminder({ surface: "desk", store, getFacts: () => factsFromStore(store) })
-      .catch((err) => console.error("Study Desk: the backup reminder didn’t start", err));
-    paintDots();
-  }
+  // No backup reminder here: Featherboa's Phase 5 made it the words of the
+  // Notebook's foot line on the Read page ("Nothing interrupts the reader"),
+  // and Study's sidebar takes the same line when /desk becomes Study.
   commands = createCommandRow({
     row: cmdRow, getLayout: () => layout, panesBox, commit, announce, inTour,
     layoutWindow: { open: openMenu, close: closeMenu },
@@ -1313,11 +1307,12 @@ async function start() {
   // Kept as the move it is (with `layout`, E114, as the change to Reading,
   // saved as the last layout and never as "My default"), then taken off the
   // address so a reload doesn't pull the desk back to it.
-  if (arrivalParams.has("place") || arrivalParams.has("layout")) {
+  if (arrivalParams.has("place") || arrivalParams.has("layout") || arrivalParams.has("greek")) {
     try {
       const url = new URL(location.href);
       url.searchParams.delete("place");
       url.searchParams.delete("layout");
+      url.searchParams.delete("greek");
       history.replaceState(history.state, "", url);
     } catch (_) {}
     if (arrivalPlace) save();
@@ -1469,6 +1464,19 @@ async function start() {
     const link = way?.href ? { label: noWayLinkLabel(way.kind, way.what), href: way.href } : null;
     if (arrivalSaid.length) showUndo(text, () => commit(arrivedAs, { quiet: true }), { link, keyless: true });
     else showNotice(text, { link });
+  }
+  // A Greek word in the address (`&greek=16.7` beside `?place=john-3:16`, the
+  // link a Greek search result and a This verse word carry, greekWordHref): its
+  // pane at that word, by the rule a Greek search result follows on /desk
+  // (openGreekHit, E127). Read by Study's model, the one parser
+  // of the address (`parseAddress`, desk-study.mjs; 9b keeps it): it needs the
+  // place's passage, and is ignored without one or when it isn't a word. The
+  // word's verse is its own; the place gives the chapter. The address as it
+  // arrived, since both are off it by now (above).
+  const arrivalAddress = parseAddress("/desk", `?${arrivalParams}`);
+  const arrivalChapter = arrivalAddress.greek ? parsePassage(arrivalAddress.at) : null;
+  if (arrivalChapter) {
+    openGreekHit({ book: arrivalChapter.bookKey, chapter: arrivalChapter.chapter, verse: arrivalAddress.greek.verse, t: arrivalAddress.greek.t }, null);
   }
 
   // ---- the Study Desk tour (E24) ----

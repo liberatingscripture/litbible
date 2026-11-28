@@ -11,7 +11,6 @@ import { recordHref, recordReference } from "../../lib/desk-store-core.mjs";
 import { addDeskStyle, deskCtx as ctx } from "./boot.js";
 import { openStore } from "./store.js";
 import { createPanel } from "./panel.js";
-import { initGreekLink } from "./greek-link.js";
 import { initUndo } from "./undo-bar.js";
 import { createHistory } from "./history.js";
 import { initNoteSettings } from "./note-settings.js";
@@ -22,11 +21,11 @@ import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { createHighlights } from "./highlights.js";
-import { proseSource, studySource } from "./note-sources.js";
+import { proseSource, readingSource, studySource } from "./note-sources.js";
 import { pageChapter } from "./page.js";
 import { standDown } from "../desk-frame.js";
 import { initProseActions } from "./prose-actions.js";
-import { initPins } from "./pins.js";
+import { initPins, setFootnoteHome } from "./pins.js";
 import { initBookmarkFollow } from "./bookmark-follow.js";
 import { showPausedBar } from "./bookmark-stop.js";
 import { createTour } from "./tour.js";
@@ -104,7 +103,8 @@ async function start({ handOver }) {
   };
   // What the change notice's "Show in the text" does (change-notice.js): a
   // note in the margin, a highlight to its verse, a pinned footnote to its
-  // note in the Footnotes list, a glossary or article note in its margin, and
+  // note in the Footnotes list (or the Notebook's Footnotes tab, where that
+  // list is out of the flow), a glossary or article note in its margin, and
   // in Read View the verse in the book. `can` says whether this page can, so
   // the card offers the button only then.
   const showInText = {
@@ -129,7 +129,7 @@ async function start({ handOver }) {
     ? createNotesMargin({
         store,
         onEdit: edit,
-        source: studySource() ?? proseSource(),
+        source: readingSource() ?? studySource() ?? proseSource(),
         ctx,
         showInText,
         // The panel is built after the margin; "N more notes" opens This verse
@@ -168,6 +168,9 @@ async function start({ handOver }) {
   });
   panelUp = true;
   api = { panel };
+  // A pinned footnote's link shows its note in the Footnotes tab where the
+  // page's list is out of the flow (WB-18, WB-20).
+  if (panel.showFootnote) setFootnoteHome(panel.showFootnote);
   // "Print ▸" in the verse menu and the selection panel (E40).
   // Each part starts on its own, as each tab of the panel does: one that fails
   // is logged and the rest still start (NB8-10).
@@ -175,7 +178,6 @@ async function start({ handOver }) {
   tryStart("the verse menu rows", () => initActions({ store, ctx, showVerse: panel.showVerse, printPart }));
   tryStart("the bookmark follower", () => initBookmarkFollow({ store, ctx, tell: showPausedBar }));
   tryStart("the commands", () => initCommands({ panel, printNotes, printRoom }));
-  tryStart("the Greek link", () => initGreekLink({ panel }));
   tryStart("the notes on articles", () => initProseActions({ store, addNote }));
   // The tour (D8): started by the reader, never by itself (tour.js).
   tryStart("the tour", () => createTour({ panel, canKeep: Boolean(store), store }));

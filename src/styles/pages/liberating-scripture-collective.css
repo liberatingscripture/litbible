@@ -1,6 +1,7 @@
 /* =========================================================
-   Liberating Scripture Collective page
-   (Used with global.css only)
+   Liberating Scripture Collective page, drawn with Featherboa's tokens:
+   the page is the paper, cards take a hairline, and nothing is ornament
+   (no hero wash, no stamped cards, no band behind the carousel).
    ========================================================= */
 
 /* This page follows the Display tray's text size and line spacing through
@@ -10,13 +11,18 @@
 .lsc,
 .lsc-content {
   font-size: calc(1em * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
 }
 
 .lsc {
-  background-color: var(--page-bg);
+  background-color: var(--color-page);
   min-height: 100vh;
-  padding-block: clamp(3.5rem, 8vw, 6rem);
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
+}
+
+.lsc-content {
+  padding-block: 0 var(--space-8);
 }
 
 /* =========================================================
@@ -30,7 +36,7 @@
 }
 
 .lsc-content {
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  padding-inline: var(--space-5);
 }
 
 .lsc-hero {
@@ -46,213 +52,166 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 1.25rem;
+  gap: var(--space-4);
   max-width: min(640px, 96%);
-  margin: 0.35rem auto 1.1rem;
+  margin: var(--space-1) auto var(--space-4);
 }
 
 .lsc-logo {
   display: block;
   height: auto;
-  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.18));
 }
 
 /* --lockup-size drives the NAME's type size as well, so it stays put; the mark
-   takes a fraction of it. The old art was a 3:2 landscape lockup that rendered
-   180×120 at full --lockup-size; the dove mark is square, so at that same width
-   it would stand half again as tall and overpower the name beside it. */
+   takes a fraction of it. The dove mark is square, so at the full size it
+   would stand half again as tall and overpower the name beside it. */
 .lsc-logo--hero {
   flex: 0 0 auto;
   width: calc(var(--lockup-size) * 0.78);
 }
 
 .lsc-lockup__name {
-  font-family: var(--serif, serif);
+  font-family: var(--font-display);
   /* The lockup is the Collective's mark (dove and name in one proportion),
      not text to read, so it keeps its size whatever the Display tray says. */
   font-size: calc(var(--lockup-size) * 0.27);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.1;
   margin: 0;
-  padding-top: calc(var(--lockup-size) * 0.06);
+  padding-top: var(--space-1);
   text-align: center;
   white-space: nowrap;
 }
 
 .eyebrow {
-  margin: 0 0 1.25rem 0;
-  font-size: calc(0.82rem * var(--reading-scale, 1));
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.65);
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-control);
+  font-weight: 600;
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
+  color: var(--color-text-3);
 }
 
 .lsc-hero h1 {
-  font-family: var(--serif, serif);
-  line-height: 1.05;
-  margin: 0 0 1.5rem 0;
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-5);
 }
 
 .lede {
-  font-size: calc(clamp(1.15rem, 0.8vw + 1rem, 1.35rem) * var(--reading-scale, 1));
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
   margin: 0;
 }
 
 .lede + .lede {
-  margin-top: 1.25rem;
+  margin-top: var(--space-4);
 }
 
 .lsc-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
-  margin-top: 1.75rem;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
 }
 
 .lsc-actions__hint {
-  margin: 0.4rem auto 0;
-  margin-bottom: 0;
+  margin: var(--space-2) auto 0;
   padding-bottom: 0;
-  max-width: 58ch;
-  font-size: calc(0.98rem * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.72);
+  max-width: calc(58 * var(--ch));
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
+  color: var(--color-text-2);
+  text-align: center;
 }
 
 /* =========================================================
-   Buttons
-   ========================================================= */
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.65rem 0.9rem;
-  border-radius: 12px;
-  text-decoration: none;
-  border: 1px solid rgba(var(--ink-rgb), 0.15);
-  background: rgba(var(--surface-rgb), 0.55);
-  color: var(--text);
-  /* A button keeps its size: it sets none of its own, so this undoes the
-     scale it would inherit from .lsc and .lsc-content. */
-  font-size: calc(1em / var(--reading-scale, 1));
-  transition: transform 160ms ease, opacity 180ms ease, background-color 180ms ease;
-}
-
-.button:hover,
-.button:focus-visible {
-  transform: translateY(-1px);
-  opacity: 0.92;
-}
-
-.button--primary {
-  background: var(--green-deep);
-  color: #fff;
-  border-color: transparent;
-}
-
-/* =========================================================
-   Sections / typography
+   Sections and typography
    ========================================================= */
 
 .lsc-section {
-  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  margin-top: var(--space-7);
 }
 
 .lsc-content > .lsc-section:first-child {
-  margin-top: 1.75rem;
+  margin-top: var(--space-6);
 }
 
 .lsc-section h2 {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(1.75rem, 3vw, 2.15rem) * var(--heading-scale, 1));
-  line-height: 1.25;
-  margin: 0 0 1.25rem 0;
-}
-
-.lsc-section p {
-  font-size: calc(clamp(1.1rem, 0.55vw + 1rem, 1.28rem) * var(--reading-scale, 1));
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  font-size: calc(var(--size-heading) * var(--heading-scale, 1));
+  line-height: var(--leading-heading);
+  margin: 0 0 var(--space-4);
 }
 
 .lsc-section p + p {
-  margin-top: 1.25rem;
+  margin-top: var(--space-4);
 }
 
 /* =========================================================
-   Full-width breakout (wider than essay column)
+   Full-width breakout (wider than the essay column)
    ========================================================= */
 
 .lsc-breakout {
   width: 100%;
-  max-width: min(1400px, calc(100vw - (2 * clamp(1.25rem, 4vw, 2.5rem))));
+  max-width: min(1400px, calc(100vw - (2 * var(--space-5))));
   margin-inline: auto;
-  margin-top: -1.25rem;
-  padding-top: 0.5rem;
 }
 
-/* Defensive: ensure carousel uses breakout width */
+/* Defensive: ensure the carousel uses the breakout width */
 .lsc-breakout .card-carousel {
   width: 100%;
   max-width: 100%;
 }
 
 /* =========================================================
-   Card styling (used inside carousel)
+   Cards (inside the carousel): a hairline sets each apart
    ========================================================= */
 
 .lsc-card {
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
-  padding: 1rem;
-  background: rgba(var(--surface-rgb), 0.55);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-float);
+  padding: var(--space-4);
+  overflow: hidden;
 }
 
 .lsc-card h3 {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(1.2rem, 0.9vw + 1.05rem, 1.45rem) * var(--reading-scale, 1));
-  line-height: 1.2;
-  margin: 0 0 0.75rem 0;
+  font-size: calc(var(--size-subhead) * var(--heading-scale, 1));
+  line-height: var(--leading-subhead);
+  margin: 0 0 var(--space-3);
 }
 
 .lsc-card p {
   margin: 0;
-  font-size: calc(1.05rem * var(--reading-scale, 1));
-  line-height: calc(1.65 + var(--reading-leading-extra, 0));
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
 }
 
 .lsc-card p + p {
-  margin-top: 0.9rem;
+  margin-top: var(--space-3);
 }
 
 /* =========================================================
    Card Carousel
-   Target: ~3.5 visible on wide screens (peek effect)
+   Target: about 3.5 visible on wide screens (peek effect)
    ========================================================= */
 
 .card-carousel {
-  margin-top: 1.25rem;
+  margin-top: var(--space-4);
   --cards-visible: 3.5;
-  --card-gap: 1rem;
+  --card-gap: var(--space-4);
 }
 
 .card-carousel__viewport {
   width: 100%;
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: var(--radius-float);
 }
 
 .card-carousel__track {
   display: flex;
-  gap: var(--card-gap);
+  gap: var(--space-4);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  padding: 0.25rem 0.25rem 0.75rem;
+  padding: var(--space-1) var(--space-1) var(--space-3);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   align-items: stretch;
@@ -273,36 +232,19 @@
 .card-carousel__controls {
   display: flex;
   justify-content: center;
-  gap: 0.75rem;
-  margin-top: 0.85rem;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
 }
 
-.card-carousel__btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.15);
-  background: rgba(var(--surface-rgb), 0.65);
-  color: var(--text);
-  cursor: pointer;
-  transition: transform 160ms ease, opacity 180ms ease;
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.card-carousel__btn:hover,
-.card-carousel__btn:focus-visible {
-  transform: translateY(-1px);
-  opacity: 0.9;
-}
+/* The arrows are the kit's plain buttons. */
 
 /* =========================================================
-   Responsive: reduce visible count as space shrinks
+   Responsive: fewer cards visible as space shrinks
    ========================================================= */
 
 @media (max-width: 1100px) {
   .lsc-breakout {
-    max-width: min(1180px, calc(100vw - (2 * clamp(1.25rem, 4vw, 2.5rem))));
+    max-width: min(1180px, calc(100vw - (2 * var(--space-5))));
   }
 
   .card-carousel {
@@ -335,30 +277,27 @@
 
   .lsc-logo {
     max-width: 92%;
-    filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.14));
   }
 }
 
 /* =========================================================
-   Lists + fine print
+   Lists and fine print
    ========================================================= */
 
 .lsc-list {
-  margin: 1.25rem 0 0;
-  padding-left: 1.25rem;
+  margin: var(--space-4) 0 0;
+  padding-left: var(--space-5);
 }
 
 .lsc-list li {
-  margin-bottom: 0.65rem;
-  font-size: calc(clamp(1.05rem, 0.45vw + 1rem, 1.2rem) * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+  margin-bottom: var(--space-2);
 }
 
 .fineprint {
-  margin-top: 1.25rem;
-  font-size: calc(0.98rem * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.7);
+  margin-top: var(--space-4);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
+  color: var(--color-text-3);
 }
 
 /* =========================================================
@@ -366,11 +305,6 @@
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .button,
-  .card-carousel__btn {
-    transition: none;
-  }
-
   .card-carousel__track {
     scroll-behavior: auto;
   }
@@ -379,14 +313,6 @@
 /* =========================================================
    "Brief" cards for the moving carousel
    ========================================================= */
-
-.lsc-card--brief {
-  padding: 1.05rem 1.05rem 1rem;
-}
-
-.lsc-card--brief h3 {
-  margin-bottom: 0.55rem;
-}
 
 .lsc-card__link {
   color: inherit;
@@ -400,177 +326,39 @@
 
 .lsc-card__brief {
   margin: 0;
-  font-size: calc(1.02rem * var(--reading-scale, 1));
-  line-height: calc(1.55 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.88);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
+  color: var(--color-text-2);
 }
 
 /* =========================================================
-   Static details block (readable, calm)
+   Static details block
    ========================================================= */
 
 .lsc-details {
-  margin-top: clamp(1.8rem, 4vw, 2.75rem);
+  margin-top: var(--space-6);
 }
 
 .lsc-detail + .lsc-detail {
-  margin-top: clamp(1.8rem, 4vw, 2.6rem);
-  padding-top: clamp(1.2rem, 2.8vw, 1.6rem);
-  border-top: 1px solid rgba(var(--ink-rgb), 0.10);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-hairline);
 }
 
 .lsc-detail h3 {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem) * var(--reading-scale, 1));
-  line-height: 1.25;
-  margin: 0 0 0.85rem 0;
+  font-size: calc(var(--size-subhead) * var(--heading-scale, 1));
+  line-height: var(--leading-subhead);
+  margin: 0 0 var(--space-3);
 }
 
 .lsc-detail p {
-  font-size: calc(clamp(1.08rem, 0.45vw + 1rem, 1.22rem) * var(--reading-scale, 1));
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
   margin: 0;
 }
 
 .lsc-detail p + p {
-  margin-top: 1.15rem;
+  margin-top: var(--space-4);
 }
 
 .lsc-detail[id] {
-  scroll-margin-top: 120px;
-}
-
-/* =========================================================
-   Visual interest (calm, ND-friendly)
-   - Hero wash
-   - Breakout band
-   - Faint card stamps
-   ========================================================= */
-
-.lsc-hero {
-  position: relative;
-  isolation: isolate;
-}
-
-.lsc-hero::before {
-  content: "";
-  position: absolute;
-  inset: -2.5rem -1rem -1.5rem -1rem;
-  z-index: -1;
-  background:
-    radial-gradient(
-      700px 320px at 50% 0%,
-      rgba(32, 157, 80, 0.10),
-      rgba(32, 157, 80, 0.00) 70%
-    ),
-    radial-gradient(
-      520px 260px at 20% 40%,
-      rgba(var(--ink-rgb), 0.06),
-      rgba(var(--ink-rgb), 0.00) 70%
-    );
-  filter: blur(2px);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-@media (max-width: 520px) {
-  .lsc-hero::before {
-    inset: -1.75rem -0.75rem -1rem -0.75rem;
-    opacity: 0.75;
-  }
-}
-
-.lsc-breakout {
-  position: relative;
-  padding: clamp(0.85rem, 2vw, 1.15rem);
-  border-radius: 22px;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(var(--surface-rgb), 0.55),
-      rgba(var(--surface-rgb), 0.35)
-    );
-  border: 1px solid rgba(var(--ink-rgb), 0.10);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.06);
-}
-
-.lsc-breakout .card-carousel__viewport {
-  border-radius: 18px;
-}
-
-.lsc-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.lsc-card::after {
-  content: "";
-  position: absolute;
-  top: -18px;
-  right: -22px;
-  width: 150px;
-  height: 150px;
-  pointer-events: none;
-  opacity: 0.10;
-  transform: rotate(12deg);
-  background:
-    radial-gradient(circle at 35% 35%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 65% 35%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 35% 65%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 65% 65%, rgba(var(--ink-rgb), 0.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.35) 0 44px, transparent 46px),
-    radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.35) 0 52px, transparent 54px);
-}
-
-.card-carousel__track > :nth-child(6n + 1).lsc-card::after {
-  opacity: 0.11;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.45) 0 54px, transparent 56px),
-    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.25) 0 44px, transparent 46px);
-}
-
-.card-carousel__track > :nth-child(6n + 2).lsc-card::after {
-  opacity: 0.10;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.28) 0 52px, transparent 54px),
-    radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.25) 0 40px, transparent 42px);
-}
-
-.card-carousel__track > :nth-child(6n + 3).lsc-card::after {
-  opacity: 0.10;
-  background:
-    repeating-radial-gradient(
-      circle at 50% 50%,
-      rgba(var(--ink-rgb), 0.30) 0 2px,
-      transparent 2px 10px
-    );
-}
-
-.card-carousel__track > :nth-child(6n + 4).lsc-card::after {
-  opacity: 0.10;
-  background:
-    linear-gradient(135deg, rgba(32, 157, 80, 0.28), transparent 55%),
-    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.25) 0 46px, transparent 48px);
-}
-
-.card-carousel__track > :nth-child(6n + 5).lsc-card::after {
-  opacity: 0.10;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(32, 157, 80, 0.22) 0 56px, transparent 58px),
-    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.30) 0 40px, transparent 42px);
-}
-
-.card-carousel__track > :nth-child(6n + 6).lsc-card::after {
-  opacity: 0.10;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(var(--ink-rgb), 0.28) 0 56px, transparent 58px),
-    linear-gradient(135deg, rgba(32, 157, 80, 0.18), transparent 60%);
-}
-
-@media (max-width: 520px) {
-  .lsc-card::after {
-    width: 120px;
-    height: 120px;
-    opacity: 0.08;
-  }
+  scroll-margin-top: calc(var(--space-9) + var(--space-5));
 }

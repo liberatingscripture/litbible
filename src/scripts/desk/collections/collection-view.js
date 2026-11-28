@@ -9,7 +9,7 @@
 // There is no "Make a sheet" (D13, decision 36; BVJ, 2026-11-19): Add to
 // sheet…'s "New sheet" row makes that sheet.
 // Nothing here has a look of its own (decision 25): every class is one the
-// site already has, and styles/v2/collections.css only places them.
+// site already has, and styles/pages/collections.css only places them.
 //
 // What is shown comes from `collectionRows` (desk-collections.mjs) in the
 // collection's own order: Bible order, By type, or My order. Only My order
@@ -79,6 +79,7 @@
 //   read once a place), and `parse` (the reference reader). A test replaces
 //   the last three.
 
+import { iconNode, icon } from "../../../lib/icons.mjs";
 import { labelMap } from "../../../lib/desk-labels.mjs";
 import { nestRows } from "../../../lib/desk-collection-nest.mjs";
 import { COLLECTION_ORDERS, collectionTooBig } from "../../../lib/desk-collection-format.mjs";
@@ -128,14 +129,10 @@ const FULL = "This collection is full, so nothing was added.";
 const UNREAD = "These verses couldn’t be read just now.";
 
 // The caret a note and a pinned footnote open with in My Notes (E118).
-const ICON_CARET = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
+const ICON_CARET = icon("down", { size: 16 });
 
 // "Add ▾"'s caret, at /sheets' "Save as ▾" size (E177).
-const ICON_ADD_CARET = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
+const ICON_ADD_CARET = icon("down", { size: 14 });
 
 /* ── The host's shared part, and what every view looks for in it ──── */
 
@@ -225,20 +222,22 @@ export function follow(e, run) {
 }
 
 /**
- * "‹ My collections": a link where the host gives the list's address, else a
+ * "My collections" with the back icon: a link where the host gives the list's address, else a
  * button in the Sheets pane's top row (`desk-sheet__top`), whose spacing puts
  * the title where a sheet's title sits under "‹ All sheets" (the mock).
  */
 function backTo(host) {
-  const label = host.backLabel ?? "‹ My collections";
+  const label = host.backLabel ?? "My collections";
   if (host.listHref) {
     const back = make("a", "sheets-page__back", label);
+    back.prepend(iconNode("back"));
     back.href = host.listHref;
     back.addEventListener("click", (e) => follow(e, () => host.toList()));
     back.dataset.focusKey = focusKey(host, "back");
     return back;
   }
   const back = button(label, "desk-sheet__btn desk-sheet__btn--quiet");
+  back.prepend(iconNode("back"));
   back.addEventListener("click", () => host.toList());
   back.dataset.focusKey = focusKey(host, "back");
   const top = make("div", "desk-sheet__top");
@@ -678,7 +677,7 @@ function gapPills(host, c, state, rows) {
     const head = make("div", "desk-sheet__insert-head");
     const title = make("p", "desk-sheet__insert-title", row ? `Add a heading after ${nameOfRow(row)}` : "Add a heading at the top");
     title.id = `collectionGapTitle${suffix}`;
-    const shut = button("×", "desk-sheet__icon");
+    const shut = button(iconNode("close"), "desk-sheet__icon");
     shut.setAttribute("aria-label", "Close");
     shut.addEventListener("click", () => close());
     head.append(title, shut);
@@ -862,7 +861,7 @@ function passageForm(host, c, state, close) {
   const head = make("div", "desk-sheet__insert-head");
   const title = make("p", "desk-sheet__insert-title", "Add a passage");
   title.id = `collectionAddTitle${host.idSuffix ? `-${host.idSuffix}` : ""}`;
-  const shut = button("×", "desk-sheet__icon");
+  const shut = button(iconNode("close"), "desk-sheet__icon");
   shut.setAttribute("aria-label", "Close");
   shut.addEventListener("click", close);
   head.append(title, shut);
@@ -963,7 +962,7 @@ const grip = () => {
 
 /** A heading in My order: its grip, its words, and its buttons; a field while it is being renamed. */
 function headingRow(host, c, row, state, rows) {
-  const box = make("div", "collection-page__heading v2-rule");
+  const box = make("div", "collection-page__heading");
   box.dataset.rowKey = row.key;
   if (state.editing === row.key) {
     const form = make("form", "desk-sheet__ref");

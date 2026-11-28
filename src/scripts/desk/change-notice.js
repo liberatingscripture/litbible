@@ -25,6 +25,7 @@
 // Everything a reader wrote (a note's words, a highlight's quote) is put on the
 // page as text, never as HTML.
 
+import { iconNode } from "../../lib/icons.mjs";
 import { offsetsToRange } from "../../lib/desk-anchor-dom.mjs";
 import {
   changeNotice,
@@ -304,7 +305,7 @@ export function openNotice(trigger, record, { store, ctx, showInText = null, res
   const header = el("div", "lit-panel__header");
   const heading = el("p", "lit-panel__heading", words.title);
   heading.id = `deskNoticeTitle${n}`;
-  const close = el("button", "lit-panel__close", "×");
+  const close = el("button", "lit-panel__close", iconNode("close"));
   close.type = "button";
   close.setAttribute("aria-label", "Close");
   close.addEventListener("click", closePanel);

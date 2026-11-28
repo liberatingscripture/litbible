@@ -50,16 +50,15 @@ test("Escape in a search field that holds words clears it and does not fold the 
   assert.ok(clear > 0 && fold > clear, "the search-field check comes before collapse()");
 });
 
-// The reveal that NB3-9 kept from moving focus no longer opens the panel at
-// all (E74): the first write marks the tab and offers it in the bar.
-test("E74: the first write marks the Notebook and offers it, and never opens it or moves focus itself", () => {
+// The reveal that NB3-9 kept from moving focus, and then E74's mark on the tab,
+// are gone (Featherboa's Phase 5, NX-21): the first write's one reply is the
+// tour's line added to the line its action brings (replyAtFirstUse, driven in
+// test/desk-first-use-dom.test.js), which opens nothing and takes no focus.
+test("NX-21: the first write marks nothing and opens nothing; its reply is replyAtFirstUse", () => {
   const src = read(`${dir}panel.js`);
-  assert.match(src, /reveal: \(\) => nudgePanel\(\)/);
-  const nudge = src.slice(src.indexOf("function nudgePanel"), src.indexOf("function setNudge")).replace(/\/\/.*$/gm, "");
-  const before = nudge.slice(0, nudge.indexOf("showUndo("));
-  assert.doesNotMatch(before, /\bopen\(|expand\(|rail\.|\.focus\(/, "nothing opens, expands or takes focus before the reader presses");
-  assert.match(before, /barShowing\(\)/, "a record's own Undo is never replaced");
-  assert.match(src, /if \(shown\(\)\) setNudge\(false\);/, "the mark goes once the panel is open");
+  assert.match(src, /replyAtFirstUse\(\{ store \}\);/);
+  assert.doesNotMatch(src, /nudgePanel|setNudge|reveal:/, "no mark on the tab and no reveal");
+  assert.doesNotMatch(read(`${dir}notebook-tab.js`) + read("src/styles/desk-tab.css"), /nudge/, "the tab draws no mark");
 });
 
 test("a hand fold or expand cancels what Hide my marks remembered (NB3-7)", () => {
@@ -70,7 +69,9 @@ test("a hand fold or expand cancels what Hide my marks remembered (NB3-7)", () =
 test("three buttons that used to disable themselves keep focus (NB3-8)", () => {
   assert.doesNotMatch(read(`${dir}trash-list.js`), /\.disabled = /);
   assert.doesNotMatch(read(`${dir}undo-bar.js`), /\.disabled = /);
-  assert.doesNotMatch(read(`${dir}panel.js`), /ask\.disabled = /);
+  // "Ask this browser to keep it" moved with the Settings tab's lines into
+  // the backup section (export-import.js, Featherboa's Phase 5).
+  assert.doesNotMatch(read(`${dir}export-import.js`), /ask\.disabled = /);
 });
 
 test("a second Save while the first is in flight is ignored (NB3-13)", () => {
@@ -78,12 +79,14 @@ test("a second Save while the first is in flight is ignored (NB3-13)", () => {
   assert.match(src, /async function save\(\) \{\s*if \(saving\) return;\s*saving = true;/);
 });
 
-test("the skip link is out of the tab order when the Notebook is off, and the menu makes every skip link inert (NB3-10)", () => {
+test("the skip link is the desk's own, and the menu makes every skip link inert (NB3-10)", () => {
+  // "Show the Notebook," which took it out of the tab order, is gone since
+  // Featherboa's Phase 4; the attribute keeps the page-text readers off it.
   assert.match(read(`${dir}panel.js`), /setAttribute\("data-desk-skip", ""\)/);
-  assert.match(read("src/styles/desk-tab.css"), /html\[data-desk-show="off"\] \.skip-link\[data-desk-skip\]\s*\{\s*display: none;/);
-  const header = read("src/components/SiteHeader.astro");
-  assert.match(header, /\.\.\.document\.querySelectorAll\("\.skip-link"\)/);
-  assert.match(header, /for \(const el of bgRegions\(\)\) el\.inert = open;/);
+  // The menu is a modal <dialog>, so everything outside it, every skip link
+  // included, is inert while it is open.
+  assert.match(read("src/components/MenuSheet.astro"), /<dialog class="menu-sheet" id="menuSheet"/);
+  assert.match(read("src/scripts/header-menus.js"), /sheet\.showModal\(\);/);
 });
 
 test("My Notes leaves sheets out before anything is counted (LV3-3)", () => {

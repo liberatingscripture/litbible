@@ -39,13 +39,17 @@
 // attaches each chapter it fetches through the same export.
 import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 import { markOrigin } from "../lib/term-words.mjs";
+import { iconNode } from "../lib/icons.mjs";
 
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 250;
 
 const dataEl = document.getElementById("term-lens-data");
 const pageData = dataEl ? JSON.parse(dataEl.textContent || "null") : null;
-const pageContainer = document.querySelector(".chapter-paragraphs");
+// The page's own chapter; one the reading page loads gets attachTermLens from
+// read-on.js with its own page's data.
+const pageContainer =
+  document.querySelector("article.chapter > .chapter-paragraphs") ?? document.querySelector(".chapter-paragraphs");
 
 const lensOff = () => document.documentElement.getAttribute("data-terms") === "off";
 
@@ -225,7 +229,7 @@ function buildCard(container, data, span, mark) {
   close.type = "button";
   close.className = "lit-panel__close";
   close.setAttribute("aria-label", "Close");
-  close.textContent = "×";
+  close.append(iconNode("close"));
   close.addEventListener("click", closePanel);
   header.appendChild(close);
   panel.appendChild(header);

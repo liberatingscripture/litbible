@@ -55,6 +55,49 @@ reader. Six things to keep:
    a new one gets a line there. A pull request that rests on one says it is
    Fable's research, not legal advice.
 
+## The license page (`license.astro`)
+
+The license notice, in the owner's words, moved off the foot of /read
+(Featherboa, "The ways in, and /read"). Its ids (`license`, `license-terms`,
+`sblgnt-disclaimer`) are addresses the apps and Study link, so they stay.
+**`/read` forwards the three old fragments** with `location.replace` from an
+`is:inline` script in its head (so /read doesn't flash first). Inline is safe
+there: the enforced policy has no `script-src`, and the report-only one allows
+inline (`public/CLAUDE.md`). Installed apps keep the old link until a later
+release, so **don't remove the forwarding**. The page's script opens a
+disclosure when the address names it. Its words change only with the owner.
+
+## The colophon (`colophon.astro`)
+
+"How this site is made" at `/colophon`, linked from the footer (Featherboa,
+"The dares," ix): the faces and why, what each color means, and the promises
+about contrast, motion, and reading without JavaScript, so it is also the
+site's accessibility statement. **Every fact on it follows the site's code and
+the record** (`SITE-FEATHERBOA.md`: "Type," "Color," "Night," "Motion,"
+"Sizes, space, and the measure," "The kit"), so when one of those changes,
+change the page: `test/colophon.test.js` holds the faces to `faces.css` and
+`tokens.css`, the colors, speeds, and target sizes to the tokens, and the
+licenses to the font packages and `icons.mjs`. Say only what the code does;
+a promise the site doesn't keep yet stays off the page. **Its sentence that
+an AI writes much of the code, and the one after it saying who translates
+the text, are BVJ's to word, keep, or drop** (`SITE-FEATHERBOA-BUILD.md`,
+Q2); they stay together, and "Who makes it" is marked in the file.
+
+## The What's New page (`whats-new.astro`)
+
+`/whats-new` is news that is not a change to the text: site and app updates,
+feature releases, launches. **Its entries are written by hand in
+`src/lib/whats-new.mjs`** (newest first, each `{ id, date, title, body }`),
+and **nothing writes them automatically**: no feed carries the page and the
+apps don't read it. It is **not Release Notes**, which hold changes to the
+text and are drafted from pushes to `main`. The page has no row in any header
+menu (the footer links it, and a menu carrying a "New" mark ends with "See
+what's new"), so `places.mjs` names it as a page in no place. **`src/lib/news.mjs`
+says where a header mark goes, by an entry's `id`; `whats-new.mjs` says what
+the news is**, in the same id style, so a mark can name the entry it points
+at. Words: no design code name, "Study" never "Study Desk"
+(`test/whats-new.test.js`). Each entry's date is a draft until BVJ confirms it.
+
 ## The podcast page (`found-in-translation-podcast.astro`)
 
 `/podcast` redirects here. The "All Episodes" list is RSS-driven off the
@@ -104,14 +147,24 @@ litbible.net is rewritten; a third-party read link keeps its own scheme.
 Its script reads the address with `resolveMistypedPath` (in `search-core.js`,
 the same parser as the search box), so a guessable scripture address lands on
 its page: `/John-3`, `/jn-3`, `/john-3-16`, `/john/3`, `/1-corinthians-13`,
-`/read/1-corinthians`. A known book with a chapter it doesn't have
-(`/john-30`) gets "Did you mean John?" instead of a redirect; anything else,
-and no JS, leaves the page as it was.
+`/read/1-corinthians`. Read View's old address lands where a real one now
+forwards (`src/lib/read-view-retirement.mjs`): the chapter's page, and a
+book alone at its chapter 1 rather than its introduction. A known book
+with a chapter it doesn't have (`/john-30`) gets "Did you mean John?"
+instead of a redirect; anything else, and no JS, leaves the page as it
+was.
 
-## Measuring Read View
+## Measuring the Read page
 
-**Don't measure Read View with Cloudflare's Visits view.** A visit is a page
-view whose referrer isn't the site, and Read View is reached almost only from
-inside it (Chapter View's toolbar, the /read card, the search links), so it
-barely appears there. Use page views, and remember one Read View page view
-can hold a whole book where Chapter View logs one per chapter.
+**Don't measure reading with Cloudflare's Visits view.** A visit is a page
+view whose referrer isn't the site, and most chapters are reached from
+inside it, so they barely appear there; use page views. **A chapter's page
+reads on through its book, and its address follows by `replaceState`**
+(`src/scripts/read-on.js`). The site's own `lit_pv` counts page loads
+only, but Cloudflare's beacon, in a browser with the Navigation API, hears
+the `navigate` event `replaceState` fires and reports each chapter the
+address moves to as a page view; in one without it, only the chapter
+opened counts. So a chapter's page views mix the two. Read View's old
+addresses forward (`read/[book].astro`) and may log a view of their own
+first. (From the beacon's code, read 2026-11-27; not yet seen in the
+dashboard.) Before Phase 4 one Read View page view could hold a whole book.

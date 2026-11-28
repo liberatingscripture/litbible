@@ -10,22 +10,41 @@
 From the root's project tree.
 
 ```
-  scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
+  scripts/           # CLIENT-side vanilla JS (chapter-tools; read-on, a
+                     #   chapter's page reading on through its book, and
+                     #   read-view-redirect, Read View's old addresses;
                      #   search-core + searchbar + search — see "Search" below;
                      #   lit-panel, the one floating panel every reader tool
                      #   shares; ref-preview, scripture reference previews;
                      #   last-read + continue-reading, "Continue reading";
-                     #   term-lens, the Chapter View term underline and card;
-                     #   header-search, the header's search strip;
-                     #   header-menus, header C's Learn, Study and About
-                     #   menus (a computer with the desk preview on);
+                     #   term-lens, the reading page's term underline and card;
+                     #   header-search, the header's magnifier (its
+                     #   search strip, or the page's own box);
+                     #   header-menus, the header's Learn, Study, and
+                     #   About menus, the menu sheet every "Menu" opens,
+                     #   and their news marks; phone-bars, a phone's two
+                     #   reading bars (Search in the top row, hiding
+                     #   together on a scroll down); link-button, a link
+                     #   that answers as a button once a script takes it
+                     #   over (the bar's Search and Menu, the place line's
+                     #   Search, the picker's ways in); passage-picker,
+                     #   the passage picker (the panel, the phone's sheet,
+                     #   and /read; `src/components/CLAUDE.md`);
+                     #   place-line, the place line's Search, which opens
+                     #   the page's one box in place of the line;
                      #   keyboard-shortcuts; print-radios, which sets every
                      #   radio button back after the print dialog (Edge
                      #   clears them all; see "Printing and handouts");
+                     #   display-tray, the Display tray ("Aa"; its markup is
+                     #   src/lib/display-tray.mjs); settings-page, All
+                     #   settings' keyboard switch (/settings; Study's part
+                     #   is desk/settings-page.js);
                      #   verse-image, which draws and
                      #   hands on "Share image…"; panel-flyout, the one
                      #   flyout row the panels share; glossary-entry-links, the
-                     #   copy-link buttons on /glossary; glossary-selection,
+                     #   copy-link buttons on /glossary; glossary-line, its line under
+                     #   the header (the entry in view, ‹ ›, the order switch,
+                     #   Back to top); glossary-selection,
                      #   its selection panel; panel-pieces, what every
                      #   panel is built from; keep-reading-place,
                      #   which holds the reader's line through a reflow;
@@ -36,25 +55,6 @@ From the root's project tree.
                      #   greek-commands, the Greek search commands window,
                      #   whose top is greek-builder, the menu-based search
                      #   builder);
-                     #   v2-frame, Site 2.0's "you are here" marker on a
-                     #   contents rail (About, Privacy, the Commitments'
-                     #   longer text, Study Desk help, where it also
-                     #   scrolls the long rail to the current item, the
-                     #   podcast's seasons): with the
-                     #   restyle's stamp only, it sets
-                     #   aria-current="location" on the link of the last
-                     #   heading above the reading line;
-                     #   v2-glossary, v2-search and v2-scripture, each a
-                     #   2.0 page's own module, inert without the stamp:
-                     #   the Glossary's left list (its order and marker),
-                     #   /search's left pane (it MOVES the page's sort,
-                     #   filters and picker into the pane, never copies
-                     #   them, and draws "Result groups"; the move can
-                     #   come before searchbar.js sets up at idle, so a
-                     #   moved control is found by its id, never only
-                     #   inside the tray), and the phone
-                     #   toolbar's hide on a scroll down and return on a
-                     #   scroll up on scripture pages;
                      #   desk-gate + desk/, the Study Desk preview (its
                      #   Sheets in desk/sheets/), and
                      #   desk-frame, what every page knows about its panel;
@@ -77,8 +77,8 @@ change that opens a new paragraph.
 **The anchor is the block's own id, which every authored paragraph and
 blockquote already has** (`john-8-p9`, `1peter-2-p2`). Nothing extra is
 authored for this. Those ids are already book-namespaced, so the same anchor
-resolves in Read View too — `rewriteVerseIdsAndAnchors` rewrites only
-`id="vN"` and leaves them alone.
+resolves on a chapter the page has read on into: `prepareLitBlocks`
+(`src/lib/read-on.mjs`) prefixes only `id="vN"` and leaves them alone.
 
 `verseParts()` in `chapter-tools.js` groups a verse's `data-verse` spans by
 their **outermost** block, so a poetry quotation is one part rather than one
@@ -99,13 +99,11 @@ nature, and a button per block would bury the whole-range actions.
 The general form of the above: select any run of scripture text and a panel
 offers the verse menu's actions under the same names (see "One set of
 actions, two ways in," below), for a half-sentence, a phrase crossing two
-verses, or part of a poetry quotation. It runs in **both views**, and in
-Read View it is the only such tool: that view's verse numbers stay plain
-text, because the verse menu belongs to the chapter's Chapter View page (owner,
-2026-09-28). In Read View a selection is clamped to the first chapter it
-touches, since one reference names one chapter, and every link it produces,
-Copy link's included, is the Chapter View verse link (`/john-3#v16`), never a
-Read View anchor.
+verses, or part of a poetry quotation. It runs on every chapter the page
+holds, each a view of its own (`attachChapter`), and in /desk's LIT panes.
+A selection crossing two chapters shares one chapter's part of it, since one
+reference names one chapter, and every link it produces, Copy link's
+included, is that chapter's verse link (`/john-3#v16`).
 Four owner decisions (2026-09) shape it:
 
 1. **It sits beside the selection, and the side follows the input**, not the
@@ -177,7 +175,7 @@ a tap elsewhere or on Escape. Dragging marks it `acting`, as a button press
 does, because a finger on it clears a phone's selection.
 
 The panel never takes focus, so the verse-number menu stays the keyboard and
-screen-reader route to the same copy (in Chapter View; Read View has none).
+screen-reader route to the same copy.
 
 ### One set of actions, two ways in
 
@@ -258,11 +256,11 @@ panel in miniature, built from `panel-pieces.js` with the same settling,
 placement, word snapping and never-take-focus rules, clamped to one entry's
 definition. It sends `lit:panel-actions` (`view: "glossary"`), so the Study
 Desk adds its "My Notebook" row to it as it does in scripture. The entry's
-copy-link button says what it does twice over: hover text ("Copy link to this
-entry") and a copy icon with a chain on its front sheet (owner, 2026-10-09).
-A bare chain reads as a link that goes somewhere.
-Site 2.0 has no such button (BVJ, 2026-11-17; it is `data-v1`): the left
-list's links and the panel's Copy entry link serve there.
+copy-link button says what it does in words, "Copy link," beside the copy
+icon (Featherboa's GL-10: copy is not one of the icons that may stand
+alone, `Icon.astro`), so it has no tooltip; it was a copy icon with a chain
+on its front sheet and hover text (owner, 2026-10-09), since a bare chain
+reads as a link that goes somewhere.
 
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and
@@ -281,7 +279,8 @@ type, the labels plus padding, kerning ignored): at 360px "Share text…" and
 fonts, and in the selection panel (154px) in Inter and Atkinson. "Share
 image…" needs 119px (Inter), 111px (Atkinson) and 162px (OpenDyslexic), so
 in OpenDyslexic's selection panel it takes a line of its own, as the rule
-allows (E111; the ellipsis cost 13px).
+allows (E111; the ellipsis cost 13px). Since Featherboa's Phase 1 the
+panels' controls are in Atkinson, the controls' face, which fits.
 Featherboa draws the phone's verse sheet as Copy text, Copy link, Share
 text…, and Share image… across, with icons, then Copy with footnotes, and
 no Print (`SITE-FEATHERBOA.md`, "The phone"); until it is built, this
@@ -317,7 +316,7 @@ selection clears.
 ### Verse images
 
 **"Share image…"** (E39, E111) closes the verse menu and the selection panel, so it
-works in both views (audit X8, owner 2026-09-28). It draws the passage in the
+works from both (audit X8, owner 2026-09-28). It draws the passage in the
 share-card design, in the reader's browser, and hands it on: the phone's
 share sheet on a phone or tablet, a download on a computer, told apart by the
 OS (`isAppPlatform`, the app announcement's test), never the screen width. A
@@ -334,16 +333,30 @@ page drawn by the same code:
    "Share image…", then Ink or Paper, then Square or Story, then the share
    sheet or the download. Each question is one row the height of a button,
    so the panel never moves while it changes.
-2. **Two looks**: Ink, the share cards' own palette, and Paper, its light
-   sibling. **Both sizes**: 1080 square and 1080×1920 story, whose content
-   stays inside the area Instagram's own controls leave clear.
-3. **The verse in Crimson Text**, the reference in Fraunces, the wordmark and
-   address in Inter. The text is Copy text's (`joinPieces`, footnote letters
-   and bracket markers gone, poetry kept as lines) without the inline verse
-   numbers, since the reference names the verses. Featherboa sets the
-   verse in Source Sans 3 and puts the emblem, the reference (Fraunces),
-   the name, and the address in one small line, the green bar gone
-   (`SITE-FEATHERBOA.md`, "Off the screen"); until it is built, this holds.
+2. **Two looks**: Ink and Paper, Featherboa's two colors (`#1D231C` and
+   `#FAFAF8`), each the other's ground (queue Q22). **Both sizes**: 1080
+   square and 1080×1920 story, whose content stays inside the area
+   Instagram's own controls leave clear.
+3. **The verse in Source Sans 3** (the screen's 400), **the reference in
+   Fraunces** (500, as a heading), and **one small line under the verse**
+   (Featherboa, `SITE-FEATHERBOA.md`, "Off the screen"): the emblem and the
+   reference at the left, "Liberation & Inclusion Translation" over the
+   address (Source Sans 3, 500, in the quiet ink) right-aligned at the right.
+   There is no green bar and no lockup at the top; the emblem is the only
+   green, and Inter is gone from the image. The text is Copy text's
+   (`joinPieces`, footnote letters and bracket markers gone, poetry kept as
+   lines) without the inline verse numbers, since the reference names the
+   verses. The sizes are proportions of the 1080px width, one rule for both
+   (`FOOT` in `verse-image.mjs`): margin 96, emblem 72, reference 40, small
+   line 28, so Story is the same layout, taller (its box sits inside the
+   apps' clear area). The reference steps down a pixel at a time, to 28, when
+   it would run into the name (`fitRef`). **The canvas names the faces as CSS
+   does** (`"Source Sans 3 Variable"`, `"Fraunces Variable"`), and the script
+   loads them with `document.fonts.load(font, sample)` **for the text it is
+   about to draw**, since `faces.css` splits the files by character range and
+   a canvas fetches none itself. A canvas can't set Fraunces's softness and
+   wonk, so its reference is drawn with the font's defaults. Each look's text
+   colors hold 4.5:1 on its background (`test/verse-image.test.js`).
 4. **The chapter's own address** on the image ("litbible.net/john-3"), always
    the site's name whatever host drew it. The owner counts it as the link back
    the license's social-media exception asks for. The share sheet also gets
@@ -351,8 +364,9 @@ page drawn by the same code:
 5. **Length is measured, not counted.** The text is set at the largest size
    that fits, lines balanced, down to a floor that stays readable where the
    image is seen (40px on a square, about 13px in a phone's feed; 44px on a
-   story), and a size whose floor can't hold it isn't offered. About 100
-   words of prose fit a square and 135 a story; poetry fits less. When
+   story), and a size whose floor can't hold it isn't offered. The box is
+   the whole space above the foot line, so more fits than the 100 and 135
+   words of prose measured in the first design; poetry fits less. When
    neither fits, the button says so instead of offering colors.
 
 **Safari only opens the share sheet from a fresh tap**, the same rule that
@@ -376,15 +390,17 @@ License page of their own, forwarding /read's old anchors:
 /read.)
 
 - **`src/styles/print.css`** (imported by `Layout.astro`, all `@media print`)
-  prints a chapter, an intro or a whole Read View book as text and notes
-  only: black on white in any theme, Crimson Text (a reader's accessibility
-  font prints as chosen), 12pt times the Display tray's text size, with the
-  header, tools bar, Previous/Next, panels and Read View's toolbar gone.
-  The footnotes stay the endnote list they are on screen, and the SBLGNT
-  notice still prints after the text on all three. (Where Featherboa's
-  chapters read on into each other, a print is still one chapter with its
-  notes, the chapter in view: `SITE-FEATHERBOA.md`, "A whole book"; until it
-  is built, this holds.) (Featherboa prints in Source Sans 3 with Fraunces
+  prints a chapter or an intro as text and notes only: black on white in
+  any theme, Crimson Text (a reader's accessibility font prints as chosen),
+  12pt times the Display tray's text size, with the header, tools bar,
+  Previous/Next, and panels gone. The footnotes stay the endnote list they
+  are on screen, and the SBLGNT notice still prints after the text on both.
+  **A page that has read on into other chapters prints one chapter with its
+  notes, the chapter in view** (WB-37): read-on.js marks it at
+  `beforeprint` (`html[data-read-on-print]`, its parts
+  `[data-read-on-printing]`), `reading-page.css` hides the rest, and the
+  credit's address follows it; the page's own chapter prints when Study's
+  print is under way or the chapter in view is a draft's entry. (Featherboa prints in Source Sans 3 with Fraunces
   headings and the drop numeral, notes after the chapter in two columns,
   never cut, and a running head, footer, and page numbers in page-margin
   boxes, the end notice kept for browsers without them:
@@ -419,7 +435,8 @@ License page of their own, forwarding /read's old anchors:
 - **Edge clears every native radio after the print dialog closes** (E216),
   about 100 ms after `afterprint`, with no event and no script behind it, so
   a Print or Ctrl+P left the Sheets toolbar's Version and Paper choices and
-  the Display tray's settings with no dot showing. `print-radios.js`
+  the Display tray's settings (native radios until Featherboa's Phase 4)
+  with no dot showing. `print-radios.js`
   (imported by `SiteHeader.astro`, so on every page) holds the radios checked
   at `beforeprint` and sets them back for three seconds after `afterprint`,
   only where nothing in their group is checked. **A new radio group needs
@@ -452,11 +469,11 @@ License page of their own, forwarding /read's old anchors:
   keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
   bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
   quoted as it stands. Both layouts go through `assembleHandout`.
-- **The selection bar copies a handout too** (`selectionHandout`), in both
-  views, so a handout can start mid-verse. Read View prints no footnote
-  letters and has no notes on the page, so there the handout reads them from
-  the chapter's Chapter View page, fetched when the bar opens (`readingView` in
-  `chapter-tools.js`). Three things make that work:
+- **The selection bar copies a handout too** (`selectionHandout`), wherever
+  it opens, so a handout can start mid-verse. In a LIT pane on /desk the
+  handout reads the notes from the chapter's page, fetched when the bar
+  opens (the view's `scope`, `chapter-tools.js`). Three things make that
+  work:
   1. **A selection's ends are recorded as counts, not DOM positions**: how
      many characters of the verse come before each end, with verse numbers,
      footnote letters and all whitespace left out (`countable`). Both views
@@ -510,7 +527,7 @@ License page of their own, forwarding /read's old anchors:
     are `search-greek.js`, loaded through `loadGreekSearch()` so no page carries
     them until a Greek search starts, desk on or off; never import that file
     statically from anything a page loads at the start (the rules are in
-    `src/lib/greek-search.mjs`, which the Notebook's Greek tab shares). The
+    `src/lib/greek-search.mjs`, which Study's Greek pane shares). The
     Study Desk's Search pane (`desk/search-pane.js`) is a third UI over the
     same modules.
   - *A jump is one parse* (`parseReferenceJump`): a reference, a book, or a
@@ -518,15 +535,14 @@ License page of their own, forwarding /read's old anchors:
     BVJ 2026-11-12) as `{ kind: "book", bookKey, intro: true }`. The tray and
     /search then offer only the introduction (no second link), and the
     desk's Search pane opens its page in a new tab (E173).
-    Otherwise their second link, and the tray's Shift+Enter, is Read View;
-    with the Study Desk preview on it opens /desk in its Reading layout at
-    the passage instead (`/desk/?place=john-3:16&layout=reading`, a book at
-    chapter 1; E114, BVJ 2026-11-12), and its label says so. Both build it
-    with `readingJumpLink` in `search-core.js`, which reads `deskEnabled()`;
-    the chapter picker's footer writes the same address inline. Featherboa
-    retires the Reading layout, so these open the desk at the passage
-    alone, without `&layout=reading` (`SITE-FEATHERBOA.md`, "The reading
-    page"); until it is built, this holds.
+    Otherwise /search's answer is "Go to John 3:16," and with the Study
+    preview on a second row, "Study John 3:16," opens /desk at the passage
+    (`/desk/?place=john-3:16`, a book at chapter 1, no `&layout=reading`); the
+    tray's Enter goes and Shift+Enter studies (`studyHrefFor` in
+    `search-rows.mjs`).
+    The passage picker's field reads the same parse first (`readTyping`,
+    `src/lib/passage-picker.mjs`), then the 404 page's guesser, and offers
+    no Read View.
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the
@@ -560,93 +576,160 @@ License page of their own, forwarding /read's old anchors:
        `data-pagefind-ignore` at render: the "Takeaways on Liberation and
        Inclusion" heading ending most intros is stamped in `[book]-intro.astro`,
        and the intro files keep it plain.
-  - */search opens with jump links* under the count ("117 verses · 47
-    chapters by topic · 24 introductions · …"), verses first because their
-    group sits last. They scroll and focus the group in script rather than
-    following the hash, since a fragment navigation fires `popstate`, which
-    re-renders the results. A topic card names the topics that matched it
-    when they differ from the query (a loose one-word match). That matching
-    is `topicMatches`, which the desk's Search pane calls too (E166).
-    Featherboa replaces /search's sort row, type filter, jump links, and
-    group list with one row of tabs under the field ("Chapters about it" for
-    Topic matches; Introductions keeps its own), Relevance still the
-    default, and gives the tray the same rows (`SITE-FEATHERBOA.md`,
-    "Search"); the engines don't change. Until it is built, this holds.
+  - */search is a field, one row of tabs, and the rows* (Featherboa, Phase 6;
+    `SITE-FEATHERBOA.md`, "Search"). The field is the page (an sr-only "Search"
+    heading), its count at its right end, and with the preview Notebook
+    actions beside it; the field and everything under it share one column
+    (`SearchLayout.astro`), whose size `.scripture-main` alone scales. Under
+    it one row of kit tabs with
+    counts (Scripture, Chapters about it, Glossary, Articles, Introductions;
+    with the preview Notebook and Greek), a tab with none dimmed but still
+    opening, the page opening on Scripture or the first tab with results; at
+    the row's right end the book menu, the sort (Relevance, Bible order; book
+    headings only in Bible order), and with the preview Select, on a line of
+    their own when the tabs leave no room (queue Q76: seven tabs don't fit
+    one row of the column). **On a query that can only be Greek**
+    (`isGreekQuery`: Greek letters, a Strong's number, or a search command,
+    searched in the Greek alone) **every other tab is drawn unavailable**
+    (`aria-disabled`, no count, no press, still in the arrow keys,
+    `aria-describedby` the reason under the row; queue Q77). An English
+    query under the chosen Greek tab keeps them, so the reader can leave
+    it, and the reason goes with the next English query. On a phone the
+    tabs scroll sideways and the menus take the row under them. **The URL's `mode` is the tab**; the hidden `#searchbar-mode`
+    select stays the state holder, so `search-core.js` is unchanged, and
+    every kind is searched so every tab has a count. The Notebook tab is
+    client-only state, not an address. **The rows are one module,
+    `src/lib/search-rows.mjs`**, shared with the tray (tested once in
+    `test/search-rows.test.js`): reading rows with the matched word bold and
+    underlined in green, the reference answer first ("Go to John 3:16," then
+    with the preview "Study John 3:16" at `/desk/?place=john-3:16`), then
+    over the verses the glossary line and the chapters line. **The glossary
+    line is only for an entry whose own word was typed** (its traditional
+    word, a LIT word, or its transliteration: “Trust is in the glossary →”),
+    and it is found in the term map SearchBar embeds in every page
+    (`glossaryLineEntries`), never in Pagefind's results: Pagefind indexes
+    /glossary as one page at `/glossary/` and names its entries only as
+    sub-results, so a result's own address never says which entry it is
+    (`test/search-page-lines.test.js`). When nothing else matched it
+    follows “No results for …”. The tray shows the same
+    rows and "See all results →" opens /search on the same tab. A new search
+    surface takes its rows from that module. **"Build a search…"** is one
+    quiet link in the field's row on the Greek tab only; it opens the
+    `greek-commands.js` window, "Build a search," builder on top and
+    "Examples and all commands" under it. Select (the Study preview) puts
+    boxes on Scripture, Chapters, and Greek rows only while on, and a foot bar
+    reads "3 chosen · Add to sheet… · Cancel" (`desk/sheets/search-sheet.js`).
+    A topic card names the topics that matched it when they differ from the
+    query (`topicMatches`, which the desk's Search pane calls too, E166).
   - *Every page has exactly one way in* (audit U6, owner 2026-09-28).
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`
     to `Layout`: chapters, intros and drafts (through `ScriptureLayout`),
-    `/read`, Read View, `/search`, and the articles pages. Every other page
-    gets a search icon beside the header's "Aa". Without JS it's a link to
-    `/search`; with JS (`header-search.js`) it opens a strip under the header
-    holding the ordinary `SearchBar`, so its results tray is the one chapter
-    pages use, and Escape closes the tray and then the strip. Under 360px there
-    is no room for a third header button (the short title ran 20–36px into
-    them at 320px, in every font), so the icon moves into the phone menu as
-    "Search". **A new page with its own `SearchBar` must pass `pageSearch`**,
-    or it renders two. Featherboa keeps the rule but moves a reading
-    page's way in: the toolbar's box goes, and "Search" on the place line
-    opens it in place of the line, while the passage picker gains a typing
-    field of its own (`SITE-FEATHERBOA.md`, "Finding a passage"); until it
-    is built, this holds.
-## Continue reading, Read View's landing, and keyboard shortcuts
+    `/search`, and the articles pages. The header's magnifier
+    beside "Aa" is on every page but the Read page (HD-13) and /desk, whose
+    search is a pane. **A chapter's or an introduction's way in is "Search"
+    on the place line** (FP-27 to FP-31), which opens the box in place of
+    the line (`place-line.js`), and `/` presses it. On a phone the line isn't drawn, and the bar's Search moves
+    that same box into the top row while it is open (`phone-bars.js`), so
+    the page still has one.
+    Without JS the magnifier is a link to `/search`. With JS
+    (`header-search.js`), on a page with its own box it takes the reader to
+    that box; on any other it opens a strip under the header holding the
+    ordinary `SearchBar`, so its results tray is the one chapter pages use,
+    and Escape closes the tray and then the strip. Under 360px there is no
+    room for a third header button (the short title ran 20–36px into them at
+    320px, in every font), nor under 380px in OpenDyslexic beside its wider
+    "Menu" (measured), so the icon moves into the menu sheet as its Search
+    row, or leaves the page's own box as the way in. **A new page with its own `SearchBar` must pass
+    `pageSearch`**, or it renders two. The passage picker's field is not a
+    `SearchBar`: it goes to passages and offers a search of /search.
+## Continue reading, reading on through a book, and keyboard shortcuts
 
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
   (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
-  `src/scripts/last-read.js`. Chapter View writes it on arrival (at a `#vN`
+  `src/scripts/last-read.js`. A chapter's page writes it on arrival (at a `#vN`
   verse) and as the reader scrolls, taking the last verse number above the
   reading line, 10% of the way down the window (BVJ, 2026-10-29; it was 30%)
-  but never above where a link to a verse puts its number (`readingLine`).
-  Read View writes it whenever it saves its own per-book resume position,
-  with the verse at the same line (which can be in the chapter before the
-  one its toolbar names). `read-mode.js` is loaded through `?url`, so Vite serves it
-  unbundled and it **cannot import**: it announces each save with an
-  `rm:position` event, and a bundled script in `read/[book].astro` records
-  it. Draft chapters are never recorded. `ContinueReading.astro` (home title
-  block, top of /read) and a button in the phone menu offer it back, hidden
-  until a record exists, so no JS or no storage means nothing renders; the ×
-  forgets it everywhere. Featherboa offers it as the first row of the book
-  picker and of Home instead, with nothing to dismiss
-  (`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"); the record is
-  unchanged. The Study Desk's LIT pane on /desk writes it too
+  but never above where a link to a verse puts its number (`readingLine`),
+  which counts the scroll padding a phone's top row adds.
+  On a page that has read on, the verse is the one at that line in
+  whichever chapter holds it (read-on.js's `placeNow`). Read View wrote
+  `view: "read"` records until it retired; they still lead to the
+  chapter's page (`continueHref`, `lastReadHref`). Draft chapters are
+  never recorded. **The passage picker offers it
+  back as its first row** ("Continue: Romans 8"; FP-07, NX-12), with nothing
+  to dismiss, unless it names the page being read; the menu sheet doesn't
+  (PH-14). `ContinueReading.astro`, on Home until Phase 7 makes it Home's
+  first row too (`SITE-FEATHERBOA.md`, "Nothing interrupts the reader"),
+  is hidden until a record exists, so no JS or no storage means nothing
+  renders, and its × forgets it everywhere. The record is unchanged. The Study Desk's LIT pane on /desk writes it too
   (`desk/desk-last-read.js`, through `saveLastRead`: the leading pane's place,
   `view: "study"`, after 500 ms, never a draft; BVJ, 2026-11-10). Each save also dispatches a `lit:last-read` window
   event, which only the Study Desk (places, when the preview is on) hears. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
-- **Read View lands on a link instantly, then holds it.** `/read/<book>` is
-  the whole book on one page, tens of thousands of pixels tall, so arriving at
-  `#ch-10` (Chapter View's "Switch to Read View") or `#luke-10-v25` (search)
-  is fragile: any height change above the target after the jump (a web font
-  finishing, the Android banner) slides the text under a fixed scroll offset,
-  and Safari has no scroll anchoring to undo it. (The reader's text size is
-  not one of them: the Display tray applies it before first paint.)
-  `landOnHash` in `read-mode.js` therefore jumps without animation (the
-  stylesheet's `scroll-behavior: smooth` is overridden for that one call, since
-  an animated scroll fixes its destination when it starts) and re-lands on
-  every resize of the text until the reader scrolls, touches, clicks or types.
-  Don't make that first landing smooth again: this replaced it after the owner
-  saw the switch land "at random places within the book" (2026-09-27).
+- **A chapter's page reads on through its book** (`src/scripts/read-on.js`,
+  its rules in `src/lib/read-on.mjs`; `SITE-FEATHERBOA.md`, "A whole book";
+  WB-01 to WB-12, WB-29). With JavaScript the next chapter loads below once
+  the last one's end is within 2.5 windows, and the one before loads above
+  only on a scroll up near the page's top (a wheel or a drag up, ↑, Page Up,
+  Home, Shift+Space; not a key a control has used, as the Display tray's
+  choices use Home and the arrows), so a link to a verse never sets the page
+  moving. Each
+  chapter is fetched from its own built page and parsed, never run: its
+  text, Go deeper and footnotes, every id prefixed (`john-4-v16`), in an
+  `article.read-on__chapter`. **`article.chapter` is the page's own
+  chapter alone**, so `article.chapter > .chapter-paragraphs` is always the
+  page's text (`pageTextBox` in `desk/page.js`); a bare
+  `.chapter-paragraphs` may be a chapter loaded above. A run of drafts is
+  one entry, and a chapter that fails to load is one with "Try again."
+  **The reader's line holds** when a chapter comes in above: the page
+  scrolls by what was added (scroll anchoring is off, `reading-page.css`,
+  **on body as well as the root**: off on the root alone, Chrome kept a
+  reader at the page's very end at the new end as each chapter arrived,
+  so every one called for the next).
+  **The address follows the chapter at the reading line by
+  `replaceState`**, only when the chapter changes (Safari limits how often
+  it may be called), so Back leaves the book; from then on
+  `history.scrollRestoration` is manual and `pagehide` keeps the verse in
+  `history.state.readOn`, which a reload or Back lands on. The line, the
+  phone's row, the title, the picker, and the progress line follow it
+  (`src/layouts/CLAUDE.md`), and Continue reading asks `placeNow`. **The
+  arrows are answered in the page**: they load the chapter if need be and
+  land on its heading, instantly, with focus on it; into another book they
+  are links as ever. A loaded chapter gets the page's tools
+  (`attachChapter`, `attachTermLens`), and `lit:read-on` (`{ type:
+  "loaded", book, chapter, box }`, then `"place"` as the reader moves)
+  tells the Study Desk, which takes the reading column as one of its texts
+  (`desk/page.js`), so marks and margin notes draw on every chapter;
+  nothing here imports the desk. Go deeper in a chapter's heading scrolls to
+  its section, or where the Notebook panel runs (the section is out of the
+  flow there, `reading-page.css`) sends `lit:desk-command`
+  `show-this-chapter`, which opens This verse at "This chapter." Without
+  JavaScript a page is one chapter with the way on at its foot.
 - **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
-  2026-09-28): `/` search (a Search pane on /desk), `g` Go to passage, and
+  2026-09-28): `/` search (the place line's Search on a chapter or an
+  introduction, the bar's on a phone, a Search pane on /desk), `g` the
+  passage picker (a `lit:picker-open` event that `passage-picker.js`
+  answers), and
   ← → or `[` `]` for the
-  previous and next chapter (Chapter View's top Previous/Next, found by their
-  `rel="prev"` / `rel="next"`, the neighboring `#ch-N` in Read View, or on
+  previous and next chapter (the place line's ‹ ›, found by
+  `.place-line a[rel="prev"]` / `[rel="next"]`, or on
   /desk a `lit:desk-chapter` event that `desk-page.js` answers by pressing the
   passage bar's arrow of the pane holding focus, else the leading LIT pane).
-  Featherboa keeps them where chapters read on into each other: they go to
-  the start of the neighboring chapter, loading it first
-  (`SITE-FEATHERBOA.md`, "A whole book").
-  `h` is the Study Desk's "Hide my marks" and does nothing unless
+  On a chapter's page they go to the start of the neighboring chapter,
+  loading it first (read-on.js answers the line's arrows).
+  `h` is Study's "Your marks" (it hides or shows them) and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
   stays out of this file.
-  They are on by default, with a Keyboard switch in the Display tray
-  (`localStorage['lit-shortcuts'] = 'off'`; no attribute on `<html>`, since
-  nothing renders differently; Featherboa moves it to an All settings page
-  every reader can reach from the tray, `SITE-FEATHERBOA.md`, "Display,"
-  and until it is built it stays in the tray). **The switch is required, not a nicety**:
+  They are on by default, with a "Keyboard shortcuts" switch on All settings
+  (`/settings`, `src/scripts/settings-page.js`; every reader reaches it from
+  the Display tray's foot, and it was the tray's own until Featherboa's
+  Phase 4), which writes `localStorage['lit-shortcuts'] = 'off'` (no
+  attribute on `<html>`, since nothing renders differently) and tells the
+  page (`lit:shortcuts-changed`). **The switch is required, not a nicety**:
   single-key shortcuts fire when a speech-recognition user dictates a word
   (WCAG 2.1.4). They stand down while the reader is typing or working a control
-  that owns those keys (a radio group, a menu, a grid, a dialog, the picker's
-  popover), whenever Ctrl, Alt or Cmd is held, and the arrows also stand down
+  that owns those keys (a radio group, a menu, a grid, a dialog, the passage
+  picker), whenever Ctrl, Alt or Cmd is held, and the arrows also stand down
   whenever the page scrolls sideways, which is how someone zoomed in reads
   along a line.

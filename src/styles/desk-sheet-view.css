@@ -122,7 +122,7 @@
   margin: 0.9em 0;
   padding: 0.1em 0 0.1em 0.9em;
   border-left: 3px solid rgba(var(--ink-rgb), 0.28);
-  color: rgba(var(--ink-rgb), 0.86);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-style: italic;
 }
 
@@ -256,48 +256,18 @@
 
 /* ── The sheets' buttons ─────────────────────────────────────── */
 
+/* The kit draws them (kit.css, by name: the filled level takes the primary,
+   danger Delete, and plain the rest), here and on a phone showing a shared
+   sheet, which loads kit.css with the site. Only their size is here, which
+   the Sheets' text size scales (--sheet-ui), until Phase 11 redraws them. */
 .desk-sheet__btn {
   padding: 4px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
+  line-height: inherit;
   cursor: pointer;
-}
-
-.desk-sheet__btn:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.desk-sheet__btn--primary {
-  background: var(--green-deep);
-  border-color: var(--green-deep);
-  color: #fff;
-}
-
-.desk-sheet__btn--primary:hover {
-  background: var(--green-deep);
-  filter: brightness(1.1);
-}
-
-.desk-sheet__btn--quiet {
-  border-color: transparent;
 }
 
 .desk-sheet__btn:disabled,
 .desk-sheet__btn[aria-disabled="true"] {
-  opacity: 0.5;
   cursor: default;
-  background: transparent;
-}
-
-/* Primary and quiet buttons differ by fill, which is forced: the primary
-   one takes a thicker edge (Audit 8, XA8-7). */
-@media (forced-colors: active) {
-  .desk-sheet__btn--primary {
-    padding: 3px 9px;
-    border: 2px solid ButtonText;
-  }
 }

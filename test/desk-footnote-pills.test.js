@@ -8,6 +8,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+import { namesOf } from "../scripts/lib/kit-lists.mjs";
 import {
   GLYPH_WIDTH, PILL_EDGE, PILL_OFFSET, PIN_FALLBACK, PIN_MARGIN, footnotePillPlace,
 } from "../src/lib/desk-footnote-pills.mjs";
@@ -62,13 +63,16 @@ test("Pin is never placed anywhere but the left margin, and never off the window
   }
 });
 
-// GLYPH_WIDTH restates desk.css: a 14px glyph, 8px of padding each side, a 1px border.
-test("GLYPH_WIDTH matches the thumbtack pill desk.css draws", () => {
+// GLYPH_WIDTH restates desk.css and the kit: a 14px glyph, 8px of padding
+// each side (desk.css), and the 1px edge of the kit's tinted chip (kit.css).
+test("GLYPH_WIDTH matches the thumbtack pill desk.css and the kit draw", () => {
   const css = readFileSync(new URL("../src/styles/desk.css", import.meta.url), "utf8");
+  const kit = readFileSync(new URL("../src/styles/kit.css", import.meta.url), "utf8");
   const rule = /\.desk-pin--glyph \{([^}]*)\}/.exec(css)[1];
   const pad = /padding: \d+px (\d+)px;/.exec(rule);
   assert.ok(pad, "side padding in px");
-  const border = /\.desk-pin \{[^}]*border: (\d+)px solid/.exec(css);
+  assert.ok(namesOf(kit, "tinted").includes(".desk-pin"), "Pin is the kit's tinted chip");
+  const border = /:is\(\.kit-btn--tinted,[^{]*\{[^}]*border: (\d+)px solid/.exec(kit);
   const glyph = /ICON_PIN = `<svg[^>]*\swidth="(\d+)"/.exec(
     readFileSync(new URL("../src/scripts/desk/pins.js", import.meta.url), "utf8"),
   );
@@ -89,7 +93,7 @@ test("E82: Pin shows on hover, focus, a link's target and while pinned, and is h
   const pin = "\\.footnotes > li\\.desk-fn";
   assert.match(css, new RegExp(`\\n${pin} > \\.desk-fn-pills > \\.desk-pin \\{\\s*opacity: 0;`));
   // It waits before hiding, so the pointer can cross the text-width line to reach it.
-  assert.match(css, /transition: opacity 120ms ease-out 400ms;/);
+  assert.match(css, /transition: opacity var\(--dur-quick\) var\(--ease\) 400ms;/);
   const shown = new RegExp(
     `${pin}:hover > \\.desk-fn-pills > \\.desk-pin,\\s*` +
       `${pin}:focus-within > \\.desk-fn-pills > \\.desk-pin,\\s*` +

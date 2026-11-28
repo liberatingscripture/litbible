@@ -60,7 +60,8 @@ import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
 import { routeFootnoteLinks } from "./footnote-links.js";
 import { undoEntry } from "./history.js";
-import { chapterText } from "./page.js";
+import { chapterText, goDeeperOf, pageTextBox } from "./page.js";
+import { bookKeyToLabel } from "../../data/books.js";
 import { pinButton } from "./pins.js";
 import { showUndo } from "./undo-bar.js";
 import { setTip } from "../tip.js";
@@ -91,13 +92,16 @@ const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons(18);
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
  *   ctx?: (() => object) | null,
  *   showInText?: { can(record: object): boolean, go(record: object): void } | null,
- *   greek?: { open(verse: number, t: number): void } | null,
+ *   greek?: { open?(verse: number, t: number): void, href?(verse: number, t: number): string } | null,
  *   source?: { textBox: Element | null, footnoteBody: (id: string) => Element | null,
  *     anchorText: () => object } | null,
  *   startVerse?: number | null, idSuffix?: string, onVerse?: ((verse: number) => void) | null,
  *   showPassage?: ((passage: object) => unknown) | null }} options
  *   `ctx` and `showInText` are what the change notice's card needs; `greek`
- *   opens the Greek tab at a word. On /desk the chapter isn't the page's:
+ *   is where a word of the verse's Greek leads: beside a chapter a link into
+ *   Study at the verse, with its Greek pane at the word (`href`; Featherboa's
+ *   Phase 5, ST-62: Greek leaves the Notebook), on /desk the Greek pane there
+ *   (`open`). On /desk the chapter isn't the page's:
  *   `source` reads it from the chapter's fetched Chapter View page
  *   (chapter-page.js), `startVerse` is where it opens, and `idSuffix` keeps
  *   two panes' ids apart. `onVerse` hears the verse Previous or Next steps to,
@@ -105,13 +109,14 @@ const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons(18);
  *   only by the /desk pane: a plain click on a scripture reference in a
  *   footnote moves the LIT pane (footnote-links.js).
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
- *   focusHeading: () => void, showNotes: () => Promise<void>, destroy: () => void }}
+ *   focusHeading: () => void, showNotes: () => Promise<void>,
+ *   showChapter: (bookKey: string, chapter: number) => void, destroy: () => void }}
  */
 export function createVerseTab({
   store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null,
   greek = null, source = null, startVerse = null, idSuffix = "", onVerse = null, showPassage = null,
 }) {
-  const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
+  const textBox = source ? source.textBox : pageTextBox();
   const footnoteBody = source
     ? source.footnoteBody
     : (id) => document.getElementById(id)?.querySelector(".fn-body") ?? null;
@@ -139,7 +144,7 @@ export function createVerseTab({
       <ol class="desk-verse__fn-list"></ol>
     </section>
     <section class="desk-verse__section desk-verse__notes" aria-labelledby="deskVerseMineTitle${idSuffix}">
-      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}" tabindex="-1">My Notes</h4>
+      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}" tabindex="-1">Notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
       <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse">${glyph("note", "desk-verse__add-glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span></button>
@@ -392,7 +397,8 @@ export function createVerseTab({
 
   /**
    * The verse's Greek after its text: SBL's words, signs as printed, each word
-   * a button that opens the Greek tab there. One word is a tab stop and the
+   * a link into Study at the word (beside a chapter) or a button that opens
+   * the Greek pane there (on /desk). One word is a tab stop and the
    * arrow keys step through, as in the Greek tab. A verse the SBLGNT has no
    * words for says so in this section ("The SBLGNT has no Matthew 17:21.",
    * E157), each text naming what it lacks; left out only when the files
@@ -421,12 +427,16 @@ export function createVerseTab({
     const nodes = [];
     words.forEach(({ w }, k) => {
       if (w[W.pre]) nodes.push(document.createTextNode(w[W.pre]));
-      const b = document.createElement("button");
-      b.type = "button";
+      const href = greek.href?.(v, w[W.t]) ?? null;
+      const b = document.createElement(href ? "a" : "button");
+      if (href) b.href = href;
+      else {
+        b.type = "button";
+        b.addEventListener("click", () => greek.open?.(v, w[W.t]));
+      }
       b.className = "desk-verse__gw";
       b.tabIndex = k === 0 ? 0 : -1;
       b.textContent = w[W.text];
-      b.addEventListener("click", () => greek.open(v, w[W.t]));
       nodes.push(b);
       if (w[W.post]) nodes.push(document.createTextNode(w[W.post]));
     });
@@ -733,6 +743,9 @@ export function createVerseTab({
   const onPanelActions = (e) => {
     const d = e.detail;
     if (d?.kind !== "verse" || d.view !== "study" || !panelOpen()) return;
+    // A chapter the reading page loaded beside this one (read-on.js) isn't
+    // this tab's: its verse menu leaves the tab where it is.
+    if (d.chapter && (d.book !== here.bookKey || d.chapter !== here.chapter)) return;
     setVerse(d.start);
   };
   document.addEventListener("lit:panel-actions", onPanelActions);
@@ -760,12 +773,41 @@ export function createVerseTab({
     flashTimer = setTimeout(() => notesSection.classList.remove("desk-verse__notes--flash"), 1600);
   }
 
+  /**
+   * "This chapter" at the tab's foot: a chapter's Go deeper rows, from its
+   * section on the page (the page's own chapter or one it reads on into),
+   * with its heading focused. The reading page's Go deeper asks for it where
+   * the Notebook panel runs, since the section leaves the flow there (WB-18;
+   * read-on.js sends `show-this-chapter`).
+   */
+  let chapterPart = null;
+  function showChapter(bookKey, chapter) {
+    const rows = goDeeperOf(bookKey, chapter)?.querySelector(".go-deeper__rows");
+    chapterPart?.remove();
+    chapterPart = make("section", "desk-verse__section desk-chapter");
+    const title = make("h4", "desk-verse__subhead", "This chapter");
+    title.id = `deskChapterTitle${idSuffix}`;
+    title.tabIndex = -1;
+    chapterPart.setAttribute("aria-labelledby", title.id);
+    chapterPart.append(title, make("p", "desk-chapter__open", `${bookKeyToLabel(bookKey)} ${chapter}`));
+    if (rows) {
+      const copy = rows.cloneNode(true);
+      copy.className = "desk-chapter__rows";
+      for (const node of copy.querySelectorAll("[id]")) node.removeAttribute("id");
+      chapterPart.append(copy);
+    }
+    el.append(chapterPart);
+    chapterPart.scrollIntoView({ block: "nearest" });
+    title.focus({ preventScroll: true });
+  }
+
   return {
     el,
     render,
     setVerse,
     focusHeading: () => heading.focus({ preventScroll: true }),
     showNotes,
+    showChapter,
     // For /desk, whose This verse pane builds a tab per chapter (BA31).
     destroy: () => {
       document.removeEventListener("lit:panel-actions", onPanelActions);

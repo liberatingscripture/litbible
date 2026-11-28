@@ -97,7 +97,7 @@ function build() {
     </div>`;
   document.body.appendChild(el);
   el.querySelector(".desk-undo__close").addEventListener("click", () => {
-    // A bar of choices (showChoices) answers its ×, as "Remind me tomorrow" does.
+    // A bar of choices (showChoices) answers its ×, as the sync's notices do.
     const closing = onCloseHandler;
     onCloseHandler = null;
     hideUndo();
@@ -144,9 +144,9 @@ export function announce(message) {
 }
 
 /** What the bar says when its button has done its work and put up nothing else. */
-const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.", "Show bookmarks": "Bookmarks showing.", "Move it here": "Moved.", "Open the Notebook": "The Notebook is open." };
+const DONE = { Undo: "Undone.", Redo: "Redone.", "Show notes": "Notes showing.", "Show bookmarks": "Bookmarks showing.", "Move it here": "Moved." };
 
-/** Whether the bar is up now, with a notice a newer one would replace (E74 never does). */
+/** Whether the bar is up now, with a notice a newer one would replace. */
 export function barShowing() {
   return Boolean(root && !root.querySelector(".desk-undo__bar")?.hidden);
 }
@@ -221,7 +221,8 @@ export function showUndo(message, onAction, { label = "Undo", link = null, keyle
 
 /**
  * Show the bar with several buttons, then an optional quiet link, then the ×
- * (E113's backup reminder). Each choice is `{ label, primary?, quiet?, onPress }`;
+ * (the sync's notices; E113's backup reminder was the first, until
+ * Featherboa's Phase 5 made it the Notebook's foot line). Each choice is `{ label, primary?, quiet?, onPress }`;
  * a primary one is the bar's one green button, a quiet one reads as a link.
  * `onPress` may return a promise. When it finishes the bar closes, unless it
  * put up a notice of its own, which is left alone; one that rejects says so
@@ -343,6 +344,22 @@ export function showNotice(message, { link = null } = {}) {
 }
 
 /**
+ * Add a link to the notice that is up, after its button and any link it has:
+ * the first highlight's "New here? Take the tour" (NX-21), which joins the
+ * line the action brought rather than replacing it. Nothing happens when no
+ * bar is up, or when it holds a bar of choices, which has its own ×.
+ * @param {{ label: string, href: string, open?: () => void }} link as showUndo's `link`
+ * @returns {boolean} whether the link was added
+ */
+export function addToBar(link) {
+  if (!barShowing() || root.querySelector(".desk-undo__choices")) return false;
+  const bar = root.querySelector(".desk-undo__bar");
+  const after = [...bar.querySelectorAll(".desk-undo__link")].pop() ?? bar.querySelector(".desk-undo__undo");
+  after.after(linkEl(link));
+  return true;
+}
+
+/**
  * Close the bar. Given the number showUndo or showNotice returned, it closes
  * the bar only if that notice is still the one showing, so a caller taking
  * down its own notice can't close a newer one.
@@ -362,10 +379,10 @@ export function hideUndo(notice) {
 
 /**
  * Close the bar if it is one that stays (a keyless undo, E131, or a bar of
- * choices, E113), as a tour starting does (BVJ, 2026-11-13): an Undo pressed
- * halfway through a tour would fight the tour's own restore. Closing it this
- * way is no answer, so the reminder's × handler doesn't run and it comes back
- * on the next page. A bar that closes by itself is left alone.
+ * choices, the sync's notices), as a tour starting does (BVJ, 2026-11-13): an
+ * Undo pressed halfway through a tour would fight the tour's own restore.
+ * Closing it this way is no answer, so a notice's × handler doesn't run and it
+ * comes back on the next page. A bar that closes by itself is left alone.
  */
 export function hideStandingBar() {
   if (stays && barShowing()) hideUndo();

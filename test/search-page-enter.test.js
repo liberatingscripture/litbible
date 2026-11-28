@@ -8,6 +8,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { settle, window } from "./helpers/browser-env.mjs";
+import { SEARCH_PAGE_HTML } from "./helpers/search-page-dom.mjs";
 
 const reply = (body) => ({
   ok: body !== null,
@@ -27,36 +28,13 @@ console.warn = () => {};
 
 // search.astro's markup, with SearchBar's form, field and filters, as much as the page reads.
 window.happyDOM.setURL("http://localhost/search/");
-document.body.innerHTML = `
-  <div data-searchbar>
-    <form class="searchbar__form" data-searchbar-form role="search">
-      <input id="site-search-input" class="searchbar__input" type="search" />
-      <button class="searchbar__submit" type="submit">Search</button>
-    </form>
-    <select class="searchbar__book"><option value="">All books</option></select>
-    <select class="searchbar__mode"><option value="all">All results</option></select>
-  </div>
-  <section class="search-page">
-    <div class="sort-wrap">
-      <button type="button" data-sort="relevance" aria-pressed="true">Relevance</button>
-      <button type="button" data-sort="order" aria-pressed="false">Book order</button>
-    </div>
-    <div id="search-status"></div>
-    <nav id="search-jumps" hidden></nav>
-    <div id="search-active-filters" hidden></div>
-    <div class="search-ref" id="search-ref" data-search-ref hidden></div>
-    ${["notebook", "glossary", "subject", "intros", "articles", "keyword"]
-      .map((g) => `<div class="group" id="group-${g}" hidden><div class="group-title"></div><ol id="results-${g}"></ol></div>`)
-      .join("")}
-    <div class="group" id="group-greek" hidden>
-      <div class="group-title">Greek</div>
-      <div id="greek-lemmas" hidden></div>
-      <label id="greek-exact" hidden><input type="checkbox" id="greek-exact-input" /></label>
-      <ol id="results-greek"></ol>
-      <div id="greek-help" hidden></div>
-    </div>
-    <nav id="pager" hidden></nav>
-  </section>`;
+document.body.innerHTML = SEARCH_PAGE_HTML.replace(
+  '<div class="searchbar__input-wrap">',
+  '<form class="searchbar__form" data-searchbar-form role="search"><div class="searchbar__input-wrap">',
+).replace(
+  '<button type="button" data-build-search hidden>Build a search…</button>',
+  '<button class="searchbar__submit" type="submit">Search</button></form>',
+);
 
 await import("../src/scripts/search.js");
 await settle(20);

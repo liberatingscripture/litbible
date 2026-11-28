@@ -15,20 +15,6 @@
 
 /* ── The rail and the panel ───────────────────────────────────── */
 
-/* A placeholder is text under WCAG 1.4.3. The browsers' own gray is about
-   4.4:1 on the raised surface and 3.5:1 on cream (3.6 to 4.2:1 in dark), so
-   the desk's fields say it in the ink at 0.7, the value the small secondary
-   lines use (5.2:1 on cream, 5.8:1 raised, 6.6:1 or more in dark; XA8-13,
-   LV8-3). One rule reaches every field inside or carrying a desk class, and
-   none of the site's own (the footer's newsletter box, the contact form). */
-[class*="desk-"] input::placeholder,
-[class*="desk-"] textarea::placeholder,
-input[class*="desk-"]::placeholder,
-textarea[class*="desk-"]::placeholder {
-  color: rgba(var(--ink-rgb), 0.7);
-  opacity: 1;
-}
-
 /* A card in the margin. Sticky, so it starts level with the text and pins
    16px from the top of the window as the reader scrolls (EDGE in
    src/lib/desk-margin.mjs, the same gap it keeps from the window's right
@@ -45,8 +31,7 @@ textarea[class*="desk-"]::placeholder {
   background: var(--surface-raised);
   color: var(--text);
   border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-float);
   overflow: hidden;
   /* The panel follows the Display tray's text size and line spacing, as the
      text beside it and the margin notes do (E109; BVJ, 2026-11-12, answering
@@ -63,7 +48,8 @@ textarea[class*="desk-"]::placeholder {
    lies over the ends of the lines, and a firmer shadow says it's on top;
    collapsed, only its tab shows. */
 .desk-rail--floating .desk-panel {
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--shadow-float);
+  background: var(--color-float);
 }
 
 /* The panel takes focus as a landing point when it opens (so a screen
@@ -74,134 +60,139 @@ textarea[class*="desk-"]::placeholder {
   outline: none;
 }
 
+/* The head: the title, which is the Notebook's menu (BS-25 to BS-31,
+   notebook-menu.js), its stage, and the button that minimizes it. Both
+   buttons are the kit's; only where they sit is here. The menu and the Print
+   window hang from the head, over the notes. */
 .desk-panel__head {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 12px 10px 16px;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2) var(--space-2);
 }
 
-/* The name and its badge share what the two buttons leave. The panel's words
-   follow the Display tray's text size (E109), so the row can ask for more
-   than a narrow panel has, sooner still in OpenDyslexic. Then the badge
+/* The title and its badge share what the minimize button leaves. The panel's
+   words follow the Display tray's text size (E109), so the row can ask for
+   more than a narrow panel has, sooner still in OpenDyslexic. Then the badge
    wraps to a second line, which the row's height clips: it goes whole, the
-   name stays where it was (and is cut short only if it alone can't fit), and
-   the two buttons never leave the panel. The row is the buttons' height. */
+   title stays where it was (and is cut short only if it alone can't fit), and
+   the minimize button never leaves the panel. The row is the buttons'
+   height. Its clip leaves room around them for the focus ring (2px, 2px off
+   the control, global.css), which it would otherwise cut to a sliver beside
+   the badge, and the margin gives that room back, so nothing moves; the
+   badge's second line starts past the clip, so it still goes whole. */
 .desk-panel__name {
+  --ring-room: calc(var(--focus-width, 2px) + var(--focus-offset, 2px));
   display: flex;
   flex: 1 1 0;
   flex-wrap: wrap;
   align-items: center;
   align-content: flex-start;
-  gap: 0 8px;
+  gap: var(--space-2);
   min-width: 0;
-  height: 36px;
+  height: calc(var(--target) + 2 * var(--ring-room));
+  margin: calc(-1 * var(--ring-room));
+  padding: var(--ring-room);
   overflow: hidden;
 }
 
+/* The heading holds the menu's button, so it takes the button's type. */
 .desk-panel__title {
   min-width: 0;
   max-width: 100%;
   margin: 0;
+  font: inherit;
+}
+
+.desk-panel__title-button {
+  max-width: 100%;
+}
+
+.desk-panel__title-text {
+  min-width: 0;
   overflow: hidden;
-  font-size: calc(1.0625rem * var(--desk-ui, 1));
-  font-weight: 700;
-  line-height: 36px;
-  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .desk-panel__badge {
-  padding: 2px 8px;
+  padding: 2px var(--space-2);
   border: 1px solid rgba(var(--ink-rgb), 0.3);
-  border-radius: 999px;
-  color: rgba(var(--ink-rgb), 0.75);
+  border-radius: var(--radius-press);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.6875rem * var(--desk-ui, 1));
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.desk-panel__collapse,
+/* The title's menu (notebook-menu.js): the kit's menu, a float of kit rows
+   as the header's menus are, hanging from the title over the notes, which
+   stay beneath it (BS-31). Print…'s window takes the same place and look, the
+   panel's width, since it holds a passage field. Each scrolls inside itself
+   where the panel is short. */
+.desk-panel__menu,
+.desk-panel__print {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--space-3) + var(--target) + var(--space-1));
+  left: var(--space-2);
+  box-sizing: border-box;
+  max-width: calc(100% - 2 * var(--space-2));
+  max-height: calc(100% - var(--space-3) - var(--target) - var(--space-1) - var(--space-2));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-1);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-float);
+  background: var(--color-float);
+  box-shadow: var(--shadow-float);
+  animation: desk-panel-menu-in var(--dur-quick) var(--ease);
+}
+
+.desk-panel__menu {
+  min-width: min(15rem, calc(100% - 2 * var(--space-2)));
+}
+
+.desk-panel__print {
+  right: var(--space-2);
+  padding: var(--space-3);
+}
+
+.desk-panel__menu[hidden],
+.desk-panel__print[hidden] {
+  display: none;
+}
+
+@keyframes desk-panel-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.desk-panel__menu-sep {
+  margin: var(--space-1) var(--space-2);
+  border-top: 1px solid var(--color-hairline);
+}
+
+/* The undo bar's close, the size of the kit's icon alone. */
 .desk-undo__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
   cursor: pointer;
-}
-
-/* » minimizes the notebook to its tab at the window's edge, in the margin
-   and floating alike (BVJ, 2026-10-09). It has no close (BVJ, 2026-10-29). */
-.desk-panel__collapse:hover,
-.desk-undo__close:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-}
-
-/* The link to /desk, icon only (the panel is narrow), right of the title and
-   badge (BVJ, 2026-10-29), the header's Study Desk button in small. */
-.desk-panel__desk {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 36px;
-  height: 36px;
-  margin-left: auto;
-  border: 1.5px solid rgba(var(--ink-rgb), 0.45);
-  border-radius: 8px;
-  color: var(--text);
-  text-decoration: none;
-}
-
-.desk-panel__desk:hover {
-  background: var(--green-text);
-  border-color: transparent;
-  color: var(--on-green-fill);
 }
 
 /* ── Tabs ── */
 
+/* The kit's tabs (Notes, Footnotes, This verse); only the row's place is
+   here. A narrow panel, or larger words, wraps them to a second row rather
+   than clip one. */
 .desk-panel__tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 2px;
-  padding: 0 8px;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
-}
-
-.desk-panel__tabs [role="tab"] {
-  margin-bottom: -1px;
-  padding: 8px;
-  white-space: nowrap;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: rgba(var(--ink-rgb), 0.72);
-  font: inherit;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.desk-panel__tabs [role="tab"]:hover {
-  color: var(--text);
-}
-
-/* OpenDyslexic is far wider than Inter (NB-3): the row wraps to a second line
-   rather than clip a tab, and the labels keep their size. */
-html[data-font="dyslexic"] .desk-panel__tabs [role="tab"] {
-  padding-inline: 6px;
-}
-
-.desk-panel__tabs [role="tab"][aria-selected="true"] {
-  border-bottom-color: var(--green-text);
-  color: var(--text);
+  margin: 0 var(--space-1);
 }
 
 /* ── The list ── */
@@ -211,7 +202,7 @@ html[data-font="dyslexic"] .desk-panel__tabs [role="tab"] {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 4px 12px 12px;
+  padding: var(--space-1) var(--space-3) var(--space-3);
 }
 
 /* Each tab has its own body; only the showing tab's is displayed. */
@@ -255,7 +246,7 @@ a.desk-item__ref:hover {
 
 .desk-item__kind {
   grid-column: 1;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -275,10 +266,7 @@ a.desk-item__ref:hover {
   justify-self: start;
   margin: 2px 0 0;
   padding: 0;
-  border: 0;
-  background: none;
-  color: var(--green-text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   cursor: pointer;
@@ -303,68 +291,18 @@ a.desk-item__ref:hover {
   align-self: start;
 }
 
-/* Ordinary buttons (E126): their edge, fill, shadow and states are "Four
-   kinds of button" at the end of this file. */
+/* Edit is plain and Delete red words, in the kit; only their size is here. */
 .desk-item__delete,
 .desk-item__edit {
   padding: 5px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
 .desk-panel__empty {
   margin: 14px 4px;
-  color: rgba(var(--ink-rgb), 0.7);
-}
-
-/* ── The Settings tab (what was My Notes' foot) ── */
-
-.desk-panel__settings-tab {
-  padding: 10px 16px 14px;
-  color: rgba(var(--ink-rgb), 0.72);
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-}
-
-.desk-panel__settings-tab p {
-  margin: 0;
-}
-
-/* Three small headings give the tab an order (E75): Show, Keep and print,
-   Help, each group a little apart from the next. */
-.desk-panel__group + .desk-panel__group {
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
-}
-
-.desk-panel__group-title {
-  margin: 0 0 8px;
-  /* The panel's own face, not the site's display serif for headings. */
-  font-family: inherit;
-  color: rgba(var(--ink-rgb), 0.7);
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  font-weight: 600;
-}
-
-.desk-panel__group .desk-panel__print {
-  margin: 0 0 10px;
-}
-
-/* One link style across the tab (E75; they were underlined and not, bold and
-   not): the text green, underlined, at the tab's weight. */
-.desk-panel__settings-tab :is(.desk-panel__page a, .desk-panel__commands .greek-cmd-link, .desk-home__links a, .desk-home__links .desk-home__tour, .desk-home__safari a, .desk-home__account a) {
-  padding: 0;
-  color: var(--green-text);
-  font-weight: 400;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.desk-panel__group--help .desk-home__links {
-  margin-top: 6px !important;
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* ── The undo bar ──────────────────────────────────────────────── */
@@ -384,10 +322,10 @@ a.desk-item__ref:hover {
   gap: 6px;
   padding: 6px 6px 6px 16px;
   border: 1px solid rgba(var(--ink-rgb), 0.16);
-  border-radius: 12px;
-  background: var(--surface-raised);
+  border-radius: var(--radius-float);
+  background: var(--color-float);
   color: var(--text);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-float);
   font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
@@ -416,30 +354,15 @@ html:has(.desk-undo__bar:not([hidden])) {
 
 .desk-undo__undo {
   padding: 8px 12px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--green-text);
-  font: inherit;
-  font-weight: 700;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
-}
-
-.desk-undo__undo:hover {
-  background: rgba(var(--ink-rgb), 0.08);
 }
 
 /* "Open the sheet" beside Undo (S12): a link, so it reads as one. */
 .desk-undo__link {
   padding: 8px 10px;
-  border-radius: 8px;
-  color: var(--green-text);
-  font-weight: 700;
   white-space: nowrap;
-}
-
-.desk-undo__link:hover {
-  background: rgba(var(--ink-rgb), 0.08);
 }
 
 /* ── The pick window (E154) ──────────────────────────────────── */
@@ -447,8 +370,8 @@ html:has(.desk-undo__bar:not([hidden])) {
 /* "All sheets…" at the foot of "Add to sheet ▸": pick-window.js, a
    float-window.js window that "All collections…" (D13) is meant to share. A
    filter box and its count over a list that scrolls on its own, each row an
-   item's title with when it was last changed under it. A row is a list row,
-   as the Notebook actions window's are, not one of the four kinds of button.
+   item's title with when it was last changed under it. A row is the kit's
+   list row, as the Notebook actions window's are.
    Tokens only, so both themes follow without a rule of their own. */
 .desk-pick {
   width: 340px;
@@ -477,7 +400,7 @@ html:has(.desk-undo__bar:not([hidden])) {
   margin: 0 0 8px;
   font-size: calc(0.82rem * var(--desk-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-pick__label {
@@ -491,23 +414,14 @@ html:has(.desk-undo__bar:not([hidden])) {
   box-sizing: border-box;
   width: 100%;
   padding: 5px 9px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--desk-field); /* a field's own fill (E89) */
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.9rem * var(--desk-ui, 1));
-}
-
-.desk-pick__filter:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
 }
 
 .desk-pick__count {
   margin: 6px 0;
   font-size: calc(0.75rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* The rows scroll; the box and the count stay above them. Positioned, as a
@@ -536,21 +450,14 @@ html:has(.desk-undo__bar:not([hidden])) {
   width: 100%;
   margin: 0;
   padding: 6px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: var(--text);
-  font: inherit;
   font-size: calc(0.9rem * var(--desk-ui, 1));
   line-height: 1.3;
   text-align: left;
   cursor: pointer;
 }
 
-.desk-pick__row:hover {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
+/* A row fills the window's scrolling list edge to edge, so its ring is
+   drawn inside it, where an outside one would be clipped. */
 .desk-pick__row:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
@@ -566,7 +473,7 @@ html:has(.desk-undo__bar:not([hidden])) {
   display: block;
   margin-top: 1px;
   font-size: calc(0.75rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* ── Notes in the list ───────────────────────────────────────── */
@@ -603,7 +510,7 @@ html:has(.desk-undo__bar:not([hidden])) {
   min-width: 0;
   margin-left: -4px;
   padding: 2px 4px;
-  border-radius: 6px;
+  border-radius: var(--radius-press);
   color: inherit;
   text-decoration: none;
 }
@@ -642,24 +549,11 @@ html:has(.desk-undo__bar:not([hidden])) {
   width: 28px;
   height: 28px;
   padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: rgba(var(--ink-rgb), 0.7);
   cursor: pointer;
 }
 
 .desk-item__more[hidden] {
   display: none;
-}
-
-.desk-item__more:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-  color: var(--text);
-}
-
-.desk-item__more svg {
-  transition: transform 0.15s ease;
 }
 
 .desk-item__more[aria-expanded="true"] svg {
@@ -672,15 +566,7 @@ html:has(.desk-undo__bar:not([hidden])) {
   }
 }
 
-/* ── Settings at the foot: My notes, and their lettering ─────── */
-
-.desk-panel__settings {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
-  margin-bottom: 8px;
-}
+/* ── A setting's checkbox, and a row of choices ─────────────── */
 
 .desk-setting {
   display: inline-flex;
@@ -691,41 +577,28 @@ html:has(.desk-undo__bar:not([hidden])) {
   cursor: pointer;
 }
 
-.desk-panel__settings .desk-setting {
-  margin-bottom: 0;
-}
-
 .desk-setting__input {
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: var(--green-text);
 }
 
-/* A pill of two or three choices on one line. Where a line can't hold them
+/* A row of two or three choices, the kit's: each a tab, the chosen one
+   underlined and heavier (kit.css draws it). Where a line can't hold them
    (a narrow panel at a large text size, sooner in OpenDyslexic; E109) they
-   stack, each the pill's whole width, instead of the last being clipped. The
-   radius is more than half a line's height, so one line is still a pill, and
-   a stack gets rounded corners rather than a lens. */
+   wrap, each the row's whole width, instead of the last being clipped. */
 .desk-seg {
   display: inline-flex;
   flex-wrap: wrap;
+  gap: var(--space-1);
   max-width: 100%;
-  border: 1px solid var(--field-border);
-  border-radius: calc(1em + 4px);
-  overflow: hidden;
-  background: var(--desk-control);
 }
 
-/* The line between two choices, as the Display tray's pill draws it. A
-   shadow rather than a border: a stacked choice's falls on the pill's edge,
-   which clips it, and the one above it shows instead (E159). */
 .desk-seg__option {
   position: relative;
   flex: 1 1 auto;
   text-align: center;
   cursor: pointer;
-  box-shadow: -1px 0 0 rgba(var(--ink-rgb), 0.25), 0 -1px 0 rgba(var(--ink-rgb), 0.25);
 }
 
 .desk-seg__input {
@@ -737,25 +610,13 @@ html:has(.desk-undo__bar:not([hidden])) {
 .desk-seg__text {
   display: block;
   padding: 3px 10px;
-  color: var(--text);
 }
 
-.desk-seg__option:hover .desk-seg__input:not(:checked) + .desk-seg__text {
-  background: linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
-}
-
-.desk-seg__input:checked + .desk-seg__text {
-  background: var(--green-text);
-  color: var(--surface-raised);
-}
-
-/* The ring sits inside the option (.desk-seg clips anything outside), so a
-   band of the raised surface inside it keeps it visible on the chosen
-   option, whose fill is the ring's own green (BA140). */
+/* The radio is hidden, so its ring is drawn round the words. */
 .desk-seg__input:focus-visible + .desk-seg__text {
   outline: 2px solid var(--focus-ring);
-  outline-offset: -2px;
-  box-shadow: inset 0 0 0 4px var(--surface-raised);
+  outline-offset: 2px;
+  border-radius: var(--radius-press);
 }
 
 /* ── The My Notes tab's scope choice ─────────────────────────── */
@@ -788,11 +649,11 @@ html:has(.desk-undo__bar:not([hidden])) {
   padding: 10px 0 6px;
 }
 
-/* Previous and next verse: an ordinary button either side of the heading, a
-   rounded rectangle like the rest (E141; BVJ, 2026-11-17: they were quiet
-   circles until then). Its look, and its spent look, are in "Four kinds of
-   button" at the end of this file. aria-disabled, not disabled, so one
-   pressed at the chapter's edge keeps focus. */
+/* Previous and next verse: a button either side of the heading (E141; BVJ,
+   2026-11-17: they were quiet circles until then), plain in the kit, its
+   spent look included.
+   aria-disabled, not disabled, so one pressed at the chapter's edge keeps
+   focus. */
 .desk-verse__step {
   display: inline-flex;
   flex: none;
@@ -801,7 +662,6 @@ html:has(.desk-undo__bar:not([hidden])) {
   width: 32px;
   height: 32px;
   padding: 0;
-  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -827,7 +687,7 @@ html:has(.desk-undo__bar:not([hidden])) {
 .desk-verse__ref:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-press);
 }
 
 /* The verse, a little larger than the panel's own text. */
@@ -846,7 +706,7 @@ html:has(.desk-undo__bar:not([hidden])) {
    opens them here (E147), so the change across the page is seen. A change of
    colour, not of place, so reduced motion keeps it. */
 .desk-verse__notes--flash {
-  animation: desk-notes-flash 1.6s ease-out;
+  animation: desk-notes-flash var(--dur-large) var(--ease);
 }
 
 @keyframes desk-notes-flash {
@@ -863,9 +723,9 @@ html:has(.desk-undo__bar:not([hidden])) {
 
 .desk-verse__subhead {
   margin: 0 0 6px;
-  /* The panel's own face, not the site's display serif for headings. */
-  font-family: inherit;
-  color: rgba(var(--ink-rgb), 0.7);
+  /* A small label in the controls' face (Atkinson), though a heading. */
+  font-family: var(--font-control);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
@@ -992,7 +852,7 @@ html:has(.desk-undo__bar:not([hidden])) {
 
 .desk-verse__empty {
   margin: 4px 0 8px;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
@@ -1000,7 +860,7 @@ html:has(.desk-undo__bar:not([hidden])) {
    verse's words would be, and the same of the SBLGNT under Greek. The tab
    speaking, so the "nothing here" line's look, not the verse's. */
 .desk-verse__absent {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
@@ -1023,8 +883,10 @@ html:has(.desk-undo__bar:not([hidden])) {
 
 /* src/scripts/desk/notes-margin.js places each note, in document
    coordinates, beside its first word (STUDY-DESK.md, "Decisions",
-   2026-10-07). Playpen Sans by default, Inter on "Plain"; the reader's own
-   font choice wins anyway, through global.css's html[data-font] rule. */
+   2026-10-07). The notes follow the reader's Display face (--font-text, which
+   html[data-font] overrides) at the Margin size (DI-17). The Playpen Sans
+   faces below stay only for the Sheets (desk-sheet-view.css), until the phase
+   that moves them. */
 @font-face {
   font-family: "Playpen Sans";
   font-style: normal;
@@ -1060,22 +922,6 @@ html:has(.desk-undo__bar:not([hidden])) {
   height: 0;
   /* Above the page, below the shared floating panels (1100). */
   z-index: 800;
-  --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
-  /* Playpen at 500, a little firmer than its regular (BVJ, 2026-10-07, to
-     try on the preview). Inter on "Plain", and a reader's own font, keep
-     their normal weight. */
-  --desk-note-weight: 500;
-}
-
-html[data-font] .desk-notes,
-html[data-font] .desk-note-pop {
-  --desk-note-weight: 400;
-}
-
-html[data-desk-note-font="plain"] .desk-notes,
-html[data-desk-note-font="plain"] .desk-note-pop {
-  --desk-note-font: Inter, "Inter Fallback", system-ui, sans-serif;
-  --desk-note-weight: 400;
 }
 
 .desk-notes[hidden] {
@@ -1087,14 +933,13 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   box-sizing: border-box;
   margin: 0;
   padding: 3px 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-press);
   color: var(--text);
-  font-family: var(--desk-note-font);
-  font-weight: var(--desk-note-weight, 400);
-  /* 16px at the default text size, up from 15 (BVJ, 2026-10-13). */
-  font-size: calc(1rem * var(--reading-scale, 1));
+  font-family: var(--font-text);
+  font-weight: 400;
+  /* The Margin size: 16px at the default text size. */
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 .desk-note__toggle {
@@ -1115,7 +960,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
 .desk-note__glyph,
 .desk-glyph {
   display: block;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-note__glyph {
@@ -1150,15 +995,13 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   mask-image: var(--desk-note-mask, linear-gradient(to bottom, #000 calc(100% - 1.45em), transparent));
 }
 
-/* Every note lifts on hover, focus or click, cut off or not. */
+/* Every note comes forward on hover, focus or click, cut off or not. */
 .desk-note:hover,
 .desk-note:focus-within,
 .desk-note--open,
 .desk-note--flash {
   z-index: 2;
   background: var(--surface-raised);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.12);
-  transform: translateY(-1px);
 }
 
 /* A very long note scrolls inside its own card instead of covering every
@@ -1215,8 +1058,8 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   display: none;
   margin: 4px 0 2px 24px;
   padding: 2px 8px;
-  border-radius: 6px;
-  font: calc(0.8125rem * var(--desk-ui, 1))/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: 1.4;
   cursor: pointer;
 }
 
@@ -1245,7 +1088,7 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   margin-left: 6px;
   padding: 0 8px;
   border: 1px solid transparent;
-  font: calc(0.8125rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: calc(0.8125rem * var(--desk-ui, 1))/1 var(--font-control);
   visibility: hidden;
 }
 
@@ -1255,17 +1098,17 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
 }
 
 /* "3 more notes": the rest of a stack past five on one line (GF8b-6). It
-   opens This verse at the verse's notes. An ordinary button since E147
-   (BVJ, 2026-11-17: it "doesn't really look like a button"), its looks from
-   "Four kinds of button"; under a note being read (see the lift, above). */
+   opens This verse at the verse's notes. A button since E147 (BVJ,
+   2026-11-17: it "doesn't really look like a button"), plain in the kit;
+   under a note being read (see the z-index, above). */
 .desk-note__more {
   position: absolute;
   z-index: 3;
   box-sizing: border-box;
   margin: 0;
   padding: 2px 8px;
-  border-radius: 8px;
-  font: calc(0.8125rem * var(--desk-ui, 1))/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: 1.4;
   text-align: center;
   cursor: pointer;
 }
@@ -1276,7 +1119,7 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
 }
 
 /* No room for notes in full: each as its glyph in a circle, level with its
-   first word, lifting slightly on hover. */
+   first word. */
 .desk-circle {
   position: absolute;
   display: grid;
@@ -1284,45 +1127,12 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
   width: 28px;
   height: 28px;
   padding: 0;
-  border: 1px solid rgba(var(--ink-rgb), 0.18);
-  border-radius: 50%;
-  background: var(--surface-raised);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 .desk-circle .desk-glyph {
   width: 16px;
   height: 16px;
-}
-
-.desk-circle:hover,
-.desk-circle:focus-visible,
-.desk-circle[aria-expanded="true"] {
-  transform: translateY(-2px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.12);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .desk-note,
-  .desk-circle {
-    transition: background-color 0.15s ease;
-  }
-  .desk-note:hover,
-  .desk-note:focus-within,
-  .desk-note--open,
-  .desk-note--flash,
-  .desk-circle:hover,
-  .desk-circle:focus-visible,
-  .desk-circle[aria-expanded="true"] {
-    transform: none;
-  }
-  .desk-circle:hover,
-  .desk-circle:focus-visible,
-  .desk-circle[aria-expanded="true"] {
-    box-shadow: none;
-    background: linear-gradient(rgba(var(--ink-rgb), 0.1), rgba(var(--ink-rgb), 0.1)) var(--surface-raised);
-  }
 }
 
 /* A button the verse menu hides (Bookmark, once the verse holds one) stays hidden
@@ -1414,10 +1224,8 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
   display: block;
   min-width: 0;
   padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -1436,8 +1244,7 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
 
 :is(.desk-note__hit, .desk-verse__go, .desk-item__go):focus-visible::after {
   outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-  border-radius: 6px;
+  outline-offset: 2px;
 }
 
 /* In the green the desk's other links wear, underlined so they read as links
@@ -1456,9 +1263,7 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
 }
 
 .desk-chain-text a:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-  border-radius: 2px;
+  border-radius: var(--radius-press);
 }
 
 /* "Mentioned in your note on Romans 8:3–4", in This verse. */
@@ -1477,7 +1282,7 @@ html[data-font] .desk-notes > .desk-note > .desk-note__toggle > .desk-note__text
 
 .desk-verse__mention-lead {
   margin: 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -1506,8 +1311,9 @@ a.desk-verse__mention-ref:hover {
   grid-template-columns: 18px 1fr;
   gap: 4px 8px;
   width: min(300px, calc(100vw - 32px));
-  font-family: var(--desk-note-font, "Playpen Sans", Inter, system-ui, sans-serif);
-  font-weight: var(--desk-note-weight, 500);
+  font-family: var(--font-text);
+  font-weight: 400;
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
   line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
@@ -1528,11 +1334,11 @@ a.desk-verse__mention-ref:hover {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+  font-family: var(--font-control);
 }
 
 .desk-note-pop__ref {
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
@@ -1593,6 +1399,23 @@ a.desk-verse__mention-ref:hover {
   background-color: var(--desk-hl-pink);
 }
 
+/* The colour a swatch button's dot is filled with (kit.css's color dot). */
+.desk-swatch[data-color="yellow"] {
+  --kit-dot: var(--desk-hl-yellow);
+}
+
+.desk-swatch[data-color="green"] {
+  --kit-dot: var(--desk-hl-green);
+}
+
+.desk-swatch[data-color="blue"] {
+  --kit-dot: var(--desk-hl-blue);
+}
+
+.desk-swatch[data-color="pink"] {
+  --kit-dot: var(--desk-hl-pink);
+}
+
 /* In forced colors (Windows contrast themes) the engine may drop a highlight's
    tint, so each of the four colors and the words a note hangs on keep a dotted
    underline, the one property a highlight allows that survives (NB6-5). The
@@ -1623,8 +1446,9 @@ a.desk-verse__mention-ref:hover {
 /* A colour as a control or a label: a short sample of text in the colour's
    look ("ab"), in the menus' Highlight row and beside a highlight in the
    Notebook's lists. Its name is in words (aria-label, or text beside it).
-   As a button it is a flat toggle (the kinds, at the end), so it is never
-   the color of the menu or list behind it (E169); as a label it is a span
+   As a button it is the kit's color dot, filled with its colour (--kit-dot,
+   below), so it is never the color of the menu or list behind it (E169), and
+   My Notes' "All" beside them is a tinted chip; as a label it is a span
    with no edge. */
 .desk-swatch {
   display: inline-flex;
@@ -1633,9 +1457,7 @@ a.desk-verse__mention-ref:hover {
   min-width: 36px;
   min-height: 32px;
   padding: 0 6px;
-  border-radius: 6px;
-  color: var(--text, inherit);
-  font: inherit;
+  font-size: inherit;
   line-height: 1;
   cursor: pointer;
 }
@@ -1728,7 +1550,7 @@ span.desk-swatch {
   grid-column: 1;
   margin: 6px 0 0 -4px;
   padding: 2px 4px;
-  border-radius: 6px;
+  border-radius: var(--radius-press);
   color: inherit;
   text-decoration: none;
   overflow-wrap: anywhere;
@@ -1753,8 +1575,8 @@ a.desk-item__highlight:hover {
 }
 
 /* The choice of colour above My Notes' list: "All" and a swatch for each
-   colour the list holds. The pressed one is a flat toggle that is on (sunk,
-   with the text green's edge), not a cue by colour alone (E169). */
+   colour the list holds. The pressed one is on in the kit's way (the dot's
+   ring, the chip's), not a cue by colour alone (E169). */
 .desk-mine__colors {
   display: flex;
   flex-wrap: wrap;
@@ -1767,25 +1589,16 @@ a.desk-item__highlight:hover {
   display: none;
 }
 
-@media (forced-colors: active) {
-  .desk-mine__colors .desk-swatch[aria-pressed="true"] {
-    outline: 2px solid CanvasText;
-    outline-offset: -3px;
-  }
-}
-
 /* A highlight in This verse: its words, in the colour's look. */
 .desk-verse__highlight {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-/* An ordinary button (E126; the look is at the end of this file). */
+/* Red words, in the kit: it deletes. */
 .desk-verse__remove {
   padding: 5px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -1809,7 +1622,7 @@ a.desk-item__highlight:hover {
 
 .desk-editor__quote figcaption {
   margin-top: 2px;
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -1823,7 +1636,7 @@ a.desk-item__highlight:hover {
   padding: 0;
   margin-bottom: 4px;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-editor__marker-name {
@@ -1843,8 +1656,6 @@ a.desk-item__highlight:hover {
   place-items: center;
   width: 36px;
   height: 36px;
-  border: 1px solid transparent;
-  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -1859,18 +1670,10 @@ a.desk-item__highlight:hover {
   height: 20px;
 }
 
-.desk-editor__marker:hover {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
-.desk-editor__marker:has(input:checked) {
-  border-color: var(--green-text);
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
+/* The radio is hidden, so the ring goes round its label. */
 .desk-editor__marker:has(input:focus-visible) {
   outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 .desk-editor__body {
@@ -1879,18 +1682,9 @@ a.desk-item__highlight:hover {
   width: 100%;
   min-height: 88px;
   padding: 8px 10px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--surface-input, var(--surface-raised));
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
   line-height: calc(1.45 + var(--desk-leading, 0));
   resize: vertical;
-}
-
-.desk-editor__body:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
 }
 
 .desk-editor__error {
@@ -1908,21 +1702,18 @@ a.desk-item__highlight:hover {
   margin-top: 10px;
 }
 
-/* Cancel is an ordinary button and Save the editor's primary (E126; both
-   looks are at the end of this file, which this rule, under :where(), never
-   outweighs). */
+/* Cancel is plain and Save the editor's filled button, in the kit; this
+   rule, under :where(), says only their size. */
 :where(.desk-editor__actions) button {
   padding: 6px 14px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
 
 /* The tour's example editor, which can't be saved (note-editor.js). It looks
-   as any disabled primary does (E126); only the pointer is its own. */
+   as any unavailable filled button does (the kit's); only the pointer is
+   its own. */
 .desk-editor__actions .desk-editor__save:disabled {
   cursor: not-allowed;
 }
@@ -2016,12 +1807,12 @@ a.desk-item__highlight:hover {
   top: var(--grip-y, 50%);
   width: 6px;
   height: 32px;
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   transform: translate(-50%, -50%);
   background: rgba(var(--ink-rgb), 0.35);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 120ms ease;
+  transition: opacity var(--dur-quick) var(--ease);
 }
 
 /* The text's line shows its grip while the pointer is on the bare page
@@ -2031,7 +1822,7 @@ a.desk-item__highlight:hover {
    nothing. */
 .desk-gutter--near .desk-gutter__grip {
   opacity: 1;
-  transition-delay: 120ms;
+  transition-delay: var(--dur-quick);
 }
 
 .desk-gutter:hover .desk-gutter__grip,
@@ -2120,12 +1911,12 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   top: var(--grip-y, 50%);
   width: 5px;
   height: 32px;
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   transform: translateY(-50%);
   background: rgba(var(--ink-rgb), 0.35);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 120ms ease;
+  transition: opacity var(--dur-quick) var(--ease);
 }
 
 .desk-panel__edge:hover .desk-panel__edge-grip,
@@ -2149,34 +1940,12 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   }
 }
 
-/* "Reset widths", shown only while the reader has set widths, in the panel's
-   settings row. The look is the Edit button's. The Display tray's copy,
-   .font-tray__reset, is styled in desk-tab.css, which stage one loads. */
-.desk-panel__reset {
-  padding: 5px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  cursor: pointer;
-}
-
-.desk-panel__reset[hidden] {
-  display: none;
-}
-
 /* A button the desk has made busy (focus-keep.js: aria-disabled, so focus
-   stays) looks it: Undo, and "Ask this browser to keep it" (NB6-10). The
-   panel's own busy buttons keep their own looks above. "Ask this browser to
-   keep it" (and Reset widths, the same class) is an ordinary button (E126),
-   whose disabled look is in "Four kinds of button"; it takes only the cursor
-   here. */
-.desk-undo__undo[aria-disabled="true"] {
-  opacity: 0.6;
-  cursor: progress;
-}
-
-.desk-panel__reset[aria-disabled="true"] {
+   stays) looks it: Undo, and "Ask this browser to keep it" on the notebook
+   page and All settings (export-import.js; NB6-10), whose unavailable look is
+   the kit's; each takes only the cursor here. */
+.desk-undo__undo[aria-disabled="true"],
+.desk-backup__keep[aria-disabled="true"] {
   cursor: progress;
 }
 
@@ -2186,9 +1955,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 .desk-mine__add {
   margin: 10px 4px 2px;
   padding: 5px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -2219,18 +1986,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   gap: 5px;
   margin: 0;
   padding: 2px 6px 2px 4px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: rgba(var(--ink-rgb), 0.74);
-  font: calc(0.75rem * var(--desk-ui, 1))/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
+  line-height: 1.3;
   text-align: left;
   cursor: pointer;
-}
-
-.desk-flag:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-  color: var(--text);
 }
 
 /* In a note in full: under its words, level with where its text starts.
@@ -2270,8 +2029,6 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   width: 18px;
   height: 18px;
   padding: 0;
-  border-radius: 50%;
-  color: var(--text);
 }
 
 .desk-flag--mark::after {
@@ -2296,7 +2053,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   width: 11px;
   height: 11px;
   border: 2px solid var(--surface-raised);
-  border-radius: 50%;
+  border-radius: var(--radius-press);
   background: var(--text);
   forced-color-adjust: none;
 }
@@ -2308,20 +2065,14 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   }
 }
 
-/* The flag on a row of a list, or in a circle's popover: a quiet pill under
-   the words, "Wording changed · Review". */
+/* The flag on a row of a list, or in a circle's popover: a plain button
+   under the words, "Wording changed · Review". */
 .desk-flag--row {
   grid-column: 1 / -1;
   justify-self: start;
   margin-top: 6px;
   padding: 3px 10px 3px 8px;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 999px;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
-}
-
-.desk-flag--row:hover {
-  border-color: rgba(var(--ink-rgb), 0.4);
 }
 
 .desk-note-pop__flag {
@@ -2376,7 +2127,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   width: 14px;
   height: 14px;
   border: 1px solid rgba(var(--ink-rgb), 0.35);
-  border-radius: 4px;
+  border-radius: var(--radius-press);
 }
 
 .desk-notice__chip[data-color="yellow"] { background: var(--desk-hl-yellow); }
@@ -2385,7 +2136,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 .desk-notice__chip[data-color="pink"] { background: var(--desk-hl-pink); }
 
 .desk-notice__ref {
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-weight: 400;
 }
 
@@ -2405,7 +2156,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 }
 
 .desk-notice__when {
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -2419,7 +2170,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 .desk-notice p.desk-notice__label {
   margin-top: 8px;
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -2435,21 +2186,20 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   overflow-y: auto;
   padding: 8px 10px;
   border-left: 3px solid var(--green-text);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-press) var(--radius-press) 0;
   background: rgba(var(--ink-rgb), 0.05);
   line-height: calc(1.5 + var(--desk-leading, 0));
   overflow-wrap: anywhere;
 }
 
 .desk-notice__diff del {
-  color: rgba(var(--ink-rgb), 0.68);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   text-decoration: line-through;
   text-decoration-thickness: 1.5px;
 }
 
 .desk-notice__diff ins {
   padding: 0 2px;
-  border-radius: 3px;
   background: rgba(32, 157, 80, 0.2);
   text-decoration: underline;
   text-decoration-color: var(--green-text);
@@ -2466,7 +2216,7 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 
 .desk-notice p.desk-notice__marked {
   margin-top: 8px;
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   overflow-wrap: anywhere;
 }
@@ -2496,14 +2246,11 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   flex: 1 1 100%;
 }
 
-/* Keep is the card's primary and Delete an ordinary button (E126; both looks,
-   hover included, are at the end of this file). This rule is under :where()
-   so it never outweighs them. */
+/* Keep is the card's filled button and Delete red words, in the kit. This
+   rule is under :where() and says only their size. */
 :where(.desk-notice__actions) button {
   padding: 6px 14px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -2536,11 +2283,9 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
 /* src/scripts/desk/pins.js. A Pin / Unpin button wherever a footnote is read:
    under each note in the Footnotes list, beside "See in footnotes" in the
    popover, and in the Notebook's "This verse" tab. Small, and in none of its
-   places does it add a line above the text. Its look is a flat toggle's
-   ("Four kinds of button," at the end of this file) wherever it appears: the
-   control's fill and 3:1 edge (E159; BVJ, 2026-11-18, "The pins background
-   should be white": on the reading pages it had a hairline edge and no fill,
-   so the page showed through it). The words are the whole
+   places does it add a line above the text. Its look is the kit's tinted
+   button wherever it appears, on when pinned (E159; BVJ, 2026-11-18: a
+   button is never the color of what lies behind it). The words are the whole
    control; every focus ring is the site's (global :focus-visible). Its
    shape is the desk's rounded rectangle everywhere (E141; BVJ, 2026-11-17:
    it was a pill until then). The class names still say "pill." */
@@ -2549,9 +2294,8 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   flex: none;
   margin: 0;
   padding: 1px 9px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  font: calc(0.75rem * var(--desk-ui, 1))/1.5 Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: calc(0.75rem * var(--desk-ui, 1));
+  line-height: 1.5;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -2698,7 +2442,7 @@ html[data-font="dyslexic"] .footnotes[data-desk-fn-pills="row"] > li.desk-fn > .
   /* It waits a moment before going: with the Notebook expanded, the line that
      sets the text's width (.desk-gutter--text) lies between the row and Pin,
      and the pointer crossing it is over neither. */
-  transition: opacity 120ms ease-out 400ms;
+  transition: opacity var(--dur-quick) var(--ease) 400ms;
 }
 
 .footnotes > li.desk-fn:hover > .desk-fn-pills > .desk-pin,
@@ -2763,9 +2507,9 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-mine__pins-title {
   margin: 0 4px 2px;
-  /* The panel's own face, not the site's display serif for headings. */
-  font-family: inherit;
-  color: rgba(var(--ink-rgb), 0.7);
+  /* A small label in the controls' face (Atkinson), though a heading. */
+  font-family: var(--font-control);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
@@ -2839,7 +2583,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-continue__empty {
   margin: 6px 4px 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* src/scripts/desk/bookmark-form.js: "Edit bookmark", the form in the
@@ -2856,17 +2600,8 @@ ol.footnotes[data-desk-fn-pills] {
   box-sizing: border-box;
   min-width: 0;
   padding: 6px 10px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--surface-input, var(--surface-raised));
-  color: var(--text);
-  font: inherit;
-}
-
-.desk-bookmark-form__verse:focus-visible,
-.desk-bookmark-form__name:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .desk-bookmark-form__follow {
@@ -2879,7 +2614,6 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-bookmark-form__follow input {
   margin-top: 3px;
-  accent-color: var(--green-deep);
 }
 
 .desk-bookmark-form__follow input:focus-visible {
@@ -2889,7 +2623,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-bookmark-form__hint {
   margin: 0 0 10px 26px;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -2905,146 +2639,107 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-bookmark-form__start-note {
   margin: 0 0 10px 26px;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
-/* ── 1d: first use (the first-time choice, the foot, the tour) ── */
+/* ── 1d: first use (Start here, the foot line, the tours) ── */
 
 /* src/scripts/desk/first-use.js and tour.js. Tokens only, so every colour
    follows the theme; focus rings are the site's global :focus-visible. */
 
-.desk-home-card {
-  margin: 10px 0 6px;
-  padding: 12px 14px;
-  border: 1px solid rgba(var(--ink-rgb), 0.18);
-  border-radius: 12px;
-  background: rgba(var(--ink-rgb), 0.04);
-  color: var(--text);
+/* "Start here: Take the tour" (NX-19, NX-20): the Notebook's first line,
+   under its title, until the tour is taken or the reader knows their way
+   around. Its button is the view's one filled button; space, then the
+   tabs' hairline, set it apart. */
+.desk-start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: 0 var(--space-3) var(--space-2);
 }
 
-.desk-home-card[hidden] {
+.desk-start[hidden] {
   display: none;
 }
 
-.desk-home-card__title {
-  margin: 0 0 6px;
-  font-family: inherit;
-  font-size: calc(0.9375rem * var(--desk-ui, 1));
-  font-weight: 700;
-  line-height: 1.3;
+.desk-start__lead {
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  font-weight: 600;
+  line-height: var(--leading-label);
 }
 
-.desk-home-card__title:focus {
-  outline: none;
-}
-
-.desk-home-card__lead,
-.desk-home-card__note,
-.desk-home-card__more,
-.desk-home-card__safari {
-  margin: 0 0 8px;
+/* The foot line (NX-07, NX-16, NB-34; first-use.js): one line under every
+   tab saying where the notebook is kept, "Back up…" beside it, and when a
+   backup is due, the last one's age. Its words change; its place never
+   does. A hairline sets it off the list. */
+.desk-panel__foot {
+  flex: none;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
-.desk-home-card__note {
-  margin: 4px 0 0;
-  color: rgba(var(--ink-rgb), 0.75);
+.desk-panel__foot[hidden],
+.desk-panel__backup[hidden],
+.desk-panel__sync[hidden] {
+  display: none;
 }
 
-.desk-home-card__safari {
-  padding: 8px 10px;
-  border-left: 3px solid var(--green-text);
-  background: rgba(var(--ink-rgb), 0.05);
+.desk-panel__foot-line {
+  margin: 0;
 }
 
-.desk-home-card__more {
-  margin-bottom: 0;
+/* In a browser that syncs, the sync's status line takes the same place
+   (sync/status-line.js draws into the slot), and the line's own words go
+   once it has. */
+.desk-panel__foot:has([data-desk-sync-slot]:not([hidden])) .desk-panel__foot-line {
+  display: none;
 }
 
-.desk-home-card__remind {
-  margin: 0 0 8px;
+/* Opening slides the Notebook 8px in from its edge as it fades in, at the
+   Settled speed ("Motion": panels, MO-03; panel.js adds the class when the
+   reader opens or expands it, never on a page that starts with it showing).
+   Only the panel moves, never scripture. Minimizing is at once. */
+.desk-panel--opening {
+  animation: desk-panel-in var(--dur-settled) var(--ease);
 }
 
-.desk-home-card__remind .desk-home-card__note {
-  margin-left: 24px;
+@keyframes desk-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
 }
 
-.desk-home-card__done {
-  margin-top: 10px;
-}
-
-/* Where accounts are open, the card asks (step 4j): two answers, each its
-   words and then its control, a hairline between them. Keeping it here is a
-   button; the account is a link to the account pages. */
-.desk-home-card__option {
-  padding: 10px 0;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
-}
-
-.desk-home-card__option:first-of-type {
-  padding-top: 2px;
-  border-top: 0;
-}
-
-.desk-home-card__account {
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  font-weight: 600;
-}
-
-.desk-home-card__choose,
 .desk-tour__next,
 .desk-tour__back {
   padding: 6px 12px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
-  font-weight: 600;
   text-align: left;
   cursor: pointer;
 }
 
 .desk-tour__skip,
-.desk-home__tour,
 .desk-sheet__tour {
   padding: 4px 6px;
-  border: 0;
-  background: transparent;
-  color: var(--green-text);
-  font: inherit;
+  line-height: inherit;
   /* One rule for two places: the Sheets tour link follows /sheets' scale,
-     the Notebook's own tour link the panel's. */
+     the tour card's own link the desk's. */
   font-size: calc(0.8125rem * var(--sheet-ui, var(--desk-ui, 1)));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
 }
 
-.desk-home__link,
-.desk-home-card a,
 .desk-tour a {
   color: var(--green-text);
   text-underline-offset: 2px;
-}
-
-/* The panel's foot: where the notebook is kept. */
-.desk-home__safari,
-.desk-home__account {
-  margin-top: 6px !important;
-}
-
-.desk-home__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2px 14px;
-  margin-top: 8px !important;
-}
-
-.desk-home__links .desk-home__tour {
-  padding-left: 0;
 }
 
 /* The tour offer, a float-window.js window beside the Notebook. The generic
@@ -3053,7 +2748,7 @@ ol.footnotes[data-desk-fn-pills] {
   margin: 0 0 12px;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   line-height: calc(1.5 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-offer__row {
@@ -3066,21 +2761,15 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-offer__go,
 .desk-offer__later {
   padding: 7px 14px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
-  font-weight: 600;
   cursor: pointer;
 }
 
 .desk-offer__never {
   margin-top: 8px;
   padding: 2px 0;
-  border: 0;
-  background: transparent;
-  color: var(--green-text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -3095,10 +2784,10 @@ ol.footnotes[data-desk-fn-pills] {
   width: min(340px, calc(100vw - 24px));
   padding: 14px 16px 12px;
   border: 1px solid rgba(var(--ink-rgb), 0.2);
-  border-radius: 12px;
-  background: var(--surface-raised);
+  border-radius: var(--radius-float);
+  background: var(--color-float);
   color: var(--text);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--shadow-float);
   font-size: calc(0.9375rem * var(--desk-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
   opacity: 0;
@@ -3110,7 +2799,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 @media (prefers-reduced-motion: no-preference) {
   .desk-tour {
-    transition: opacity 0.15s ease;
+    transition: opacity var(--dur-quick) var(--ease);
   }
 }
 
@@ -3120,7 +2809,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-tour__count {
   margin: 0 0 2px;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -3129,9 +2818,9 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-tour__title {
   margin: 0 0 6px;
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: calc(1rem * var(--desk-ui, 1));
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .desk-tour__body,
@@ -3194,13 +2883,40 @@ ol.footnotes[data-desk-fn-pills] {
 
 /* ── 1d: the notebook page, labels, back up and merge a backup ── */
 
-/* The panel's foot: the way to the notebook page. */
-.desk-panel__page {
-  margin-bottom: 6px;
+/* The Notebook's Notes (tab-mine.js in the panel): "This chapter · John 4"
+   over the list, and the whole notebook's count as a link beside it. The
+   size is the row's, so the link (the kit's inline) takes it from here. */
+.desk-mine__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--space-3);
+  margin: var(--space-2) var(--space-1) var(--space-1);
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
-.desk-panel__page a {
-  color: var(--green-text);
+.desk-mine__title {
+  margin: 0;
+  /* A small label in the controls' face (Atkinson), though a heading. */
+  font-family: var(--font-control);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.desk-mine__chapter {
+  color: var(--text);
+}
+
+/* "Show me how" (NX-08, NX-13), under the line a chapter with nothing kept
+   shows: the tour. */
+.desk-mine__how {
+  margin: 0 var(--space-1) var(--space-3);
+}
+
+.desk-mine__how[hidden] {
+  display: none;
 }
 
 /* My Notes: the search and "Show" above the list (what "What I've kept" had,
@@ -3232,11 +2948,7 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-mine__field select {
   min-width: 0;
   padding: 6px 8px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--surface-raised, transparent);
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
@@ -3251,7 +2963,7 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-mine__links,
 .desk-mine__here {
   margin: 8px 4px 0;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -3262,9 +2974,9 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-mine__heading-text {
   margin: 0;
-  /* The panel's own face, not the site's display serif for headings. */
-  font-family: inherit;
-  color: rgba(var(--ink-rgb), 0.7);
+  /* A small label in the controls' face (Atkinson), though a heading. */
+  font-family: var(--font-control);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
@@ -3281,10 +2993,7 @@ ol.footnotes[data-desk-fn-pills] {
   justify-self: start;
   margin-top: 4px;
   padding: 6px 0;
-  border: 0;
-  background: none;
-  color: var(--green-text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   cursor: pointer;
@@ -3303,14 +3012,12 @@ ol.footnotes[data-desk-fn-pills] {
   display: none;
 }
 
-/* A toggle in a pill (E126; its look, on and off, is at the end of this
-   file): on, it is sunk with the text green's edge and words, more than a
-   change of color alone. */
+/* A label chip: the kit's tinted button, on while it filters the list. */
 .desk-mine__label {
   min-height: 32px;
   padding: 0 10px;
-  border-radius: 999px;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 
@@ -3324,13 +3031,6 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-labels input:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-}
-
-@media (forced-colors: active) {
-  .desk-mine__label[aria-pressed="true"] {
-    outline: 2px solid CanvasText;
-    outline-offset: -3px;
-  }
 }
 
 /* Label chips: on a notebook page row. */
@@ -3347,9 +3047,9 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-chip {
   padding: 1px 9px;
   border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 999px;
+  border-radius: var(--radius-press);
   font-size: calc(0.75rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.8);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* The Labels… popover. */
@@ -3360,7 +3060,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-labels__for {
   margin: 0 0 8px;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -3386,7 +3086,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-labels__none {
   margin: 0 0 10px;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-labels__new {
@@ -3398,17 +3098,14 @@ ol.footnotes[data-desk-fn-pills] {
   flex: 1;
   min-width: 0;
   padding: 6px 8px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--surface-raised, transparent);
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .desk-labels__add {
   padding: 5px 12px;
-  border-radius: 8px;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 
@@ -3446,34 +3143,6 @@ ol.footnotes[data-desk-fn-pills] {
   color: var(--green-text);
 }
 
-/* How the Notebook panel starts (notebook-page.js, mountStartChoice). */
-.desk-np__start {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 20px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.desk-np__start legend {
-  width: 100%;
-  margin-bottom: 6px;
-  padding: 0;
-}
-
-.desk-np__start-option {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.desk-np__note {
-  margin-top: 8px;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-}
-
 .desk-np__section {
   margin: 0 0 2.5rem;
 }
@@ -3507,7 +3176,7 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-np__h4 {
   margin: 1.1rem 0 0.1rem;
   font-size: calc(1rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-np__filters {
@@ -3543,16 +3212,13 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-np input[type="text"],
 .desk-np select {
   padding: 7px 9px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--surface-raised, transparent);
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .desk-np__count {
   margin: 0.5rem 0 0;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
@@ -3587,7 +3253,7 @@ ol.footnotes[data-desk-fn-pills] {
   margin: 6px 0 0;
   padding-left: 10px;
   border-left: 2px solid rgba(var(--ink-rgb), 0.2);
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.9375rem * var(--desk-ui, 1));
   overflow-wrap: anywhere;
 }
@@ -3627,28 +3293,20 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-np-row__when {
   grid-column: 1 / -1;
   margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
 .desk-np__restore-all {
   margin: 0.5rem 0 0.25rem;
   padding: 6px 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.35);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
-}
-
-.desk-np__restore-all:hover:not(:disabled):not([aria-disabled="true"]) {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-np__restore-all:disabled,
 .desk-np__restore-all[aria-disabled="true"] {
-  opacity: 0.6;
   cursor: default;
 }
 
@@ -3667,26 +3325,14 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-np__new-label button,
 .desk-np__rename button,
-.desk-np__ask button:not(.desk-np__danger-button),
+.desk-np__ask button,
 .desk-backup__save,
 .desk-backup__file-button,
 .desk-backup__actions button {
   padding: 6px 12px;
-  border: 1px solid rgba(var(--ink-rgb), 0.3);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
-}
-
-.desk-np__new-label button:hover,
-.desk-np__rename button:hover,
-.desk-np__ask button:not(.desk-np__danger-button):hover,
-.desk-backup__save:hover,
-.desk-backup__file-button:hover,
-.desk-backup__actions button:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-np__error {
@@ -3719,7 +3365,7 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 .desk-np__label-used {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
@@ -3752,13 +3398,32 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-backup__about {
   flex: 1 1 16rem;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
 .desk-backup__last {
   margin: 0;
   font-weight: 600;
+}
+
+/* What the Notebook's Settings tab said about keeping (DI-17): Safari's seven
+   days, a browser that may clear the notebook (with "Ask this browser to keep
+   it"), and the line to an account. */
+.desk-backup__safari,
+.desk-backup__persist,
+.desk-backup__account {
+  margin: 0 0 0.75rem;
+}
+
+.desk-backup__safari[hidden],
+.desk-backup__persist[hidden],
+.desk-backup__account[hidden] {
+  display: none;
+}
+
+.desk-backup__keep {
+  margin-left: var(--space-1);
 }
 
 .desk-backup__file {
@@ -3771,7 +3436,7 @@ ol.footnotes[data-desk-fn-pills] {
   margin-top: 1rem;
   padding: 14px 16px;
   border: 1px solid rgba(var(--ink-rgb), 0.2);
-  border-radius: 10px;
+  border-radius: var(--radius-float);
   background: var(--surface-raised, transparent);
 }
 
@@ -3799,46 +3464,8 @@ ol.footnotes[data-desk-fn-pills] {
   gap: 8px;
 }
 
-.desk-backup__actions .desk-backup__import {
-  border-color: var(--green-deep);
-  background: var(--green-deep);
-  color: #fff;
-}
-
-.desk-backup__actions .desk-backup__import:hover {
-  background: var(--green-deep);
-  filter: brightness(1.15);
-}
-
-/* Delete in bulk, and the trash. Fixed fills with white text, so they read the same in both themes. */
-.desk-np__danger {
-  margin: 0 0 1.5rem;
-  max-width: calc(60 * var(--ch));
-}
-
-.desk-np__danger p {
-  margin: 0 0 0.75rem;
-}
-
-.desk-np__danger-button {
-  padding: 7px 14px;
-  border: 1px solid #9c2a1f;
-  border-radius: 8px;
-  background: #9c2a1f;
-  color: #fff;
-  font: inherit;
-  cursor: pointer;
-}
-
-.desk-np__danger-button:hover {
-  background: #7f2018;
-}
-
-.desk-np__danger-button:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
+/* A question asked in a label's row before it goes (D13, step 5); Delete in
+   bulk asked the same way here until it moved to All settings (Phase 4). */
 .desk-np__ask {
   display: flex;
   flex-wrap: wrap;
@@ -3846,17 +3473,13 @@ ol.footnotes[data-desk-fn-pills] {
   gap: 8px;
   padding: 12px 14px;
   border: 1px solid #9c2a1f;
-  border-radius: 10px;
+  border-radius: var(--radius-float);
 }
 
 .desk-np__ask .desk-np__ask-text {
   flex: 1 1 100%;
   margin: 0;
   font-weight: 600;
-}
-
-.desk-np__none {
-  color: rgba(var(--ink-rgb), 0.7);
 }
 
 @media print {
@@ -3897,25 +3520,23 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-greek__title {
   flex: 1;
   margin: 0;
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: calc(1rem * var(--desk-ui, 1));
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .desk-greek__title:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-press);
 }
 
-/* Ordinary buttons (E126; the look is at the end of this file). */
+/* Plain buttons, in the kit; only their size is here. */
 .desk-greek__goto,
 .desk-greek__retry,
 .desk-greek__back {
   padding: 4px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -3955,7 +3576,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-greek__status {
   margin: 12px 0;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-greek__status p {
@@ -3964,7 +3585,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-greek__book {
   margin: 0 0 10px;
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1rem * var(--reading-scale, 1));
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -3982,7 +3603,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-greek__p {
   margin: 0 0 0.8em;
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.125rem * var(--reading-scale, 1));
   line-height: calc(1.6 + var(--desk-leading, 0));
 }
@@ -3993,7 +3614,7 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-greek__vn {
   margin: 0;
   color: var(--green-text);
-  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+  font-family: var(--font-control);
   font-size: 0.6em;
   font-weight: 600;
 }
@@ -4002,7 +3623,7 @@ ol.footnotes[data-desk-fn-pills] {
    role="button", with no padding or margin, so a selection's highlight runs
    unbroken from word to word. */
 .desk-greek__w {
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   cursor: pointer;
 }
 
@@ -4035,8 +3656,8 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-greek__subhead {
   margin: 0 0 6px;
-  font-family: inherit;
-  color: rgba(var(--ink-rgb), 0.7);
+  font-family: var(--font-control);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
@@ -4082,16 +3703,12 @@ ol.footnotes[data-desk-fn-pills] {
   gap: 2px 10px;
   margin-bottom: 4px;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: var(--radius-press);
 }
 
-.desk-greek__app-item:focus {
+/* Focused by a click, an item draws no ring; by the keyboard, the site's. */
+.desk-greek__app-item:focus:not(:focus-visible) {
   outline: none;
-}
-
-.desk-greek__app-item:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
 }
 
 .desk-greek__app-item.is-lit {
@@ -4110,7 +3727,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-greek__app-note {
   display: block;
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1rem * var(--reading-scale, 1));
   line-height: calc(1.5 + var(--desk-leading, 0));
 }
@@ -4184,12 +3801,12 @@ ol.footnotes[data-desk-fn-pills] {
   left: var(--grip-x, 50%);
   width: 32px;
   height: 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   transform: translateX(-50%);
   background: rgba(var(--ink-rgb), 0.35);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 120ms ease;
+  transition: opacity var(--dur-quick) var(--ease);
 }
 
 .desk-greek__split:hover .desk-greek__split-grip,
@@ -4266,11 +3883,6 @@ html:has(.desk-greek__split--dragging) {
   width: 28px;
   height: 28px;
   padding: 0;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
   font-size: calc(1.125rem * var(--desk-ui, 1));
   line-height: 1;
   cursor: pointer;
@@ -4279,11 +3891,6 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__close[hidden],
 .desk-greek__note[hidden] {
   display: none;
-}
-
-.desk-greek__close:hover,
-.desk-greek__note:hover {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-greek__close:focus-visible,
@@ -4313,9 +3920,9 @@ html:has(.desk-greek__split--dragging) {
   z-index: 2;
   padding: 4px;
   border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 10px;
-  background: var(--surface-raised);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-float);
+  background: var(--color-float);
+  box-shadow: var(--shadow-float);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -4325,21 +3932,10 @@ html:has(.desk-greek__split--dragging) {
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border: none;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text);
-  font-family: inherit;
   font-size: calc(0.85rem * var(--desk-ui, 1));
-  font-weight: 500;
   line-height: 1.3;
   white-space: nowrap;
   cursor: pointer;
-}
-
-.desk-greek__selmenu-btn:hover {
-  background: rgba(32, 157, 80, 0.12);
-  color: var(--green-text);
 }
 
 .desk-greek__selmenu-glyph {
@@ -4356,14 +3952,7 @@ html:has(.desk-greek__split--dragging) {
    under its words. */
 .desk-greek__note[aria-disabled="true"],
 .desk-greek__selmenu-btn[aria-disabled="true"] {
-  color: rgba(var(--ink-rgb), 0.7);
   cursor: default;
-}
-
-.desk-greek__note[aria-disabled="true"]:hover,
-.desk-greek__selmenu-btn[aria-disabled="true"]:hover {
-  background: transparent;
-  color: rgba(var(--ink-rgb), 0.7);
 }
 
 .desk-greek__selmenu-btn[aria-disabled="true"] {
@@ -4405,7 +3994,7 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__word {
   margin: 0;
   padding-right: 36px;
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.375rem * var(--desk-ui, 1));
   font-weight: 600;
   line-height: 1.3;
@@ -4416,14 +4005,14 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__parse {
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* What the lazy Greek search is doing or couldn't do (GK3-13). */
 .desk-greek__find-note {
   margin: 4px 0 0;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.8);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-greek__find-note:empty {
@@ -4432,27 +4021,27 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__code {
   margin-left: 4px;
-  color: rgba(var(--ink-rgb), 0.65);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: calc(0.75rem * var(--desk-ui, 1));
   white-space: nowrap;
 }
 
 .desk-greek__lemma-form {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.0625rem * var(--desk-ui, 1));
   font-weight: 600;
 }
 
 .desk-greek__strong {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__from,
 .desk-greek__muted,
 .desk-greek__caveat {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -4467,7 +4056,7 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__senses-head {
   margin: 8px 0 4px;
-  font-family: inherit;
+  font-family: var(--font-control);
   color: var(--green-text);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 700;
@@ -4486,18 +4075,17 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__sense-head {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__glosses {
-  color: rgba(var(--ink-rgb), 0.8);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-style: italic;
 }
 
 .desk-greek__comment summary {
   cursor: pointer;
-  color: var(--green-text);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -4524,7 +4112,7 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__credit {
   margin: 10px 0 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -4533,13 +4121,11 @@ html:has(.desk-greek__split--dragging) {
 }
 
 /* "Show sources" writes out what an abbreviation's hover text says (GK-12).
-   A flat toggle in Pin's rounded rectangle (E126, E141; the look is at the
-   end of this file): it is one switch, not a chip in a set. */
+   The kit's tinted button, on while the sources show, as Pin is. */
 .desk-greek__show-sources {
   margin: 2px 0 4px;
   padding: 1px 8px;
-  border-radius: 6px;
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -4550,12 +4136,12 @@ html:has(.desk-greek__split--dragging) {
 }
 
 .desk-greek__entry-body .lex-cite {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__entry-body .lex-ref {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -4566,12 +4152,9 @@ html:has(.desk-greek__split--dragging) {
 /* A footnote letter in the details is a quiet button. */
 .desk-greek__fn {
   padding: 0 4px;
-  border: 0;
-  background: transparent;
-  color: var(--green-text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   font-style: italic;
-  font-weight: 600;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -4641,19 +4224,19 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__find-title {
   margin: 0 0 6px;
-  font-family: inherit;
+  font-family: var(--font-display);
   font-size: calc(1rem * var(--desk-ui, 1));
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .desk-greek__find-title [lang="grc"] {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.0625rem * var(--desk-ui, 1));
 }
 
 .desk-greek__find-status {
   margin: 0 0 8px;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
@@ -4664,7 +4247,7 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-greek__found [lang="grc"],
 .desk-greek__choice [lang="grc"] {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.0625rem * var(--desk-ui, 1));
   font-weight: 600;
 }
@@ -4680,13 +4263,9 @@ html:has(.desk-greek__split--dragging) {
   display: none;
 }
 
-/* A word choice is a toggle (E126; its look, on and off, is at the end of
-   this file). */
+/* A word choice is a tab in a row of choices (the kit's), on while chosen. */
 .desk-greek__choice {
   padding: 5px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: calc(1.4 + var(--desk-leading, 0));
   text-align: left;
@@ -4718,11 +4297,6 @@ html:has(.desk-greek__split--dragging) {
   gap: 2px 10px;
   width: 100%;
   padding: 6px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
   font-size: calc(0.9375rem * var(--desk-ui, 1));
   line-height: calc(1.4 + var(--desk-leading, 0));
   text-align: left;
@@ -4730,17 +4304,13 @@ html:has(.desk-greek__split--dragging) {
   cursor: pointer;
 }
 
-.desk-greek__hit:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
 .desk-greek__hit-ref {
-  color: rgba(var(--ink-rgb), 0.8);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
 .desk-greek__hit-form {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.125rem * var(--desk-ui, 1));
 }
 
@@ -4748,9 +4318,7 @@ html:has(.desk-greek__split--dragging) {
 .desk-greek__hits-more {
   margin: 0 0 8px;
   padding: 4px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -4780,11 +4348,8 @@ html:has(.desk-greek__split--dragging) {
   display: inline;
   margin: 0;
   padding: 0;
-  border: 0;
-  border-radius: 3px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: inherit;
   cursor: pointer;
 }
@@ -4798,7 +4363,7 @@ html:has(.desk-greek__split--dragging) {
 
 /* A command search from a parsing link: the query said back in the status line. */
 .desk-greek__find-status [lang="grc"] {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: 1.05em;
 }
 
@@ -4806,19 +4371,21 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-verse__greek-text {
   margin: 0;
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.0625rem * var(--reading-scale, 1));
   line-height: calc(1.55 + var(--desk-leading, 0));
 }
 
+/* A word of the verse's Greek: a link into Study at that word (ST-61). */
 .desk-verse__gw {
   margin: 0;
   padding: 0 1px;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   background: transparent;
   color: inherit;
   font: inherit;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -4865,7 +4432,7 @@ html:has(.desk-greek__split--dragging) {
 
 .desk-wn__new {
   padding: 1px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-press);
   background: var(--green-deep);
   color: #fff;
   font-size: calc(0.75rem * var(--desk-ui, 1));
@@ -4891,7 +4458,7 @@ html:has(.desk-greek__split--dragging) {
 .desk-wn__marks {
   margin: 2px 0 0;
   font-size: calc(0.875rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-wn__marks a {
@@ -4905,7 +4472,6 @@ html:has(.desk-greek__split--dragging) {
 .desk-wn__again {
   margin: 0 0 1rem;
 }
-
 
 /* ── The desk page (/desk/) ───────────────────────────────────── */
 
@@ -5002,11 +4568,11 @@ html[data-desk-workspace] .desk-page__notice {
   box-sizing: border-box;
   width: min(560px, calc(100vw - 32px));
   padding: 14px;
-  background: var(--surface-raised);
+  background: var(--color-float);
   color: var(--text);
   border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 12px;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-float);
   font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
@@ -5028,22 +4594,14 @@ html[data-desk-workspace] .desk-page__notice {
   gap: 6px;
   max-width: 100%;
   padding: 2px 8px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 
 .desk-title__button > span {
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.desk-title__button:hover,
-.desk-title__button[aria-expanded="true"] {
-  background: rgba(var(--ink-rgb), 0.07);
 }
 
 .desk-title .desk-title__menu {
@@ -5058,13 +4616,7 @@ html[data-desk-workspace] .desk-page__notice {
   box-sizing: border-box;
   width: 100%;
   padding: 8px 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
   font-size: calc(0.9375rem * var(--desk-ui, 1));
-  font-weight: 400;
   letter-spacing: normal;
   line-height: 1.3;
   text-align: left;
@@ -5072,20 +4624,8 @@ html[data-desk-workspace] .desk-page__notice {
   cursor: pointer;
 }
 
-.desk-title__item:hover,
-.desk-title__item:focus-visible,
-.desk-title__item[aria-expanded="true"] {
-  background: rgba(var(--ink-rgb), 0.08);
-  color: var(--text);
-}
-
 .desk-title__item[aria-disabled="true"] {
-  color: rgba(var(--ink-rgb), 0.62);
   cursor: default;
-}
-
-.desk-title__item[aria-disabled="true"]:hover {
-  background: transparent;
 }
 
 .desk-title__label {
@@ -5125,12 +4665,12 @@ html[data-desk-workspace] .desk-page__notice {
 .desk-sheet__add-row .desk-title__hint {
   margin-left: 0;
   align-self: center;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-title__hint--about {
   margin-left: 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-weight: 400;
   white-space: normal;
   max-width: 22em;
@@ -5174,7 +4714,7 @@ html[data-desk-workspace] .desk-page__notice {
 .desk-title__line-no {
   width: auto;
   padding: 4px 10px;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -5203,11 +4743,9 @@ html[data-desk-workspace] .desk-page__notice {
   min-height: 30px;
   margin: 0;
   padding: 4px 12px;
-  /* An ordinary button (E89, E126): its fill, 3:1 edge, shadow and states
-     are "Four kinds of button" at the end of this file. */
-  border-radius: 8px;
-  color: var(--text);
-  font: 500 calc(0.875rem * var(--desk-ui, 1))/1.2 Inter, "Inter Fallback", system-ui, sans-serif;
+  /* A plain button, in the kit. */
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -5260,8 +4798,6 @@ html[data-desk-workspace] .desk-page__notice {
   align-items: center;
   gap: 4px;
   padding: 8px 6px;
-  border-radius: 8px;
-  font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: 1.25;
   text-align: center;
@@ -5285,7 +4821,7 @@ html[data-desk-workspace] .desk-page__notice {
 /* The only reason the arrangement can't be chosen, so it is lifted above
    the dimmed button's own text, to 4.5:1 (BA143). */
 .desk-ws__shape-needs {
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
@@ -5295,7 +4831,7 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-ws__menu-note {
   margin: 10px 2px;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.875rem * var(--desk-ui, 1));
 }
 
@@ -5303,7 +4839,7 @@ html[data-desk-workspace] .desk-page__notice {
   margin: 0 0 10px;
   padding: 8px 12px;
   border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 8px;
+  border-radius: var(--radius-press);
 }
 
 .desk-ws__start legend {
@@ -5319,7 +4855,7 @@ html[data-desk-workspace] .desk-page__notice {
 }
 
 .desk-ws__start label:has(input:disabled) {
-  color: rgba(var(--ink-rgb), 0.5);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-ws__menu-actions {
@@ -5367,8 +4903,8 @@ html[data-desk-workspace] .desk-page__notice {
 .desk-print-menu__choices > a,
 .desk-print-menu__choices > button {
   padding: 8px 12px;
-  border-radius: 8px;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -5384,27 +4920,14 @@ html[data-desk-workspace] .desk-page__notice {
 
 .desk-print-menu__note {
   margin: 8px 2px 0;
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
   line-height: calc(1.4 + var(--desk-leading, 0));
 }
 
-/* In the Notebook's Settings tab the menu opens in place under the button. */
-.desk-panel__print-menu {
-  margin-top: 8px;
-  padding: 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.18);
-  border-radius: 8px;
-}
-
-.desk-panel__print-menu[hidden] {
-  display: none;
-}
-
 .desk-ws__menu-actions button {
   padding: 6px 12px;
-  border-radius: 8px;
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -5447,7 +4970,7 @@ html[data-desk-workspace] .desk-page__notice {
 .desk-split__handle {
   flex: 0 0 6px;
   position: relative;
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   background: transparent;
   touch-action: none;
 }
@@ -5478,9 +5001,11 @@ html[data-desk-workspace] .desk-page__notice {
   background: rgba(var(--ink-rgb), 0.16);
 }
 
+/* The handle is the whole gap between two panes, which would cover a ring
+   drawn outside it, so its ring is drawn inside. */
 .desk-split__handle:focus-visible {
   outline: 2px solid var(--focus-ring);
-  outline-offset: 0;
+  outline-offset: -2px;
 }
 
 html.desk-ws--resizing-x,
@@ -5512,7 +5037,7 @@ html.desk-ws--moving * {
   background: var(--surface-raised);
   color: var(--text);
   border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 12px;
+  border-radius: var(--radius-float);
   font-size: calc(0.9375rem * var(--desk-ui, 1));
   line-height: calc(1.5 + var(--desk-leading, 0));
 }
@@ -5538,7 +5063,7 @@ html.desk-ws--moving * {
 
 .desk-pane__grip {
   display: inline-flex;
-  color: rgba(var(--ink-rgb), 0.45);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-pane__title {
@@ -5553,17 +5078,9 @@ html.desk-ws--moving * {
   align-items: center;
   gap: 4px;
   padding: 4px 6px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
-}
-
-.desk-pane__kind:hover,
-.desk-pane__kind[aria-expanded="true"] {
-  background: rgba(var(--ink-rgb), 0.08);
 }
 
 /* Where a My Notes pane is (E69): the chapter, muted, after the pane's name,
@@ -5572,7 +5089,7 @@ html.desk-ws--moving * {
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.875rem * var(--desk-ui, 1));
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -5596,7 +5113,7 @@ html.desk-ws--moving * {
   width: 30px;
   height: 30px;
   margin-left: auto;
-  color: rgba(var(--ink-rgb), 0.8);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-pane__lead svg {
@@ -5619,13 +5136,8 @@ html.desk-ws--moving * {
   height: 30px;
   margin-left: auto;
   padding: 0;
-  /* A toggle (E89, E126): the ordinary button's fill, edge and shadow, sunk
-     with the text green's edge and glyph while the pane stays ("Four kinds of
-     button" at the end of this file), since an open and a closed lock differ
-     by a few pixels at 14px. The ordinary button's corner, never a circle
-     (E141), like the bar's other buttons. */
-  border-radius: 8px;
-  color: var(--text);
+  /* A plain button, in the kit, on while the pane stays, since an open and a
+     closed lock differ by a few pixels at 14px. */
   cursor: pointer;
 }
 
@@ -5641,12 +5153,12 @@ html.desk-ws--moving * {
    pane keeps the glyph alone, with the shared tooltip. */
 .desk-pane__pin-word {
   display: none;
-  font: 500 calc(0.8125rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: 500 calc(0.8125rem * var(--desk-ui, 1))/1 var(--font-control);
   white-space: nowrap;
 }
 
 /* The Sheets and Collections panes' page, in a new tab (E180; BVJ,
-   2026-11-19): a link in an ordinary button's look, the lock's box, with
+   2026-11-19): a link drawn as the kit's plain button, the lock's box, with
    "Sheets page" or "Collections page" beside the glyph where the header has
    room, as "Stay here" has. */
 .desk-pane__page {
@@ -5658,8 +5170,6 @@ html.desk-ws--moving * {
   height: 30px;
   margin-left: auto;
   padding: 0;
-  border-radius: 8px;
-  color: var(--text);
   text-decoration: none;
 }
 
@@ -5677,7 +5187,7 @@ html.desk-ws--moving * {
 
 .desk-pane__page-word {
   display: none;
-  font: 500 calc(0.8125rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: 500 calc(0.8125rem * var(--desk-ui, 1))/1 var(--font-control);
   white-space: nowrap;
 }
 
@@ -5716,10 +5226,6 @@ html.desk-ws--moving * {
   width: 30px;
   height: 30px;
   margin-left: auto;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
   cursor: pointer;
 }
 
@@ -5727,10 +5233,6 @@ html.desk-ws--moving * {
 .desk-pane__pin:not([hidden]) ~ .desk-pane__close,
 .desk-pane__page:not([hidden]) ~ .desk-pane__close {
   margin-left: 0;
-}
-
-.desk-pane__close:hover {
-  background: rgba(var(--ink-rgb), 0.08);
 }
 
 /* Placed on the screen by kind-menu.js (placeKindMenu), clear of the panes
@@ -5745,40 +5247,27 @@ html.desk-ws--moving * {
   overscroll-behavior: contain;
   min-width: 160px;
   padding: 4px;
-  background: var(--surface-raised);
+  background: var(--color-float);
   border: 1px solid rgba(var(--ink-rgb), 0.16);
-  border-radius: 8px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-float);
   cursor: default;
 }
 
 .desk-pane__menu-item {
   padding: 6px 10px 6px 26px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: left;
   /* A line may be a link (button-menu.js): it reads as its neighbors. */
   text-decoration: none;
   cursor: pointer;
 }
 
-.desk-pane__menu-item:hover,
-.desk-pane__menu-item:focus-visible {
-  background-color: rgba(var(--ink-rgb), 0.08);
-}
-
 /* A choice the page has no room for, as the title menu draws one: greyed, no
    hover, the reason in small type under its label. */
 .desk-pane__menu-item[aria-disabled="true"] {
-  color: rgba(var(--ink-rgb), 0.62);
   cursor: default;
-}
-
-.desk-pane__menu-item[aria-disabled="true"]:hover {
-  background-color: transparent;
 }
 
 .desk-pane__menu-item .desk-title__hint {
@@ -5803,10 +5292,6 @@ html.desk-ws--moving * {
   order: 3;
 }
 
-.desk-pane__menu-item--fly[aria-expanded="true"] {
-  background-color: rgba(var(--ink-rgb), 0.08);
-}
-
 .desk-pane__menu-item--fly[aria-disabled="true"] .desk-title__more {
   display: none;
 }
@@ -5816,15 +5301,6 @@ html.desk-ws--moving * {
    does (`.desk-pane__menu`). */
 .desk-pane__fly {
   min-width: 170px;
-}
-
-/* The kind shown now: bold, with a dot before it. */
-.desk-pane__menu-item[aria-checked="true"] {
-  font-weight: 700;
-  background-image: radial-gradient(circle, var(--green-text) 3px, transparent 3.5px);
-  background-size: 8px 8px;
-  background-position: 10px 50%;
-  background-repeat: no-repeat;
 }
 
 /* The kinds and the Move items (E25) are each a group, which draws as plain rows. */
@@ -5860,13 +5336,13 @@ html.desk-ws--moving * {
   min-height: 0;
   overflow: auto;
   padding: 12px 14px;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--radius-float) var(--radius-float);
 }
 
 .desk-pane__later {
   margin: 0;
   max-width: calc(48 * var(--ch));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* A following pane (This verse, Greek; desk-panes.js): the passage picker
@@ -5891,21 +5367,8 @@ html.desk-ws--moving * {
   flex: 1 1 8rem;
   min-width: 0;
   padding: 5px 9px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--desk-field); /* a field's own fill, not the pane's (E89) */
-  color: var(--text);
-  font: inherit;
-  font-weight: 600;
-}
-
-.desk-passage__field:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-
-.desk-passage__field[aria-invalid="true"] {
-  border-color: var(--text);
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .desk-passage__step {
@@ -5914,24 +5377,11 @@ html.desk-ws--moving * {
   justify-content: center;
   width: 30px;
   height: 30px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
   cursor: pointer;
 }
 
-.desk-passage__step:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-}
-
 .desk-passage__step[aria-disabled="true"] {
-  color: rgba(var(--ink-rgb), 0.3);
   cursor: default;
-}
-
-.desk-passage__step[aria-disabled="true"]:hover {
-  background: transparent;
 }
 
 .desk-passage__error {
@@ -5955,11 +5405,9 @@ html.desk-ws--moving * {
   height: 30px;
   margin: 0 0 0 2px;
   padding: 0 8px 0 10px;
-  /* An ordinary menu button (E126): sunk, with the text green's edge and
-     words, while its menu is open; the look is at the end of this file. */
-  border-radius: 8px;
-  color: var(--text);
-  font: 500 calc(0.875rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  /* A plain button, in the kit, on while its menu is open. */
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: 1;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -5978,10 +5426,9 @@ html.desk-ws--moving * {
 }
 
 /* The way back after a jump (E168, lit-back.js): first on the LIT pane's bar,
-   and absent until a jump. A quiet button (E126's fourth kind): the text
-   green, an arrow and the place's name underlined, the height of the bar's
-   arrows. Where the bar is narrow it is the arrow alone, an ordinary button
-   (below, and at the end of this file), and a long name never takes more
+   and absent until a jump. A plain button, in the kit: an arrow and the
+   place's name underlined, the height of the bar's arrows. Where the bar is
+   narrow it is the arrow alone (below), and a long name never takes more
    than half the bar, so the field and the controls keep their row. */
 .desk-lit__back {
   display: inline-flex;
@@ -5993,11 +5440,8 @@ html.desk-ws--moving * {
   height: 30px;
   margin: 0 4px 0 0;
   padding: 0 8px 0 6px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--green-text);
-  font: 500 calc(0.875rem * var(--desk-ui, 1))/1 Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: 1;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -6023,15 +5467,6 @@ html.desk-ws--moving * {
   text-underline-offset: 2px;
 }
 
-.desk-lit__back:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-}
-
-.desk-lit__back:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-
 /* A bar under 22rem (a LIT pane among three or four columns) keeps the room
    for its passage: "Show" is an eye there, the size of the arrows, with the
    shared tooltip naming it (E72's rule for "Stay here", the other way round). */
@@ -6044,14 +5479,12 @@ html.desk-ws--moving * {
      longest ("1 Thessalonians 5:23") beside the field and the controls: in em
      of the bar, so the room grows with the text size, and more in
      OpenDyslexic, whose letters are wider (E168). Below that it is the arrow
-     in a square the size of the bar's others, named by the shared tooltip,
-     and an ordinary button (its look is at the end of this file). */
+     in a square the size of the bar's others, named by the shared tooltip. */
   @container deskLitBar (max-width: 32em) {
     .desk-lit__back {
       justify-content: center;
       width: 30px;
       padding: 0;
-      border-radius: 8px;
     }
 
     .desk-lit__back-word {
@@ -6064,7 +5497,6 @@ html.desk-ws--moving * {
       justify-content: center;
       width: 30px;
       padding: 0;
-      border-radius: 8px;
     }
 
     html[data-font="dyslexic"] .desk-lit__back-word {
@@ -6094,18 +5526,15 @@ html.desk-ws--moving * {
    panes and the page's header, under floating windows and the tour. */
 .desk-lit-show {
   z-index: 900;
-  font: 400 calc(0.9375rem * var(--desk-ui, 1))/1.3 Inter, "Inter Fallback", system-ui, sans-serif;
+  font: 400 calc(0.9375rem * var(--desk-ui, 1))/1.3 var(--font-control);
 }
 
-.desk-lit-show__item,
-.desk-lit-show__item[aria-checked="true"] {
+.desk-lit-show__item {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0 8px;
   padding: 6px 12px 6px 8px;
-  background-image: none;
-  font-weight: 400;
 }
 
 /* The box is drawn in the text's color, so it holds in both themes and in
@@ -6119,7 +5548,7 @@ html.desk-ws--moving * {
   width: 16px;
   height: 16px;
   border: 1.5px solid var(--field-border);
-  border-radius: 4px;
+  border-radius: var(--radius-press);
   color: var(--text);
 }
 
@@ -6141,6 +5570,8 @@ html.desk-ws--moving * {
   margin-left: 24px;
 }
 
+/* An item fills the menu edge to edge, so its ring is drawn inside it,
+   where an outside one would be clipped. */
 .desk-lit-show__item:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
@@ -6162,7 +5593,7 @@ html.desk-ws--moving * {
   flex: none;
   margin: 0;
   padding: 8px 14px 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
 }
@@ -6180,7 +5611,7 @@ html.desk-ws--moving * {
 }
 
 .desk-dp__status {
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-dp__status p {
@@ -6188,12 +5619,10 @@ html.desk-ws--moving * {
   max-width: calc(48 * var(--ch));
 }
 
-/* An ordinary button (E126; the look is at the end of this file). */
+/* A plain button, in the kit. */
 .desk-dp__retry {
   padding: 4px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -6250,7 +5679,6 @@ html.desk-ws--moving * {
 .desk-chapter__rows summary {
   width: fit-content;
   font-size: calc(0.875rem * var(--desk-ui, 1));
-  color: var(--link);
   cursor: pointer;
 }
 
@@ -6279,7 +5707,7 @@ html.desk-ws--moving * {
   align-items: center;
   justify-content: center;
   border: 2px dashed var(--green-text);
-  border-radius: 10px;
+  border-radius: var(--radius-float);
   background: rgba(var(--ink-rgb), 0.06);
   color: var(--text);
   font-weight: 600;
@@ -6307,7 +5735,7 @@ html.desk-ws--moving * {
   position: absolute;
   z-index: 11;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-press);
   background: var(--surface-raised);
   box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.3);
   color: var(--text);
@@ -6323,7 +5751,7 @@ html.desk-ws--moving * {
 
 .desk-ws__drop-label {
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-press);
   background: var(--surface-raised);
   box-shadow: 0 0 0 1px rgba(var(--ink-rgb), 0.16);
   font-size: calc(0.875rem * var(--desk-ui, 1));
@@ -6356,6 +5784,8 @@ html.desk-ws--moving * {
   padding: 4px 18px 0;
 }
 
+/* The scroller fills its pane, so its ring is drawn inside it, where an
+   outside one would be clipped. */
 .desk-lit__scroll:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
@@ -6465,9 +5895,10 @@ html.desk-ws--moving * {
 .desk-lit[data-vn="off"] .desk-lit__heading:focus-within {
   z-index: 1;
   padding: 2px 8px;
-  border-radius: 6px;
-  background: var(--surface-raised);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-press);
+  background: var(--color-float);
+  box-shadow: var(--shadow-float);
+  border: 1px solid var(--color-float-edge);
 }
 
 .desk-lit .chapter-paragraphs p {
@@ -6475,27 +5906,30 @@ html.desk-ws--moving * {
   line-height: calc(1.75 + var(--reading-leading-extra, 0));
 }
 
-/* Reading (the layout chosen as Reading, not any one LIT pane, E107;
-   desk-page.js stamps data-desk-reading) sets the
-   prose as a page of a book: justified, with the browser's own hyphenation
-   keeping the word spaces even (E106; BVJ, 2026-11-11). Three limits:
+/* The Display tray's Justify (html[data-justify], stamped before paint, off
+   by default; RP-36 to RP-39) sets every LIT pane's prose as a page of a
+   book, as it does the Read page's (reading-page.css): justified, with the
+   browser's own hyphenation keeping the word spaces even. It was the Reading
+   layout's alone (E106, E107; BVJ, 2026-11-11), which no longer justifies
+   by itself: Featherboa makes it the switch everywhere (RP-44). Three
+   limits:
    - Poetry keeps its lines: a blockquote's paragraphs are left alone.
    - The default font only. Atkinson and OpenDyslexic readers keep the ragged
      edge and whole words, since uneven gaps and split words are what those
      faces are chosen to avoid (src/styles/CLAUDE.md, the reader font).
-   - Only where a line holds about 45 characters or more: 22em of Inter at
-     the reading size, which the column itself measures as a query container,
+   - Only where a line holds about 45 characters or more: 22em at the
+     reading size, which the column itself measures as a query container,
      so the Display tray's text size is counted. Shorter lines justify badly.
    A word needs 6 letters to break, 3 on each side of the hyphen; Safari reads
    the two prefixed limits. The hyphens are drawn, never in the text, so
    copying, notes, highlights and search read the words whole. */
 @supports (container-type: inline-size) {
-  .desk-ws[data-desk-reading] .desk-lit__text {
+  html[data-justify] .desk-lit__text {
     container: deskLitText / inline-size;
   }
 
   @container deskLitText (min-width: 22em) {
-    html:not([data-font]) .desk-ws[data-desk-reading] .desk-lit .chapter-paragraphs p:not(blockquote p) {
+    html[data-justify]:not([data-font]) .desk-lit .chapter-paragraphs p:not(blockquote p) {
       text-align: justify;
       hyphens: auto;
       hyphenate-limit-chars: 6 3 3;
@@ -6517,7 +5951,7 @@ html.desk-ws--moving * {
 
 .desk-lit__stub {
   margin: 0 0 1em;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-style: italic;
 }
 
@@ -6528,9 +5962,9 @@ html.desk-ws--moving * {
 
 .desk-fns__title {
   margin: 0 0 8px;
-  /* The panel's own face, not the site's display serif for headings. */
-  font-family: inherit;
-  color: rgba(var(--ink-rgb), 0.7);
+  /* A small label in the controls' face (Atkinson), though a heading. */
+  font-family: var(--font-control);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
@@ -6539,7 +5973,7 @@ html.desk-ws--moving * {
   margin: 0;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   line-height: calc(1.5 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-fns__list {
@@ -6576,19 +6010,11 @@ html.desk-ws--moving * {
 .desk-fns__verse {
   justify-self: start;
   padding: 0 2px;
-  border: 0;
-  border-radius: 3px;
-  background: transparent;
-  color: rgba(var(--ink-rgb), 0.7);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
-}
-
-.desk-fns__verse:hover {
-  color: var(--text);
 }
 
 .desk-fns__verse:focus-visible {
@@ -6638,7 +6064,7 @@ html.desk-ws--moving * {
   flex-direction: column;
   min-width: 0;
   border: 1px solid var(--field-border);
-  border-radius: 8px;
+  border-radius: var(--radius-press);
   background: var(--desk-field); /* a field on its card (E89) */
   color: var(--text);
 }
@@ -6684,31 +6110,12 @@ html.desk-ws--moving * {
   min-width: 28px;
   height: 28px;
   padding: 0 6px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-weight: 600;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 
-.desk-rich-tool:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-}
-
-.desk-rich-tool:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-
-.desk-rich-tool[aria-pressed="true"],
-.desk-rich-tool[aria-expanded="true"] {
-  background: rgba(var(--ink-rgb), 0.14);
-}
-
 .desk-rich-tool[aria-disabled="true"] {
-  opacity: 0.45;
   cursor: default;
 }
 
@@ -6718,7 +6125,6 @@ html.desk-ws--moving * {
 
 .desk-rich-tool--italic {
   font-style: italic;
-  font-weight: 600;
 }
 
 .desk-rich-tool--underline {
@@ -6746,7 +6152,6 @@ html.desk-ws--moving * {
   border-left: 3.5px solid transparent;
   border-right: 3.5px solid transparent;
   border-top: 4px solid currentColor;
-  opacity: 0.7;
 }
 
 .desk-rich-tool__text {
@@ -6758,7 +6163,7 @@ html.desk-ws--moving * {
 .desk-rich-status {
   padding: 4px 8px;
   border-top: 1px solid rgba(var(--ink-rgb), 0.14);
-  color: rgba(var(--ink-rgb), 0.8);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
@@ -6790,29 +6195,15 @@ html.desk-ws--moving * {
   box-sizing: border-box;
   height: 28px;
   padding: 0 8px;
-  border: 1px solid var(--field-border);
-  border-radius: 6px;
-  background: var(--surface-input, var(--surface-raised));
-  color: var(--text);
-  font: inherit;
-}
-
-.desk-rich-link__field:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-
-.desk-rich-link__field[aria-invalid="true"] {
-  border-color: var(--desk-rich-red);
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .desk-rich-link__button {
   height: 28px;
   padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  font: inherit;
-  font-weight: 600;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 
@@ -6841,9 +6232,9 @@ html.desk-ws--moving * {
   overflow-y: auto;
   padding: 4px;
   border: 1px solid rgba(var(--ink-rgb), 0.18);
-  border-radius: 8px;
-  background: var(--surface-raised);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-float);
+  background: var(--color-float);
+  box-shadow: var(--shadow-float);
   font-size: calc(0.875rem * var(--sheet-ui, 1));
 }
 
@@ -6860,7 +6251,7 @@ html.desk-ws--moving * {
 
 .desk-rich-menu__label {
   padding: 2px 8px 2px 26px;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.75rem * var(--sheet-ui, 1));
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -6872,39 +6263,24 @@ html.desk-ws--moving * {
   align-items: center;
   gap: 8px;
   padding: 5px 10px 5px 26px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.desk-rich-menu__item:hover {
-  background-color: rgba(var(--ink-rgb), 0.08);
-}
-
+/* An item fills the menu edge to edge, so its ring is drawn inside it,
+   where an outside one would be clipped. */
 .desk-rich-menu__item:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
-  background-color: rgba(var(--ink-rgb), 0.08);
-}
-
-/* The one in force: bold, with a dot before it, as the pane menus show it. */
-.desk-rich-menu__item[aria-checked="true"] {
-  font-weight: 700;
-  background-image: radial-gradient(circle, var(--green-text) 3px, transparent 3.5px);
-  background-size: 8px 8px;
-  background-position: 10px 50%;
-  background-repeat: no-repeat;
 }
 
 .desk-rich-sample {
   display: inline-block;
   min-width: 1.9em;
   padding: 0 4px;
-  border-radius: 4px;
+  border-radius: var(--radius-press);
   font-weight: 700;
   text-align: center;
 }
@@ -6914,7 +6290,7 @@ html.desk-ws--moving * {
 .desk-rich-editor > .desk-rich {
   min-height: 7em;
   padding: 10px 12px;
-  border-radius: 7px;
+  border-radius: var(--radius-press);
   /* The sheet's own text size (E101), set on the sheet by the editor. */
   font-size: calc(1rem * var(--sheet-text-scale, 1));
   outline: 0;
@@ -6922,9 +6298,11 @@ html.desk-ws--moving * {
 
 /* The toolbar is showing under it. */
 .desk-rich-editor:is(:focus-within, .desk-rich-editor--tools) > .desk-rich {
-  border-radius: 7px 7px 0 0;
+  border-radius: var(--radius-press) var(--radius-press) 0 0;
 }
 
+/* The text box fills the editor to its edge, so its ring is drawn inside
+   it, where an outside one would be cut off. */
 .desk-rich-editor > .desk-rich:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
@@ -6937,7 +6315,7 @@ html.desk-ws--moving * {
   top: 10px;
   left: 12px;
   right: 12px;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   pointer-events: none;
 }
 
@@ -6949,7 +6327,7 @@ html.desk-ws--moving * {
   content: attr(data-hint) / "";
   display: block;
   margin-top: 0.5em;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-style: italic;
   pointer-events: none;
   user-select: none;
@@ -6959,57 +6337,15 @@ html.desk-ws--moving * {
   .desk-rich[data-hint]::after {
     color: GrayText;
   }
-
-  .desk-rich-tool[aria-pressed="true"],
-  .desk-rich-tool[aria-expanded="true"] {
-    outline: 2px solid ButtonText;
-  }
 }
 
-/* The chosen state of seven controls, and the highlight swatches, in forced
-   colors (Windows contrast themes; BA141, BA142). Forced colors replaces
-   background, color and border colors with its own palette and drops
-   box-shadow, so each rule says "chosen" in a system color, and not with a
-   shadow. Fills are for plain text; boxes holding nested spans or an SVG get
-   a thicker Highlight border, with the padding lessened to match. Not an
-   outline: these controls' focus rings are outlines, and the chosen state
-   must survive focus. It comes after every rule it overrides. */
+/* What is chosen and isn't a control, in forced colors (Windows contrast
+   themes; BA141, BA142). Forced colors replaces background, color and border
+   colors with its own palette and drops box-shadow, so each rule says
+   "chosen" in a system color. The controls' chosen states (tabs, a row of
+   choices, the toggles, a swatch) are kit.css's forced-colors block. It
+   comes after every rule it overrides. */
 @media (forced-colors: active) {
-  /* Forced colors draws the unchosen tab's transparent border too, so the
-     unchosen tab's is the bar's own 1px rule, and the chosen tab's a 2px
-     Highlight. */
-  .desk-panel__tabs [role="tab"] {
-    padding-bottom: 9px;
-    border-bottom: 1px solid ButtonText;
-  }
-
-  .desk-panel__tabs [role="tab"][aria-selected="true"] {
-    padding-bottom: 8px;
-    border-bottom: 2px solid Highlight;
-  }
-
-  /* A chosen segment takes the selection's own pair; its focus ring then
-     needs the text color, since the default one would sit on Highlight.
-     Chrome paints a Canvas backplate behind forced text, which hid the
-     HighlightText label on its Highlight fill (BA148), so the label opts out
-     of forcing: the pair is system colors already. Opting out also keeps
-     the focus ring's inset band, which belongs to the screen's colors. */
-  .desk-seg__input:checked + .desk-seg__text {
-    forced-color-adjust: none;
-    background: Highlight;
-    color: HighlightText;
-  }
-
-  .desk-seg__input:checked:focus-visible + .desk-seg__text {
-    outline-color: HighlightText;
-    box-shadow: none;
-  }
-
-  /* The editor's markers have a fixed 36px box, so the border can grow. */
-  .desk-editor__marker:has(input:checked) {
-    border: 3px solid Highlight;
-  }
-
   /* A chosen Greek word: its comment's second cue is a shadow, dropped here. */
   .desk-greek__w.is-selected {
     /* As the chosen segment does: opt out of forcing, or Chrome's Canvas
@@ -7032,42 +6368,6 @@ html.desk-ws--moving * {
   .desk-greek__app-item.is-lit {
     box-shadow: none;
     border-left: 3px solid Highlight;
-  }
-
-  .desk-greek__choice[aria-pressed="true"] {
-    padding: 3px 8px;
-    border: 3px solid Highlight;
-  }
-
-  /* "Show sources", pressed: a tint draws nothing here. */
-  .desk-greek__show-sources[aria-pressed="true"] {
-    padding: 0 6px;
-    border: 3px solid Highlight;
-  }
-
-  .desk-ws__shape[aria-pressed="true"] {
-    padding: 6px 4px;
-    border: 3px solid Highlight;
-  }
-
-  /* The Search pane's chosen word, the Bible order toggle and a pinned pane's
-     lock are tints and a weight, which forced colors flattens (DK-6). Padding
-     is lessened by the border's extra width so nothing shifts. */
-  .desk-search__choice[aria-pressed="true"] {
-    padding: 1px 6px;
-    border: 3px solid Highlight;
-  }
-
-  .desk-search__sort[aria-pressed="true"],
-  .desk-pane__pin[aria-pressed="true"] {
-    border: 3px solid Highlight;
-  }
-
-  /* A pinned footnote's pill: the filled thumbtack stays (it is drawn in
-     currentColor), and the edge says it too. */
-  .desk-pin[aria-pressed="true"] {
-    padding: 0 6px;
-    border: 3px solid Highlight;
   }
 
   /* The Footnotes pane draws its 3px bar on every row (the transparent one
@@ -7103,41 +6403,18 @@ html.desk-ws--moving * {
      step darker, #ecebe8, 1.14:1 from the pane (dark: #262628, a step above
      the pane's #1d1d1f); BVJ chose that from three mocks (tinted cards,
      outlines only, outlines with tinted fields).
-   - field: anything typed in or chosen from. Paper white in light, below
-     the card in dark (#161617, a surface the rich text colors are checked
-     on, desk-sheet-view.css), always with --field-border.
-   - control: a button, a chip, a template choice. White in light, a lighter
-     step in dark, and always a --field-border edge, since white differs
-     from #FAFAF8 by 1.04:1, so the edge is what says "button" (3:1 or more
-     on every surface here, both themes).
-   The primary button (Deep Green) and the glyph buttons (the arrows, ×,
-   ▾, the grip) keep their own looks.
-   The buttons' tokens (E126; BVJ, 2026-11-12, the "Raised" look) are the
-   second group: a control's shadow at rest, lifted on hover and sunk when
-   pressed (each with its dark pair), the edge's darker foot, the hover and
-   pressed shades, the lift and its timing (both zero under reduced motion,
-   "Four kinds of button" at the end of this file), the primary's edge (the
-   text green at 70% in dark, where Deep Green alone is 2.3 to 2.9:1), its
-   pressed shadow, the disabled primary's tint, and a checked row's tint.
-   desk-search.css declares the same values, since /search loads it alone;
-   test/desk-buttons-css.test.js holds the two in step. */
+   - field: the rich text editor, a field with its toolbar inside it. Paper
+     white in light, the page's own color in dark (a surface the rich text
+     colors are checked on, desk-sheet-view.css), always with
+     --field-border. Every other field, button and chip is kit.css's.
+   Last, a checked row's tint (the Search pane's and /search's checked
+   results). desk-search.css declares it too, since /search loads it
+   alone. */
 :root {
   --desk-card: var(--surface-raised);
   --desk-pane-card: #ecebe8;
   --desk-card-edge: rgba(var(--ink-rgb), 0.16);
   --desk-field: var(--white);
-  --desk-control: var(--white);
-  --desk-btn-edge-low: rgba(var(--ink-rgb), 0.74);
-  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.12);
-  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.16);
-  --desk-btn-press: inset 0 1px 3px rgba(0, 0, 0, 0.22);
-  --desk-btn-hover: rgba(var(--ink-rgb), 0.05);
-  --desk-btn-down: rgba(0, 0, 0, 0.07);
-  --desk-btn-lift-y: -1px;
-  --desk-btn-motion: 120ms;
-  --desk-primary-edge: var(--green-deep);
-  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.35);
-  --desk-primary-off: rgba(15, 107, 51, 0.06);
   --desk-pick-tint: rgba(32, 157, 80, 0.08);
 }
 
@@ -7145,16 +6422,6 @@ html.desk-ws--moving * {
   :root:not([data-theme="light"]) {
     --desk-pane-card: #262628;
     --desk-field: var(--surface);
-    --desk-control: rgba(var(--ink-rgb), 0.07);
-    --desk-btn-edge-low: var(--field-border);
-    --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
-    --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
-    --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-    --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
-    --desk-btn-down: rgba(0, 0, 0, 0.3);
-    --desk-primary-edge: rgba(58, 191, 106, 0.7);
-    --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-    --desk-primary-off: rgba(58, 191, 106, 0.12);
     --desk-pick-tint: rgba(58, 191, 106, 0.1);
   }
 }
@@ -7162,16 +6429,6 @@ html.desk-ws--moving * {
 :root[data-theme="dark"] {
   --desk-pane-card: #262628;
   --desk-field: var(--surface);
-  --desk-control: rgba(var(--ink-rgb), 0.07);
-  --desk-btn-edge-low: var(--field-border);
-  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
-  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
-  --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-  --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
-  --desk-btn-down: rgba(0, 0, 0, 0.3);
-  --desk-primary-edge: rgba(58, 191, 106, 0.7);
-  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-  --desk-primary-off: rgba(58, 191, 106, 0.12);
   --desk-pick-tint: rgba(58, 191, 106, 0.1);
 }
 
@@ -7211,7 +6468,7 @@ html.desk-ws--moving * {
 .desk-sheet__empty,
 .desk-sheet__none,
 .desk-sheet__how {
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.875rem * var(--sheet-ui, 1));
   margin: 6px 0;
 }
@@ -7236,7 +6493,7 @@ html.desk-ws--moving * {
   margin: 16px 0;
   padding: 12px 14px;
   border: 1px solid var(--desk-card-edge);
-  border-radius: 8px;
+  border-radius: var(--radius-float);
   background: var(--desk-card);
 }
 
@@ -7260,12 +6517,10 @@ html.desk-ws--moving * {
   font-size: calc(0.875rem * var(--sheet-ui, 1));
 }
 
-/* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10).
-   In the Sheets pane and anywhere on /sheets (the list, the chooser, the
-   editor, a sheet's versions view) every one but the primary is an ordinary
-   button (E89, E126), quiet ones included: "Four kinds of button" at the end
-   of this file, scoped there, so a phone's shared sheet, which loads that
-   file alone, keeps its look. */
+/* .desk-sheet__btn, the sheets' buttons, is in desk-sheet-view.css (LG8-10),
+   which a phone's shared sheet loads alone. Its level is the kit's: filled
+   for the primary, red words for Delete, plain for the rest, though that
+   file's own looks, injected after kit.css, draw over them until Phase 11. */
 
 .desk-sheet :is(button, input, select, summary, a):focus-visible {
   outline: 2px solid var(--focus-ring);
@@ -7310,7 +6565,7 @@ html.desk-ws--moving * {
   margin-bottom: 8px;
   padding: 2px 10px 2px 6px;
   border: 1px solid var(--desk-card-edge);
-  border-radius: 10px;
+  border-radius: var(--radius-float);
   background: var(--desk-card);
 }
 
@@ -7321,10 +6576,8 @@ html.desk-ws--moving * {
   flex-direction: column;
   gap: 2px;
   padding: 8px 4px;
-  border: 0;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: left;
   cursor: pointer;
 }
@@ -7344,7 +6597,7 @@ a.desk-sheet__open {
 
 .desk-sheet__open-meta {
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* The rows' buttons line up in columns down the whole list, whatever a
@@ -7719,13 +6972,12 @@ a.desk-sheet__open {
 
 /* Its two fields alike, at the size of the words around them, as the other
    fields of a pane and of the page are (.desk-sheet__ref input; the page's
-   .desk-np fields). The page's .desk-np rule above reaches only the input,
-   and its raised fill is the card's own color, so a field takes the field's
-   fill here (E89). Later in the file, so it wins the tie. */
+   .desk-np fields). Their edge and fill are the kit's field (E191's white
+   field is the kit's page color now). */
 .collection-page__new :is(input, textarea).desk-pick__filter {
   padding: 5px 9px;
-  background: var(--desk-field);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 /* A passage's words are the reader's text here, not a sheet's, so they take
@@ -7811,7 +7063,7 @@ a.desk-sheet__open {
 
 .desk-sheet__saved {
   font-size: calc(0.75rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-sheet__title,
@@ -7821,25 +7073,18 @@ a.desk-sheet__open {
   box-sizing: border-box;
   /* Fields like every other (E89): a fill and a whole edge. Until then a
      bottom line on the page's own color (XA8-2, BA144). */
-  border: 1px solid var(--field-border);
-  border-radius: 6px;
-  background: var(--desk-field);
-  color: var(--text);
   padding: 4px 8px;
 }
 
 .desk-sheet__title {
   margin-bottom: 6px;
-  font-family: "Fraunces", Georgia, serif;
   font-size: calc(1.5rem * var(--sheet-text-scale, 1));
-  font-weight: 600;
 }
 
 .desk-sheet__subtitle {
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.9375rem * var(--sheet-text-scale, 1));
   margin-bottom: 12px;
-  color: rgba(var(--ink-rgb), 0.8);
 }
 
 /* The sheet's text size (E101): how big the whole sheet prints. Its title,
@@ -7856,7 +7101,7 @@ a.desk-sheet__open {
 
 .desk-sheet__size-label {
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__modules {
@@ -7869,7 +7114,7 @@ a.desk-sheet__open {
 .collection-page__member {
   position: relative; /* the gap zone below hangs from it */
   border: 1px solid var(--desk-card-edge);
-  border-radius: 10px;
+  border-radius: var(--radius-float);
   padding: 6px 10px 10px;
   background: var(--desk-card);
 }
@@ -7880,7 +7125,6 @@ a.desk-sheet__open {
 
 .desk-sheet__drop {
   height: 3px;
-  border-radius: 2px;
   background: var(--focus-ring);
 }
 
@@ -7903,13 +7147,13 @@ a.desk-sheet__open {
 
 .desk-sheet__grip {
   cursor: grab;
-  color: rgba(var(--ink-rgb), 0.5);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   user-select: none;
 }
 
 .desk-sheet__module-name {
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__module-tools {
@@ -7930,7 +7174,7 @@ a.desk-sheet__open {
   align-items: center;
   gap: 4px;
   margin-right: 4px;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   cursor: pointer;
 }
 
@@ -7941,7 +7185,7 @@ a.desk-sheet__open {
   align-items: center;
   gap: 3px;
   margin-right: 6px;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* 24px tall at least (E77; it was 23). */
@@ -7950,22 +7194,14 @@ a.desk-sheet__open {
   width: 4.5em;
   min-height: 24px;
   padding: 1px 4px;
-  border: 1px solid var(--field-border);
-  border-radius: 4px;
-  background: var(--desk-field);
-  color: var(--text);
-  font: inherit;
-}
-
-.desk-sheet__minutes input:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .desk-sheet__planned {
   margin: 4px 0 0;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* The template's description above the parts (E84): a message from the app,
@@ -7982,7 +7218,7 @@ a.desk-sheet__open {
   margin: 10px 0 6px;
   padding: 0.5rem 0.4rem 0.5rem 0.85rem;
   border-left: 3px solid var(--green-text);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-press) var(--radius-press) 0;
   background: rgba(var(--ink-rgb), 0.05);
 }
 
@@ -8004,31 +7240,23 @@ a.desk-sheet__open {
   margin: 0;
   font-size: calc(0.875rem * var(--sheet-ui, 1));
   line-height: calc(1.5 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__about-words strong {
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__icon {
   min-width: 26px;
   height: 26px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 
-.desk-sheet__icon:hover:not(:disabled) {
-  background: rgba(var(--ink-rgb), 0.08);
-}
-
 .desk-sheet__icon:disabled {
-  opacity: 0.35;
   cursor: default;
 }
 
@@ -8058,7 +7286,7 @@ a.desk-sheet__open {
   top: 50%;
   border-top: 2px solid var(--focus-ring);
   opacity: 0;
-  transition: opacity 0.12s;
+  transition: opacity var(--dur-quick) var(--ease);
 }
 
 /* 24px tall, WCAG 2.5.8's minimum (E77; it was 22). */
@@ -8066,18 +7294,12 @@ a.desk-sheet__open {
   position: relative;
   height: 24px;
   padding: 0 10px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--green-deep);
-  color: #fff;
-  font: inherit;
   font-size: calc(0.75rem * var(--sheet-ui, 1));
-  font-weight: 600;
   line-height: 24px;
   white-space: nowrap;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.12s;
+  transition: opacity var(--dur-quick) var(--ease);
 }
 
 /* Shown under the pointer, while its menu is open, or on keyboard focus:
@@ -8122,7 +7344,7 @@ a.desk-sheet__open {
   margin: 0;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__insert-form .desk-sheet__passage-form {
@@ -8181,7 +7403,7 @@ a.desk-sheet__open {
 
 .desk-sheet__words sup.fn-ref.desk-sheet__fnref--off {
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* A field's visible name where a part holds two editors alike (the question's
@@ -8190,7 +7412,7 @@ a.desk-sheet__open {
   margin: 10px 0 4px;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.72);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__lines {
@@ -8203,12 +7425,9 @@ a.desk-sheet__open {
 
 .desk-sheet__lines input {
   width: 4em;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   padding: 2px 4px;
-  border: 1px solid var(--field-border);
-  border-radius: 6px;
-  background: var(--desk-field);
-  color: var(--text);
 }
 
 .desk-sheet__ruled {
@@ -8221,7 +7440,7 @@ a.desk-sheet__open {
   border-top: 2px dashed rgba(var(--ink-rgb), 0.3);
   padding-top: 4px;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-sheet__module--question .desk-rich-editor + .desk-rich-editor {
@@ -8257,7 +7476,7 @@ a.desk-sheet__open {
   margin-top: 10px;
   padding: 10px;
   border: 1px solid var(--desk-card-edge);
-  border-radius: 10px;
+  border-radius: var(--radius-float);
   background: var(--desk-card);
 }
 
@@ -8269,21 +7488,9 @@ a.desk-sheet__open {
 .desk-sheet__ref input {
   flex: 1 1 auto;
   min-width: 0;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   padding: 4px 8px;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--desk-field);
-  color: var(--text);
-}
-
-/* On the collections page, whose root is .desk-np too (for My Notebook's
-   rows), the notebook page's field rule gave these fields (Add a passage, a
-   heading) the raised fill, the card's own color. They take the field's
-   fill, white, as in a pane and on /sheets (E191; BVJ, 2026-11-19: "have the
-   field be white"). */
-.desk-np .desk-sheet__ref input {
-  background: var(--desk-field);
 }
 
 .desk-sheet__problem {
@@ -8316,29 +7523,24 @@ a.desk-sheet__open {
   gap: 0 8px;
   width: 100%;
   padding: 6px 4px;
-  border: 0;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.875rem * var(--sheet-ui, 1));
   text-align: left;
   cursor: pointer;
 }
 
-.desk-sheet__from-item:hover {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
 .desk-sheet__from-kind {
   font-size: calc(0.75rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
+/* A note's words, read inside the row: the text's own face and weight. */
 .desk-sheet__from-words {
   grid-column: 1 / -1;
+  font-family: var(--font-text);
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.75);
+  font-weight: 400;
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* "+ From my notes…" (E62): the notebook list's rows with a box to tick;
@@ -8358,11 +7560,6 @@ a.desk-sheet__open {
 
 .desk-sheet__pick:has(input:disabled) {
   cursor: default;
-  opacity: 0.6;
-}
-
-.desk-sheet__pick:has(input:disabled):hover {
-  background: transparent;
 }
 
 .desk-sheet__from-notes .desk-sheet__add-row {
@@ -8381,11 +7578,10 @@ a.desk-sheet__open {
   margin-bottom: 8px;
 }
 
-/* Each template is an ordinary button (E89, E126; the look is at the end of
-   this file), with the gap between rather than a rule. */
+/* Each template is a list row (the kit's .desk-sheet__from-item), with the
+   gap between rather than a rule. */
 .desk-sheet__choice {
   padding: 8px 12px;
-  border-radius: 8px;
 }
 
 .desk-sheet__choice:disabled {
@@ -8402,7 +7598,7 @@ a.desk-sheet__open {
   margin: 4px 0 4px;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__own {
@@ -8485,7 +7681,7 @@ a.desk-sheet__open {
   margin-right: 4px;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__term-blanks {
@@ -8498,22 +7694,15 @@ a.desk-sheet__open {
 
 .desk-sheet__hint-label {
   font-size: calc(0.75rem * var(--sheet-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
-/* A toggle in a pill (E89, E126): the edge and fill of the sheets' buttons,
-   sunk with the text green's edge and words when blanked ("Four kinds of
-   button" at the end of this file), and a weight, which forced colors keeps. */
+/* A key term's chip: the kit's tinted button, on while blanked. */
 .desk-sheet__chip {
   padding: 2px 10px;
-  border-radius: 999px;
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   cursor: pointer;
-}
-
-.desk-sheet__chip[aria-pressed="true"] {
-  font-weight: 600;
 }
 
 .desk-sheet__blank-list {
@@ -8539,7 +7728,7 @@ a.desk-sheet__open {
 }
 
 .desk-sheet__blank-verse {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.75rem * var(--sheet-ui, 1));
 }
 
@@ -8549,11 +7738,7 @@ select.desk-sheet__size-select,
   min-width: 0;
   max-width: 100%;
   padding: 2px 6px;
-  border: 1px solid var(--field-border);
-  border-radius: 6px;
-  background: var(--desk-field);
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
 }
 
@@ -8590,7 +7775,7 @@ select.desk-sheet__size-select,
   margin-top: 10px;
   padding: 8px 10px;
   border-left: 3px solid var(--green-text);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-press) var(--radius-press) 0;
   background: rgba(var(--ink-rgb), 0.04);
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
@@ -8607,13 +7792,13 @@ select.desk-sheet__size-select,
 .desk-sheet__changed .desk-notice__diff {
   max-height: 9em;
   border-left: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-press);
   background: rgba(var(--ink-rgb), 0.05);
 }
 
 .desk-sheet__changed-when,
 .desk-sheet__changed-hint {
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 /* Which footnotes print. A section of the card under a rule, opened by a
@@ -8631,13 +7816,8 @@ select.desk-sheet__size-select,
   display: inline-block;
   list-style: none;
   padding: 4px 12px;
-  border: 1px solid var(--field-border);
-  border-radius: 6px;
-  background: var(--desk-control);
   cursor: pointer;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
-  font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.85);
 }
 
 .desk-sheet__notes-summary::-webkit-details-marker {
@@ -8650,8 +7830,6 @@ select.desk-sheet__size-select,
   width: 6px;
   height: 6px;
   margin: 0 2px 0 10px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
   vertical-align: 0.2em;
   transform: rotate(45deg);
 }
@@ -8709,12 +7887,12 @@ p.desk-sheet__flag {
   min-width: 0;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__note-label {
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* The key terms box */
@@ -8722,7 +7900,7 @@ p.desk-sheet__flag {
   margin: 4px 0 8px;
   font-size: calc(0.8125rem * var(--sheet-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__term-list {
@@ -8776,7 +7954,7 @@ p.desk-sheet__flag {
   margin-top: 14px;
   padding: 10px 12px;
   border-left: 3px solid var(--green-text);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-press) var(--radius-press) 0;
   background: rgba(var(--ink-rgb), 0.05);
 }
 
@@ -8808,7 +7986,7 @@ p.desk-sheet__flag {
 
 .desk-sheet__check-list li {
   margin: 0 0 6px;
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-sheet__check-list li.is-over {
@@ -8819,7 +7997,7 @@ p.desk-sheet__flag {
   position: relative;
   height: 6px;
   margin-top: 4px;
-  border-radius: 3px;
+  border-radius: var(--radius-press);
   background: rgba(var(--ink-rgb), 0.12);
   overflow: hidden;
 }
@@ -8847,16 +8025,10 @@ p.desk-sheet__flag {
    XA8-7, Audit 8). Forced colors replaces background, border color and
    box-shadow with its palette, so each state that was said only by one of
    those is said again in a border or an outline in a system color, the way
-   the blocks above do it. Padding is lessened by a border's extra width so
-   nothing shifts. It comes after every Sheets rule it overrides. */
+   the blocks above do it. Its buttons and chips (a blanked key term's chip,
+   the gap's pill) are kit.css's forced-colors block's. It comes after every
+   Sheets rule it overrides. */
 @media (forced-colors: active) {
-  /* A blanked key term's chip: a green tint, a green border and a weight
-     become the weight alone, so the pressed chip gets a Highlight border. */
-  .desk-sheet__chip[aria-pressed="true"] {
-    padding: 1px 9px;
-    border: 2px solid Highlight;
-  }
-
   /* The drag's insertion line is a background, which draws nothing. */
   .desk-sheet__drop {
     height: 0;
@@ -8870,13 +8042,6 @@ p.desk-sheet__flag {
   }
 
   /* The primary button's thicker edge is in desk-sheet-view.css (LG8-10). */
-
-  /* The gap's pill is a fill with no border, so it would be bare text. */
-  .desk-sheet__after-btn {
-    box-sizing: border-box;
-    border: 1px solid ButtonText;
-    line-height: 20px;
-  }
 
   /* The check's meter is two backgrounds: the track gets an edge, the fill
      the selection color, and a fill over the limit the text color (the line
@@ -8896,29 +8061,6 @@ p.desk-sheet__flag {
 }
 
 /* ── M6: Print with my notes ─────────────────────────────────── */
-
-/* The button and its line, at the foot of My Notes beside the switches. The
-   look is the Edit and Reset widths buttons'. */
-.desk-panel__print {
-  flex: 1 1 100%;
-  margin-top: 2px;
-}
-
-.desk-panel__print-button {
-  padding: 5px 10px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  cursor: pointer;
-}
-
-.desk-panel__print .desk-panel__print-hint {
-  margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), 0.72);
-  font-size: calc(0.75rem * var(--desk-ui, 1));
-  line-height: calc(1.4 + var(--desk-leading, 0));
-}
 
 /* What src/scripts/desk/print-notes.js adds for one print: an <aside> after
    each block that has notes, and a closing list for notes with no block. They
@@ -8980,8 +8122,6 @@ mark.desk-print-mark {
     border-left: 0.5pt solid #888;
     font-size: calc(9.5pt * var(--reading-scale, 1));
     line-height: 1.35;
-    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
-    --desk-note-weight: 500;
   }
 
   html[data-desk-print="notes"] .desk-print-strays {
@@ -8991,34 +8131,21 @@ mark.desk-print-mark {
     border-top: 0.5pt solid #888;
     font-size: calc(9.5pt * var(--reading-scale, 1));
     line-height: 1.35;
-    --desk-note-font: "Playpen Sans", Inter, "Inter Fallback", system-ui, sans-serif;
-    --desk-note-weight: 500;
   }
 
-  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-notes,
-  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-strays {
-    --desk-note-font: Inter, "Inter Fallback", system-ui, sans-serif;
-    --desk-note-weight: 400;
-  }
-
-  html[data-desk-print="notes"][data-font] .desk-print-notes,
-  html[data-desk-print="notes"][data-font] .desk-print-strays {
-    --desk-note-weight: 400;
-  }
-
-  /* The notes' own face, unless the reader chose an accessibility font,
+  /* The text face, unless the reader chose an accessibility font,
      which prints as chosen (print.css sets the page's serif by the same
      test, with !important, so this needs it and more specificity). */
   html[data-desk-print="notes"]:not([data-font]) .desk-print-notes,
   html[data-desk-print="notes"]:not([data-font]) .desk-print-notes *,
   html[data-desk-print="notes"]:not([data-font]) .desk-print-strays,
   html[data-desk-print="notes"]:not([data-font]) .desk-print-strays * {
-    font-family: var(--desk-note-font) !important;
+    font-family: var(--font-text) !important;
   }
 
   html[data-desk-print="notes"] .desk-print-notes,
   html[data-desk-print="notes"] .desk-print-strays {
-    font-weight: var(--desk-note-weight, 400);
+    font-weight: 400;
   }
 
   html[data-desk-print="notes"] .desk-print-note {
@@ -9222,11 +8349,7 @@ mark.desk-print-mark {
 .desk-search__select {
   box-sizing: border-box;
   min-width: 0;
-  border: 1px solid var(--field-border);
-  border-radius: 8px;
-  background: var(--surface-raised, transparent);
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.9375rem * var(--desk-ui, 1));
 }
 
@@ -9263,7 +8386,7 @@ mark.desk-print-mark {
 .desk-search__note,
 .desk-search__empty {
   margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), 0.75);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -9322,7 +8445,7 @@ mark.desk-print-mark {
      reads the same in every pane: Inter, 13px, mixed case (bold and full-strength in
      the Search pane since E228; BVJ,
      2026-11-04). It was small caps, which no other pane's headings were. */
-  font-family: Inter, "Inter Fallback", system-ui, sans-serif;
+  font-family: var(--font-control);
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 700;
   color: var(--text);
@@ -9338,7 +8461,7 @@ mark.desk-print-mark {
   display: flex;
   align-items: flex-start;
   gap: 4px;
-  border-radius: 6px;
+  border-radius: var(--radius-press);
 }
 
 .desk-search__row:hover {
@@ -9350,7 +8473,7 @@ mark.desk-print-mark {
   flex: 1 1 auto;
   min-width: 0;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: var(--radius-press);
   color: var(--text);
   font-size: calc(0.9375rem * var(--desk-ui, 1));
   line-height: calc(1.4 + var(--desk-leading, 0));
@@ -9367,25 +8490,25 @@ mark.desk-print-mark {
   display: block;
 }
 
-/* A new-tab result keeps the restyle's mark on the name's line (the mark is
-   an ::after of the link, so a block title pushed it to a line of its own). */
+/* A new-tab result keeps its title inline, so a mark drawn as an ::after of
+   the link stays on the name's line rather than a line of its own. */
 .desk-search__link[target="_blank"] > .desk-search__title {
   display: inline;
 }
 
 .desk-search__kind {
   margin-left: 8px;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
 /* "Matthew 18 · debt forgiveness": the topics a loose match found (E166). */
 .desk-search__topics {
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .desk-search__ref {
-  color: rgba(var(--ink-rgb), 0.85);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   font-weight: 600;
 }
@@ -9398,11 +8521,10 @@ mark.desk-print-mark {
 .desk-search mark {
   background: rgba(var(--ink-rgb), 0.14);
   color: inherit;
-  border-radius: 2px;
 }
 
 .desk-search__greek-form {
-  font-family: var(--serif);
+  font-family: var(--font-text);
   font-size: calc(1.125rem * var(--desk-ui, 1));
 }
 
@@ -9417,7 +8539,7 @@ mark.desk-print-mark {
 }
 
 .desk-search__greek-parse {
-  color: rgba(var(--ink-rgb), 0.78);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
@@ -9432,18 +8554,14 @@ mark.desk-print-mark {
 }
 
 .desk-search__line[lang="grc"] {
-  font-family: var(--serif);
+  font-family: var(--font-text);
 }
 
-/* The pane's worded buttons: ordinary, a toggle (Bible order) or the strip's
-   primary (E126; each look is at the end of this file). The transparent edge
-   holds the width the primary's color fills. */
+/* The pane's worded buttons: plain, Bible order on while it orders, and the
+   strip's tinted ones (the kit's). */
 .desk-search__btn {
   padding: 4px 10px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   cursor: pointer;
 }
@@ -9499,7 +8617,7 @@ mark.desk-print-mark {
   margin: 0 0 6px;
   padding: 8px 10px 10px 0;
   border: 1px solid var(--desk-card-edge);
-  border-radius: 10px;
+  border-radius: var(--radius-float);
   background: var(--desk-pane-card);
 }
 
@@ -9518,14 +8636,13 @@ mark.desk-print-mark {
   font-weight: 600;
 }
 
-/* "Clear checks": quiet, a link's look. */
+/* "Clear checks": a press in the line's words (the kit's inline),
+   underlined as the line's link. */
 .desk-search__pick-clear {
   margin-left: 6px;
   padding: 0;
-  border: 0;
-  background: none;
-  color: var(--green-text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -9577,7 +8694,6 @@ mark.desk-print-mark {
   width: 16px;
   height: 16px;
   margin: 0 2px 0 6px;
-  accent-color: var(--green-deep);
   cursor: pointer;
 }
 
@@ -9605,11 +8721,7 @@ mark.desk-print-mark {
   height: 28px;
   margin: 2px 2px 0 0;
   padding: 0;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
   line-height: 1;
   cursor: pointer;
   opacity: 0;
@@ -9622,9 +8734,8 @@ mark.desk-print-mark {
 }
 
 /* A passage result's second way to read it (E34): its own page, in a new
-   tab, beside the result whose plain click moves the LIT pane. Quiet at
-   rest, so a list of results doesn't read as a column of icons, and full
-   strength on its row's hover or focus. */
+   tab, beside the result whose plain click moves the LIT pane. A plain icon
+   button, the kit's, at full strength: the kit fades nothing at rest. */
 .desk-search__away {
   flex: none;
   display: inline-flex;
@@ -9633,20 +8744,6 @@ mark.desk-print-mark {
   width: 28px;
   height: 28px;
   margin: 2px 0 0;
-  border-radius: 8px;
-  color: var(--text);
-  /* Still 3:1 or more against the pane at rest, as an icon that means
-     something must be. */
-  opacity: 0.6;
-}
-
-.desk-search__away:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-}
-
-.desk-search__row:hover .desk-search__away,
-.desk-search__row:focus-within .desk-search__away {
-  opacity: 1;
 }
 
 @media (hover: none) {
@@ -9673,14 +8770,12 @@ mark.desk-print-mark {
   margin: 0 0 8px;
 }
 
-/* A Greek word offered: a toggle, as the Greek pane's word choices are
-   (E126; the look is at the end of this file). */
+/* A Greek word offered: a tab in a row of choices, as the Greek pane's word
+   choices are (the kit's). */
 .desk-search__choice {
   max-width: 100%;
   padding: 3px 8px;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
+  line-height: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   text-align: left;
   cursor: pointer;
@@ -9702,7 +8797,7 @@ mark.desk-print-mark {
 
 .desk-search__credit {
   margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
 }
 
@@ -9796,9 +8891,8 @@ mark.desk-print-mark {
 .desk-mine__more-button,
 .desk-np__more {
   padding: 6px 14px;
-  border-radius: 6px;
-  color: var(--text);
-  font: calc(0.875rem * var(--desk-ui, 1))/1.4 Inter, "Inter Fallback", system-ui, sans-serif;
+  font-size: calc(0.875rem * var(--desk-ui, 1));
+  line-height: 1.4;
   cursor: pointer;
 }
 
@@ -9817,8 +8911,8 @@ mark.desk-print-mark {
    the × at its right, then a row of buttons ending in a quiet link, which
    wraps to further lines in a narrow window or at the largest text size
    (OpenDyslexic included). One column, as wide as its widest line, so the
-   bar never stands wider than what it holds. The buttons' looks are "Four
-   kinds of button" at the end of this file; only size and shape are here. */
+   bar never stands wider than what it holds. The buttons' looks are the
+   kit's; only size and shape are here. */
 .desk-undo__bar:has(.desk-undo__choices) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -9850,23 +8944,13 @@ mark.desk-print-mark {
 .desk-undo__choice,
 .desk-undo__choice--primary {
   padding: 7px 12px;
-  border-radius: 8px;
-  font: inherit;
   font-size: calc(0.875rem * var(--desk-ui, 1));
   line-height: 1.3;
   cursor: pointer;
 }
 
-.desk-undo__choice--primary {
-  border: 1px solid transparent;
-}
-
 .desk-undo__quiet {
   padding: 7px 6px;
-  border: 0;
-  background: transparent;
-  color: var(--green-text);
-  font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: 1.3;
   text-decoration: underline;
@@ -9874,350 +8958,7 @@ mark.desk-print-mark {
   cursor: pointer;
 }
 
-.desk-undo__quiet:hover {
-  background: rgba(var(--ink-rgb), 0.08);
-}
-
 .desk-undo__choices button[aria-disabled="true"] {
   cursor: default;
 }
 
-/* The dot that says a backup is due (reminder.js sets data-desk-due): on the
-   Notebook's tab and buttons it is desk-tab.css's; here, the Settings tab,
-   /desk's title and its My Notebook line. Opening the Notebook never clears
-   it, since the notice is in Settings. In forced colors, Highlight. */
-.desk-panel__tabs [data-tab][data-desk-due],
-.desk-title__button[data-desk-due],
-.desk-title__item[data-desk-due],
-[data-desk-notebook-item][data-desk-due] {
-  position: relative;
-}
-
-.desk-panel__tabs [data-tab][data-desk-due]::after,
-.desk-title__button[data-desk-due]::after,
-.desk-title__item[data-desk-due]::after,
-[data-desk-notebook-item][data-desk-due]::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green-text);
-}
-
-@media (forced-colors: active) {
-  .desk-panel__tabs [data-tab][data-desk-due]::after,
-  .desk-title__button[data-desk-due]::after,
-  .desk-title__item[data-desk-due]::after,
-  [data-desk-notebook-item][data-desk-due]::after {
-    forced-color-adjust: none;
-    background: Highlight;
-  }
-}
-
-/* The Settings tab's notice (E113, mock B): a tinted group at the top of
-   "Keep and print" while a backup is due and not put off for a week. */
-.desk-backup-notice {
-  --notice-bg: #e4f1e7;
-  margin: 0 0 12px;
-  padding: 10px 12px 11px;
-  border: 1px solid var(--green-text);
-  border-left-width: 4px;
-  border-radius: 10px;
-  background: var(--notice-bg);
-  color: var(--text);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .desk-backup-notice {
-    --notice-bg: #21342a;
-  }
-}
-
-:root[data-theme="dark"] .desk-backup-notice {
-  --notice-bg: #21342a;
-}
-
-.desk-backup-notice[hidden] {
-  display: none;
-}
-
-.desk-backup-notice__title {
-  margin: 0 0 4px;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.desk-backup-notice__text {
-  margin: 0 0 8px;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  line-height: calc(1.45 + var(--desk-leading, 0));
-}
-
-.desk-backup-notice__go {
-  display: inline-block;
-  margin: 0 0 8px;
-  padding: 7px 14px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font: inherit;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  line-height: 1.3;
-  cursor: pointer;
-}
-
-.desk-backup-notice .desk-home__remind {
-  margin: 0;
-}
-
-/* The plain line's quiet "Back up now". */
-.desk-home__backup {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--green-text);
-  font: inherit;
-  font-weight: 400;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-
-/* ── Four kinds of button (E126) ─────────────────────────────────
-   BVJ (2026-11-12) chose one look per kind of button in every pane, in the
-   "Raised" look; sheets/CLAUDE.md, "How the Sheets look", has the rule and
-   the inventory. Kept here, last, so each component rule above says only its
-   size and shape and none of them outweighs these.
-   - Ordinary: E89's fill (--desk-control) and 3:1 edge (--field-border),
-     the edge a hair darker at the foot, a soft shadow at rest, a 1px lift on
-     hover, sunk when pressed. A toggle that is on, and a menu button whose
-     menu is open, stay sunk with the text green's edge and words. Disabled
-     is flat, with words at 70% (4.5:1 on every surface, both themes).
-   - Toggle: an ordinary button with aria-pressed (Stay here, Bible order,
-     the Greek's word choices), or one flat at rest, since a row of chips
-     with shadows reads as noise: a pill for a chip in a set (label chips, a
-     sheet's blank chips) or a rounded rectangle for a lone switch (Pin, Show
-     sources; E141).
-   - Primary: Deep Green, white words, at most one per pane or view. In dark
-     themes its edge is the text green at 70% (the fill alone is 2.3 to 2.9:1
-     on the dark surfaces). Disabled, it keeps its edge and a faint green
-     fill, with the text green's words, so it still reads as a button.
-   - Quiet (links) and glyph buttons (‹ › × ▾ + and the like) keep their own,
-     save This verse's ‹ ›, which are ordinary (E141).
-   - The LIT pane's way back (E168) is the one button whose kind follows its
-     bar's width: quiet beside its place's name, ordinary as the arrow alone.
-   The tokens are in "The desk's layers"; desk-search.css carries its own
-   copy for /search. Under prefers-reduced-motion the lift and every
-   transition go; the shadows stay (test/desk-buttons-css.test.js). */
-
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))) {
-  border: 1px solid var(--field-border);
-  border-bottom-color: var(--desk-btn-edge-low);
-  background: var(--desk-control);
-  color: var(--text);
-  box-shadow: var(--desk-btn-rest);
-  transition:
-    transform var(--desk-btn-motion) ease,
-    box-shadow var(--desk-btn-motion) ease,
-    background-color var(--desk-btn-motion) ease;
-}
-
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], :active) {
-  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
-  box-shadow: var(--desk-btn-lift);
-  transform: translateY(var(--desk-btn-lift-y));
-}
-
-/* Pressed, on or open: sunk. */
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
-  border-bottom-color: var(--field-border);
-  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
-  box-shadow: var(--desk-btn-press);
-  transform: none;
-}
-
-/* On, or its menu open: the text green's edge and words too, more than a
-   change of color alone. */
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]) {
-  border-color: var(--green-text);
-  color: var(--green-text);
-}
-
-/* Disabled: flat, nothing to press, and still a button: its edge and its
-   fill stay, so it is never the color of what lies behind it (E159). */
-:is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:disabled, [aria-disabled="true"]) {
-  border-color: var(--field-border);
-  background: var(--desk-control);
-  color: rgba(var(--ink-rgb), 0.7);
-  box-shadow: none;
-  transform: none;
-  opacity: 1;
-}
-
-/* The LIT pane's way back as the arrow alone (E168; BVJ, 2026-11-19: the
-   arrow by itself was "subtle and easy to miss"): an ordinary button, as
-   the Show eye beside it is. Naming its place, it stays quiet. Only the
-   bar's width says which, so the ordinary look is restated for it here,
-   under the widths that hide its name (the LIT pane's bar, above). */
-@supports (container-type: inline-size) {
-  @container deskLitBar (max-width: 32em) {
-    .desk-lit__back {
-      border: 1px solid var(--field-border);
-      border-bottom-color: var(--desk-btn-edge-low);
-      background: var(--desk-control);
-      color: var(--text);
-      box-shadow: var(--desk-btn-rest);
-      transition:
-        transform var(--desk-btn-motion) ease,
-        box-shadow var(--desk-btn-motion) ease,
-        background-color var(--desk-btn-motion) ease;
-    }
-
-    .desk-lit__back:hover:not(:active) {
-      background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
-      box-shadow: var(--desk-btn-lift);
-      transform: translateY(var(--desk-btn-lift-y));
-    }
-
-    .desk-lit__back:active {
-      border-bottom-color: var(--field-border);
-      background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
-      box-shadow: var(--desk-btn-press);
-      transform: none;
-    }
-  }
-
-  @container deskLitBar (max-width: 38em) {
-    html[data-font="dyslexic"] .desk-lit__back {
-      border: 1px solid var(--field-border);
-      border-bottom-color: var(--desk-btn-edge-low);
-      background: var(--desk-control);
-      color: var(--text);
-      box-shadow: var(--desk-btn-rest);
-      transition:
-        transform var(--desk-btn-motion) ease,
-        box-shadow var(--desk-btn-motion) ease,
-        background-color var(--desk-btn-motion) ease;
-    }
-
-    html[data-font="dyslexic"] .desk-lit__back:hover:not(:active) {
-      background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
-      box-shadow: var(--desk-btn-lift);
-      transform: translateY(var(--desk-btn-lift-y));
-    }
-
-    html[data-font="dyslexic"] .desk-lit__back:active {
-      border-bottom-color: var(--field-border);
-      background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
-      box-shadow: var(--desk-btn-press);
-      transform: none;
-    }
-  }
-}
-
-/* Flat toggles (the chips' pills; Pin's and Show sources' rounded
-   rectangle): the control's fill and
-   edge, flat at rest; on is sunk, with the text green's edge and words.
-   Every Pin is one, the reading pages' included (E159). */
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button)) {
-  border: 1px solid var(--field-border);
-  background: var(--desk-control);
-  color: var(--text);
-  transition:
-    box-shadow var(--desk-btn-motion) ease,
-    background-color var(--desk-btn-motion) ease;
-}
-
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button)):hover:not(:disabled, [aria-pressed="true"], :active) {
-  border-color: var(--field-border);
-  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
-  color: var(--text);
-}
-
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button)):is(:active, [aria-pressed="true"]):not(:disabled) {
-  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
-  box-shadow: var(--desk-btn-press);
-}
-
-:is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button))[aria-pressed="true"]:not(:disabled) {
-  border-color: var(--green-text);
-  color: var(--green-text);
-}
-
-/* The primary: one per pane or view. */
-:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary) {
-  border-color: var(--desk-primary-edge);
-  background: var(--green-deep);
-  color: #fff;
-  font-weight: 600;
-  box-shadow: var(--desk-btn-rest);
-  transition:
-    transform var(--desk-btn-motion) ease,
-    box-shadow var(--desk-btn-motion) ease,
-    filter var(--desk-btn-motion) ease;
-}
-
-:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary):hover:not(:disabled, [aria-disabled="true"], :active) {
-  background: var(--green-deep);
-  box-shadow: var(--desk-btn-lift);
-  transform: translateY(var(--desk-btn-lift-y));
-  filter: brightness(1.1);
-}
-
-:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary):active:not(:disabled, [aria-disabled="true"]) {
-  box-shadow: var(--desk-primary-press);
-  transform: none;
-  filter: brightness(0.95);
-}
-
-/* A primary with nothing to do yet (E116, E117: no verse checked): its edge
-   and a faint green, the text green's words (4.5:1 or more on every
-   surface), flat. It stays focusable where it says aria-disabled. */
-:is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary):is(:disabled, [aria-disabled="true"]) {
-  border-color: var(--desk-primary-edge);
-  background: var(--desk-primary-off);
-  color: var(--green-text);
-  box-shadow: none;
-  transform: none;
-  filter: none;
-  opacity: 1;
-}
-
-/* No lift, no transition; the shadows still say hover and pressed. */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --desk-btn-lift-y: 0px;
-    --desk-btn-motion: 0s;
-  }
-}
-
-/* Forced colors draw no shadow or fill, so an on toggle or an open menu
-   keeps a Highlight edge (the thicker ones above set their width), a
-   disabled button reads in GrayText, and the primary takes a thicker edge
-   as the Sheets' does (XA8-7). */
-@media (forced-colors: active) {
-  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"]),
-  :is(.desk-pin, .desk-mine__label, .desk-greek__show-sources, .desk-sheet__chip, .desk-swatch:where(button))[aria-pressed="true"]:not(:disabled) {
-    border-color: Highlight;
-  }
-
-  :is(.desk-cmdrow__btn, .desk-lit__show, .desk-pane__pin, .desk-pane__page, .desk-item__edit, .desk-item__delete, .desk-verse__remove, .desk-verse__step, .desk-mine__more-button, .desk-note__more, .desk-np__more, .desk-mine__add, :where(.desk-editor__actions) button:where(:not(.desk-editor__save)), :where(.desk-notice__actions) button:where(:not(.desk-notice__keep)), .desk-panel__reset, .desk-panel__print-button, .desk-greek__goto, .desk-greek__back, .desk-greek__retry, .desk-greek__choice, .desk-greek__choices-more, .desk-greek__hits-more, .desk-dp__retry, .desk-undo__choice, .desk-search__btn:where(:not(.desk-search__btn--primary)), .desk-search__choice, .desk-sheet__btn:where(:not(.desk-sheet__btn--primary)), .desk-sheet__choice, .desk-note__edit, .desk-home-card__choose, .desk-tour__back, .desk-offer__later, .desk-labels__add, .desk-ws__shape, :where(.desk-ws__menu-actions) button, :where(.desk-print-menu__choices) > :is(a, button), .desk-rich-link__button:where(:not(.desk-rich-link__button--primary))):is(:disabled, [aria-disabled="true"]),
-  :is(.desk-sheet__btn--primary, .desk-search__btn--primary, .desk-undo__choice--primary, .desk-backup-notice__go, .desk-editor__actions .desk-editor__save, .desk-notice__actions .desk-notice__keep, .desk-tour__next, .desk-offer__go, .desk-rich-link__button--primary):is(:disabled, [aria-disabled="true"]) {
-    border-color: GrayText;
-    color: GrayText;
-  }
-
-  .desk-search__btn.desk-search__btn--primary {
-    padding: 3px 9px;
-    border: 2px solid ButtonText;
-  }
-
-  .desk-editor__actions .desk-editor__save,
-  .desk-notice__actions .desk-notice__keep {
-    padding: 5px 13px;
-    border: 2px solid ButtonText;
-  }
-}

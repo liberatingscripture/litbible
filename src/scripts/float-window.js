@@ -29,6 +29,8 @@
 // in global.css (.lit-window), beside the shared panels', since the search
 // pages use it too.
 
+import { iconNode } from "../lib/icons.mjs";
+
 const EDGE = 8;
 // A press that moves less than this is a click, not a drag.
 const SLOP = 4;
@@ -68,7 +70,7 @@ export function createFloatWindow({ heading, title, className = "", attrs = {}, 
   x.type = "button";
   x.className = "lit-panel__close";
   x.setAttribute("aria-label", "Close");
-  x.textContent = "×";
+  x.append(iconNode("close"));
   header.append(grip, label, x);
 
   const titleEl = document.createElement("h2");

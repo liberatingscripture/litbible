@@ -27,6 +27,7 @@ async function until(fn, tries = 200) {
   }
   throw new Error("timed out");
 }
+const pk = (sel) => document.querySelector(`#search-pickbar ${sel}`);
 const click = (el) => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
 function toggle(box, on) {
   box.checked = on;
@@ -49,7 +50,7 @@ const NAMES = { romans: "Romans", galatians: "Galatians" };
 const labelOf = (h) => `${NAMES[h.book]} ${h.chapter}:${h.verse}`;
 // A row as search.js's appendGreekRows draws it.
 const greekRow = (h) =>
-  `<li class="result greek-row"><div class="greek-card"><a class="greek-ref" href="/${h.book}-${h.chapter}/?greek=${h.verse}.${h.t}#v${h.verse}">${labelOf(h)}</a><div class="result-excerpt greek-text" lang="grc">πίστεως</div><div class="greek-parse" hidden></div></div></li>`;
+  `<li class="result greek-row"><div class="greek-hit"><a class="greek-ref" href="/desk/?place=${h.book}-${h.chapter}:${h.verse}&greek=${h.verse}.${h.t}">${labelOf(h)}</a><div class="result-excerpt greek-text" lang="grc">πίστεως</div><div class="greek-parse" hidden></div></div></li>`;
 // What search.js's announceGreek sends.
 const detailFor = (query, hits, greekWord = "πίστις") => ({
   query,
@@ -88,6 +89,7 @@ function head() {
 function draw({ hits = HITS, shown = 6, greekWord } = {}) {
   resetDom("http://localhost/search/?q=%CF%80%CE%AF%CF%83%CF%84%CE%B9%CF%82");
   document.body.innerHTML = `<main class="search-page">
+    <div id="search-tools"></div><div id="search-pickbar" hidden></div>
     <div class="group" id="group-keyword" hidden><div class="group-title">Keyword matches</div><ol class="results" id="results-keyword"></ol></div>
     <div class="group" id="group-greek"><div class="group-title">Greek</div>
       <div class="greek-lemmas" id="greek-lemmas"><p class="greek-lemma-one">πίστις · pistis · G4102 · faith</p></div>
@@ -95,15 +97,18 @@ function draw({ hits = HITS, shown = 6, greekWord } = {}) {
     </div></main>`;
   const query = `πίστις ${++queries}`;
   announce(detailFor(query, hits, greekWord));
+  // Select gives the rows their boxes; it is the page's state, so press it only when off.
+  const select = document.querySelector(".search-tools__select");
+  if (select?.getAttribute("aria-pressed") !== "true") click(select);
   return { query, ...head() };
 }
 
 async function newSheet(q) {
-  click(q(".desk-gather__go"));
-  const panel = await until(() => q(".desk-gather__panel"));
+  click(pk(".search-pickbar__add"));
+  const panel = await until(() => pk(".desk-gather__panel"));
   await until(() => panel.querySelector(".desk-gather__note")?.textContent !== "Reading your sheets…");
   click(panel.querySelector(".desk-gather__actions button"));
-  return { panel, done: await until(() => q(".desk-gather__done")) };
+  return { panel, done: await until(() => pk(".desk-gather__done")) };
 }
 
 async function sheetTitled(title) {
@@ -115,7 +120,6 @@ test("E165: the Greek group gets the keyword results' head row, and every row a 
   const { bar, q, line } = draw();
   same(document.querySelector("#group-greek .group-title").nextElementSibling, bar, "right after the group's title");
   assert.ok(bar.classList.contains("desk-gather--head"));
-  assert.equal(bar.hidden, false);
   const all = q(":scope > input.desk-gather__all");
   assert.equal(all.type, "checkbox");
   assert.equal(all.getAttribute("aria-label"), "Check all 5 verses", "seven matches in five verses");
@@ -129,7 +133,7 @@ test("E165: the Greek group gets the keyword results' head row, and every row a 
   for (const li of rows) {
     const box = li.querySelector(":scope > input.desk-gather__tick");
     assert.ok(box, "every row has a box");
-    same(box.nextElementSibling, li.querySelector(".greek-card"), "before the card");
+    same(box.nextElementSibling, li.querySelector(".greek-hit"), "before the row");
     assert.ok(li.classList.contains("desk-gather__row-item"));
   }
   assert.equal(rows[0].querySelector(".desk-gather__tick").getAttribute("aria-label"), "Include Romans 3:22 in the sheet");
@@ -143,7 +147,7 @@ test("E165: nothing checked adds nothing; the button stays focusable and a press
   assert.equal(go.getAttribute("aria-describedby"), q(".desk-gather__lead").id);
   click(go);
   await settle(20);
-  assert.equal(q(".desk-gather__panel"), null, "no chooser opens");
+  assert.equal(pk(".desk-gather__panel"), null, "no chooser opens");
   assert.equal(await until(() => heard()), "Check the verses you want, or check all 5.");
 });
 
@@ -227,7 +231,6 @@ test("E165: a search with nothing to check, or none at all, hides the row and fo
   // The same Greek search again: its verses unchecked.
   const query = `πίστις ${++queries}`;
   announce(detailFor(query, HITS));
-  assert.equal(bar.hidden, false);
   assert.equal(q(".desk-gather__lead").textContent.replace("Clear checks", "").trim(), "Check the verses you want, or check all 5.");
   assert.equal(document.querySelectorAll("#results-greek .desk-gather__row-item--picked").length, 0);
 });

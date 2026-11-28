@@ -7,6 +7,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { settle, window } from "./helpers/browser-env.mjs";
+import { SEARCH_PAGE_HTML } from "./helpers/search-page-dom.mjs";
 
 const reply = (body) => ({
   ok: body !== null,
@@ -26,33 +27,7 @@ console.warn = () => {};
 
 // search.astro's markup, with SearchBar's field and filters, as much as the page reads.
 window.happyDOM.setURL("http://localhost/search/?q=John+3%3A16");
-document.body.innerHTML = `
-  <div data-searchbar>
-    <input id="site-search-input" class="searchbar__input" type="search" />
-    <select class="searchbar__book"><option value="">All books</option></select>
-    <select class="searchbar__mode"><option value="all">All results</option><option value="keyword">Keyword matches</option></select>
-  </div>
-  <section class="search-page">
-    <div class="sort-wrap">
-      <button type="button" data-sort="relevance" aria-pressed="true">Relevance</button>
-      <button type="button" data-sort="order" aria-pressed="false">Book order</button>
-    </div>
-    <div id="search-status"></div>
-    <nav id="search-jumps" hidden></nav>
-    <div id="search-active-filters" hidden></div>
-    <div class="search-ref" id="search-ref" data-search-ref hidden></div>
-    ${["notebook", "glossary", "subject", "intros", "articles", "keyword"]
-      .map((g) => `<div class="group" id="group-${g}" hidden><div class="group-title"></div><ol id="results-${g}"></ol></div>`)
-      .join("")}
-    <div class="group" id="group-greek" hidden>
-      <div class="group-title">Greek</div>
-      <div id="greek-lemmas" hidden></div>
-      <label id="greek-exact" hidden><input type="checkbox" id="greek-exact-input" /></label>
-      <ol id="results-greek"></ol>
-      <div id="greek-help" hidden></div>
-    </div>
-    <nav id="pager" hidden></nav>
-  </section>`;
+document.body.innerHTML = SEARCH_PAGE_HTML;
 
 await import("../src/scripts/search.js");
 
@@ -64,55 +39,49 @@ function preview(on) {
   else delete document.documentElement.dataset.desk;
 }
 
-/** Search for a query and read the banner's links. */
+/** Search for a query and read the answer's links. */
 async function linksFor(q, desk) {
   preview(desk);
   input.value = q;
   input.dispatchEvent(new Event("input", { bubbles: true }));
   await settle(260);
-  return [...banner.querySelectorAll("a.search-ref__link")].map((a) => ({
+  return [...banner.querySelectorAll("a.search-answer__link")].map((a) => ({
     href: a.getAttribute("href"),
     text: a.textContent.trim(),
   }));
 }
 
-test("the page's own query draws the banner (preview off)", async () => {
+test("the page's own query draws the answer: only Go without the preview", async () => {
   await settle(260);
   assert.equal(banner.hidden, false);
-  const links = [...banner.querySelectorAll("a.search-ref__link")].map((a) => a.getAttribute("href"));
-  assert.deepEqual(links, ["/john-3#v16", "/read/john#john-3-v16"]);
+  const links = [...banner.querySelectorAll("a.search-answer__link")].map((a) => a.getAttribute("href"));
+  assert.deepEqual(links, ["/john-3#v16"]);
 });
 
-test("preview on: a reference's second link opens the Study Desk in Reading", async () => {
+test("preview on: Go to the verse, then Study it (no Reading layout)", async () => {
   const links = await linksFor("John 3:16", true);
   assert.deepEqual(links, [
-    { href: "/john-3#v16", text: "Scripture page, with notes" },
-    { href: "/desk/?place=john-3:16&layout=reading", text: "Study Desk, Reading layout" },
+    { href: "/john-3#v16", text: "Go to John 3:16" },
+    { href: "/desk/?place=john-3:16", text: "Study John 3:16" },
   ]);
 });
 
 test("preview on: a range opens at its first verse, a chapter at the chapter", async () => {
-  assert.equal((await linksFor("Romans 8:16-18", true))[1].href, "/desk/?place=romans-8:16&layout=reading");
-  assert.equal((await linksFor("Romans 8", true))[1].href, "/desk/?place=romans-8&layout=reading");
+  assert.equal((await linksFor("Romans 8:16-18", true))[1].href, "/desk/?place=romans-8:16");
+  assert.equal((await linksFor("Romans 8", true))[1].href, "/desk/?place=romans-8");
 });
 
-test("preview on: a book's second link opens the desk in Reading at chapter 1", async () => {
+test("preview on: a book's Study link opens chapter 1", async () => {
   const links = await linksFor("Romans", true);
-  assert.deepEqual(links[1], { href: "/desk/?place=romans-1&layout=reading", text: "Whole book in Study Desk" });
+  assert.equal(links[1].href, "/desk/?place=romans-1");
 });
 
-test("preview on: a book's introduction still offers only the introduction (E123)", async () => {
+test("preview on: a book's introduction offers only the introduction (E123)", async () => {
   const links = await linksFor("Matthew intro", true);
   assert.deepEqual(links.map((l) => l.href), ["/matthew-intro"]);
 });
 
-test("preview off: the second link is Read View, as before", async () => {
-  assert.deepEqual((await linksFor("John 3:16", false))[1], { href: "/read/john#john-3-v16", text: "Read View, whole book" });
-  assert.deepEqual((await linksFor("Romans", false))[1], { href: "/read/romans", text: "Whole book in Read View" });
-});
-
-test("E130: the first link's wording follows the preview", async () => {
-  assert.equal((await linksFor("John 3:16", false))[0].text, "Chapter View, with notes");
-  assert.equal((await linksFor("Matthew intro", false))[0].text, "Intro in Chapter View");
-  assert.equal((await linksFor("Matthew intro", true))[0].text, "Book introduction");
+test("preview off: no Read View link, only Go", async () => {
+  assert.deepEqual((await linksFor("John 3:16", false)).map((l) => l.href), ["/john-3#v16"]);
+  assert.deepEqual((await linksFor("Romans", false)).map((l) => l.href), ["/romans-intro"]);
 });

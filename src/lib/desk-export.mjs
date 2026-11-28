@@ -63,7 +63,7 @@ import { sheetName } from "./desk-sheet-passages.mjs";
 import { kindName, liveRecords, recordHref, recordReference } from "./desk-store-core.mjs";
 
 export const ORIGIN = "https://litbible.net";
-export const LICENSE_URL = `${ORIGIN}/read/#license-terms`;
+export const LICENSE_URL = `${ORIGIN}/license/#license-terms`;
 /** The file format's own name and version, for the full backup and the Markdown header. */
 export const BACKUP_FORMAT = "lit-notebook";
 export const BACKUP_VERSION = 1;

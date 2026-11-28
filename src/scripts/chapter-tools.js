@@ -4,9 +4,8 @@
 // still scrolls to #vN anchors and footnote links still jump to the
 // footnotes section.
 //
-// Chapter View (a chapter page) gets all four; Read View (a whole book on
-// /read/<book>) gets only the fourth, since its verse numbers aren't
-// controls and a verse's links and notes belong to its Chapter View page.
+// A chapter's page gets all four, and so does each chapter it reads on into
+// (src/scripts/read-on.js calls attachChapter for each one it loads).
 //
 // 1. Verse-range highlighting — #v16 or #v16-18 softly highlights the
 //    addressed verses via the CSS Custom Highlight API (no-op where
@@ -38,6 +37,7 @@ import { pullBackSelectionEnd } from "../lib/selection-end.mjs";
 import { markEmphasis, handoutPlain, handoutHtml, VN_ON, VN_OFF, FN_ON, FN_OFF } from "../lib/handout-rich.mjs";
 import { showPanel, closePanel, holdPanel, currentPanel, setEscapeFallback, isSmallScreen } from "./lit-panel.js";
 import { imageStep } from "./verse-image.js";
+import { iconNode } from "../lib/icons.mjs";
 import {
   PANEL_EDGE,
   actionRows,
@@ -61,69 +61,66 @@ function init(container) {
   initSelectionShare(view);
 }
 
+/**
+ * The verse menu, footnote popovers and selection panel for one chapter the
+ * reading page has loaded beside its own (read-on.js): `container` is the
+ * chapter's `.chapter-paragraphs`, and `chapter` names it ({ book, chapter,
+ * label: "John 4" }), so its references, links and the Study Desk's rows name
+ * that chapter, not the page's.
+ */
+export function attachChapter(container, chapter) {
+  const view = studyView(container, chapter);
+  initVerseMenu(view);
+  initFootnotePopovers(container, chapter);
+  initSelectionShare(view);
+  return view;
+}
+
 /* ── Shared: the two views ────────────────────────────────────────────── */
 
-// What the verse menu and selection sharing need to know about the page they
-// run on. A view's text may hold more than one chapter (a Read View book, the
-// Study Desk's LIT pane), so `chapterOf` names the chapter an element is in,
-// and the rest take that name back. `scope` is where a handout reads each
-// verse's footnote letters and notes from: the page itself in Chapter View, and
-// elsewhere the chapter's Chapter View page, fetched once per chapter. It
-// returns the scope directly or a Promise of it, and null when it can't be
-// had. `partUrl` is a block's own link (see "parts" below), and `detail`
-// adds to what lit:panel-actions tells the Study Desk.
+// What the verse menu and selection sharing need to know about the text they
+// run on. A view's text may hold more than one chapter (the Study Desk's LIT
+// pane), so `chapterOf` names the chapter an element is in, and the rest take
+// that name back. `scope` is where a handout reads each verse's footnote
+// letters and notes from: the page itself here, and in a pane the chapter's
+// page, fetched once per chapter. It returns the scope directly or a Promise of
+// it, and null when it can't be had. `partUrl` is a block's own link (see
+// "parts" below), and `detail` adds to what lit:panel-actions tells the
+// Study Desk.
+//
+// On the reading page each chapter is a view of its own, named once
+// (`chapter`: { book, chapter, label }), since the address follows the
+// chapter being read (read-on.js) and can't say which chapter a verse is in.
+// The page's own chapter is named by its article.
 
-function studyView(container) {
+function studyView(container, chapter = pageChapterName()) {
+  const base = chapterBase(chapter);
+  const label = chapter?.label || getChapterRef();
   return {
     name: "study",
     container,
-    chapterOf: () => 0, // one chapter per page
+    book: chapter?.book,
+    chapterOf: () => chapter?.chapter || 0,
     spans: (_ch, verse) => verseSpans(container, verse),
-    ref: (_ch, start, end) => formatRef(start, end),
-    url: (_ch, start, end) => getVerseUrl(start, end),
-    partUrl: (_ch, id) => pageUrl() + "#" + id,
+    ref: (_ch, start, end) => label + ":" + start + (end > start ? "–" + end : ""),
+    url: (_ch, start, end) => base + "#v" + start + (end > start ? "-" + end : ""),
+    partUrl: (_ch, id) => base + "#" + id,
     scope: () => ({ container, root: document }),
+    detail: () => (chapter?.book && chapter.chapter ? { book: chapter.book, chapter: chapter.chapter } : {}),
   };
 }
 
-function readingView(container) {
-  const page = container.closest("[data-rm-root]");
-  const book = page?.dataset.rmBook || "";
-  const title = page?.dataset.rmBookTitle || "";
-  const chapterUrl = (ch) => window.location.origin + "/" + book + "-" + ch;
-  const scopes = new Map();
-  return {
-    name: "read",
-    book,
-    container,
-    // A whole book shares the page, so each block says which chapter it is
-    // (read/[book].astro).
-    chapterOf: (span) => Number(span.closest("[data-chapter]")?.dataset.chapter) || 0,
-    spans: (ch, verse) => [
-      ...container.querySelectorAll(`[data-chapter="${ch}"] [data-verse="${verse}"]`),
-    ],
-    ref: (ch, start, end) => title + " " + ch + ":" + start + (end > start ? "–" + end : ""),
-    // Links go to the verse on its Chapter View page, like every other shared
-    // verse link, where the reader who follows it finds the notes too.
-    url: (ch, start, end) => chapterUrl(ch) + "#v" + start + (end > start ? "-" + end : ""),
-    scope(ch) {
-      if (!scopes.has(ch)) {
-        scopes.set(
-          ch,
-          fetch(chapterUrl(ch) + "/")
-            .then((r) => (r.ok ? r.text() : null))
-            .then((html) => {
-              if (!html) return null;
-              const root = new DOMParser().parseFromString(html, "text/html");
-              const study = root.querySelector(".chapter-paragraphs");
-              return study ? { container: study, root } : null;
-            })
-            .catch(() => null)
-        );
-      }
-      return scopes.get(ch);
-    },
-  };
+/** The page's own chapter, from its article (published chapters carry it). */
+function pageChapterName() {
+  const article = document.querySelector("article.chapter[data-last-read-book]");
+  const book = article?.dataset.lastReadBook;
+  const chapter = Number(article?.dataset.lastReadChapter) || 0;
+  return book && chapter ? { book, chapter, label: getChapterRef() } : null;
+}
+
+/** A chapter's address without a trailing slash, as a verse link carries it. */
+function chapterBase(chapter) {
+  return chapter?.book && chapter.chapter ? window.location.origin + "/" + chapter.book + "-" + chapter.chapter : PAGE_URL;
 }
 
 /* ── Shared: verse span lookup ────────────────────────────────────────── */
@@ -267,13 +264,9 @@ function formatRef(start, end) {
   return end > start ? base + "–" + end : base;
 }
 
-function pageUrl() {
-  return window.location.origin + window.location.pathname.replace(/\/$/, "");
-}
-
-function getVerseUrl(start, end) {
-  return pageUrl() + "#v" + start + (end > start ? "-" + end : "");
-}
+// The page's own address as it opened: read-on.js moves the address to the
+// chapter being read, which a verse of this one must never take.
+const PAGE_URL = window.location.origin + window.location.pathname.replace(/\/$/, "");
 
 /**
  * The blocks one verse's content is spread across, in document order.
@@ -711,7 +704,7 @@ function openVerseMenu(
   closeBtn.type = "button";
   closeBtn.className = "lit-panel__close";
   closeBtn.setAttribute("aria-label", "Close");
-  closeBtn.textContent = "×";
+  closeBtn.append(iconNode("close"));
   closeBtn.addEventListener("click", closePanel);
   header.append(heading, closeBtn);
   panel.appendChild(header);
@@ -888,7 +881,7 @@ function initVerseMenu(view) {
 
 /* ── 3. Footnote popovers ─────────────────────────────────────────────── */
 
-function initFootnotePopovers(container) {
+function initFootnotePopovers(container, chapter = null) {
   container.querySelectorAll(".fn-ref a").forEach((a) => {
     a.setAttribute("aria-haspopup", "dialog");
   });
@@ -917,7 +910,9 @@ function initFootnotePopovers(container) {
     // pre-2026-07 markup, kept as a fallback.
     const panel = footnotePanel({ title: "Footnote " + label, body: note.querySelector(".fn-body, p") });
 
-    // Link through to the full footnotes section.
+    // Link through to the full footnotes section, where it is drawn: where
+    // the Notebook panel runs it leaves the reading flow (reading-page.css).
+    const listShown = note.getClientRects().length > 0;
     const jump = document.createElement("a");
     jump.className = "lit-panel__jump";
     jump.href = "#" + noteId;
@@ -933,15 +928,18 @@ function initFootnotePopovers(container) {
       note.setAttribute("tabindex", "-1");
       note.focus({ preventScroll: true });
     });
-    panel.appendChild(jump);
+    if (listShown) panel.appendChild(jump);
 
     // Let the Study Desk add its Pin button before the panel is placed
     // (STUDY-DESK.md, pinned footnotes). Only src/scripts/desk/pins.js
     // listens, and only with the desk switched on, so a reader's popover is
     // unchanged. `note` is the footnote's list item and `ref` its letter's link.
-    document.dispatchEvent(
-      new CustomEvent("lit:footnote-actions", { detail: { panel, note, ref: a } })
-    );
+    // A chapter the reading page loaded names itself, as a Study pane's does
+    // (lit-pane.js): its note by the id its own page gives it.
+    const detail = chapter
+      ? { panel, note: { id: a.dataset.fn || noteId }, ref: a, book: chapter.book, chapter: chapter.chapter }
+      : { panel, note, ref: a };
+    document.dispatchEvent(new CustomEvent("lit:footnote-actions", { detail }));
 
     showPanel(a, panel, { restoreFocus: a });
     panel.focus({ preventScroll: true });
@@ -1492,11 +1490,7 @@ export function attachVerseTools(view) {
 
 // /desk imports this module for its LIT pane, which starts the tools itself.
 const onDesk = !!document.querySelector("[data-desk-page]");
-const container = onDesk ? null : document.querySelector(".chapter-paragraphs");
-if (container) {
-  init(container);
-} else if (!onDesk) {
-  // Read View: the selection bar only (see the header).
-  const reading = document.querySelector("[data-rm-root] .rm-text");
-  if (reading) initSelectionShare(readingView(reading));
-}
+const container = onDesk
+  ? null
+  : (document.querySelector("article.chapter > .chapter-paragraphs") ?? document.querySelector(".chapter-paragraphs"));
+if (container) init(container);

@@ -83,7 +83,7 @@ Not permitted:
   without written permission
 - Creating derivative translations or adaptations, or replacing the LIT's words
 
-Full terms: https://litbible.net/read#license-terms
+Full terms: https://litbible.net/license#license-terms
 
 The intent: if you are building something to help people read, study, or encounter this
 translation, you are welcome to use it. If you are trying to profit from it, contact us

@@ -217,7 +217,7 @@ function buildCommand(item) {
 }
 
 function fillBody(body, builder) {
-  body.append(make("h3", "greek-cmds__heading", "Build a search"), builder.el);
+  body.append(builder.el);
   // The list the builder is made from, for typing the notation by hand: kept
   // under one heading so the window opens short.
   const more = make("details", "greek-cmds__more");
@@ -333,7 +333,7 @@ export function openGreekCommands({ field, source = "page", focus = true, filter
 
   const win = createFloatWindow({
     heading: "Greek search",
-    title: "Search commands",
+    title: "Build a search",
     className: "greek-cmds",
     // A click in it never closes the Notebook when that floats, nor the tray.
     attrs: { "data-desk-dock": "", "data-greek-commands": "" },

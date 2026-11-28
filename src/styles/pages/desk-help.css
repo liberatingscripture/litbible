@@ -1,8 +1,7 @@
 /* =========================================================
    Study Desk help page (E125; BVJ, 2026-11-12): a document
    column with its contents beside it on a wide window and
-   above it on a narrow one. No script of its own (Site 2.0's
-   contents marker, v2-frame.js, is the page's one), and nothing folded
+   above it on a narrow one. No script of its own, and nothing folded
    away: an anchor and find-in-page reach every word.
    Every colour is a theme token, so dark mode needs no rule
    of its own here.
@@ -44,7 +43,8 @@ html[data-desk] .nbhelp {
 }
 
 .nbhelp__title {
-  font-family: var(--serif, serif);
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: calc(clamp(2.25rem, 4vw, 3rem) * var(--help-scale, 1));
   line-height: 1.1;
   margin: 0 0 0.75rem;
@@ -68,7 +68,7 @@ html[data-desk] .nbhelp {
   padding: 1rem 1.25rem 1.1rem;
   border: 1px solid rgba(var(--ink-rgb), 0.16);
   border-left: 3px solid var(--green-text);
-  border-radius: 6px;
+  border-radius: var(--radius-float);
   background-color: var(--surface-raised);
 }
 
@@ -77,7 +77,7 @@ html[data-desk] .nbhelp {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
   margin: 0 0 0.6rem;
   scroll-margin-top: 1rem;
 }
@@ -111,11 +111,10 @@ html[data-desk] .nbhelp {
   text-underline-offset: 3px;
 }
 
+/* The ring is the site's; a link's takes the pressed corner. */
 .nbhelp__toc a:focus-visible,
 .nbhelp__body a:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-press);
 }
 
 .nbhelp__toc-part {
@@ -223,7 +222,8 @@ html[data-desk] .nbhelp {
 
 .nbhelp__body h2,
 .nbhelp__body h3 {
-  font-family: var(--serif, serif);
+  font-family: var(--font-display);
+  font-weight: 500;
   color: var(--text-strong);
   scroll-margin-top: 1rem;
 }

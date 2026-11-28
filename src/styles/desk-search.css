@@ -10,66 +10,8 @@
 
    A rule for these rows goes here, not in desk.css: on /search and the home
    page's search strip desk.css isn't loaded at all. Every color is a theme
-   token. The buttons' own tokens (E126) are below, with their dark pairs,
-   the same values desk.css declares in "The desk's layers", since this file
-   is all /search has (test/desk-buttons-css.test.js holds the two in step);
-   nothing else here needs a rule per theme. */
-
-/* The buttons' tokens (E126; desk.css, "The desk's layers", says what each
-   is). */
-:root {
-  --desk-control: var(--white);
-  --desk-btn-edge-low: rgba(var(--ink-rgb), 0.74);
-  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.12);
-  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.16);
-  --desk-btn-press: inset 0 1px 3px rgba(0, 0, 0, 0.22);
-  --desk-btn-hover: rgba(var(--ink-rgb), 0.05);
-  --desk-btn-down: rgba(0, 0, 0, 0.07);
-  --desk-btn-lift-y: -1px;
-  --desk-btn-motion: 120ms;
-  --desk-primary-edge: var(--green-deep);
-  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.35);
-  --desk-primary-off: rgba(15, 107, 51, 0.06);
-  --desk-pick-tint: rgba(32, 157, 80, 0.08);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --desk-control: rgba(var(--ink-rgb), 0.07);
-    --desk-btn-edge-low: var(--field-border);
-    --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
-    --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
-    --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-    --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
-    --desk-btn-down: rgba(0, 0, 0, 0.3);
-    --desk-primary-edge: rgba(58, 191, 106, 0.7);
-    --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-    --desk-primary-off: rgba(58, 191, 106, 0.12);
-    --desk-pick-tint: rgba(58, 191, 106, 0.1);
-  }
-}
-
-:root[data-theme="dark"] {
-  --desk-control: rgba(var(--ink-rgb), 0.07);
-  --desk-btn-edge-low: var(--field-border);
-  --desk-btn-rest: 0 1px 0 rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
-  --desk-btn-lift: 0 1px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.6);
-  --desk-btn-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-  --desk-btn-hover: rgba(var(--ink-rgb), 0.06);
-  --desk-btn-down: rgba(0, 0, 0, 0.3);
-  --desk-primary-edge: rgba(58, 191, 106, 0.7);
-  --desk-primary-press: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-  --desk-primary-off: rgba(58, 191, 106, 0.12);
-  --desk-pick-tint: rgba(58, 191, 106, 0.1);
-}
-
-/* No lift, no transition; the shadows still say hover and pressed. */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --desk-btn-lift-y: 0px;
-    --desk-btn-motion: 0s;
-  }
-}
+   token, so nothing here needs a rule per theme, and every button and row
+   is kit.css's: a rule here says only where one sits and how big it is. */
 
 /* The Commands window (desk/commands-window.js, E31): the desk's own commands,
    a float-window.js window apart from the Greek's. Above the search tray (999)
@@ -104,7 +46,7 @@
   margin: 0 0 8px;
   font-size: calc(0.82rem * var(--desk-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-cmds__more {
@@ -119,7 +61,8 @@
   list-style: none;
 }
 
-/* A command: a link or a button, its name and where it works on one line. */
+/* A command: a link or a button, its name and where it works on one line,
+   a list row in the kit. */
 .desk-cmds__row {
   display: flex;
   flex-wrap: wrap;
@@ -130,21 +73,15 @@
   width: 100%;
   margin: 0;
   padding: 6px 6px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: var(--text);
-  font: inherit;
   font-size: calc(0.9rem * var(--desk-ui, 1));
+  line-height: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
 }
 
-.desk-cmds__row:hover {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
+/* A row fills the window's scrolling list edge to edge, so its ring is
+   drawn inside it, where an outside one would be clipped. */
 .desk-cmds__row:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
@@ -156,21 +93,21 @@
 
 .desk-cmds__hint {
   font-size: calc(0.75rem * var(--desk-ui, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 /* ── 1d: search (your notebook and commands) ── */
 
-/* A command in the search tray is a button or a link drawn as a result row. */
+/* A command in the search tray is a button or a link, a list row in the
+   kit. */
 .desk-command {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 4px 12px;
   width: 100%;
-  background: none;
-  border: 0;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: left;
   cursor: pointer;
 }
@@ -202,7 +139,6 @@
   background: rgba(32, 157, 80, 0.22);
   color: inherit;
   padding: 0 2px;
-  border-radius: 3px;
 }
 
 .desk-more {
@@ -247,7 +183,7 @@
   min-width: 0;
   padding: 10px 12px 10px 16px;
   border: 1px solid rgba(var(--ink-rgb), 0.16);
-  border-radius: 12px;
+  border-radius: var(--radius-float);
   background: var(--surface-raised);
 }
 
@@ -285,14 +221,13 @@
   max-width: 100%;
 }
 
-/* The worded buttons: ordinary, the primary, or quiet ("Clear checks"). */
+/* The worded buttons, the kit's: the head row's tinted (one to a group, and
+   a page can show several groups), the chooser's New sheet filled, Cancel
+   and Undo plain, and "Clear checks", in the line's words, inline. */
 .desk-gather__btn {
   padding: 4px 10px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  color: var(--text);
-  font: inherit;
   font-size: calc(0.8125rem * var(--desk-ui, 1));
+  line-height: inherit;
   cursor: pointer;
 }
 
@@ -321,79 +256,10 @@
   visibility: hidden;
 }
 
-/* Ordinary (Cancel, Undo): E89's fill and 3:1 edge, raised (E126). */
-.desk-gather__btn:where(:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)) {
-  border-color: var(--field-border);
-  border-bottom-color: var(--desk-btn-edge-low);
-  background: var(--desk-control);
-  box-shadow: var(--desk-btn-rest);
-  transition:
-    transform var(--desk-btn-motion) ease,
-    box-shadow var(--desk-btn-motion) ease,
-    background-color var(--desk-btn-motion) ease;
-}
-
-.desk-gather__btn:where(:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)):hover:not(:disabled, [aria-disabled="true"], :active) {
-  background: var(--desk-control) linear-gradient(var(--desk-btn-hover), var(--desk-btn-hover));
-  box-shadow: var(--desk-btn-lift);
-  transform: translateY(var(--desk-btn-lift-y));
-}
-
-.desk-gather__btn:where(:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)):active:not(:disabled, [aria-disabled="true"]) {
-  border-bottom-color: var(--field-border);
-  background: var(--desk-control) linear-gradient(var(--desk-btn-down), var(--desk-btn-down));
-  box-shadow: var(--desk-btn-press);
-  transform: none;
-}
-
-.desk-gather__btn:where(:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)):is(:disabled, [aria-disabled="true"]) {
-  border-color: var(--field-border);
-  background: var(--desk-control);
-  color: rgba(var(--ink-rgb), 0.7);
-  box-shadow: none;
-  cursor: default;
-}
-
-/* The primary: Deep Green, white words; in dark themes an edge of the text
-   green at 70%. With no verse checked it is a disabled primary: its edge, a
-   faint green and the text green's words, still a button, still focusable. */
-.desk-gather__btn--primary {
-  border-color: var(--desk-primary-edge);
-  background: var(--green-deep);
-  color: #fff;
-  font-weight: 600;
-  box-shadow: var(--desk-btn-rest);
-  transition:
-    transform var(--desk-btn-motion) ease,
-    box-shadow var(--desk-btn-motion) ease,
-    filter var(--desk-btn-motion) ease;
-}
-
-.desk-gather__btn--primary:hover:not(:disabled, [aria-disabled="true"], :active) {
-  box-shadow: var(--desk-btn-lift);
-  transform: translateY(var(--desk-btn-lift-y));
-  filter: brightness(1.1);
-}
-
-.desk-gather__btn--primary:active:not(:disabled, [aria-disabled="true"]) {
-  box-shadow: var(--desk-primary-press);
-  transform: none;
-  filter: brightness(0.95);
-}
-
-.desk-gather__btn--primary:is(:disabled, [aria-disabled="true"]) {
-  background: var(--desk-primary-off);
-  color: var(--green-text);
-  box-shadow: none;
-  cursor: default;
-}
-
-/* Quiet: a link's look. */
+/* With no verse checked the head row's button is unavailable in the kit's
+   way, still focusable. "Clear checks" is underlined, as the line's link. */
 .desk-gather__btn--quiet {
   padding: 0;
-  border: 0;
-  background: none;
-  color: var(--green-text);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -408,7 +274,7 @@
 
 .desk-gather__note,
 .desk-gather__sheet-meta {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 .desk-gather :is(button, a, input):focus-visible {
@@ -421,7 +287,7 @@
   margin-top: 10px;
   padding: 10px 12px;
   border: 1px solid rgba(var(--ink-rgb), 0.18);
-  border-radius: 12px;
+  border-radius: var(--radius-float);
   background: rgba(var(--surface-rgb), 0.78);
 }
 
@@ -450,29 +316,17 @@
   overflow-y: auto;
 }
 
+/* Each sheet is a list row, the kit's (a full one is unavailable). */
 .desk-gather__sheet {
   display: flex;
   flex-wrap: wrap;
   gap: 0 10px;
   width: 100%;
   padding: 6px 4px;
-  border: 0;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.1);
-  background: transparent;
-  color: var(--text);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-.desk-gather__sheet:hover:not(:disabled) {
-  background: rgba(var(--ink-rgb), 0.06);
-}
-
-.desk-gather__sheet:disabled {
-  opacity: 0.5;
-  cursor: default;
-  background: transparent;
 }
 
 .desk-gather__sheet-name {
@@ -496,7 +350,7 @@
   gap: 10px;
 }
 
-.desk-gather__row-item > :is(.result-link, .greek-card) {
+.desk-gather__row-item > :is(.result-link, .greek-hit) {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -506,7 +360,6 @@
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: var(--green-deep);
   cursor: pointer;
 }
 
@@ -518,36 +371,16 @@
 /* A checked result: the head row's green rule, and a firmer edge. The
    page's own card rules (search.astro) are scoped, so these name the page
    to stand level with them, and come later. */
-.search-page .desk-gather__row-item--picked > .result-link,
-.search-page .desk-gather__row-item--picked > .result-link:hover,
-.search-page .desk-gather__row-item--picked > .result-link:active,
-.search-page .desk-gather__row-item--picked > .greek-card {
+.search-page .desk-gather__row-item--picked > .result-link {
   border-color: rgba(var(--ink-rgb), 0.24);
-  box-shadow: inset 3px 0 0 var(--green-text), 0 10px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: inset 3px 0 0 var(--green-text);
 }
 
-/* Forced colors draw no fill or shadow: the primary takes a thicker edge
-   (as the Sheets' does, XA8-7), a disabled one reads in GrayText, and a
-   checked result keeps its rule as an edge. */
+/* Forced colors draw no fill or shadow, so a checked result keeps its rule
+   as an edge. The buttons' edges there, a disabled one's GrayText included,
+   are the kit's. */
 @media (forced-colors: active) {
-  .desk-gather__btn.desk-gather__btn--primary {
-    border: 2px solid ButtonText;
-  }
-
-  .desk-gather__panel .desk-gather__btn--primary {
-    padding: 3px 9px;
-  }
-
-  .desk-gather--head .desk-gather__go {
-    padding: 5px 11px;
-  }
-
-  .desk-gather__btn:is(:disabled, [aria-disabled="true"]) {
-    border-color: GrayText;
-    color: GrayText;
-  }
-
-  .search-page .desk-gather__row-item--picked > :is(.result-link, .greek-card) {
+  .search-page .desk-gather__row-item--picked > .result-link {
     border-color: Highlight;
   }
 }

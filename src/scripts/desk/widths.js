@@ -27,15 +27,21 @@
 // opening with them never jumps. Where the window is too narrow for them,
 // placeWithWidths gives way in order and this writes what fits over the
 // stamped values, keeping what the reader chose for a wider window.
-// "Reset widths" forgets them.
+// "Reset widths," the last line of each line's menu (DI-25; the Display tray's
+// and the Notebook's buttons went in Featherboa's Phase 4), forgets them.
+//
+// The text drags only within 45 to 75 characters a line (SZ-17, DI-24), in
+// the reader's face (measureRange), and its line steps and reads out in that
+// face's characters, not in --ch's "0"s: "Text 57 characters wide."
 
 import {
-  MIN_MEASURE,
   MIN_WIDTH,
   KEEP_LEFT,
   TEXT_HANDLE,
   dragNotebookEdge,
   dragTextEdge,
+  measureChars,
+  measureRange,
   placeWithWidths,
   widestMeasure,
   widthsFromLayout,
@@ -118,24 +124,6 @@ export function keptAny() {
 }
 
 /**
- * A "Reset widths" button that shows only while widths are kept. `className`
- * is the host's own button style (the panel's foot, the Display tray).
- */
-export function resetWidthsButton(className) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = className;
-  b.textContent = "Reset widths";
-  const sync = () => {
-    b.hidden = !keptAny();
-  };
-  sync();
-  document.addEventListener(WIDTHS_EVENT, sync);
-  b.addEventListener("click", () => keepReadingPlace(resetWidths));
-  return b;
-}
-
-/**
  * @param {{ column: HTMLElement, panel: HTMLElement, onChange: () => void }} options
  *   `column` is Chapter View's column (.scripture-main), `panel` the Notebook
  *   panel, and `onChange` places everything again (margin.js).
@@ -154,13 +142,21 @@ export function createWidths({ column, panel, onChange }) {
     const cs = getComputedStyle(column);
     const parent = column.parentElement;
     const ps = getComputedStyle(parent);
+    const face = root.getAttribute("data-font") || "";
+    const ch = probe.getBoundingClientRect().width / 100 || 10;
     return {
       viewport: root.clientWidth,
       parentLeft: parent.getBoundingClientRect().left + parseFloat(ps.paddingLeft || "0"),
       // Room for a footnote's Pin, which the widths never take (E81).
       keepLeft: KEEP_LEFT,
-      ch: probe.getBoundingClientRect().width / 100 || 10,
+      ch,
+      // One of the face's characters, in px: a step of either line.
+      char: ch / measureChars(1, face),
       pad: parseFloat(cs.paddingLeft || "0") + parseFloat(cs.paddingRight || "0"),
+      // The text's range in this face, read at each use, since the Display
+      // tray can change the face under a kept measure.
+      face,
+      range: measureRange(face),
     };
   };
 
@@ -195,8 +191,8 @@ export function createWidths({ column, panel, onChange }) {
   gutters.append(textEdge, bookEdge);
   document.body.append(gutters);
 
-  // Site 2.0 paints the sheet the text lies on as the column's ::before
-  // (v2/scripture.css), reaching past the column's box on both sides. Its
+  // A stylesheet may paint a sheet the text lies on as the column's ::before,
+  // reaching past the column's box on both sides. Its
   // edges in the window, given the column's box, or null where none is drawn.
   function sheetEdges(box) {
     const sheet = getComputedStyle(column, "::before");
@@ -234,9 +230,9 @@ export function createWidths({ column, panel, onChange }) {
     const m = measures();
     if (which === "text") {
       const maxMeasure = widestMeasure({ ...m, width: start.width });
-      return { measure: dragTextEdge({ measure: start.measure, dx, ch: m.ch, maxMeasure }), width: start.width };
+      return { measure: dragTextEdge({ measure: start.measure, dx, ch: m.ch, range: m.range, maxMeasure }), width: start.width };
     }
-    return dragNotebookEdge({ measure: start.measure, width: start.width, dx, ch: m.ch });
+    return dragNotebookEdge({ measure: start.measure, width: start.width, dx, ch: m.ch, range: m.range });
   }
 
   let frame = 0;
@@ -250,14 +246,15 @@ export function createWidths({ column, panel, onChange }) {
   }
 
   // Each line as every draggable line is (line-menu.js): a character a step
-  // with the arrow keys, ten with Shift, and Home and End as far as it goes.
+  // with the arrow keys (one of the face's, measures().char), ten with Shift,
+  // and Home and End as far as it goes.
   for (const h of [textEdge, bookEdge]) {
     const which = h === textEdge ? "text" : "book";
     wireLine(h, {
       draggingClass: "desk-gutter--dragging",
       begin: (e) => ({ widths: startingWidths(), x0: e.clientX }),
       drag: (s, ev) => set(next(which, s.widths, ev.clientX - s.x0)),
-      nudge: (dir, big) => set(next(which, startingWidths(), dir * (big ? 10 : 1) * measures().ch)),
+      nudge: (dir, big) => set(next(which, startingWidths(), dir * (big ? 10 : 1) * measures().char)),
       // The whole window's width is past either end; the rules stop it there.
       toEnd: (dir) => set(next(which, startingWidths(), dir * root.clientWidth)),
       menu: () => menuFor(which),
@@ -337,8 +334,8 @@ export function createWidths({ column, panel, onChange }) {
       more: text ? "Wider text" : "Wider Notebook",
       less: text ? "Narrower text" : "Narrower Notebook",
       step: (dir) => {
-        const { ch } = measures();
-        set(next(which, startingWidths(), -dir * MENU_STEP * ch));
+        const { char } = measures();
+        set(next(which, startingWidths(), -dir * MENU_STEP * char));
       },
       reset: { label: "Reset widths", run: () => keepReadingPlace(resetWidths), shown: keptAny },
     };
@@ -385,12 +382,15 @@ export function createWidths({ column, panel, onChange }) {
         : parseFloat(getComputedStyle(root).getPropertyValue("--reading-measure")) || 48;
     const width = Math.round(now && !now.over ? now.width : root.clientWidth - 16 - panelLeft);
     const widest = widestMeasure({ ...m, width });
-    textEdge.setAttribute("aria-valuemin", String(MIN_MEASURE));
-    textEdge.setAttribute("aria-valuemax", String(Math.max(MIN_MEASURE, Math.floor(widest))));
-    textEdge.setAttribute("aria-valuenow", String(Math.round(measure)));
-    textEdge.setAttribute("aria-valuetext", `Text ${Math.round(measure)} characters wide`);
+    // The text's line counts in the face's characters, the unit of its 45 to
+    // 75, each value rounded the same way so the menu's steps stop at the ends.
+    const chars = (v) => Math.round(measureChars(v, m.face));
+    textEdge.setAttribute("aria-valuemin", String(chars(m.range.min)));
+    textEdge.setAttribute("aria-valuemax", String(chars(Math.max(m.range.min, widest))));
+    textEdge.setAttribute("aria-valuenow", String(chars(measure)));
+    textEdge.setAttribute("aria-valuetext", `Text ${chars(measure)} characters wide`);
     bookEdge.setAttribute("aria-valuemin", String(MIN_WIDTH));
-    bookEdge.setAttribute("aria-valuemax", String(Math.round(width + (measure - MIN_MEASURE) * m.ch)));
+    bookEdge.setAttribute("aria-valuemax", String(Math.round(width + Math.max(0, measure - m.range.min) * m.ch)));
     bookEdge.setAttribute("aria-valuenow", String(width));
     bookEdge.setAttribute("aria-valuetext", `Notebook ${width} pixels wide`);
   }

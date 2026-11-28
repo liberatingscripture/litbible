@@ -106,10 +106,10 @@ test("E68: Add pane opens its menu at column or row, then the kinds; Escape step
   same(document.activeElement, first, "focus is on the first line");
   assert.equal(first.textContent.trim().startsWith("Add column"), true);
   click(first);
-  assert.ok(row.addMenu.textContent.includes("‹ Add column"), "the kinds, with a way back");
+  assert.ok([...row.addMenu.querySelectorAll("[role=menuitem]")].some((b) => b.querySelector("svg[data-icon=back]") && b.textContent.trim() === "Add column"), "the kinds, with a way back");
   const esc = () => row.addMenu.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
   document.activeElement.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
-  assert.ok(!row.addMenu.textContent.includes("‹ Add column"), "back at column or row");
+  assert.ok(!row.addMenu.querySelector("svg[data-icon=back]"), "back at column or row");
   assert.equal(row.addMenu.hidden, false);
   esc();
   assert.equal(row.addMenu.hidden, true);

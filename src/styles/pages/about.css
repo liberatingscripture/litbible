@@ -1,445 +1,283 @@
 /* =========================================================
-   About page — full-bleed cream, essay mode
+   About page: an essay in the reading column, drawn with Featherboa's
+   tokens. Its title is the page's one italic line ("Type": Fraunces's
+   italic, large, once on a front-door page). The contents' controls carry
+   the kit's own classes, and the disclosures take its plain look by name
+   (`.faq-q`), so this file says where they sit, and how big a disclosure's
+   question is: the Text size, following the Display tray as its answer
+   does, as /license's are.
    ========================================================= */
 
-/* This page follows the Display tray's text size and line spacing through
-   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
+/* The page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (src/styles/CLAUDE.md). */
 .about-page {
-  background-color: var(--page-bg);
+  background-color: var(--color-page);
   min-height: 100vh;
   font-size: calc(1em * var(--reading-scale, 1));
-
-  /* vertical rhythm */
-  padding-block: clamp(3.5rem, 8vw, 6rem);
-
-  /* global content gutter */
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
 }
 
 /* =========================================================
-   HERO: Question + answer
+   Hero: the question, set in Fraunces's italic, and its answer
    ========================================================= */
 
 .about-hero {
   width: 100%;
-  margin-bottom: clamp(3.5rem, 7vw, 5rem);
+  margin-bottom: var(--space-8);
 }
 
 .about-hero__inner {
   max-width: calc(60 * var(--ch));
   margin: 0 auto;
-  position: relative;
 }
 
-/* Title */
 .about-hero__title {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(2.45rem, 4.2vw, 3.25rem) * var(--heading-scale, 1));
-  line-height: 1.1;
-  margin: 0 0 1.75rem 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-5);
   text-align: center;
 }
 
-/* Answer block */
-.about-hero__answer {
-  font-size: calc(clamp(1.2rem, 0.6vw + 1.05rem, 1.35rem) * var(--reading-scale, 1));
-  line-height: calc(1.78 + var(--reading-leading-extra, 0));
+.about-hero__answer p:last-child {
+  margin-bottom: 0;
 }
 
-
-
 /* =========================================================
-   BODY SECTIONS (stacked, readable)
+   Body sections: stacked, readable
    ========================================================= */
 
 .about-body {
   max-width: calc(60 * var(--ch));
-  margin: 0 auto clamp(3.5rem, 7vw, 5rem);
-
-  font-size: calc(clamp(1.1rem, 0.55vw + 1rem, 1.3rem) * var(--reading-scale, 1));
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+  margin: 0 auto var(--space-8);
 }
 
-/* Paragraph rhythm */
 .about-body p + p {
-  margin-top: 1.75rem;
+  margin-top: var(--space-5);
 }
 
-/* =========================================================
-   Headings hierarchy
-   ========================================================= */
-
-/* H2: Major sections */
+/* H2: major sections */
 .about-body > h2 {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(1.75rem, 3vw, 2.15rem) * var(--heading-scale, 1));
-  line-height: 1.25;
-
-  margin-top: clamp(3.5rem, 7vw, 5rem);
-  margin-bottom: 1.5rem;
+  font-size: calc(var(--size-heading) * var(--heading-scale, 1));
+  line-height: var(--leading-heading);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
 }
 
-/* First H2 shouldn’t push down */
+/* The first one doesn't push down. */
 .about-body > h2:first-child {
   margin-top: 0;
 }
 
-/* H3: Subsections */
+/* H3: subsections */
 .about-body h3 {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(1.35rem, 1.1vw + 1.05rem, 1.6rem) * var(--reading-scale, 1));
-  line-height: 1.25;
-
-  margin-top: 2.75rem;
-  margin-bottom: 1rem;
+  font-size: calc(var(--size-subhead) * var(--heading-scale, 1));
+  line-height: var(--leading-subhead);
+  margin-top: var(--space-7);
+  margin-bottom: var(--space-3);
 }
 
-
-/* =========================================================
-   Lists
-   ========================================================= */
-
 .about-body ul {
-  margin: 1.5rem 0 1.75rem 1.25rem;
+  margin: var(--space-4) 0 var(--space-5) var(--space-5);
   padding: 0;
 }
 
 .about-body li {
-  margin-bottom: 0.65rem;
+  margin-bottom: var(--space-2);
 }
 
 /* =========================================================
-   FAQ accordion (details/summary)
+   FAQ disclosures
    ========================================================= */
 
 .faq {
-  margin-top: 1.5rem;
+  margin-top: var(--space-4);
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .faq-item {
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 16px;
-  background: rgba(var(--surface-rgb), 0.65);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-float);
   overflow: hidden;
 }
 
 .faq-q {
   list-style: none;
-  cursor: pointer;
-
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(1.15rem, 0.55vw + 1.05rem, 1.35rem) * var(--reading-scale, 1));
-  line-height: 1.25;
-
-  padding: 16px 16px;
-  display: flex;
-  align-items: center;
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  width: 100%;
+  min-height: 0;
+  padding: var(--space-4) var(--space-5);
   justify-content: space-between;
-  gap: 14px;
+  text-align: left;
+  white-space: normal;
+  user-select: none;
 }
 
 .faq-q::-webkit-details-marker {
   display: none;
 }
 
-.faq-q::after {
-  content: "＋";
-  font-size: calc(1.15rem * var(--reading-scale, 1));
-  line-height: 1;
-  color: rgba(var(--ink-rgb), 0.75);
-  transform-origin: center;
-  transition: transform 180ms ease, opacity 180ms ease;
+.faq-q .icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
 }
 
-.faq-item[open] .faq-q::after {
-  content: "–";
-  transform: translateY(-1px);
-  opacity: 0.8;
-}
-
-.faq-q:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 12px;
+.faq-item[open] .faq-q .icon {
+  transform: rotate(180deg);
 }
 
 .faq-a {
-  padding: 0 16px 16px;
+  padding: 0 var(--space-4) var(--space-4);
 }
 
 .faq-a p + p {
-  margin-top: 1.25rem;
+  margin-top: var(--space-4);
 }
-
 
 /* =========================================================
-   Section spacing refinements
+   Section spacing
    ========================================================= */
 
-.about-translation {
-  margin-top: clamp(4.5rem, 9vw, 6.5rem);
-}
-
+.about-translation,
 .about-site {
-  margin-top: clamp(4.5rem, 9vw, 6.5rem);
+  margin-top: var(--space-9);
 }
 
 .about-faq .about-back {
-  margin-top: 3rem;
+  margin-top: var(--space-7);
 }
 
+/* The last "Back to top" follows the article, outside its sections; it
+   sits in the text's column, as the others do. */
 .about-page > .about-back {
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-}
-
-
-/* =========================================================
-   Reduced motion
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .about-hero__answer::before {
-    display: none;
-  }
+  max-width: calc(60 * var(--ch));
+  margin-inline: auto;
 }
 
 /* =========================================================
-   About TOC (sticky)
-   Desktop (>= 901): tray always visible, no toggle
-   Mobile (<= 900): compact bar + hamburger opens tray
-   + Anchor offset so headings aren't covered
+   Contents: sticky, always open on a computer, behind a toggle on a phone
    ========================================================= */
 
 .about-toc {
   position: sticky;
-  top: 16px;
+  top: var(--space-4);
   z-index: 10;
+  margin: var(--space-5) auto var(--space-4);
+  max-width: calc(60 * var(--ch));
 
-  margin: 26px auto 18px;
-  max-width: var(--content-width, 72ch);
-  padding: 0 16px; /* breathing room on small screens */
-
-  /* Anchor math: keep jump targets below the sticky TOC */
-  --toc-top-gap: 16px;
-  --toc-outer-pad: 12px; /* bar padding */
-  --toc-border: 1px;
-  --toc-bar-height: 44px; /* approximate; tray closed on mobile */
+  /* Anchor math: keeps a jump target below the sticky contents. */
+  --toc-top-gap: var(--space-4);
 }
 
-/* Desktop: make TOC wider than the text column */
 @media (min-width: 901px) {
   .about-toc {
-    max-width: calc(var(--content-width, 72ch) + 5 * var(--ch));
+    max-width: calc(65 * var(--ch));
   }
 }
 
-
-/* Inner frosted panel */
+/* An opaque panel, so the text it passes over never shows through. */
 .about-toc__inner {
-  background: rgba(var(--surface-rgb), 0.78);
-  backdrop-filter: blur(12px);
-
-  border: 1px solid rgba(var(--ink-rgb), 0.10);
-  border-radius: 16px;
-
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
-  overflow: hidden; /* keeps tray edges clean */
+  background: var(--color-page);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-float);
+  overflow: hidden;
 }
 
-/* Top bar */
 .about-toc__bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-
-  padding: 12px;
+  gap: var(--space-3);
+  padding: var(--space-3);
 }
 
 .about-toc__label {
   margin: 0;
-  font-size: calc(0.82rem * var(--reading-scale, 1));
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.65);
+  font-family: var(--font-control);
+  font-weight: 600;
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
+  color: var(--color-text-3);
 }
 
-/* Toggle button (mobile only) */
+/* The toggle is the kit's plain button, on a phone only, in place of the
+   label: "On this page" and its chevron, across the bar as the FAQs'
+   questions are, the chevron turning when the tray is open (a chevron may
+   not stand alone in the kit). */
 .about-toc__toggle {
-  width: 44px;
-  height: 44px;
-
-  border: 1px solid rgba(var(--ink-rgb), 0.12);
-  border-radius: 12px;
-  background: rgba(var(--surface-rgb), 0.65);
-
-  display: none; /* shown on mobile */
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  transition: transform 180ms ease, opacity 180ms ease;
+  display: none;
 }
 
-.about-toc__toggle:hover,
-.about-toc__toggle:focus-visible {
-  transform: translateY(-1px);
+.about-toc__toggle[aria-expanded="true"] .icon {
+  transform: rotate(180deg);
 }
 
-/* Hamburger icon, morphs into X via .is-open */
-.about-toc__icon {
-  position: relative;
-  width: 20px;
-  height: 14px;
-
-  /* Middle bar (no extra span needed) */
-  background:
-    linear-gradient(rgba(var(--ink-rgb), 0.85), rgba(var(--ink-rgb), 0.85)) center / 100% 2px no-repeat;
-  transition: background-size 220ms ease;
-}
-
-.about-toc__icon::before,
-.about-toc__icon::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: rgba(var(--ink-rgb), 0.85);
-  transition:
-    transform 220ms ease,
-    top 220ms ease,
-    bottom 220ms ease,
-    opacity 220ms ease;
-}
-
-.about-toc__icon::before { top: 2px; }
-.about-toc__icon::after  { bottom: 2px; }
-
-/* Open state: X */
-.about-toc.is-open .about-toc__icon {
-  background-size: 0 2px; /* hide middle bar */
-}
-
-.about-toc.is-open .about-toc__icon::before {
-  top: 6px;
-  transform: rotate(45deg);
-}
-
-.about-toc.is-open .about-toc__icon::after {
-  bottom: 6px;
-  transform: rotate(-45deg);
-}
-
-/* Tray + list */
 .about-toc__tray {
-  padding: 0 12px 12px;
+  padding: 0 var(--space-3) var(--space-3);
 }
 
 .about-toc__list {
   list-style: none;
   margin: 0;
   padding: 0;
-
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
-/* Calm TOC CTA treatment (uses footer-cta styling, but no curtain) */
-.about-toc a.footer-cta.about-toc__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: none;
-  padding: 10px 16px;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-
-  transition: opacity 180ms ease-in-out, transform 180ms ease-in-out;
-}
-
-/* Disable curtain in this context */
-.about-toc a.footer-cta.about-toc__cta::before {
-  content: none !important;
-}
-
-.about-toc a.footer-cta.about-toc__cta:hover,
-.about-toc a.footer-cta.about-toc__cta:focus-visible {
-  opacity: 0.86;
-  transform: translateY(-1px);
-}
-
-/* ---------------------------------------------------------
-   Desktop behavior (>= 901px)
-   Tray always visible (even if [hidden] is present)
-   --------------------------------------------------------- */
+/* A computer: the tray is always there, whatever the hidden attribute says. */
 @media (min-width: 901px) {
-  .about-toc__toggle {
-    display: none;
-  }
-
-  /* Always show tray on desktop, regardless of the hidden attribute */
   .about-toc__tray {
     display: block !important;
   }
 }
 
-/* ---------------------------------------------------------
-   Mobile behavior (<= 900px)
-   Compact bar, tray toggled
-   --------------------------------------------------------- */
+/* A phone: a compact bar, the tray toggled. */
 @media (max-width: 900px) {
   .about-toc {
-    top: 10px;
-    margin: 16px auto 14px;
+    top: var(--space-2);
+    margin: var(--space-4) auto var(--space-3);
+    --toc-top-gap: var(--space-2);
+  }
 
-    --toc-top-gap: 10px;
+  .about-toc__label {
+    display: none;
   }
 
   .about-toc__toggle {
     display: inline-flex;
+    width: 100%;
+    justify-content: space-between;
   }
 
   .about-toc__tray {
-    border-top: 1px solid rgba(var(--ink-rgb), 0.08);
+    border-top: 1px solid var(--color-hairline);
   }
 
   .about-toc__list {
-    flex-direction: column; /* reduces crowding */
+    flex-direction: column;
   }
 
-  .about-toc a.footer-cta.about-toc__cta {
+  .about-toc .about-toc__cta {
     width: 100%;
     justify-content: center;
   }
 }
 
-/* =========================================================
-   Anchor offset so sticky TOC doesn't cover section headings
-   ========================================================= */
-
-/* Default (desktop): sticky panel is taller */
-:root {
-  --about-anchor-offset: 160px;
-}
-
+/* A jump target stays clear of the sticky contents. */
 .about-page h2[id] {
-  scroll-margin-top: var(--about-anchor-offset);
+  scroll-margin-top: calc(var(--space-9) + var(--space-8));
 }
 
-/* Mobile: bar is shorter, but still needs clearance */
 @media (max-width: 900px) {
-  :root {
-    --about-anchor-offset: 132px;
+  .about-page h2[id] {
+    scroll-margin-top: calc(var(--space-9) + var(--space-6) + var(--space-1));
   }
 }
-

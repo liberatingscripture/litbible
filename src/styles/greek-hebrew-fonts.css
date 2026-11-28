@@ -1,156 +1,80 @@
 /* Greek and Hebrew letters (Study Desk audit C27; the faces were picked by the
-   owner on 2026-10-05, see STUDY-DESK.md, "Decisions", phase 0 picks).
+   owner on 2026-10-05, see STUDY-DESK.md, "Decisions", phase 0 picks; the
+   Greek in sans text moved to Source Sans 3's own with Featherboa,
+   SITE-FEATHERBOA.md, "Type").
 
-   Every font imported in global.css is a Latin-only subset, so before this
-   file the site had no Greek or Hebrew of its own: the Greek words in a few
-   articles and footnotes fell back to whatever the reader's computer had.
-   Each rule here registers a Greek or Hebrew file under an EXISTING family
-   name, with a unicode-range limited to those letters. That is the same
-   arrangement as the ⟦ ⟧ patch in global.css, and it means:
+   The site's faces are served Latin only, save Source Sans 3, which brings its
+   own polytonic Greek (faces.css). Each rule here registers a Greek or Hebrew
+   file under an EXISTING family name, with a unicode-range limited to those
+   letters. That is the same arrangement as the ⟦ ⟧ patch in faces.css, and it
+   means:
    - no font-family stack anywhere has to change;
    - the browser uses these files for Greek or Hebrew characters only;
    - a file is fetched only on a page that actually contains its letters.
 
    The faces:
-   - Sans-serif text (Inter): Greek is Inter's own, from the @fontsource/inter
-     package the site already had (only its Latin subset was loaded). The
-     reader fonts Atkinson Hyperlegible Next and OpenDyslexic have no Greek,
-     so they take Inter's too.
+   - Sans-serif text (Source Sans 3): Greek is its own (faces.css). The reader
+     fonts Atkinson Hyperlegible Next and OpenDyslexic have no Greek, so they
+     take Source Sans 3's.
    - Hebrew in sans-serif text: Noto Sans Hebrew, since no site font has
      Hebrew.
-   - Serif text (Crimson Text, the print face, and Fraunces): Cardo's Greek
-     and Hebrew, one scholarly face for both.
+   - Fraunces, the face of headings: Cardo's Greek and Hebrew, one scholarly
+     face for both.
    - The SBLGNT's text-critical signs (U+2E00-2E05) are in none of these, so
-     the last block adds a six-glyph patch from Cardo under Crimson Text and
-     Inter (public/fonts/text-critical-signs.otf).
+     the last block adds a six-glyph patch from Cardo
+     (public/fonts/text-critical-signs.otf).
+   The faces the site no longer reads in (Inter, Crimson Text, and the static
+   Fraunces) keep their Greek and Hebrew in legacy-faces.css, for /apps, the
+   verse image, printing, and the Sheets until each moves.
 
    Four things to keep when editing:
    1. The ranges are written out on purpose. Fontsource's per-subset files
-      (inter/greek-400.css) carry NO unicode-range, so importing one would
-      claim every character and be fetched on every page.
+      for static faces (opendyslexic/latin.css) carry NO unicode-range, so
+      importing one would claim every character and be fetched on every page.
    2. Fontsource's Hebrew range also claims U+0307-0308, U+200C-2010, U+20AA
       and U+25CC, which Latin text shares. They are left out here, or a page
       with no Hebrew would fetch the file and take its hyphen (U+2010) from it.
    3. global.css must import this file AFTER the Fontsource imports. Where two
       faces of one family cover a character, the browser tries the one
-      defined later first, and the Latin faces cover every character.
+      defined later first, and OpenDyslexic's Latin face covers every
+      character.
    4. Each rule copies the weight and style of a face its family ALREADY has.
       Browsers join faces of one family by character range only when those
       descriptors match exactly; a rule at any other weight forms a set of its
       own. Text at that weight then looks only there and loses the family's
       Latin, and characters at the family's real weights never reach the rule.
-      So Inter's rules sit at 400, 500, 600 and 700; Atkinson's at 200 800, its
-      variable range; Crimson's 600 points at Cardo's 700, the nearest it has.
-      Atkinson's Greek is one static Inter file across that range, so Greek
-      in bold Atkinson text shows at regular weight. */
+      So Source Sans 3's rules sit at 200 900, its variable range; Atkinson's
+      at 200 800; OpenDyslexic's at 400 and 700; Fraunces's at 100 900. */
 
-/* Inter: its own Greek, one rule per weight the site loads (400, 500, 600, 700) */
+/* Source Sans 3 (200 to 900, upright and italic): Hebrew from Noto Sans Hebrew.
+   Its own Greek is in faces.css, beside its Latin. One variable file, declared
+   for both styles, since Noto Sans Hebrew has no italic. */
 @font-face {
-  font-family: "Inter";
+  font-family: "Source Sans 3 Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 400;
-  src: url("@fontsource/inter/files/inter-greek-400-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-  src: url("@fontsource/inter/files/inter-greek-ext-400-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource/inter/files/inter-greek-500-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource/inter/files/inter-greek-ext-500-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 600;
-  src: url("@fontsource/inter/files/inter-greek-600-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 600;
-  src: url("@fontsource/inter/files/inter-greek-ext-600-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 700;
-  src: url("@fontsource/inter/files/inter-greek-700-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 700;
-  src: url("@fontsource/inter/files/inter-greek-ext-700-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-
-/* Inter: Hebrew from Noto Sans Hebrew. One variable file, declared at each of Inter's weights */
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
+  font-weight: 200 900;
   src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
   unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 @font-face {
-  font-family: "Inter";
-  font-style: normal;
+  font-family: "Source Sans 3 Variable";
+  font-style: italic;
   font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+FB1D-FB4F;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 600;
-  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+FB1D-FB4F;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 700;
+  font-weight: 200 900;
   src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
   unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 
-/* Atkinson Hyperlegible Next (one variable face, 200 800, upright and italic): Inter's Greek, Noto's Hebrew */
+/* Atkinson Hyperlegible Next (one variable face, 200 800, upright and italic):
+   Source Sans 3's Greek, Noto's Hebrew. Both are variable, so Greek in bold
+   Atkinson text is bold too. */
 @font-face {
   font-family: "Atkinson Hyperlegible Next Variable";
   font-style: normal;
   font-display: swap;
   font-weight: 200 800;
-  src: url("@fontsource/inter/files/inter-greek-400-normal.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
@@ -158,15 +82,23 @@
   font-style: normal;
   font-display: swap;
   font-weight: 200 800;
-  src: url("@fontsource/inter/files/inter-greek-ext-400-normal.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 @font-face {
   font-family: "Atkinson Hyperlegible Next Variable";
   font-style: italic;
   font-display: swap;
   font-weight: 200 800;
-  src: url("@fontsource/inter/files/inter-greek-400-italic.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-italic.woff2") format("woff2-variations");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
@@ -174,16 +106,8 @@
   font-style: italic;
   font-display: swap;
   font-weight: 200 800;
-  src: url("@fontsource/inter/files/inter-greek-ext-400-italic.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-italic.woff2") format("woff2-variations");
   unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Atkinson Hyperlegible Next Variable";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 200 800;
-  src: url("@fontsource-variable/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-wght-normal.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 @font-face {
   font-family: "Atkinson Hyperlegible Next Variable";
@@ -194,13 +118,15 @@
   unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 
-/* OpenDyslexic (400 and 700, upright and italic): Inter's Greek, Noto's Hebrew */
+/* OpenDyslexic (400 and 700, upright and italic): Source Sans 3's Greek, Noto's
+   Hebrew. Each variable file is declared at OpenDyslexic's own weights, and
+   the browser sets its weight axis to match. */
 @font-face {
   font-family: "OpenDyslexic";
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url("@fontsource/inter/files/inter-greek-400-normal.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
@@ -208,7 +134,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url("@fontsource/inter/files/inter-greek-ext-400-normal.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+1F00-1FFF;
 }
 @font-face {
@@ -224,7 +150,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url("@fontsource/inter/files/inter-greek-700-normal.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
@@ -232,7 +158,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url("@fontsource/inter/files/inter-greek-ext-700-normal.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+1F00-1FFF;
 }
 @font-face {
@@ -248,7 +174,7 @@
   font-style: italic;
   font-display: swap;
   font-weight: 400;
-  src: url("@fontsource/inter/files/inter-greek-400-italic.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-italic.woff2") format("woff2-variations");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
@@ -256,7 +182,7 @@
   font-style: italic;
   font-display: swap;
   font-weight: 400;
-  src: url("@fontsource/inter/files/inter-greek-ext-400-italic.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-italic.woff2") format("woff2-variations");
   unicode-range: U+1F00-1FFF;
 }
 @font-face {
@@ -272,7 +198,7 @@
   font-style: italic;
   font-display: swap;
   font-weight: 700;
-  src: url("@fontsource/inter/files/inter-greek-700-italic.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-wght-italic.woff2") format("woff2-variations");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
@@ -280,7 +206,7 @@
   font-style: italic;
   font-display: swap;
   font-weight: 700;
-  src: url("@fontsource/inter/files/inter-greek-ext-700-italic.woff2") format("woff2");
+  src: url("@fontsource-variable/source-sans-3/files/source-sans-3-greek-ext-wght-italic.woff2") format("woff2-variations");
   unicode-range: U+1F00-1FFF;
 }
 @font-face {
@@ -292,239 +218,98 @@
   unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 
-/* Crimson Text (400, 400 italic, 600, 700; the print face and the serif headings): Cardo */
+/* Fraunces (one variable face, 100 900, upright and italic): Cardo's Greek and
+   Hebrew. Cardo's Regular serves the whole range (rule 4), so Greek in a
+   heading is a step lighter than the heading's letters. */
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Fraunces Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 400;
+  font-weight: 100 900;
   src: url("@fontsource/cardo/files/cardo-greek-400-normal.woff2") format("woff2");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Fraunces Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 400;
+  font-weight: 100 900;
   src: url("@fontsource/cardo/files/cardo-greek-ext-400-normal.woff2") format("woff2");
   unicode-range: U+1F00-1FFF;
 }
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Fraunces Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 400;
+  font-weight: 100 900;
   src: url("@fontsource/cardo/files/cardo-hebrew-400-normal.woff2") format("woff2");
   unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Fraunces Variable";
   font-style: italic;
   font-display: swap;
-  font-weight: 400;
+  font-weight: 100 900;
   src: url("@fontsource/cardo/files/cardo-greek-400-italic.woff2") format("woff2");
   unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Fraunces Variable";
   font-style: italic;
   font-display: swap;
-  font-weight: 400;
+  font-weight: 100 900;
   src: url("@fontsource/cardo/files/cardo-greek-ext-400-italic.woff2") format("woff2");
   unicode-range: U+1F00-1FFF;
 }
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Fraunces Variable";
   font-style: italic;
   font-display: swap;
-  font-weight: 400;
+  font-weight: 100 900;
   src: url("@fontsource/cardo/files/cardo-hebrew-400-italic.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+FB1D-FB4F;
-}
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 600;
-  src: url("@fontsource/cardo/files/cardo-greek-700-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 600;
-  src: url("@fontsource/cardo/files/cardo-greek-ext-700-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 600;
-  src: url("@fontsource/cardo/files/cardo-hebrew-700-normal.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+FB1D-FB4F;
-}
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 700;
-  src: url("@fontsource/cardo/files/cardo-greek-700-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 700;
-  src: url("@fontsource/cardo/files/cardo-greek-ext-700-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 700;
-  src: url("@fontsource/cardo/files/cardo-hebrew-700-normal.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+FB1D-FB4F;
-}
-
-/* Fraunces (400, 500; display headings): Cardo */
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-  src: url("@fontsource/cardo/files/cardo-greek-400-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-  src: url("@fontsource/cardo/files/cardo-greek-ext-400-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-  src: url("@fontsource/cardo/files/cardo-hebrew-400-normal.woff2") format("woff2");
-  unicode-range: U+0590-05FF, U+FB1D-FB4F;
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource/cardo/files/cardo-greek-400-normal.woff2") format("woff2");
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource/cardo/files/cardo-greek-ext-400-normal.woff2") format("woff2");
-  unicode-range: U+1F00-1FFF;
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource/cardo/files/cardo-hebrew-400-normal.woff2") format("woff2");
   unicode-range: U+0590-05FF, U+FB1D-FB4F;
 }
 
 /* Text-critical signs (SBLGNT's ⸀ ⸁ ⸂ ⸃ ⸄ ⸅, U+2E00-2E05). No Fontsource
-   Cardo or Inter subset carries them, so public/fonts/text-critical-signs.otf
-   (six glyphs from Cardo's Regular, built by npm run build:text-critical-font)
-   is registered under the same family names, restricted to these six
-   characters, the same arrangement as the ⟦ ⟧ patch in global.css. It is
-   declared at each weight and style the two families already have, per rule
-   4 above: Crimson Text's 400 upright and italic, 600 and 700, and Inter's
-   400, 500, 600 and 700. Its outlines are Regular weight at every one of
+   subset carries them, so public/fonts/text-critical-signs.otf (six glyphs
+   from Cardo's Regular, built by npm run build:text-critical-font) is
+   registered under the family names of the text faces, restricted to these
+   six characters, the same arrangement as the ⟦ ⟧ patch in faces.css. Source
+   Sans 3 draws the Greek tab's SBLGNT, and the Display tray forces Atkinson or
+   OpenDyslexic on every element (GK-3), so all three carry it: without it the
+   signs, each the reader's only visual route to an apparatus note, fall
+   through to a system font or a missing-glyph box. The descriptors copy each
+   family's faces (rule 4). Its outlines are Regular weight at every one of
    them, so the signs in bold text are a weight lighter than the letters. */
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Source Sans 3 Variable";
   font-style: normal;
   font-display: block;
-  font-weight: 400;
+  font-weight: 200 900;
   src: url("/fonts/text-critical-signs.otf") format("opentype");
   unicode-range: U+2E00-2E05;
 }
 @font-face {
-  font-family: "Crimson Text";
+  font-family: "Source Sans 3 Variable";
   font-style: italic;
   font-display: block;
-  font-weight: 400;
+  font-weight: 200 900;
   src: url("/fonts/text-critical-signs.otf") format("opentype");
   unicode-range: U+2E00-2E05;
 }
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: block;
-  font-weight: 600;
-  src: url("/fonts/text-critical-signs.otf") format("opentype");
-  unicode-range: U+2E00-2E05;
-}
-@font-face {
-  font-family: "Crimson Text";
-  font-style: normal;
-  font-display: block;
-  font-weight: 700;
-  src: url("/fonts/text-critical-signs.otf") format("opentype");
-  unicode-range: U+2E00-2E05;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: block;
-  font-weight: 400;
-  src: url("/fonts/text-critical-signs.otf") format("opentype");
-  unicode-range: U+2E00-2E05;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: block;
-  font-weight: 500;
-  src: url("/fonts/text-critical-signs.otf") format("opentype");
-  unicode-range: U+2E00-2E05;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: block;
-  font-weight: 600;
-  src: url("/fonts/text-critical-signs.otf") format("opentype");
-  unicode-range: U+2E00-2E05;
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-display: block;
-  font-weight: 700;
-  src: url("/fonts/text-critical-signs.otf") format("opentype");
-  unicode-range: U+2E00-2E05;
-}
-
-/* The same patch under the two accessibility fonts (GK-3). The Display tray
-   forces either one on every element, so without it the signs, each the
-   reader's only visual route to an apparatus note, fell through to whatever
-   system font had U+2E00 to U+2E05, or to a missing-glyph box. The descriptors
-   copy what the Greek rules above give each family (rule 1): OpenDyslexic at
-   400 and 700, upright and italic; Atkinson's one variable face, 200 800. */
 @font-face {
   font-family: "OpenDyslexic";
   font-style: normal;
   font-display: block;
   font-weight: 400;
+  src: url("/fonts/text-critical-signs.otf") format("opentype");
+  unicode-range: U+2E00-2E05;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-display: block;
+  font-weight: 700;
   src: url("/fonts/text-critical-signs.otf") format("opentype");
   unicode-range: U+2E00-2E05;
 }
@@ -533,14 +318,6 @@
   font-style: italic;
   font-display: block;
   font-weight: 400;
-  src: url("/fonts/text-critical-signs.otf") format("opentype");
-  unicode-range: U+2E00-2E05;
-}
-@font-face {
-  font-family: "OpenDyslexic";
-  font-style: normal;
-  font-display: block;
-  font-weight: 700;
   src: url("/fonts/text-critical-signs.otf") format("opentype");
   unicode-range: U+2E00-2E05;
 }

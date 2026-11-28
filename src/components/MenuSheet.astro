@@ -1,0 +1,116 @@
+---
+import Icon from "./Icon.astro";
+import { PLACES, STUDY_HREF, normalizePath, placeOf } from "../lib/places.mjs";
+import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
+
+// The menu sheet (SITE-FEATHERBOA.md, "The phone," "The menu," and "Four
+// places: the header," "The phone and the footer"; PH-11 to PH-15, HD-35):
+// one sheet rising from the foot of the window, whichever menu button opens
+// it, so the menu looks the same everywhere. On a reading page that is the
+// phone bar's Menu (PhoneBar.astro); on any other page narrower than the full
+// header, and in Study's own header at every width, the header's menu
+// button (SiteHeader.astro).
+//
+// Its groups are the places (src/lib/places.mjs), each with its rows: Read,
+// Learn, and About, and Study only where the header shows it (a computer
+// with the Study preview on, from 1100px; header.css), so never on a phone.
+// The place the page is in has its name marked, and the page's own row is
+// on. Then the foot: Search where the header has no room for its magnifier
+// (under 360px, 380px in OpenDyslexic, on a page whose magnifier opens the
+// strip), Account where
+// the header has no room for its entry (under 700px, with accounts open),
+// and "Get the app" (NX-11). Continue reading isn't here: it is the
+// picker's first row (PH-14).
+//
+// A <dialog>, which header-menus.js opens modally: the rest of the page goes
+// inert and dims, focus moves in and stays, and Escape, a tap outside it, its
+// ×, or one of its links closes it and gives focus back to the button that
+// opened it. Without JavaScript it never opens: the menu buttons go, or go to
+// the footer's links (#footer-nav), which hold the same places.
+//
+// News marks (src/lib/news.mjs) are drawn hidden, as in the header's menus:
+// a dot beside a group's name, "New" beside its row, and "See what’s new →"
+// at the group's foot. header-menus.js shows them, and a dot on the menu
+// buttons themselves.
+//
+// search: SiteHeader's mode ("strip", "page", or "none"); only a page whose
+// magnifier opens the strip has the Search row. deskHref: where Study's
+// "Scripture" goes, as in the header. account: false in Study's own header,
+// which shows the account's entry at every width.
+const { search = "strip", deskHref = STUDY_HREF, account = true } = Astro.props;
+
+type Place = (typeof PLACES)[number];
+type Row = Place["rows"][number];
+
+const path = normalizePath(Astro.url.pathname);
+const where = placeOf(path);
+const hrefOf = (row: Row) => (row.key === "scripture" ? deskHref : row.href);
+// The header's rule: "page" on the link to this page, "true" on a row it is
+// inside (an article, under Articles).
+const currentOf = (row: Row) =>
+  where.row === row.key && !row.also && PLACES.find((p) => p.key === where.place)?.rows.includes(row)
+    ? where.current
+    : undefined;
+
+const newsPlaces = new Set(NEWS.map((entry) => entry.place));
+const newsRows = new Set(NEWS.map((entry) => `${entry.place}:${entry.row}`));
+---
+
+<dialog class="menu-sheet" id="menuSheet" aria-labelledby="menuSheetTitle" data-menu-sheet>
+  <div class="menu-sheet__panel">
+    <div class="menu-sheet__head">
+      <h2 class="menu-sheet__title" id="menuSheetTitle">Menu</h2>
+      <button type="button" class="kit-icon menu-sheet__close" aria-label="Close menu" data-menu-close>
+        <Icon name="close" />
+      </button>
+    </div>
+    <nav class="menu-sheet__nav" aria-labelledby="menuSheetTitle">
+      <div class="menu-sheet__groups">
+        {PLACES.map((place) => (
+          <div class={`menu-sheet__group menu-sheet__group--${place.key}`}>
+            <h3
+              class="menu-sheet__heading"
+              id={`menuSheet-${place.key}`}
+              aria-current={where.place === place.key ? "true" : undefined}
+            >
+              {place.label}
+              {newsPlaces.has(place.key) && (
+                <span class="site-nav__dot" data-news-dot={place.key} hidden><span class="sr-only">, new</span></span>
+              )}
+            </h3>
+            <ul class="menu-sheet__rows" aria-labelledby={`menuSheet-${place.key}`}>
+              {place.rows.map((row) => (
+                <>
+                  {row.separate && <li class="site-nav__menu-sep" role="separator"></li>}
+                  <li>
+                    <a class="kit-row" href={hrefOf(row)} aria-current={currentOf(row)}>
+                      {row.label}
+                      {newsRows.has(`${place.key}:${row.key}`) && (
+                        <span class="site-nav__new" data-news-row={`${place.key}:${row.key}`} hidden><span class="sr-only">, </span>New</span>
+                      )}
+                    </a>
+                  </li>
+                </>
+              ))}
+              {newsPlaces.has(place.key) && (
+                <>
+                  <li class="site-nav__menu-sep" role="separator" data-news-more={place.key} hidden></li>
+                  <li data-news-more={place.key} hidden>
+                    <a class="kit-row" href={WHATS_NEW_HREF}>See what’s new →</a>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <ul class="menu-sheet__foot">
+        {search === "strip" && (
+          <li class="menu-sheet__search"><a class="kit-row" href="/search" data-search-toggle>Search</a></li>
+        )}
+        {account && <li class="menu-sheet__account"><a class="kit-row" href="/account/">Account</a></li>}
+        <li><a class="kit-row" href="/apps">Get the app</a></li>
+      </ul>
+    </nav>
+  </div>
+</dialog>

@@ -69,7 +69,8 @@ test("the shell loads at once only when the Notebook starts expanded, a bookmark
   assert.equal(loadAtOnce({ start: { open: false, minimized: true }, session: session(), params: params() }), null);
   assert.equal(loadAtOnce({ start: { open: true, minimized: false }, session: session(), params: params() }), "expanded");
   assert.equal(loadAtOnce({ start: min, session: session('{"id":"r1"}'), params: params() }), "following");
-  assert.equal(loadAtOnce({ start: min, session: session(), params: params("greek=16.7") }), "param:greek");
+  // A Greek word is /desk's (ST-61), not a reason to load a reading page's shell.
+  assert.equal(loadAtOnce({ start: min, session: session(), params: params("greek=16.7") }), null);
   assert.equal(loadAtOnce({ start: min, session: session(), params: params("desk-tour") }), "param:desk-tour");
   assert.equal(loadAtOnce({ start: min, session: session(), params: params("print=notes") }), "param:print");
   // Closed and expanded can't both be: closed waits like minimized.
@@ -190,18 +191,18 @@ test("the first stage carries the tab's stylesheet and none of the shell, the st
   assert.ok(staticClosure("src/scripts/desk/shell.js").has("src/styles/desk-tab.css"));
 });
 
-test("what the first stage draws is styled by what it loads: the skip link, the tray's hint and Reset widths (Audit 6, NB6-1, NB6-4)", () => {
+test("what the first stage draws is styled by what it loads: the tray's hint (Audit 6, NB6-4)", () => {
   const read = (p) => readFileSync(join(root, p), "utf8");
   const tabCss = read("src/styles/desk-tab.css");
   const deskCss = read("src/styles/desk.css");
-  // The link carries the attribute its hiding rule keys on, and the rule is in the stylesheet stage one loads.
+  // The skip link is marked as the desk's own, as panel.js's is; with "Show
+  // the Notebook" gone (Featherboa's Phase 4), nothing hides it.
   assert.match(read("src/scripts/desk/first-stage.js"), /skip\.setAttribute\("data-desk-skip", ""\)/);
-  assert.match(tabCss, /html\[data-desk-show="off"\] \.skip-link\[data-desk-skip\] \{/);
-  assert.doesNotMatch(deskCss, /\.skip-link\[data-desk-skip\]/);
-  for (const cls of ["font-tray__hint", "font-tray__reset"]) {
-    assert.match(tabCss, new RegExp(`\.${cls} \{`));
-    assert.doesNotMatch(deskCss, new RegExp(`\.${cls}\b`));
-  }
+  assert.doesNotMatch(tabCss + deskCss, /data-desk-show/);
+  assert.match(tabCss, /\.font-tray__hint \{/);
+  assert.doesNotMatch(deskCss, /\.font-tray__hint\b/);
+  // The tray's Reset widths went to each line's own menu (DI-25).
+  assert.doesNotMatch(tabCss + deskCss, /\.font-tray__reset\b/);
 });
 
 test("stage two that fails to load or to start stands the page down; one that starts doesn't", async () => {

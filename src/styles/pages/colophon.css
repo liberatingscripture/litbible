@@ -1,0 +1,90 @@
+/* =========================================================
+   Colophon page (/colophon): "How this site is made," in the reading column.
+   Drawn with Featherboa's tokens; it holds nothing pressed except prose
+   links, which take their look from the global rule.
+   ========================================================= */
+
+.colophon-page {
+  background-color: var(--color-page);
+  min-height: 100vh;
+  /* Follows the Display tray's text size (src/styles/CLAUDE.md). */
+  font-size: calc(1em * var(--reading-scale, 1));
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
+}
+
+.colophon-page__inner {
+  max-width: calc(65 * var(--ch));
+  margin: 0 auto;
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  overflow-wrap: break-word;
+}
+
+.colophon-title {
+  font-family: var(--font-display);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-4);
+}
+
+.colophon-lede {
+  margin: 0 0 var(--space-6);
+}
+
+.colophon-page section {
+  margin-top: var(--space-7);
+}
+
+.colophon-page h2 {
+  font-family: var(--font-display);
+  font-size: calc(var(--size-heading) * var(--reading-scale, 1));
+  line-height: var(--leading-heading);
+  font-weight: 500;
+  margin: 0 0 var(--space-3);
+}
+
+.colophon-page p,
+.colophon-page ul {
+  margin: 0 0 var(--space-4);
+}
+
+.colophon-page ul {
+  padding-left: var(--space-5);
+}
+
+.colophon-page li {
+  margin-bottom: var(--space-2);
+}
+
+/* The colors: a swatch, its name and value, and its one job. */
+.colophon-colors {
+  margin: 0 0 var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.colophon-color dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+}
+
+.colophon-color dd {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-7);
+}
+
+.colophon-swatch {
+  flex-shrink: 0;
+  width: var(--space-6);
+  height: var(--space-5);
+  border-radius: var(--radius-press);
+  border: 1px solid var(--color-hairline);
+}
+
+.colophon-hex {
+  font-weight: 400;
+  color: var(--color-text-3);
+  font-variant-numeric: tabular-nums;
+}

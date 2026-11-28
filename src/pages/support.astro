@@ -2,7 +2,6 @@
 // src/pages/support.astro
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/support.css";
-import "../styles/v2/support.css";
 import LscMark from "../components/LscMark.astro";
 
 const donateHref = "#donate";
@@ -26,7 +25,7 @@ const lscContactHref = "https://liberatingscripture.org/contact";
     {/* HERO */}
     <header class="support-hero" aria-label="Support the work">
       <div class="support-hero__grid">
-        <div class="support-hero__copy v2-bar">
+        <div class="support-hero__copy">
           <p class="eyebrow">Support the work</p>
 
           <h1>Donate. Get involved. Help it last.</h1>
@@ -45,10 +44,10 @@ const lscContactHref = "https://liberatingscripture.org/contact";
           </p>
 
           <div class="support-actions" aria-label="Primary actions">
-            <a class="button button--primary" href={donateHref}>Donate</a>
-            <a class="button" href="#get-involved">Get involved</a>
+            <a class="button button--primary kit-btn kit-btn--filled" href={donateHref}>Donate</a>
+            <a class="button kit-btn kit-btn--tinted" href="#get-involved">Get involved</a>
             <a
-              class="button button--outline button--external"
+              class="button button--outline button--external kit-btn kit-btn--tinted"
               href={lscSiteHref}
               target="_blank"
               rel="external noopener"
@@ -78,7 +77,7 @@ const lscContactHref = "https://liberatingscripture.org/contact";
     <div class="support-content">
       {/* DONATE BAND */}
       <section id="donate" class="support-section">
-        <div class="support-band v2-sheet v2-sheet--bleed" aria-label="Donate to support the work">
+        <div class="support-band" aria-label="Donate to support the work">
           <div class="support-band__brand">
             <LscMark size={120} class="support-band__logo" />
 
@@ -175,12 +174,12 @@ const lscContactHref = "https://liberatingscripture.org/contact";
           class="support-actions support-actions--left"
           aria-label="Contact actions"
         >
-          <a class="button button--primary" href="/contact">
+          <a class="button kit-btn kit-btn--tinted" href="/contact">
             Get involved (contact)
           </a>
 
           <a
-            class="button button--outline button--external"
+            class="button button--outline button--external kit-btn kit-btn--tinted"
             href={lscContactHref}
             target="_blank"
             rel="external noopener"
@@ -228,11 +227,11 @@ const lscContactHref = "https://liberatingscripture.org/contact";
           class="support-actions support-actions--left"
           aria-label="Quick links"
         >
-          <a class="button" href={donateHref}>Donate</a>
-          <a class="button" href="#get-involved">Get involved</a>
+          <a class="button kit-btn kit-btn--tinted" href={donateHref}>Donate</a>
+          <a class="button kit-btn kit-btn--tinted" href="#get-involved">Get involved</a>
 
           <a
-            class="button button--outline button--external"
+            class="button button--outline button--external kit-btn kit-btn--tinted"
             href={lscSiteHref}
             target="_blank"
             rel="external noopener"
@@ -240,12 +239,12 @@ const lscContactHref = "https://liberatingscripture.org/contact";
             liberatingscripture.org
           </a>
 
-          <a class="button button--outline" href="/contact">
+          <a class="button button--outline kit-btn kit-btn--tinted" href="/contact">
             Contact (this site)
           </a>
 
           <a
-            class="button button--outline button--external"
+            class="button button--outline button--external kit-btn kit-btn--tinted"
             href={lscContactHref}
             target="_blank"
             rel="external noopener"

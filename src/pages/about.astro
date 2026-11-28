@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Icon from "../components/Icon.astro";
 import "../styles/pages/about.css";
-import "../styles/v2/about.css";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
 
@@ -39,10 +39,10 @@ const unfinishedList = joinList(unfinished);
       }
     })} />
   </Fragment>
-  <article class="about-page v2-frame">
+  <article class="about-page">
     {/* HERO: question + short answer + arc */}
-    <header class="about-hero v2-frame__head" id="top">
-      <div class="about-hero__inner v2-bar">
+    <header class="about-hero" id="top">
+      <div class="about-hero__inner">
         <h1 class="about-hero__title">So… who am I?</h1>
 
         <div class="about-hero__answer">
@@ -55,58 +55,39 @@ const unfinishedList = joinList(unfinished);
       </div>
     </header>
 
-    <nav class="about-toc v2-frame__toc" aria-label="On this page">
+    <nav class="about-toc" aria-label="On this page">
       <div class="about-toc__inner">
         <div class="about-toc__bar">
-          <p class="about-toc__label v2-label">On this page</p>
+          <p class="about-toc__label">On this page</p>
 
           <button
-            class="about-toc__toggle"
+            class="about-toc__toggle kit-btn kit-btn--plain"
             type="button"
             aria-expanded="false"
             aria-controls="about-toc-tray"
           >
-            <span class="sr-only">Toggle section navigation</span>
-            <span class="about-toc__icon" aria-hidden="true"></span>
+            On this page<Icon name="down" />
           </button>
         </div>
 
         <div class="about-toc__tray" id="about-toc-tray" hidden>
           <ul class="about-toc__list">
             <li>
-              <a class="footer-cta about-toc__cta" href="#about-translator"
+              <a class="about-toc__cta kit-btn kit-btn--tinted" href="#about-translator"
                 >About the translator</a
               >
-              <ul class="about-toc__sub" data-v2 data-pagefind-ignore>
-                <li><a href="#about-where-i-came-from">Where I came from</a></li>
-                <li><a href="#about-how-i-got-here">How I got here</a></li>
-                <li><a href="#about-why-a-new-translation">Why a new translation</a></li>
-                <li><a href="#about-why-this-work-exists">Why this work exists</a></li>
-              </ul>
             </li>
             <li>
-              <a class="footer-cta about-toc__cta" href="#about-lit"
+              <a class="about-toc__cta kit-btn kit-btn--tinted" href="#about-lit"
                 >About the LIT Bible</a
               >
-              <ul class="about-toc__sub" data-v2 data-pagefind-ignore>
-                <li><a href="#about-word-by-word">“Word-by-word” doesn’t mean neutral</a></li>
-                <li><a href="#about-unfamiliar">Why the language often sounds unfamiliar</a></li>
-                <li><a href="#about-not-a-paraphrase">Not a paraphrase, not a frozen literalism</a></li>
-                <li><a href="#about-starting-with-the-text">Starting with the text, not with tradition</a></li>
-                <li><a href="#about-what-drives">What drives this translation</a></li>
-                <li><a href="#about-is-and-isnt">What this translation is and isn’t</a></li>
-                <li><a href="#about-an-invitation">An invitation</a></li>
-              </ul>
             </li>
             <li>
-              <a class="footer-cta about-toc__cta" href="#about-site"
+              <a class="about-toc__cta kit-btn kit-btn--tinted" href="#about-site"
                 >About this site</a
               >
-              <ul class="about-toc__sub" data-v2 data-pagefind-ignore>
-                <li><a href="#about-how-to-use">How to use this site</a></li>
-              </ul>
             </li>
-            <li><a class="footer-cta about-toc__cta" href="#faq">FAQs</a></li>
+            <li><a class="about-toc__cta kit-btn kit-btn--tinted" href="#faq">FAQs</a></li>
           </ul>
         </div>
       </div>
@@ -114,7 +95,7 @@ const unfinishedList = joinList(unfinished);
 
     {/* CONTENT: stacked sections */}
     <section class="about-body" aria-labelledby="about-translator">
-      <h2 class="v2-rule" id="about-translator">About the translator</h2>
+      <h2 id="about-translator">About the translator</h2>
 
       <p>
         For a long time, I thought I was going to be a pastor and a theology
@@ -252,7 +233,7 @@ const unfinishedList = joinList(unfinished);
     </section>
 
     <section class="about-body about-translation" aria-labelledby="about-lit">
-      <h2 class="v2-rule" id="about-lit">About the Liberation and Inclusion Translation</h2>
+      <h2 id="about-lit">About the Liberation and Inclusion Translation</h2>
 
       <p>
         This project didn’t begin as a public translation. It grew out of years
@@ -426,13 +407,6 @@ const unfinishedList = joinList(unfinished);
         exclusion.
       </p>
 
-      {/* Site 2.0 (BVJ, 2026-11-17): "There should be a link to the commitments
-          page from the 'What drives this translation' section." A link line,
-          not a sentence added to the text. */}
-      <p class="about-more" data-v2 data-pagefind-ignore>
-        <a href="/translation-commitments">Read the Translation Commitments →</a>
-      </p>
-
       <h3 id="about-is-and-isnt">What this translation is and isn’t</h3>
 
       <p>
@@ -485,7 +459,7 @@ const unfinishedList = joinList(unfinished);
     </section>
 
     <section class="about-body about-site" aria-labelledby="about-site">
-      <h2 class="v2-rule" id="about-site">About this site</h2>
+      <h2 id="about-site">About this site</h2>
 
       <p>
         This website is intentionally simple. It’s built as a static site, which
@@ -545,12 +519,12 @@ const unfinishedList = joinList(unfinished);
     </section>
 
     <section class="about-body about-faq" aria-labelledby="faq">
-      <h2 class="v2-rule" id="faq">Frequently Asked Questions</h2>
+      <h2 id="faq">Frequently Asked Questions</h2>
 
       <div class="faq">
         <details class="faq-item">
           <summary class="faq-q"
-            >What makes this the “best” translation?</summary
+            >What makes this the “best” translation?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>Short answer: it isn’t.</p>
@@ -572,7 +546,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Should I only read this translation?</summary>
+          <summary class="faq-q">Should I only read this translation?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>Please don’t.</p>
             <p>
@@ -589,7 +563,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Who is this translation for?</summary>
+          <summary class="faq-q">Who is this translation for?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               The LIT is for readers who want to engage Scripture thoughtfully:
@@ -605,7 +579,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Is this a paraphrase or commentary?</summary>
+          <summary class="faq-q">Is this a paraphrase or commentary?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               No. The LIT is translated directly from the original languages,
@@ -625,7 +599,7 @@ const unfinishedList = joinList(unfinished);
         <details class="faq-item">
           <summary class="faq-q">
             Why does the language sometimes sound unfamiliar or unsettling?
-          </summary>
+          <Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               Much traditional Bible language has accumulated centuries of
@@ -645,7 +619,7 @@ const unfinishedList = joinList(unfinished);
         <details class="faq-item">
           <summary class="faq-q">
             Is this translation driven by a political or ideological agenda?
-          </summary>
+          <Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               Every translation reflects values. Decisions about wording,
@@ -672,7 +646,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >How confident are you in this translation?</summary
+            >How confident are you in this translation?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -692,7 +666,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">What texts are available right now?</summary>
+          <summary class="faq-q">What texts are available right now?<Icon name="down" /></summary>
           <div class="faq-a">
             <p>
               {unfinished.length ? (
@@ -720,7 +694,7 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">When will the translation be finished?</summary
+          <summary class="faq-q">When will the translation be finished?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>That’s hard to say.</p>
@@ -742,13 +716,13 @@ const unfinishedList = joinList(unfinished);
         </details>
 
         <details class="faq-item">
-          <summary class="faq-q">Can I quote or share this translation?</summary
+          <summary class="faq-q">Can I quote or share this translation?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
               Yes. The translation is offered freely for reading, teaching,
               discussion, and non-commercial use. Attribution is appreciated,
-              and licensing details are on the <a href="/read#license"
+              and licensing details are on the <a href="/license#license"
                 >Read</a
               > page.
             </p>
@@ -757,7 +731,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >What if I strongly disagree with a translation choice?</summary
+            >What if I strongly disagree with a translation choice?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -777,7 +751,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >What Greek text is the LIT translated from?</summary
+            >What Greek text is the LIT translated from?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -788,7 +762,7 @@ const unfinishedList = joinList(unfinished);
             </p>
             <p>
               You can find more information about the licensing and usage of
-              that text on the <a href="/read#sblgnt-disclaimer">Read</a>
+              that text on the <a href="/license#sblgnt-disclaimer">Read</a>
               page.
             </p>
           </div>
@@ -796,7 +770,7 @@ const unfinishedList = joinList(unfinished);
 
         <details class="faq-item">
           <summary class="faq-q"
-            >Is the LIT Bible part of a nonprofit?</summary
+            >Is the LIT Bible part of a nonprofit?<Icon name="down" /></summary
           >
           <div class="faq-a">
             <p>
@@ -818,10 +792,6 @@ const unfinishedList = joinList(unfinished);
   </article>
 
   <script>
-    // Site 2.0: marks the contents rail's current section (only with the
-    // restyle's stamp; see the module's header).
-    import "../scripts/v2-frame.js";
-
     (() => {
       const toc = document.querySelector(".about-toc");
       if (!toc) return;

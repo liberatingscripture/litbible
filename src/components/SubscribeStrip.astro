@@ -23,6 +23,7 @@ const brevoAction =
       >
         <label class="sr-only" for="subscribe-email">Email address</label>
         <input
+          class="kit-field"
           id="subscribe-email"
           type="email"
           name="EMAIL"
@@ -41,7 +42,7 @@ const brevoAction =
         />
         <input type="hidden" name="locale" value="en" />
         <div id="subscribe-strip-captcha" class="subscribe-strip__inert"></div>
-        <button class="btn btn--cta" id="subscribe-strip-btn" type="submit">
+        <button class="kit-btn kit-btn--filled subscribe-strip__go" id="subscribe-strip-btn" type="submit">
           Subscribe
         </button>
       </form>

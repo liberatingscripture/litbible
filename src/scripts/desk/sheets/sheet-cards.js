@@ -14,6 +14,7 @@
 // No module imports sheet-editor.js (LG8-6), so what both need lives here:
 // `TYPE_NAMES` and `headingOf`.
 
+import { iconNode } from "../../../lib/icons.mjs";
 import { MODULE_TYPES } from "../../../lib/desk-sheet-format.mjs";
 import { movedUnderReader } from "../../../lib/desk-sheet-tabs.mjs";
 import { passageLabel, passageReference } from "../../../lib/desk-sheet-passages.mjs";
@@ -154,7 +155,7 @@ export function createSheetCards(host) {
       down.setAttribute("aria-label", `Move ${name} down`);
       setTip(down, "Move down");
       down.addEventListener("click", () => host.move(m.id, 1, down));
-      const remove = button("×", "desk-sheet__icon");
+      const remove = button(iconNode("close"), "desk-sheet__icon");
       remove.setAttribute("aria-label", `Remove ${name}`);
       setTip(remove, "Remove");
       remove.addEventListener("click", () => host.remove(m.id, name));

@@ -6,12 +6,14 @@
 // on, so the two can't drift apart. It also checks the preview link: ?desk=on
 // and ?desk=off set the flag and leave the address. It also checks that a width
 // dragged in the notebook (sessionStorage) is stamped only while the notebook is
-// open, the desk is on, and the values are in range, and that the notebook is
-// stamped expanded, and the widths applied, only where the window holds them
-// (BA25, BA30): the script repeats src/lib/desk-margin.mjs's firstPaint. And
+// open (minimized or expanded alike: BS-15, Featherboa's Phase 5, opening and
+// minimizing move no scripture), the desk is on, and the values are in range,
+// that the open notebook is always stamped expanded, and that the widths are
+// applied only where the window holds them (BA30; BA25's "narrow windows aren't
+// stamped expanded" is withdrawn): the script repeats src/lib/desk-margin.mjs's firstPaint. And
 // that a page without the Notebook panel (a book's introduction, an article,
 // the glossary; E124) gets data-desk alone, whatever the reader kept. And that
-// a chapter opening with the notebook expanded is stamped with the move left
+// a chapter opening with the notebook open is stamped with the move left
 // its first placement will make, and its column's center, so it paints once,
 // in place (E137), and nothing else is.
 
@@ -22,7 +24,7 @@ import { readFileSync } from "node:fs";
 import { APP_PLATFORM_UA, isAppPlatform } from "../src/lib/app-platform.mjs";
 import { isAppPlatform as gateIsAppPlatform } from "../src/scripts/announcement-gate.js";
 import {
-  EDGE, FIRST_PAINT, GAP, KEEP_LEFT, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH, MOVE_PROP, firstPaint, placeInMargin,
+  EDGE, FIRST_PAINT, GAP, KEEP_LEFT, MIN_WIDTH, MOVE_PROP, firstPaint, measureRange, placeInMargin,
 } from "../src/lib/desk-margin.mjs";
 import { READING_SURFACES, hasPanel } from "../src/scripts/desk-frame.js";
 import { SWITCH_KEY, SWITCH_PARAM, SWITCH_VALUES } from "../src/lib/desk-account-words.mjs";
@@ -30,7 +32,7 @@ import { SWITCH_KEY, SWITCH_PARAM, SWITCH_VALUES } from "../src/lib/desk-account
 const layout = readFileSync(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
 const match = /define:vars=\{\{ appUa: APP_PLATFORM_UA\.source, appUaFlags: APP_PLATFORM_UA\.flags, deskFit, deskPanel, deskChapter \}\}>([\s\S]*?)<\/script>/.exec(layout);
 // What Layout.astro hands the script.
-const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, minMeasure: MIN_MEASURE, maxMeasure: MAX_MEASURE };
+const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH };
 
 const UA = {
   iphone: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
@@ -97,10 +99,7 @@ function run({
   const fn = new Function("appUa", "appUaFlags", ...Object.keys(page), match[1]);
   fn(APP_PLATFORM_UA.source, APP_PLATFORM_UA.flags, ...Object.values(page));
   for (const k of Object.keys(html)) delete attrs[k];
-  // The restyle's stamp has its own test below; the desk's tests read without it.
-  const restyle = "data-restyle" in attrs;
-  delete attrs["data-restyle"];
-  return { attrs, restyle, stored: Object.fromEntries(store), replaced, props };
+  return { attrs, stored: Object.fromEntries(store), replaced, props };
 }
 
 test("the script is in Layout.astro where this test expects it", () => {
@@ -144,7 +143,6 @@ test("an Android tablet in desktop site mode doesn't get the desk (BA26)", () =>
 test("without the flag, nothing is set", () => {
   assert.deepEqual(run().attrs, {});
   assert.deepEqual(run({ stored: { "lit-desk-panel": "open" } }).attrs, {});
-  assert.equal(run().restyle, false);
 });
 
 // Accounts (the plan's step 4h) are closed for everyone until one browser opens them with
@@ -174,24 +172,22 @@ test("what the header showed last is stamped with accounts open, and never witho
   assert.equal("data-account-last" in run({ href: "https://litbible.net/romans-8/?account=off", stored: { ...open, "lit-desk-account-last": "in" } }).attrs, false);
 });
 
-// D1 of the site style pass (E132): the rest of the site's new look follows the
-// same flag on every device, phones and tablets included, so it can be checked
-// there before launch, when the stamp and the old rules both go.
-test("with the flag on, the restyle's stamp goes on every device", () => {
+// Site 2.0's restyle stamp (E132) went with Site 2.0 (SITE-FEATHERBOA-BUILD.md,
+// Phase 0): the flag stamps nothing on a phone, and data-restyle on nothing.
+test("the flag no longer stamps data-restyle, on any device", () => {
   const on = { "lit-desk-preview": "on" };
   for (const [ua, touch] of [[UA.windows, 0], [UA.mac, 5], [UA.iphone, 5], [UA.android, 5], [UA.linuxChrome, 5]]) {
-    assert.equal(run({ ua, touch, stored: on }).restyle, true, `${ua} ${touch}`);
+    assert.equal("data-restyle" in run({ ua, touch, stored: on }).attrs, false, `${ua} ${touch}`);
   }
-  assert.equal(run({ href: "https://litbible.net/romans-8/?desk=on", ua: UA.iphone, touch: 5 }).restyle, true);
-  assert.equal(run({ href: "https://litbible.net/romans-8/?desk=off", stored: on }).restyle, false);
+  assert.deepEqual(run({ href: "https://litbible.net/romans-8/?desk=on", ua: UA.iphone, touch: 5 }).attrs, {});
 });
 
-test("an open notebook is stamped before paint; only an expanded one is marked as making room", () => {
+test("an open notebook is stamped before paint, minimized or expanded, and marked as making room (BS-15)", () => {
   const open = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
-  assert.deepEqual(open.attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  assert.deepEqual(open.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
   // It starts open (and minimized) until the reader closes it (BVJ, 2026-10-13).
   const fresh = run({ stored: { "lit-desk-preview": "on" } });
-  assert.deepEqual(fresh.attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  assert.deepEqual(fresh.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
   const closed = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed" } });
   assert.deepEqual(closed.attrs, { "data-desk": "on" });
   // A start the reader chose on the notebook page wins (src/lib/desk-start.mjs).
@@ -201,26 +197,30 @@ test("an open notebook is stamped before paint; only an expanded one is marked a
     const r = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "closed", "lit-desk-start": start } });
     assert.deepEqual(r.attrs["data-desk-panel"], "open", start);
   }
-  // Minimized, it is open but narrows nothing: data-desk-expanded (what global.css
-  // keys the 48 measure on) is stamped only when it starts expanded (BVJ, 2026-10-14).
+  // Minimized or expanded, an open notebook keeps its room: data-desk-expanded
+  // (what global.css keys the 48 measure on) goes on with data-desk-panel (BS-15,
+  // reversing BVJ's 2026-10-14 rule that only the expanded one made room).
   const expanded = run({ stored: { "lit-desk-preview": "on", "lit-desk-min": "0" } });
   assert.deepEqual(expanded.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
   const chosenOpen = run({ stored: { "lit-desk-preview": "on", "lit-desk-start": "open" } });
   assert.deepEqual(chosenOpen.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
   const chosenMin = run({ stored: { "lit-desk-preview": "on", "lit-desk-start": "min", "lit-desk-min": "0" } });
-  assert.deepEqual(chosenMin.attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  assert.deepEqual(chosenMin.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
-  // "Show the Notebook" off (the Display tray) beats every start choice.
-  for (const start of ["min", "open", "left"]) {
-    const hidden = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": start, "lit-desk-min": "0" } });
-    assert.deepEqual(hidden.attrs, { "data-desk": "on", "data-desk-show": "off" }, start);
+  // "Show the Notebook" left the Display tray (DI-16): a stored "off" is read
+  // as shown, and nothing stamps data-desk-show any more.
+  for (const start of ["min", "left"]) {
+    const shown = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": start } });
+    assert.deepEqual(shown.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, start);
   }
+  const shownClosed = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": "closed" } });
+  assert.deepEqual(shownClosed.attrs, { "data-desk": "on" });
 });
 
 // E124 (BVJ, 2026-11-12): book introductions, articles and the glossary have no
 // Notebook panel in version 1, so nothing of the panel is stamped there: no
-// open panel, no expanded one, no dragged widths, no "Show the Notebook" off.
+// open panel, no expanded one, no dragged widths.
 test("a page without the Notebook panel gets data-desk alone, whatever the reader kept (E124)", () => {
   const states = [
     {},
@@ -247,8 +247,10 @@ test("a page without the Notebook panel gets data-desk alone, whatever the reade
     assert.deepEqual(on.attrs, { "data-desk": "on" });
     assert.equal(on.stored["lit-desk-min"], "0");
   }
-  // The same reader on a chapter and in Read View gets the panel as before.
-  for (const kind of ["chapter", "read"]) {
+  // The same reader on a chapter gets the panel as before. Read View, which
+  // had it too, retired in Featherboa's Phase 4.
+  assert.equal(hasPanel("read"), false);
+  for (const kind of ["chapter"]) {
     const r = run({ surface: kind, stored: { "lit-desk-preview": "on", "lit-desk-min": "0" } });
     assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, kind);
   }
@@ -266,7 +268,6 @@ test("Layout hands the script hasPanel of the page's deskSurface, and each readi
   const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
   assert.match(read("../src/layouts/ScriptureLayout.astro"), /const deskSurface = pagefindType === "scripture" \? "chapter" : pagefindType === "intro" \? "intro" : undefined;/);
   assert.match(read("../src/layouts/ScriptureLayout.astro"), /<Layout [^>]*deskSurface=\{deskSurface\}/);
-  assert.match(read("../src/pages/read/[book].astro"), /\bdeskSurface="read"/);
   assert.match(read("../src/pages/articles/[...slug].astro"), /\bdeskSurface="article"/);
   assert.match(read("../src/pages/glossary.astro"), /\bdeskSurface="glossary"/);
 });
@@ -283,13 +284,16 @@ test("a width dragged in the notebook is stamped before paint, with its measure"
   assert.equal(MOVE_PROP in r.props, false);
 });
 
-test("a dragged width is not applied while the notebook is minimized", () => {
-  const r = run({
-    stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" },
-    session: { "lit-desk-measure": "50", "lit-desk-width": "360" },
-  });
-  assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" });
-  assert.deepEqual(r.props, {});
+test("a dragged width is applied while the notebook is minimized, as when expanded (BS-15)", () => {
+  const session = { "lit-desk-measure": "50", "lit-desk-width": "360" };
+  const r = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" }, session });
+  assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "", "data-desk-widths": "" });
+  assert.equal(r.props["--desk-measure"], "50");
+  assert.equal(r.props["--desk-width"], "360px");
+  assert.equal(MOVE_PROP in r.props, false);
+  const expandedRun = run({ stored: { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-min": "0" }, session });
+  assert.deepEqual(r.attrs, expandedRun.attrs);
+  assert.deepEqual(r.props, expandedRun.props);
 });
 
 test("a dragged width is not applied while the notebook is closed", () => {
@@ -301,19 +305,37 @@ test("a dragged width is not applied while the notebook is closed", () => {
   assert.deepEqual(r.props, {});
 });
 
-test("a dragged width outside its range, or not a number, sets nothing", () => {
+test("a dragged width under MIN_WIDTH, or not a number, sets nothing", () => {
   const stored = { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-min": "0" };
   const cases = [
-    { "lit-desk-measure": "30", "lit-desk-width": "360" },
-    { "lit-desk-measure": "80", "lit-desk-width": "360" },
     { "lit-desk-measure": "50", "lit-desk-width": "200" },
     { "lit-desk-measure": "wide", "lit-desk-width": "360" },
     { "lit-desk-measure": "50", "lit-desk-width": "tall" },
+    { "lit-desk-measure": "Infinity", "lit-desk-width": "360" },
+    { "lit-desk-measure": "50", "lit-desk-width": "Infinity" },
   ];
   for (const session of cases) {
     const r = run({ stored, session });
     assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, JSON.stringify(session));
     assert.deepEqual(r.props, {}, JSON.stringify(session));
+  }
+});
+
+// SZ-17: the text drags only within 45 to 75 of the face's characters, so a
+// measure kept in one face can be outside another's range once the reader
+// changes the face. widths.js holds it to the range (placeWithWidths), and so
+// does the script, or the page would paint one column and then draw another.
+test("a measure outside the face's range is held to it, as widths.js holds it", () => {
+  const stored = { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-min": "0" };
+  for (const [font, kept, held] of [["", 30, 37.8], ["", 80, 62.8], ["atkinson", 60, 51.3], ["dyslexic", 40, 48]]) {
+    const html = font ? { "data-font": font } : {};
+    const session = { "lit-desk-measure": String(kept), "lit-desk-width": "360" };
+    const r = run({ stored, session, html, viewport: 1800 });
+    const at = JSON.stringify({ font, kept });
+    assert.equal(r.props["--desk-measure"], String(held), at);
+    assert.equal(r.attrs["data-desk-widths"], "", at);
+    const want = firstPaint({ viewport: 1800, ch: chPx({ font }), kept: { measure: kept, width: 360 }, range: measureRange(font) });
+    assert.deepEqual(r.props, stamps(want), at);
   }
 });
 
@@ -438,19 +460,26 @@ function stamps(want) {
   return props;
 }
 
-test("in a window too narrow for the margin, the notebook isn't stamped expanded (BA25)", () => {
-  // 280 + 16 + 24 + 38 + 48 × 0.63086 × 18 + 32 ≈ 935.06 at the default font and
+test("in a window too narrow for the margin, the notebook is still stamped expanded, unmoved (BS-15, once BA25)", () => {
+  // 280 + 16 + 24 + 38 + 48 × 0.497 × 1.33 × 16 + 32 ≈ 897.66 at the default font and
   // size: the notebook, its edge and gap, the margin the column keeps on its
-  // left for a footnote's Pin (E81; 897 before it), and the column.
-  assert.deepEqual(run({ stored: expandedStart, viewport: 935 }).attrs, { "data-desk": "on", "data-desk-panel": "open" });
-  assert.deepEqual(run({ stored: expandedStart, viewport: 936 }).attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  // left for a footnote's Pin (E81), and the column.
+  // Where it floats it is stamped expanded all the same, with no move: the
+  // folded tab and its few pixels come with the first placement.
+  const narrowRun = run({ stored: expandedStart, viewport: 897 });
+  assert.deepEqual(narrowRun.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  assert.deepEqual(narrowRun.props, {});
+  assert.deepEqual(run({ stored: expandedStart, viewport: 898 }).attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  assert.ok(MOVE_PROP in run({ stored: expandedStart, viewport: 898 }).props, "from 898px the margin holds it, with the column moved");
   // What counts is the width less the scrollbar, which the script measures.
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 935, scrollbar: 0 }).attrs, false);
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 936, scrollbar: 0 }).attrs, true);
+  assert.equal(MOVE_PROP in run({ stored: expandedStart, viewport: 897, scrollbar: 0 }).props, false);
+  assert.equal(MOVE_PROP in run({ stored: expandedStart, viewport: 898, scrollbar: 0 }).props, true);
+  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 897, scrollbar: 0 }).attrs, true);
   // A larger text size widens the column, so a half-screen window floats it.
   const lg = { "data-size": "lg" };
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 945, html: lg }).attrs, false);
-  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 1000, html: lg }).attrs, true);
+  assert.equal(MOVE_PROP in run({ stored: expandedStart, viewport: 945, html: lg }).props, false);
+  assert.equal(MOVE_PROP in run({ stored: expandedStart, viewport: 1000, html: lg }).props, true);
+  assert.equal("data-desk-expanded" in run({ stored: expandedStart, viewport: 945, html: lg }).attrs, true);
 });
 
 test("widths kept in a wider window are given way as widths.js gives them, or left off (BA30)", () => {
@@ -465,34 +494,37 @@ test("widths kept in a wider window are given way as widths.js gives them, or le
   assert.equal(mid.props["--desk-measure"], String(want.widths.measure));
   assert.equal(mid.props["--desk-width"], `${want.widths.width}px`);
   assert.equal(mid.attrs["data-desk-widths"], "");
-  // Too narrow for even the narrowest widths: none, and the 48 column floats.
+  // Too narrow for even the narrowest widths: none, and the 48 column floats,
+  // still stamped expanded (BS-15) but unmoved.
   const narrow = run({ stored: expandedStart, session, viewport: 600 });
   assert.deepEqual(narrow.props, {});
-  assert.deepEqual(narrow.attrs, { "data-desk": "on", "data-desk-panel": "open" });
+  assert.deepEqual(narrow.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" });
+  // A minimized notebook is given the same widths, the same way (BS-15).
+  assert.deepEqual(run({ stored: { "lit-desk-preview": "on" }, session, viewport: 1085 }).props, mid.props);
 });
 
 test("the script decides as firstPaint does, for every font, size and window", () => {
-  const keptCases = [null, { measure: 48, width: 300 }, { measure: 60, width: 440 }, { measure: 72, width: 600 }, { measure: 36, width: 280 }];
+  // Each face's range has its ends among these (SZ-17): 30.8 to 51.3 in
+  // Atkinson, 37.8 to 62.8 by default, 48 to 110.4 in OpenDyslexic.
+  const keptCases = [
+    null, { measure: 48, width: 300 }, { measure: 60, width: 440 }, { measure: 72, width: 600 }, { measure: 36, width: 280 },
+    { measure: 110, width: 320 },
+  ];
   for (const font of Object.keys(FIRST_PAINT.ch)) {
     for (const size of Object.keys(FIRST_PAINT.scale)) {
       for (const rootPx of [16, 20]) {
         const html = { ...(font ? { "data-font": font } : {}), ...(size ? { "data-size": size } : {}) };
         const ch = chPx({ font, size, rootPx });
+        const range = measureRange(font);
         for (const kept of keptCases) {
           const session = kept ? { "lit-desk-measure": String(kept.measure), "lit-desk-width": String(kept.width) } : {};
           for (let viewport = 600; viewport <= 1800; viewport += 7) {
             const r = run({ stored: expandedStart, session, viewport, html, rootPx });
-            const want = firstPaint({ viewport, ch, kept });
+            const want = firstPaint({ viewport, ch, kept, range });
             const at = JSON.stringify({ font, size, rootPx, kept, viewport });
             assert.equal("data-desk-expanded" in r.attrs, want.expanded, at);
             assert.equal("data-desk-widths" in r.attrs, Boolean(want.widths), at);
             assert.deepEqual(r.props, stamps(want), at);
-            // Read View opens expanded in the same windows and gets the same
-            // widths, but neither the move nor the center: its column is not
-            // the one this script knows (E137).
-            const read = run({ surface: "read", stored: expandedStart, session, viewport, html, rootPx });
-            assert.deepEqual(read.attrs, r.attrs, at);
-            assert.deepEqual(read.props, stamps({ ...want, shift: 0, center: null }), at);
           }
         }
       }
@@ -507,7 +539,7 @@ test("the script decides as firstPaint does, for every font, size and window", (
 // second later adds the notebook," the text shifting back and forth. The
 // column's move left came only with the desk's code. Now the script stamps it.
 
-const FONTS = { Inter: "", OpenDyslexic: "dyslexic" };
+const FONTS = { "Source Sans 3": "", OpenDyslexic: "dyslexic" };
 const SIZES = { Medium: "", "Extra large": "xl" };
 // A 1024px, an 1100px and a 1280px window, each less a 15px scrollbar.
 const WINDOWS = [1024, 1100, 1280];
@@ -515,10 +547,10 @@ const WINDOWS = [1024, 1100, 1280];
 test("E137: the move left is stamped before paint exactly as placeInMargin will make it", () => {
   // The moves a reader gets, by window, at the default root size.
   const expected = {
-    "Inter Medium": [104, 66, 0],
-    "Inter Extra large": [null, null, 52], // null: too narrow, the notebook floats and folds
-    "OpenDyslexic Medium": [48, 10, 0],
-    "OpenDyslexic Extra large": [108, 70, 0],
+    "Source Sans 3 Medium": [85, 47, 0],
+    "Source Sans 3 Extra large": [null, 118, 28], // null: too narrow, the notebook floats and folds
+    "OpenDyslexic Medium": [87, 49, 0],
+    "OpenDyslexic Extra large": [null, 120, 30],
   };
   for (const [fontName, font] of Object.entries(FONTS)) {
     for (const [sizeName, size] of Object.entries(SIZES)) {
@@ -536,7 +568,7 @@ test("E137: the move left is stamped before paint exactly as placeInMargin will 
         const shift = expected[`${fontName} ${sizeName}`][i];
         if (shift === null) {
           assert.equal(placed.over, true, at);
-          assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open" }, at);
+          assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, at);
           assert.deepEqual(r.props, {}, at);
           return;
         }
@@ -574,7 +606,7 @@ test("E137: every font, size and window gets the move placeInMargin makes", () =
         const left = (viewport - width) / 2;
         const placed = placeInMargin({ viewport, column: { left, right: left + width }, main: { left: 0 }, keepLeft: KEEP_LEFT });
         const at = JSON.stringify({ font, size, viewport });
-        assert.equal("data-desk-expanded" in r.attrs, !placed.over, at);
+        assert.equal("data-desk-expanded" in r.attrs, true, at); // BS-15: even where it floats
         const stamped = MOVE_PROP in r.props ? -parseFloat(r.props[MOVE_PROP]) : 0;
         assert.equal(stamped, placed.over ? 0 : placed.shift, at);
         assert.equal("--desk-bar-center" in r.props, stamped > 0, at);
@@ -583,17 +615,24 @@ test("E137: every font, size and window gets the move placeInMargin makes", () =
   }
 });
 
-test("E137: nothing is stamped for a minimized, closed or hidden Notebook, or with the desk off", () => {
-  // 1009px: where an expanded notebook moves the column 104px.
+test("BS-15: a minimized Notebook is stamped exactly as an expanded one; nothing for a closed one or with the desk off", () => {
+  // 1009px: where an open notebook moves the column 85px.
   const moved = run({ stored: expandedStart, viewport: 1009 });
-  assert.equal(moved.props[MOVE_PROP], "-104px 0");
-  const states = [
+  assert.equal(moved.props[MOVE_PROP], "-85px 0");
+  const minimized = [
     { "lit-desk-preview": "on" }, // open and minimized, the default
     { "lit-desk-preview": "on", "lit-desk-min": "1" },
     { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-start": "min" },
+  ];
+  for (const stored of minimized) {
+    const r = run({ stored, viewport: 1009 });
+    assert.deepEqual(r.props, moved.props, JSON.stringify(stored));
+    assert.deepEqual(r.attrs, moved.attrs, JSON.stringify(stored));
+    assert.equal("data-desk-expanded" in r.attrs, true, JSON.stringify(stored));
+  }
+  const states = [
     { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-panel": "closed" },
     { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-start": "closed" },
-    { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-show": "off" },
     { "lit-desk-min": "0" }, // the desk off
   ];
   for (const stored of states) {

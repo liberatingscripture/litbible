@@ -1,18 +1,21 @@
 // src/scripts/keyboard-shortcuts.js
 //
 // Keyboard shortcuts for reading (audit U4), on every page:
-//   /          search (the page's own box, or the header's search strip; on
-//              /desk, a Search pane)
-//   g          Go to passage, where the page has the picker
-//   ← → [ ]    previous and next chapter: Chapter View's Previous/Next links,
-//              the neighbouring chapter in Read View, or on /desk the pane
-//              being read (the leading LIT pane)
-//   h          hide or show my marks, where the Study Desk is on (M1)
+//   /          search (the place line's Search on a chapter or an
+//              introduction, the phone bar's there on a phone, the page's
+//              own box, or the header's search strip; on /desk, a Search pane)
+//   g          the passage picker (passage-picker.js)
+//   ← → [ ]    previous and next chapter: the place line's ‹ › (on a
+//              chapter's page, the start of the chapter before or after the
+//              one being read, loaded first: read-on.js), or on /desk the
+//              pane being read (the leading LIT pane)
+//   h          hide or show your marks ("Your marks"), where Study is on (M1)
 //
-// On by default, with a "Keyboard shortcuts" box in the Display tray to turn
-// them off (localStorage["lit-shortcuts"] = "off"; absent = on). The off
-// switch is required, not a nicety: single-key shortcuts fire when a
-// speech-recognition user dictates a word (WCAG 2.1.4).
+// On by default, with a "Keyboard shortcuts" switch on All settings
+// (/settings, settings-page.js; the Display tray's box until Featherboa's
+// Phase 4) to turn them off (localStorage["lit-shortcuts"] = "off"; absent =
+// on). The off switch is required, not a nicety: single-key shortcuts fire
+// when a speech-recognition user dictates a word (WCAG 2.1.4).
 //
 // They never act while the reader is typing or working a control that uses
 // these keys itself (a radio group, a menu, a grid, an open dialog), and
@@ -43,6 +46,8 @@ const KEYS_OWNED_BY = [
   "[role='tablist']",
   "[role='slider']",
   "dialog",
+  // The passage picker on /read, whose books and chapters take the arrows.
+  "[data-picker]",
   // The Study Desk's docked panel owns its keys: lists, tabs and, later,
   // its own search.
   "[data-desk-dock]",
@@ -69,10 +74,20 @@ function openSearch() {
     document.dispatchEvent(new CustomEvent("lit:search-open"));
     return true;
   }
-  // Chapter View's phone toolbar keeps its search behind a button.
-  const toggle = document.querySelector(".tools-search-toggle");
-  if (visible(toggle) && toggle.getAttribute("aria-expanded") !== "true") {
-    toggle.click();
+  // A phone's reading page keeps its search behind the bar's Search, which
+  // opens the field in place of the top row (phone-bars.js; still a link to
+  // /search until that script has made it a button).
+  const barSearch = document.querySelector("[data-bar-search]");
+  if (visible(barSearch) && barSearch.getAttribute("aria-expanded") === "false") {
+    barSearch.click();
+    return true;
+  }
+  // From 700px the place line's Search opens the same field in place of the
+  // line (place-line.js; a link to /search until that script runs). Once
+  // open, the field below takes the key.
+  const lineSearch = document.querySelector("[data-line-search]");
+  if (visible(lineSearch) && lineSearch.getAttribute("aria-expanded") === "false") {
+    lineSearch.click();
     return true;
   }
   const input = document.getElementById("site-search-input");
@@ -85,17 +100,20 @@ function openSearch() {
 }
 
 function openPicker() {
-  // ReadMenu swaps its fallback link for a button of the same class.
-  // Until then it is still the no-JS link, which would navigate away.
-  const trigger = Array.from(document.querySelectorAll("button.read-menu__trigger")).find(visible);
-  if (!trigger) return false;
-  trigger.click();
-  return true;
+  // The passage picker answers (passage-picker.js): the panel or the phone's
+  // sheet opens at the books, or /read's field takes focus. Nothing answers
+  // before its script runs, or on /desk.
+  const ev = new CustomEvent("lit:picker-open", { cancelable: true });
+  document.dispatchEvent(ev);
+  return ev.defaultPrevented;
 }
 
 function goToChapter(step) {
-  // Chapter View (and intros and drafts): the top Previous/Next links.
-  const link = document.querySelector(`.chapter-nav a[rel="${step < 0 ? "prev" : "next"}"]`);
+  // A chapter, an introduction, or a draft: the place line's ‹ › (in the
+  // page at every width; under 700px the phone's bar shows the same two). On
+  // a chapter's page they follow the chapter being read, and read-on.js
+  // answers their click by loading the next chapter and landing on it.
+  const link = document.querySelector(`.place-line a[rel="${step < 0 ? "prev" : "next"}"]`);
   if (link) {
     link.click();
     return true;
@@ -108,19 +126,11 @@ function goToChapter(step) {
     document.dispatchEvent(ev);
     if (ev.defaultPrevented) return true;
   }
-  // Read View: the whole book is on the page, so move to the next chapter
-  // heading. The picker's root tracks which chapter is being read.
-  const current = Number(document.querySelector("[data-current-chapter]")?.dataset.currentChapter);
-  if (!current) return false;
-  const target = document.getElementById(`ch-${current + step}`);
-  if (!target) return false;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  history.replaceState(null, "", `#ch-${current + step}`);
-  return true;
+  return false;
 }
 
-// The Study Desk's "Hide my marks" (M1), only where the desk is on: the desk
+// Study's "Your marks" (M1, "Hide my marks" until Featherboa's Phase 4),
+// only where the desk is on: the desk
 // itself listens for the event, so with the preview off the key does nothing.
 function toggleDeskHide() {
   if (!document.documentElement.hasAttribute("data-desk")) return false;

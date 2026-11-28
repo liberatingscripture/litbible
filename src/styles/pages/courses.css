@@ -1,251 +1,101 @@
 /* =========================================================
-   Courses page
+   Courses page, drawn with Featherboa's tokens: the page is the paper,
+   and the sign-up is set apart by space and a tint. The field and the
+   button take their look from the kit.
    ========================================================= */
 
 .courses-page {
-  background: var(--page-bg);
-  color: var(--text);
+  background: var(--color-page);
+  color: var(--color-text);
 }
 
 /* Hero */
 .courses-hero {
-  max-width: var(--content-width, 72ch);
+  max-width: calc(72 * var(--ch));
   margin: 0 auto;
-  padding: clamp(72px, 10vh, 108px) 16px 56px;
+  padding: var(--space-9) var(--space-5) var(--space-7);
 
   /* Keep the H1 centered */
   text-align: center;
 }
 
 .courses-hero h1 {
-  font-family: "Crimson Text", "Crimson Fallback", var(--font-serif, serif);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.05;
-
-  font-size: clamp(2.6rem, 6vw, 5rem);
-  margin: 0 0 26px;
+  font-size: var(--size-title);
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-5);
 }
 
 .courses-intro {
   margin: 0 auto;
-  max-width: 58ch;
+  max-width: calc(58 * var(--ch));
 
   /* Body copy left-aligned */
   text-align: left;
 }
 
 .courses-intro p {
-  margin: 0 0 26px;
-  font-size: clamp(1.25rem, 2.1vw, 1.65rem);
-  line-height: 1.55;
-  color: rgba(var(--ink-rgb), 0.92);
+  margin: 0 0 var(--space-5);
+  font-size: var(--size-text);
+  line-height: var(--leading-text);
 }
 
-/* Updates block */
+/* Updates block: a tint sets it apart */
 .courses-updates {
-  position: relative;
-  background: var(--green);
-  color: #ffffff;
-  overflow: hidden;
-  /* Fixed green in both themes: ink ring (4.58:1), not the page's. */
-  --focus-ring: var(--ink);
-
-  /* breathing room under the hero */
-  padding: 110px 0 110px;
+  background: var(--color-tint);
+  color: var(--color-text);
+  padding: var(--space-9) 0;
 }
 
 .courses-updates__inner {
-  position: relative;
-  z-index: 2;
-
   max-width: 900px;
   margin: 0 auto;
-  padding: 0 16px;
-
+  padding: 0 var(--space-5);
   text-align: center;
 }
 
 .courses-updates__inner h2 {
-  font-family: var(--font-serif, "Fraunces", "Fraunces Fallback", serif);
-  font-weight: 600;
-  font-size: clamp(1.9rem, 3vw, 2.6rem);
-  margin: 0 0 12px;
+  font-size: var(--size-heading);
+  line-height: var(--leading-heading);
+  margin: 0 0 var(--space-3);
 }
 
 .courses-updates__lead {
-  margin: 0 auto 30px;
-  max-width: 34ch;
-  font-size: clamp(1.3rem, 2.4vw, 2.1rem);
-  line-height: 1.25;
-  /* Ink, not the section's inherited white: this can render at 20.8px (below
-     the 24px large-text bar), where white on --green is 3.5:1. Ink is 4.6:1 and
-     holds in dark mode (green section stays green, --ink never flips). The h2
-     above stays white — it always qualifies as large text. */
-  color: var(--ink);
+  margin: 0 auto var(--space-5);
+  max-width: calc(34 * var(--ch));
+  font-size: var(--size-subhead);
+  line-height: var(--leading-subhead);
+  color: var(--color-text-2);
 }
 
 /* Form */
 .signup {
   display: grid;
   place-items: center;
-  gap: 18px;
+  gap: var(--space-4);
   margin: 0 auto;
 }
 
+/* The field is the kit's; this page sets only its width. */
 .signup input[type="email"] {
-  width: min(680px, 92vw);
-  height: 72px;
-
-  padding: 0 22px;
-  font-size: 1.6rem;
-
-  border: none;
-  border-radius: 6px;
-
-  background: var(--surface-raised);
-  color: var(--text);
-
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  width: min(680px, 100%);
 }
 
-.signup input[type="email"]::placeholder {
-  color: rgba(var(--ink-rgb), 0.7);
-  opacity: 1;
-}
-
-.signup__button {
-  border: none;
-  cursor: pointer;
-
-  background: var(--surface-raised);
-  color: var(--green-text);
-
-  padding: 14px 34px;
-  border-radius: 10px;
-
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-
-  transition: transform 140ms ease, box-shadow 140ms ease;
-}
-
-.signup__button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
-}
-
-.signup__button:active {
-  transform: translateY(0);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-}
-
-.signup__button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Same visual as the button, but rendered as an anchor (jumps to the
-   footer newsletter form — the Brevo form can't be duplicated up here) */
+/* The kit's filled button, here on an anchor (it jumps to the footer
+   newsletter form: the Brevo form can't be duplicated up here). */
 .signup__button--link {
-  display: inline-block;
-  text-decoration: none;
-}
-
-.signup__button--link:hover,
-.signup__button--link:focus {
   text-decoration: none;
 }
 
 .signup__status {
-  margin: 2px 0 0;
+  margin: 0;
   min-height: 1.4em;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: var(--size-margin);
+  line-height: var(--leading-margin);
+  color: var(--color-text-2);
 }
 
 .courses-updates__note {
-  margin: 34px 0 0;
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-/* Waves */
-.courses-wave {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 160px;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.courses-wave svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.courses-wave--top {
-  top: 0;
-  transform: translateY(-1px);
-}
-
-.courses-wave--bottom {
-  bottom: 0;
-  transform: translateY(1px);
-}
-
-/* Wave styling */
-.wave-fill {
-  fill: var(--green);
-}
-
-.wave-stroke {
-  fill: none;
-  stroke-width: 10;
-  vector-effect: non-scaling-stroke;
-}
-
-/* Top wave outline: white */
-.courses-wave--top .wave-stroke {
-  stroke: rgba(255, 255, 255, 0.9);
-}
-
-/* Bottom wave outline: black */
-.courses-wave--bottom .wave-stroke {
-  stroke: rgba(0, 0, 0, 0.8);
-}
-
-/* Accessibility helpers */
-.sr-only {
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-
-/* Focus states */
-.signup input[type="email"]:focus,
-.signup__button:focus {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 3px;
-}
-
-@media (max-width: 520px) {
-  .signup input[type="email"] {
-    height: 64px;
-    font-size: 1.35rem;
-  }
+  margin: var(--space-5) 0 0;
+  font-size: var(--size-margin);
+  color: var(--color-text-2);
 }

@@ -1,4 +1,5 @@
 ---
+import Icon from "./Icon.astro";
 const { ariaLabel = "Carousel", intervalMs = 2800 } = Astro.props as {
   ariaLabel?: string;
   intervalMs?: number;
@@ -19,20 +20,20 @@ const { ariaLabel = "Carousel", intervalMs = 2800 } = Astro.props as {
 
   <div class="card-carousel__controls" aria-label="Carousel controls">
     <button
-      class="card-carousel__btn"
+      class="card-carousel__btn kit-icon"
       type="button"
       data-card-prev
       aria-label="Previous"
     >
-      ‹
+      <Icon name="back" />
     </button>
     <button
-      class="card-carousel__btn"
+      class="card-carousel__btn kit-icon"
       type="button"
       data-card-next
       aria-label="Next"
     >
-      ›
+      <Icon name="forward" />
     </button>
   </div>
 </div>

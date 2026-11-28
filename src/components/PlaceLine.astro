@@ -1,0 +1,124 @@
+---
+// The line under the header (SITE-FEATHERBOA.md, "The line under the
+// header"; HD-14, HD-22, HD-26): on every page but Home, it names the page,
+// "Learn / Glossary," "About / Contact," or the page's name alone for a page
+// in no place, with the page's one or two main commands at its right (the
+// "commands" slot; its left stays empty). The page's own heading stays as
+// written below it. Quiet: words in the controls' face, no box, no button's
+// look. Not on Study's pages, whose title row becomes theirs in Phase 9
+// (src/lib/places.mjs, `line`). Layout.astro draws it between the header
+// and <main>.
+//
+// On a chapter or a book's introduction it is the place line
+// (SITE-FEATHERBOA.md, "The reading page" and "Finding a passage"; RP-29 to
+// RP-32, FP-27, FP-28): "John ▾ / Chapter 3 ▾" (or "Introduction ▾"), each
+// part opening the passage picker (the book at the books, the chapter at
+// its grid; links to /read without JavaScript), then at its right Search,
+// ‹ ›, the Notebook, and "Study John 3" (a link to /desk at the passage),
+// the last two only with the Study preview, on a computer. Search opens the
+// page's one search field in place of the line (place-line.js), and the
+// phone's top row borrows that same field (phone-bars.js). Under 700px it
+// isn't drawn: the phone's two bars do its work.
+//
+// where: placeOf()'s answer for this page (src/lib/places.mjs).
+// reading: the passage, on a chapter or an introduction ({ book, chapter,
+// studyHref }; ScriptureLayout.astro), which makes it the place line.
+import Icon from "./Icon.astro";
+import GlossaryLine from "./GlossaryLine.astro";
+import SearchBar from "./SearchBar.astro";
+import { bookKeyToLabel } from "../data/books.js";
+import { navFor } from "../lib/chapter-nav-data.mjs";
+import { placeBy } from "../lib/places.mjs";
+
+const { where, reading } = Astro.props;
+const place = where.place ? placeBy(where.place) : null;
+const commands = Astro.slots.has("commands");
+
+const book = reading?.book ?? "";
+const bookName = book ? bookKeyToLabel(book) : "";
+const intro = reading?.chapter === "intro";
+// Previous and Next come from the one shared rule (src/lib/chapter-nav.mjs),
+// as the phone's bar and the foot's do, and are named for where they go.
+const turn = reading ? navFor(book, reading.chapter) : null;
+const studyName = intro ? `Study ${bookName}` : `Study ${bookName} ${reading?.chapter}`;
+---
+
+{reading ? (
+  <div class="place-line place-line--reading" data-place-line data-pagefind-ignore>
+    <div class="place-line__inner">
+      <p class="place-line__trail">
+        <a class="kit-btn kit-btn--plain place-line__pick" href="/read/" data-picker-open="books">
+          <span class="sr-only">Book: </span>{bookName}<Icon name="down" />
+        </a><span class="sr-only">, </span><span class="place-line__sep" aria-hidden="true">/</span>
+        <a class="kit-btn kit-btn--plain place-line__pick" href={`/read/#picker-${book}`} data-picker-open="chapters">
+          {intro ? "Introduction" : `Chapter ${reading.chapter}`}<Icon name="down" />
+        </a>
+      </p>
+      <div class="place-line__commands">
+        <a class="kit-btn kit-btn--plain" href="/search" data-line-search>
+          <Icon name="search" />Search
+        </a>
+        <nav class="place-line__turn" aria-label="Chapters">
+          {turn?.prev ? (
+            <a class="kit-icon" href={turn.prev.href} rel="prev" aria-label={`Previous: ${turn.prev.label}`}>
+              <Icon name="back" />
+            </a>
+          ) : (
+            <a class="kit-icon" role="link" aria-disabled="true" aria-label="Previous">
+              <Icon name="back" />
+            </a>
+          )}
+          {turn?.next ? (
+            <a class="kit-icon" href={turn.next.href} rel="next" aria-label={`Next: ${turn.next.label}`}>
+              <Icon name="forward" />
+            </a>
+          ) : (
+            <a class="kit-icon" role="link" aria-disabled="true" aria-label="Next">
+              <Icon name="forward" />
+            </a>
+          )}
+        </nav>
+        {/* The Notebook and Study: in the markup for everyone, shown only on
+            a computer with the Study preview on (header.css; the Notebook
+            only where the page has the panel, global.css). The desk wires
+            every button[data-desk-toggle] itself. */}
+        <button type="button" class="kit-btn kit-btn--plain place-line__notebook" data-desk-toggle aria-expanded="false" aria-controls="deskPanel">
+          <Icon name="notebook" />Notebook
+        </button>
+        <a class="kit-btn kit-btn--plain place-line__study" href={reading.studyHref} data-study-place>{studyName}</a>
+      </div>
+      <div class="place-line__find" id="lineFind" data-line-find hidden>
+        <SearchBar placeholder="Search the LIT, or go to a passage" />
+        <button type="button" class="kit-icon place-line__find-close" aria-label="Close search" data-line-find-close>
+          <Icon name="close" />
+        </button>
+      </div>
+    </div>
+  </div>
+) : where.place === "learn" && where.row === "glossary" ? (
+  <GlossaryLine />
+) : (
+  <div class="place-line">
+    <div class="place-line__inner">
+      <p class="place-line__trail">
+        {place && (
+          <>
+            <span class="place-line__place">{place.label}</span><span class="sr-only">, </span><span
+              class="place-line__sep"
+              aria-hidden="true">/</span>
+          </>
+        )}
+        {where.up ? (
+          <a class="place-line__page" href={where.up}>{where.name}</a>
+        ) : (
+          <span class="place-line__page" aria-current="page">{where.name}</span>
+        )}
+      </p>
+      {commands && (
+        <div class="place-line__commands">
+          <slot name="commands" />
+        </div>
+      )}
+    </div>
+  </div>
+)}

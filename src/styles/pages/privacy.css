@@ -1,15 +1,18 @@
 /* =========================================================
-   Privacy Policy page — centered document column
+   Privacy Policy page (and Terms of Use, and the delete-account page,
+   which share it): a centered document column, drawn with Featherboa's
+   tokens.
    ========================================================= */
 
 /* This page follows the Display tray's text size and line spacing through
    --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
 .privacy-page {
-  background-color: var(--page-bg);
+  background-color: var(--color-page);
   min-height: 100vh;
   font-size: calc(1em * var(--reading-scale, 1));
-  padding-block: clamp(2.5rem, 5vw, 4rem);
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
 }
 
 /* =========================================================
@@ -18,7 +21,7 @@
 
 .privacy-header {
   width: 100%;
-  margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem);
+  margin-bottom: var(--space-6);
 }
 
 .privacy-header__inner {
@@ -27,28 +30,24 @@
 }
 
 .privacy-title {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(2.25rem, 4vw, 3rem) * var(--heading-scale, 1));
-  line-height: 1.1;
-  margin: 0 0 0.5rem;
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-2);
 }
 
 .privacy-effective {
-  font-size: calc(0.9rem * var(--reading-scale, 1));
-  letter-spacing: 0.04em;
-  color: rgba(var(--ink-rgb), 0.6);
-  margin: 0 0 1rem;
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: var(--leading-margin);
+  color: var(--color-text-3);
+  margin: 0 0 var(--space-4);
 }
 
 /* The dated "what changed" line under the effective date (src/pages/CLAUDE.md, rule 4). */
 .privacy-changed {
-  letter-spacing: normal;
-  line-height: 1.5;
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
 }
 
 .privacy-lede {
-  font-size: calc(clamp(1.1rem, 0.5vw + 1rem, 1.25rem) * var(--reading-scale, 1));
-  line-height: calc(1.72 + var(--reading-leading-extra, 0));
   margin: 0;
 }
 
@@ -59,8 +58,6 @@
 .privacy-body {
   max-width: calc(65 * var(--ch));
   margin: 0 auto;
-  font-size: calc(clamp(1rem, 0.4vw + 0.9rem, 1.15rem) * var(--reading-scale, 1));
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
   /* A web address or a storage key is one unbreakable run, and at the larger
      sizes on a phone the longest is wider than the column. It breaks only
      when it can't fit a line by itself; ordinary words never do. */
@@ -68,7 +65,7 @@
 }
 
 .privacy-body section {
-  margin-bottom: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: var(--space-5);
 }
 
 .privacy-body section:last-child {
@@ -77,16 +74,14 @@
 
 /* H2: section headings */
 .privacy-body h2 {
-  font-family: var(--serif, serif);
-  font-size: calc(clamp(1.3rem, 1.2vw + 1.05rem, 1.6rem) * var(--reading-scale, 1));
-  line-height: 1.25;
-  margin: 0 0 0.85rem;
-  color: var(--text-strong);
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  line-height: var(--leading-subhead);
+  margin: 0 0 var(--space-3);
 }
 
 /* Paragraph spacing within sections */
 .privacy-body p {
-  margin: 0 0 0.6rem;
+  margin: 0 0 var(--space-2);
 }
 
 .privacy-body p:last-child {
@@ -95,12 +90,12 @@
 
 /* Lists */
 .privacy-body ul {
-  margin: 0.5rem 0 1rem 1.25rem;
+  margin: var(--space-2) 0 var(--space-4) var(--space-5);
   padding: 0;
 }
 
 .privacy-body li {
-  margin-bottom: 0.4rem;
+  margin-bottom: var(--space-1);
 }
 
 .privacy-body li:last-child {
@@ -109,28 +104,26 @@
 
 /* Links */
 .privacy-body a {
-  color: var(--link);
+  color: var(--color-press);
   text-underline-offset: 3px;
 }
 
 .privacy-body a:hover,
 .privacy-body a:focus-visible {
   text-decoration-thickness: 2px;
-  outline: none;
 }
 
+/* The ring is global.css's; only its corners here. */
 .privacy-body a:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-press);
 }
 
 /* =========================================================
-   Divider between sections (subtle rule above each h2)
+   Divider between sections (a hairline above each h2)
    ========================================================= */
 
 .privacy-body section + section {
-  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
-  padding-top: clamp(1.5rem, 3vw, 2rem);
+  border-top: 1px solid var(--color-hairline);
+  padding-top: var(--space-5);
   margin-top: 0;
 }

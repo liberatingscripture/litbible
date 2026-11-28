@@ -1,7 +1,15 @@
 ---
 import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
+import { FOOTER_PAGES, LEGAL, PLACES } from "../lib/places.mjs";
 
 /**
+ * The footer (SITE-FEATHERBOA.md, "The phone and the footer"; HD-36, BS-24):
+ * the four places' groups with the header's names (src/lib/places.mjs; Study
+ * only on a computer with the Study preview on, footer.css), then the What's
+ * New page, the colophon, Privacy, and the Terms of Use, the brand marks, and
+ * the newsletter. Every link works without JavaScript, and the phone's Menu
+ * goes to #footer-nav without it.
+ *
  * hideNewsletter: omit the Brevo subscribe form. Used on /unsubscribe, which
  * embeds its own Brevo form — Brevo markup requires fixed ids (sib-form,
  * error-message, success-message), so two forms on one page collide.
@@ -23,193 +31,54 @@ import { siFacebook, siThreads, siBluesky, siInstagram } from "simple-icons";
  */
 const { hideNewsletter = false } = Astro.props;
 
-// Site 2.0's footer navigation (BVJ, 2026-11-17: "Behind the preview gate, I
-// think the footer nav should be updated. It needs pages from Study Desk
-// added, and it should be reorganized."). The groups follow the header's
-// (Learn, Study, About), with the text's own group first and Connect last. Study shows only
-// where the header's Study menu does: a computer with the desk on
-// (.footer-col--desk; v2/base.css). Today's two columns stay below, data-v1.
-type FooterLink = { href: string; label: string; ariaLabel?: string };
-type FooterGroup = { label: string; desk?: boolean; links: FooterLink[] };
-const FOOTER_GROUPS: FooterGroup[] = [
-  {
-    // Not "Read": its first link is "Read," and the two together read twice.
-    label: "The LIT",
-    links: [
-      { href: "/read", label: "Read" },
-      { href: "/apps", label: "Apps" },
-      { href: "/release-notes", label: "Release Notes" },
-    ],
-  },
-  {
-    label: "Learn",
-    links: [
-      { href: "/glossary", label: "Glossary" },
-      { href: "/articles", label: "Articles" },
-      { href: "/found-in-translation-podcast", label: "Podcast" },
-    ],
-  },
-  {
-    label: "Study",
-    desk: true,
-    links: [
-      { href: "/desk/", label: "Study Desk" },
-      { href: "/sheets/", label: "My sheets" },
-      { href: "/notebook/", label: "My Notebook" },
-      { href: "/collections/", label: "My collections" },
-      { href: "/desk/help/", label: "Study Desk help" },
-    ],
-  },
-  {
-    label: "About",
-    links: [
-      { href: "/about", label: "About" },
-      { href: "/translation-commitments", label: "Commitments" },
-      { href: "/liberating-scripture-collective", label: "About LSC", ariaLabel: "About the Liberating Scripture Collective" },
-      { href: "/privacy", label: "Privacy" },
-      { href: "/terms", label: "Terms of Use" },
-    ],
-  },
-  {
-    label: "Connect",
-    links: [
-      { href: "/contact", label: "Contact" },
-      { href: "/support", label: "Support" },
-    ],
-  },
-];
+// The brand marks stand alone, each named in its aria-label (queue Q17).
 const SOCIAL = [
-  { href: "https://www.facebook.com/LiberationAndInclusionTranslation", name: "Facebook", path: siFacebook.path },
-  { href: "https://www.threads.com/@lit.bible", name: "Threads", path: siThreads.path },
-  { href: "https://bsky.app/profile/litbible.net", name: "Bluesky", path: siBluesky.path },
-  { href: "https://instagram.com/lit.bible", name: "Instagram", path: siInstagram.path },
+  { name: "Facebook", href: "https://www.facebook.com/LiberationAndInclusionTranslation", path: siFacebook.path },
+  { name: "Threads", href: "https://www.threads.com/@lit.bible", path: siThreads.path },
+  { name: "Bluesky", href: "https://bsky.app/profile/litbible.net", path: siBluesky.path },
+  { name: "Instagram", href: "https://instagram.com/lit.bible", path: siInstagram.path },
 ];
 ---
 
 <footer class="site-footer">
   <div class="footer-inner">
-    <div class="footer-left">
-      <nav class="footer-nav footer-nav--v2" aria-label="Footer navigation" data-v2 data-pagefind-ignore>
-        {FOOTER_GROUPS.map((group, i) => (
-          <div class={`footer-col${group.desk ? " footer-col--desk" : ""}`}>
-            <h2>{group.label}</h2>
-            <ul>
-              {group.links.map((link) => (
-                <li><a href={link.href} aria-label={link.ariaLabel}>{link.label}</a></li>
+    <nav class="footer-nav" id="footer-nav" aria-label="Footer navigation">
+      <div class="footer-groups">
+        {PLACES.map((place) => (
+          <div class={`footer-group footer-group--${place.key}`}>
+            <h2 class="footer-group__heading">{place.label}</h2>
+            <ul class="footer-group__rows">
+              {place.rows.map((row) => (
+                <li><a href={row.href}>{row.label}</a></li>
               ))}
             </ul>
-            {i === FOOTER_GROUPS.length - 1 && (
-              <ul class="social-links" aria-label="Social media">
-                {SOCIAL.map((site) => (
-                  <li>
-                    <a
-                      href={site.href}
-                      aria-label={`Liberation and Inclusion Translation on ${site.name}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d={site.path}></path>
-                      </svg>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         ))}
-      </nav>
+      </div>
 
-      <nav class="footer-nav" aria-label="Footer navigation" data-v1>
-        <div class="footer-col">
-          <h2>Learn</h2>
-          <ul>
-            <li><a href="/about">About</a></li>
-            <li><a href="/translation-commitments">Commitments</a></li>
-            <li><a href="/glossary">Glossary</a></li>
-            <li><a href="/articles">Articles</a></li>
-            <li><a href="/found-in-translation-podcast">Podcast</a></li>
-            <li><a href="/read">Read</a></li>
-            <li><a href="/release-notes">What’s new</a></li>
-            <li><a href="/apps">Apps</a></li>
-          </ul>
-        </div>
+      <ul class="footer-legal">
+        {[...FOOTER_PAGES, ...LEGAL].map((row) => (
+          <li><a href={row.href}>{row.label}</a></li>
+        ))}
+      </ul>
 
-        <div class="footer-col">
-          <h2>Connect</h2>
-          <ul>
-            <li><a href="/contact">Contact</a></li>
-            <li><a href="/support">Support</a></li>
-            <li>
-              <a
-                href="/liberating-scripture-collective"
-                aria-label="About the Liberating Scripture Collective"
-                title="Liberating Scripture Collective"
-              >
-                About LSC
-              </a>
-            </li>
-            <li><a href="/privacy">Privacy</a></li>
-            <li><a href="/terms">Terms of Use</a></li>
-          </ul>
-
-          <ul class="social-links" aria-label="Social media">
-            <li>
-              <a
-                href="https://www.facebook.com/LiberationAndInclusionTranslation"
-                aria-label="Liberation and Inclusion Translation on Facebook"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siFacebook.path}></path>
-                </svg>
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://www.threads.com/@lit.bible"
-                aria-label="Liberation and Inclusion Translation on Threads"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siThreads.path}></path>
-                </svg>
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://bsky.app/profile/litbible.net"
-                aria-label="Liberation and Inclusion Translation on Bluesky"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siBluesky.path}></path>
-                </svg>
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://instagram.com/lit.bible"
-                aria-label="Liberation and Inclusion Translation on Instagram"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d={siInstagram.path}></path>
-                </svg>
-              </a>
-            </li>
-
-          </ul>
-        </div>
-      </nav>
-    </div>
+      <ul class="social-links" aria-label="Social media">
+        {SOCIAL.map((site) => (
+          <li>
+            <a
+              href={site.href}
+              aria-label={`Liberation and Inclusion Translation on ${site.name}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d={site.path}></path>
+              </svg>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
 
     <div class="footer-right">
       {!hideNewsletter && (

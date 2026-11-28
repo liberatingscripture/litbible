@@ -1,4 +1,5 @@
 ---
+import Icon from "./Icon.astro";
 import { fetchEpisodes } from "../lib/fetchPodcastEpisodes";
 
 const episodes = await fetchEpisodes();
@@ -60,21 +61,17 @@ function seasonNavLabel(key: string): string {
 
 {seasonKeys.length > 1 && (
   <div class="fit-season-nav-wrap">
-    <button class="fit-season-arrow fit-season-arrow--prev" aria-label="Scroll seasons left" hidden>&#8592;</button>
-    <nav id="fit-season-nav" class="fit-season-nav" aria-label="Jump to season" data-v2-rail>
+    <button class="fit-season-arrow fit-season-arrow--prev kit-icon" aria-label="Scroll seasons left" hidden><Icon name="back" /></button>
+    <nav id="fit-season-nav" class="fit-season-nav" aria-label="Jump to season">
       {seasonKeys.map((key) => (
-        <a href={`#fit-season-${key}`}>{seasonNavLabel(key)}</a>
+        <a class="kit-btn kit-btn--tinted" href={`#fit-season-${key}`}>{seasonNavLabel(key)}</a>
       ))}
     </nav>
-    <button class="fit-season-arrow fit-season-arrow--next" aria-label="Scroll seasons right">&#8594;</button>
+    <button class="fit-season-arrow fit-season-arrow--next kit-icon" aria-label="Scroll seasons right"><Icon name="forward" /></button>
   </div>
 )}
 
 <script>
-  // Site 2.0: marks the season in view in the list of seasons (only with the
-  // restyle's stamp; see the module's header).
-  import "../scripts/v2-frame.js";
-
   const nav = document.querySelector('.fit-season-nav') as HTMLElement | null;
   const wrap = nav?.closest('.fit-season-nav-wrap') as HTMLElement | null;
   const btnPrev = wrap?.querySelector('.fit-season-arrow--prev') as HTMLButtonElement | null;
@@ -113,7 +110,7 @@ function seasonNavLabel(key: string): string {
       {seasonKeys.length > 1 && (
         <h3 id={`fit-season-${key}`} class="fit-season-heading">{label}</h3>
       )}
-      <ul class="fit-ep-list v2-sheet" role="list">
+      <ul class="fit-ep-list" role="list">
         {seasonEpisodes.map((ep) => (
           <li class="fit-ep">
             <h3 class="fit-ep__title">
@@ -136,13 +133,13 @@ function seasonNavLabel(key: string): string {
               {ep.links.map((link) =>
                 link.external ? (
                   <li>
-                    <a href={link.url} target="_blank" rel="noopener">
+                    <a class="kit-btn kit-btn--tinted" href={link.url} target="_blank" rel="noopener">
                       {link.label}
                     </a>
                   </li>
                 ) : (
                   <li>
-                    <a href={link.url}>{link.label}</a>
+                    <a class="kit-btn kit-btn--tinted" href={link.url}>{link.label}</a>
                   </li>
                 ),
               )}

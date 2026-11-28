@@ -1,8 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/courses.css";
-// Site 2.0's look, behind the data-restyle stamp (src/styles/v2/courses.css).
-import "../styles/v2/courses.css";
 ---
 
 <Layout
@@ -11,7 +9,7 @@ import "../styles/v2/courses.css";
 >
   <div class="courses-page">
     <header class="courses-hero">
-      <h1 class="v2-bar">Courses coming soon</h1>
+      <h1>Courses coming soon</h1>
 
       <div class="courses-intro">
         <p>
@@ -36,24 +34,7 @@ import "../styles/v2/courses.css";
       </div>
     </header>
 
-    <section class="courses-updates v2-sheet" aria-labelledby="email-updates-title">
-      {/* Top wave */}
-      <div class="courses-wave courses-wave--top" data-v1 aria-hidden="true">
-        <svg
-          viewBox="0 0 1440 160"
-          preserveAspectRatio="none"
-          focusable="false"
-        >
-          <path
-            class="wave-fill"
-            d="M0,60 C240,10 480,10 720,55 C960,100 1200,110 1440,60 L1440,160 L0,160 Z"
-          ></path>
-          <path
-            class="wave-stroke"
-            d="M0,60 C240,10 480,10 720,55 C960,100 1200,110 1440,60"></path>
-        </svg>
-      </div>
-
+    <section class="courses-updates" aria-labelledby="email-updates-title">
       <div class="courses-updates__inner">
         <h2 id="email-updates-title">Email Updates</h2>
         <p class="courses-updates__lead">
@@ -63,30 +44,13 @@ import "../styles/v2/courses.css";
 
         {/* The newsletter form itself lives in the site footer (Brevo markup
             requires fixed element ids, so it can't be duplicated here). */}
-        <a class="signup__button signup__button--link" href="#footer-newsletter-heading">
+        <a class="signup__button signup__button--link kit-btn kit-btn--filled" href="#footer-newsletter-heading">
           Sign up below
         </a>
 
         <p class="courses-updates__note">
           Your information will not be sold or shared in any way.
         </p>
-      </div>
-
-      {/* Bottom wave */}
-      <div class="courses-wave courses-wave--bottom" data-v1 aria-hidden="true">
-        <svg
-          viewBox="0 0 1440 160"
-          preserveAspectRatio="none"
-          focusable="false"
-        >
-          <path
-            class="wave-fill"
-            d="M0,100 C260,140 520,150 760,120 C980,92 1180,70 1440,100 L1440,0 L0,0 Z"
-          ></path>
-          <path
-            class="wave-stroke"
-            d="M0,100 C260,140 520,150 760,120 C980,92 1180,70 1440,100"></path>
-        </svg>
       </div>
     </section>
 

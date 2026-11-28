@@ -15,6 +15,7 @@
 // chapter's anchor text (desk-anchor-dom.mjs), the same measure a blank's
 // quote is stored in.
 
+import { iconNode } from "../../../lib/icons.mjs";
 import { offsetsToRange, pageAnchorText, rangeToOffsets } from "../../../lib/desk-anchor-dom.mjs";
 import { LIT_CREDIT_LINE } from "../../../lib/lit-credit.mjs";
 import { BOOKS } from "../../../data/books.js";
@@ -965,7 +966,7 @@ export function createPassageBody({ m, readOnly, getSheet, update, say, fill = n
         if (text) save({ hint: "custom", hintText: text });
         else if (group.hint === "custom") save({ hint: "none" });
       });
-      const remove = button("×", "desk-sheet__icon");
+      const remove = button(iconNode("close"), "desk-sheet__icon");
       remove.dataset.focusKey = `remove-${suffix}`;
       remove.title = "Unblank";
       remove.setAttribute("aria-label", members.length > 1 ? `Unblank ${quoted(words)}, all ${members.length} times` : `Unblank ${quoted(words)}`);
@@ -1328,7 +1329,7 @@ export function createLicenseCard({ getSheet, readOnly, setCommercial, idPrefix 
     document.createTextNode(" "),
   );
   const terms = make("a", null, "Read the license terms");
-  terms.href = `${BASE}read/#license-terms`;
+  terms.href = `${BASE}license/#license-terms`;
   terms.target = "_blank";
   terms.rel = "noopener";
   terms.setAttribute("aria-label", "Read the license terms (opens in a new tab)");

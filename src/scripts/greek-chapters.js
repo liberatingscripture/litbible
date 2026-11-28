@@ -1,7 +1,7 @@
 // src/scripts/greek-chapters.js
 //
 // The one loader for a chapter's Greek (public/greek/text/<book>-<chapter>.json).
-// The Notebook's Greek tab (desk/greek-data.js) and the Greek search
+// Study's Greek pane and This verse (desk/greek-data.js) and the Greek search
 // (search-greek.js) both read it, and used to keep a cache each, so a chapter
 // on screen was fetched and parsed twice (Audit 2, GK-20). Each chapter is
 // kept as a promise, so two askers share one request; a failed fetch is

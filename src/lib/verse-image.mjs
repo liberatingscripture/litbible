@@ -7,10 +7,14 @@
 // with a fake measure in place of a canvas.
 //
 // Owner decisions (2026-09-28), made from an exploration page drawn with this
-// same code: two looks, Ink (the share cards' own) and Paper; the verse in
-// Crimson Text; both sizes, square and story; the chapter's own address on the
-// image ("litbible.net/john-3"), which the owner counts as the link back the
-// license asks for; and the length rule below.
+// same code: two looks, Ink and Paper (since Featherboa, its two colors); both sizes,
+// square and story; the chapter's own address on the image
+// ("litbible.net/john-3"), which the owner counts as the link back the
+// license asks for; and the length rule below. Featherboa (2026-11-26,
+// SITE-FEATHERBOA.md, "Off the screen") redrew it: the verse in Source Sans 3,
+// as on the screen, and one small line under it (the emblem and the
+// reference at the left, the name over the address at the right) in place of
+// the lockup, the green bar, and the address corner. The emblem is the green.
 //
 // The length rule: the text is set at the largest size that fits its box,
 // with the lines balanced, stepping down a pixel at a time to a floor, and a
@@ -19,49 +23,109 @@
 // third of its real width, so 40px reads as about 13px; a story fills the
 // screen, so 44px reads as about 16px. It measures the real text in the real
 // font, so it is not a word count: short words fit more, and poetry, which
-// keeps its lines, fits less. Measured on running prose in 2026-09, about 100
-// words fit a square and 135 a story.
+// keeps its lines, fits less. (Measured on running prose in 2026-09, in the
+// old box and face: about 100 words fit a square and 135 a story. The box is
+// taller now that the lockup and the bar are gone, so more fit.)
 
-export const WORDMARK = "The Liberation & Inclusion Translation";
+export const WORDMARK = "Liberation & Inclusion Translation";
 
-// The share cards' palette (scripts/build-og-images.mjs), and Paper, its
-// light sibling. Fixed colours: an image looks the same in any theme.
+// Featherboa's two colors ("Color"): Ink #1D231C and Paper #FAFAF8, each
+// the other's ground. Fixed colors: an image looks the same in any theme.
+// `quiet` is the text at 78% over the background (the screen's second ink),
+// for the name and the address. No green is drawn but the emblem's own. (The
+// link-preview cards, scripts/build-og-images.mjs, keep their own palette.)
 export const LOOKS = {
-  ink: { label: "Ink", bg: "#1D231C", text: "#F2F0E9", mark: "#E1DFD9", bar: "#209D50", accent: "#3ABF6A" },
-  paper: { label: "Paper", bg: "#F2F0E9", text: "#1D231C", mark: "#454B44", bar: "#209D50", accent: "#0F6B33" },
+  ink: { label: "Ink", bg: "#1D231C", text: "#FAFAF8", quiet: "#C9CBC8" },
+  paper: { label: "Paper", bg: "#FAFAF8", text: "#1D231C", quiet: "#4E524C" },
 };
 
-// Story keeps everything inside the area apps leave clear: Instagram's own
-// controls cover roughly the top 250px and bottom 340px of a 1920px story.
+// Both sizes are 1080 wide and share every proportion of the margin and the
+// foot line (FOOT, from W); they differ in height and in where the text box
+// sits. Story keeps everything inside the area apps leave clear: Instagram's
+// own controls cover roughly the top 250px and bottom 340px of a 1920px
+// story. `textTop` is where the verse's box starts, `footTop` the top of the
+// foot line (its emblem), and `bottom` the verse box's end, FOOT.gap above it.
 export const SIZES = {
   square: {
-    label: "Square", W: 1080, H: 1080, margin: 88, lockupY: 80, emblem: 84, wordmark: 30,
-    textMax: 72, textMin: 40, ref: 44, address: 30, addressY: 1004, bottom: 930,
+    label: "Square", W: 1080, H: 1080, margin: 96, textMax: 72, textMin: 40,
+    textTop: 96, footTop: 912, bottom: 856,
   },
   story: {
-    label: "Story", W: 1080, H: 1920, margin: 96, lockupY: 250, emblem: 92, wordmark: 32,
-    textMax: 84, textMin: 44, ref: 50, address: 34, addressY: 1540, bottom: 1450,
+    label: "Story", W: 1080, H: 1920, margin: 96, textMax: 84, textMin: 44,
+    textTop: 250, footTop: 1508, bottom: 1452,
   },
 };
 
-// The verse face and its line height; the reference is Fraunces, as on the
-// cards, and the wordmark and address are Inter.
-export const VERSE_FONT = (px) => `400 ${px}px "Crimson Text", Georgia, serif`;
-export const REF_FONT = (px) => `500 ${px}px Fraunces, Georgia, serif`;
-export const SANS_FONT = (px) => `400 ${px}px Inter, system-ui, sans-serif`;
+// The foot line, in proportions of the image's width (1080 gives 72, 40, 28,
+// 20, and 56): one rule for both sizes.
+export const FOOT = {
+  emblem: 0.0667,
+  ref: 0.037,
+  small: 0.026,
+  gap: 0.0185,
+  boxGap: 0.052,
+  between: 0.03, // the least space between the reference and the name block
+};
+const foot = (spec, k) => Math.round(spec.W * FOOT[k]);
+
+// The faces are ones the site serves (src/styles/faces.css), named as CSS
+// knows them: the verse and the small line in Source Sans 3 (the screen's
+// 400), the reference in Fraunces, a heading's 500. Their fallbacks are
+// generic, since a canvas can't use the site's fitted fallback faces.
+export const SOURCE_FAMILY = '"Source Sans 3 Variable"';
+export const FRAUNCES_FAMILY = '"Fraunces Variable"';
+export const VERSE_FONT = (px) => `400 ${px}px ${SOURCE_FAMILY}, system-ui, sans-serif`;
+export const REF_FONT = (px) => `500 ${px}px ${FRAUNCES_FAMILY}, Georgia, serif`;
+export const SANS_FONT = (px) => `500 ${px}px ${SOURCE_FAMILY}, system-ui, sans-serif`;
 export const LINE_HEIGHT = 1.3;
 
-// Space between the verse and the reference: a gap, the green bar, a gap.
-export const BAR = { gap: 40, width: 150, height: 8, after: 30 };
-
-/** The vertical space the reference block takes below the verse. */
-export function refBlockHeight(spec) {
-  return BAR.gap + BAR.height + BAR.after + spec.ref;
+/** Where the verse's box starts. */
+export function textTop(spec) {
+  return spec.textTop;
 }
 
-/** Where the verse's box starts: below the emblem and wordmark. */
-export function textTop(spec) {
-  return spec.lockupY + spec.emblem + 56;
+/**
+ * The foot line's geometry for `spec`. `refPx` is the reference's size after
+ * fitRef; `nameW` and `addressW` are the two right-hand lines' widths. Every
+ * y is a baseline; x for the right block is its right edge (draw it
+ * right-aligned).
+ */
+export function footLine(spec, { refPx, nameW = 0, addressW = 0 } = {}) {
+  const emblem = foot(spec, "emblem");
+  const small = foot(spec, "small");
+  const gap = foot(spec, "gap");
+  const cy = spec.footTop + emblem / 2;
+  const lh = Math.round(small * LINE_HEIGHT);
+  const px = refPx ?? foot(spec, "ref");
+  return {
+    emblem: { x: spec.margin, y: spec.footTop, size: emblem },
+    ref: { x: spec.margin + emblem + gap, y: cy + px * 0.35, px },
+    right: {
+      x: spec.W - spec.margin,
+      px: small,
+      nameY: cy - lh / 2 + small * 0.35,
+      addressY: cy + lh / 2 + small * 0.35,
+      width: Math.max(nameW, addressW),
+    },
+    top: spec.footTop,
+    bottom: spec.footTop + emblem,
+  };
+}
+
+/**
+ * The reference's size: the foot line's, stepped down a pixel at a time (to
+ * the small line's size) until it clears the right-hand block. `measureAt(px)`
+ * gives a width function for the reference font at that size.
+ */
+export function fitRef(measureAt, ref, spec, rightW) {
+  const start = foot(spec, "ref");
+  const floor = foot(spec, "small");
+  const room =
+    spec.W - 2 * spec.margin - foot(spec, "emblem") - foot(spec, "gap") - rightW - foot(spec, "between");
+  for (let px = start; px >= floor; px--) {
+    if (measureAt(px)(ref) <= room) return px;
+  }
+  return floor;
 }
 
 function wrapWords(measure, words, maxW) {
@@ -130,7 +194,7 @@ export function setText(measure, text, maxW, px) {
  */
 export function fitText(measureAt, text, spec) {
   const boxW = spec.W - 2 * spec.margin;
-  const boxH = spec.bottom - textTop(spec) - refBlockHeight(spec);
+  const boxH = spec.bottom - textTop(spec);
   for (let px = spec.textMax; px >= spec.textMin; px--) {
     const lines = setText(measureAt(px), text, boxW, px);
     if (lines.length * px * LINE_HEIGHT <= boxH) return { px, lines, fits: true };

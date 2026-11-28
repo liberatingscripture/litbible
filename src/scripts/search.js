@@ -10,7 +10,6 @@ import {
   parseReferenceJump,
   referenceJumpLabel,
   makeStudyJumpHref,
-  readingJumpLink,
   deskEnabled,
   normalizePhrase,
   isExplicitlyQuoted,
@@ -21,6 +20,7 @@ import {
   parseBookChapterFromUrl,
   scriptureResultTitle,
   glossaryTermFromResult,
+  glossaryTermsFromDom,
   enrichSearchResult,
   topicsIndexSubjectItem,
   bucketSearchResults,
@@ -45,10 +45,24 @@ import {
   notePickedMode,
   showModeFor,
   loadGreekSearch,
-  MODE_LABELS,
 } from "./search-core.js";
+import {
+  renderTabs,
+  visibleTabs,
+  tabForMode,
+  modeForTab,
+  openingTab,
+  resultsCount,
+  verseRowsHtml,
+  titleRowHtml,
+  referenceRowsHtml,
+  studyHrefFor,
+  chaptersLineHtml,
+  glossaryLineHtml,
+  glossaryLineEntries,
+  seeAllHref,
+} from "../lib/search-rows.mjs";
 import { hasGreek } from "../lib/greek-detect.mjs";
-import { v2Search, v2PageRange, startV2Search, drawV2Groups } from "./v2-search.js";
 
 // The Greek search itself, loaded by the first Greek query (LG-6), so a reader
 // who never makes one downloads none of it. Whatever draws a Greek result runs
@@ -66,7 +80,12 @@ const base = String(import.meta.env.BASE_URL || "/").replace(/\/?$/, "/");
 const $ = (sel, root = document) => root.querySelector(sel);
 
 const statusEl = $("#search-status");
-const jumpsEl = $("#search-jumps");
+const tabsEl = $("#search-tabs");
+const tabsReasonEl = $("#search-tabs-reason");
+const toolsEl = $("#search-tools");
+const sortSelect = $("#search-sort");
+const linesEl = $("#search-lines");
+const countEl = $("[data-search-count]");
 const refEl = $("[data-search-ref]");
 
 const groupNotebook = $("#group-notebook");
@@ -88,12 +107,9 @@ const greekLemmasEl = $("#greek-lemmas");
 const greekExactEl = $("#greek-exact");
 const greekExactInput = $("#greek-exact-input");
 const greekHelpEl = $("#greek-help");
-const sortWrapEl = $(".sort-wrap");
 
 const pagerEl = $("#pager");
-const activeFiltersFullEl = document.getElementById("search-active-filters");
 
-const sortButtons = Array.from(document.querySelectorAll("[data-sort]"));
 
 // Grab the SearchBar instance rendered by SearchLayout
 const searchRoot = document.querySelector("[data-searchbar]");
@@ -108,7 +124,6 @@ const modeSelect = searchRoot
   : null;
 
 const pageSize = 10;
-const COLLAPSE_THRESHOLD = 3;
 const MIN_QUERY_LEN = 3;
 let pagefindMod = null;
 let debounceId = null;
@@ -146,96 +161,23 @@ function setRefBanner(content, show) {
   refEl.innerHTML = String(content || "");
 }
 
-function renderActiveFiltersFull() {
-  if (!activeFiltersFullEl) return;
-  const { book, mode } = readState();
-  const pills = [];
-
-  if (book) {
-    const opt = bookSelect?.querySelector(`option[value="${book}"]`);
-    pills.push({
-      label: opt?.textContent || bookKeyToLabel(book),
-      key: "book",
-    });
-  }
-
-  if (mode && mode !== "all") {
-    pills.push({ label: MODE_LABELS[mode] || mode, key: "mode" });
-  }
-
-  if (!pills.length) {
-    activeFiltersFullEl.hidden = true;
-    activeFiltersFullEl.innerHTML = "";
-    return;
-  }
-
-  activeFiltersFullEl.hidden = false;
-  activeFiltersFullEl.innerHTML =
-    pills
-      .map(
-        (p) =>
-          `<button type="button" class="filter-pill" data-clear-key="${p.key}">${escapeHtml(p.label)} <span aria-label="Clear">✕</span></button>`,
-      )
-      .join("") +
-    (pills.length >= 2
-      ? `<button type="button" class="filter-pill filter-pill--clear-all" data-clear-key="all">Clear all</button>`
-      : "");
-
-  activeFiltersFullEl.querySelectorAll("[data-clear-key]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const k = btn.dataset.clearKey;
-      if (k === "all") {
-        if (bookSelect) bookSelect.value = "";
-        if (modeSelect) setPickedMode(modeSelect, "all");
-      } else if (k === "book") {
-        if (bookSelect) bookSelect.value = "";
-      } else if (k === "mode") {
-        if (modeSelect) setPickedMode(modeSelect, "all");
-      }
-      updateFromControls({ resetPage: true, push: true });
-    });
-  });
-}
-
 function prettyTitleFromUrl(url, fallbackTitle = "Result") {
   return scriptureResultTitle(url, fallbackTitle);
 }
 
-function renderReferenceActions(jump) {
-  if (!jump) return null;
-
-  const isBook = jump.kind === "book";
-  // A book's introduction offers only the introduction (no Read View link).
-  const intro = isBook && jump.intro === true;
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "search-ref__links";
-
-  const label = document.createElement("p");
-  label.className = "search-ref__label";
-  label.textContent = `Jump to: ${referenceJumpLabel(jump)}`;
-
-  const studyLink = document.createElement("a");
-  studyLink.className = "search-ref__link";
-  studyLink.setAttribute("href", makeStudyJumpHref(jump));
-  // E130: with the Study Desk preview on, the Scripture page wording; it becomes everyone's at launch (desk/CLAUDE.md, Launching, item 13).
-  studyLink.textContent = deskEnabled()
-    ? (isBook ? "Book introduction" : "Scripture page, with notes")
-    : (isBook ? "Intro in Chapter View" : "Chapter View, with notes");
-
-  wrapper.append(label, studyLink);
-  if (!intro) {
-    // Read View, or with the Study Desk preview on its Reading layout (E114).
-    const reading = readingJumpLink(jump);
-    const readLink = document.createElement("a");
-    readLink.className = "search-ref__link search-ref__link--read";
-    readLink.setAttribute("href", reading.href);
-    readLink.textContent = reading.desk
-      ? isBook ? "Whole book in Study Desk" : "Study Desk, Reading layout"
-      : isBook ? "Whole book in Read View" : "Read View, whole book";
-    wrapper.append(readLink);
-  }
-  return wrapper;
+// The reference's answer: "Go to John 3:16," then with the Study preview
+// "Study John 3:16" (SE-17, ST-15), drawn by the module the tray shares.
+function referenceAnswerHtml(jump) {
+  if (!jump) return "";
+  return referenceRowsHtml(
+    {
+      label: referenceJumpLabel(jump),
+      goHref: makeStudyJumpHref(jump),
+      studyHref: studyHrefFor(jump),
+      intro: jump.kind === "book" && jump.intro === true,
+    },
+    { desk: deskEnabled() },
+  );
 }
 
 // -----------------------
@@ -300,76 +242,122 @@ function writeState(next, { push = false } = {}) {
 // UI sync (SearchBar controls)
 // -----------------------
 function setActiveSort(sort) {
-  const v = sort === "order" ? "order" : "relevance";
-  for (const btn of sortButtons) {
-    const on = btn.dataset.sort === v;
-    btn.classList.toggle("is-active", on);
-    btn.setAttribute("aria-pressed", on ? "true" : "false");
-  }
+  if (sortSelect) sortSelect.value = sort === "order" ? "order" : "relevance";
 }
 
 function getActiveSort() {
-  const active = sortButtons.find((b) => b.classList.contains("is-active"));
-  const v = active?.dataset.sort || "relevance";
-  return v === "order" ? "order" : "relevance";
+  return sortSelect?.value === "order" ? "order" : "relevance";
 }
 
-// The "Search commands" button beside the box (Study Desk preview): shown only
-// while the Greek is what is being searched, and the box suggests commands
-// while the type is "Greek". It adds no height: it sits in the box's own row.
+// The book menu moves from the tray's filters to the tab row's right end, beside
+// the sort (SE-04). The type menu stays in the page, hidden, as the one value
+// the shared search code reads and writes: the row of tabs is the type.
+const filtersEl = searchRoot?.querySelector(".searchbar__filters") ?? null;
+if (filtersEl && toolsEl) toolsEl.prepend(filtersEl);
+
+// The tab a search is on, and the Notebook's, which is the page's own and not
+// an address's mode (it is searched in the browser, only with the preview).
+let notebookTab = false;
+let refocusTab = false;
+
+// A query that can only be Greek (isGreekQuery: Greek letters, a Strong's
+// number, or a search command) is searched in the Greek alone, so the other
+// tabs are drawn unavailable with the reason under the row (queue Q77). An
+// English query under the chosen Greek tab is not one: its tabs stay.
+const GREEK_ONLY_REASON = "Greek letters, Strong’s numbers, and search commands are searched in the Greek only.";
+
+function drawTabs(counts, active, { greekOnly = false } = {}) {
+  if (!tabsEl) return;
+  const tabs = visibleTabs({ desk: deskEnabled(), greek: greekSearchEnabled() });
+  renderTabs(tabsEl, {
+    tabs,
+    counts,
+    active,
+    onPick: pickTab,
+    unavailable: greekOnly ? tabs.map((t) => t.id).filter((id) => id !== "greek") : [],
+    reasonId: "search-tabs-reason",
+  });
+  if (tabsReasonEl) {
+    tabsReasonEl.textContent = greekOnly ? GREEK_ONLY_REASON : "";
+    tabsReasonEl.hidden = !greekOnly;
+  }
+  if (refocusTab) {
+    refocusTab = false;
+    tabsEl.querySelector('[aria-selected="true"]')?.focus();
+  }
+}
+
+/** The count at the field's right end: the chosen tab's (null: none to say). */
+function setCount(n) {
+  if (countEl) countEl.textContent = typeof n === "number" ? resultsCount(n) : "";
+}
+
+function pickTab(id) {
+  // On a Greek query only the Greek is available (Q77); the row doesn't call this for the rest.
+  if (id !== "greek" && lastSearchCache?.greekQuery) return;
+  refocusTab = true;
+  if (id === "notebook") {
+    notebookTab = true;
+    if (lastSearchCache) renderFromCache();
+    return;
+  }
+  notebookTab = false;
+  if (modeSelect) setPickedMode(modeSelect, modeForTab(id));
+  if (id === "greek" || !lastSearchCache || lastSearchCache.greekOnly) {
+    updateFromControls({ resetPage: true, push: true });
+    // The first time the reader picks the Greek, the builder opens itself
+    // beside the box, once, without taking focus (BVJ, 2026-10-14).
+    if (id === "greek" && greekSearchEnabled()) {
+      withCommands().then((m) => m.openGreekCommandsOnce({ field: input, typeSelect: modeSelect }));
+    }
+    return;
+  }
+  writeState({ ...readState(), mode: modeForTab(id), page: 1 }, { push: true });
+  syncGreekChrome();
+  renderFromCache();
+}
+
+// "Build a search…" (Study preview): one quiet link in the field's row, shown
+// only while the Greek tab is chosen, and the box suggests commands there
+// (GK-34 to GK-39). Notebook actions follows it in that row (SE-23); "Notes"
+// joins the tab row's tools.
 const GREEK_PLACEHOLDER = "Try πίστις.gen or *.aor.impv";
 const defaultPlaceholder = input ? input.placeholder : "";
-let commandsBtn = null;
-let greekExtras = null;
-if (input && greekSearchEnabled()) {
-  commandsBtn = document.createElement("button");
-  commandsBtn.type = "button";
-  commandsBtn.className = "greek-cmd-link greek-cmd-link--field";
-  commandsBtn.textContent = "Search commands";
-  commandsBtn.hidden = true;
-  commandsBtn.setAttribute("aria-haspopup", "dialog");
-  commandsBtn.addEventListener("click", () => openCommands());
-  // The link and "My notes" travel together: inline in the box's row where there
-  // is room, and on one quiet line of their own under it where there is not
-  // (E11), so neither squeezes the field.
-  greekExtras = document.createElement("div");
-  greekExtras.className = "greek-field-extras";
-  // The quiet "Notebook actions" link (E31, reworked 2026-11-06): the Notebook and page
-  // commands, in a window of their own (desk/commands-window.js), apart from the
-  // Greek's. It is always here with the desk on, so this row is too; the Greek's
-  // button and "My notes" come and go inside it.
-  const deskCommandsBtn = document.createElement("button");
-  deskCommandsBtn.type = "button";
-  deskCommandsBtn.className = "greek-cmd-link greek-cmd-link--field";
-  deskCommandsBtn.textContent = "Notebook actions";
-  deskCommandsBtn.setAttribute("aria-haspopup", "dialog");
-  deskCommandsBtn.addEventListener("click", () => {
-    loadDeskSearch()?.then((m) =>
-      m?.openCommands({ anchor: input.closest("form") ?? input, opener: deskCommandsBtn }),
-    );
-  });
-  greekExtras.append(deskCommandsBtn, commandsBtn);
-  (input.closest(".searchbar__input-wrap") ?? input).after(greekExtras);
-  input.closest("form")?.classList.add("searchbar__form--extras");
-}
+const buildBtn = searchRoot?.querySelector("[data-build-search]") ?? null;
+buildBtn?.addEventListener("click", () => openCommands());
 
-// "My notes" (E11): whether a Greek search lists the reader's matching notes
-// above the Greek (BA40). A checkbox in the same row, beside "Search commands",
-// shown only with the Study Desk's part loaded, the type "All types" (the one
-// place notes are listed) and a Greek search under way. The choice is the
-// desk's own, remembered in storage (desk/notebook-search.js), and changing it
-// redraws the page from what is already fetched.
+// "Notes" (E11): whether a Greek search lists the reader's matching notes
+// above the Greek (BA40). Shown only with the Study part loaded, the type
+// "All types" (the one place notes are listed) and a Greek search under way.
+// The choice is the desk's own, remembered in storage (desk/notebook-search.js),
+// and changing it redraws the page from what is already fetched.
 let deskMod = null;
 let notesSwitch = null;
 let notesBox = null;
-if (input && commandsBtn) {
+if (input && greekSearchEnabled() && toolsEl) {
   loadDeskSearch()?.then((m) => {
     if (!m) return;
     deskMod = m;
+    // The quiet "Notebook actions" button (E31): the Notebook and page commands,
+    // in a window of their own (desk/commands-window.js), apart from the Greek's.
+    const actions = document.createElement("button");
+    actions.type = "button";
+    actions.className = "kit-btn kit-btn--plain searchbar__actions";
+    actions.textContent = "Notebook actions";
+    actions.setAttribute("aria-haspopup", "dialog");
+    actions.addEventListener("click", () => {
+      m.openCommands({ anchor: input.closest("form") ?? input, opener: actions });
+    });
+    // It sits in the field's row (SE-23), after "Build a search…" and before
+    // the phone's submit; "Notes" filters the Greek's results, so it joins
+    // the book menu and the sort.
+    const form = input.closest("form");
+    if (form) form.insertBefore(actions, form.querySelector(".searchbar__submit"));
+    else toolsEl.append(actions);
     notesSwitch = m.greekNotesSwitch();
     notesBox = notesSwitch.querySelector("input");
-    notesSwitch.classList.add("greek-notes-switch--field");
-    greekExtras.append(notesSwitch);
+    notesSwitch.classList.add("search-tools__notes");
+    toolsEl.append(notesSwitch);
     notesBox.addEventListener("change", () => {
       deskMod.setGreekNotes(notesBox.checked);
       if (lastSearchCache?.greekOnly) renderFromCache();
@@ -385,10 +373,10 @@ if (input && commandsBtn) {
 }
 
 function syncGreekChrome() {
-  if (!commandsBtn) return;
+  if (!input || !greekSearchEnabled()) return;
   const greekType = modeSelect?.value === "greek";
   const greekSearch = greekType || isGreekQuery(input.value);
-  commandsBtn.hidden = !greekSearch;
+  if (buildBtn) buildBtn.hidden = !greekSearch;
   input.placeholder = greekType ? GREEK_PLACEHOLDER : defaultPlaceholder;
   if (notesSwitch) {
     // Under all types only: a Greek-letter query reads "Greek" in the menu
@@ -417,18 +405,7 @@ function syncControlsFromUrl() {
   }
 
   setActiveSort(sort);
-  renderActiveFiltersFull();
   syncGreekChrome();
-}
-
-// Sometimes excerpts get polluted by meta text; keep this conservative.
-function looksLikeMetaDump(htmlOrText) {
-  const t = String(htmlOrText || "").toLowerCase();
-  if (!t) return false;
-
-  const hasTypeWord = /\b(scripture|intro|article)\b/.test(t);
-  const hasMetaWords = /\b(book|chapter|type)\b/.test(t);
-  return hasTypeWord && hasMetaWords;
 }
 
 async function verifyPagefindAssets() {
@@ -535,242 +512,66 @@ function displayQueryLabel(qRaw) {
 // `items` are enriched entries ({ d, locs, ... }) so the term
 // label derives from the same anchor computation as the deep link.
 function renderGlossary(items, qPhrase) {
-  glossaryEl.innerHTML = "";
-  for (const it of items) {
-    const li = document.createElement("li");
-    li.className = "result";
-
-    const term = glossaryTermFromResult(it.d, it.locs, qPhrase);
-
-    li.innerHTML = `
-      <a class="result-link" href="${escapeHtml(it.d.url)}">
-        <div class="result-title">${escapeHtml(term)}</div>
-      </a>
-    `;
-
-    glossaryEl.appendChild(li);
-  }
+  glossaryEl.innerHTML = items
+    .map((it) => titleRowHtml({ title: glossaryTermFromResult(it.d, it.locs, qPhrase), href: it.d.url }))
+    .join("");
 }
 
 // `topicLabels` maps a chapter's URL to the topic labels that matched it. A
-// card names them ("Matthew 18 · debt forgiveness") when they say something
+// row names them ("Matthew 18 · debt forgiveness") when they say something
 // the query doesn't, which is the case for a loose one-word match; a label
 // that is just the query repeated is left off.
 function renderSubject(items, topicLabels, qPhrase) {
-  subjectEl.innerHTML = "";
-  for (const r of items) {
-    const li = document.createElement("li");
-    li.className = "result";
-
-    const fallbackTitle = r.meta?.title || r.title || "Result";
-    const displayTitle = prettyTitleFromUrl(r.url, fallbackTitle);
-    const labels = (topicLabels?.get(r.url) || []).filter(
-      (label) => normalizePhrase(label) !== qPhrase,
-    );
-    const labelsHtml = labels.length
-      ? `<span class="result-topics"> · ${escapeHtml(labels.join(", "))}</span>`
-      : "";
-
-    li.innerHTML = `
-      <a class="result-link" href="${escapeHtml(r.url)}">
-        <div class="result-title">${escapeHtml(displayTitle)}${labelsHtml}</div>
-      </a>
-    `;
-
-    subjectEl.appendChild(li);
-  }
+  subjectEl.innerHTML = items
+    .map((r) => {
+      const at = parseBookChapterFromUrl(r.url || "");
+      const labels = (topicLabels?.get(r.url) || []).filter(
+        (label) => normalizePhrase(label) !== qPhrase,
+      );
+      return titleRowHtml({
+        title: prettyTitleFromUrl(r.url, r.meta?.title || r.title || "Result"),
+        href: r.url,
+        aside: labels.join(", "),
+        ref: at?.chapter ? { bookKey: at.bookKey, chapter: at.chapter } : null,
+      });
+    })
+    .join("");
 }
 
+// One row for each verse: its reference, then the verse as reading, with its
+// matches marked. A book's name stands over its verses in Bible order only.
 function renderKeyword(items) {
-  keywordEl.innerHTML = "";
-
-  // Group items by base URL (chapter page)
-  const groups = new Map();
-  for (const r of items) {
-    const groupBase = r.__baseUrl || r.url?.replace(/#.*$/, "") || r.url;
-    if (!groups.has(groupBase)) {
-      groups.set(groupBase, { items: [], meta: r.meta, baseUrl: groupBase });
-    }
-    groups.get(groupBase).items.push(r);
-  }
-
-  for (const [baseUrl, group] of groups) {
-    const fallbackTitle =
-      group.meta?.title || group.items[0]?.title || "Result";
-    const displayTitle = prettyTitleFromUrl(baseUrl, fallbackTitle);
-
-    // Single-result groups: same layout as multi-result (title above, card below)
-    if (group.items.length === 1) {
-      const r = group.items[0];
-      const groupLi = document.createElement("li");
-      groupLi.className = "result-group";
-
-      const heading = document.createElement("div");
-      heading.className = "result-group__title";
-      heading.textContent = displayTitle;
-      groupLi.appendChild(heading);
-
-      const excerptHtml = r.excerpt ? String(r.excerpt) : "";
-      const hasHighlight = /<mark>/i.test(excerptHtml);
-
-      const descriptionMeta = r?.meta?.description
-        ? String(r.meta.description).trim()
-        : "";
-
-      let snippetHtml = "";
-      if (excerptHtml) {
-        if (hasHighlight) {
-          snippetHtml = excerptHtml;
-        } else if (!looksLikeMetaDump(excerptHtml)) {
-          snippetHtml = excerptHtml;
-        } else if (descriptionMeta) {
-          snippetHtml = escapeHtml(descriptionMeta);
-        } else {
-          snippetHtml = excerptHtml;
-        }
-      } else if (descriptionMeta) {
-        snippetHtml = escapeHtml(descriptionMeta);
-      }
-
-      const subList = document.createElement("ol");
-      subList.className = "result-group__occurrences";
-
-      const subLi = document.createElement("li");
-      subLi.className = "result-occurrence";
-      subLi.innerHTML = `
-        <a class="result-link result-link--occurrence" href="${escapeHtml(r.url)}">
-          ${snippetHtml ? `<div class="result-excerpt">${snippetHtml}</div>` : `<div class="result-excerpt">(match)</div>`}
-        </a>
-      `;
-
-      subList.appendChild(subLi);
-      groupLi.appendChild(subList);
-      keywordEl.appendChild(groupLi);
-      continue;
-    }
-
-    // Multi-occurrence group: render a chapter heading + individual occurrence cards
-    const groupLi = document.createElement("li");
-    groupLi.className = "result-group";
-
-    const heading = document.createElement("div");
-    heading.className = "result-group__title";
-    heading.textContent = `${displayTitle}`;
-    groupLi.appendChild(heading);
-
-    const VISIBLE_LIMIT = 3;
-    const subList = document.createElement("ol");
-    subList.className = "result-group__occurrences";
-
-    group.items.forEach((r, idx) => {
-      const subLi = document.createElement("li");
-      subLi.className = "result-occurrence";
-      if (idx >= VISIBLE_LIMIT) {
-        subLi.classList.add("result-occurrence--collapsed");
-      }
-
-      const excerptHtml = r.excerpt ? String(r.excerpt) : "";
-
-      subLi.innerHTML = `
-        <a class="result-link result-link--occurrence" href="${escapeHtml(r.url)}">
-          <div class="result-excerpt">${excerptHtml || "(match)"}</div>
-        </a>
-      `;
-
-      subList.appendChild(subLi);
-    });
-
-    groupLi.appendChild(subList);
-
-    // "Show more" button if there are more than VISIBLE_LIMIT occurrences
-    if (group.items.length > VISIBLE_LIMIT) {
-      const extra = group.items.length - VISIBLE_LIMIT;
-      const moreBtn = document.createElement("button");
-      moreBtn.type = "button";
-      moreBtn.className = "see-more-btn";
-      moreBtn.textContent = `Show ${extra} more in this chapter`;
-      moreBtn.addEventListener("click", () => {
-        subList
-          .querySelectorAll(".result-occurrence--collapsed")
-          .forEach((el) => el.classList.remove("result-occurrence--collapsed"));
-        moreBtn.remove();
-      });
-      groupLi.appendChild(moreBtn);
-    }
-
-    keywordEl.appendChild(groupLi);
-  }
+  const verses = items.map((r) => ({
+    bookKey: r.__ref.bookKey,
+    bookLabel: bookKeyToLabel(r.__ref.bookKey),
+    label: r.__label,
+    href: r.url,
+    html: r.__html,
+    ref: r.__ref,
+  }));
+  keywordEl.innerHTML = verseRowsHtml(verses, { bibleOrder: readState().sort === "order" });
 }
 
 function renderArticles(items) {
-  articlesEl.innerHTML = "";
-  for (const r of items) {
-    const li = document.createElement("li");
-    li.className = "result";
-
-    const fallbackTitle = r.meta?.title || r.title || "Result";
-    const displayTitle = fallbackTitle;
-
-    li.innerHTML = `
-      <a class="result-link" href="${escapeHtml(r.url)}">
-        <div class="result-title">${escapeHtml(displayTitle)}</div>
-      </a>
-    `;
-
-    articlesEl.appendChild(li);
-  }
+  articlesEl.innerHTML = items
+    .map((r) => titleRowHtml({ title: r.meta?.title || r.title || "Result", href: r.url }))
+    .join("");
 }
 
 function renderIntros(items) {
-  introsEl.innerHTML = "";
-  for (const r of items) {
-    const li = document.createElement("li");
-    li.className = "result";
-
-    // "Mark — Introduction", never the bare page title, so intro hits
-    // can't read as scripture chapter results.
-    const displayTitle = scriptureResultTitle(
-      r.url,
-      r.meta?.title || r.title || "Introduction",
-    );
-    // Pagefind's excerpt (escaped text with <mark> around the matches), so a
-    // reader can see why this introduction came up.
-    const excerptHtml = r.excerpt ? String(r.excerpt) : "";
-
-    li.innerHTML = `
-      <a class="result-link" href="${escapeHtml(r.url)}">
-        <div class="result-title">${escapeHtml(displayTitle)}</div>
-        ${excerptHtml ? `<div class="result-excerpt">${excerptHtml}</div>` : ""}
-      </a>
-    `;
-
-    introsEl.appendChild(li);
-  }
-}
-
-function applyCollapse(listEl) {
-  const items = listEl.querySelectorAll(":scope > li");
-
-  // Always clean up stale "See more" button (e.g. after filter narrows results)
-  const oldBtn = listEl.parentElement?.querySelector(".see-more-btn");
-  if (oldBtn) oldBtn.remove();
-
-  if (items.length <= COLLAPSE_THRESHOLD) return;
-
-  items.forEach((li, i) => {
-    if (i >= COLLAPSE_THRESHOLD) li.classList.add("result--collapsed");
-  });
-
-  const extra = items.length - COLLAPSE_THRESHOLD;
-  const btn = document.createElement("button");
-  btn.className = "see-more-btn";
-  btn.textContent = `See ${extra} more`;
-  btn.addEventListener("click", () => {
-    items.forEach((li) => li.classList.remove("result--collapsed"));
-    btn.remove();
-  });
-
-  listEl.parentElement.appendChild(btn);
+  introsEl.innerHTML = items
+    .map((r) =>
+      titleRowHtml({
+        // "Mark — Introduction", never the bare page title, so intro hits
+        // can't read as scripture chapter results.
+        title: scriptureResultTitle(r.url, r.meta?.title || r.title || "Introduction"),
+        href: r.url,
+        // Pagefind's excerpt (escaped text with <mark> around the matches), so a
+        // reader can see why this introduction came up.
+        excerptHtml: r.excerpt ? String(r.excerpt) : "",
+      }),
+    )
+    .join("");
 }
 
 function setPager(total, page) {
@@ -784,51 +585,33 @@ function setPager(total, page) {
   // Build the list of page numbers to display (with ellipsis gaps)
   const pageNums = buildPageRange(page, pages);
 
-  // Previous button
-  const prevBtn = document.createElement("button");
-  prevBtn.type = "button";
-  prevBtn.className = "pager-btn pager-btn--arrow";
-  prevBtn.textContent = "Previous";
-  prevBtn.disabled = page <= 1;
-  prevBtn.addEventListener("click", () => {
-    if (page > 1) setPage(page - 1);
-  });
-  pagerEl.appendChild(prevBtn);
+  const make = (label, { current = false, disabled = false, go = null } = {}) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `kit-btn ${current ? "kit-btn--tinted" : "kit-btn--plain"}`;
+    btn.textContent = label;
+    btn.disabled = disabled;
+    if (current) btn.setAttribute("aria-current", "page");
+    else if (go != null) btn.addEventListener("click", () => setPage(go));
+    return btn;
+  };
+
+  pagerEl.appendChild(make("Previous", { disabled: page <= 1, go: page - 1 }));
 
   // Numbered page buttons / ellipsis
   for (const entry of pageNums) {
     if (entry === "…") {
       const span = document.createElement("span");
-      span.className = "pager-ellipsis";
+      span.className = "search-pager__gap";
       span.textContent = "…";
       span.setAttribute("aria-hidden", "true");
       pagerEl.appendChild(span);
     } else {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className =
-        "pager-btn pager-btn--num" +
-        (entry === page ? " pager-btn--current" : "");
-      btn.textContent = entry;
-      if (entry === page) {
-        btn.setAttribute("aria-current", "page");
-      } else {
-        btn.addEventListener("click", () => setPage(entry));
-      }
-      pagerEl.appendChild(btn);
+      pagerEl.appendChild(make(String(entry), { current: entry === page, go: entry }));
     }
   }
 
-  // Next button
-  const nextBtn = document.createElement("button");
-  nextBtn.type = "button";
-  nextBtn.className = "pager-btn pager-btn--arrow";
-  nextBtn.textContent = "Next";
-  nextBtn.disabled = page >= pages;
-  nextBtn.addEventListener("click", () => {
-    if (page < pages) setPage(page + 1);
-  });
-  pagerEl.appendChild(nextBtn);
+  pagerEl.appendChild(make("Next", { disabled: page >= pages, go: page + 1 }));
 }
 
 /**
@@ -836,9 +619,6 @@ function setPager(total, page) {
  * Always shows first, last, and a window around current page.
  */
 function buildPageRange(current, total) {
-  // Site 2.0, with the restyle's stamp only: always five numbers from five
-  // pages on (BVJ, 2026-11-16). Without it, the rule below, unchanged.
-  if (v2Search()) return v2PageRange(current, total);
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1);
   }
@@ -863,41 +643,6 @@ function buildPageRange(current, total) {
   }
 
   return result;
-}
-
-/**
- * Jump links under the count: "117 verses · 47 chapters by topic · …", one per
- * group that is showing and has results. Verses come first because they are
- * what most searches are for and their group sits last on the page, under
- * the shorter ones. Shown only when there are two or more groups to choose
- * between, which also keeps it off pages 2 and up (verses only).
- */
-function renderJumps(groups) {
-  // Site 2.0's list of groups in its pane (does nothing without the stamp).
-  drawV2Groups(groups);
-  if (!jumpsEl) return;
-  const shown = groups.filter((g) => g.count > 0);
-  jumpsEl.replaceChildren();
-  jumpsEl.hidden = shown.length < 2;
-  if (jumpsEl.hidden) return;
-
-  const list = document.createElement("ul");
-  for (const g of shown) {
-    const li = document.createElement("li");
-    const a = document.createElement("a");
-    a.href = `#${g.target.id}`;
-    a.textContent = `${g.count} ${g.count === 1 ? g.one : g.many}`;
-    // Scroll and focus here rather than following the hash: a fragment
-    // navigation fires popstate, which re-renders the results.
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
-      g.target.scrollIntoView({ block: "start" });
-      g.target.focus({ preventScroll: true });
-    });
-    li.appendChild(a);
-    list.appendChild(li);
-  }
-  jumpsEl.appendChild(list);
 }
 
 // -----------------------
@@ -960,8 +705,10 @@ function appendGreekRows(from, to, token) {
     const li = document.createElement("li");
     li.className = "result greek-row";
 
+    // A row like every other result (SE-13), never a card: "greek-card" is
+    // the builder's word card in the "Build a search" window.
     const card = document.createElement("div");
-    card.className = "greek-card";
+    card.className = "greek-hit";
 
     const ref = document.createElement("a");
     ref.className = "greek-ref";
@@ -1041,7 +788,7 @@ function writeGreekFailed(text) {
 function appendRetry() {
   const retry = document.createElement("button");
   retry.type = "button";
-  retry.className = "greek-cmd-link";
+  retry.className = "kit-inline";
   retry.textContent = "Try again";
   retry.addEventListener("click", () => updateFromControls({ resetPage: false }));
   statusEl.append(" ", retry);
@@ -1106,7 +853,7 @@ async function drawGreekHelp({ lead = "", error = null, examples = true }, stale
     if (at >= 0) {
       const fix = document.createElement("button");
       fix.type = "button";
-      fix.className = "greek-cmd-link";
+      fix.className = "kit-inline";
       fix.textContent = msg.suggest;
       fix.addEventListener("click", () => {
         input.value = g.replaceWord(input.value, msg.replace, msg.suggest);
@@ -1119,7 +866,7 @@ async function drawGreekHelp({ lead = "", error = null, examples = true }, stale
     }
     frag.append(p);
     frag.append(
-      g.commandsLinkButton("See search commands", () => openCommands({ filter: msg.filter ?? null })),
+      g.commandsLinkButton("Build a search…", () => openCommands({ filter: msg.filter ?? null })),
     );
   } else {
     if (lead) {
@@ -1129,7 +876,7 @@ async function drawGreekHelp({ lead = "", error = null, examples = true }, stale
       frag.append(p);
     }
     if (examples) frag.append(g.exampleList(g.EXAMPLES.slice(0, 3), runGreekQuery));
-    frag.append(g.commandsLinkButton("See all search commands", () => openCommands()));
+    frag.append(g.commandsLinkButton("Build a search…", () => openCommands()));
   }
   greekHelpEl.replaceChildren(frag);
   greekHelpEl.hidden = false;
@@ -1143,6 +890,8 @@ function clearGreekHelp() {
 /** The Greek type with nothing typed: the examples, where the results would be. */
 function showGreekStart() {
   const token = ++greekSeq;
+  drawTabs({}, "greek");
+  setCount(null);
   groupGreek.hidden = false;
   greekLemmasEl.hidden = true;
   greekExactEl.hidden = true;
@@ -1160,8 +909,8 @@ function renderGreekCommands() {
   const token = ++greekSeq;
   const stale = () => token !== greekSeq;
   setRefBanner("", false);
-  if (sortWrapEl) sortWrapEl.hidden = true;
-  renderActiveFiltersFull();
+  drawTabs({}, "greek", { greekOnly: lastSearchCache.greekQuery });
+  setCount(greek.hits?.length ?? null);
   groupGreek.hidden = false;
   greekExactEl.hidden = true;
   greekLemmasEl.removeAttribute("role");
@@ -1237,9 +986,9 @@ function renderGreekOnly() {
   showGreekNotebook();
   const token = ++greekSeq;
   setRefBanner("", false);
-  if (sortWrapEl) sortWrapEl.hidden = true;
+  drawTabs({}, "greek", { greekOnly: lastSearchCache.greekQuery });
   writeGreekStatus();
-  renderActiveFiltersFull();
+  setCount(greek?.total ?? null);
   if (!greek || !greek.lemmas.length) {
     announceGreek(null);
     return;
@@ -1319,21 +1068,18 @@ greekExactInput?.addEventListener("change", () => {
 });
 
 /**
- * "194 results for “liberation”". The per-group counts live in the jump
- * links below it. A typo-corrected verse search says which word it used.
+ * The count goes at the field's end; the status line keeps what a count
+ * can't say: a typo-corrected verse search says which word it used, and a
+ * verse index that didn't load says so, with a way to ask again.
  */
 function writeCountStatus() {
   const c = lastSearchCache;
   if (!c) return;
-  const total = c.baseTotal;
-  const count = `${total} result${total === 1 ? "" : "s"} for “${c.displayQ}”`;
   const said =
     c.keywordCorrection && c.keywordTotal
-      ? `${count} (showing verses for “${c.keywordCorrection}”)`
-      : count;
-  // The period goes inside a closing quote (American style).
-  const ended = said.endsWith("”") ? `${said.slice(0, -1)}.”` : `${said}.`;
-  setStatus(c.versesFailed ? `${ended} ${VERSES_FAILED}` : said);
+      ? `Showing results for “${c.keywordCorrection}.”`
+      : "";
+  setStatus(c.versesFailed ? VERSES_FAILED : said);
   if (c.versesFailed) appendRetry();
 }
 
@@ -1376,11 +1122,11 @@ function renderFromCache() {
     renderGreekOnly();
     return;
   }
-  if (sortWrapEl) sortWrapEl.hidden = false;
   // Nothing of an earlier Greek search stays on an English one.
   groupGreek.hidden = true;
   greekSeq++;
   greekEl.replaceChildren();
+  clearGreekHelp();
 
   const {
     displayQ,
@@ -1402,36 +1148,37 @@ function renderFromCache() {
   const introMatches = introMatchesRaw || [];
   const keywordMatchesAll = sortMaybe(keywordMatchesRaw, sort);
 
-  const glossaryCount = glossaryMatches.length;
-  const subjectCount = subjectMatches.length;
-  const articleCount = articleMatches.length;
-  const introCount = introMatches.length;
-  const keywordTotal = keywordMatchesAll.length;
-  // The reader's own notebook (D2), searched in the browser; only with the
-  // Study Desk on, and only under "All results".
-  const notebookCount = mode === "all" ? (notebook?.total ?? 0) : 0;
-  const baseTotal =
-    notebookCount +
-    glossaryCount +
-    subjectCount +
-    articleCount +
-    introCount +
-    keywordTotal;
+  // Every tab has its count, so each is searched, whichever is chosen (SE-07).
+  const counts = {
+    keyword: keywordMatchesAll.length,
+    subject: subjectMatches.length,
+    glossary: glossaryMatches.length,
+    article: articleMatches.length,
+    intro: introMatches.length,
+    // The reader's own notebook (D2), searched in the browser; only with the
+    // Study preview on.
+    notebook: deskApi ? (notebook?.total ?? 0) : 0,
+  };
+  const keywordTotal = counts.keyword;
+  const baseTotal = Object.values(counts).reduce((a, b) => a + b, 0);
   lastSearchCache.baseTotal = baseTotal;
   lastSearchCache.keywordTotal = keywordTotal;
-  const matchTotal = baseTotal;
 
   const parsedJump = parseReferenceJump(q);
-  setRefBanner(
-    parsedJump ? renderReferenceActions(parsedJump) : null,
-    Boolean(parsedJump),
-  );
+  setRefBanner(referenceAnswerHtml(parsedJump), Boolean(parsedJump));
 
-  if (matchTotal === 0) {
+  // The page opens on Scripture, or the first tab with results (SE-08).
+  let active = notebookTab && deskApi ? "notebook" : tabForMode(mode) || openingTab(counts);
+  if (active === "greek") active = openingTab(counts);
+  lastSearchCache.active = active;
+  drawTabs(counts, active);
+
+  if (baseTotal === 0) {
+    setCount(null);
     announceResults({ query: displayQ, verses: [], chapters: [] });
     // Always replace the "Searching for…" line, which otherwise stayed on
     // screen after a search that found nothing. A recognized reference needs
-    // no line at all: the banner above already offers its jump.
+    // no line at all: the answer above already offers its jump.
     statusEl.innerHTML = parsedJump
       ? ""
       : lastSearchCache.versesFailed
@@ -1439,27 +1186,35 @@ function renderFromCache() {
         : `No results for “${escapeHtml(displayQ)}.”`;
     if (!parsedJump && lastSearchCache.versesFailed) appendRetry();
     hideResultGroups();
-    renderActiveFiltersFull();
     if (parsedJump || lastSearchCache.versesFailed) return;
 
     const qNorm = normalizePhrase(displayQ);
+    const wire = () =>
+      statusEl.querySelectorAll("[data-suggest]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (input) input.value = btn.dataset.suggest;
+          updateFromControls({ resetPage: true, push: true });
+        });
+      });
     if (qNorm.includes(" ")) {
       const words = qNorm.split(/\s+/).filter((w) => w.length >= MIN_QUERY_LEN);
       if (words.length >= 2) {
         const wordLinks = words
           .map(
             (w) =>
-              `<button type="button" class="suggest-word" data-suggest="${escapeHtml(w)}">${escapeHtml(w)}</button>`,
+              `<button type="button" class="kit-inline" data-suggest="${escapeHtml(w)}">${escapeHtml(w)}</button>`,
           )
           .join(" · ");
         statusEl.innerHTML = `No results for the exact phrase “${escapeHtml(displayQ)}.” Try: ${wordLinks}`;
-        statusEl.querySelectorAll("[data-suggest]").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            if (input) input.value = btn.dataset.suggest;
-            updateFromControls({ resetPage: true, push: true });
-          });
-        });
+        wire();
       }
+    }
+
+    // The glossary still answers when nothing else does (SE-21): “pistis”
+    // finds no verse, but it is an entry's own word.
+    const named = glossaryLineEntries(displayQ, glossaryTermsFromDom(), base);
+    if (named.length) {
+      statusEl.innerHTML = `${statusEl.innerHTML} ${glossaryLineHtml({ term: named[0].term, href: named[0].href, count: named.length })}`;
     }
 
     if (cachedTopicsList) {
@@ -1472,109 +1227,90 @@ function renderFromCache() {
         const sugLinks = suggestions
           .map(
             (s) =>
-              `<button type="button" class="suggest-word" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`,
+              `<button type="button" class="kit-inline" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`,
           )
           .join(" · ");
         statusEl.innerHTML = `${statusEl.innerHTML}<br>Did you mean: ${sugLinks}`;
-        statusEl.querySelectorAll("[data-suggest]").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            if (input) input.value = btn.dataset.suggest;
-            updateFromControls({ resetPage: true, push: true });
-          });
-        });
+        wire();
       }
     }
     return;
   }
 
   writeCountStatus();
+  setCount(counts[active]);
 
-  // Only show glossary/subject on page 1
-  const showMetaBuckets = page === 1;
-
-  const showGlossary =
-    (mode === "all" || mode === "glossary") && showMetaBuckets;
-  const showSubject = (mode === "all" || mode === "subject") && showMetaBuckets;
-  const showIntros = (mode === "all" || mode === "intro") && showMetaBuckets;
-  const showArticles =
-    (mode === "all" || mode === "article") && showMetaBuckets;
-  const showKeyword = mode === "all" || mode === "keyword";
-  const showNotebook = showMetaBuckets && notebookCount > 0;
-
-  renderJumps([
-    { count: showKeyword ? keywordTotal : 0, one: "verse", many: "verses", target: groupKeyword },
-    { count: showNotebook ? notebookCount : 0, one: "match in your notebook", many: "matches in your notebook", target: groupNotebook },
-    { count: showSubject ? subjectCount : 0, one: "chapter by topic", many: "chapters by topic", target: groupSubject },
-    { count: showIntros ? introCount : 0, one: "introduction", many: "introductions", target: groupIntros },
-    { count: showArticles ? articleCount : 0, one: "article", many: "articles", target: groupArticles },
-    { count: showGlossary ? glossaryCount : 0, one: "glossary entry", many: "glossary entries", target: groupGlossary },
-  ]);
-
-  if (showNotebook && deskApi) {
-    groupNotebook.hidden = false;
-    groupNotebook.querySelector(".group-title").textContent = notebook.title ?? "My Notebook";
-    deskApi.renderPageGroup(notebookEl, notebook);
-  } else {
-    groupNotebook.hidden = true;
+  // One group shows, the chosen tab's; the others are emptied.
+  const groups = {
+    keyword: groupKeyword,
+    subject: groupSubject,
+    glossary: groupGlossary,
+    article: groupArticles,
+    intro: groupIntros,
+    notebook: groupNotebook,
+  };
+  for (const [id, el] of Object.entries(groups)) el.hidden = id !== active;
+  for (const el of [glossaryEl, subjectEl, introsEl, articlesEl, keywordEl]) el.innerHTML = "";
+  if (linesEl) linesEl.innerHTML = "";
+  if (active !== "notebook") {
     notebookEl.innerHTML = "";
     groupNotebook.querySelector(".desk-see-more")?.remove();
   }
+  const empty = (listEl, what) => {
+    listEl.innerHTML = `<li class="search-row search-row--empty">Nothing in ${what} matches “${escapeHtml(displayQ)}.”</li>`;
+  };
 
-  if (showGlossary && glossaryCount) {
-    groupGlossary.hidden = false;
-    renderGlossary(glossaryMatches.slice(0, 50), qPhrase);
+  if (active === "glossary") {
+    if (counts.glossary) renderGlossary(glossaryMatches.slice(0, 50), qPhrase);
+    else empty(glossaryEl, "the glossary");
+  } else if (active === "subject") {
+    if (counts.subject) renderSubject(subjectMatches.slice(0, 50), subjectTopicLabels, qPhrase);
+    else empty(subjectEl, "the chapters");
+  } else if (active === "intro") {
+    if (counts.intro) renderIntros(introMatches.slice(0, 27));
+    else empty(introsEl, "the introductions");
+  } else if (active === "article") {
+    if (counts.article) renderArticles(articleMatches.slice(0, 20));
+    else empty(articlesEl, "the articles");
+  } else if (active === "notebook") {
+    groupNotebook.querySelector(".group-title").textContent = notebook?.title ?? "Notebook";
+    if (counts.notebook && deskApi) deskApi.renderPageGroup(notebookEl, notebook);
+    else empty(notebookEl, "your notebook");
   } else {
-    groupGlossary.hidden = true;
-    glossaryEl.innerHTML = "";
+    // Scripture paging applies to the verses alone.
+    const start = (page - 1) * pageSize;
+    if (counts.keyword) renderKeyword(keywordMatchesAll.slice(start, start + pageSize));
+    else empty(keywordEl, "the Scripture");
+    // Over the verses, the glossary line, since the glossary still answers
+    // first, then the chapters line (SE-21, SE-20). The glossary's is only
+    // for an entry whose own word is what was typed (glossaryLineEntries).
+    if (page === 1 && linesEl) {
+      const bits = [];
+      const named = glossaryLineEntries(displayQ, glossaryTermsFromDom(), base);
+      if (named.length) {
+        bits.push(`<p class="search-line">${glossaryLineHtml({ term: named[0].term, href: named[0].href, count: named.length })}</p>`);
+      }
+      if (counts.subject) {
+        const first = prettyTitleFromUrl(subjectMatches[0].url, subjectMatches[0].meta?.title || "Result");
+        // A real address, so the link opens in a new tab too (SE-32).
+        const href = seeAllHref(window.location.pathname, { q: displayQ, mode: "subject", book: readState().book });
+        bits.push(`<p class="search-line">${chaptersLineHtml({ first, count: counts.subject, query: displayQ, href })}</p>`);
+      }
+      linesEl.innerHTML = bits.join("");
+      linesEl.querySelector("[data-line-tab]")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        pickTab(e.currentTarget.dataset.lineTab);
+      });
+    }
   }
 
-  if (showSubject && subjectCount) {
-    groupSubject.hidden = false;
-    renderSubject(subjectMatches.slice(0, 50), subjectTopicLabels, qPhrase);
-    applyCollapse(subjectEl);
-  } else {
-    groupSubject.hidden = true;
-    subjectEl.innerHTML = "";
-  }
-
-  if (showIntros && introCount) {
-    groupIntros.hidden = false;
-    renderIntros(introMatches.slice(0, 27));
-    applyCollapse(introsEl);
-  } else {
-    groupIntros.hidden = true;
-    introsEl.innerHTML = "";
-  }
-
-  if (showArticles && articleCount) {
-    groupArticles.hidden = false;
-    renderArticles(articleMatches.slice(0, 20));
-    applyCollapse(articlesEl);
-  } else {
-    groupArticles.hidden = true;
-    articlesEl.innerHTML = "";
-  }
-
-  // keyword paging always applies to keyword bucket only
-  const start = (page - 1) * pageSize;
-  const keywordSlice = keywordMatchesAll.slice(start, start + pageSize);
-
-  if (showKeyword && keywordTotal) {
-    groupKeyword.hidden = false;
-    renderKeyword(keywordSlice);
-  } else {
-    groupKeyword.hidden = true;
-    keywordEl.innerHTML = "";
-  }
-
-  setPager(showKeyword ? keywordTotal : 0, page);
-  renderActiveFiltersFull();
+  setPager(active === "keyword" ? keywordTotal : 0, page);
 
   announceResults({
     query: displayQ,
-    verses: showKeyword ? keywordMatchesAll.map((r) => r.__ref).filter(Boolean) : [],
+    verses: active === "keyword" ? keywordMatchesAll.map((r) => r.__ref).filter(Boolean) : [],
     chapters:
-      showSubject && subjectCount
+      active === "subject" && counts.subject
         ? subjectMatches
             .map((r) => {
               const at = parseBookChapterFromUrl(r.url || "");
@@ -1586,9 +1322,10 @@ function renderFromCache() {
 }
 
 function clearResults() {
-  if (sortWrapEl) sortWrapEl.hidden = false;
   hideResultGroups();
   lastSearchCache = null;
+  setCount(null);
+  drawTabs({}, notebookTab && deskEnabled() ? "notebook" : tabForMode(readState().mode) || "keyword");
   // No results now, so nothing of the last search's stays checked.
   if (lastResultsDetail?.query) announceResults({ query: "", verses: [], chapters: [], greek: [] });
 }
@@ -1607,7 +1344,7 @@ function hideResultGroups() {
   greekSeq++;
   greekEl.replaceChildren();
   clearGreekHelp();
-  renderJumps([]);
+  if (linesEl) linesEl.innerHTML = "";
 
   glossaryEl.innerHTML = "";
   subjectEl.innerHTML = "";
@@ -1644,9 +1381,53 @@ async function syncGreekOffer(q, mode) {
   greekOfferEl.hidden = false;
 }
 
+// ">" asks for the notebook's commands alone, as it does in the tray (SE-23,
+// D3): with the Study preview they are listed where the results go, nothing
+// is searched, and Enter runs the first.
+let commandsEl = null;
+const isCommandQuery = (text) => deskEnabled() && /^\s*>/.test(String(text || ""));
+
+function hideCommands() {
+  if (!commandsEl) return;
+  commandsEl.hidden = true;
+  commandsEl.replaceChildren();
+}
+
+function showCommands(m, q) {
+  const commands = m.commandsFor(q);
+  setStatus(commands.length
+    ? `${commands.length} ${commands.length === 1 ? "command" : "commands"}`
+    : "No command begins that way.");
+  if (!commandsEl) {
+    commandsEl = document.createElement("div");
+    commandsEl.className = "search-commands";
+    statusEl.after(commandsEl);
+  }
+  commandsEl.replaceChildren();
+  m.renderTray(commandsEl, {
+    commands,
+    onRun: (c) => {
+      m.runCommand(c.id);
+      if (input) input.value = "";
+      updateFromControls({ resetPage: true, push: true });
+    },
+  });
+  commandsEl.hidden = !commands.length;
+}
+
+/** Enter on a ">" query: the first command listed, as the tray does. */
+function runFirstCommand() {
+  if (!commandsEl || commandsEl.hidden) return false;
+  const first = commandsEl.querySelector("[data-desk-command]");
+  if (!first) return false;
+  first.click();
+  return true;
+}
+
 async function runFullSearch() {
   const { q, book } = readState();
   const displayQ = displayQueryLabel(q);
+  hideCommands();
   syncGreekOffer(q.length >= MIN_QUERY_LEN ? q : "", readState().mode);
 
   if (!q) {
@@ -1657,12 +1438,19 @@ async function runFullSearch() {
     return;
   }
 
+  if (isCommandQuery(q)) {
+    const m = await loadDeskSearch();
+    if (m && readState().q === q) {
+      setRefBanner("", false);
+      clearResults();
+      showCommands(m, q);
+      return;
+    }
+  }
+
   const parsedJump = parseReferenceJump(q);
 
-  setRefBanner(
-    parsedJump ? renderReferenceActions(parsedJump) : null,
-    Boolean(parsedJump),
-  );
+  setRefBanner(referenceAnswerHtml(parsedJump), Boolean(parsedJump));
 
   // Greek words can be one or two letters (ὁ, ἐν), so a Greek query needs no minimum.
   const shortQuery = q.length < MIN_QUERY_LEN && !(greekSearchEnabled() && hasGreek(q));
@@ -1699,17 +1487,18 @@ async function runFullSearch() {
       loadVerseIndex(base),
       deskApi ? deskApi.search(q, { bookKey: book }).catch(() => null) : null,
     ]);
-    lastSearchCache = { greekOnly: true, displayQ, greek, verseIndex, notebook, deskApi };
+    // greekQuery: the query itself can only be Greek, so the other tabs are
+    // unavailable (Q77); an English query under the Greek tab can still leave it.
+    lastSearchCache = { greekOnly: true, greekQuery: isGreekQuery(q), displayQ, greek, verseIndex, notebook, deskApi };
     renderFromCache();
     return;
   }
 
-  const wantKeyword = mode === "all" || mode === "keyword";
-
+  // Every tab has its count, so every kind is searched whichever tab is chosen.
   // Scripture keyword search scans the verse index; Pagefind covers
   // glossary/articles. Start the verse-index fetch first so the two loads
   // overlap on first use.
-  const versePromise = wantKeyword ? loadVerseIndex(base) : null;
+  const versePromise = loadVerseIndex(base);
 
   const qUnquoted = displayQ;
   const qPhrase = normalizePhrase(qUnquoted);
@@ -1800,7 +1589,7 @@ async function runFullSearch() {
 
   // The reader's notebook, when the Study Desk is on (D2): searched here in
   // the browser, and nothing about the query leaves the computer.
-  const deskApi = mode === "all" ? await loadDeskSearch() : null;
+  const deskApi = (await loadDeskSearch()) || null;
   const notebook = deskApi
     ? await deskApi.search(q, { bookKey: book }).catch(() => null)
     : null;
@@ -1817,7 +1606,8 @@ async function runFullSearch() {
     const chapterTitle = `${bookKeyToLabel(h.bookKey)} ${h.chapter}`;
     return {
       url: verseHitHref(h),
-      excerpt: `<sup>${h.verse}</sup>&nbsp;${highlightVerseHit(h)}`,
+      __html: highlightVerseHit(h),
+      __label: `${chapterTitle}:${h.verse}`,
       meta: { title: chapterTitle },
       title: chapterTitle,
       __relevanceRank: relevanceRank.get(h) ?? 9999,
@@ -1876,17 +1666,10 @@ function updateFromControls({ resetPage = true, push = false } = {}) {
   syncGreekChrome();
 
   scheduleSearch();
-  // Yield to the browser so the input visual update paints before
-  // the filter-pill DOM work runs (improves INP).
-  requestAnimationFrame(() => renderActiveFiltersFull());
 }
 
 // The Study Desk's "make a sheet" (M5), only with the preview on.
 loadDeskSheets()?.then((m) => m?.attachSearchSheets(() => lastResultsDetail));
-
-// Site 2.0's layout (v2-search.js): with the restyle's stamp only, moves the
-// sort, the filters and the picker into the pane. Without it, returns at once.
-startV2Search();
 
 // Initial sync
 syncControlsFromUrl();
@@ -1913,11 +1696,13 @@ if (input) {
     // with no query and empties the search. The tray stops it where it has
     // set itself up; this page doesn't depend on that.
     e.preventDefault();
+    if (isCommandQuery(input.value) && runFirstCommand()) return;
     updateFromControls({ resetPage: true, push: true });
   });
   // The form's own submit button (on a phone) is the same Enter.
   input.closest("form")?.addEventListener("submit", (e) => {
     e.preventDefault();
+    if (isCommandQuery(input.value) && runFirstCommand()) return;
     updateFromControls({ resetPage: true, push: true });
   });
 }
@@ -1940,18 +1725,13 @@ if (modeSelect) {
   });
 }
 
-// Sort toggle: re-render already-computed results (no re-search, no reset)
-sortButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const v = btn.dataset.sort === "order" ? "order" : "relevance";
-    const s = readState();
+// Sort menu: re-render already-computed results (no re-search)
+sortSelect?.addEventListener("change", () => {
+  const v = getActiveSort();
+  writeState({ ...readState(), sort: v, page: 1 }, { push: true });
 
-    setActiveSort(v);
-    writeState({ ...s, sort: v }, { push: true });
-
-    if (lastSearchCache) renderFromCache();
-    else scheduleSearch();
-  });
+  if (lastSearchCache) renderFromCache();
+  else scheduleSearch();
 });
 
 function setPage(n) {

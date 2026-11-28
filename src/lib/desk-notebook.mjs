@@ -4,13 +4,15 @@
 // and does, apart from the page: how the records are grouped (Bible order,
 // under a book and chapter; then notes on glossary entries and on articles;
 // pinned footnotes as their own list; places have a section of their own), how a
-// filter narrows them, how the counts read in words, and the bulk deletions
-// at the page's foot. Pure: no storage, no DOM.
+// filter narrows them, how the counts read in words, and the bulk deletions,
+// which were the page's foot until All settings took them in Featherboa's
+// Phase 4 (src/scripts/desk/settings-page.js). Pure: no storage, no DOM.
 //
 // A collection (D13) is never a row in these lists: it holds records rather
 // than marking the text, and gets a section, a page and a filter of its own.
 //
-// "Delete all notes and marks", "Delete all sheets" (Delete everything until Audit 8
+// "Delete all notes, highlights, and bookmarks" ("Delete all notes and marks"
+// until Phase 4's NB-19), "Delete all sheets" (Delete everything until Audit 8
 // decision 8) and "Delete all collections" (D13) each trash their records in one plan, so each is one
 // undoable step and the 30 days of the trash still apply. "Empty the trash
 // now" is the shared-computer button: it drops the content of every trash
@@ -273,8 +275,9 @@ export function planDeleteEverything(records, ctx, { which = "all" } = {}) {
 }
 
 /**
- * The notebook page's bulk deletions (Audit 8 decision 8; BVJ, 2026-11-10;
- * D13): "Delete all notes and marks" takes every record but sheets and
+ * All settings' bulk deletions (Audit 8 decision 8; BVJ, 2026-11-10; D13;
+ * My Notebook's until Featherboa's Phase 4): "Delete all notes, highlights,
+ * and bookmarks" (NB-19) takes every record but sheets and
  * collections (notes, highlights, bookmarks, pinned footnotes, labels, and any
  * kind this code doesn't know), "Delete all sheets" takes the sheets and the
  * reader's own templates, which are sheets too, and "Delete all collections"

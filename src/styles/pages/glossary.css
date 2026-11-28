@@ -1,841 +1,647 @@
-:root{
-  --lit-green:#209D50;
-  --lit-ink:#1D231C;
-  --paper: var(--surface-raised, #ffffff);
-  --cream:#e9e6df; /* warm light gray like your screenshots */
+/* /glossary, drawn as Featherboa draws a page of reading (Phase 7,
+   SITE-FEATHERBOA.md, "The glossary and articles"; GL-01 to GL-28). One page,
+   read on, in the Read page's column, with the reading page's faces: Fraunces
+   for the headline pair, Source Sans 3 for the words, Atkinson Hyperlegible
+   Next for every control. Every control is a kit class (kit.css); this file
+   draws the page's own parts. Spacing is the scale alone (--space-*). */
 
-  /* Landing offset for every in-page anchor on this page: the jump pill is
-     sticky, so a target scrolled to 0 lands underneath it. Its bottom edge is
-     at 56px (top:16px + 40px tall) and neither number varies with viewport
-     width, so ONE value serves every breakpoint — the extra 24px is the gap
-     that makes the landing read as deliberate. One token because the two
-     consumers below are answering the same question; two numbers drift. */
-  --toc-anchor-offset: 80px;
+/* ---------- The column ----------
+   The Read page's own: the text's measure, placed as ScriptureLayout places
+   .scripture-main (a 220 quiet side, the text, a 320 margin, centered
+   together), so "Where it appears" has the margin to sit in on a computer.
+   The page follows the Display tray (src/styles/CLAUDE.md, "The Display
+   tray," rule 1): the size once, here; the titles by --heading-scale and
+   every other rem size by --reading-scale; the line-spacing extra here, for
+   every paragraph. */
+
+.glossary-page {
+  font-family: var(--font-text);
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  color: var(--color-text);
 }
 
-/* =========================================================
-   Glossary page base
-   ========================================================= */
-
-.glossary-page{
-  color: var(--text);
-  background: var(--paper);
-}
-
-/* Header background: header is outside .glossary-page in Layout,
-   so scope using :has() (modern browsers) with a safe fallback. */
-@supports selector(body:has(.glossary-page)){
-  body:has(.glossary-page) .site-header{
-    background: var(--surface-raised);
-  }
-}
-
-/* Fallback if Layout adds a bg class to body/html (you’re using bg="white") */
-.bg-white .site-header{
-  background: var(--surface-raised);
-}
-
-.wrap{
-  max-width: 980px;
+.gloss-col {
+  box-sizing: border-box;
+  max-width: calc(var(--reading-width, 72ch) + 32px);
   margin: 0 auto;
-  padding: 56px 24px;
+  padding: var(--space-3) var(--space-3) 0;
 }
 
-
-/* =========================================================
-   HERO
-   ========================================================= */
-
-.glossary-hero{
-  background: var(--paper);
-  padding-top: 10px;
-  /* Prevent the 100vw bleed-out on entries from creating horizontal overflow,
-     which breaks position:sticky on mobile. clip ≠ hidden — no scroll container created. */
-  overflow-x: clip;
+@media screen and (min-width: 1100px) {
+  html:not([data-desk]) .gloss-col {
+    position: relative;
+    margin-inline: 0;
+    left: max(
+      0px,
+      calc((100% - var(--reading-width)) / 2 - (var(--col-margin) - var(--col-side)) / 2 - 16px),
+      min(calc((100% - var(--reading-width)) / 2 - 16px), calc(var(--col-side) - 16px))
+    );
+  }
 }
 
-/* The public glossary follows the Display tray's text size and line spacing
-   through --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md).
-   The desk block at the end restates the type in em, so it is unaffected. */
-.glossary-hero h1{
-  margin: 0 0 24px 0;
-  text-align: center;
-  font-size: calc(clamp(44px, 5vw, 64px) * var(--heading-scale, 1));
-  letter-spacing: 0.02em;
+/* The entries' column nests nothing, but the opening and the entries each
+   hold one; the entries' lead-in space comes from the entries themselves. */
+.entries-wrap {
+  padding-bottom: var(--space-9);
 }
 
-/* Center hero blurb to match the H1 and keep the max-width */
-.glossary-hero p{
-  margin: 0 auto 32px;
-  text-align: left;
-  font-size: calc(clamp(18px, 2.2vw, 26px) * var(--reading-scale, 1));
-  line-height: calc(1.55 + var(--reading-leading-extra, 0));
-  max-width: 42em;
+/* ---------- The opening: BVJ's words ---------- */
+
+.glossary-hero {
+  padding-bottom: var(--space-4);
 }
 
-.inline-link{
-  color: var(--green-text);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-.inline-link:hover{ color: var(--text-strong); }
-
-
-
-/* Toggle switch replacing radio buttons */
-.category-toggle{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.toggle-label{
-  font-size: 14px;
-  color: var(--text);
-  opacity: 0.7;
-  cursor: pointer;
-  transition: opacity 0.2s, color 0.2s;
-  user-select: none;
-}
-
-.toggle-label.is-active{
-  opacity: 1;
-  color: var(--lit-green);
+.glossary-title {
+  margin: var(--space-5) 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
   font-weight: 500;
+  line-height: var(--leading-title);
+  color: var(--color-text);
 }
 
-.toggle-switch{
+.glossary-hero p {
+  margin: 0 0 var(--space-3);
+  max-width: none;
+}
+
+/* ---------- An entry ---------- */
+
+.entry {
   position: relative;
-  width: 44px;
-  height: 24px;
-  border-radius: 12px;
-  background: var(--lit-green);
-  border: none;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-  transition: background 0.2s;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-hairline);
+  margin-top: var(--space-6);
 }
 
-.toggle-switch::after{
-  content: '';
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  background: #fff;
-  border-radius: 50%;
-  top: 3px;
-  left: 3px;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+.entry:first-child {
+  margin-top: 0;
 }
 
-.toggle-switch[aria-checked="true"]::after{
-  transform: translateX(20px);
-}
-
-.toggle-switch:focus-visible{
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-
-/* =========================================================
-   Sort toggle (inline, not sticky)
-   ========================================================= */
-
-.glossary-sort-toggle{
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  margin: 28px 0 8px;
-}
-
-.sort-by-label{
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text);
-  opacity: 0.5;
-  text-align: right;
-  padding-right: 12px;
-}
-
-@media (max-width: 600px){
-  .glossary-sort-toggle{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .sort-by-label{
-    text-align: center;
-    padding-right: 0;
-  }
-}
-
-/* =========================================================
-   Sticky jump dropdown — slim frosted pill
-   ========================================================= */
-
-.glossary-toc{
-  position: sticky;
-  top: 16px;
-  z-index: 10;
+.entry-head {
   display: flex;
-  justify-content: center;
-  margin: 16px 0 24px;
-  padding: 0 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
-.glossary-toc__inner{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  /* Near-opaque, NOT 0.88 + blur. The pill scrolls over body text, and the
-     blur is not dependable: it computes to `none` in contexts that report
-     CSS.supports('backdrop-filter') === true (no GPU compositing), which
-     also means an @supports fallback never fires. At 0.88 with no blur the
-     text underneath stays legible through the pill and the whole thing reads
-     as a rendering fault. Legibility can't rest on an effect that silently
-     drops; the blur stays as enhancement where it does apply. */
-  background: rgb(var(--surface-rgb));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(var(--ink-rgb), 0.08);
-  border-radius: 999px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  padding: 8px 16px;
-}
-
-.glossary-toc__inner select{
-  border: none;
-  background: transparent;
-  font-size: 15px;
-  color: var(--text);
-  cursor: pointer;
-  outline: none;
-  padding: 2px 4px;
-  width: 220px;
-}
-/* The rule above out-specifies the global :focus-visible ring, so restore it
-   for keyboard users; the pill has no focus style of its own. */
-.glossary-toc__inner select:focus-visible{
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.back-to-top{
-  border: none;
-  background: transparent;
-  color: var(--lit-green);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  /* 24px target (WCAG 2.5.8): the arrow stays the same size */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  min-height: 24px;
-  padding: 2px 4px;
-  border-left: 1px solid rgba(var(--ink-rgb), 0.12);
-  padding-left: 12px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-
-.back-to-top.is-visible{
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.back-to-top:hover{
-  color: var(--lit-ink);
-}
-
-/* =========================================================
-   Entries section
-   White above, cream below, with a TOP chevron notch
-   ========================================================= */
-
-.glossary-entries{
-  background: var(--paper);
-}
-
-/* Full-bleed TOP chevron notch (cream) */
-.entries-top{
-  --notch: 64px; /* center dip depth */
-  --edge: 18px;  /* left/right height */
-
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-
-  background: var(--page-bg);
-  height: calc(var(--notch) + 14px);
-
-  -webkit-clip-path: polygon(
-    0 var(--edge),
-    50% var(--notch),
-    100% var(--edge),
-    100% 100%,
-    0 100%
-  );
-  clip-path: polygon(
-    0 var(--edge),
-    50% var(--notch),
-    100% var(--edge),
-    100% 100%,
-    0 100%
-  );
-
-}
-
-/* Full-bleed cream panel under the notch */
-.entries-panel{
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  margin-top: -1px;
-
-  background: var(--page-bg);
-  padding-bottom: 64px;
-}
-
-.entries-wrap{ padding-top: 36px; }
-
-.entry{
-  padding: 34px 0;
-  border-bottom: 1px solid rgba(var(--ink-rgb),0.12);
-}
-
-/* =========================================================
-   Entry title layout
-   - Wraps long titles
-   - Keeps separators visible on mobile
-   - Does NOT force the gloss onto its own line
-   ========================================================= */
-
-.entry-title{
-  /* The anchor offset belongs HERE, not on .entry: the jump dropdown's targets
-     are `#<entry id>` and that id is on this h2. .entry carries no id (it's the
-     IntersectionObserver's handle, keyed off data-entry), so an offset there is
-     inert and the heading lands under the sticky pill. */
-  scroll-margin-top: var(--toc-anchor-offset);
-
-  margin: 0 0 16px 0;
-  font-size: calc(clamp(28px, 3.2vw, 54px) * var(--heading-scale, 1));
+.entry-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  /* Keeps a heading clear of the sticky line when a link scrolls to it; the
+     every-place list (.entry-places) takes the same. */
+  scroll-margin-top: calc(var(--target) + var(--space-6));
+  font-family: var(--font-display);
+  font-size: calc(var(--size-heading) * var(--heading-scale, 1));
   font-weight: 500;
-  line-height: 1.15;
+  line-height: var(--leading-heading);
+  color: var(--color-text);
+}
 
+/* The pair is the headline (GL-11 to GL-17): "Traditionally" and the
+   traditional word, lighter and gray (the second ink, 4.5:1), beside "In the
+   LIT" and the LIT word at full weight. No arrow and no strike-through. */
+.pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: var(--space-7);
+  row-gap: var(--space-3);
+}
+
+.pair__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.pair__label {
+  font-family: var(--font-control);
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  font-weight: 500;
+  line-height: var(--leading-small-label);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-text-2);
+}
+
+.pair__word {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-
-  max-width: 100%;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  word-break: normal;
-
-  column-gap: 0.6rem;
-  row-gap: 0.35rem;
-
-  /* REQUIRED for absolute overlays; also keeps z-index stacking sane */
-  position: relative;
-  isolation: isolate;
-}
-
-@media (max-width: 480px) {
-  .entry-title {
-    font-size: calc(clamp(22px, 6vw, 30px) * var(--heading-scale, 1));
-  }
-}
-
-/* Prevent flex children from refusing to shrink */
-.entries-strike,
-.entries-underline,
-.entry-title em,
-.entry-title strong{
   min-width: 0;
 }
 
-/* The link icon beside each heading (audit Q4). It sits outside the h2, so
-   the header lays the two out side by side; the heading shrinks to its text,
-   which keeps the icon next to a short title rather than at the far edge. */
-.entry-head{
-  display: flex;
-  align-items: flex-start;
-  column-gap: 0.25rem;
-}
-.entry-head .entry-title{ flex: 0 1 auto; }
-
-.entry-link{
-  flex: none;
-  /* One heading line tall, so the icon lines up with the first line */
-  font-size: clamp(28px, 3.2vw, 54px);
-  height: 1.15em;
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  color: var(--text);
-  /* 0.6 keeps the icon above 3:1 against the page in both themes */
-  opacity: 0.6;
-  transition: opacity 150ms ease, color 150ms ease;
-}
-@media (max-width: 480px){
-  .entry-link{ font-size: clamp(22px, 6vw, 30px); }
-}
-.entry-link:hover,
-.entry-link:focus-visible,
-.entry-link[data-copied]{ opacity: 1; }
-.entry-link[data-copied]{ color: var(--green-text); }
-
-/* 26px rather than the bare chain's 22, so the chain on the front sheet
-   stays legible (owner, 2026-10-09). */
-.entry-link__icon{
-  width: 26px;
-  height: 26px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-/* The chain is drawn at 45%, so its stroke is scaled up to match: 3.6 there
-   is 1.6 in the icon's own units, a touch lighter than the sheets' 2. */
-.entry-link__chain{ stroke-width: 3.6; }
-.entry-link__check,
-.entry-link[data-copied] .entry-link__chain{ display: none; }
-.entry-link[data-copied] .entry-link__check{ display: inline; }
-
-@media (prefers-reduced-motion: reduce){
-  .entry-link{ transition: none; }
-}
-@media print{
-  .entry-link{ display: none; }
+.pair__side--traditional .pair__word,
+.pair__side--traditional .pair__word strong {
+  font-weight: 400;
+  color: var(--color-text-2);
 }
 
-.entry-title .sep{
-  display: inline;
-  padding: 0 0.35rem;
-  opacity: 0.7;
-  white-space: nowrap; /* keeps “ – ” together */
+.pair__side--lit .pair__word {
+  font-weight: 600;
+  color: var(--color-text);
 }
 
-/* =========================================================
-   Multi-option gloss ("loving faithfulness / committed compassion")
-
-   Each option is its own .entries-underline flex item, so the ink scribble
-   is drawn and revealed per option instead of as one stroke running through
-   the slash. The slash is its own item; the title's column-gap supplies its
-   spacing, so it needs no padding of its own.
-   ========================================================= */
-
-.entry-title .lit-sep{
-  opacity: 0.7;
+/* The slash between a LIT word's options keeps its place on a computer. The
+   screen-reader-silent spaces beside it are the indexer's. */
+.lit-sep {
+  padding-inline: var(--space-1);
+  font-weight: 400;
+  color: var(--color-text-3);
 }
 
-/* Phones and small tablets: the longest gloss (eleos, "loving faithfulness /
-   committed compassion") is wider than the column, so each option takes its
-   own line.
-
-   780px is measured, not chosen for tidiness: below ~770px the eleos title
-   needs more room than the column gives it and wraps anyway, leaving the
-   slash dangling at the end of the first line. Above that the whole title
-   fits on one line at every width, because the heading's font-size clamp
-   stops growing before the column does. */
-@media (max-width: 780px){
-  /* The slash becomes the line break. A zero-height, full-width flex item
-     pushes the next option onto a new line while the options themselves stay
-     shrink-wrapped — which matters, because the ink underline is drawn across
-     the span's client rect, so a full-width option would trail a scribble far
-     past its last word. The negative margin cancels one of the two row-gaps
-     this empty flex line would otherwise sit between. */
-  .entry-title .lit-sep{
-    flex: 0 0 100%;
-    height: 0;
-    margin-block: calc(-0.35rem / 2);
-    overflow: hidden;
-  }
-
-  /* A single option can still outrun a narrow viewport, and a line wider than
-     its column pushes the page sideways rather than wrapping. The ink is drawn
-     once per client rect, so a wrapped option gets one scribble per line. */
-  .entry-title .lit-part{
-    white-space: normal;
-
-    /* The title's 1.15 leading is tight enough that a wrapped option's ink
-       underline lands on the next line's capitals — badly so in OpenDyslexic,
-       whose glyphs fill more of the em than Fraunces does. Extra leading is
-       the fix rather than a shorter stroke: an accessibility font is the last
-       thing to make smaller. */
-    line-height: 1.4;
-  }
+.pf-slash-space {
+  display: none;
 }
 
-.entry-body p{
-  margin: 0;
-  font-size: calc(clamp(18px, 2.1vw, 26px) * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-  max-width: 44em;
-}
-
-/* =========================================================
-   INK OVERLAYS (JS-injected .ink-svg)
-   Works with markup:
-     <span class="entries-strike">…</span>
-     <span class="entries-underline">…</span>
-   JS appends:
-     <svg class="ink-svg"><path ... /></svg>
-   ========================================================= */
-
-/* The overlay svg that JS injects (direct child of .entry-title) */
-.entry-title > .ink-svg{
-  position: absolute;
-  z-index: 3;
-  pointer-events: none;
-  overflow: visible;
-}
-
-/* Keep the real text above the cream panel but under the ink.
-   IMPORTANT: exclude .ink-svg or you stomp its z-index. */
-.entry-title > *:not(.ink-svg){
-  position: relative;
-  z-index: 1;
-}
-
-/* Keep these as normal inline wrappers */
-.entries-strike,
-.entries-underline{
-  position: relative;
-  display: inline-block;
+.lit-part {
   white-space: nowrap;
 }
 
-/* Optional: give a “real” underline as a fallback if JS fails.
-   The ink scribble will sit over it when JS works. */
-/*.entries-underline{
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 0.12em;
-  text-underline-offset: 0.22em;
-  text-decoration-skip-ink: none;
-  text-decoration-color: transparent; 
-}
-
-.entry.is-visible .entries-underline{
-  text-decoration-color: var(--lit-green);
-  transition: text-decoration-color 520ms ease;
-}*/
-
-/* If any leftover old SVGs are still in markup, hide them. */
-.entries-strike-svg,
-.entries-underline-svg{
-  display: none !important;
-}
-
-/* =========================================================
-   OCCURRENCES  (phase 1 alignment data)
-   Where a term's LIT rendering actually appears. Secondary to
-   the definition, so it sits smaller and quieter beneath it.
-   Colors come from existing tokens, which already carry their
-   own light/dark pairs — no new dark-mode rules needed here.
-   ========================================================= */
-
-/* Deliberately no border-top. A rule here read as a divider BETWEEN the entry
-   and its own locations, competing with .entry's border-bottom and making it
-   ambiguous which entry the list belonged to. Whitespace does the grouping;
-   the only rule is .entry's, which separates one entry from the next. */
-.entry-occurrences{
-  margin-top: 1.15rem;
-  padding-top: 0.25rem;
-  max-width: calc(44em * var(--reading-scale, 1));
-}
-
-/* No rule of any kind here — full-width read as an entry boundary (the signal
-   .entry's border-bottom already carries) and even a short stub added a mark
-   the grouping doesn't need. Whitespace plus the heading does the work. */
-
-/* Now a <summary>: the whole rendering list is collapsed until asked for. */
-.occ-title{
-  cursor: pointer;
-  list-style: none;
-  margin: 0;
-  padding: 0.15rem 0 0.15rem 1.15rem;
-  text-indent: -1.15rem;
-  font-size: calc(clamp(15px, 1.35vw, 18px) * var(--reading-scale, 1));
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-strong);
-  opacity: 0.9;
-}
-
-.occ-title::-webkit-details-marker{ display: none; }
-
-/* Affordance. The triangle alone is easy to miss at this size, and on touch
-   there is no hover to discover it with — so the rendering count carries the
-   real signal that something is behind the disclosure, and hover/focus
-   confirms it for pointer and keyboard. */
-.occ-title-count{
-  margin-left: 0.5rem;
-  text-indent: 0;
+/* The note, under the word (GL-16): small, in the second ink, never bold. */
+.pair__note {
+  font-family: var(--font-text);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
   font-weight: 400;
-  /* Sized off the RENDERING row's font, not the title's, so it lands at the
-     same absolute size as each row's "242 times…" count. An em of the title
-     would compute smaller — the title's own clamp is tighter, and uppercase
-     reads larger, so a matching ratio would not look like a matching size. */
-  font-size: calc(clamp(15px, 1.5vw, 18px) * 0.86 * var(--reading-scale, 1));
-  letter-spacing: 0.02em;
-  text-transform: none;
-  opacity: 0.8;
+  font-style: italic;
+  line-height: var(--leading-margin);
+  color: var(--color-text-2);
 }
 
-.occ-title:hover,
-.occ-summary:hover{ opacity: 1; }
-
-.occ-title:hover h3,
-.occ-summary:hover .occ-form{ text-decoration: underline; }
-
-.occ-title:focus-visible,
-.occ-summary:focus-visible{
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
-  border-radius: 4px;
+/* The copy-link button beside the pair (GL-10). Its two icons swap while the
+   link has been copied (glossary-entry-links.js sets data-copied). */
+.entry-link {
+  flex: none;
 }
 
-/* Kept as a heading so the entry still appears in the document outline and
-   screen-reader heading navigation — a <summary> alone is not a heading. */
-.occ-title h3{
-  display: inline;
-  margin: 0;
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  color: inherit;
+.entry-link__check {
+  display: none;
 }
 
-.occ-group[open] > .occ-title{ margin-bottom: 0.5rem; }
-
-.occ + .occ{ margin-top: 0.3rem; }
-
-/* Hanging indent, not flex-wrap. As a wrapping flex row the count dropped to
-   a new line starting at the container edge — under the disclosure triangle,
-   out of line with everything else. Inline layout with a negative text-indent
-   pulls the marker out to the left and lands every wrapped line on 1.15rem,
-   the same left edge as .occ-list below, so a summary that wraps still reads
-   as one column. */
-.occ-summary{
-  cursor: pointer;
-  list-style: none;
-  /* 2.3rem, double the marker column: a wrapped line lands clearly INSIDE the
-     label rather than level with it, so the continuation reads as belonging
-     to the row above instead of starting a new one. */
-  padding: 0.35rem 0 0.35rem 2.3rem;
-  text-indent: -2.3rem;
-  font-size: calc(clamp(15px, 1.5vw, 18px) * var(--reading-scale, 1));
+.entry-link[data-copied] .entry-link__copy {
+  display: none;
 }
 
-.occ-summary::-webkit-details-marker{ display: none; }
-
-/* --green-text, not --lit-green: the latter is theme-invariant #209D50 and
-   is the SURFACE green, which only clears AA as link text by a hair on the
-   dark background. --green-text is the link/text token and flips to a light
-   green in dark mode. */
-.occ-summary::before,
-.occ-title::before{
-  content: "▸";
-  /* inline-block so the rotate below actually applies — transform is a no-op
-     on a plain inline box. */
+.entry-link[data-copied] .entry-link__check {
   display: inline-block;
-  /* Fixed column so every marker on the page shares one left edge, but the
-     glyph is much narrower than the column, so flush it right or the label
-     drifts away from its own marker as the type gets larger. */
-  width: 1.15rem;
-  text-align: right;
-  color: var(--green-text, var(--lit-green));
-  transition: transform 160ms ease;
 }
 
-.occ[open] > .occ-summary::before,
-.occ-group[open] > .occ-title::before{ transform: rotate(90deg); }
-
-/* text-indent is inherited by inline children, so reset it here or the label
-   gets pulled left a second time. */
-.occ-form{
-  text-indent: 0;
-  font-weight: 700;
-  color: var(--text-strong);
-}
-
-/* The gap the old flex `gap` used to provide. */
-.occ-count{
-  margin-left: 0.4rem;
-  text-indent: 0;
-  color: var(--text);
-  opacity: 0.75;
-  font-size: 0.86em;
-}
-
-/* Keep each quantity with its noun. Left to wrap freely the count broke as
-   "...in 23" / "books", stranding a bare number at the end of a line. */
-.occ-nw{ white-space: nowrap; }
-
-.occ-list{
+/* The Greek (GL-18): "πίστις pistis". The Greek in the reading face's Greek,
+   the transliteration in the reading face's italic, as a footnote sets it.
+   Fraunces's italic is the record's one large line on Home, About, and the
+   404 page ("Type"), so the glossary has none. */
+.entry-greek {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem 0.85rem;
-  margin: 0.35rem 0 0.6rem;
-  padding: 0 0 0 1.15rem;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-2);
+}
+
+.entry-greek__word {
+  font-family: var(--font-text);
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  color: var(--color-text);
+}
+
+.entry-greek__translit {
+  font-family: var(--font-text);
+  font-style: italic;
+}
+
+.entry-body {
+  margin-top: var(--space-3);
+}
+
+.entry-body p {
+  margin: 0 0 var(--space-3);
+}
+
+.entry-body :is(ul, ol) {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-5);
+}
+
+.entry-body h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  font-weight: 500;
+  line-height: var(--leading-subhead);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.entry-body blockquote {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-hairline);
+  color: var(--color-text-2);
+}
+
+.entry-body a:not(.kit-inline) {
+  color: var(--color-press);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.entry-body em {
+  font-style: italic;
+}
+
+/* ---------- Where it appears (GL-20 to GL-23) ----------
+   In the margin on a computer, under the entry elsewhere. The margin is the
+   320 column to the text's right; it is drawn there only where the window
+   holds it and the Study panel is off (with it, the text column is moved by
+   the desk and the list stays under the entry). */
+
+.entry-occ {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-press);
+  font-family: var(--font-control);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: var(--leading-margin);
+}
+
+/* In the margin, the entry is a grid whose second track is empty: the note
+   hangs out of it into the margin, beside the heading, and the entry grows to
+   hold it, so a short entry with many renderings never runs its note into
+   the next one's. The last row is 1fr so that growth falls under the text
+   (or under "Every place," when open), never between the heading, the Greek,
+   and the definition. */
+@media screen and (min-width: 1300px) {
+  html:not([data-desk]) .entry:has(> .entry-occ) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 0;
+    grid-template-rows: auto auto auto 1fr;
+  }
+
+  html:not([data-desk]) .entry:has(> .entry-occ) > * {
+    grid-column: 1;
+  }
+
+  html:not([data-desk]) .entry > .entry-occ {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: start;
+    justify-self: start;
+    box-sizing: border-box;
+    width: calc(var(--col-margin) - var(--space-5));
+    margin: 0 0 0 var(--space-5);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+.entry-occ__title {
+  margin: 0;
+  font-family: var(--font-control);
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  font-weight: 600;
+  line-height: var(--leading-small-label);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-text-2);
+}
+
+.entry-occ__total {
+  margin: var(--space-1) 0 var(--space-2);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.entry-occ__forms {
+  margin: 0 0 var(--space-2);
+  padding: 0;
   list-style: none;
 }
 
-.occ-list a{
-  color: var(--green-text, var(--lit-green));
-  text-decoration: none;
-  font-size: calc(clamp(14px, 1.3vw, 16px) * var(--reading-scale, 1));
-  white-space: nowrap;
-  /* "Show more" focuses the first newly revealed link, which scrolls it into
-     view — clear the sticky jump pill so focus never lands under it. */
-  scroll-margin-top: var(--toc-anchor-offset);
+.entry-occ__forms li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-1) 0;
 }
 
-.occ-list a:hover,
-.occ-list a:focus-visible{ text-decoration: underline; }
+.occ-form {
+  font-weight: 600;
+  color: var(--color-text);
+}
 
-/* [hidden] is a UA rule the LI would otherwise honor, but state it here so a
-   future display rule on .occ-list li can't quietly outrank it. */
-.occ-list li[hidden]{ display: none; }
+.occ-count {
+  color: var(--color-text-2);
+}
 
-/* Injected by script only — a no-JS page has every link already, so there is
-   nothing for this to reveal and it is never rendered. */
-.occ-more{
-  display: inline-block;
-  margin: 0 0 0.6rem 1.15rem;
-  padding: 0.28rem 0.7rem;
-  border: 1px solid rgba(var(--ink-rgb), 0.22);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--green-text, var(--lit-green));
-  font: inherit;
-  font-size: calc(clamp(13px, 1.2vw, 15px) * var(--reading-scale, 1));
+.occ-nw {
+  white-space: nowrap;
+}
+
+/* "Every place": a link to the list's own address, so it opens without
+   JavaScript (:target); with it, a press toggles data-open. */
+.entry-places {
+  display: none;
+  margin-top: var(--space-4);
+  scroll-margin-top: calc(var(--target) + var(--space-6));
+  font-family: var(--font-control);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: var(--leading-margin);
+}
+
+.entry-places:target,
+.entry-places[data-open] {
+  display: block;
+}
+
+.entry-places__title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-control);
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  font-weight: 600;
+  line-height: var(--leading-small-label);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-text-2);
+}
+
+.occ {
+  margin: 0;
+}
+
+.occ-summary {
+  list-style: none;
   cursor: pointer;
 }
 
-.occ-more:hover{ border-color: rgba(var(--ink-rgb), 0.4); }
-
-.occ-more:focus-visible{
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+.occ-summary::-webkit-details-marker {
+  display: none;
 }
 
-@media (prefers-reduced-motion: reduce){
-  .occ-summary::before{ transition: none; }
+.occ-summary__mark {
+  flex: none;
+}
+
+.occ[open] > .occ-summary .occ-summary__mark {
+  transform: rotate(90deg);
+}
+
+.occ-summary__text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  min-width: 0;
+}
+
+.occ-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: var(--space-2) var(--space-3) var(--space-3) var(--space-6);
+  list-style: none;
+}
+
+.occ-list li[hidden] {
+  display: none;
+}
+
+.occ-list a {
+  display: inline-block;
+  padding-block: var(--space-1);
+  color: var(--color-press);
+  text-decoration: none;
+}
+
+.occ-list a:hover {
+  text-decoration: underline;
+}
+
+.occ-more {
+  margin-left: var(--space-6);
+}
+
+/* ---------- The line's list ("Glossary ▾"; GlossaryLine.astro) ---------- */
+
+.place-line--glossary {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--color-page);
+}
+
+.place-line--glossary .place-line__trail {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.gloss-menu {
+  position: relative;
+}
+
+.gloss-menu__button {
+  list-style: none;
+  cursor: pointer;
+}
+
+.gloss-menu__button::-webkit-details-marker {
+  display: none;
+}
+
+.gloss-menu[open] .gloss-menu__button .icon {
+  transform: rotate(180deg);
+}
+
+.gloss-menu__panel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  z-index: 30;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 16rem;
+  max-width: calc(100vw - var(--space-4));
+  max-height: min(70vh, 32rem);
+  overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--color-float);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-float);
+  font-family: var(--font-control);
+}
+
+.gloss-menu__order {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-1) var(--space-2);
+  margin-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.gloss-menu__order[hidden],
+.gloss-menu__list[hidden] {
+  display: none;
+}
+
+.gloss-menu__order-label {
+  font-size: var(--size-small-label);
+  line-height: var(--leading-small-label);
+  color: var(--color-text-2);
+}
+
+.gloss-menu__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gloss-menu__list .kit-row {
+  display: flex;
+  width: 100%;
+}
+
+.place-line--glossary [data-gloss-current] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Back to top ----------
+   Floats at the window's foot once the first entry has scrolled away
+   (glossary-line.js adds .is-visible); with no script it never shows. */
+
+.gloss-top {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 15;
+  display: none;
+  background: var(--color-float);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-float);
+}
+
+.gloss-top.is-visible {
+  display: block;
+}
+
+/* ---------- A phone ----------
+   Each word of the LIT's pair on its own line, the slash becoming the break
+   between them; the pair stacks, the copy-link button under it. */
+
+@media (max-width: 780px) {
+  .pair {
+    flex-direction: column;
+    row-gap: var(--space-3);
+  }
+
+  .pair__side--lit .pair__word {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pair__side--lit .lit-sep {
+    display: none;
+  }
+
+  .lit-part {
+    white-space: normal;
+  }
+
+  .gloss-top {
+    right: var(--space-3);
+    bottom: var(--space-3);
+  }
+}
+
+/* On a narrow phone the list hangs from the line's own edges, not from
+   "Glossary ▾," so it stays inside the window whatever its words' width
+   (from "Glossary," 62px in, its own width ran 46px past a 320px window). */
+@media (max-width: 480px) {
+  .gloss-menu {
+    position: static;
+  }
+
+  .gloss-menu__panel {
+    left: var(--space-2);
+    right: var(--space-2);
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* OpenDyslexic only (src/styles/CLAUDE.md, the font's rule 3): its
+   "acknowledgement" at the heading's size is wider than a 320px phone's
+   column, and a word can't break, so an entry's title follows the window's
+   width there. On a computer the min() never takes the window's side. */
+html[data-font="dyslexic"] .entry-title {
+  font-size: min(calc(var(--size-heading) * var(--heading-scale, 1)), 7vw);
+}
+
+/* ---------- Night ---------- */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gloss-top,
+  :root:not([data-theme="light"]) .gloss-menu__panel {
+    box-shadow: none;
+  }
+}
+
+:root[data-theme="dark"] .gloss-top,
+:root[data-theme="dark"] .gloss-menu__panel {
+  box-shadow: none;
+}
+
+@media print {
+  .gloss-top,
+  .entry-link,
+  .entry-places {
+    display: none !important;
+  }
 }
 
 /* =========================================================
-   THE STUDY DESK PREVIEW (html[data-desk]; STUDY-DESK.md, phase 1b)
-   With the desk on, the glossary reads like the other reading pages:
-   one column at the reading width (the desk's 52 measure, growing with
-   the Display tray's text size the way Chapter View's does), and entries
-   set at the reading size. BVJ, 2026-10-06. Like the 52 measure, readers
-   keep the wide glossary until the desk is released. The Notebook panel
-   that sat beside it is off with N11 (E124; PROSE_NOTES in
-   src/scripts/desk-frame.js); the look stays, as the release's, and
-   desk-gate.js still loads the headings' fit.
+   THE STUDY DESK PREVIEW (html[data-desk])
+   The desk's own frame takes the column over (PROSE_NOTES in
+   src/scripts/desk-frame.js): the text sets at the reading size in the
+   desk's measure, and "Where it appears" stays under its entry. The hooks the
+   desk's scripts find (.entry-title, .lit-part, .lit-sep, .entries-strike,
+   .entry-body) are kept by name. glossary-titles.js measures the headings'
+   fit and adds .desk-split where the options need a line each.
    ========================================================= */
 
-/* Size and width on the same element, as Chapter View does, so the column
-   keeps its length in characters at every text size. The box matches Study
-   View's exactly (the text plus 16px a side), so the margin beside it, and
-   so the Notebook's room, is the same on both pages. */
-html[data-desk] .glossary-page .wrap{
+html[data-desk] .gloss-col {
   max-width: calc(var(--reading-width, 72ch) + 32px);
-  padding-left: 16px;
-  padding-right: 16px;
-  font-size: calc(1em * var(--reading-scale, 1));
-}
-
-/* The entries' wrap sits inside the hero's, and both match the rule above, so
-   the entries took the scale twice (29px for 23 at Extra large, 14 for 16 at
-   Small) until 2026-11-12. The inner one inherits. */
-html[data-desk] .glossary-page .wrap .wrap{
+  margin-inline: auto;
   font-size: 1em;
 }
 
-/* Type sized as the scripture pages size theirs (BVJ, 2026-10-06), in em of
-   the column so the Display tray's text size moves it all together. At
-   Medium: the title as Chapter View's chapter title (32px), each entry's
-   heading as Read View's chapter headings (28.8px), and the text as
-   scripture's (18px, line height 1.75). The "Where it appears" lists are
-   already 18px, as the footnotes are. */
-html[data-desk] .glossary-hero h1{
-  font-size: calc(32em / 18);
-}
-
-html[data-desk] .glossary-hero p{
-  font-size: 1em;
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
+html[data-desk] .entry-body p {
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
   max-width: none;
 }
 
-html[data-desk] .entry-title,
-html[data-desk] .entry-link{
-  font-size: 1.6em;
-}
-
-html[data-desk] .entry-body p{
-  font-size: 1em;
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
-  max-width: none;
-}
-
-html[data-desk] .entry-occurrences{
-  max-width: none;
-}
-
-/* The same sizes the lists have on a computer today (18, 15.5, 18, 16 and
-   15px at Medium), restated in em so they grow with the text too. */
-html[data-desk] .occ-title,
-html[data-desk] .occ-summary{
-  font-size: 1em;
-}
-
-html[data-desk] .occ-title-count{
-  font-size: 0.86em;
-}
-
-html[data-desk] .occ-list a{
-  font-size: calc(16em / 18);
-}
-
-html[data-desk] .occ-more{
-  font-size: calc(15em / 18);
-}
-
-/* The column is narrower than 780px at every window width now, so a
-   heading with several options takes only the break it needs, measured by
-   src/scripts/desk/glossary-titles.js (BVJ, 2026-10-09: forcing the phone
-   layout on every such heading split short ones that fit): the options on
-   the heading's line; or together on a line of their own, after a break
-   (.desk-gloss-break, the same zero-height full-width item as the slash
-   below); or, only when that can't hold them, each on its own line
-   (.desk-split, the phone layout of the max-width: 780px block above). */
 html[data-desk] .entry-title > .desk-gloss-break,
-html[data-desk] .entry-title.desk-split .lit-sep{
+html[data-desk] .entry-title.desk-split .lit-sep {
   flex: 0 0 100%;
   height: 0;
-  margin-block: calc(-0.35rem / 2);
   overflow: hidden;
 }
 
-html[data-desk] .entry-title.desk-split .lit-part{
+html[data-desk] .entry-title.desk-split .lit-part {
   white-space: normal;
-  line-height: 1.4;
 }

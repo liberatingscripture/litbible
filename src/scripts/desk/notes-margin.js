@@ -14,6 +14,12 @@
 // For a screen reader, each note opens with the words it hangs on, hidden
 // from view ("My note on ‘nothing is now a verdict,’ Romans 8:1: ").
 //
+// While the Notebook panel is expanded beside the text (html[data-desk-shown],
+// panel.js), the notes are its Notes list rather than beside their lines
+// (Featherboa's Phase 5, BS-15: the panel takes the margin's column), so the
+// margin draws none, as with "Notes in the margin" off; minimizing the panel
+// brings them back. Bookmarks and the flags of highlights stay.
+//
 // The same margin serves a glossary entry's or an article's own text (N11,
 // provisional; decision 9 under "the margin switch"): the page's `source`
 // (note-sources.js) says what the notes sit beside and how each is found.
@@ -63,6 +69,9 @@ import { escapeHtml } from "./dom.js";
 const LIT = "desk-note-words";
 const supportsHighlight = typeof CSS !== "undefined" && "highlights" in CSS && typeof Highlight !== "undefined";
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Whether the notes are drawn beside their lines: their switch is on and the
+// Notebook panel isn't showing them as its list.
+const notesInMargin = () => getSetting("notes") === "on" && !document.documentElement.hasAttribute("data-desk-shown");
 
 // A highlight's flag in the margin: wide enough to read as a mark beside a
 // bookmark's (BOOKMARK_MARK), with BOOKMARK_LANE between lanes. Its hit area is
@@ -82,6 +91,10 @@ const FLAG = 18;
 export function createNotesMargin({ store, source, onEdit, ctx = null, showInText = null, showVerse = null }) {
   if (!store || !source) return null;
   const textBox = source.textBox;
+  // The box the margin runs beside: on the reading page, every chapter on it.
+  const textRect = () => source.rect?.() ?? textBox.getBoundingClientRect();
+  // The verse number a record sits on, in whichever chapter on the page.
+  const verseOf = (r) => (source.verseNumber ? source.verseNumber(r) : document.getElementById(`v${r.verse}`));
 
   const aside = document.createElement("aside");
   aside.className = "desk-notes";
@@ -144,12 +157,12 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       else focusGone(focusedId, nextId);
     };
     aside.replaceChildren();
-    const notesOn = getSetting("notes") === "on" && notes.length > 0;
+    const notesOn = notesInMargin() && notes.length > 0;
     // A highlight whose wording has changed is flagged while highlights are
     // shown, wherever it is drawn today (a lost one is not drawn).
     const flagged =
       highlights.length && getSetting(highlightSetting()) === "on" ? drawnNotices(highlights) : [];
-    const box = textBox.getBoundingClientRect();
+    const box = textRect();
     mode = notesOn || flagged.length ? marginMode(box.left) : "none";
     const lineHeight = parseFloat(getComputedStyle(source.lineEl()).lineHeight) || 30;
     const sx = window.scrollX;
@@ -244,7 +257,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
           noteLine,
           height: 0,
         })),
-        showVerse ? { bottom: textBox.getBoundingClientRect().bottom + sy } : { maxStack: Infinity },
+        showVerse ? { bottom: textRect().bottom + sy } : { maxStack: Infinity },
       );
       const folded = new Set(plan.more.flatMap((m) => m.ids));
       const moreEls = plan.more.map((m) => {
@@ -422,7 +435,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
    */
   function focusGone(id, nextId) {
     const r = known.get(id);
-    const verse = r && Number.isInteger(r.verse) ? document.getElementById(`v${r.verse}`) : null;
+    const verse = r && Number.isInteger(r.verse) ? verseOf(r) : null;
     const next = nextId
       ? aside.querySelector(
           `.desk-note[data-id="${CSS.escape(nextId)}"] .desk-note__hit, .desk-circle[data-id="${CSS.escape(nextId)}"]`,
@@ -554,7 +567,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         // The flag may be gone now (Keep), and the aside is drawn again: put
         // focus back on the note's words, or on a highlight's verse number.
         if (record.kind === "highlight") {
-          document.getElementById(`v${record.verse}`)?.focus({ preventScroll: true });
+          verseOf(record)?.focus({ preventScroll: true });
         } else if (what === "keep") {
           afterDraw = () =>
             aside
@@ -571,7 +584,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     const ids = new Set([...hover, ...open, ...flash, ...(popId ? [popId] : [])]);
     // A note gone to from the panel (`flash`) is marked even while the notes
     // are hidden, since its words are then all that shows where it is (BA19).
-    const notesOn = getSetting("notes") === "on";
+    const notesOn = notesInMargin();
     const lit = ids.size ? placed().filter((p) => ids.has(p.record.id) && (notesOn || flash.has(p.record.id))) : [];
     if (!supportsHighlight) return;
     const ranges = lit.map((p) => p.range);
@@ -787,7 +800,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       if (!holder) {
         // The notes are hidden, so the margin holds none: focus goes to
         // where the marked words are, the verse number they start in (BA19).
-        document.getElementById(`v${at.record.verse}`)?.focus({ preventScroll: true });
+        verseOf(at.record)?.focus({ preventScroll: true });
         return;
       }
       if (holder.classList.contains("desk-circle")) {
@@ -813,9 +826,11 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   document.addEventListener(SETTINGS_EVENT, schedule);
   document.fonts?.addEventListener?.("loadingdone", schedule);
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(textBox);
+  // The reading page's chapters coming in bring their records.
+  source.watch?.(load);
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
+    attributeFilter: ["data-size", "data-leading", "data-justify", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded", "data-desk-shown"],
   });
   load();
 

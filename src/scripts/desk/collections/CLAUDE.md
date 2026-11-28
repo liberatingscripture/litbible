@@ -60,15 +60,15 @@ here hold.
   E194). Styles: the rows' rules (the actions row, the order
   bar, headings, a passage's cut at three lines) are `desk.css`'s
   "Collections (D13)" section, where the pane reads them too;
-  `styles/v2/collections.css` keeps the page's frame (its widths, and one
-  collection's column, every selector behind `:root[data-restyle]`),
-  and `styles/pages/collections.css` the note without the desk and the
+  `styles/pages/collections.css` keeps the page's frame (Site 2.0's
+  `v2/collections.css` frame went with 2.0), the note without the desk and the
   page's text size: /sheets' rule (`--sheet-ui`, and `--desk-ui` for the
   notebook's rows, from `--reading-scale`), its root's `.desk-np` 1rem and
   1.55 set back to inherit, so the page's words are /sheets' at every tray
   size (E188). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
   noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
-  markers. The notebook page has "Delete all collections" in Delete in bulk.
+  markers. All settings (`/settings`) has "Delete all collections" in Delete
+  in bulk, the notebook page's until Featherboa's Phase 4.
   Tests: `test/desk-collections-page*.test.js`.
 - **Step 3, Add to collection ▸** (verse menu and selection panel):
   `collection-add.js` (`createCollectionAdd`), wired into `actions.js` right
@@ -144,9 +144,9 @@ here hold.
   offers collections whose name holds its words (`collectionsNamed`) as a
   "Collections" group of rows linking to their pages, never rows of the record
   list or in its count, drawn even when no record matches (then first, over
-  "Nothing else matches."). "My collections" (`/collections/`) is in header
-  C's Study group, the site footer's Study group, and the Notebook's Settings
-  tab beside "My sheets." **Not /desk's title menu** (BVJ, 2026-11-19, E180:
+  "Nothing else matches."). `/collections/` is "Collections" in header C's
+  Study group (the Notebook's Settings tab, which also linked it, went in
+  Featherboa's Phase 5; BS-24). **Not /desk's title menu** (BVJ, 2026-11-19, E180:
   "Or if it does, sheets should too"): a Collections pane's header opens
   `/collections/` in a new tab, as a Sheets pane's opens `/sheets/` (`page`
   on the kind in `KINDS`, read by `kindPage`).
@@ -363,8 +363,8 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
   drops out. Erasing one outright is a plain deletion and leaves its
   collections alone, and an erase that trims one keeps what is left. The apps
   don't do this.
-- **Bulk deletes stay apart**: "Delete all notes and marks" and "Delete all
-  sheets" take no collection; `planDeleteCollections` does.
+- **Bulk deletes stay apart**: "Delete all notes, highlights, and bookmarks"
+  and "Delete all sheets" take no collection; `planDeleteCollections` does.
 - **Never a row** of My Notes or My Notebook, nor counted there; a
   collection's change wakes no view of marks (`NO_CHAPTER_KINDS`).
 - **Markdown lists collections for people and never reads them back**, like
@@ -388,22 +388,21 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
 
 BVJ, 2026-11-18, on the first mocks: no new color, toggle, menu, bar,
 window, or button style. Each piece of the UI takes an existing class, and
-a new button joins one of the four kinds' `:is()` lists at the end of
-`desk.css` (E126; `src/scripts/desk/sheets/CLAUDE.md`, "How the Sheets
-look") rather than getting a rule of its own. Before writing a style for collections, find the
+a new button takes one of the kit's levels by name (`kit.css`, through
+`scripts/kit-names.mjs`; `src/scripts/desk/sheets/CLAUDE.md`, "How the
+Sheets look") rather than getting a rule of its own. Before writing a style for collections, find the
 pattern it copies; if none fits, ask BVJ rather than drawing one. What the
 second draft of the mocks takes from where:
 
 - **The page**: My sheets' title, "New…" button and rows (`desk-sheet__*`);
-  "‹ My collections" is `sheets-page__back`. **Each view has one primary
-  button** (E126; BVJ, 2026-11-19, E169): "New collection…" on the list,
+  "‹ My collections" is `sheets-page__back`. **Each view has one filled
+  button** (E126's primary, now the kit's filled; BVJ, 2026-11-19, E169): "New collection…" on the list,
   as "New sheet…" is on My sheets, and "Add ▾" on one collection,
-  whose passage form's Add stays ordinary. Its menu is the desk's button
+  whose passage form's Add stays plain. Its menu is the desk's button
   menu (`desk/button-menu.js`, the sheet gap pill's, `desk-pane__menu`),
   its caret drawn as /sheets' "Save as ▾" (E177). The members are the
-  desk's own rows (`record-rows.js`), each on a sheet (below), group names
-  are My Notebook's `.desk-np__h3` (E195), and a heading starts with
-  `.v2-rule`.
+  desk's own rows (`record-rows.js`), each on a sheet (below), and group
+  names are My Notebook's `.desk-np__h3` (E195).
 - **A passage's words, and a bookmark's verse** (E171; BVJ, 2026-11-19) are
   set as a scripture page sets them: `passageWords` (`sheets/sheet-lit.js`)
   hands over the chapter's own blocks, so paragraphs, poetry lines, italics
@@ -464,12 +463,11 @@ second draft of the mocks takes from where:
   (6px right of its trigger, level with the trigger's top).
 - **New collection, All collections, and the label's shortcut** are E154's
   pick window (`openPickWindow`, `desk-pick`), with `desk-editor__actions`
-  (Cancel ordinary, the save button primary). The list's New collection
+  (Cancel plain, the save button filled). The list's New collection
   form (E190) is the Sheets chooser's card with the name window's fields
   inside, which take the size of the words around them on the field's fill.
-  **Every field on the page is white** (`--desk-field`; E191): the page's
-  root is `.desk-np` too, whose field rule gives the raised fill, so a field
-  here restates the field's fill later in `desk.css`.
+  **Every field on the page is the kit's field**, the paper with a 3:1
+  edge (E191 made them white, `--desk-field`, before the kit).
 - **A row's "Collections…"** is the Labels popover's twin (`desk-labels`,
   `showPanel`).
 

@@ -1,9 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/contact.css";
-import EmblemMark from "../components/EmblemMark.astro";
-// Site 2.0's look, behind the data-restyle stamp (src/styles/v2/contact.css).
-import "../styles/v2/contact.css";
 ---
 
 <Layout
@@ -13,7 +10,7 @@ import "../styles/v2/contact.css";
   <div class="contact-page">
     <section class="contact-hero" aria-labelledby="contact-title">
       <div class="contact-inner">
-        <h1 id="contact-title" class="v2-bar">Contact me</h1>
+        <h1 id="contact-title">Contact me</h1>
 
         <p class="contact-lead">
           I would love to connect to answer questions, get your input on this
@@ -23,7 +20,6 @@ import "../styles/v2/contact.css";
 
         <img
           class="contact-logo"
-          data-v1
           src="/images/lit-logo-2026-ring.svg"
           alt="Liberation and Inclusion Translation logo."
           width="1000"
@@ -39,7 +35,7 @@ import "../styles/v2/contact.css";
             render, so a truly JS-less visitor can't pass the check. The
             Worker 303-redirects to /contact/thanks/ on success. */}
         <form
-          class="contact-form v2-sheet v2-sheet--bleed v2-contact-sheet"
+          class="contact-form"
           action="/contact/submit"
           method="POST"
           data-contact-form
@@ -60,6 +56,7 @@ import "../styles/v2/contact.css";
           <div class="field">
             <label for="name">Name</label>
             <input
+              class="kit-field"
               id="name"
               name="name"
               type="text"
@@ -72,6 +69,7 @@ import "../styles/v2/contact.css";
           <div class="field">
             <label for="email">Email</label>
             <input
+              class="kit-field"
               id="email"
               name="email"
               type="email"
@@ -85,6 +83,7 @@ import "../styles/v2/contact.css";
           <div class="field">
             <label for="message">Message</label>
             <textarea
+              class="kit-field"
               id="message"
               name="message"
               rows="7"
@@ -97,7 +96,7 @@ import "../styles/v2/contact.css";
             <p class="contact-status" role="status" aria-live="polite" aria-atomic="true"></p>
           </div>
 
-          <button class="contact-button" type="submit">Send message</button>
+          <button class="contact-button kit-btn kit-btn--filled" type="submit">Send message</button>
 
           <p class="contact-privacy">
             This form sends your message to our email inbox and is not intended
@@ -107,7 +106,6 @@ import "../styles/v2/contact.css";
             We will never sell or share your information.
           </p>
         </form>
-        <EmblemMark class="v2-watermark contact-mark" />
       </div>
 
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>

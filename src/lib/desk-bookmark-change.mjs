@@ -54,8 +54,8 @@ export function kindTakenAt(place, follow) {
 }
 
 /**
- * The verse a bookmark goes to (E46), from a reference as the Go to passage
- * field reads one (`parseReference` in search-core.js: "John 3:16", "jn 3.16",
+ * The verse a bookmark goes to (E46), from a reference as the search box and
+ * the passage picker read one (`parseReference` in search-core.js: "John 3:16", "jn 3.16",
  * "Rom 8"), as `{ place, problem }`. A bookmark is one verse, so a range keeps
  * its first, and a chapter alone is its verse 1, as a chapter opened at its
  * top is for a bookmark that follows (`positionOnPage`). A verse past the

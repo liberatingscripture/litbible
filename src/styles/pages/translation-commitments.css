@@ -1,62 +1,49 @@
 /* =========================================================
-   Translation Commitments page
+   Translation Commitments page, drawn with Featherboa's tokens: the page
+   is the paper, cards are set apart by space, and the manifesto by a
+   hairline.
    ========================================================= */
 
-/* This page follows the Display tray's text size and line spacing through
-   --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
+/* The page follows the Display tray's text size and line spacing through
+   --reading-scale and --reading-leading-extra (src/styles/CLAUDE.md). */
 .tc-page {
   font-size: calc(1em * var(--reading-scale, 1));
-  padding: 0 0 56px;
-  background: var(--surface-raised);
-}
-
-/* =========================================================
-   Commitments page: force WHITE behind header (no Layout changes)
-   Uses :has() to scope to this page only.
-   ========================================================= */
-
-body:has(.tc-page) {
-  background: var(--surface-raised); /* prevents cream peeking above/around header */
-}
-
-body:has(.tc-page) .site-header,
-body:has(.tc-page) .site-header__inner {
-  background: var(--surface-raised);
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  padding: 0 0 var(--space-8);
+  background: var(--color-page);
 }
 
 /* HERO */
 .tc-hero {
-  max-width: var(--content-width, 72ch);
+  max-width: calc(72 * var(--ch));
   margin: 0 auto;
-  padding: 56px 16px 24px;
+  padding: var(--space-8) var(--space-5) var(--space-5);
   text-align: center;
 }
 
-/* The title and the section headings set no size (the browser's 2em and
-   1.5em), so they would take the page's scale whole. A title follows
-   --heading-scale instead, which stops at its own size on a phone
-   (global.css): each is restated here with the page's scale divided out. */
+/* A title follows --heading-scale, which stops at its own size on a phone
+   (global.css). */
 .tc-title {
-  margin: 0 0 10px;
-  font-size: calc(2em * var(--heading-scale, 1) / var(--reading-scale, 1));
+  margin: 0 0 var(--space-3);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
 }
 
 .tc-lede {
   margin: 0 auto;
   max-width: calc(62 * var(--ch));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.78);
+  color: var(--color-text-2);
 }
 
 /* GRID */
 .tc-grid {
   max-width: 1120px;
-  margin: 18px auto 0;
-  padding: 0 16px;
+  margin: var(--space-4) auto 0;
+  padding: 0 var(--space-5);
 
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(26px, 3vw, 48px);
+  gap: var(--space-7);
 }
 
 @media (max-width: 980px) {
@@ -68,6 +55,7 @@ body:has(.tc-page) .site-header__inner {
 @media (max-width: 640px) {
   .tc-grid {
     grid-template-columns: 1fr;
+    gap: var(--space-6);
   }
 }
 
@@ -76,19 +64,15 @@ body:has(.tc-page) .site-header__inner {
   display: grid;
   grid-template-rows: auto auto 1fr;
   align-content: start;
-
-  /* matches your clean, airy style */
-  padding: 8px 6px;
+  padding: var(--space-2) var(--space-1);
 }
 
 /*
   Icon coherence filter
   ---------------------
-  Your PNGs have slightly different *near-white* backgrounds.
-  This pushes those backgrounds to pure white while keeping the marks dark.
-
-  If anything looks washed out, reduce brightness first (e.g. 1.12).
-  If a background tint is still visible, increase brightness slightly (e.g. 1.20).
+  The PNGs have slightly different near-white backgrounds. This pushes
+  those backgrounds to pure white while keeping the marks dark, and the
+  multiply blend lets the page's paper show through.
 */
 .tc-iconTile {
   /* per-card knobs set inline via style="" */
@@ -98,17 +82,16 @@ body:has(.tc-page) .site-header__inner {
 
   width: min(290px, 72vw);
   aspect-ratio: 1 / 1;
-  margin: 0 auto 18px;
+  margin: 0 auto var(--space-4);
 
   display: grid;
   place-items: center;
 
-  background: var(--surface-raised);
-  border-radius: 999px;
+  background: var(--color-page);
+  border-radius: var(--radius-press);
   overflow: hidden;
 
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.10);
-  border: 1px solid rgba(var(--ink-rgb), 0.10);
+  border: 1px solid var(--color-hairline);
 }
 
 .tc-icon {
@@ -135,86 +118,46 @@ body:has(.tc-page) .site-header__inner {
   mix-blend-mode: screen;
 }
 
-/* Titles + body */
+/* Titles and body */
 .tc-cardTitle {
-  margin: 0 0 10px;
-  font-size: calc(clamp(1.2rem, 2vw, 1.55rem) * var(--reading-scale, 1));
-  line-height: 1.2;
+  margin: 0 0 var(--space-2);
+  font-size: calc(var(--size-subhead) * var(--heading-scale, 1));
+  line-height: var(--leading-subhead);
   text-align: center;
 }
 
 .tc-cardBody {
-  margin: 0;
-  line-height: calc(1.7 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.84);
+  margin: 0 auto;
+  color: var(--color-text-2);
   text-align: left;
   max-width: calc(62 * var(--ch));
-  margin-left: auto;
-  margin-right: auto;
 }
 
-/* NARRATIVE (framed manifesto block) */
+/* NARRATIVE: the manifesto, set off by a hairline above and a box around */
 .tc-narrative {
-  margin: 44px auto 0;
-  padding: 34px 16px 0;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.18);
+  margin: var(--space-7) auto 0;
+  padding: var(--space-6) var(--space-5) 0;
+  border-top: 1px solid var(--color-hairline);
   max-width: 1120px;
 }
 
 .tc-narrative__inner {
   max-width: calc(78 * var(--ch));
   margin: 0 auto;
-
-  /* key change: contrast against cream page */
-  background: var(--page-bg);
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 28px;
-
-  /* give spine breathing room */
-  padding: clamp(22px, 3.2vw, 38px);
-  padding-left: clamp(28px, 3.6vw, 46px);
-
-  /* softer, more modern depth */
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.12);
-
-  contain: paint;
-  position: relative;
-}
-
-/* Left spine */
-.tc-narrative__inner::before {
-  content: "";
-  position: absolute;
-  left: 14px;
-  top: 18px;
-  bottom: 18px;
-  width: 8px;
-  border-radius: 999px;
-  opacity: 0.55;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--green) 10%, transparent),
-    color-mix(in srgb, var(--green) 100%, transparent),
-    color-mix(in srgb, var(--green) 20%, transparent),
-    color-mix(in srgb, var(--green) 100%, transparent),
-    color-mix(in srgb, var(--green) 10%, transparent)
-  );
-}
-
-/* Optional: drop the right spine entirely */
-.tc-narrative__inner::after {
-  content: none;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-float);
+  padding: var(--space-6);
 }
 
 .tc-narrative h2 {
-  margin: 0 0 14px;
-  font-size: calc(1.5em * var(--heading-scale, 1) / var(--reading-scale, 1));
+  margin: 0 0 var(--space-3);
+  font-size: calc(var(--size-heading) * var(--heading-scale, 1));
+  line-height: var(--leading-heading);
 }
 
 .tc-narrative p {
-  margin: 0 0 14px;
-  line-height: calc(1.75 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.88);
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-2);
 }
 
 .tc-narrative p:last-child {
@@ -222,22 +165,12 @@ body:has(.tc-page) .site-header__inner {
 }
 
 .tc-narrative strong {
-  font-weight: 750;
+  font-weight: 700;
 }
 
 /* Mobile */
 @media (max-width: 520px) {
   .tc-narrative__inner {
-    border-radius: 22px;
-    padding: 18px 16px;
-    padding-left: 26px;
-  }
-
-  .tc-narrative__inner::before {
-    left: 10px;
-    top: 14px;
-    bottom: 14px;
-    width: 5px;
-    opacity: 0.5;
+    padding: var(--space-4);
   }
 }

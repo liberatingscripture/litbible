@@ -1,13 +1,12 @@
 // src/scripts/glossary-entry-links.js
 //
-// The link icon beside each /glossary entry heading (audit Q4), with hover
-// text saying what it does. Without JS it
-// is an ordinary link to the entry's anchor. With JS a click copies the
-// entry's full address instead, shows a check for a moment, and says so to a
-// screen reader. Where the clipboard is unavailable the link is left to
-// navigate as usual, which still puts the address in the address bar.
-
-import { setTip } from "./tip.js";
+// "Copy link" beside each /glossary entry's pair (audit Q4; Featherboa's
+// GL-10, where the button shows its words, since copy is not one of the
+// icons that may stand alone). Without JS it is an ordinary link to the
+// entry's anchor. With JS a click copies the entry's full address instead,
+// shows a check for a moment, and says so to a screen reader. Where the
+// clipboard is unavailable the link is left to navigate as usual, which
+// still puts the address in the address bar.
 
 const links = document.querySelectorAll("a[data-entry-link]");
 
@@ -20,12 +19,8 @@ if (links.length && navigator.clipboard?.writeText) {
   const timers = new WeakMap();
 
   for (const link of links) {
-    // The name is the aria-label; the tip is the same words for the eye, since
-    // a chain icon alone doesn't say it copies (BVJ, 2026-10-09) and a title
-    // never shows on keyboard focus. Without JS the markup's title stands.
-    link.setAttribute("aria-label", `Copy link to the ${link.dataset.term} entry`);
-    setTip(link, "Copy link to this entry");
-
+    // The markup's name ("Copy link to the Faith entry") starts with the
+    // button's own words, and the words need no tooltip.
     link.addEventListener("click", async (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();

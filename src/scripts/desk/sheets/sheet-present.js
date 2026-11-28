@@ -28,6 +28,7 @@
 // footnote is the same on the screen as on paper. Nothing is stored: where the
 // room is lives in the open windows only.
 
+import { iconNode } from "../../../lib/icons.mjs";
 import {
   channelName,
   checkState,
@@ -447,8 +448,10 @@ export async function openPresentation({ sheet, store, fullscreen = true, touch 
   const strip = make("div", "present-stage__strip");
   strip.setAttribute("role", "toolbar");
   strip.setAttribute("aria-label", "Presentation");
-  const prev = button("‹ Previous");
-  const next = button("Next ›");
+  const prev = button("Previous");
+  prev.prepend(iconNode("back"));
+  const next = button("Next");
+  next.append(iconNode("forward"));
   const reveal = button("Reveal");
   reveal.setAttribute("aria-keyshortcuts", "R");
   reveal.title = "Reveal the next blank (R). Shift+R covers it again.";
@@ -480,11 +483,11 @@ export async function openPresentation({ sheet, store, fullscreen = true, touch 
   // On a phone the strip is a bar along the bottom, so its arrows are short,
   // and the screen is fitted above it rather than under it.
   if (touch) {
-    prev.textContent = "‹";
+    prev.replaceChildren(iconNode("back"));
     prev.setAttribute("aria-label", "Previous");
-    next.textContent = "›";
+    next.replaceChildren(iconNode("forward"));
     next.setAttribute("aria-label", "Next");
-    close.textContent = "×";
+    close.replaceChildren(iconNode("close"));
     close.setAttribute("aria-label", "Close");
   }
   const clearStrip = () => { if (touch) frame.style.bottom = `${strip.offsetHeight}px`; };
@@ -840,8 +843,10 @@ export async function showPresenterView({ root, sheet, store }) {
   const controls = make("div", "present-presenter__controls");
   controls.setAttribute("role", "toolbar");
   controls.setAttribute("aria-label", "Presentation");
-  const prev = button("‹ Previous");
-  const next = button("Next ›");
+  const prev = button("Previous");
+  prev.prepend(iconNode("back"));
+  const next = button("Next");
+  next.append(iconNode("forward"));
   const reveal = button("Reveal");
   reveal.setAttribute("aria-keyshortcuts", "R");
   const hide = button("Cover again");

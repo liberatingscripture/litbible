@@ -33,7 +33,8 @@ test("the instruction shares the sheet's note rule: smaller and dimmer than the 
   const note = rules.find(([selectors]) => selectors.includes(".desk-sheet__empty"));
   assert.ok(note, "it is styled with the “No blanks yet” note");
   assert.match(note[1], /font-size:\s*calc\(0\.875rem \* var\(--sheet-ui, 1\)\)/);
-  assert.match(note[1], /color:\s*rgba\(var\(--ink-rgb\), 0\.75\)/);
+  // The second ink (Featherboa's grays, Phase 1).
+  assert.match(note[1], /color:\s*rgba\(var\(--ink-rgb\), var\(--text-2-alpha\)\)/);
 });
 
 test("a line above the instruction sets it apart from the passage at any text size, and it is italic", () => {

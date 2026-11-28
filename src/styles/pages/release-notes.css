@@ -1,41 +1,43 @@
 /* =========================================================
-   Release Notes page
+   Release Notes page, drawn with Featherboa's tokens. The filters' fields
+   and each month's disclosure take their look from the kit.
    ========================================================= */
 
 /* The page follows the Display tray's text size and line spacing through
    --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
 .rn-page {
   font-size: calc(1em * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
   max-width: 720px;
   margin: 0 auto;
-  padding: 56px 16px 80px;
+  padding: var(--space-8) var(--space-5) var(--space-9);
 }
 
 /* HERO */
 .rn-hero {
-  margin-bottom: 40px;
+  margin-bottom: var(--space-7);
   text-align: center;
 }
 
 .rn-title {
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
 }
 
 .rn-lede {
   margin: 0 auto;
-  max-width: 56ch;
-  color: rgba(var(--ink-rgb), 0.72);
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+  max-width: calc(56 * var(--ch));
+  color: var(--color-text-2);
 }
 
 .rn-subscribe {
-  margin: 14px 0 0;
-  font-size: calc(0.9rem * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+  margin: var(--space-3) 0 0;
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
 }
 
 .rn-subscribe a {
-  color: var(--link);
+  color: var(--color-press);
 }
 
 /* FILTERS (revealed by script) */
@@ -43,8 +45,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 12px 16px;
-  margin: 0 0 20px;
+  gap: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-5);
 }
 
 .rn-filters[hidden] {
@@ -54,48 +56,45 @@
 .rn-filter {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
 .rn-filter__label {
-  font-size: calc(0.8rem * var(--reading-scale, 1));
+  font-family: var(--font-control);
+  font-size: calc(var(--size-label) * var(--reading-scale, 1));
+  line-height: var(--leading-label);
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.7);
+  color: var(--color-text-3);
 }
 
 .rn-filter__select {
-  font: inherit;
-  font-size: 0.95rem;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid var(--field-border);
-  background: var(--surface-raised);
-  color: var(--text);
   max-width: 100%;
 }
 
 .rn-count {
   margin: 0 0 0 auto;
-  padding-bottom: 9px;
-  font-size: calc(0.9rem * var(--reading-scale, 1));
-  color: rgba(var(--ink-rgb), 0.7);
+  padding-bottom: var(--space-2);
+  font-family: var(--font-control);
+  font-weight: 600;
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
+  color: var(--color-text-3);
 }
 
 .rn-empty {
-  color: rgba(var(--ink-rgb), 0.7);
+  color: var(--color-text-3);
   text-align: center;
-  margin-top: 32px;
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
+  margin-top: var(--space-6);
 }
 
 /* MONTHS */
 .rn-month {
-  border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-top: 1px solid var(--color-hairline);
 }
 
 .rn-month:last-of-type {
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.14);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
 .rn-month[hidden] {
@@ -105,9 +104,11 @@
 .rn-month__summary {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  padding: 18px 4px;
-  cursor: pointer;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--target);
+  padding: var(--space-3) 0;
+  text-align: left;
   list-style: none;
 }
 
@@ -115,32 +116,21 @@
   display: none;
 }
 
-.rn-month__summary::before {
-  content: "";
-  flex-shrink: 0;
+.rn-month__summary .icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
   align-self: center;
-  width: 0.45em;
-  height: 0.45em;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: rotate(-45deg);
-  color: rgba(var(--ink-rgb), 0.55);
-  transition: transform 0.15s ease;
 }
 
-.rn-month[open] > .rn-month__summary::before {
-  transform: rotate(45deg);
-}
-
-.rn-month__summary:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: 6px;
+.rn-month[open] > .rn-month__summary .icon {
+  transform: rotate(180deg);
 }
 
 .rn-month__title {
   margin: 0;
-  font-size: calc(1.2rem * var(--reading-scale, 1));
+  font-size: calc(var(--size-subhead) * var(--heading-scale, 1));
+  line-height: var(--leading-subhead);
 }
 
 /* At the larger text sizes a phone can't hold the month and its count on one
@@ -153,8 +143,11 @@ html[data-size="xl"] .rn-month__summary {
 
 .rn-month__count {
   margin-left: auto;
-  font-size: calc(0.85rem * var(--reading-scale, 1));
-  color: rgba(var(--ink-rgb), 0.6);
+  font-family: var(--font-control);
+  font-weight: 600;
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
+  color: var(--color-text-3);
   white-space: nowrap;
 }
 
@@ -162,19 +155,19 @@ html[data-size="xl"] .rn-month__summary {
 .rn-list {
   list-style: none;
   margin: 0;
-  padding: 0 0 28px;
+  padding: 0 0 var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--space-5);
 }
 
 .rn-entry {
-  scroll-margin-top: 16px;
+  scroll-margin-top: var(--space-4);
 }
 
 .rn-entry + .rn-entry {
-  border-top: 1px solid rgba(var(--ink-rgb), 0.08);
-  padding-top: 24px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: var(--space-5);
 }
 
 .rn-entry[hidden] {
@@ -182,26 +175,26 @@ html[data-size="xl"] .rn-month__summary {
 }
 
 .rn-entry__header {
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 /* The date is the entry's permalink. */
 .rn-entry__date {
-  font-size: calc(0.8rem * var(--reading-scale, 1));
+  font-family: var(--font-control);
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(var(--ink-rgb), 0.6);
+  color: var(--color-text-3);
   text-decoration: none;
 }
 
 .rn-entry__date:hover {
-  color: var(--link);
+  color: var(--color-press);
   text-decoration: underline;
 }
 
 .rn-entry:target .rn-entry__date {
-  color: var(--link);
+  color: var(--color-press);
 }
 
 /* CHANGES */
@@ -211,93 +204,94 @@ html[data-size="xl"] .rn-month__summary {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .rn-change {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  font-size: calc(0.95rem * var(--reading-scale, 1));
-  line-height: calc(1.5 + var(--reading-leading-extra, 0));
+  gap: var(--space-3);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
 }
 
 .rn-change[hidden] {
   display: none;
 }
 
-/* Badge */
+/* Badge: a label on a tint, in the third ink; an addition's is deep green. */
 .rn-change__badge {
   flex-shrink: 0;
-  font-size: calc(0.65rem * var(--reading-scale, 1));
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  border-radius: 3px;
-  background: rgba(var(--ink-rgb), 0.08);
-  color: rgba(var(--ink-rgb), 0.6);
+  font-family: var(--font-control);
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
+  line-height: var(--leading-small-label);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-press);
+  background: var(--color-tint);
+  color: var(--color-text-3);
 }
 
 .rn-change[data-type="chapter_added"] .rn-change__badge,
 .rn-change[data-type="article_added"] .rn-change__badge,
 .rn-change[data-type="glossary_added"] .rn-change__badge {
-  background: color-mix(in srgb, var(--link) 12%, transparent);
-  color: var(--link);
+  color: var(--color-press);
 }
 
 .rn-change__body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
 .rn-change__text {
-  color: rgba(var(--ink-rgb), 0.88);
+  color: var(--color-text-2);
 }
 
-/* Before → after: the old text struck through beside the new, one line per
+/* Before to after: the old text struck through beside the new, one line per
    verse or footnote. A detail that doesn't parse shows as plain text. */
 .rn-change__detail {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: calc(0.85rem * var(--reading-scale, 1));
-  line-height: calc(1.5 + var(--reading-leading-extra, 0));
-  color: rgba(var(--ink-rgb), 0.62);
+  gap: var(--space-1);
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-margin) + var(--reading-leading-extra, 0));
+  color: var(--color-text-3);
   overflow-wrap: anywhere;
 }
 
 .rn-diff__label {
+  font-family: var(--font-control);
+  font-size: calc(var(--size-small-label) * var(--reading-scale, 1));
   font-weight: 600;
-  color: rgba(var(--ink-rgb), 0.62);
+  color: var(--color-text-3);
   white-space: nowrap;
 }
 
 .rn-diff--note {
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
   font-style: italic;
 }
 
 .rn-change__detail del {
-  color: rgba(var(--ink-rgb), 0.62);
+  color: var(--color-text-3);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
 }
 
 .rn-change__detail ins {
-  color: rgba(var(--ink-rgb), 0.9);
+  color: var(--color-text);
   text-decoration: none;
-  background: color-mix(in srgb, var(--green-text) 14%, transparent);
-  border-radius: 3px;
-  padding: 0 2px;
+  background: var(--color-tint-strong);
+  padding: 0 var(--space-1);
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
 
 @media (max-width: 480px) {
   .rn-page {
-    padding-top: 40px;
+    padding-top: var(--space-7);
   }
 
   .rn-change {

@@ -1,12 +1,15 @@
 // src/scripts/last-read.js
 //
-// "Continue reading": the one record of where a reader last was, across both
-// views, and the links that offer it back. Chapter View writes it as the page
-// is read (trackStudyView, below); Read View writes it beside its own
-// per-book resume position (read-mode.js). Draft chapters are never recorded.
+// "Continue reading": the one record of where a reader last was, and the
+// links that offer it back. The reading page writes it as the page is read
+// (trackStudyView, below), following the chapters it reads on into
+// (read-on.js); Study's text pane writes it too (desk-last-read.js). Draft
+// chapters are never recorded.
 //
 // One key, lit_last_read, in localStorage:
 //   { v: 1, book, chapter, verse | null, view: "study" | "read", t }
+// "read" is what Read View wrote until it retired (Featherboa's Phase 4):
+// such a record is still read, and leads to the chapter's page.
 // It never leaves the browser (see /privacy). Every read and write is wrapped,
 // because storage can be missing or throw (private windows, blocked site
 // data), and the site must behave exactly as before when it does.
@@ -87,12 +90,8 @@ export function clearLastRead() {
   }
 }
 
-/** Back to the view the reader was using, at the verse when there is one. */
+/** Back to the chapter, at the verse when there is one (Read View's records too). */
 export function continueHref(r) {
-  if (r.view === "read") {
-    const anchor = r.verse ? `${r.book}-${r.chapter}-v${r.verse}` : `ch-${r.chapter}`;
-    return `/read/${r.book}/#${anchor}`;
-  }
   return `/${r.book}-${r.chapter}/${r.verse ? `#v${r.verse}` : ""}`;
 }
 
@@ -100,11 +99,17 @@ export function continueLabel(r) {
   return `${bookKeyToLabel(r.book)} ${r.chapter}`;
 }
 
-/** The reading line for `markers`, in px from the top of the window. */
+/** The reading line for `markers`, in px from the top of the window: never
+ *  above where a link to a verse puts its number, which on a phone's reading
+ *  page is below the top bar too (the page's scroll-padding, header.css). */
 export function readingLine(markers) {
   let landing = 0;
   try {
-    if (markers[0]) landing = (parseFloat(window.getComputedStyle(markers[0]).scrollMarginTop) || 0) + LANDING_SLACK;
+    if (markers[0]) {
+      const margin = parseFloat(window.getComputedStyle(markers[0]).scrollMarginTop) || 0;
+      const padding = parseFloat(window.getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+      landing = padding + margin + LANDING_SLACK;
+    }
   } catch {
     /* no styles to read: the fraction alone */
   }
@@ -138,11 +143,17 @@ export function verseInHash(hash, ids) {
 }
 
 /**
- * Chapter View: record this chapter on arrival (at the verse in the address,
- * if any), then follow the reader down the page. `root` carries the book and
- * chapter as data attributes, and is only rendered on published chapters.
+ * A chapter's page: record this chapter on arrival (at the verse in the
+ * address, if any), then follow the reader down the page. `root` carries the
+ * book and chapter as data attributes, and is only rendered on published
+ * chapters. Where the page reads on into other chapters, `placeNow`
+ * (read-on.js) says which chapter and verse the reading line is in, or null
+ * on a draft's entry, which is never recorded.
+ *
+ * @param {HTMLElement} root
+ * @param {(() => ({ book: string, chapter: number, verse: number | null } | null)) | null} [placeNow]
  */
-export function trackStudyView(root) {
+export function trackStudyView(root, placeNow = null) {
   const book = root.dataset.lastReadBook;
   const chapter = Number(root.dataset.lastReadChapter);
   if (!book || !chapter) return;
@@ -150,34 +161,37 @@ export function trackStudyView(root) {
   const markers = Array.from(root.querySelectorAll('sup.vn[id^="v"]'));
   const idToVerse = (id) => Number(id.slice(1)) || null;
   const hashVerse = () => verseInHash(window.location.hash, markers.map((m) => m.id));
-  const save = (verse) => saveLastRead({ book, chapter, verse, view: "study" });
+  const save = (at) => {
+    if (at) saveLastRead({ ...at, view: "study" });
+  };
+  const here = () =>
+    placeNow ? placeNow() : { book, chapter, verse: verseAtReadingLine(markers, idToVerse) };
 
-  save(hashVerse());
+  save({ book, chapter, verse: hashVerse() });
 
   let timer = 0;
   window.addEventListener(
     "scroll",
     () => {
       window.clearTimeout(timer);
-      timer = window.setTimeout(() => save(verseAtReadingLine(markers, idToVerse)), 500);
+      timer = window.setTimeout(() => save(here()), 500);
     },
     { passive: true },
   );
   window.addEventListener("pagehide", () => {
     window.clearTimeout(timer);
-    save(verseAtReadingLine(markers, idToVerse) ?? hashVerse());
+    const at = here();
+    save(at && (at.book !== book || at.chapter !== chapter || at.verse != null) ? at : { book, chapter, verse: hashVerse() });
   });
 }
 
 /**
- * Fill every Continue link on the page, or leave them hidden when there is
- * nothing to continue. Wrappers ([data-continue-reading]) carry a forget
- * button; the phone menu's link ([data-continue-menu]) does not.
+ * Fill every Continue link on the page ([data-continue-reading], each with a
+ * forget button), or leave them hidden when there is nothing to continue.
  */
 export function mountContinueReading() {
   const record = loadLastRead();
   const wrappers = Array.from(document.querySelectorAll("[data-continue-reading]"));
-  const menuLinks = Array.from(document.querySelectorAll("a[data-continue-menu]"));
   if (!record) return;
 
   const href = continueHref(record);
@@ -188,18 +202,13 @@ export function mountContinueReading() {
     if (text) text.textContent = label;
   };
 
-  for (const link of menuLinks) {
-    fill(link);
-    link.hidden = false;
-  }
-
   for (const wrapper of wrappers) {
     const link = wrapper.querySelector("a[data-continue-link]");
     if (link) fill(link);
     wrapper.hidden = false;
     wrapper.querySelector("[data-continue-forget]")?.addEventListener("click", () => {
       clearLastRead();
-      for (const el of [...wrappers, ...menuLinks]) el.hidden = true;
+      for (const el of wrappers) el.hidden = true;
       // The button just vanished under the keyboard user's focus. Both pages
       // that carry one put it straight under the page's h1, so land there.
       const heading = document.querySelector("h1");

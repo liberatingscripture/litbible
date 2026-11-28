@@ -358,7 +358,10 @@ test("E167: a Greek row shows a few words of its verse's Greek around the word a
   assert.equal(row.querySelectorAll(".desk-search__line").length, 1, "the Greek line only");
   assert.ok(row.classList.contains("desk-search__row--greek"), "the class that draws the reference as a link");
   const link = row.querySelector("a.desk-search__link");
-  assert.match(link.getAttribute("href"), /^\/romans-8\b/, "the verse's own page, which the preview reads");
+  // Study at the verse, its Greek pane at the word (greekHref; Featherboa's
+  // Phase 5, ST-62: the Read page shows no Greek), which the preview reads as
+  // the verse (ref-preview.js).
+  assert.match(link.getAttribute("href"), /^\/desk\/\?place=romans-8:21&greek=21\.\d+$/, "Study at the word, which the preview reads");
   assert.equal(link.querySelector(".desk-search__ref").textContent, "Romans 8:21");
 });
 

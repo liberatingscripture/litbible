@@ -47,90 +47,68 @@ below the text, so clicking into a part grows the card downward instead of
 moving the words under the pointer, and a menu opens upward when the pane has
 no room below it (SH5-6).
 
-## How the Sheets look: three layers and four kinds of button (E89, E126)
+## How the Sheets look: the layers and the kit's buttons (E89, Featherboa)
 
 **The list of sheets, the template chooser, the editor and a sheet's
-versions view are built from three layers, each a step apart from what it
-sits on, in the Sheets pane and on /sheets alike** (BVJ, 2026-11-11: nothing
-may be "the same color as the page background"). /desk's command row and the
-panes' passage field and lock take the same field and control looks. The
-tokens and the reasoning are in "The desk's layers" in `desk.css`:
+versions view are built from layers, each a step apart from what it sits
+on, in the Sheets pane and on /sheets alike** (BVJ, 2026-11-11: nothing
+may be "the same color as the page background"). /desk's command row and
+the panes' passage field and lock take the same looks. The tokens and the
+reasoning are in "The desk's layers" in `desk.css`:
 - **Card** (`--desk-card`, `--desk-card-edge`): a part, a row of the list,
   the chooser, a form, the two-tab question ("Continue here?"). `#FAFAF8`
-  on /sheets' cream page; **in the Sheets pane, whose body keeps a pane's
-  own color like every other pane's, the cards take `--desk-pane-card`**,
-  a step darker (BVJ chose it from three
-  mocks), as the Collections pane's do (E185). A form inside a part's card is a section of it, in the card's
-  color with the card's edge; **nothing inside a card takes the page's
-  color** (BVJ, 2026-11-11).
-- **Field** (`--desk-field`, edged with `--field-border`): anything typed in
-  or chosen from.
-- **Control** (`--desk-control`, edged with `--field-border`): the fill and
-  edge of the ordinary and toggle kinds below. In light white differs from
-  `#FAFAF8` by 1.04:1, so **the edge is what makes a control, and a new one
-  needs it** (3:1 on every surface here, both themes).
+  on /sheets' page; **in the Sheets pane, whose body keeps a pane's own
+  color like every other pane's, the cards take `--desk-pane-card`**, a
+  step darker (BVJ chose it from three mocks), as the Collections pane's do
+  (E185). A form inside a part's card is a section of it, in the card's
+  color with the card's edge.
+- **Field**: the kit's (`kit.css`), anything typed in or chosen from: the
+  page's paper with a 3:1 edge (`--field-border`), in place of
+  `--desk-field`'s white (E191), which stood 1.04:1 from the paper by day,
+  so the edge is what makes a field, as before. The rich editor's text box,
+  a field with a toolbar inside, keeps `--desk-field` until Phase 11.
 The template's description and the License card are notices, not cards:
 the “what prints” notice's tint and green rule (BVJ: keep them so). A new
-part, form or control in these areas takes these tokens rather than
+part or form in these areas takes these tokens rather than
 `--surface-raised`, `--surface-input` or a faint ink edge, and a note that
 belongs to a control wraps with it in one group (the add row's
 `.desk-sheet__add-pair`). `test/desk-audit8-f-css.test.js` holds the layers.
 
-**Every button in the desk is one of four kinds** (E126; BVJ, 2026-11-12,
-from mocks: the "Raised" look), in every pane, on /sheets and /notebook, and
-in the rows the desk adds to /search. Each kind is one rule in `desk.css`'s
-"Four kinds of button", last in the file, whose `:is()` list is the
-inventory; a component rule says only a button's size and shape. **A new
-button joins a kind by adding its class to that list, never with a look of
-its own.** The tokens are in "The desk's layers" (`:root` and both dark
-selectors, every shadow with a dark pair), and `desk-search.css` carries the
-same values for /search, which loads it alone; `test/desk-buttons-css.test.js`
-holds the inventory, the pairs, the two files in step and reduced motion.
-1. **Primary**: Deep Green with white words, **at most one per pane or
-   view**: the Sheets pane's New sheet, Add and Continue, the Search pane's
-   strip (E117), /search's head row (E116) and its chooser's New sheet, the
-   note editor's Save, the change notice's Keep. The command row stays
-   ordinary, its New sheet… included, and so does every Delete. In dark
-   themes its edge is the text green at 70% (`--desk-primary-edge`; Deep
-   Green alone is 2.3 to 2.9:1 there). Disabled, it keeps the edge with a
-   faint green fill and the text green's words, so it still reads as a
-   button.
-2. **Ordinary**: the control's fill and edge, the edge a hair darker at the
-   foot, a soft shadow at rest, a 1px lift on hover, sunk when pressed; an
-   on toggle or an open menu's button stays sunk with the text green's edge
-   and words. Disabled is flat, words at 70% (4.5:1 on every surface; the
-   mock's 62% failed), and keeps its fill (E159: never the color behind
-   it). E121's Cancel is one, and since E159 so are a margin note's Edit,
-   the first-use card's and the tours' buttons but their Next (a primary,
-   as is the tour offer's Take the tour), Labels' Add, the Layout window's
-   arrangements (a toggle) and actions, the Print menu's choices, and a
-   sheet's link box (its primary button aside).
-3. **Toggle**: an ordinary button with `aria-pressed` (Stay here, Bible
-   order, the Greek's word choices), or one flat at rest: a pill (label
-   chips, a sheet's blank chips) or a rounded rectangle (every Pin, the
-   reading pages' included since E159, and the Greek's Show sources).
-   **Shape says what a control
-   is** (E141; BVJ, 2026-11-17): a rounded rectangle is a button, the lock
-   and a lone switch included, so **Pin, Stay here, and Show sources are
-   never a pill or a circle**; a pill is a chip in a set; a circle is a
-   mark on the page (a margin note's). Featherboa gives everything pressed,
-   chips included, a 6-pixel corner and makes a switch the one round
-   control (`SITE-FEATHERBOA.md`, "The kit"); until it is built, this
-   holds.
-4. **Quiet** (links: Labels…, Stop following, Verse N, Show the note, Take
-   the Sheets tour, Clear checks) and **glyph** buttons (‹ › × ▾ +, the grip)
-   keep their own looks, save This verse's Previous and Next, which are
-   ordinary buttons (E141). The LIT pane's way back (E168) is quiet while it
-   names its place and ordinary as the arrow alone (BVJ, 2026-11-19), the one
-   button whose kind follows its bar's width, so its ordinary look is
-   restated under the kinds' container queries rather than in the list.
-**Under reduced motion the lift and every transition go; the shadows stay.**
-**`.desk-sheet__btn` is ordinary wherever `desk.css` is loaded**, inside a
-sheet or not (the collections page, a window, the search's add bar). The
-phone's shared sheet loads only `desk-sheet-view.css`, so it keeps that
-file's look without a scope. Don't scope the rule again: scoped to
-`.desk-sheet, .sheets-page`, it left every such button outside them the
-color of the page (E169).
+**Every button in the desk is the kit's** (Featherboa Phase 2, in place of
+E126's four kinds), in every pane, on /sheets and /notebook, and in the
+rows the desk adds to /search: each takes one level by name in `kit.css`,
+added with `node scripts/kit-names.mjs add <level> "<selector>"`, and a
+component rule says only its size and place. **A new button takes a level,
+never a look of its own.** `test/desk-buttons-css.test.js` holds the
+inventory and that no desk rule paints a control.
+1. **Filled**: the one main action, **at most one per pane or view**: the
+   Sheets pane's New sheet, Add and Continue, /search's chooser's New sheet,
+   the note editor's Save, the change notice's Keep, a tour's Next, the
+   tour offer's Take the tour, and the Notebook's "Start here" (NX-19).
+2. **Tinted**: the usual next step: the Search pane strip's and /search's
+   Go, every Pin (the reading pages' too), the Greek's Show sources, label
+   and blank chips, the empty state's "Show me how," the swatches' "All,"
+   and the LIT pane's way back (E168: queue Q19), whose arrow stays an
+   arrow, since the bar's chevrons step a chapter.
+3. **Plain**: everything else, words or an icon with no box until pointed
+   at (CT-23): the command row, a margin note's Edit, Cancel, the Layout
+   window's actions, the steppers, and every close. E159 holds for tinted
+   and filled only (CT-26).
+4. **Danger**: every Delete, in red words, never filled.
+Rows (a menu's, a list's, the Print menu's choices), tabs (`.desk-seg`,
+the panel's tabs, the Greek's choices), fields, and the color dots are
+the kit's too. A disabled button keeps its fill and edge and says so in its words, never by fading.
+**Shape**: everything pressed has 6-pixel corners, chips included, and
+only switches, color dots and the emblem are round (Featherboa, "Shapes,"
+which changes E141): a Pin, the lock, and a margin note's circle are
+rounded rectangles.
+**`.desk-sheet__btn` takes the kit wherever it is**, inside a sheet or not
+(the collections page, a window, the search's add bar), and on a phone
+showing a shared sheet, which loads `kit.css` with the site and
+`desk-sheet-view.css` for the buttons' size alone. Don't give it a look in
+either file: `desk-sheet-view.css` loads after `kit.css`, so a rule there
+outranks the kit's names (E169 found the same when a scope left buttons
+the color of the page).
 
 ## Rule 18: the Sheets pane
 
@@ -443,8 +421,7 @@ The header's Study group is part 3's, built with header C.
 - **/notebook lists sheets under "Sheets"** with "New sheet…" and "All my
   sheets" (`kept-list.js`), shown too while nothing narrows the list. "New
   sheet…" is `/sheets/?new`, which opens the list's templates at once and
-  drops the parameter. The Notebook's Settings tab links "My sheets" beside
-  the notebook page.
+  drops the parameter.
 - **Each home offers the other**: a Sheets pane's "Open on its own page" is
   `/sheets/?id=<id>&view=edit&from=desk` in a new tab, and `from=desk` skips
   the two-tab question for that first open (`askFirst: false`), since the
@@ -629,7 +606,7 @@ my notebook"**. Twelve things to know:
   Site 2.0 removed it from the site's styles): the sheet's title (24pt), Key
   terms, the answer key's title and references and the passage's reference
   are all the paper's own Crimson Text, so none falls back to Georgia. Bold is
-  set on each, since the restyle gives a heading 600. **Featherboa reverses
+  set on each, whatever weight the screen gives a heading. **Featherboa reverses
   this** (BVJ, 2026-11-26; decided, not built): paper takes the screen's
   faces, Fraunces headings and Source Sans 3 text (`SITE-FEATHERBOA.md`,
   "Type"). Until it is built, the rule here holds. The print block's
@@ -927,6 +904,12 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   which part is the reading**: it is found by its heading ("Reading",
   "Read", "The text"; `readingPart`); a renamed one isn't, which only
   sends a passage to the end.
+- **Featherboa's /search puts all of this behind Select** (Phase 6): the
+  head rows below are still built but hidden, the row boxes exist only while
+  Select (at the tab row's right end) is on, and a foot bar, "3 chosen · Add
+  to sheet… · Cancel," drives the head row of the tab showing, so the counts,
+  the chooser and the write are as described. The chooser and its "Open the
+  sheet" line show in the foot bar (`#search-pickbar`).
 - **A sheet from a search or a topic** (M5) keeps desk code out of
   search.js: /search announces every hit (not just the page on screen)
   with a `lit:search-results` event on `document` and calls
@@ -944,8 +927,7 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   verses", and invisible copies of its longest labels hold its width (the
   Search pane's strip, E117, does the same; the words are shared in
   `desk-sheet-gather.mjs`). The card and the checked rows share a green
-  rule; under Site 2.0 the restyle's card shadow outweighs the rows' rule,
-  so `v2/search.css` restates it (E163). **The chapters by topic are checked the same way** (E163; BVJ,
+  rule (E163). **The chapters by topic are checked the same way** (E163; BVJ,
   2026-11-18: “It should match the keyword results behavior”): a box on
   each chapter and the same head row, words and disabled button, with
   “chapter” for “verse” (each word helper takes the noun); each checked

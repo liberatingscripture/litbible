@@ -1,103 +1,93 @@
 ---
 import SearchBar from "./SearchBar.astro";
+import Icon from "./Icon.astro";
+import MenuSheet from "./MenuSheet.astro";
+import { PLACES, STUDY_HREF, normalizePath, placeOf } from "../lib/places.mjs";
+import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
+import { trayHtml } from "../lib/display-tray.mjs";
 
-// scriptureControls: "study" on a chapter page (verse numbers and footnote
-// letters), "read" in Read View (numbers only: it prints no footnote
-// letters, and its numbers setting hides the chapter headings too).
-// headerSearch: a search icon beside "Aa" that opens a search strip under
-// the header, on pages with no search box of their own (see Layout's
-// pageSearch). Without JS the icon is a plain link to /search.
-// The Study Desk link beside "Aa" is on the home page only (deskLink; BVJ,
-// 2026-11-06, E50), and only where header C's groups don't show (a window
-// under 760px, or OpenDyslexic's earlier fold): the Study group replaces it. Scripture pages and /read carry their own pill in the page
-// (ScriptureLayout's toolbar, ReadMenu's row), and no other page has one. The
-// name is written out beside the glyph so the new tool can be found. It is
-// hidden by global.css unless <html data-desk> is set (a computer with the
-// preview on; see Layout.astro), so it shows from first paint without moving
-// the header. desk-gate.js loads the desk.
-// deskTitle: the Study Desk's own header (/desk, BVJ 2026-10-21), at every
-// width: the emblem and "LIT Bible" as the home link, the page's title
-// centered, and then the menu button. desk-page.js turns the title into a
-// menu and moves Aa into it (E15), so Aa is in the markup but leaves the bar
-// once the desk is up.
-// No nav row and no search.
-// deskHref: where the Study group's "Study Desk" goes. A chapter or an
-// introduction passes its toolbar pill's address (?place=), so
-// the two never disagree; every other page opens plain /desk/.
-// searchLink (Site 2.0, so data-v2: shown only with the restyle's stamp): on
-// a page that has its own search box, and so no strip, the same icon as a
-// plain link to /search. The articles pages ask for it (BVJ, 2026-11-16: "The
-// header can have a search button so that a non-article-defaulted option is
-// available"). A second SearchBar is not an option: its ids are fixed.
-const { class: className = "", scriptureControls, headerSearch = false, searchLink = false, deskTitle, deskLink = false, deskHref = "/desk/" } = Astro.props;
-const plainSearchLink = searchLink && !headerSearch;
+// The header (SITE-FEATHERBOA.md, "Four places: the header"): "LIT Bible"
+// always, then the four places, Read, Study, Learn, and About, with the one
+// the page is in underlined in the mark's green, and at the right end the
+// magnifier, Aa, and the account. The places and their rows are
+// src/lib/places.mjs, which the line under the header (PlaceLine.astro) and
+// the footer read too.
+//
+// - Read opens the passage picker's panel (passage-picker.js; FP-15), and
+//   is a link to /read, the picker at full size, without JavaScript. Learn,
+//   Study, and About are <details> menus, so they open without JavaScript;
+//   header-menus.js adds the keys, one open at a time, and closing on a
+//   press elsewhere.
+// - Study shows only on a computer with the Study preview on (html[data-desk],
+//   stamped before paint, at 1100px and up; header.css), so nothing moves.
+// - The full header holds from 700px (900px in OpenDyslexic). Below that
+//   the row is the brand, the magnifier, Aa, and "Menu," which opens the
+//   menu sheet (MenuSheet.astro, drawn after the header) from the window's
+//   foot, as it does in Study's own header at every width.
+// - On a phone's reading page (a chapter or an introduction, under 700px)
+//   the row is the phone's top bar (SITE-FEATHERBOA.md, "The phone"; PH-01):
+//   the emblem, named "Home," the chapter's name as the picker, and Aa.
+//   "LIT Bible" leaves it, and "Menu" is the bar's at the thumb
+//   (PhoneBar.astro); phone-bars.js opens the search field in the row's
+//   place and hides it with the bar on a scroll down.
+// - News marks (src/lib/news.mjs) are drawn hidden, only for the entries the
+//   list holds; header-menus.js shows the ones a reader hasn't seen, on the
+//   places here, in the menu sheet, and as a dot on "Menu."
+//
+// search: "strip" (the magnifier opens a search strip under the header),
+// "page" (the page has its own search box, which the magnifier takes the
+// reader to), or "none" (the Read page, whose search is its place line's or
+// its toolbar's, and Study's own header). Without JavaScript the magnifier
+// is a link to /search.
+// deskTitle: Study's own header (/desk, BVJ 2026-10-21), at every width: the
+// emblem and "LIT Bible" as the home link, the page's title centered, and
+// then the menu button. desk-page.js turns the title into a menu and moves
+// Aa into it (E15), so Aa is in the markup but leaves the bar once Study is
+// up. No places and no search.
+// deskHref: where Study's "Scripture" goes. A chapter or an introduction
+// passes its place line's "Study John 3" address (?place=), so the two
+// never disagree.
+// scriptureControls: "study" on a chapter page (the Display tray's View:
+// verse and chapter numbers, footnote letters, and key terms; its numbers
+// switch hides the chapters' headings too, reading-page.css).
+// picker: the chapter's name on a chapter or an introduction ("John 3,"
+// "John · Intro"), which makes the row the phone's top bar under 700px.
+// It opens the passage picker's sheet at the chapter's grid
+// (passage-picker.js), and is a link to /read without JavaScript.
+const { class: className = "", scriptureControls, search = "strip", deskTitle, picker, deskHref = STUDY_HREF } = Astro.props;
 
-// The header's groups (S12 step 5, header C; STUDY-DESK.md, BVJ 2026-11-08).
-// A computer with the desk preview on gets them as three menus in place of
-// the five links below; global.css chooses from the pre-paint data-desk
-// stamp, so nothing flashes. The phone menu shows them under headings for
-// everyone (BVJ: "Having just the part change on mobile early is ok"), with
-// Study only when the desk is on. `phone: false` keeps a link off the phone
-// menu, which has room for fewer.
-// The Study group launches with the desk (src/scripts/desk/CLAUDE.md,
-// "Launching").
-// v2Label: the label with the data-restyle stamp (Site 2.0, SITE-2.0.md "Labels");
-// without it the link keeps `label`. Both are in the link, one shown at a time.
-type NavLink = { href: string; label: string; v2Label?: string; short?: string; sep?: boolean; phone?: boolean };
-type NavGroup = { key: string; label: string; desk?: boolean; links: NavLink[] };
-const NAV_GROUPS: NavGroup[] = [
-  {
-    key: "learn",
-    label: "Learn",
-    links: [
-      { href: "/glossary", label: "Glossary" },
-      { href: "/articles", label: "Articles" },
-      { href: "/found-in-translation-podcast", label: "Podcast" },
-    ],
-  },
-  {
-    key: "study",
-    label: "Study",
-    desk: true,
-    links: [
-      { href: deskHref, label: "Study Desk" },
-      { href: "/sheets/", label: "My sheets" },
-      { href: "/collections/", label: "My collections" },
-      { href: "/notebook/", label: "My Notebook" },
-      { href: "/desk/help/", label: "Help for study tools", sep: true, phone: false },
-    ],
-  },
-  {
-    key: "about",
-    label: "About",
-    links: [
-      { href: "/about", label: "About the LIT" },
-      { href: "/translation-commitments", label: "Translation commitments", short: "Commitments" },
-      { href: "/liberating-scripture-collective", label: "Liberating Scripture Collective", phone: false },
-      { href: "/release-notes", label: "What’s new", v2Label: "Release Notes", phone: false },
-      { href: "/support", label: "Support", sep: true },
-      { href: "/contact", label: "Contact" },
-    ],
-  },
-];
+type Place = (typeof PLACES)[number];
+type Row = Place["rows"][number];
 
-// Text size steps. The visible letters are the usual abbreviations; the
-// radios carry the words for screen readers.
-const SIZE_OPTIONS = [
-  { value: "sm", short: "S", label: "Small" },
-  { value: "md", short: "M", label: "Medium" },
-  { value: "lg", short: "L", label: "Large" },
-  { value: "xl", short: "XL", label: "Extra large" },
-];
+const path = normalizePath(Astro.url.pathname);
+const where = placeOf(path);
+const hrefOf = (row: Row) => (row.key === "scripture" ? deskHref : row.href);
+// aria-current: "page" on the link to this page, "true" on the place it is
+// in and on a row it is inside (an article, under Articles).
+const currentOf = (row: Row) =>
+  where.row === row.key && !row.also && PLACES.find((p) => p.key === where.place)?.rows.includes(row)
+    ? where.current
+    : undefined;
+const placeCurrent = (place: Place) =>
+  where.place !== place.key ? undefined : !place.menu && normalizePath(place.href) === path ? "page" : "true";
+
+// The news the list holds, by place and by row: the marks are drawn hidden
+// for these alone, so an empty list draws nothing.
+const newsPlaces = new Set(NEWS.map((entry) => entry.place));
+const newsRows = new Set(NEWS.map((entry) => `${entry.place}:${entry.row}`));
+
+// The Display tray (src/lib/display-tray.mjs, which the tests render too):
+// View on a chapter's page, and Justify wherever the LIT's text is, a
+// chapter's page or Study.
+const tray = trayHtml({ view: scriptureControls === "study", justify: Boolean(scriptureControls || deskTitle) });
 ---
 
-<header class={`site-header ${deskTitle ? "site-header--desk" : ""} ${className}`.replace(/\s+/g, " ").trim()}>
+<header class={`site-header ${deskTitle ? "site-header--desk" : ""} ${picker ? "site-header--reading" : ""} ${className}`.replace(/\s+/g, " ").trim()}>
   <div class="site-header__inner">
-    <a
-      href="/"
-      class="site-header__brand"
-      aria-label="The Liberation and Inclusion Translation home"
-    >
+    {/* "LIT Bible" always (HD-10); the full name is in every page's tab title (HD-11).
+        On a phone's reading page the name leaves the row and the emblem alone
+        is the way home, named "Home" (PH-01). */}
+    <a href="/" class="site-header__brand">
       <img
         src="/images/lit-logo-2026-ring.svg"
         alt=""
@@ -107,572 +97,189 @@ const SIZE_OPTIONS = [
         loading="eager"
         decoding="async"
       />
-      {/* The desk's header always takes the short title, so it carries no
-          long one, and no title-fit script (after the row, below). */}
-      <span class="site-header__title">
-        {!deskTitle && (
-          <span class="title-long">
-            <span class="title-prefix">The Liberation &amp; Inclusion</span><span
-              class="title-truncatable">Translation</span
-            >
-          </span>
-        )}
-        <span class="title-alt">LIT Bible</span>
-        <span class="sr-only">The Liberation and Inclusion Translation</span>
-      </span>
+      <span class="site-header__title">LIT Bible<span class="sr-only">, the Liberation and Inclusion Translation, home</span></span>
+      {picker && <span class="sr-only site-header__home">Home</span>}
     </a>
+
+    {/* The chapter's name as the picker (PH-01), and the search field's place
+        when the bar's Search opens it there (PH-09; phone-bars.js moves the
+        page's SearchBar in and out). Both only on a phone's reading page. */}
+    {picker && (
+      <a class="kit-btn kit-btn--plain site-header__picker" href="/read/" data-picker-open="chapters">
+        <span class="sr-only">Choose passage. Current:&nbsp;</span>
+        <span class="site-header__picker-label">{picker}</span>
+        <Icon name="down" />
+      </a>
+    )}
+    {picker && (
+      <div class="site-header__find" id="phoneFind" data-phone-find hidden>
+        <button type="button" class="kit-icon site-header__find-close" aria-label="Close search" data-phone-find-close>
+          <Icon name="close" />
+        </button>
+      </div>
+    )}
 
     {deskTitle && <h1 class="site-header__page-title">{deskTitle}</h1>}
 
-    {/* Desktop nav */}
     {!deskTitle && (
-    <nav class="site-nav" aria-label="Primary">
-      <ul class="site-nav__list">
-        {/* Today's links, for a computer without the desk preview. */}
-        <li class="site-nav__plain"><a href="/about">About</a></li>
-        <li class="site-nav__plain"><a href="/translation-commitments">Commitments</a></li>
-        <li class="site-nav__plain"><a href="/glossary">Glossary</a></li>
-        <li class="site-nav__plain"><a href="/found-in-translation-podcast">Podcast</a></li>
-        <li class="site-nav__plain"><a href="/articles">Articles</a></li>
-        {/* Header C's menus, for a computer with it (header-menus.js). A
-            menu needs JS, and so does the desk stamp that shows them. */}
-        {NAV_GROUPS.map((group) => (
-          <li class={`site-nav__group${group.desk ? " site-nav__group--desk" : ""}`} data-nav-group>
-            <button
-              type="button"
-              class="site-nav__group-btn"
-              aria-expanded="false"
-              aria-controls={`navMenu-${group.key}`}
-            >{group.label}<span class="site-nav__caret" aria-hidden="true">▾</span></button>
-            <ul class="site-nav__menu" id={`navMenu-${group.key}`} hidden>
-              {group.links.map((link, i) => (
-                <>
-                  {link.sep && <li class="site-nav__menu-sep" role="separator"></li>}
-                  <li>
-                    <a href={link.href}>{link.v2Label ? <><span data-v1>{link.label}</span><span data-v2>{link.v2Label}</span></> : link.label}</a>
-                  </li>
-                </>
-              ))}
-            </ul>
-          </li>
-        ))}
-
-        <li class="site-nav__cta-item">
-          <a href="/read" class="site-header__cta" aria-label="Read the LIT"><span class="cta-hold">Read</span></a>
-          {/* Desktop: search and Aa sit after READ */}
-          <div class="site-header__nav-tools">
-            {headerSearch && (
-              <a href="/search" class="site-header__search site-header__search--nav" data-search-toggle aria-label="Search">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
-                  <circle cx="10.5" cy="10.5" r="6.5" />
-                  <path d="M15.5 15.5 21 21" />
-                </svg>
-              </a>
-            )}
-            {plainSearchLink && (
-              <a href="/search" class="site-header__search site-header__search--nav" data-v2 aria-label="Search">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
-                  <circle cx="10.5" cy="10.5" r="6.5" />
-                  <path d="M15.5 15.5 21 21" />
-                </svg>
-              </a>
-            )}
-            <button
-              class="site-header__font-toggle site-header__font-toggle--nav"
-              type="button"
-              aria-expanded="false"
-              aria-controls="fontTray"
-              data-font-toggle
-            >
-              <span aria-hidden="true">Aa</span>
-              <span class="sr-only">Display settings</span>
-            </button>
-            {deskLink && (
-              <a
-                class="site-header__desk site-header__desk--nav"
-                href="/desk/"
-                data-desk-toggle
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
-                  <path d="M14.5 4h3l2.5 6h-8z" />
-                  <path d="M16 13.5v2" />
-                </svg>
-                <span class="site-header__desk-label">Study Desk</span>
-              </a>
-            )}
-            {/* The account's way in (step 4h; BVJ, 2026-11-24): “Sign in,” and once this browser's
-                notebook is linked to an account, a small account button with a menu. In the
-                markup for everyone and shown only with data-desk and data-account (global.css),
-                both stamped before paint, so the row never moves. It is drawn hidden until
-                desk/account/header-entry.js has read which of the two this browser gets. */}
-            <span class="site-header__account site-header__account--nav" data-account-entry>
-              <a class="site-header__account-link" href="/account/" data-account-signin>Sign in</a>
-              <button
-                type="button"
-                class="site-header__account-btn"
-                aria-expanded="false"
-                aria-controls="accountMenu-nav"
-                data-account-button
-                hidden
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4.5 20.5c.6-4 3.6-6 7.5-6s6.9 2 7.5 6" />
-                </svg>
-                <span class="sr-only">Account</span>
-              </button>
-              <div class="site-nav__menu site-header__account-menu" id="accountMenu-nav" data-account-menu hidden>
-                <div data-desk-sync-slot hidden></div>
-                <a href="/account/">Account and devices</a>
-                <a href="/account/#sign-out">Sign out</a>
-              </div>
-            </span>
-          </div>
-        </li>
-      </ul>
-    </nav>
+      <nav class="site-nav" aria-label="Primary">
+        <ul class="site-nav__list">
+          {PLACES.map((place) =>
+            !place.menu ? (
+              <li class={`site-nav__item site-nav__item--${place.key}`}>
+                <a class="kit-tab site-nav__place" href={place.href} aria-current={placeCurrent(place)} data-picker-open={place.key === "read" ? "books" : undefined}>{place.label}</a>
+              </li>
+            ) : (
+              <li class={`site-nav__item site-nav__item--${place.key}`}>
+                <details class="site-nav__group" name="site-nav" data-nav-group={place.key}>
+                  <summary class="kit-tab site-nav__place" aria-current={placeCurrent(place)}>
+                    {place.label}<Icon name="down" />
+                    {newsPlaces.has(place.key) && (
+                      <span class="site-nav__dot" data-news-dot={place.key} hidden><span class="sr-only">, new</span></span>
+                    )}
+                  </summary>
+                  <ul class="site-nav__menu">
+                    {place.rows.map((row) => (
+                      <>
+                        {row.separate && <li class="site-nav__menu-sep" role="separator"></li>}
+                        <li>
+                          <a class="kit-row" href={hrefOf(row)} aria-current={currentOf(row)}>
+                            {row.label}
+                            {newsRows.has(`${place.key}:${row.key}`) && (
+                              <span class="site-nav__new" data-news-row={`${place.key}:${row.key}`} hidden><span class="sr-only">, </span>New</span>
+                            )}
+                          </a>
+                        </li>
+                      </>
+                    ))}
+                    {newsPlaces.has(place.key) && (
+                      <>
+                        <li class="site-nav__menu-sep" role="separator" data-news-more={place.key} hidden></li>
+                        <li data-news-more={place.key} hidden>
+                          <a class="kit-row" href={WHATS_NEW_HREF}>See what’s new →</a>
+                        </li>
+                      </>
+                    )}
+                  </ul>
+                </details>
+              </li>
+            ),
+          )}
+        </ul>
+      </nav>
     )}
 
     <div class="site-header__actions">
       {deskTitle && <div class="site-header__desk-tools" data-desk-header-tools></div>}
-      {headerSearch && (
-        <a href="/search" class="site-header__search site-header__search--actions" data-search-toggle aria-label="Search">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
-            <circle cx="10.5" cy="10.5" r="6.5" />
-            <path d="M15.5 15.5 21 21" />
-          </svg>
+      {search === "strip" && (
+        <a href="/search" class="kit-icon site-header__search" data-search-toggle aria-label="Search">
+          <Icon name="search" />
         </a>
       )}
-      {plainSearchLink && (
-        <a href="/search" class="site-header__search site-header__search--actions" data-v2 aria-label="Search">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
-            <circle cx="10.5" cy="10.5" r="6.5" />
-            <path d="M15.5 15.5 21 21" />
-          </svg>
+      {search === "page" && (
+        <a href="/search" class="kit-icon site-header__search" data-search-here aria-label="Search">
+          <Icon name="search" />
         </a>
       )}
       <button
-        class="site-header__font-toggle site-header__font-toggle--actions"
+        class="kit-btn kit-btn--plain site-header__font-toggle"
         type="button"
         aria-expanded="false"
         aria-controls="fontTray"
         data-font-toggle
       >
         <span aria-hidden="true">Aa</span>
-        <span class="sr-only">Display settings</span>
+        <span class="sr-only">Display</span>
       </button>
-      {deskLink && (
-        <a
-          class="site-header__desk site-header__desk--actions"
-          href="/desk/"
-          data-desk-toggle
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-            <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
-            <path d="M14.5 4h3l2.5 6h-8z" />
-            <path d="M16 13.5v2" />
-          </svg>
-          <span class="site-header__desk-label">Study Desk</span>
-        </a>
-      )}
-      {/* The account's way in (step 4h; BVJ, 2026-11-24): “Sign in,” and once this browser's
-          notebook is linked to an account, a small account button with a menu. In the
-          markup for everyone and shown only with data-desk and data-account (global.css),
-          both stamped before paint, so the row never moves. It is drawn hidden until
-          desk/account/header-entry.js has read which of the two this browser gets. */}
-      <span class="site-header__account site-header__account--actions" data-account-entry>
-        <a class="site-header__account-link" href="/account/" data-account-signin>Sign in</a>
+      {/* The account (step 4h; BVJ, 2026-11-24; AC-23): “Sign in,” and once this browser's
+          notebook is linked to an account, “Account” with a menu. In the markup for everyone
+          and shown only with data-desk and data-account (header.css), both stamped before
+          paint, so the row never moves. It is drawn hidden until desk/account/header-entry.js
+          has read which of the two this browser gets. */}
+      <span class="site-header__account" data-account-entry>
+        <a class="kit-btn kit-btn--plain site-header__account-link" href="/account/" data-account-signin>Sign in</a>
         <button
           type="button"
-          class="site-header__account-btn"
+          class="kit-btn kit-btn--plain site-header__account-btn"
           aria-expanded="false"
-          aria-controls="accountMenu-actions"
+          aria-controls="accountMenu"
           data-account-button
           hidden
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4.5 20.5c.6-4 3.6-6 7.5-6s6.9 2 7.5 6" />
-          </svg>
-          <span class="sr-only">Account</span>
-        </button>
-        <div class="site-nav__menu site-header__account-menu" id="accountMenu-actions" data-account-menu hidden>
+        >Account<Icon name="down" /></button>
+        <div class="site-nav__menu site-header__account-menu" id="accountMenu" data-account-menu hidden>
           <div data-desk-sync-slot hidden></div>
-          <a href="/account/">Account and devices</a>
-          <a href="/account/#sign-out">Sign out</a>
+          <a class="kit-row" href="/account/">Account and devices</a>
+          <a class="kit-row" href="/account/#sign-out">Sign out</a>
         </div>
       </span>
+      {/* Opens the menu sheet (header-menus.js). Its icon isn't one that
+          stands alone, so it keeps its word; under 400px (430px in
+          OpenDyslexic) the word alone, for the room "LIT Bible" needs
+          (header.css). */}
       <button
-        class="site-header__menu-toggle"
+        class="kit-btn kit-btn--plain site-header__menu-toggle"
         type="button"
-        aria-label="Open menu"
-        aria-controls="mobileMenu"
+        aria-controls="menuSheet"
         aria-expanded="false"
         aria-haspopup="dialog"
+        data-menu-toggle
       >
-        <span class="menu-icon" aria-hidden="true"></span>
-        <span class="sr-only">Menu</span>
+        <Icon name="menu" />Menu
+        {newsPlaces.size > 0 && (
+          <span class="site-nav__dot" data-news-menu hidden><span class="sr-only">, new</span></span>
+        )}
       </button>
     </div>
   </div>
 
-  {/* Which title the header shows: the long one where it fits, else "LIT
-      Bible". Where the nav shows (a computer), the swap comes as soon as
-      "Translation" can't show in full, never an ellipsis, which once left
-      "The Liberation & Inclusion Transla…" on a 1366px laptop; where it
-      doesn't (a phone), as soon as the long title overflows its box.
-      OpenDyslexic is wider and always takes the short title; Atkinson's
-      metrics are near Inter's, so it measures normally.
-
-      KEEP THIS SCRIPT INLINE, right after the row it measures (E138; BVJ,
-      2026-11-17). It was a bundled script that waited for idle time, so
-      every page in a window too narrow for the long title painted the long
-      title and then swapped it, up to two seconds later: in every phone, in
-      a computer's window from about 1100 to 1440px, and in every
-      OpenDyslexic window. Run here, the title is chosen before the first
-      paint. The stylesheets are in (an inline script waits for them),
-      data-font and data-desk are stamped in <head>, and
-      `scrollbar-gutter: stable` gives the row its final width before the
-      page is long enough to scroll.
-
-      WHEN it measures matters as much, because of the fonts. A font is
-      fetched when a layout first needs it, cached or not, and is usable a
-      few milliseconds later. Measured at once, the row is in its fallbacks,
-      which are wider (the long title by 56px, the nav by up to 31px): for
-      some 90px of window widths above each threshold that chose the short
-      title and put the long one back, and the layout the measurement
-      forces makes the browser paint sooner, into just that gap. So it
-      measures nothing at once. It asks for the fonts the row is drawn in
-      and measures when they have all settled, which for cached fonts is
-      before the first paint, and in the same turn when they are in memory
-      (going from page to page). The first animation frame measures if the
-      fonts haven't by then, so a font still on the network leaves the
-      fallback's own answer on screen, never an unmeasured title, and
-      changes it as it changes the letters. Don't measure at parse time;
-      don't wait on fonts.ready, which is settled already while a page
-      parses with nothing loading; and don't skip a face fonts.check() calls
-      loaded: a cached face reads so as soon as a layout has asked for it,
-      before it can be drawn.
-
-      After that it re-measures only when the row's width or the reader's
-      font changes: on a phone, showing and hiding the address bar fires
-      resize all through a scroll, and each measurement relays out the
-      document. data-font is in that guard because the Display tray announces
-      a font change by a synthetic resize, which leaves the width alone. The
-      observer is on the row, whose width follows the window, where the
-      title's own stays put while it shows the short text. One thing changes
-      the title's room without changing the row: the account's entry going
-      from "Sign in" to its narrower button, or back, after the page has
-      painted (rare: desk/account/header-entry.js says when, with
-      lit:header-tools). The Study Desk's header carries no long title and
-      no script. test/header-title.test.js runs this text. */}
-  {!deskTitle && (
-    <script is:inline>
-      (() => {
-        const root = document.documentElement;
-        const row = document.querySelector(".site-header__inner");
-        const title = row && row.querySelector(".site-header__title");
-        const long = title && title.querySelector(".title-long");
-        const word = title && title.querySelector(".title-truncatable");
-        const short = title && title.querySelector(".title-alt");
-        if (!long || !word || !short) return;
-        const nav = row.querySelector(".site-nav");
-        const show = (useShort) => {
-          long.style.display = useShort ? "none" : "flex";
-          short.style.display = useShort ? "inline" : "none";
-        };
-        const measure = () => {
-          if (root.getAttribute("data-font") === "dyslexic") return show(true);
-          show(false);
-          show(
-            nav && getComputedStyle(nav).display !== "none"
-              ? word.scrollWidth > word.clientWidth + 1
-              : title.scrollWidth > title.clientWidth + 2,
-          );
-        };
-        let width = -1;
-        let font = "";
-        const measureIfChanged = () => {
-          const w = row.clientWidth;
-          const f = root.getAttribute("data-font") || "";
-          if (w === width && f === font) return;
-          width = w;
-          font = f;
-          measure();
-        };
-        const again = () => {
-          width = -1;
-          measureIfChanged();
-        };
-        const later = () => requestAnimationFrame(measureIfChanged);
-        later();
-        if (document.fonts) {
-          const faces = new Set();
-          for (const el of row.querySelectorAll(
-            ".site-header__title, .site-nav__list > li > a, .site-nav__list > li > button, .site-header__actions > *",
-          )) {
-            const style = getComputedStyle(el);
-            faces.add(style.fontWeight + " 1em " + style.fontFamily.split(",")[0]);
-          }
-          Promise.all([...faces].map((face) => document.fonts.load(face))).then(again, again);
-        }
-        if (window.ResizeObserver) new ResizeObserver(later).observe(row);
-        window.addEventListener("resize", later, { passive: true });
-        document.addEventListener("lit:header-tools", again);
-      })();
-    </script>
-  )}
-
-  {headerSearch && (
+  {search === "strip" && (
     <div class="site-header__search-strip" id="headerSearch" hidden>
       <div class="site-header__search-inner">
         <SearchBar placeholder="Search the LIT Bible" />
-        <button type="button" class="site-header__search-close" aria-label="Close search">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
+        <button type="button" class="kit-icon site-header__search-close" aria-label="Close search">
+          <Icon name="close" />
         </button>
       </div>
     </div>
   )}
 
-  {/* No-JS navigation fallback. Under 1100px the real nav collapses to the
-       JS-only overlay, whose toggle does nothing without JS. Render a plain
-       nav row (only shown < 1101px, where .site-nav is hidden) and hide the
-       JS-only toggles. Mirrors SiteFooter's noscript pattern: <style is:inline>
-       with global selectors, since the styled elements are Astro-scoped.
-       Keep this link list in sync with the desktop nav above. */}
+  {/* Without JavaScript: the places and their menus work as they are (links
+       and <details>), but Aa and the menu button do nothing, so they go, and
+       below the full header's width a row of two links stands in: Read, and
+       Menu, which goes to the footer's links, as the phone's bar does
+       ("The phone," "Without JavaScript"). A phone's reading page needs
+       neither: its picker goes to /read and its bar has Menu. A <style
+       is:inline> with global selectors, as the footer's noscript note is. */}
   <noscript>
     <style is:inline>
-      /* JS-only controls do nothing without JS — hide both toggles at every
-         width. !important beats the scoped display rules on these buttons. */
       .site-header__menu-toggle,
       .site-header__font-toggle { display: none !important; }
-      /* Fallback nav: only under 1101px, where the real .site-nav is hidden.
-         On desktop the real nav works without JS, so keep the fallback out. */
       .site-header__noscript-nav {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 0.15rem 0.4rem;
-        padding: 0.4rem var(--gutter) 0.7rem;
-        border-top: 1px solid var(--border);
+        gap: var(--space-1);
+        padding: var(--space-1) var(--space-3) var(--space-2);
+        border-top: 1px solid var(--color-hairline);
       }
-      .site-header__noscript-nav a {
-        font-family: Inter, sans-serif;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: var(--text);
-        text-decoration: none;
-        padding: 0.3rem 0.5rem;
-        border-radius: 8px;
-      }
-      @media (min-width: 1101px) {
+      @media (min-width: 700px) {
         .site-header__noscript-nav { display: none; }
       }
-      /* The desk's header has no nav row at any width. */
+      /* Study's own header has no places at any width. */
       .site-header--desk .site-header__noscript-nav { display: flex; }
+      .site-header--reading .site-header__noscript-nav { display: none; }
     </style>
     <nav class="site-header__noscript-nav" aria-label="Primary">
-      <a href="/about">About</a>
-      <a href="/translation-commitments">Commitments</a>
-      <a href="/glossary">Glossary</a>
-      <a href="/found-in-translation-podcast">Podcast</a>
-      <a href="/articles">Articles</a>
-      <a href="/read">Read</a>
+      <a class="kit-btn kit-btn--plain" href="/read">Read</a>
+      <a class="kit-btn kit-btn--plain" href="#footer-nav">Menu</a>
     </nav>
   </noscript>
 
-  {/* Shared tray — position: fixed, placed by JS beside whichever button opened it
-       (the two header buttons, or Read View's toolbar Aa) */}
-
-  <div class="font-tray" id="fontTray" hidden role="dialog" aria-labelledby="fontTrayHeading">
-    <div class="font-tray__header">
-      <p class="font-tray__heading" id="fontTrayHeading">Display</p>
-      <button type="button" class="font-tray__close" aria-label="Close display settings">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
-    {/* Each option is named by its font and rendered in it, so the list
-        previews itself. "Default" has no single font name to give: it means
-        the site's normal typography (Inter, Crimson Text, Fraunces). */}
-    <fieldset class="font-tray__row">
-      <legend class="font-tray__legend">Font</legend>
-      <div class="font-tray__fonts">
-        <label class="font-tray__font-option">
-          <input type="radio" class="font-tray__font-input" name="lit-font" value="default" data-font-radio />
-          <span class="font-tray__font-label font-tray__font-label--default">Default</span>
-        </label>
-        <label class="font-tray__font-option">
-          <input type="radio" class="font-tray__font-input" name="lit-font" value="atkinson" data-font-radio />
-          <span class="font-tray__font-label font-tray__font-label--atkinson">Atkinson Hyperlegible</span>
-        </label>
-        <label class="font-tray__font-option">
-          <input type="radio" class="font-tray__font-input" name="lit-font" value="dyslexic" data-font-radio />
-          <span class="font-tray__font-label font-tray__font-label--dyslexic">OpenDyslexic</span>
-        </label>
-      </div>
-    </fieldset>
-
-    <fieldset class="font-tray__row">
-      <legend class="font-tray__legend">Theme</legend>
-      <div class="font-tray__seg">
-        <label class="font-tray__seg-option">
-          <input type="radio" class="font-tray__seg-input" name="lit-theme" value="system" data-theme-radio />
-          <span class="font-tray__seg-text">System</span>
-        </label>
-        <label class="font-tray__seg-option">
-          <input type="radio" class="font-tray__seg-input" name="lit-theme" value="light" data-theme-radio />
-          <span class="font-tray__seg-text">Light</span>
-        </label>
-        <label class="font-tray__seg-option">
-          <input type="radio" class="font-tray__seg-input" name="lit-theme" value="dark" data-theme-radio />
-          <span class="font-tray__seg-text">Dark</span>
-        </label>
-      </div>
-    </fieldset>
-
-    {/* Text size and line spacing reach every page of running text through
-        --reading-scale and --reading-leading-extra in global.css, page titles
-        through --heading-scale, and a few controls through the gentler
-        --control-scale. What follows which, and what is left to browser
-        zoom, is in src/styles/CLAUDE.md (the Display tray's rule 1). */}
-    <fieldset class="font-tray__row">
-      <legend class="font-tray__legend">Text size</legend>
-      <div class="font-tray__seg">
-        {SIZE_OPTIONS.map((option) => (
-          <label class="font-tray__seg-option">
-            <input
-              type="radio"
-              class="font-tray__seg-input"
-              name="lit-size"
-              value={option.value}
-              aria-label={option.label}
-              data-size-radio
-            />
-            <span class="font-tray__seg-text" aria-hidden="true">{option.short}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-
-    <fieldset class="font-tray__row">
-      <legend class="font-tray__legend">Line spacing</legend>
-      <div class="font-tray__seg">
-        <label class="font-tray__seg-option">
-          <input type="radio" class="font-tray__seg-input" name="lit-leading" value="normal" data-leading-radio />
-          <span class="font-tray__seg-text">Normal</span>
-        </label>
-        <label class="font-tray__seg-option">
-          <input type="radio" class="font-tray__seg-input" name="lit-leading" value="roomy" data-leading-radio />
-          <span class="font-tray__seg-text">Roomy</span>
-        </label>
-      </div>
-    </fieldset>
-
-    {
-      scriptureControls ? (
-        <fieldset class="font-tray__row">
-          <legend class="font-tray__legend">Show</legend>
-          <div class="font-tray__checks">
-            <label class="font-tray__check">
-              <input type="checkbox" class="font-tray__check-input" data-vn-check data-vn-view={scriptureControls} />
-              <span class="font-tray__check-label">
-                {scriptureControls === "read" ? "Verse and chapter numbers" : "Verse numbers"}
-              </span>
-            </label>
-            {scriptureControls === "study" ? (
-              <label class="font-tray__check">
-                <input type="checkbox" class="font-tray__check-input" data-fn-check />
-                <span class="font-tray__check-label">Footnote letters</span>
-              </label>
-            ) : null}
-            {scriptureControls === "study" ? (
-              <label class="font-tray__check">
-                <input type="checkbox" class="font-tray__check-input" data-terms-check />
-                <span class="font-tray__check-label">Key terms</span>
-              </label>
-            ) : null}
-          </div>
-        </fieldset>
-      ) : null
-    }
-
-    {/* Keyboard shortcuts (audit U4), handled by keyboard-shortcuts.js. The
-        switch is required for single-key shortcuts (WCAG 2.1.4). Hidden on a
-        small touch screen, where there is no keyboard to speak of. */}
-    <fieldset class="font-tray__row font-tray__row--keys">
-      <legend class="font-tray__legend">Keyboard</legend>
-      <div class="font-tray__checks">
-        <label class="font-tray__check">
-          <input type="checkbox" class="font-tray__check-input" data-keys-check aria-describedby="fontTrayKeys" />
-          <span class="font-tray__check-label">Keyboard shortcuts</span>
-        </label>
-      </div>
-      <ul class="font-tray__keys" id="fontTrayKeys">
-        <li><kbd>/</kbd> Search</li>
-        <li><kbd>g</kbd> Go to passage</li>
-        <li><kbd>←</kbd> <kbd>→</kbd> Previous or next chapter</li>
-      </ul>
-    </fieldset>
-  </div>
-
-  {/* Mobile overlay menu */}
-  <div class="menu-overlay" id="mobileMenu" aria-hidden="true">
-    <div
-      class="menu-overlay__panel"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Site menu"
-      tabindex="-1"
-    >
-      <nav class="menu-overlay__nav" aria-label="Primary (mobile)">
-        {/* Below 360px the header has no room for its search icon, so search
-            moves in here (global.css shows it only there). */}
-        {headerSearch && (
-          <a href="/search" class="menu-overlay__search" data-search-toggle>Search</a>
-        )}
-        {plainSearchLink && (
-          <a href="/search" class="menu-overlay__search" data-v2>Search</a>
-        )}
-        {/* The groups under headings, with no menu inside the menu. */}
-        {NAV_GROUPS.map((group) => (
-          <div
-            class={`menu-overlay__group${group.desk ? " menu-overlay__group--desk" : ""}`}
-            role="group"
-            aria-labelledby={`menuGroup-${group.key}`}
-          >
-            <p class="menu-overlay__heading" id={`menuGroup-${group.key}`}>{group.label}</p>
-            {group.links.filter((link) => link.phone !== false).map((link) => (
-              <a href={link.href}>{link.v2Label ? <><span data-v1>{link.short ?? link.label}</span><span data-v2>{link.v2Label}</span></> : (link.short ?? link.label)}</a>
-            ))}
-            {/* A window too narrow for the header's own way in (under 760px) has it here. */}
-            {group.desk && <a href="/account/" class="menu-overlay__account">Account</a>}
-          </div>
-        ))}
-
-        {/* Filled and shown by last-read.js for a returning reader */}
-        <a href="/read/" class="menu-overlay__continue" data-continue-menu hidden>
-          Continue: <span data-continue-label></span>
-        </a>
-        <a href="/read" class="menu-overlay__cta" aria-label="Read the LIT"><span class="cta-hold">Read</span></a>
-      </nav>
-    </div>
-  </div>
+  {/* The Display tray, fixed and placed by display-tray.js beside the Aa that
+       opened it (the header's, or Study's title menu's). */}
+  <Fragment set:html={tray} />
 
   <script>
-    import "../scripts/continue-reading.js";
     import "../scripts/header-search.js";
     import "../scripts/keyboard-shortcuts.js";
     import "../scripts/desk-gate.js";
@@ -681,369 +288,17 @@ const SIZE_OPTIONS = [
   </script>
 
   <script>
-    // @ts-nocheck
-    (() => {
-      const toggle = document.querySelector(".site-header__menu-toggle");
-      const overlay = document.getElementById("mobileMenu");
-      const panel = overlay?.querySelector(".menu-overlay__panel");
-
-      if (!toggle || !overlay || !panel) return;
-
-      let lastActive = null;
-
-      // Background regions to remove from the tab order and a11y tree while
-      // the dialog is open. Deliberately excludes .site-header__inner (the
-      // menu toggle that closes the dialog lives inside it, and there's no
-      // in-panel close button) — the existing Tab-cycle handler below keeps
-      // keyboard focus off the rest of the still-live header instead. inert
-      // covers everything outside the header; the manual trap covers the
-      // header itself. The AppsLaunchPopover <dialog> and the font tray
-      // (hidden until opened) need no handling — both are already out of the
-      // tab order/a11y tree when closed.
-      // Read each time, not once: the Study Desk adds a second skip link
-      // ("Skip to the Notebook") after this script has run (NB3-10).
-      const bgRegions = () => [
-        ...document.querySelectorAll(".skip-link"),
-        document.getElementById("main-content"),
-        document.querySelector(".site-footer"),
-        document.querySelector(".footer-license-band"),
-      ].filter(Boolean);
-
-      const setOpenState = (open) => {
-        overlay.classList.toggle("is-open", open);
-        overlay.setAttribute("aria-hidden", open ? "false" : "true");
-
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-
-        for (const el of bgRegions()) el.inert = open;
-
-        // Defer scroll-lock to the next frame so the paint of the visual
-        // open/close state isn't blocked by a full layout recalculation
-        // (overflow:hidden on <body> triggers relayout of the entire page).
-        requestAnimationFrame(() => {
-          document.documentElement.classList.toggle("menu-open", open);
-        });
-      };
-
-      const openMenu = () => {
-        lastActive = document.activeElement;
-        setOpenState(true);
-        // Defer focus so the opening paint commits first; focus() forces
-        // layout and would otherwise stack two sync layouts into this tick.
-        requestAnimationFrame(() => panel.focus({ preventScroll: true }));
-      };
-
-      const closeMenu = () => {
-        setOpenState(false);
-        (lastActive?.focus ? lastActive : toggle).focus?.({
-          preventScroll: true,
-        });
-      };
-
-      const isOpen = () => overlay.classList.contains("is-open");
-
-      toggle.addEventListener("click", (e) => {
-        e.preventDefault();
-        isOpen() ? closeMenu() : openMenu();
-      });
-
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) closeMenu();
-      });
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && isOpen()) closeMenu();
-      });
-
-      overlay.querySelectorAll("a").forEach((a) => {
-        a.addEventListener("click", () => {
-          // Defer DOM mutations so the browser can paint the click feedback first.
-          // For navigation links the page unloads before rAF fires — no visible effect.
-          requestAnimationFrame(closeMenu);
-        });
-      });
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "Tab" || !isOpen()) return;
-
-        const focusables = panel.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        );
-        if (!focusables.length) return;
-
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      });
-    })();
-  </script>
-
-  <script>
-    // @ts-nocheck
-    import { isHoldingPlace, keepReadingPlace } from "../scripts/keep-reading-place.js";
-    // Deferred to idle: this initializer does a synchronous document.body.appendChild
-    // (forces reflow) and runs in the post-load script burst that inflates INP input
-    // delay. Idle keeps it off the load-time long task; the "Aa" button still works
-    // (idle fires within tens of ms). Timeout guarantees init on a busy thread.
-    const initFontTray = () => {
-      const tray = document.getElementById('fontTray');
-      const closeBtn = tray?.querySelector('.font-tray__close');
-      const toggleBtns = Array.from(document.querySelectorAll('[data-font-toggle]'));
-
-      if (!tray || !closeBtn || !toggleBtns.length) return;
-
-      const fontRadios = Array.from(tray.querySelectorAll('[data-font-radio]'));
-      const themeRadios = Array.from(tray.querySelectorAll('[data-theme-radio]'));
-      const sizeRadios = Array.from(tray.querySelectorAll('[data-size-radio]'));
-      const leadingRadios = Array.from(tray.querySelectorAll('[data-leading-radio]'));
-      const vnCheck = tray.querySelector('[data-vn-check]');
-      const fnCheck = tray.querySelector('[data-fn-check]');
-      const termsCheck = tray.querySelector('[data-terms-check]');
-      const keysCheck = tray.querySelector('[data-keys-check]');
-
-      // Move the tray out of the header's stacking context (.site-header has
-      // z-index:10) so its own z-index competes at the top level — otherwise
-      // it renders behind page elements like the ScriptureMenu on study pages.
-      // It's position:fixed and JS-positioned, so it doesn't need the header
-      // as a positioning ancestor.
-      document.body.appendChild(tray);
-
-      let activeBtn = null;
-
-      const currentFont = () => document.documentElement.getAttribute('data-font') || 'default';
-
-      const syncFont = () => {
-        const active = currentFont();
-        for (const radio of fontRadios) radio.checked = radio.value === active;
-      };
-
-      const currentTheme = () => document.documentElement.getAttribute('data-theme') || 'system';
-
-      const syncTheme = () => {
-        const active = currentTheme();
-        for (const radio of themeRadios) radio.checked = radio.value === active;
-      };
-
-      // Text size, line spacing and the two scripture settings. Each is an
-      // attribute on <html> (absent = the default) mirrored to one storage
-      // key, exactly like the font above; Layout.astro stamps them before
-      // first paint. `legacy` is the Read View key the setting replaced,
-      // which the pre-paint script still falls back to, so it is deleted on
-      // every change or it could resurrect an older choice.
-      // Verse numbers are one setting per view. In Chapter View a number is
-      // the verse menu's button, so a shared switch meant that hiding numbers
-      // in Read View took the menu away on a touch screen. Read View's
-      // setting follows Chapter View's until the reader sets it, so it is
-      // stored as set (`keep`), 'on' included: removing it would hand it back
-      // to Chapter View's. Its legacy key was Read View's own before the tray.
-      const readView = vnCheck?.getAttribute('data-vn-view') === 'read';
-      const SETTINGS = {
-        size: { attr: 'data-size', key: 'lit-size', legacy: 'lit_rm_fontSize', fallback: 'md' },
-        leading: { attr: 'data-leading', key: 'lit-leading', legacy: 'lit_rm_lineHeight', fallback: 'normal' },
-        vn: readView
-          ? { attr: 'data-vn', key: 'lit-read-numbers', legacy: 'lit_rm_markers', fallback: 'on', keep: true }
-          : { attr: 'data-vn', key: 'lit-verse-numbers', legacy: null, fallback: 'on' },
-        fn: { attr: 'data-fn', key: 'lit-fn-letters', legacy: null, fallback: 'on' },
-        terms: { attr: 'data-terms', key: 'lit-terms', legacy: null, fallback: 'on' },
-      };
-
-      const currentSetting = (name) =>
-        document.documentElement.getAttribute(SETTINGS[name].attr) || SETTINGS[name].fallback;
-
-      const syncReading = () => {
-        const size = currentSetting('size');
-        for (const radio of sizeRadios) radio.checked = radio.value === size;
-        const leading = currentSetting('leading');
-        for (const radio of leadingRadios) radio.checked = radio.value === leading;
-        if (vnCheck) vnCheck.checked = currentSetting('vn') === 'on';
-        if (fnCheck) fnCheck.checked = currentSetting('fn') === 'on';
-        if (termsCheck) termsCheck.checked = currentSetting('terms') === 'on';
-        // Keyboard shortcuts change nothing on the page, so they have no
-        // attribute on <html>: keyboard-shortcuts.js reads the key itself.
-        if (keysCheck) {
-          let on = true;
-          try { on = localStorage.getItem('lit-shortcuts') !== 'off'; } catch (_) {}
-          keysCheck.checked = on;
-        }
-      };
-
-      // Changing text size, spacing or numbers reflows the page, which would
-      // carry a reader's place away; keepReadingPlace pins it (see
-      // keep-reading-place.js). The tray is taken out of hit-testing while it
-      // measures, since it can sit over the text on a phone, and the one
-      // corrective scroll is let through without closing it (isHoldingPlace).
-      const applySetting = (name, value) => {
-        const { attr, key, legacy, fallback, keep } = SETTINGS[name];
-        const root = document.documentElement;
-        keepReadingPlace(() => {
-          if (value === fallback) root.removeAttribute(attr);
-          else root.setAttribute(attr, value);
-        }, { overlay: tray });
-        try {
-          value === fallback && !keep ? localStorage.removeItem(key) : localStorage.setItem(key, value);
-          if (legacy) localStorage.removeItem(legacy);
-        } catch (_) {}
-      };
-
-      // Below the button, or above it when there isn't room below (Read
-      // View's Aa sits in a bottom sheet on phones and tablets). Aligned to
-      // the button's right edge, or its left when that would run off the
-      // left of the screen (Read View's Aa is at the toolbar's left end).
-      // A toggle can name another element to hang the tray from
-      // (data-tray-anchor="<selector>"): the Study Desk moves its Aa into the
-      // page title's menu, which closes as the tray opens, so the tray hangs
-      // from the title and focus returns to it.
-      const anchorOf = (btn) => (btn.dataset.trayAnchor && document.querySelector(btn.dataset.trayAnchor)) || btn;
-
-      const positionTray = (btn) => {
-        const rect = anchorOf(btn).getBoundingClientRect();
-        const margin = 8;
-        tray.style.maxHeight = 'none';
-        const width = tray.offsetWidth;
-        const height = tray.offsetHeight;
-        const below = window.innerHeight - rect.bottom - margin * 2;
-        const above = rect.top - margin * 2;
-        const openAbove = height > below && above > below;
-        const room = openAbove ? above : below;
-        tray.style.maxHeight = `${Math.max(160, room)}px`;
-        tray.style.top = openAbove
-          ? `${Math.max(margin, rect.top - margin - Math.min(height, room))}px`
-          : `${rect.bottom + margin}px`;
-        let left = rect.right - width;
-        if (left < margin) left = Math.min(rect.left, window.innerWidth - width - margin);
-        tray.style.left = `${Math.max(margin, left)}px`;
-        tray.style.right = 'auto';
-      };
-
-      const closeTray = (returnFocus = true) => {
-        tray.hidden = true;
-        for (const btn of toggleBtns) btn.setAttribute('aria-expanded', 'false');
-        if (returnFocus && activeBtn) anchorOf(activeBtn).focus({ preventScroll: true });
-        activeBtn = null;
-      };
-
-      const openTray = (btn) => {
-        activeBtn = btn;
-        syncFont();
-        syncTheme();
-        syncReading();
-        // Shown before it is placed, so it can be measured; both happen in
-        // this task, before any paint.
-        tray.hidden = false;
-        positionTray(btn);
-        btn.setAttribute('aria-expanded', 'true');
-        requestAnimationFrame(() => closeBtn.focus({ preventScroll: true }));
-      };
-
-      for (const btn of toggleBtns) {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          !tray.hidden && activeBtn === btn ? closeTray() : openTray(btn);
-        });
-      }
-
-      closeBtn.addEventListener('click', () => closeTray());
-      tray.addEventListener('click', (e) => e.stopPropagation());
-
-      document.addEventListener('click', () => { if (!tray.hidden) closeTray(false); });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !tray.hidden) closeTray();
-      });
-
-      window.addEventListener('resize', () => {
-        if (!tray.hidden && activeBtn) positionTray(activeBtn);
-      });
-
-      // Header isn't sticky — close on scroll so the fixed tray can't detach from its button
-      window.addEventListener('scroll', () => {
-        if (!tray.hidden && !isHoldingPlace()) closeTray(false);
-      }, { passive: true });
-
-      for (const radio of fontRadios) {
-        radio.addEventListener('change', () => {
-          if (!radio.checked) return;
-          const v = radio.value; // 'default' | 'dyslexic' | 'atkinson'
-          const root = document.documentElement;
-          if (v === 'default') {
-            root.removeAttribute('data-font');
-          } else {
-            root.setAttribute('data-font', v);
-          }
-          // The header title measures itself against the active font
-          window.dispatchEvent(new Event('resize'));
-          try {
-            v === 'default'
-              ? localStorage.removeItem('lit-font')
-              : localStorage.setItem('lit-font', v);
-            // Retire the pre-three-way key so its fallback can't later
-            // resurrect OpenDyslexic over a newer choice
-            localStorage.removeItem('dyslexic-font');
-          } catch (_) {}
-        });
-      }
-
-      for (const radio of themeRadios) {
-        radio.addEventListener('change', () => {
-          if (!radio.checked) return;
-          const v = radio.value; // 'system' | 'light' | 'dark'
-          const root = document.documentElement;
-          if (v === 'light' || v === 'dark') {
-            root.setAttribute('data-theme', v);
-            root.style.colorScheme = v;
-          } else {
-            root.removeAttribute('data-theme');
-            root.style.colorScheme = '';
-          }
-          try {
-            v === 'system'
-              ? localStorage.removeItem('lit-theme')
-              : localStorage.setItem('lit-theme', v);
-          } catch (_) {}
-        });
-      }
-
-      for (const radio of sizeRadios) {
-        radio.addEventListener('change', () => {
-          if (radio.checked) applySetting('size', radio.value); // 'sm' | 'md' | 'lg' | 'xl'
-        });
-      }
-
-      for (const radio of leadingRadios) {
-        radio.addEventListener('change', () => {
-          if (radio.checked) applySetting('leading', radio.value); // 'normal' | 'roomy'
-        });
-      }
-
-      vnCheck?.addEventListener('change', () => applySetting('vn', vnCheck.checked ? 'on' : 'off'));
-      fnCheck?.addEventListener('change', () => applySetting('fn', fnCheck.checked ? 'on' : 'off'));
-      termsCheck?.addEventListener('change', () => applySetting('terms', termsCheck.checked ? 'on' : 'off'));
-      keysCheck?.addEventListener('change', () => {
-        try {
-          keysCheck.checked
-            ? localStorage.removeItem('lit-shortcuts')
-            : localStorage.setItem('lit-shortcuts', 'off');
-        } catch (_) {}
-        document.dispatchEvent(new CustomEvent('lit:shortcuts-changed'));
-      });
-
-      syncFont();
-      syncTheme();
-      syncReading();
-    };
-    if ("requestIdleCallback" in window) {
-      requestIdleCallback(initFontTray, { timeout: 2000 });
-    } else {
-      setTimeout(initFontTray, 1);
-    }
+    import { initDisplayTray } from "../scripts/display-tray.js";
+    // Deferred to idle: it moves the tray into <body>, a reflow, and the
+    // post-load burst of scripts is what inflates INP's input delay. The Aa
+    // button still works within tens of milliseconds, and the timeout
+    // guarantees it on a busy thread.
+    if ("requestIdleCallback" in window) requestIdleCallback(initDisplayTray, { timeout: 2000 });
+    else setTimeout(initDisplayTray, 1);
   </script>
 
 </header>
+
+{/* The menu sheet (PH-11 to PH-15): every menu button opens it, the header's
+    here and a phone's bar on a reading page. */}
+<MenuSheet search={search} deskHref={deskHref} account={!deskTitle} />

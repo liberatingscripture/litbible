@@ -1,4 +1,6 @@
-/* Shared tools tray layout (SearchLayout + ScriptureLayout) */
+/* The tools row of /search (SearchLayout: its heading over the search
+   field). A chapter's and an introduction's went with Featherboa's place
+   line (PlaceLine.astro), and Read View's with Read View (Phase 4). */
 
 .scripture-tools {
   padding: 18px 16px 10px;
@@ -35,8 +37,8 @@
     minmax(320px, 1fr)
     minmax(227px, 260px);
 
-  /* One toolbar row: trigger, search, and Read View pill share a
-     vertical center instead of staggering */
+  /* One toolbar row: the three columns share a vertical center instead
+     of staggering */
   align-items: center;
   gap: 18px;
 
@@ -62,44 +64,17 @@
   justify-self: end;
 }
 
-/* ReadMenu trigger: left-aligned in the tools bar's left column (desktop
-   and the tablet band); the ≤640px block below centers it instead */
-.scripture-layout .read-menu-wrap,
-.scripture-tools__left .read-menu-wrap {
-  justify-content: flex-start;
-}
-
-/* Search-only variant (Read View pages): the passage picker lives in the
-   sticky reading toolbar instead, so the bar holds just the search field —
-   one centered column at every width. Out-specifies the breakpoint
-   grid-template-columns overrides below (0,2,0 vs 0,1,0). */
-.scripture-tools--search-only .scripture-tools__inner {
-  grid-template-columns: minmax(0, 680px);
-  justify-content: center;
-}
-
-/* Tablet band (641-900px): one row, like desktop, with the picker at its
-   own width, the search field taking the rest, and a shorter Read View
-   label (audit F3). */
+/* Tablet band (641-900px): one row, like desktop, the search field taking
+   what the side columns leave (audit F3). */
 @media (max-width: 900px) and (min-width: 641px) {
   .scripture-tools__inner {
     grid-template-columns: auto minmax(0, 1fr) auto;
     width: min(860px, calc(100% - 32px));
     gap: 12px;
   }
-
-  /* Three classes, to out-specify the components' scoped min-width floors. */
-  .scripture-tools .scripture-tools__left .read-menu__trigger,
-  .scripture-tools .scripture-tools__right .reading-view-pill {
-    min-width: 0;
-  }
-
-  .scripture-tools .rvp-full {
-    display: none;
-  }
 }
 
-/* Mobile (≤640px): single centered stack — picker, search, Read View */
+/* Mobile (≤640px): one centered stack, the empty side columns out of it. */
 @media (max-width: 640px) {
   .scripture-tools__inner {
     grid-template-columns: 1fr;
@@ -118,153 +93,8 @@
     justify-self: center;
   }
 
-  .scripture-layout .reading-view-right {
-    justify-content: center;
-    margin-top: 0.75rem;
-  }
-
-  .scripture-layout .read-menu-wrap,
-  .scripture-tools__left .read-menu-wrap {
-    justify-content: center;
-  }
-}
-
-/* The Read View pill's short label, and the phone search controls, are
-   off everywhere until a rule below turns them on. */
-.rvp-short,
-.tools-search-toggle,
-.tools-search-close {
-  display: none;
-}
-
-@media (max-width: 900px) and (min-width: 641px) {
-  .scripture-tools .rvp-short {
-    display: inline;
-  }
-}
-
-/* Phones with JS (data-compact, set by ScriptureLayout's inline script): one
-   row of passage picker, search button and Read View button, 44px tall.
-   Search opens in place of the row, with a × to close it. Without JS the
-   stacked layout above stays. (audit F3) */
-.tools-search-toggle,
-.tools-search-close {
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid rgba(var(--ink-rgb), 0.11);
-  background: var(--surface-input);
-  color: var(--text);
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
-  font: inherit;
-  cursor: pointer;
-}
-
-.tools-search-close {
-  font-size: 24px;
-  line-height: 1;
-  box-shadow: none;
-}
-
-@media (max-width: 640px) {
-  .scripture-tools[data-compact] {
-    padding: 10px 12px 4px;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__inner {
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    width: 100%;
-    gap: 8px;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__left,
-  .scripture-tools[data-compact] .scripture-tools__center,
-  .scripture-tools[data-compact] .scripture-tools__right {
-    grid-row: 1;
-    margin: 0;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__left {
-    grid-column: 1;
-    justify-self: stretch;
-    min-width: 0;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__center {
-    grid-column: 2;
-    width: auto;
-  }
-
-  .scripture-tools[data-compact] .scripture-tools__right {
-    grid-column: 3;
-  }
-
-  .scripture-tools[data-compact] .read-menu-wrap,
-  .scripture-tools[data-compact] .read-menu {
-    width: 100%;
-  }
-
-  .scripture-tools[data-compact] .read-menu__trigger {
-    width: 100%;
-    min-width: 0;
-    height: 44px;
-    padding: 0 14px;
-  }
-
-  .scripture-tools[data-compact] .searchbar {
+  .scripture-tools__left:empty,
+  .scripture-tools__right:empty {
     display: none;
-  }
-
-  .scripture-tools[data-compact] .tools-search-toggle {
-    display: inline-flex;
-  }
-
-  .scripture-tools[data-compact] .reading-view-right {
-    margin-top: 0;
-  }
-
-  .scripture-tools[data-compact] .reading-view-pill {
-    min-width: 0;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-  }
-
-  .scripture-tools[data-compact] .rvp-full {
-    display: none;
-  }
-
-  /* Search open: the field and × take the row. */
-  .scripture-tools[data-search-open] .scripture-tools__left,
-  .scripture-tools[data-search-open] .scripture-tools__right,
-  .scripture-tools[data-search-open] .tools-search-toggle {
-    display: none;
-  }
-
-  .scripture-tools[data-search-open] .scripture-tools__center {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .scripture-tools[data-search-open] .searchbar {
-    display: block;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .scripture-tools[data-search-open] .tools-search-close {
-    display: inline-flex;
-  }
-
-  /* The results tray spans the whole row, under the × as well. */
-  .scripture-tools[data-search-open] .searchbar__panel {
-    right: auto;
-    width: calc(100vw - 24px);
   }
 }

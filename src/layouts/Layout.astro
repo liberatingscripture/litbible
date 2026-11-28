@@ -1,16 +1,21 @@
 ---
+import "../styles/tokens.css";
 import "../styles/global.css";
-import "../styles/restyle.css";
-import "../styles/v2/base.css";
+import "../styles/kit.css";
+import "../styles/header.css";
+import "../styles/footer.css";
 import "../styles/print.css";
 import SiteHeader from "../components/SiteHeader.astro";
-import interLatin400Url from "@fontsource/inter/files/inter-latin-400-normal.woff2";
-import crimsonLatin600Url from "@fontsource/crimson-text/files/crimson-text-latin-600-normal.woff2";
+import PlaceLine from "../components/PlaceLine.astro";
+import PassagePicker from "../components/PassagePicker.astro";
+import { placeOf } from "../lib/places.mjs";
+import sourceSansLatinUrl from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2";
+import frauncesLatinUrl from "@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2";
 import SiteFooter from "../components/SiteFooter.astro";
 import AppsLaunchPopover from "../components/AppsLaunchPopover.astro";
 import AppInstallBanner from "../components/AppInstallBanner.astro";
 import { APP_PLATFORM_UA } from "../lib/app-platform.mjs";
-import { EDGE, FIRST_PAINT, GAP, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH } from "../lib/desk-margin.mjs";
+import { EDGE, FIRST_PAINT, GAP, MIN_WIDTH } from "../lib/desk-margin.mjs";
 import { READING_SURFACES, hasPanel } from "../scripts/desk-frame.js";
 import { contentUpdated, contentVersion } from "../lib/content-version.mjs";
 
@@ -30,20 +35,31 @@ const {
   // footnote letters) on chapter pages, "read" (numbers only; Read View
   // prints no footnote letters) on /read/<book>.
   scriptureControls,
-  // True on pages that carry their own search box (chapters, intros, /read,
-  // Read View, /search, articles). Every other page gets the header's
-  // search icon instead, so each page has exactly one way in (audit U6).
+  // True on pages that carry their own search box (chapters and intros, in
+  // the place line; Read View, /search, articles). The header's magnifier
+  // takes the reader to that box there, and opens its own strip everywhere
+  // else, so a page never shows two (audit U6). The Read page (chapters,
+  // intros, Read View) has no magnifier at all (HD-13).
   pageSearch = false,
-  // Site 2.0 (shown only with the restyle's stamp): a page with its own
-  // search box that also wants the header's search icon, as a plain link to
-  // /search. The articles pages pass it (SiteHeader's searchLink).
-  headerSearchLink = false,
-  // The Study Desk's own header (/desk): the page's title, centered, in
-  // place of the nav, and no search (SiteHeader's deskTitle).
+  // Study's own header (/desk): the page's title, centered, in place of the
+  // places, and no search (SiteHeader's deskTitle).
   deskTitle,
-  // Where the header's Study group sends "Study Desk": a chapter or an
-  // introduction passes its toolbar pill's ?place= address (ScriptureLayout).
+  // Where the header's Study menu sends "Scripture": a chapter or an
+  // introduction passes the place line's "Study John 3" address
+  // (ScriptureLayout), so the two never disagree.
   deskHref,
+  // The passage on a chapter or an introduction ({ book, chapter,
+  // studyHref }; ScriptureLayout), which makes the line under the header
+  // the place line (PlaceLine.astro) and opens the passage picker at it.
+  readingLine,
+  // True on /read, where the passage picker is the page, so no other is
+  // drawn: everywhere else but Study's own header, the picker waits in a
+  // closed dialog for its ways in (PassagePicker.astro).
+  pickerInPage = false,
+  // The chapter's name on a chapter or an introduction ("John 3"), which
+  // makes the header's row the phone's top bar under 700px (SiteHeader's
+  // picker; ScriptureLayout passes it, with the bar at the thumb).
+  picker,
   // Which reading surface this page is, for the Study Desk ("chapter",
   // "intro", "read", "article", "glossary"; the kinds in desk-frame.js's
   // ALL_SURFACES). The pre-paint script stamps the Notebook panel's state
@@ -51,10 +67,10 @@ const {
   deskSurface,
 } = Astro.props;
 
-// The header's Study Desk link is on the home page only (BVJ, 2026-11-06,
-// E50). Scripture pages and /read carry their own pill in the page, where a
-// reader is already looking at a passage; no other page has one.
-const deskLink = Astro.url.pathname === "/";
+// Where this page is among the four places (src/lib/places.mjs): the
+// header underlines its place, and the line under the header names it.
+const where = placeOf(Astro.url.pathname);
+const search = deskTitle || where.readPage ? "none" : pageSearch ? "page" : "strip";
 
 // Auto-generate canonical URL from site config when not explicitly provided.
 // Astro.site is set via `site:` in astro.config.mjs.
@@ -64,30 +80,30 @@ const siteOrigin = Astro.site ? Astro.site.origin : "https://litbible.net";
 const ogImageUrl = ogImage ?? `${siteOrigin}/images/lit-logo-2026-ring.png`;
 
 // Critical inline style values — prevent FOUC before external stylesheet loads.
-// green pages stay green in dark mode (brand color); all others flip to dark bg.
+// Green pages stay green in dark mode (brand color); every other page is the
+// paper by day and the night page by night (tokens.css: --color-page and
+// --color-text), whatever its bg, since the cream went ("Surfaces").
 const isGreen = bg === "green";
-const isWhite = bg === "white";
-const criticalBg        = isGreen ? "#209D50" : isWhite ? "#FAFAF8" : "#E1DFD9";
-const criticalColor     = isGreen ? "#E1DFD9" : "#1d231c";
-const criticalDarkBg    = isGreen ? "#209D50" : isWhite ? "#1d1d1f" : "#0E0E0F";
-const criticalDarkColor = isGreen ? "#E1DFD9" : "#F0F0F0";
+const criticalBg        = isGreen ? "#209D50" : "#FAFAF8";
+const criticalColor     = isGreen ? "#FAFAF8" : "#1D231C";
+const criticalDarkBg    = isGreen ? "#209D50" : "#111411";
+const criticalDarkColor = isGreen ? "#FAFAF8" : "#ECEEE8";
 // scrollbar-gutter, header min-height, and main min-height are reserved here
 // (not just in global.css) so the early paint shares the final layout geometry.
 // .site-header covers the outer element; .site-header__inner covers the inner.
 // main{min-height:50svh} keeps the early paint from starting at height:0
 // before content arrives, avoiding a large layout shift on long pages.
+// A phone's reading page reserves its top bar's height instead (header.css,
+// "The phone's top bar").
 // The dark block mirrors global.css's dual mechanism so the pre-paint data-theme
 // attribute overrides it on first paint: the media rule is guarded with
 // :not([data-theme="light"]) (so a forced-light user on a dark OS gets no dark
 // frame), and an explicit :root[data-theme="dark"] rule forces dark on any OS.
-// The last two rules are Site 2.0's (SITE-2.0.md, ground rule 3): markup only
-// 2.0 has (data-v2) is hidden without the data-restyle stamp, and markup 2.0
-// replaces (data-v1) is hidden with it. They are here so neither flashes.
-const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}:root:not([data-restyle]) [data-v2]{display:none!important}:root[data-restyle] [data-v1]{display:none!important}`;
+const criticalCSS = `html,body{margin:0;padding:0}html{scrollbar-gutter:stable}body{background:${criticalBg};color:${criticalColor}}.site-header{min-height:80px}.site-header__inner{min-height:80px;box-sizing:border-box}@media(max-width:699px){.site-header--reading,.site-header--reading .site-header__inner{min-height:52px}}main{min-height:50svh}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:${criticalDarkBg};color:${criticalDarkColor}}}:root[data-theme="dark"] body{background:${criticalDarkBg};color:${criticalDarkColor}}`;
 
 // What the desk's pre-paint script needs to repeat src/lib/desk-margin.mjs's
 // firstPaint (BA25, BA30).
-const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, minMeasure: MIN_MEASURE, maxMeasure: MAX_MEASURE };
+const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH };
 // Whether this page has the Notebook panel, for the same script (E124).
 const deskPanel = hasPanel(deskSurface);
 // Whether its column is the one firstPaint knows, a Chapter View chapter's
@@ -108,24 +124,22 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
     {/* Apply the saved theme (light/dark) before first paint to avoid a flash of the wrong scheme.
          Absence of 'lit-theme' = system: no attribute, CSS follows prefers-color-scheme. */}
     <script is:inline>try{var t=localStorage.getItem('lit-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}}catch(_){}</script>
-    {/* Apply the saved text size, line spacing, and verse-number / footnote-letter
-         visibility before first paint, so nothing reflows after load. Each key's
-         absence is the default (Medium, Normal, shown). The three Read View keys
+    {/* Apply the saved text size, line spacing, Justify, and whether verse numbers,
+         footnote letters, and key terms show before first paint, so nothing reflows
+         after load. Each key's absence is the default (Medium, Normal, Justify off,
+         shown); lit-justify is stored only when on. The three Read View keys
          that came before the shared Display tray (lit_rm_fontSize, lit_rm_lineHeight,
          lit_rm_markers) are still read as fallbacks; the tray deletes each one when
          its setting changes, so it can't resurrect an older choice.
-         Verse numbers are one setting per view. Chapter View reads lit-verse-numbers
-         alone: a number there is the verse menu's button, so hiding it for Read
-         View's sake took the menu away on a touch screen. Read View reads
-         lit-read-numbers, then lit_rm_markers (its own key before the tray), then
-         Chapter View's, so it follows Chapter View until the reader sets it. */}
-    <script is:inline define:vars={{ readView: scriptureControls === "read" }}>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=readView?(s.getItem('lit-read-numbers')||s.getItem('lit_rm_markers')||s.getItem('lit-verse-numbers')):s.getItem('lit-verse-numbers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k)}catch(_){}</script>
+         Verse numbers had one setting per view until Read View retired into the
+         chapter's page, which reads on through the book (Featherboa, Phase 4). The
+         page reads lit-verse-numbers, which is stored only when off, then Read
+         View's own (lit-read-numbers, then lit_rm_markers), so a reader who hid
+         them for reading a whole book keeps that until the switch is next set. */}
+    <script is:inline>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=s.getItem('lit-verse-numbers')||s.getItem('lit-read-numbers')||s.getItem('lit_rm_markers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms'),j=s.getItem('lit-justify');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k);if(j==='on')d.setAttribute('data-justify',j)}catch(_){}</script>
     {/* The Study Desk preview (STUDY-DESK.md, phase 1b). ?desk=on or ?desk=off sets or
          clears lit-desk-preview in this browser (off clears lit-desk-panel too) and is
-         taken out of the address, so a copied link never carries it. With the flag on, on
-         every device (phones too), data-restyle goes on: src/styles/restyle.css draws the
-         rest of the site in the desk's look (E132), and it comes off at launch with the
-         preview ("Launching" in src/scripts/desk/CLAUDE.md). With the flag on, and on a computer (the test in
+         taken out of the address, so a copied link never carries it. With the flag on, and on a computer (the test in
          src/lib/app-platform.mjs, repeated here since this script can't import),
          data-desk="on" turns the desk on: desk-gate.js loads it, and global.css shows
          the Notebook button and narrows the reading measure to 52. The rest is the
@@ -133,28 +147,32 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
          (deskPanel, from the page's deskSurface: Chapter View and Read View while
          PROSE_NOTES in desk-frame.js is off; E124). There, unless the reader
          closed the notebook (lit-desk-panel "closed"; it starts open and minimized,
-         BVJ 2026-10-13) or chose on the notebook page that pages open with it
-         closed (lit-desk-start; src/lib/desk-start.mjs is the rule),
-         data-desk-panel="open" goes on too, and, when it starts expanded rather than
-         minimized (lit-desk-min "0", or a start of "open"), data-desk-expanded: only the
-         expanded notebook narrows Chapter View chapters to 48 and applies the dragged widths
-         (BVJ, 2026-10-14), so stamped here a page opening that way never reflows.
-         margin.js keeps data-desk-expanded in step from then on. The widths
+         BVJ 2026-10-13) or chose on /settings that pages open with it closed
+         (lit-desk-start; src/lib/desk-start.mjs is the rule),
+         data-desk-panel="open" goes on too, and with it data-desk-expanded: the open
+         notebook, minimized or expanded, narrows Chapter View chapters to 48 and applies
+         the dragged widths (Featherboa's Phase 5, BS-15: opening and closing the panel
+         moves no scripture; until then only the expanded one did, BVJ 2026-10-14), so
+         stamped here a page opening with it never reflows. margin.js keeps
+         data-desk-expanded in step from then on. The widths
          a reader dragged this visit (sessionStorage lit-desk-measure and lit-desk-width;
          src/scripts/desk/widths.js) go on with it as data-desk-widths, --desk-measure and
-         --desk-width, so a Chapter View chapter opens with them and doesn't jump. Both are
-         stamped only where the window holds them: the script repeats
-         src/lib/desk-margin.mjs's firstPaint (handed its numbers as deskFit), which works
-         out the column's width from the reader's font and text size. Too narrow for the
-         margin, the notebook would float and fold by itself, reflowing every chapter
-         (BA25); widths kept in a wider window are given way as widths.js gives them, or
-         left off (BA30). The window's width is the width less the scrollbar, measured on
+         --desk-width, so a Chapter View chapter opens with them and doesn't jump, but only
+         where the window holds them: the script repeats src/lib/desk-margin.mjs's
+         firstPaint (handed its numbers as deskFit), which works out the column's width
+         from the reader's font and text size. Widths kept in a wider window are given way
+         as widths.js gives them, or left off (BA30), and a measure kept in another face is
+         held to this face's range, 45 to 75 of its characters (FIRST_PAINT.range), as
+         widths.js holds it. (Too narrow for the margin, the notebook floats and folds by
+         itself; that once reflowed every chapter, BA25, as it was stamped expanded and
+         then folded to 52. The open notebook now keeps the 48 folded too.) The
+         window's width is the width less the scrollbar, measured on
          a throwaway element: the page reserves a scrollbar's room (scrollbar-gutter, in
          the critical CSS), which the window doesn't show yet this early, and reading it
          without left a 16px band where the guess was wrong. The panel itself sits in the
          margin, so nothing else needs reserving for it here.
          On a Chapter View chapter (deskChapter) the column's place goes on as well (E137).
-         Where the margin is too narrow for the expanded notebook, the first placement moves
+         Where the margin is too narrow for the notebook, the first placement moves
          the column left (placeInMargin), and until the desk's code arrived the chapter
          painted centered and then moved, on every page turn. firstPaint works that move out
          from the same numbers, and it is stamped as --desk-move, a whole translate
@@ -178,7 +196,7 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
          button last (lit-desk-account-last, a note desk/account/header-entry.js keeps): the
          button is narrower than "Sign in," so the row holds the right room from first paint
          and nothing in it moves when the entry is drawn (E231). That one stays at launch. */}
-    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags, deskFit, deskPanel, deskChapter }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),y=u.searchParams.get('account'),o=0,n=navigator,a=n.userAgent||'',t=n.maxTouchPoints>1;if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');o=1}if(y==='preview'||y==='local'||y==='off'){if(y==='off')s.removeItem('lit-desk-account');else s.setItem('lit-desk-account',y);u.searchParams.delete('account');o=1}if(o)history.replaceState(history.state,'',u.pathname+u.search+u.hash);var c=s.getItem('lit-desk-account');if(c==='preview'||c==='local'){d.setAttribute('data-account','open');if(s.getItem('lit-desk-account-last')==='in')d.setAttribute('data-account-last','in')}if(s.getItem('lit-desk-preview')==='on')d.setAttribute('data-restyle','');if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(n.userAgentData&&n.userAgentData.mobile===true)||(t&&(/Macintosh/.test(a)||(/Linux/.test(a)&&!/CrOS/.test(a)))))){d.setAttribute('data-desk','on');if(deskPanel){var b=s.getItem('lit-desk-start');if(s.getItem('lit-desk-show')==='off')d.setAttribute('data-desk-show','off');if(s.getItem('lit-desk-show')==='off'?false:b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');if(b==='open'||(b!=='min'&&s.getItem('lit-desk-min')==='0')){var f=deskFit,w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width')),e=document.createElement('div'),v,k=(f.ch[d.getAttribute('data-font')]||f.ch[''])*(f.scale[d.getAttribute('data-size')]||1)*f.body*parseFloat(getComputedStyle(d).fontSize),r,h=1,g;e.style.cssText='position:absolute;visibility:hidden;width:99px;height:9px;overflow:scroll';d.appendChild(e);v=innerWidth-(e.offsetWidth-e.clientWidth);d.removeChild(e);r=v-f.edge-f.gap-f.keepLeft;if(m>=f.minMeasure&&m<=f.maxMeasure&&x>=f.minWidth){h=m*k+f.pad+x-r;if(h>0){g=Math.min(h,x-f.minWidth);x-=g;h-=g}if(h>0){g=Math.min(h,(m-f.minMeasure)*k);m-=g/k;h-=g}}if(h<=.5){m=Math.round(m*10)/10;x=Math.round(x);d.setAttribute('data-desk-expanded','');d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(m));d.style.setProperty('--desk-width',x+'px');if(deskChapter)d.style.setProperty('--desk-bar-center',v-f.edge-x-f.gap-(m*k+f.pad)/2+'px')}else if(r-f.measure*k-f.pad>=f.minWidth){d.setAttribute('data-desk-expanded','');h=Math.round(Math.max(0,f.minWidth+f.edge+f.gap+(f.measure*k+f.pad-v)/2));if(deskChapter&&h){d.style.setProperty('--desk-move',-h+'px 0');d.style.setProperty('--desk-bar-center',v/2-h+'px')}}}}}}}catch(_){}</script>
+    <script is:inline define:vars={{ appUa: APP_PLATFORM_UA.source, appUaFlags: APP_PLATFORM_UA.flags, deskFit, deskPanel, deskChapter }}>try{var d=document.documentElement,s=localStorage,u=new URL(location.href),q=u.searchParams.get('desk'),y=u.searchParams.get('account'),o=0,n=navigator,a=n.userAgent||'',t=n.maxTouchPoints>1;if(q==='on'||q==='off'){if(q==='on')s.setItem('lit-desk-preview','on');else{s.removeItem('lit-desk-preview');s.removeItem('lit-desk-panel')}u.searchParams.delete('desk');o=1}if(y==='preview'||y==='local'||y==='off'){if(y==='off')s.removeItem('lit-desk-account');else s.setItem('lit-desk-account',y);u.searchParams.delete('account');o=1}if(o)history.replaceState(history.state,'',u.pathname+u.search+u.hash);var c=s.getItem('lit-desk-account');if(c==='preview'||c==='local'){d.setAttribute('data-account','open');if(s.getItem('lit-desk-account-last')==='in')d.setAttribute('data-account-last','in')}if(s.getItem('lit-desk-preview')==='on'&&!(new RegExp(appUa,appUaFlags).test(a)||(n.userAgentData&&n.userAgentData.mobile===true)||(t&&(/Macintosh/.test(a)||(/Linux/.test(a)&&!/CrOS/.test(a)))))){d.setAttribute('data-desk','on');if(deskPanel){var b=s.getItem('lit-desk-start');if(b==='closed'?false:b==='min'||b==='open'||s.getItem('lit-desk-panel')!=='closed'){d.setAttribute('data-desk-panel','open');var f=deskFit,w=sessionStorage,m=parseFloat(w.getItem('lit-desk-measure')),x=parseFloat(w.getItem('lit-desk-width')),e=document.createElement('div'),v,M=f.range[d.getAttribute('data-font')]||f.range[''],k=(f.ch[d.getAttribute('data-font')]||f.ch[''])*(f.scale[d.getAttribute('data-size')]||1)*f.body*parseFloat(getComputedStyle(d).fontSize),r,h=1,g;e.style.cssText='position:absolute;visibility:hidden;width:99px;height:9px;overflow:scroll';d.appendChild(e);v=innerWidth-(e.offsetWidth-e.clientWidth);d.removeChild(e);r=v-f.edge-f.gap-f.keepLeft;if(isFinite(m)&&isFinite(x)&&x>=f.minWidth){m=Math.min(M.max,Math.max(M.min,m));h=m*k+f.pad+x-r;if(h>0){g=Math.min(h,x-f.minWidth);x-=g;h-=g}if(h>0){g=Math.min(h,(m-M.min)*k);m-=g/k;h-=g}}if(h<=.5){m=Math.round(m*10)/10;x=Math.round(x);d.setAttribute('data-desk-expanded','');d.setAttribute('data-desk-widths','');d.style.setProperty('--desk-measure',String(m));d.style.setProperty('--desk-width',x+'px');if(deskChapter)d.style.setProperty('--desk-bar-center',v-f.edge-x-f.gap-(m*k+f.pad)/2+'px')}else{d.setAttribute('data-desk-expanded','');if(r-f.measure*k-f.pad>=f.minWidth){h=Math.round(Math.max(0,f.minWidth+f.edge+f.gap+(f.measure*k+f.pad-v)/2));if(deskChapter&&h){d.style.setProperty('--desk-move',-h+'px 0');d.style.setProperty('--desk-bar-center',v/2-h+'px')}}}}}}}catch(_){}</script>
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
@@ -218,9 +236,11 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
          Colors are bg-specific so no flash occurs on green or dark-mode pages. */}
     <Fragment set:html={`<style>${criticalCSS}</style>`} />
 
-    {/* Font preloads: start fetching before CSS is parsed */}
-    <link rel="preload" href={interLatin400Url} as="font" type="font/woff2" crossorigin="anonymous" />
-    <link rel="preload" href={crimsonLatin600Url} as="font" type="font/woff2" crossorigin="anonymous" />
+    {/* Font preloads: start fetching before CSS is parsed. Source Sans 3 draws
+         every page's text and Fraunces every page's title, each one variable
+         file for all its weights (faces.css). */}
+    <link rel="preload" href={sourceSansLatinUrl} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={frauncesLatinUrl} as="font" type="font/woff2" crossorigin="anonymous" />
 
     {/* Favicons & manifest */}
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
@@ -262,7 +282,36 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
   <body class={`bg-${bg}`} data-pagefind-ignore={pagefindIndex ? undefined : true}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <AppInstallBanner />
-    <SiteHeader class={headerClass} scriptureControls={scriptureControls} headerSearch={!pageSearch && !deskTitle} searchLink={headerSearchLink} deskTitle={deskTitle} deskLink={deskLink} deskHref={deskHref} />
+    <SiteHeader class={headerClass} scriptureControls={scriptureControls} search={search} deskTitle={deskTitle} picker={picker} deskHref={deskHref} />
+    {/* A page puts its one or two main commands at the line's right with
+        slot="place-line" (none does yet). A chapter or an introduction gets
+        the place line instead (readingLine). */}
+    {readingLine && !deskTitle ? (
+      <PlaceLine where={where} reading={readingLine} />
+    ) : where.line && !deskTitle && (
+      Astro.slots.has("place-line") ? (
+        <PlaceLine where={where}><slot name="place-line" slot="commands" /></PlaceLine>
+      ) : (
+        <PlaceLine where={where} />
+      )
+    )}
+    {/* The passage picker's panel and sheet (FP-01 to FP-16): closed until
+        a way in opens it, and kept in a <template> till then, so a page that
+        never opens it carries none of its thousand-odd elements (a dialog
+        never opens without JavaScript anyway). passage-picker.js puts it in
+        place the first time; /read's own picker is the page. */}
+    {!deskTitle && !pickerInPage && (
+      <dialog class="picker-dialog" id="passagePicker" aria-label="Choose passage" data-picker-dialog data-pagefind-ignore>
+        <template data-picker-template>
+          <PassagePicker book={readingLine?.book} chapter={readingLine?.chapter} />
+        </template>
+      </dialog>
+    )}
+    {!deskTitle && (
+      <script>
+        import "../scripts/passage-picker.js";
+      </script>
+    )}
 
     <main id="main-content" data-pagefind-body={pagefindIndex ? true : undefined}>
       <slot />

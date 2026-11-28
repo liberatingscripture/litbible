@@ -1,9 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/pages/unsubscribe.css";
-// Site 2.0's look, behind the data-restyle stamp (src/styles/v2/unsubscribe.css).
-import "../styles/v2/unsubscribe.css";
-import EmblemMark from "../components/EmblemMark.astro";
 
 /**
  * This form deliberately does NOT load Brevo's `main.js`, for the same reason
@@ -33,7 +30,7 @@ import EmblemMark from "../components/EmblemMark.astro";
 >
   <div class="unsub-page">
     <div class="unsub-page__inner">
-      <h1 class="unsub-page__heading v2-bar">Unsubscribe</h1>
+      <h1 class="unsub-page__heading">Unsubscribe</h1>
 
       <p class="unsub-page__desc">
         Enter your email address below to stop receiving emails from the LIT Bible newsletter.
@@ -59,7 +56,7 @@ import EmblemMark from "../components/EmblemMark.astro";
 
       <form
         id="sib-form"
-        class="unsub-form v2-sheet"
+        class="unsub-form"
         method="POST"
         action="https://1742a6b7.sibforms.com/serve/MUIFAF8ChGsVxj_DS8a2prrDhd_aJDuSiX055q-CeXeeggu8WXuqKN4fIV53ItwK37DD9N4qyOzyvq43hj7ealaGvKTyXIE0ZvlNztN9fyk1MOjFkaf4SLwE4LWj3VPv2VAxoQJGIoyH1xsY5nUoMqPKIUYyWRTei9Bnm54eu_3MHd9xtO2uFH0HJdGSTSN3_v03ePWtOTfsTi7ikQ=="
         data-type="unsubscription"
@@ -74,9 +71,9 @@ import EmblemMark from "../components/EmblemMark.astro";
             placeholder="your@email.com"
             autocomplete="email"
             required
-            class="unsub-form__input"
+            class="unsub-form__input kit-field"
           />
-          <button type="submit" class="unsub-form__submit" form="sib-form">
+          <button type="submit" class="unsub-form__submit kit-btn kit-btn--filled" form="sib-form">
             Unsubscribe
           </button>
         </div>
@@ -87,7 +84,6 @@ import EmblemMark from "../components/EmblemMark.astro";
         <input type="hidden" name="locale" value="en" />
       </form>
     </div>
-    <EmblemMark class="v2-watermark unsub-page__mark" />
   </div>
 </Layout>
 

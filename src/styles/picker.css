@@ -1,0 +1,289 @@
+/* =========================================================
+   The passage picker (PassagePicker.astro; src/scripts/passage-picker.js;
+   SITE-FEATHERBOA.md, "Finding a passage"): the field, what it offers,
+   Continue reading, the 27 books, the chosen book's chapters with its
+   introduction, and Release Notes. Its controls are the kit's: this file
+   says only where they sit. One look in three places:
+
+   - a panel hanging from what opened it, from 700px, opening at Quick
+     speed ("Motion": a panel is Quick);
+   - a sheet rising nearly to the top under 700px, at Large speed, as the
+     menu sheet does;
+   - /read, where it is the page (.picker--full; pages/read.css places it).
+
+   Both the panel and the sheet are a modal <dialog> (Layout.astro): the
+   page behind goes still while it is open.
+   ========================================================= */
+
+/* ---------- The picker itself ---------- */
+
+.picker {
+  /* The width of a book's cell: "2 Thessalonians" whole, in the controls'
+     face (wider in OpenDyslexic). */
+  --picker-book: 10.5em;
+  container: picker / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  padding: var(--space-4);
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+}
+
+html[data-font="dyslexic"] .picker {
+  --picker-book: 13.5em;
+}
+
+.picker__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.picker__form {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.picker__field {
+  width: 100%;
+}
+
+/* Beside "Close picker," the browser's own clear × would be a second ×
+   a few pixels away, one clearing and one closing; Escape empties the
+   field first (Q57). On /read the picker has no close, and keeps it (Q74). */
+.picker:not(.picker--full) .picker__field::-webkit-search-cancel-button {
+  appearance: none;
+  display: none;
+}
+
+/* What the field offers, while it holds words: one row each. */
+.picker__offers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.picker__offers[hidden],
+.picker__continue[hidden] {
+  display: none;
+}
+
+/* "in progress," beside a draft's name, in the small label's size. */
+.picker__progress {
+  font-size: var(--size-small-label);
+  line-height: var(--leading-small-label);
+}
+
+/* ---------- The books and the chosen book's chapters ---------- */
+
+.picker__panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.picker__books {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--picker-book), 1fr));
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Side by side wherever the picker is wide enough: the books keep the
+   width their names need, three to a row, and the chapters take the rest.
+   After the rules it changes: a container query adds no weight, so the
+   later rule of the two would win. */
+@container picker (min-width: 640px) {
+  .picker__panes {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .picker__books {
+    grid-template-columns: repeat(3, max-content);
+  }
+}
+
+/* OpenDyslexic's three columns of names take about 630px, so its two panes
+   stand side by side only where four chapters still fit beside them, and
+   stack below that (a tablet held upright). */
+@container picker (max-width: 879px) {
+  html[data-font="dyslexic"] .picker__panes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-font="dyslexic"] .picker__books {
+    grid-template-columns: repeat(auto-fill, minmax(var(--picker-book), 1fr));
+  }
+}
+
+/* The books and chapters are links drawn as the kit's tabs, which (being
+   buttons elsewhere) say nothing of a link's underline. */
+.picker__book,
+.picker__chapter {
+  text-decoration: none;
+}
+
+.picker__book {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  column-gap: var(--space-2);
+  row-gap: 0;
+  width: 100%;
+  white-space: normal;
+}
+
+/* The book's name over its chapters: a heading, so Fraunces at 500. */
+.picker__name {
+  margin: 0 0 var(--space-2);
+  font-size: var(--size-subhead);
+  line-height: var(--leading-subhead);
+}
+
+.picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--target) + var(--space-2)), 1fr));
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.picker__chapter {
+  justify-content: center;
+  width: 100%;
+}
+
+.picker__note {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-2);
+  font-size: var(--size-small-label);
+  line-height: var(--leading-small-label);
+}
+
+.picker__intro {
+  margin-top: var(--space-2);
+}
+
+/* Without JavaScript (/read): the book the address names, else Matthew.
+   With it, the script shows one and marks the picker ready. */
+.picker__section {
+  display: none;
+}
+
+.picker:not([data-picker-ready]) .picker__section:target,
+.picker:not([data-picker-ready]):not(:has(.picker__section:target)) .picker__section:first-child,
+.picker[data-picker-ready] .picker__section[data-shown] {
+  display: block;
+}
+
+/* ---------- The panel, from 700px ---------- */
+
+.picker-dialog {
+  box-sizing: border-box;
+  width: min(50rem, 100% - 2 * var(--space-4));
+  max-width: none;
+  max-height: calc(100dvh - var(--picker-top, var(--space-9)) - var(--space-4));
+  inset: var(--picker-top, var(--space-9)) auto auto var(--picker-left, var(--space-4));
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-float);
+  color: var(--color-text);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-float);
+}
+
+.picker-dialog::backdrop {
+  background: transparent;
+}
+
+@media (min-width: 700px) {
+  .picker-dialog[open] {
+    animation: picker-in var(--dur-quick) var(--ease);
+  }
+
+  /* OpenDyslexic's book names are wider, so its panel is too, where the
+     window allows: at 50rem its chapters stood two to a row and a long
+     book's panel scrolled (space bought back before type is shrunk:
+     src/styles/CLAUDE.md, the font's rule 3). */
+  html[data-font="dyslexic"] .picker-dialog {
+    width: min(60rem, 100% - 2 * var(--space-4));
+  }
+}
+
+@keyframes picker-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* The page behind stays where it is while the picker is open. */
+html:has(.picker-dialog[open]) {
+  overflow: hidden;
+}
+
+/* ---------- The sheet, under 700px ---------- */
+
+@media (max-width: 699px) {
+  .picker-dialog {
+    inset: auto 0 0;
+    width: 100%;
+    max-width: var(--col-text);
+    height: calc(100dvh - var(--space-7));
+    max-height: none;
+    margin: 0 auto;
+    border-bottom: 0;
+    border-radius: var(--radius-float) var(--radius-float) 0 0;
+    transform: translateY(100%);
+    transition:
+      transform var(--dur-large-out) var(--ease),
+      overlay var(--dur-large-out) var(--ease) allow-discrete,
+      display var(--dur-large-out) var(--ease) allow-discrete;
+  }
+
+  .picker-dialog[open] {
+    transform: none;
+    transition:
+      transform var(--dur-large) var(--ease),
+      overlay var(--dur-large) var(--ease) allow-discrete,
+      display var(--dur-large) var(--ease) allow-discrete;
+  }
+
+  @starting-style {
+    .picker-dialog[open] {
+      transform: translateY(100%);
+    }
+  }
+
+  .picker-dialog::backdrop {
+    background: rgba(0, 0, 0, 0);
+    transition:
+      background-color var(--dur-large-out) var(--ease),
+      overlay var(--dur-large-out) var(--ease) allow-discrete,
+      display var(--dur-large-out) var(--ease) allow-discrete;
+  }
+
+  .picker-dialog[open]::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+    transition:
+      background-color var(--dur-large) var(--ease),
+      overlay var(--dur-large) var(--ease) allow-discrete,
+      display var(--dur-large) var(--ease) allow-discrete;
+  }
+
+  @starting-style {
+    .picker-dialog[open]::backdrop {
+      background: rgba(0, 0, 0, 0);
+    }
+  }
+}

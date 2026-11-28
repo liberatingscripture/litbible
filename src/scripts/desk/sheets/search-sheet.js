@@ -21,6 +21,12 @@
 // forgotten when the query changes, and a tick on a verse the results no
 // longer hold (a book filter, another Greek word) is dropped.
 //
+// Featherboa (Phase 6): the boxes exist only while the reader has pressed
+// Select, at the tab row's right end, and a foot bar reads "3 chosen · Add to
+// sheet… · Cancel". The head rows below are still built, kept out of sight,
+// and the foot bar drives the one for the tab showing, so the counts, the
+// chooser and the write are the same code as before.
+//
 // Each group gets a head row (E116; BVJ, 2026-11-12, option A): a box that
 // checks every result (all of them, not only those on screen; unchecked it
 // clears them, and it shows mixed when some are checked), in the column the
@@ -82,9 +88,11 @@ const chapterKey = (r) => `${r.bookKey} ${r.chapter}`;
 // search-style.js; all of desk.css until LG8-10).
 const ensureStyles = addSearchStyle;
 
-/** A verse result's address: "/john-3#v16", or a Greek one's "/john-3/?greek=16.7#v16", is John 3:16. */
+/** A verse result's address: "/john-3#v16", or a Greek one's "/desk/?place=john-3:16&greek=16.7", is John 3:16. */
 function refOfLink(href) {
-  const m = /^\/?([0-9]?[a-z]+)-(\d+)\/?(?:\?[^#]*)?#v(\d+)$/i.exec(String(href ?? ""));
+  const text = String(href ?? "");
+  const greek = /^\/desk\/?\?place=([0-9]?[a-z]+)-(\d+):(\d+)&greek=\d+\.\d+$/i.exec(text);
+  const m = greek ?? /^\/?([0-9]?[a-z]+)-(\d+)\/?(?:\?[^#]*)?#v(\d+)$/i.exec(text);
   return m ? { bookKey: m[1].toLowerCase(), chapter: Number(m[2]), verse: Number(m[3]) } : null;
 }
 
@@ -142,23 +150,22 @@ const KINDS = {
     noun: "verse",
     group: "group-keyword",
     list: "results-keyword",
-    rows: "li.result-occurrence",
-    link: "a.result-link",
+    rows: "li.search-row--verse",
+    link: "a.search-row__link",
     key: verseKey,
     refOf: refOfLink,
-    // "John 3:16", from the result's own chapter heading.
-    label: (li, ref) => {
-      const title = li.closest(".result-group")?.querySelector(".result-group__title")?.textContent?.trim();
-      return `${title || `${ref.bookKey} ${ref.chapter}`}:${ref.verse}`;
-    },
+    // "John 3:16", from the row's own reference.
+    label: (li, ref) =>
+      li.querySelector(".search-row__ref")?.textContent?.trim() ||
+      `${bookKeyToLabel(ref.bookKey)} ${ref.chapter}:${ref.verse}`,
     title: (d) => searchSheetTitle(d.query),
   },
   chapters: {
     noun: "chapter",
     group: "group-subject",
     list: "results-subject",
-    rows: "li.result",
-    link: "a.result-link",
+    rows: "li.search-row--title",
+    link: "a.search-row__link",
     key: chapterKey,
     refOf: chapterOfLink,
     label: (_li, ref) => `${bookKeyToLabel(ref.bookKey)} ${ref.chapter}`,
@@ -261,7 +268,105 @@ function ensureBar(kind) {
     all.focus();
   });
   bars[kind] = bar;
+  // The head row stays out of sight: Select's foot bar drives it (Featherboa,
+  // "Search"). Its chooser and its line after a write show in the foot bar.
+  root.hidden = true;
+  document.getElementById("search-pickbar")?.append(slot);
   return bar;
+}
+
+/* ── Select, and the foot bar ────────────────────────────────────────── */
+
+let selecting = false;
+let selectBtn = null;
+let foot = null;
+
+/** The kind whose group is showing: the tab the reader is on. */
+function activeKind() {
+  for (const kind of Object.keys(KINDS)) {
+    const group = document.getElementById(KINDS[kind].group);
+    if (group && !group.hidden && found(kind).length) return kind;
+  }
+  return null;
+}
+
+function ensureSelectButton() {
+  const tools = document.getElementById("search-tools");
+  if (!tools) return;
+  if (!selectBtn?.isConnected) {
+    selectBtn = button("Select", "kit-btn kit-btn--plain search-tools__select");
+    selectBtn.setAttribute("aria-pressed", "false");
+    selectBtn.addEventListener("click", () => setSelecting(!selecting));
+    tools.append(selectBtn);
+  }
+}
+
+function setSelecting(on) {
+  selecting = on;
+  if (!on) {
+    for (const set of Object.values(ticked)) set.clear();
+    for (const bar of Object.values(bars)) if (bar) closePanel(bar, { focus: false });
+    for (const box of document.querySelectorAll(".search-results-list .desk-gather__tick, .search-row .desk-gather__tick")) {
+      const li = box.closest("li");
+      li?.classList.remove("desk-gather__row-item", "desk-gather__row-item--picked");
+      box.remove();
+    }
+  }
+  render();
+}
+
+function drawFoot() {
+  const pick = document.getElementById("search-pickbar");
+  if (!pick) return;
+  if (!selecting) {
+    pick.hidden = true;
+    return;
+  }
+  pick.hidden = false;
+  if (!foot?.isConnected) {
+    const count = make("span", "search-pickbar__count");
+    count.setAttribute("role", "status");
+    const add = button("Add to sheet…", "kit-btn kit-btn--filled search-pickbar__add");
+    add.setAttribute("aria-haspopup", "dialog");
+    const cancel = button("Cancel", "kit-btn kit-btn--plain search-pickbar__cancel");
+    cancel.addEventListener("click", () => {
+      setSelecting(false);
+      selectBtn?.focus();
+    });
+    add.addEventListener("click", () => {
+      const kind = activeKind();
+      if (!kind) return;
+      const bar = ensureBar(kind);
+      if (!ticked[kind].size) {
+        count.textContent = "Choose a result first";
+        return;
+      }
+      if (bar.panel) closePanel(bar);
+      else openPanel(bar);
+    });
+    foot = make("div", "search-pickbar__row");
+    foot.append(count, add, cancel);
+    pick.prepend(foot);
+    foot.count = count;
+    foot.add = add;
+  }
+  const kind = activeKind();
+  const k = kind ? ticked[kind].size : 0;
+  foot.count.textContent = `${k} chosen`;
+  foot.add.setAttribute("aria-disabled", k ? "false" : "true");
+}
+
+/** Everything the page's Select draws, from the ticks and the tab showing. */
+function render() {
+  ensureSelectButton();
+  const kind = activeKind();
+  if (selectBtn) {
+    selectBtn.hidden = !kind && !selecting;
+    selectBtn.setAttribute("aria-pressed", String(selecting));
+  }
+  if (selecting) for (const k of Object.keys(KINDS)) enhanceRows(k);
+  for (const k of Object.keys(KINDS)) syncTicks(k);
+  drawFoot();
 }
 
 /** Words for a polite live region, cleared first so the same words twice are heard twice. */
@@ -359,6 +464,7 @@ function syncTicks(kind, { said = false } = {}) {
   if (!bars[kind] || !found(kind).length) return;
   describeBar(bars[kind]);
   if (said) speak(bars[kind], checkedSaid(ticked[kind].size, found(kind).length, noun));
+  drawFoot();
 }
 
 function update(next) {
@@ -392,17 +498,13 @@ function update(next) {
   for (const kind of Object.keys(KINDS)) {
     const bar = ensureBar(kind);
     if (!bar) continue;
-    bar.root.hidden = !found(kind).length;
     if (!found(kind).length) {
       closePanel(bar, { focus: false });
       continue;
     }
     describeBar(bar);
   }
-  for (const kind of Object.keys(KINDS)) {
-    enhanceRows(kind);
-    syncTicks(kind);
-  }
+  render();
 }
 
 /* ── The chooser, and the write ──────────────────────────────────────── */

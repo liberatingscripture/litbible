@@ -20,6 +20,7 @@
 // (lemmas.json, and the lemma's own shard of occ/ for the parsings its words
 // take), fetched when a word is typed, never before.
 
+import { iconNode } from "../lib/icons.mjs";
 import { loadGreekBridge, loadGreekIndex, loadGreekOccurrences } from "./search-greek.js";
 import { errorMessage } from "../lib/greek-query.mjs";
 import { editSpan, insertAtCursor } from "../lib/greek-commands-ui.mjs";
@@ -45,7 +46,8 @@ const baseUrl = () => String((import.meta.env && import.meta.env.BASE_URL) || "/
 function make(tag, className, text) {
   const e = document.createElement(tag);
   if (className) e.className = className;
-  if (text !== undefined) e.textContent = text;
+  if (text && typeof text === "object") e.append(text);
+  else if (text !== undefined) e.textContent = text;
   return e;
 }
 
@@ -428,7 +430,7 @@ export function createGreekBuilder({ put, announce }) {
     const showing = card.draft ?? notation;
     if (notation && showing.trim() !== notation) top.append(withGreek(notation, "greek-card__code"));
     if (state.cards.length > 1) {
-      const x = make("button", "greek-card__x", "×");
+      const x = make("button", "greek-card__x", iconNode("close"));
       x.setAttribute("aria-label", `Remove word ${i + 1}`);
       x.dataset.key = `x${i}`;
       top.append(

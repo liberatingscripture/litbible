@@ -216,9 +216,9 @@ test("GK3-1: no class in the Greek tab names two kinds of element", () => {
 });
 
 test("GK3-3: a pressed builder chip is drawn in a system color in forced colors", () => {
-  const css = readFileSync(fileURLToPath(new URL("../src/styles/global.css", import.meta.url)), "utf8");
-  const block = css.match(/@media \(forced-colors: active\) \{\s*\.greek-chip\[aria-pressed="true"\][\s\S]*?\n\}\n/);
-  assert.ok(block, "a forced-colors block for .greek-chip");
-  assert.match(block[0], /border: 3px solid Highlight/);
-  assert.match(block[0], /\.greek-card__x/);
+  // The chip takes the kit's tinted level; kit.css owns its forced-colors look.
+  const css = readFileSync(fileURLToPath(new URL("../src/styles/kit.css", import.meta.url)), "utf8");
+  const blocks = [...css.matchAll(/@media \(forced-colors: active\) \{[\s\S]*?\n\}\n/g)].map((m) => m[0]);
+  const block = blocks.find((b) => /\.greek-chip/.test(b) && /\[aria-pressed="true"\]/.test(b) && /Highlight/.test(b));
+  assert.ok(block, "a forced-colors block that covers .greek-chip pressed");
 });

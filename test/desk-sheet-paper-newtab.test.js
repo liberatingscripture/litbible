@@ -1,10 +1,11 @@
 // The paper copy has no new-tab mark (STUDY-DESK-FIXES.md, E215; BVJ,
-// 2026-11-21). restyle.css draws one after every link that leaves the site, as
-// a box filled with the text color. print.css clears every ::after's
+// 2026-11-21). Site 2.0's restyle.css drew one after every link that leaves the
+// site, as a box filled with the text color; print.css clears every ::after's
 // background, so on paper the mark drew nothing and still held 1.2em of the
-// line: a footnote's "Isaiah 56:1–8; 58:6–14" printed with a gap before the
-// semicolon. The rule that removes it must also reach the screen, or the
-// preview breaks its lines and pages differently from the paper.
+// line. restyle.css went with Site 2.0 (SITE-FEATHERBOA-BUILD.md, Phase 0), and
+// the paper's rule stays, so any mark drawn later can't do the same: the rule
+// that removes it must also reach the screen, or the preview breaks its lines
+// and pages differently from the paper.
 //
 // A CSS rule is what's being held here, which a layout-free test can't see any
 // other way. (Checked in headless Chrome over the real stylesheets: the gap was
@@ -17,7 +18,6 @@ import { readFileSync } from "node:fs";
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 
 const sheet = read("../src/styles/pages/sheets-page.css");
-const restyle = read("../src/styles/restyle.css");
 
 /** How many blocks are open where `index` falls (0 is the top level). */
 function depthAt(css, index) {
@@ -28,11 +28,6 @@ function depthAt(css, index) {
   }
   return depth;
 }
-
-test("restyle.css still draws its new-tab mark on a link that opens a new tab", () => {
-  // If this selector moves, the rule below no longer meets it: look again.
-  assert.match(restyle, /a\[target="_blank"\][^{]*::after\s*\{[^}]*display:\s*inline-block/);
-});
 
 test("the paper copy hides that mark, on screen as well as on paper", () => {
   const rule = /\.sheet-copy a\[target="_blank"\]::after\s*\{([^}]*)\}/.exec(sheet);

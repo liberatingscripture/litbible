@@ -2,7 +2,6 @@
 // src/pages/search.astro
 import SearchLayout from "../layouts/SearchLayout.astro";
 import { SEARCH_CREDIT, isExternal } from "../lib/greek-credits.mjs";
-import "../styles/v2/search.css";
 
 const title = "Search | Liberation and Inclusion Translation";
 const description = "Search the Liberation & Inclusion Translation (LIT).";
@@ -15,114 +14,76 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
   type="search"
   pagefindIndex={false}
 >
-  <header class="search-header" slot="preSearch">
-    <h1 class="search-title">Search</h1>
-    <p class="search-subtitle">
-      Results update as you type. Use the filters to narrow by type and book.
-    </p>
-  </header>
-
-  {/* Site 2.0 (data-v2): the pane beside the results on a computer, rows
-       under the field on a phone. Empty here: v2-search.js moves today's sort,
-       filters, and passage picker into it (never copies), and lists the
-       result groups. "Filters" and "Result groups" are BVJ's two new labels. */}
-  <div class="v2-search__pane" slot="v2Pane" data-v2 data-v2-search-pane data-pagefind-ignore>
-    <div class="v2-search__set" data-v2-search-sort></div>
-    <div class="v2-search__set" role="group" aria-labelledby="v2-search-filters-label" data-v2-search-filters>
-      <p class="v2-label v2-search__label" id="v2-search-filters-label">Filters</p>
-    </div>
-    <nav class="v2-search__groups" aria-labelledby="v2-search-groups-label" data-v2-search-groups hidden>
-      <p class="v2-label v2-search__label" id="v2-search-groups-label">Result groups</p>
-      <ul></ul>
-    </nav>
-    <div class="v2-search__go" data-v2-search-go></div>
-  </div>
+  {/* The field is the page; its title is for screen readers (SE-02). */}
+  <h1 class="sr-only" slot="preSearch">Search</h1>
 
   <section class="search-page" data-pagefind-ignore>
-    <div class="search-meta">
-      {/* Sort stays in a dedicated row so it never "wraps under" the status line */}
-      <div class="search-meta__top">
-        <div class="sort-wrap" aria-label="Sort results">
-          <span class="sort-label v2-label">Sort by:</span>
-          <div class="sort-toggle">
-            <button
-              type="button"
-              class="sort-btn"
-              data-sort="relevance"
-              aria-pressed="true"
-              title="Sort by relevance"
-            >
-              Relevance
-            </button>
-            <button
-              type="button"
-              class="sort-btn"
-              data-sort="order"
-              aria-pressed="false"
-              title="Sort by book and chapter order"
-            >
-              Book order
-            </button>
-          </div>
-        </div>
+    {/* One row of tabs with their counts, and at its right end the book menu,
+         the sort, and with the Study preview Notebook actions and Select
+         (search.js; SE-03 to SE-12). */}
+    <div class="search-bar-row">
+      <div class="kit-tabs search-tabs" id="search-tabs" role="tablist" aria-label="Kinds of results"></div>
+      <div class="search-tools" id="search-tools">
+        <label class="sr-only" for="search-sort">Sort results</label>
+        <select id="search-sort" class="kit-field search-sort">
+          <option value="relevance">Relevance</option>
+          <option value="order">Bible order</option>
+        </select>
       </div>
-
-      <div class="search-meta__status">
-        <div id="search-status" aria-live="polite"></div>
-        {/* Jump links to each result group, filled by search.js */}
-        <nav class="search-jumps" id="search-jumps" aria-label="Result groups" hidden>
-        </nav>
-      </div>
-
-      <div class="search-active-filters" id="search-active-filters" hidden>
-      </div>
-
-      {/* Optional reference jump banner */}
-      <div class="search-ref" id="search-ref" data-search-ref hidden></div>
     </div>
 
-    {/* Filled only with the Study Desk on: matches from the reader's own
+    {/* Why the other tabs are unavailable on a Greek query (search.js; Q77). */}
+    <p class="search-status" id="search-tabs-reason" hidden></p>
+
+    <p class="search-status" id="search-status" aria-live="polite"></p>
+
+    {/* The reference answer: "Go to John 3:16," then "Study John 3:16" */}
+    <div class="search-ref" id="search-ref" data-search-ref hidden></div>
+
+    {/* Filled only with the Study preview on: matches from the reader's own
          notebook, searched in the browser (desk/notebook-search.js). */}
-    <div class="group" id="group-notebook" tabindex="-1" hidden>
-      <div class="group-title">My Notebook</div>
-      <ol class="results" id="results-notebook"></ol>
+    <div class="group search-group" id="group-notebook" role="tabpanel" aria-labelledby="tab-notebook" tabindex="-1" hidden>
+      <h2 class="group-title sr-only">Notebook</h2>
+      <ol class="search-results-list" id="results-notebook"></ol>
     </div>
 
-    <div class="group" id="group-glossary" tabindex="-1" hidden>
-      <div class="group-title">Glossary matches</div>
-      <ol class="results" id="results-glossary"></ol>
+    <div class="group search-group" id="group-glossary" role="tabpanel" aria-labelledby="tab-glossary" tabindex="-1" hidden>
+      <h2 class="group-title sr-only">Glossary</h2>
+      <ol class="search-rows" id="results-glossary"></ol>
     </div>
 
-    <div class="group" id="group-subject" tabindex="-1" hidden>
-      <div class="group-title">Topic matches</div>
-      <ol class="results" id="results-subject"></ol>
+    <div class="group search-group" id="group-subject" role="tabpanel" aria-labelledby="tab-subject" tabindex="-1" hidden>
+      <h2 class="group-title sr-only">Chapters about it</h2>
+      <ol class="search-rows" id="results-subject"></ol>
     </div>
 
-    <div class="group" id="group-intros" tabindex="-1" hidden>
-      <div class="group-title">Book introductions</div>
-      <ol class="results" id="results-intros"></ol>
+    <div class="group search-group" id="group-intros" role="tabpanel" aria-labelledby="tab-intro" tabindex="-1" hidden>
+      <h2 class="group-title sr-only">Introductions</h2>
+      <ol class="search-rows" id="results-intros"></ol>
     </div>
 
-    <div class="group" id="group-articles" tabindex="-1" hidden>
-      <div class="group-title">Article matches</div>
-      <ol class="results" id="results-articles"></ol>
+    <div class="group search-group" id="group-articles" role="tabpanel" aria-labelledby="tab-article" tabindex="-1" hidden>
+      <h2 class="group-title sr-only">Articles</h2>
+      <ol class="search-rows" id="results-articles"></ol>
     </div>
 
-    <div class="group" id="group-keyword" tabindex="-1" hidden>
-      <div class="group-title">Keyword matches</div>
-      <ol class="results" id="results-keyword"></ol>
+    <div class="group search-group" id="group-keyword" role="tabpanel" aria-labelledby="tab-keyword" tabindex="-1" hidden>
+      <h2 class="group-title sr-only">Scripture</h2>
+      {/* The chapters line and the glossary line, over the verses */}
+      <div class="search-lines" id="search-lines"></div>
+      <ol class="search-rows" id="results-keyword"></ol>
     </div>
 
-    {/* Filled only with the Study Desk preview on, and then alone: the verses
+    {/* Filled only with the Study preview on, and then alone: the verses
          of a Greek word, each with its Greek and the LIT beneath. */}
-    <div class="group" id="group-greek" tabindex="-1" hidden>
-      <div class="group-title">Greek</div>
+    <div class="group search-group" id="group-greek" role="tabpanel" aria-labelledby="tab-greek" tabindex="-1" hidden>
+      <h2 class="group-title sr-only">Greek</h2>
       <div class="greek-lemmas" id="greek-lemmas" hidden></div>
       <label class="greek-exact" id="greek-exact" hidden>
-        <input type="checkbox" id="greek-exact-input" />
+        <input type="checkbox" id="greek-exact-input" class="kit-check" />
         Exact form only
       </label>
-      <ol class="results" id="results-greek"></ol>
+      <ol class="search-results-list" id="results-greek"></ol>
       {/* Examples, or an error with its way out, where a Greek search has
            nothing to list (search.js). */}
       <div class="greek-help" id="greek-help" hidden></div>
@@ -134,9 +95,12 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
       )}</p>
     </div>
 
+    {/* Select's foot bar (Study preview): "3 chosen · Add to sheet… · Cancel" */}
+    <div class="search-pickbar" id="search-pickbar" hidden></div>
+
     {/* The one pager, for whichever group is paging: English verses, or the
          Greek's when a Greek search is showing. */}
-    <nav class="pager" id="pager" aria-label="Search result pages" hidden>
+    <nav class="search-pager" id="pager" aria-label="Search result pages" hidden>
     </nav>
   </section>
 
@@ -144,728 +108,3 @@ const description = "Search the Liberation & Inclusion Translation (LIT).";
     import "../scripts/search.js";
   </script>
 </SearchLayout>
-
-<style>
-  .search-page {
-    padding: 18px 0 42px;
-    /* Reserve space for asynchronously injected results so the footer starts
-       below the fold and doesn't get shoved down (CLS) once Pagefind renders. */
-    min-height: 70vh;
-  }
-
-  :global(.search-header) {
-    text-align: center;
-    margin: 0 0 16px;
-  }
-
-  :global(.search-title) {
-    font-size: 32px;
-    margin: 0 0 8px;
-  }
-
-  :global(.search-subtitle) {
-    margin: 0;
-    color: rgba(var(--ink-rgb), 0.7);
-  }
-
-  .search-meta {
-    max-width: var(--content-width, 72ch);
-    margin: 0 auto 10px;
-    padding: 0 16px;
-    color: rgba(var(--ink-rgb), 0.8);
-    /* The results follow the Display tray's text size and line spacing through
-       --reading-scale and --reading-leading-extra (see src/styles/CLAUDE.md). */
-    font-size: calc(0.95rem * var(--reading-scale, 1));
-    line-height: calc(1.6 + var(--reading-leading-extra, 0));
-  }
-
-  /* Toggle row is always its own line; status lives below. No dancing. */
-  .search-meta__top {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    min-height: 40px;
-  }
-
-  .search-meta__status {
-    text-align: center;
-    margin-top: 6px;
-  }
-
-  /* Jump links to the result groups, on one line under the count. The list
-     is built by search.js, hence :global. The separators are decoration, so
-     their alt text is empty, and each trails its item so a line that wraps
-     on a phone doesn't open with one. */
-  .search-jumps :global(ul) {
-    list-style: none;
-    margin: 6px 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    row-gap: 2px;
-  }
-
-  .search-jumps :global(li:not(:last-child)::after) {
-    content: "·";
-    content: "·" / "";
-    padding: 0 0.5em;
-    color: rgba(var(--ink-rgb), 0.5);
-  }
-
-  .search-jumps :global(a) {
-    color: var(--green-text);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .search-jumps :global(a:focus-visible) {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  .search-active-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
-    margin: 8px 0 4px;
-  }
-
-  .filter-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 12px;
-    border-radius: 999px;
-    border: 1px solid rgba(32, 157, 80, 0.35);
-    background: rgba(32, 157, 80, 0.08);
-    font-size: 0.88rem;
-    cursor: pointer;
-    white-space: nowrap;
-    color: rgba(var(--ink-rgb), 0.9);
-  }
-
-  .filter-pill:hover {
-    background: rgba(32, 157, 80, 0.16);
-    border-color: rgba(32, 157, 80, 0.5);
-  }
-
-  .filter-pill span {
-    font-size: 0.78rem;
-    opacity: 0.65;
-  }
-
-  .filter-pill--clear-all {
-    border-color: rgba(var(--ink-rgb), 0.18);
-    background: transparent;
-    color: rgba(var(--ink-rgb), 0.6);
-  }
-
-  .filter-pill--clear-all:hover {
-    background: rgba(var(--ink-rgb), 0.06);
-  }
-
-  /* Ref banner */
-  .search-ref {
-    margin-top: 10px;
-  }
-
-  .search-ref__links {
-    display: grid;
-    gap: 8px;
-  }
-
-  .search-ref__label {
-    margin: 0 0 2px;
-    font-size: calc(0.9rem * var(--reading-scale, 1));
-    color: rgba(var(--ink-rgb), 0.78);
-  }
-
-  .search-ref__link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    text-decoration: none;
-    padding: 12px 12px;
-    border-radius: 14px;
-    background: rgba(32, 157, 80, 0.1);
-    border: 1px solid rgba(32, 157, 80, 0.35);
-    color: inherit;
-  }
-
-  .search-ref__link--read {
-    background: rgba(var(--ink-rgb), 0.05);
-    border-color: rgba(var(--ink-rgb), 0.28);
-  }
-
-  .search-ref__hint {
-    opacity: 0.7;
-    font-size: calc(0.9rem * var(--reading-scale, 1));
-    white-space: nowrap;
-  }
-
-  .sort-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .sort-label {
-    font-size: 0.9rem;
-    color: rgba(var(--ink-rgb), 0.75);
-    white-space: nowrap;
-  }
-
-  .sort-toggle {
-    display: inline-flex;
-    gap: 0;
-    border-radius: 999px;
-    overflow: hidden;
-    border: 1px solid rgba(var(--ink-rgb), 0.18);
-    background: rgba(var(--surface-rgb), 0.7);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  }
-
-  .sort-btn {
-    appearance: none;
-    border: none;
-    background: transparent;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    color: rgba(var(--ink-rgb), 0.9);
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .sort-btn.is-active {
-    background: rgba(32, 157, 80, 0.16);
-    color: rgba(var(--ink-rgb), 1);
-  }
-
-  .sort-btn:focus-visible {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
-
-  .group {
-    max-width: var(--content-width, 72ch);
-    margin: 0 auto;
-    padding: 0 16px;
-    /* A jump link lands the group's title a little below the top edge. */
-    scroll-margin-top: 12px;
-  }
-
-  .group + .group {
-    margin-top: 18px;
-  }
-
-  .group-title {
-    font-size: calc(0.82rem * var(--reading-scale, 1));
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.72;
-    margin: 14px 0 10px;
-    text-align: left;
-  }
-
-  .search-page :global(.results) {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-
-    display: grid;
-    gap: 12px;
-  }
-
-  .search-page :global(.result) {
-    margin: 0;
-  }
-
-  .search-page :global(.result-link) {
-    display: block;
-    text-decoration: none;
-    color: var(--text-strong);
-
-    border-radius: 16px;
-    padding: 16px 16px;
-    padding-right: 46px;
-
-    background: rgba(var(--surface-rgb), 0.78);
-    border: 1px solid rgba(var(--ink-rgb), 0.14);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-
-    position: relative;
-  }
-
-  .search-page :global(.result-title) {
-    font-weight: 700;
-    margin: 0 0 6px;
-    line-height: 1.25;
-    color: var(--text-strong);
-  }
-
-  /* "Matthew 18 · debt forgiveness": the matched topic labels after a
-     chapter's title, in the excerpt's weight and colour. */
-  .search-page :global(.result-topics) {
-    font-weight: 400;
-    color: rgba(var(--ink-rgb), 0.78);
-  }
-
-  .search-page :global(.result-excerpt) {
-    color: rgba(var(--ink-rgb), 0.78);
-    line-height: calc(1.5 + var(--reading-leading-extra, 0));
-  }
-
-  .search-page :global(.result-link::after) {
-    content: "\203A"; /* › */
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-
-    display: grid;
-    place-items: center;
-
-    background: rgba(var(--ink-rgb), 0.08);
-    color: rgba(var(--ink-rgb), 0.9);
-    font-size: 22px;
-    line-height: 1;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .search-page :global(.result-link) {
-      transition:
-        transform 120ms ease,
-        box-shadow 120ms ease,
-        border-color 160ms ease,
-        background-color 160ms ease;
-    }
-
-    .search-page :global(.result-link:hover) {
-      transform: translateY(-1px);
-      border-color: rgba(32, 157, 80, 0.45);
-      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.12);
-      background: rgba(var(--surface-rgb), 0.92);
-    }
-
-    .search-page :global(.result-link:hover::after) {
-      background: rgba(32, 157, 80, 0.18);
-    }
-
-    .search-page :global(.result-link:active) {
-      transform: translateY(0);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-      background: rgba(var(--surface-rgb), 0.95);
-    }
-  }
-
-  .search-page :global(.result-link:focus-visible) {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 3px;
-  }
-
-  /* Highlighting stays for keyword results only */
-  .search-page :global(.result-excerpt mark) {
-    background: rgba(255, 230, 0, 0.55);
-    color: var(--text-strong);
-    padding: 0 2px;
-    border-radius: 3px;
-  }
-
-  /* ── Grouped occurrence results ── */
-  .search-page :global(.result-group) {
-    list-style: none;
-    margin: 0 0 4px;
-  }
-
-  .search-page :global(.result-group__title) {
-    font-weight: 700;
-    font-size: calc(1rem * var(--reading-scale, 1));
-    color: var(--text-strong);
-    padding: 5px 16px 6px;
-  }
-
-  .search-page :global(.result-group__occurrences) {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .search-page :global(.result-occurrence) {
-    list-style: none;
-  }
-
-  .search-page :global(.result-occurrence--collapsed) {
-    display: none !important;
-  }
-
-  .search-page :global(.result-link--occurrence) {
-    padding: 12px 16px;
-    padding-right: 46px;
-    border-radius: 12px;
-  }
-
-  .search-page :global(.result-link--occurrence .result-excerpt) {
-    font-size: calc(0.92rem * var(--reading-scale, 1));
-  }
-
-  [hidden] {
-    display: none !important;
-  }
-</style>
-
-<style is:global>
-  .result--collapsed {
-    display: none !important;
-  }
-
-  .see-more-btn {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 4px 12px;
-    font-size: calc(0.85rem * var(--reading-scale, 1));
-    font-weight: 600;
-    color: var(--accent, #38613a);
-    background: transparent;
-    border: 1.5px solid var(--accent, #38613a);
-    border-radius: 6px;
-    cursor: pointer;
-    transition:
-      background 0.15s,
-      color 0.15s;
-  }
-
-  .see-more-btn:hover {
-    background: var(--accent, #38613a);
-    color: #fff;
-  }
-
-  /* ── The Greek group (Study Desk preview; built by search.js) ── */
-
-  .greek-lemmas {
-    display: grid;
-    gap: 6px;
-    margin: 0 0 12px;
-  }
-
-  .greek-lemma-btn {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 10px 14px;
-    text-align: left;
-    font: inherit;
-    font-size: calc(0.95rem * var(--reading-scale, 1));
-    color: var(--text-strong);
-    background: transparent;
-    border: 1px solid rgba(var(--ink-rgb), 0.18);
-    border-radius: 12px;
-    cursor: pointer;
-  }
-
-  .greek-lemma-one {
-    margin: 0;
-    font-size: calc(0.95rem * var(--reading-scale, 1));
-    line-height: calc(1.6 + var(--reading-leading-extra, 0));
-    color: var(--text-strong);
-  }
-
-  .greek-lemma-btn[aria-pressed="true"] {
-    background: rgba(32, 157, 80, 0.16);
-    border-color: rgba(32, 157, 80, 0.5);
-  }
-
-  .greek-lemma-btn:focus-visible,
-  .greek-exact input:focus-visible,
-  .greek-ref:focus-visible {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
-
-  .greek-exact {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 12px;
-    font-size: calc(0.95rem * var(--reading-scale, 1));
-    color: rgba(var(--ink-rgb), 0.85);
-    cursor: pointer;
-  }
-
-  .greek-card {
-    padding: 14px 16px;
-    border-radius: 16px;
-    background: rgba(var(--surface-rgb), 0.78);
-    border: 1px solid rgba(var(--ink-rgb), 0.14);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-  }
-
-  .greek-ref {
-    font-weight: 700;
-    color: var(--green-text);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  /* The serif; Cardo supplies its Greek letters (greek-hebrew-fonts.css). */
-  .greek-text {
-    margin: 6px 0 0;
-    font-family: var(--serif);
-    font-size: calc(1rem * var(--reading-scale, 1));
-    line-height: calc(1.6 + var(--reading-leading-extra, 0));
-    color: var(--text-strong);
-  }
-
-  .greek-parse {
-    margin: 2px 0 0;
-    font-size: calc(0.85rem * var(--reading-scale, 1));
-    line-height: calc(1.6 + var(--reading-leading-extra, 0));
-    color: rgba(var(--ink-rgb), 0.7);
-  }
-
-  .greek-lit {
-    margin: 8px 0 0;
-    line-height: calc(1.6 + var(--reading-leading-extra, 0));
-    padding-top: 8px;
-    border-top: 1px solid rgba(var(--ink-rgb), 0.12);
-  }
-
-  .greek-empty {
-    list-style: none;
-    line-height: calc(1.6 + var(--reading-leading-extra, 0));
-    color: rgba(var(--ink-rgb), 0.75);
-  }
-
-  /* A command search says the query back above its verses, and its marked
-     words are the same marks the single-word search draws. */
-  .greek-readback {
-    margin: 0 0 12px;
-    font-size: calc(1rem * var(--reading-scale, 1));
-    line-height: calc(1.5 + var(--reading-leading-extra, 0));
-    color: var(--text-strong);
-  }
-
-  .greek-readback [lang="grc"],
-  .greek-help [lang="grc"] {
-    font-family: var(--serif);
-    font-size: 1.08em;
-  }
-
-  .greek-parse [lang="grc"] {
-    font-family: var(--serif);
-    font-size: 1.05em;
-  }
-
-  .greek-help {
-    padding: 16px 18px;
-    border: 1px dashed rgba(var(--ink-rgb), 0.25);
-    border-radius: 16px;
-  }
-
-  .greek-help[hidden] {
-    display: none;
-  }
-
-  /* The Greek's sources, under the Greek group (greek-credits.mjs). */
-  .greek-credit {
-    margin: 16px 0 0;
-    font-size: calc(0.85rem * var(--reading-scale, 1));
-    line-height: calc(1.5 + var(--reading-leading-extra, 0));
-    color: rgba(var(--ink-rgb), 0.75);
-  }
-
-  .greek-credit a {
-    color: inherit;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  .greek-help__lead,
-  .greek-help__error {
-    margin: 0 0 12px;
-    line-height: calc(1.6 + var(--reading-leading-extra, 0));
-    color: var(--text-strong);
-  }
-
-  .greek-help__error {
-    font-size: calc(0.95rem * var(--reading-scale, 1));
-  }
-
-  /* ── Suggest-word buttons (dynamically created, needs global scope) ── */
-
-  .suggest-word {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 12px;
-    border: none;
-    background-color: var(--green-deep, #0f6b33);
-    color: var(--white, #fff);
-    cursor: pointer;
-    font-size: calc(0.88rem * var(--reading-scale, 1));
-    font-weight: 600;
-    line-height: 1;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
-
-    transition:
-      background-color 0.18s ease,
-      transform 0.18s ease,
-      box-shadow 0.18s ease;
-  }
-
-  .suggest-word:hover {
-    background-color: var(--ink, #1d231c);
-    transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
-  }
-
-  .suggest-word:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  }
-
-  .search-ref .search-ref__links {
-    display: grid;
-    gap: 8px;
-  }
-
-  .search-ref .search-ref__label {
-    margin: 0 0 2px;
-    font-size: calc(0.9rem * var(--reading-scale, 1));
-    color: rgba(var(--ink-rgb), 0.78);
-  }
-
-  .search-ref .search-ref__link {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    text-decoration: none;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background-color: var(--green-deep, #0f6b33);
-    border: none;
-    color: var(--white, #fff);
-    font-weight: 700;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    transform: translateY(0);
-    transition:
-      transform 140ms ease,
-      box-shadow 180ms ease,
-      background-color 180ms ease;
-  }
-
-  .search-ref .search-ref__link--read {
-    background-color: var(--surface-raised);
-    color: var(--text);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .search-ref .search-ref__link:hover {
-      transform: translateY(-1px);
-      background-color: var(--ink, #1d231c);
-      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
-    }
-
-    .search-ref .search-ref__link--read:hover {
-      background-color: var(--ink, #1d231c);
-      color: var(--white, #fff);
-      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
-    }
-  }
-
-  .search-ref .search-ref__link:active {
-    transform: translateY(0);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.16);
-  }
-
-  .search-ref .search-ref__link--read:active {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .search-ref .search-ref__link:focus-visible {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
-  }
-
-  .search-ref .search-ref__hint {
-    opacity: 0.7;
-    font-size: calc(0.9rem * var(--reading-scale, 1));
-    white-space: nowrap;
-  }
-
-  /* ── Pager (dynamically created, needs global scope) ── */
-
-  .pager {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    margin: 18px auto 0;
-    padding: 0 16px;
-  }
-
-  .pager-btn {
-    padding: 10px 16px;
-    border-radius: 12px;
-    border: none;
-    background-color: var(--green-deep, #0f6b33);
-    color: var(--white, #fff);
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    line-height: 1;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    min-width: 40px;
-    text-align: center;
-
-    transition:
-      background-color 0.18s ease,
-      transform 0.18s ease,
-      box-shadow 0.18s ease;
-  }
-
-  .pager-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .pager-btn--current {
-    background-color: var(--ink, #1d231c);
-    cursor: default;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-  }
-
-  .pager-ellipsis {
-    padding: 0 2px;
-    color: rgba(var(--ink-rgb), 0.45);
-    font-size: 1rem;
-    user-select: none;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .pager .pager-btn:hover:not(:disabled):not(.pager-btn--current) {
-      background-color: var(--ink, #1d231c);
-      transform: translateY(-1px);
-      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
-    }
-  }
-
-  .pager .pager-btn:active:not(:disabled):not(.pager-btn--current) {
-    transform: translateY(0);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
-  }
-</style>

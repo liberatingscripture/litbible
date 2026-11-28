@@ -12,13 +12,24 @@
                      #   / prepareReadParagraph; both views wrap each verse in
                      #   a data-verse span), draft-chapters.mjs (single source
                      #   for indexed:false draft data, and for draft intros —
-                     #   used by astro.config.mjs, ReadMenu, and the /read
-                     #   lede), claude-docs-guard.mjs (keeps every CLAUDE.md
-                     #   out of the built site, for astro.config.mjs and
-                     #   check:links: scripts/CLAUDE.md, "Build Pipeline"),
+                     #   used by astro.config.mjs, the passage picker,
+                     #   and the /read lede), claude-docs-guard.mjs
+                     #   (keeps every CLAUDE.md out of the built site, for
+                     #   astro.config.mjs and check:links: scripts/CLAUDE.md,
+                     #   "Build Pipeline"),
                      #   chapter-nav.mjs + chapter-nav-data.mjs (the one
-                     #   Previous/Next rule, which steps over drafts, and its
-                     #   build shell), fetchPodcastEpisodes.ts +
+                     #   Previous/Next rule, which steps over drafts and,
+                     #   from a chapter, intros, and its build shell),
+                     #   read-on.mjs (reading on through a book, for a
+                     #   chapter's page and the LIT pane alike: the book's
+                     #   units with a run of drafts as one, prefixed ids,
+                     #   the verse at the reading line, the progress line's
+                     #   share; src/scripts/CLAUDE.md, "Reading on through a
+                     #   book"), passage-picker.mjs (the passage
+                     #   picker's books and what its field offers:
+                     #   readTyping, pickerBooks, draftNote;
+                     #   src/components/CLAUDE.md, "The passage picker"),
+                     #   fetchPodcastEpisodes.ts +
                      #   podcast-feed-core.ts (shell/core split: the shell holds
                      #   the two imports Node can't resolve — the JSON overrides
                      #   and podcast-feed.xml?raw — so the core stays import-free
@@ -35,7 +46,7 @@
                      #   ebible-refs.mjs (the apocrypha it links to eBible.org),
                      #   glossary-crossrefs.mjs, glossary-sort.mjs (the
                      #   glossary's A to Z, which skips a leading "The", "A"
-                     #   or "An"; /glossary's sort and its 2.0 list share
+                     #   or "An"; /glossary's sort and jump menu share
                      #   it), release-note-links.mjs +
                      #   release-note-linker.ts (see "Scripture references link
                      #   at render" in Conventions below), release-notes-view.mjs (how
@@ -108,18 +119,23 @@
                      #   desk-bookmark-change), the
                      #   notebook search and commands
                      #   (desk-search, desk-commands) and first use
-                     #   (desk-first-use); the Greek tab's helpers
+                     #   (desk-first-use); "Your marks," the one switch
+                     #   over the notes', bookmarks', and highlights'
+                     #   settings (desk-marks); the Greek tab's helpers
                      #   (desk-greek) and a note started from its words
                      #   (desk-note-from-greek); /desk's panes and their
-                     #   layouts (desk-layout), the passages they show
+                     #   layouts (desk-layout, which Phase 9b retires for
+                     #   desk-study: Study's places, panes, and tabs, the
+                     #   saved state under the same key, and the old
+                     #   tree's migration), the passages they show
                      #   (desk-passage), the search pane's rules
-                     #   (desk-search-pane), and the LIT pane's corpus,
-                     #   text and what each pane's text shows (desk-corpus,
-                     #   desk-lit-text, desk-lit-marks)), greek-parse.mjs (MorphGNT's parsing
+                     #   (desk-search-pane), and what each LIT pane's text
+                     #   shows (desk-lit-marks; its corpus and text are
+                     #   read-on.mjs)), greek-parse.mjs (MorphGNT's parsing
                      #   codes in words, shared with the phase 2 tool),
-                     #   read-view-retirement.mjs (Read View's launch
-                     #   redirects and saved-place rules; dormant until
-                     #   the cutover, nothing imports it),
+                     #   read-view-retirement.mjs (where Read View's old
+                     #   addresses and saved places land on a chapter's
+                     #   page; read/[book].astro's script runs it),
                      #   greek-detect.mjs (what runs before the Greek search
                      #   loads: telling a query is Greek, and the code
                      #   matching the Greek tab needs),
@@ -145,7 +161,25 @@
                      #   the desk's gate and the app announcement),
                      #   content-version.mjs (the build's content version,
                      #   stamped on <html> for desk records, and its build
-                     #   time, for a sheet's "Text as of" day)
+                     #   time, for a sheet's "Text as of" day),
+                     #   places.mjs (the header's four places, their menus'
+                     #   rows, and which place and name a page has: the
+                     #   header, the line under it, the footer and the menu
+                     #   sheet draw from it) + news.mjs (the header's news
+                     #   marks, empty until there is news; both in
+                     #   `src/components/CLAUDE.md`), whats-new.mjs (the
+                     #   What's New page's entries, written by hand;
+                     #   `src/pages/CLAUDE.md`), phone-bars.mjs (the rule
+                     #   by which a phone's two reading bars hide together
+                     #   on a scroll down and come back on any scroll up;
+                     #   `src/layouts/CLAUDE.md`), display-tray.mjs (the
+                     #   Display tray's markup and its settings' keys, pure;
+                     #   `src/styles/CLAUDE.md`, "The Display tray"),
+                     #   icons.mjs (Featherboa's one icon set, GENERATED by
+                     #   `npm run build:icons` from lucide-static: icon(),
+                     #   iconNode() for scripts, Icon.astro for pages, and
+                     #   STANDALONE, the five that may stand alone;
+                     #   `src/styles/CLAUDE.md`, "The kit")
 ```
 
 ## Conventions
@@ -309,12 +343,15 @@
 - **"Go deeper" closes every published chapter** (audit X3, owner
   2026-09-28): `GoDeeper.astro`, right after Previous/Next and above the
   notes, with one row per kind that has something (Listen, Read, Key terms,
-  Book), so a chapter never shows an empty row. (Featherboa takes it, and the
-  footnote list, off the screen where chapters read on into each other: on a
-  computer they are the Notebook's This verse and Footnotes tabs, and both
-  stay in the page for readers without JavaScript and for the desk, which
-  reads them there; `SITE-FEATHERBOA.md`, "A whole book." Until it is built,
-  this holds.) Everything is worked out at
+  Book), so a chapter never shows an empty row. A chapter's heading carries
+  a "Go deeper" button that scrolls to it, and every chapter the page reads on
+  into brings its own (WB-23). Where the Notebook panel runs (a computer from
+  1100px with the Study preview), it and the footnote list leave the flow
+  (WB-18, `reading-page.css`): the button opens This verse at "This
+  chapter" instead, and the footnotes are the Notebook's Footnotes tab
+  (WB-20, WB-28); both stay in the markup for printing, for readers without
+  JavaScript, and for the desk, which reads them there. (The phone's sheet,
+  WB-22, is still to come: `SITE-FEATHERBOA.md`, "A whole book.") Everything is worked out at
   build (`go-deeper-data.ts`, with the pure rules in `go-deeper.mjs`):
   - **Listen** takes the episodes whose **title** names the chapter
     (`episodeChapters` in `podcast-feed-core.ts`: "Matthew 14 & 15",

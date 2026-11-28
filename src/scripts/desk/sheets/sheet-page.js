@@ -76,6 +76,7 @@
 //   print or present, or to a phone showing a shared sheet. It never changes
 //   the address or history, and ends with `route()`.
 
+import { iconNode } from "../../../lib/icons.mjs";
 import { COPIES, COPY_NAMES, defaultPaper, PAPERS, pageRule, paperName } from "../../../lib/desk-sheet-copy.mjs";
 import {
   MAX_SHARE_FILE_BYTES,
@@ -585,7 +586,8 @@ async function drawSheet(root, { sheet, store, view = null, shared = null, share
   const bar = make("div", "sheets-page__bar");
   bar.setAttribute("role", "group");
   bar.setAttribute("aria-label", phone ? "Version, presenting, printing, and sharing" : "Version, paper, and printing");
-  const back = make("a", "sheets-page__back", "‹ My sheets");
+  const back = make("a", "sheets-page__back", "My sheets");
+  back.prepend(iconNode("back"));
   back.href = `${BASE}sheets/`;
   const edit = make("a", "sheets-page__back", "Edit in Study Desk");
   edit.href = `${BASE}desk/?sheet=${encodeURIComponent(id)}`;
@@ -1168,7 +1170,7 @@ function openShareDialog(sheet, opener) {
   status.setAttribute("role", "status");
   const code = make("figure", "sheets-page__share-code");
   // A × in the corner as well as Cancel in the row (BVJ, 2026-11-06).
-  const x = button("×", "lit-panel__close sheets-page__dialog-x");
+  const x = button(iconNode("close"), "lit-panel__close sheets-page__dialog-x");
   x.setAttribute("aria-label", "Close");
   const cancel = button("Cancel");
   const row = make("div", "sheets-page__dialog-actions");

@@ -8,7 +8,7 @@
 // - **Chapter View's own text, a chapter at a time.** Each chapter's built page
 //   is fetched (chapter-page.js, shared with the other panes) as the reader
 //   nears it, and its paragraphs are taken as they are, ids aside
-//   (src/lib/desk-lit-text.mjs), so the text is Chapter View's character for
+//   (src/lib/read-on.mjs), so the text is Chapter View's character for
 //   character and a mark's anchor is measured against the same words
 //   (test/desk-anchor-dom.test.js sweeps it).
 // - **A chapter loading above doesn't move the text being read**: the line
@@ -19,7 +19,7 @@
 //   that rewraps every chapter above puts the verse at the reading line back
 //   where it was, from a note of it taken whenever the pane settles.
 // - **Drafts are a stub**: a run of drafts in one book is one, as in Read
-//   View (src/lib/desk-corpus.mjs), and a passage in it lands on the stub.
+//   View (src/lib/read-on.mjs), and a passage in it lands on the stub.
 // - **Popovers know their chapter**: a footnote letter opens its own
 //   chapter's note, named "John 3:16, footnote a", since letters start again
 //   every chapter; key terms are underlined per chapter (term-lens.js's
@@ -58,9 +58,8 @@
 //   reader last read. The arrows, the reader's scrolling and every other move
 //   only end a run of jumps. It is this pane's own, for the visit.
 
-import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../../lib/desk-corpus.mjs";
+import { corpusUnits, draftStubText, indexAtLine, litPrefix, prepareLitBlocks, unitHeading, unitIndex } from "../../lib/read-on.mjs";
 import { markList } from "../../lib/desk-lit-marks.mjs";
-import { indexAtLine, litPrefix, prepareLitBlocks } from "../../lib/desk-lit-text.mjs";
 import { checkPassage, passageLabel, sameChapter } from "../../lib/desk-passage.mjs";
 import { pageAnchorText } from "../../lib/desk-anchor-dom.mjs";
 import { bookKeyToLabel } from "../../data/books.js";

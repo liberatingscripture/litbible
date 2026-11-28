@@ -1,32 +1,23 @@
 // test/desk-first-use.test.js
 //
-// src/lib/desk-first-use.mjs: the first-time choice, the reminder to back up the
-// notebook, the line for Safari and the tour's bookkeeping. Every rule takes the
+// src/lib/desk-first-use.mjs: the Notebook's foot line, "Start here," the line for
+// Safari and the tour's bookkeeping. Every rule takes the
 // time as an argument, so these run against a fixed `now`.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  CONTACT_HREF, DESK_STAGE, DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, HOMES, REMIND_AFTER_DAYS, SAFARI_LINE,
+  CONTACT_HREF, DESK_STAGE, DESK_TOUR_LINK, DESK_TOUR_PARTS, DESK_TOUR_STEPS, REMIND_AFTER_DAYS, SAFARI_LINE,
   DESK_TOUR_KEY, SHEET_TOUR_KEY, SHEET_TOUR_LINK, SHEET_TOUR_PAGE_LINK, SHEET_TOUR_PARTS, SHEET_TOUR_STEPS,
   TOUR_KEY, TOUR_LINK, TOUR_PARTS, TOUR_STEPS,
-  FEEDBACK_HREF, FEEDBACK_LABEL, agoPhrase, daysSince, isDesktopSafari, keptLine, localDay, parseTourState, planTour, readHome, readLastExport,
-  reminderDue, reminderText, savedLine, stepBody, tourOffer, wantsReminder, withLater, withNever, withOffered, withSeen,
+  BACKUP_HREF, BACK_UP, KEPT_HERE, KEPT_LINKED, NEW_HERE, SHOW_ME_HOW, START_HERE,
+  FEEDBACK_HREF, FEEDBACK_LABEL, agoPhrase, backupDue, daysSince, footLine, isDesktopSafari, localDay, parseTourState, planTour, readLastExport,
+  savedLine, startHereShown, stepBody, tourOffer, withLater, withNever, withOffered, withSeen,
 } from "../src/lib/desk-first-use.mjs";
 
 const NOW = new Date("2026-10-12T12:00:00Z");
 const ago = (days, extraHours = 0) => new Date(NOW.getTime() - days * 86_400_000 - extraHours * 3_600_000).toISOString();
-
-test("a stored choice reads only when it is one of the two", () => {
-  assert.deepEqual(HOMES, ["browser", "browser-remind"]);
-  assert.equal(readHome("browser"), "browser");
-  assert.equal(readHome("browser-remind"), "browser-remind");
-  for (const bad of [null, undefined, "", "account", "file", "Browser"]) assert.equal(readHome(bad), null);
-  assert.equal(wantsReminder("browser-remind"), true);
-  assert.equal(wantsReminder("browser"), false);
-  assert.equal(wantsReminder(null), false);
-});
 
 test("lastExport reads as an ISO string, or as never", () => {
   assert.equal(readLastExport(ago(2)), ago(2));
@@ -49,9 +40,89 @@ test("how long ago is said in plain words", () => {
   assert.equal(agoPhrase(3), "3 days ago");
 });
 
-test("the foot says where the notebook is: this browser, and the account too once it syncs", () => {
-  assert.equal(keptLine(false), "Kept in this browser.");
-  assert.equal(keptLine(true), "Kept in this browser and in your account.");
+test("the foot line's words: where the notebook is kept, and the way to the backup", () => {
+  assert.equal(KEPT_HERE, "Kept in this browser only.");
+  assert.equal(KEPT_LINKED, "Kept in this browser and in your account.");
+  assert.equal(BACK_UP, "Back up…");
+  assert.equal(BACKUP_HREF, "/notebook/#backup");
+});
+
+test("the foot line, unlinked and not due: where the notebook is kept, with a way to back up once it holds something", () => {
+  const facts = { hasRecords: true, now: NOW };
+  assert.deepEqual(footLine({ ...facts, lastExport: ago(1) }), { text: KEPT_HERE, due: false, backUp: true });
+  // An empty notebook has nothing to back up.
+  assert.deepEqual(footLine({ hasRecords: false, now: NOW }), { text: KEPT_HERE, due: false, backUp: false });
+  // No backup yet, and the oldest record is under a week old.
+  assert.deepEqual(footLine({ ...facts, oldest: ago(REMIND_AFTER_DAYS - 1, 23) }), { text: KEPT_HERE, due: false, backUp: true });
+});
+
+test("the foot line, unlinked and due: when the last backup was made, at exactly REMIND_AFTER_DAYS days", () => {
+  assert.equal(REMIND_AFTER_DAYS, 7);
+  const facts = { hasRecords: true, now: NOW };
+  // The boundary: 7 days is due, a minute short of it is not.
+  assert.deepEqual(footLine({ ...facts, lastExport: ago(7) }), { text: "Last backed up 7 days ago.", due: true, backUp: true });
+  assert.equal(footLine({ ...facts, lastExport: ago(6, 23) }).due, false);
+  assert.equal(footLine({ ...facts, lastExport: ago(6, 23) }).text, KEPT_HERE);
+  assert.deepEqual(footLine({ ...facts, lastExport: ago(9) }), { text: "Last backed up 9 days ago.", due: true, backUp: true });
+  // Never backed up: due 7 days after the oldest record, and the line says so.
+  assert.deepEqual(footLine({ ...facts, oldest: ago(7) }), { text: "Not backed up yet.", due: true, backUp: true });
+  assert.equal(footLine({ ...facts, oldest: ago(6, 23) }).due, false);
+  // A backup on record wins over the age of the oldest record.
+  assert.equal(footLine({ ...facts, lastExport: ago(1), oldest: ago(90) }).due, false);
+  // Nothing to lose, nothing due.
+  assert.deepEqual(footLine({ hasRecords: false, lastExport: ago(30), now: NOW }), { text: KEPT_HERE, due: false, backUp: false });
+});
+
+test("the foot line, linked: the account's words, never due, no backup link, and never \"this browser only\"", () => {
+  for (const facts of [
+    { hasRecords: true, lastExport: ago(30), oldest: ago(90) },
+    { hasRecords: true },
+    { hasRecords: false },
+  ]) {
+    const line = footLine({ ...facts, linked: true, now: NOW });
+    assert.deepEqual(line, { text: KEPT_LINKED, due: false, backUp: false });
+    assert.doesNotMatch(line.text, /only/);
+  }
+});
+
+test("backupDue is the rule the foot line uses (E113)", () => {
+  const base = { hasRecords: true, now: NOW };
+  assert.equal(backupDue({ ...base, oldest: ago(10) }), true);
+  assert.equal(backupDue({ ...base, oldest: ago(2) }), false);
+  assert.equal(backupDue({ ...base, lastExport: ago(REMIND_AFTER_DAYS) }), true);
+  assert.equal(backupDue({ ...base, lastExport: ago(30) }), true);
+  assert.equal(backupDue({ ...base, lastExport: ago(REMIND_AFTER_DAYS - 1, 23) }), false);
+  assert.equal(backupDue({ ...base, lastExport: ago(0) }), false);
+  assert.equal(backupDue({ ...base, hasRecords: false, lastExport: ago(30) }), false);
+  assert.equal(backupDue({ ...base }), false, "no backup and no record age: nothing to count from");
+});
+
+test("Start here shows until any tour step is seen or the reader says they know their way around", () => {
+  assert.equal(startHereShown(null), true);
+  assert.equal(startHereShown("[]"), true);
+  // A tour begun and left counts as met.
+  assert.equal(startHereShown(JSON.stringify(["actions"])), false);
+  assert.equal(startHereShown(JSON.stringify(["offered", "margin"])), false);
+  // The offer made, with nothing seen, doesn't end it; the never marker does.
+  assert.equal(startHereShown(JSON.stringify(["offered"])), true);
+  assert.equal(startHereShown(JSON.stringify(["later:2026-10-14"])), true);
+  assert.equal(startHereShown(JSON.stringify(withNever([]))), false);
+  assert.equal(startHereShown(JSON.stringify(withNever(["actions"]))), false);
+  // Ids this code doesn't know aren't steps seen.
+  assert.equal(startHereShown(JSON.stringify(["greek", "future-step"])), true);
+  // An unreadable stored value reads as nothing seen.
+  for (const bad of ["not json", "{", '{"a":1}', "5", '"never"', undefined]) assert.equal(startHereShown(bad), true, String(bad));
+  // Another tour's steps are read against its own list.
+  assert.equal(startHereShown(JSON.stringify(["panes"]), DESK_TOUR_STEPS), false);
+  assert.equal(startHereShown(JSON.stringify(["panes"])), true);
+});
+
+test("Start here's words, the empty state's button, and the first mark's line", () => {
+  assert.deepEqual({ ...START_HERE }, { lead: "Start here:", take: "Take the tour", skip: "I know my way around" });
+  assert.ok(Object.isFrozen(START_HERE));
+  assert.equal(SHOW_ME_HOW, "Show me how");
+  assert.equal(NEW_HERE, "New here? Take the tour");
+  for (const s of [...Object.values(START_HERE), SHOW_ME_HOW, NEW_HERE]) assert.doesNotMatch(s, /[—"']/);
 });
 
 test("the foot says when the notebook was last backed up", () => {
@@ -60,26 +131,6 @@ test("the foot says when the notebook was last backed up", () => {
   assert.equal(savedLine(ago(0, 2), NOW), "Last backed up today.");
   assert.equal(savedLine(ago(1), NOW), "Last backed up yesterday.");
   assert.equal(savedLine(ago(3), NOW), "Last backed up 3 days ago.");
-});
-
-test("the reminder is due after a week, or with no backup, only for those who asked and with something to lose", () => {
-  const base = { home: "browser-remind", hasRecords: true, oldest: ago(10), now: NOW };
-  assert.equal(reminderDue({ ...base, lastExport: undefined }), true);
-  assert.equal(reminderDue({ ...base, oldest: ago(2), lastExport: undefined }), false);
-  assert.equal(reminderDue({ ...base, lastExport: ago(REMIND_AFTER_DAYS) }), true);
-  assert.equal(reminderDue({ ...base, lastExport: ago(30) }), true);
-  assert.equal(reminderDue({ ...base, lastExport: ago(REMIND_AFTER_DAYS - 1, 23) }), false);
-  assert.equal(reminderDue({ ...base, lastExport: ago(0) }), false);
-  // Not asked for, or nothing to lose.
-  assert.equal(reminderDue({ ...base, home: "browser", lastExport: undefined }), false);
-  assert.equal(reminderDue({ ...base, home: null, lastExport: ago(30) }), false);
-  assert.equal(reminderDue({ ...base, hasRecords: false, lastExport: ago(30) }), false);
-});
-
-test("the reminder says how many days, or that there is no backup yet", () => {
-  assert.equal(reminderText(ago(9), NOW), "It’s been 9 days since you backed up your notebook.");
-  assert.equal(reminderText(ago(1), NOW), "It’s been 1 day since you backed up your notebook.");
-  assert.equal(reminderText(undefined, NOW), "You haven’t backed up your notebook yet.");
 });
 
 test("desktop Safari is told apart from the browsers that borrow its name", () => {
@@ -248,7 +299,7 @@ test("a tour leaves out the steps that don't belong to the page's view", () => {
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const read = planTour({ available: all, view: "read" }).map((s) => s.id);
   assert.ok(read.includes("actions"));
-  for (const id of ["note", "margin", "pin", "verse", "greek"]) assert.ok(!read.includes(id), id);
+  for (const id of ["note", "margin", "pin", "verse", "footnotes"]) assert.ok(!read.includes(id), id);
   // An article or the glossary: no notes there in version 1 (N11, BVJ 2026-10-29),
   // so nothing from "Marking the text".
   const prose = planTour({ available: all, view: "prose" }).map((s) => s.id);
@@ -268,17 +319,17 @@ test("where the browser keeps no notebook, the tour leaves out marking the text 
     assert.ok(planTour({ available: all, view, canKeep: false }).every((s) => s.part !== 0), view);
   }
   const study = planTour({ available: all, view: "study", canKeep: false }).map((s) => s.id);
-  assert.deepEqual(study, ["panel", "verse", "greek", "search"]);
+  assert.deepEqual(study, ["panel", "verse", "footnotes", "search"]);
   // The default keeps them.
   assert.ok(planTour({ available: all, view: "study" }).some((s) => s.id === "actions"));
 });
 
 test("the removed Greek search commands step is gone, and a reader who saw it is not offered a new tour for it (2026-11-02)", () => {
   assert.ok(!TOUR_STEPS.some((s) => s.id === "greek-commands"));
-  // The Greek step still comes after "This verse" and before the third part, in Chapter View only.
+  // The Footnotes step (the Greek step's place) still comes after "This verse" and before the third part, in Chapter View only.
   const all = new Set(TOUR_STEPS.map((s) => s.id));
   const study = planTour({ available: all, view: "study" }).map((s) => s.id);
-  assert.equal(study[study.indexOf("greek") + 1], "undo");
+  assert.equal(study[study.indexOf("footnotes") + 1], "undo");
   // A reader who took the tour while the step existed has its id stored: it
   // is ignored as an unknown id, offers nothing, and is kept in their list.
   const stored = [...TOUR_STEPS.map((s) => s.id), "greek-commands"];
@@ -509,7 +560,7 @@ test("the Sheets tour's offer is its own: a reader done with both other tours is
 test("the notebook tour was cut from 14 steps to 10 (BVJ, 2026-11-02), and retired ids offer nothing", () => {
   const study = planTour({ available: new Set(TOUR_STEPS.map((s) => s.id)), view: "study" }).map((s) => s.id);
   // "Pin a footnote" follows "This verse" (Audit 4, TR4-3; BVJ, 2026-11-07).
-  assert.deepEqual(study, ["actions", "note", "margin", "panel", "verse", "pin", "greek", "undo", "search", "kept"]);
+  assert.deepEqual(study, ["actions", "note", "margin", "panel", "verse", "pin", "footnotes", "undo", "search", "kept"]);
   assert.equal(TOUR_STEPS.find((s) => s.id === "pin").part, TOUR_STEPS.find((s) => s.id === "verse").part);
   // The menu step names what the cut steps taught; "Move as I read" is left
   // to the help page and the Edit bookmark form (Audit 4, TR4-2; BVJ, 2026-11-07).

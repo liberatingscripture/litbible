@@ -460,8 +460,8 @@ function wholeGloss(res) {
 }
 
 /**
- * The one Greek search the three surfaces call (the search bar's tray,
- * /search and the Notebook's Greek tab). A command query goes to
+ * The one Greek search the surfaces call (the search bar's tray, /search,
+ * and Study's Greek and Search panes). A command query goes to
  * searchGreekCommands, unless it reads as one plain word ("πίστις.", "πίστις
  * and"), which is searchGreek's as before. Two or three plain Latin words that
  * hold a command word are a gloss when they are one whole ("present time",

@@ -1,26 +1,23 @@
 ---
 // src/pages/read.astro
-import ReadLayout from "../layouts/ReadLayout.astro";
-import { LIT_CREDIT_LINE } from "../lib/lit-credit.mjs";
+//
+// /read (SITE-FEATHERBOA.md, "The ways in, and /read"; FP-16, FP-25, BP-08):
+// the page's title and the owner's lede, then the passage picker at full
+// size, which is all the page is for. It is where the header's Read leads
+// without JavaScript, and where a picker's book links go then
+// (/read/#picker-john). Continue reading is the picker's first row; what else
+// /read held went where its subject lives ("Latest text changes" with Release
+// Notes and on Home, "Ways to read" to the front page, Read View's card with
+// Read View).
+import Layout from "../layouts/Layout.astro";
+import PassagePicker from "../components/PassagePicker.astro";
 import "../styles/pages/read.css";
-import "../styles/v2/read.css";
-import SblgntCredits from "../components/SblgntCredits.astro";
-import releaseNotes from "../data/release-notes.json";
 import { scanDraftChapters } from "../lib/draft-chapters.mjs";
 import { joinList, unfinishedTexts } from "../lib/chapter-nav.mjs";
-import ContinueReading from "../components/ContinueReading.astro";
-import { releaseNoteLinker } from "../lib/release-note-linker";
-import { BOOKS, BOOK_ORDER, bookKeyToLabel } from "../data/books.js";
-import { entryIds } from "../lib/release-notes-view.mjs";
 
 const title = "Read | Liberation and Inclusion Translation";
 const description =
   "Read the Liberation and Inclusion Translation (LIT) online.";
-
-const recentNotes = releaseNotes.slice(0, 3);
-// Each date links to its entry on /release-notes.
-const recentIds = entryIds(releaseNotes).slice(0, 3);
-const linkDescription = await releaseNoteLinker();
 
 // The lede names what isn't finished yet. It comes from the chapters' own
 // indexed:false flags, so it stays true as drafts land: the hand-written
@@ -31,478 +28,47 @@ const unfinished = unfinishedTexts(scanDraftChapters()).map(
 );
 const unfinishedList = joinList(unfinished);
 const exceptHtml = unfinished.length ? ` (all except ${unfinishedList})` : "";
-
-// Site 2.0's contents grid (a computer only; data-v2). It follows the passage
-// picker's rule (ReadMenu.astro): every chapter of every book is a link, a
-// draft ("indexed": false) is marked and still linked, and every book has an
-// intro link.
-const draftsByBook = scanDraftChapters().draftChaptersByBook;
-const contents = BOOK_ORDER.map((key) => ({
-  key,
-  label: bookKeyToLabel(key),
-  chapters: Array.from({ length: (BOOKS as Record<string, number>)[key] }, (_, i) => ({
-    n: i + 1,
-    draft: (draftsByBook[key] ?? []).includes(i + 1),
-  })),
-}));
-
-const TYPE_LABEL: Record<string, string> = {
-  chapter_added: "Added",
-  text_updated: "Updated",
-  footnote_added: "Updated",
-  footnote_updated: "Updated",
-  intro_updated: "Updated",
-  metadata_updated: "Updated",
-  glossary_added: "Added",
-  glossary_updated: "Updated",
-  article_added: "Added",
-  article_updated: "Updated",
-};
 ---
 
-<ReadLayout
+<Layout
   title={title}
   description={description}
-  bg="cream"
-  showTools={true}
   pagefindIndex={false}
+  pickerInPage
 >
+  {/* The license moved to /license; the old addresses forward there, as early as a script can run so /read doesn't flash first. Inline on purpose (the enforced policy has no script-src; the report-only one allows inline). */}
+  <script
+    slot="head"
+    is:inline
+    set:html={`try{var h=location.hash;if(h==="#license"||h==="#license-terms"||h==="#sblgnt-disclaimer")location.replace("/license/"+h)}catch(_){}`}
+  />
   <link slot="head" rel="preload" as="image" type="image/svg+xml" href="/images/lit-logo-2026-ring.svg" fetchpriority="high" />
-  <div slot="hero" class="read-hero">
-    <img
-      data-v1
-      class="read-logo"
-      src="/images/lit-logo-2026-ring.svg"
-      alt="Liberation and Inclusion Translation logo"
-      width="220"
-      height="220"
-      loading="eager"
-      decoding="async"
-      fetchpriority="high"
-    />
 
-    <h1 class="read-title v2-bar">Read the LIT Online</h1>
+  <div class="read-page">
+    <header class="read-hero">
+      <img
+        class="read-logo"
+        src="/images/lit-logo-2026-ring.svg"
+        alt="Liberation and Inclusion Translation logo"
+        width="220"
+        height="220"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
 
-    <ContinueReading class="read-continue" />
+      <h1 class="read-title">Read the LIT Online</h1>
 
-    <p class="read-lede">
-      I’ve got solid drafts of {unfinished.length ? "most of " : ""}the New
-      Testament<Fragment set:html={exceptHtml} /> ready for you to study,
-      scrutinize, celebrate, and use in your faith circles. This is a living
-      project, so check back over time for the latest version. Questions,
-      comments, or insights?
-      <a href="/contact" style="white-space:nowrap">Drop me a line</a>.
-    </p>
+      <p class="read-lede">
+        I’ve got solid drafts of {unfinished.length ? "most of " : ""}the New
+        Testament<Fragment set:html={exceptHtml} /> ready for you to study,
+        scrutinize, celebrate, and use in your faith circles. This is a living
+        project, so check back over time for the latest version. Questions,
+        comments, or insights?
+        <a href="/contact" style="white-space:nowrap">Drop me a line</a>.
+      </p>
+    </header>
 
-    {
-      recentNotes.length > 0 && (
-        <div class="whats-new">
-          <button
-            class="whats-new__trigger"
-            type="button"
-            aria-expanded="false"
-            aria-controls="whatsNewPanel"
-          >
-            <span class="whats-new__dot" aria-hidden="true" />
-            <span data-v1>What’s new</span><span data-v2>Latest text changes</span>
-            <span class="whats-new__chevron" aria-hidden="true">
-              ▾
-            </span>
-          </button>
-
-          <div class="whats-new__panel" id="whatsNewPanel">
-            {recentNotes.map((entry, i) => (
-              <div class="whats-new__entry">
-                <a class="whats-new__date" href={`/release-notes/#${recentIds[i]}`}>
-                  <time datetime={entry.date}>{entry.label}</time>
-                </a>
-                <ul class="whats-new__changes">
-                  {entry.changes.map((change) => (
-                    <li class="whats-new__change" data-type={change.type}>
-                      <span class="whats-new__badge">
-                        {TYPE_LABEL[change.type] ?? "Updated"}
-                      </span>
-                      <span
-                        class="whats-new__change-text"
-                        set:html={linkDescription(change.description)}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <a href="/release-notes/" class="whats-new__all">
-              See all release notes →
-            </a>
-          </div>
-        </div>
-      )
-    }
+    <PassagePicker full />
   </div>
-
-  <section slot="bands" class="views-band" aria-labelledby="views-heading">
-    <h2 id="views-heading" class="views-heading">Ways to read the LIT</h2>
-    <p class="views-lede">
-      Read the LIT however suits you: two ways on the web, plus free apps for
-      iPhone and Android.
-    </p>
-
-    {/* With the Study Desk preview on (html[data-desk="on"]), the Study Desk card
-        takes the Read View card's slot; read.css swaps them, so nothing shifts (E8, 8b). */}
-    <div class="views-grid">
-      {/* With the preview on, this card's heading and link take the wording they
-          keep after launch (E33, BVJ 2026-11-11); read.css swaps the spans. */}
-      <div class="view-card">
-        <h3 class="view-card__title">
-          <span class="view-card__copy--public">Chapter View</span><span
-            class="view-card__copy--desk">Scripture pages</span>
-        </h3>
-        <p class="view-card__desc">
-          One chapter at a time, with its footnotes, key terms, and linked
-          references. Nothing to set up, and it works on any device.
-        </p>
-        <a href="/matthew-5" class="view-card__link"
-          ><span class="view-card__copy--public">Try Chapter View</span><span
-            class="view-card__copy--desk">View Scripture page</span
-          > &rarr;</a
-        >
-      </div>
-
-      <div class="view-card view-card--read">
-        <h3 class="view-card__title">Read View</h3>
-        <p class="view-card__desc">
-          A whole book on one page, read straight through, with no notes and no
-          page turns between chapters.
-        </p>
-        <a href="/read/matthew#ch-5" class="view-card__link"
-          >Try Read View &rarr;</a
-        >
-      </div>
-
-      <div class="view-card view-card--desk">
-        <h3 class="view-card__title">Study Desk</h3>
-        <span class="view-card__badge">Available now</span>
-        <p class="view-card__desc">
-          The whole New Testament in one scroll, with your notes and the Greek
-          alongside when you want them.
-        </p>
-        <a href="/desk/?place=matthew-5" class="view-card__link"
-          >Try the Study Desk &rarr;</a
-        >
-      </div>
-
-      <div class="view-card view-card--available">
-        <h3 class="view-card__title">LIT Bible apps</h3>
-        <span class="view-card__badge view-card__badge--apps">Available now</span>
-        <p class="view-card__desc">
-          iPhone and Android apps with the whole translation offline, plus notes,
-          highlights, and daily and Lectionary readings.
-        </p>
-        <a href="/apps" class="view-card__link">Explore the apps &rarr;</a>
-      </div>
-    </div>
-  </section>
-
-  <section
-    slot="bands"
-    class="v2-read__books"
-    aria-label="Books and chapters"
-    data-v2
-    data-pagefind-ignore
-  >
-    <div class="v2-read__contents">
-      {
-        contents.map((b) => (
-          <div class="v2-read__bk">
-            <h3 class="v2-read__name">{b.label}</h3>
-            <div class="v2-read__body">
-              <a
-                class="v2-read__intro"
-                href={`/${b.key}-intro`}
-                aria-label={`Introduction to ${b.label}`}>Intro</a
-              >
-              <ol class="v2-read__chs">
-                {b.chapters.map((c) => (
-                  <li>
-                    <a
-                      href={`/${b.key}-${c.n}`}
-                      aria-label={`${b.label} ${c.n}${c.draft ? " (draft)" : ""}`}
-                      data-draft={c.draft ? "" : undefined}>{c.n}</a
-                    >
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-    <p class="v2-read__key">
-      A dotted number, like <span class="v2-read__key-draft">12</span>, is a draft.
-    </p>
-  </section>
-
-  <section slot="bands" class="license-band" aria-labelledby="license-heading">
-    <div class="license-band__inner">
-      <section
-        id="license"
-        class="license-card"
-        aria-labelledby="license-heading"
-      >
-        <h2 id="license-heading" class="license-card__title">
-          License and reuse
-        </h2>
-
-        <p class="license-card__lede">
-          <a href="https://litbible.net" class="license-card__link">
-            The Liberation and Inclusion Translation of the Bible (LIT)™
-          </a>
-          © 2024 by{" "}
-          <a href="/about" class="license-card__link">
-            Brandon C. Vélez Johnson
-          </a>{" "}
-          is licensed under{" "}
-          <a
-            href="https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1"
-            class="license-card__link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >CC BY-NC-ND 4.0</a>.
-        </p>
-
-        <div class="license-faq">
-          <details class="license-faq-item" id="license-terms">
-            <summary class="license-faq-q">
-              View full license terms and permissions for church, study, and commercial use
-            </summary>
-            <div class="license-faq-body">
-              <p>
-                The LIT Bible is licensed under CC BY-NC-ND 4.0. In addition to
-                that license, I grant the permissions below to anyone who reads
-                this notice or uses the LIT Bible website or apps. They apply to
-                the LIT text and footnotes, and to the book introductions,
-                glossary, and articles on this site, as written by the
-                Liberating Scripture Collective, not to third-party material the
-                footnotes quote. If
-                you would like to use the LIT outside these terms, please{" "}
-                <a href="/contact" class="license-card__link">contact me</a> to
-                discuss your project.
-              </p>
-              <ul>
-                <li>
-                  <strong>Attribution</strong>: You must give appropriate credit,
-                  provide a link to the license, and indicate if changes were made.
-                </li>
-                <li>
-                  <strong>NonCommercial Use Only</strong>: You may not use the
-                  material for commercial purposes.
-                </li>
-                <li>
-                  <strong>No Derivatives</strong>: If you remix, transform, or
-                  build upon the material, you may not distribute the modified
-                  material.
-                </li>
-              </ul>
-
-              <h3>Noncommercial use</h3>
-              <p>
-                You may print, display, and share any amount of the LIT Bible text
-                and footnotes for noncommercial uses. This includes Bible studies,
-                classes, sermons, church bulletins, study guides, retreats, and
-                personal use. It includes programs and events that charge for
-                participation, such as paid courses, tuition, and retreat fees, as
-                long as the LIT text and footnotes are not what is being sold.
-                When used that way:
-              </p>
-              <ol>
-                <li>
-                  Quote the text and footnotes as written. You may leave words
-                  blank for participants to fill in, as long as the answers are the
-                  LIT’s own words. Please don’t replace the LIT’s words with other
-                  wording.
-                </li>
-                <li>Keep footnotes with the verses they reference.</li>
-                <li>Include this notice: “{LIT_CREDIT_LINE}”</li>
-              </ol>
-
-              <h3>Quoting the LIT in a commercial work</h3>
-              <p>
-                These standing exceptions permit commercial use without special
-                permission:
-              </p>
-              <ol>
-                <li>
-                  The text and footnotes are quoted as written, with footnotes
-                  kept with the verses they reference.
-                </li>
-                <li>
-                  The quotations do not amount to a complete book of the Bible.
-                </li>
-                <li>
-                  LIT material does not account for more than 50% of the total
-                  content of the new work.
-                </li>
-                <li>The work includes this notice: “{LIT_CREDIT_LINE}”</li>
-              </ol>
-              <p>
-                Selling the LIT Bible itself, in print or digitally, or any other
-                commercial use, requires my written permission.
-              </p>
-
-              <h3>Sharing online</h3>
-              <p>
-                You are welcome to share the LIT Bible text and footnotes, in any
-                amount, on noncommercial social media accounts, personal blogs,
-                and church email newsletters without a formal copyright block,
-                provided each post includes a direct link to litbible.net (or tags
-                an official LIT Bible account) so others can find the full text in
-                context. Please link to a chapter or book rather than reposting
-                whole books, so readers find the notes too. Monetized sites and
-                business accounts fall under the commercial terms above.
-              </p>
-            </div>
-          </details>
-
-          <details class="license-faq-item" id="sblgnt-disclaimer">
-            <summary class="license-faq-q">
-              Source text and translation credits (SBLGNT)
-            </summary>
-            <div class="license-faq-body sblgnt-credits">
-              <SblgntCredits />
-            </div>
-          </details>
-        </div>
-      </section>
-    </div>
-  </section>
-</ReadLayout>
-
-<script>
-  // @ts-nocheck
-  (() => {
-    const trigger = document.querySelector(".whats-new__trigger");
-    const panel = document.getElementById("whatsNewPanel");
-    if (!trigger || !panel) return;
-
-    const open = () => {
-      panel.classList.add("is-open");
-      trigger.setAttribute("aria-expanded", "true");
-    };
-
-    const close = () => {
-      panel.classList.remove("is-open");
-      trigger.setAttribute("aria-expanded", "false");
-    };
-
-    const isOpen = () => panel.classList.contains("is-open");
-
-    // Site 2.0: on a computer the list is simply shown beside the title
-    // (v2/read.css), so there the button is a heading that does nothing. Its
-    // state says "open," and it leaves the tab order. Never without the
-    // restyle's stamp.
-    const wide = window.matchMedia("(min-width: 1000px)");
-    const alwaysOpen = () =>
-      document.documentElement.hasAttribute("data-restyle") && wide.matches;
-    const settle = () => {
-      if (alwaysOpen()) {
-        open();
-        trigger.setAttribute("aria-disabled", "true");
-        trigger.setAttribute("tabindex", "-1");
-      } else if (trigger.hasAttribute("aria-disabled")) {
-        trigger.removeAttribute("aria-disabled");
-        trigger.removeAttribute("tabindex");
-        close();
-      }
-    };
-    wide.addEventListener("change", settle);
-    settle();
-
-    trigger.addEventListener("click", () => {
-      if (alwaysOpen()) return;
-      // Yield to the browser so the button's :active/:focus styles paint
-      // before the panel's visibility/transform transition starts (improves INP).
-      requestAnimationFrame(() => (isOpen() ? close() : open()));
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (alwaysOpen()) return;
-      if (e.key === "Escape" && isOpen()) {
-        close();
-        trigger.focus({ preventScroll: true });
-      }
-    });
-
-    document.addEventListener("click", (e) => {
-      if (alwaysOpen()) return;
-      if (
-        isOpen() &&
-        !trigger.contains(e.target) &&
-        !panel.contains(e.target)
-      ) {
-        close();
-      }
-    });
-  })();
-</script>
-
-<script>
-  // @ts-nocheck
-  // A fragment aimed at a <details> element itself leaves it closed (browsers
-  // only auto-open one when the target is inside it), so open the two license
-  // disclosures when a link names them. #license is the whole section and is
-  // left to the browser. Without JS the page is unchanged.
-  (() => {
-    const DISCLOSURES = ["license-terms", "sblgnt-disclaimer"];
-
-    function revealHash() {
-      let id = "";
-      try {
-        id = decodeURIComponent(location.hash.slice(1));
-      } catch {
-        return;
-      }
-      if (!DISCLOSURES.includes(id)) return;
-      const target = document.getElementById(id);
-      if (!target) return;
-      target.open = true;
-      // The stylesheet's smooth scrolling would animate toward a spot that
-      // moves as the page settles; land at once, as Read View does.
-      target.scrollIntoView({ block: "start", behavior: "instant" });
-    }
-
-    window.addEventListener("hashchange", revealHash);
-    revealHash();
-  })();
-</script>
-
-<script>
-  import "../scripts/ref-preview.js";
-</script>
-
-<script>
-  // Site 2.0: the ring on the chapter the reader would continue at, in the
-  // contents grid (2.0 only, so nothing happens without the restyle's stamp).
-  // It reads the same record Continue reading does, and goes when that
-  // record is forgotten with Continue reading's ×.
-  import { loadLastRead } from "../scripts/last-read.js";
-
-  const grid = document.querySelector(".v2-read__books");
-  if (grid && document.documentElement.hasAttribute("data-restyle")) {
-    const mark = () => {
-      const was = grid.querySelector("a[data-v2-continue]");
-      was?.removeAttribute("data-v2-continue");
-      was?.removeAttribute("aria-current");
-      const record = loadLastRead();
-      if (!record) return;
-      const link = grid.querySelector(`a[href="/${record.book}-${record.chapter}"]`);
-      link?.setAttribute("data-v2-continue", "");
-      link?.setAttribute("aria-current", "true");
-    };
-    mark();
-    // The × clears the record in its own click handler, which runs before
-    // this one (the click bubbles up to the document).
-    document.addEventListener("click", (e) => {
-      if (e.target instanceof Element && e.target.closest("[data-continue-forget]")) mark();
-    });
-  }
-</script>
+</Layout>

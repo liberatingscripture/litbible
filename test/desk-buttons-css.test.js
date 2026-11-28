@@ -1,236 +1,240 @@
-// The Study Desk's four kinds of button (E126; BVJ, 2026-11-12, the "Raised"
-// look): ordinary, toggle, primary, and the quiet and glyph buttons that keep
-// their own. A stylesheet has no behavior to run in node, so what is held here
-// is the source: one rule per kind in desk.css's "Four kinds of button", the
-// inventory each covers, no component rule painting over them, the tokens with
-// a dark pair in both dark selectors (and desk-search.css's copy, which is all
-// /search loads, in step), and reduced motion taking the lift away.
+// The Study Desk's buttons are the kit's (Featherboa's Phase 2; ledger
+// CT-25). E126's four kinds of button (BVJ, 2026-11-12, the "Raised" look)
+// and E159's pills are gone: every control the desk draws takes exactly one of
+// kit.css's levels (filled, tinted, plain, danger, row, tab, inline, field,
+// dot), by name, and the desk's own rules say only where a control sits and
+// how big it is. test/featherboa-kit.test.js holds the kit itself and that no
+// stylesheet draws a control's look; this holds the desk's inventory to its
+// levels, the desk's modifiers to drawing nothing over them, and what the
+// kinds' rules carried that still holds (E116 and E117's strips, E168's
+// square, E169's swatches).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+import { allNames, namesOf } from "../scripts/lib/kit-lists.mjs";
+
 const read = (f) => readFileSync(new URL(`../src/styles/${f}`, import.meta.url), "utf8");
 const desk = read("desk.css");
 const search = read("desk-search.css");
+const kit = read("kit.css");
 
-const SECTION = "/* ── Four kinds of button (E126)";
-const kinds = desk.slice(desk.indexOf(SECTION));
-const components = desk.slice(0, desk.indexOf(SECTION));
-assert.ok(desk.indexOf(SECTION) > 0, "no “Four kinds of button” section");
-
-/** The selector list inside the first `:is(…)` that opens a rule naming `first`. */
-function listFrom(css, first) {
-  const at = css.indexOf(`:is(${first}`);
-  assert.ok(at >= 0, `no :is( list opening with ${first}`);
-  let depth = 0;
-  for (let i = at + 3; i < css.length; i++) {
-    if (css[i] === "(") depth++;
-    else if (css[i] === ")" && --depth === 0) return { list: css.slice(at + 4, i), rest: css.slice(i + 1) };
-  }
-  throw new Error("unclosed :is(");
-}
-/** The declaration block of the rule that is exactly the list `:is(L)` plus `tail`. */
-function block(css, list, tail = "") {
-  const head = `:is(${list})${tail} {`;
-  const at = css.indexOf(head);
-  assert.ok(at >= 0, `no rule :is(…)${tail}`);
-  return css.slice(at + head.length, css.indexOf("}", at));
+/** Asserts each name is one of a level's names in kit.css. */
+function takes(level, names) {
+  const list = namesOf(kit, level);
+  for (const n of names) assert.ok(list.includes(n), `${n} is the kit's ${level}`);
 }
 
-// Every ordinary button in the desk (BVJ's inventory, E126).
-const ORDINARY = [
+// BVJ's inventory (E126), each at its level. Filled is a view's one main
+// action; tinted the usual next step and a set's chips; plain everything
+// else; red words delete.
+const FILLED = [
+  ".desk-sheet__btn--primary", // a sheet's primary (its own looks are desk-sheet-view.css's until Phase 11)
+  ".desk-editor__save",
+  ".desk-notice__keep",
+  ".desk-tour__next",
+  ".desk-offer__go",
+  ".desk-rich-link__button--primary",
+  ".desk-undo__choice--primary",
+  ".desk-backup__import",
+  ".desk-gather__btn--primary:not(.desk-gather__go)", // /search's chooser: New sheet
+];
+const TINTED = [
+  ".desk-pin", // Pin, on when pinned (E159)
+  ".desk-mine__label", // label chips
+  ".desk-greek__show-sources",
+  ".desk-sheet__chip", // a sheet's blank chips
+  ".desk-search__btn--primary", // the Search pane's strip: Add to sheet, New sheet
+  ".desk-gather__go", // /search's head rows: one to a group, and a page shows several
+  '.desk-swatch[data-choice="all"]', // the color filters' "All", a chip with words
+  ".desk-lit__back", // E168's way back: quiet, the arrow alone was easy to miss (queue Q19)
+];
+const PLAIN = [
   ".desk-cmdrow__btn", // the command row, its New sheet… included
   ".desk-lit__show", // the LIT pane's Show ▾
   ".desk-pane__pin", // Stay here, a toggle
   ".desk-pane__page", // the Sheets and Collections panes' page link (E180)
   ".desk-item__edit",
-  ".desk-item__delete",
-  ".desk-verse__remove",
-  ".desk-verse__step", // This verse's Previous and Next (E141; quiet circles until then)
+  ".desk-verse__step", // This verse's Previous and Next (E141)
   ".desk-mine__more-button",
   ".desk-note__more", // a margin stack's "N more notes" (E147)
+  ".desk-note__edit", // a margin note's Edit
   ".desk-np__more",
   ".desk-mine__add",
-  ":where(.desk-editor__actions) button:where(:not(.desk-editor__save))", // the note editor's Cancel and Delete
-  ":where(.desk-notice__actions) button:where(:not(.desk-notice__keep))", // the change notice's Delete
-  ".desk-panel__reset",
-  ".desk-panel__print-button",
+  ".desk-editor__cancel",
   ".desk-greek__goto",
   ".desk-greek__back",
   ".desk-greek__retry",
-  ".desk-greek__choice", // the Greek's word choices, a toggle
   ".desk-greek__choices-more",
   ".desk-greek__hits-more",
   ".desk-dp__retry",
-  ".desk-search__btn:where(:not(.desk-search__btn--primary))", // Bible order, a toggle, and the strip's New sheet
-  ".desk-search__choice",
-  ".desk-sheet__btn:where(:not(.desk-sheet__btn--primary))", // E121's Cancel among them
-  ".desk-sheet__choice",
-  // Edged with no fill until E159 (BVJ, 2026-11-18: a button is never the color behind it).
-  ".desk-note__edit", // a margin note's Edit
-  ".desk-home-card__choose",
+  ".desk-search__btn:not(.desk-search__btn--primary)", // Bible order, a toggle
+  '.desk-sheet__btn:not(.desk-sheet__btn--primary, [data-focus-key^="delete"])', // E121's Cancel among them
   ".desk-tour__back",
   ".desk-offer__later", // the tour offer's Later
   ".desk-labels__add",
-  ".desk-ws__shape", // the Layout window's arrangements, a toggle
-  ":where(.desk-ws__menu-actions) button",
-  ":where(.desk-print-menu__choices) > :is(a, button)",
-  ".desk-rich-link__button:where(:not(.desk-rich-link__button--primary))",
+  ".desk-ws__menu-actions button",
+  ".desk-rich-link__button:not(.desk-rich-link__button--primary)",
+  ".desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)", // /search's Cancel and Undo
+  ".desk-tab", // the minimized Notebook (its panel's controls carry the kit's classes)
+  ".desk-sync__again", // the sync's Reconnect
+  ".desk-circle", // a margin note's glyph
 ];
-const PILLS = [".desk-pin",".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip", ".desk-swatch:where(button)"];
-const PRIMARY = [".desk-sheet__btn--primary", ".desk-search__btn--primary", ".desk-editor__actions .desk-editor__save", ".desk-notice__actions .desk-notice__keep", ".desk-tour__next", ".desk-offer__go", ".desk-rich-link__button--primary"];
-const has = (list, sel) => `, ${list}, `.includes(`, ${sel}, `);
+const DANGER = [
+  ".desk-item__delete",
+  ".desk-verse__remove",
+  ".desk-notice__delete", // the change notice's Delete
+  ".desk-editor__delete", // the note editor's Delete
+  ".desk-editor__discard",
+  '.desk-sheet__btn[data-focus-key^="delete"]',
+];
+// A command, a template, a sheet to add to, a print: each a list row.
+const ROW = [".desk-cmds__row", ".desk-command", ".desk-sheet__from-item", ".desk-gather__sheet", ".desk-print-menu__choices > :is(a, button)"];
+// A row of choices, each a tab: the chosen one underlined and heavier.
+const TAB = [".desk-seg__option", ".desk-greek__choice", ".desk-search__choice", ".desk-ws__shape", ".desk-editor__marker"];
+// A press inside a line of words.
+const INLINE = [".desk-search__pick-clear", ".desk-gather__btn--quiet"];
 
-test("E126: the ordinary kind is one rule, and it covers the inventory", () => {
-  const { list } = listFrom(kinds, ".desk-cmdrow__btn");
-  for (const sel of ORDINARY) assert.ok(has(list, sel), sel);
-  const base = block(kinds, list);
-  assert.match(base, /border:\s*1px solid var\(--field-border\)/, "E89's 3:1 edge");
-  assert.match(base, /border-bottom-color:\s*var\(--desk-btn-edge-low\)/, "a hair darker at the foot");
-  assert.match(base, /background:\s*var\(--desk-control\)/, "E89's fill");
-  assert.match(base, /box-shadow:\s*var\(--desk-btn-rest\)/, "a shadow at rest");
-
-  const hover = block(kinds, list, ':hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], [aria-expanded="true"], :active)');
-  assert.match(hover, /transform:\s*translateY\(var\(--desk-btn-lift-y\)\)/, "a 1px lift");
-  assert.match(hover, /box-shadow:\s*var\(--desk-btn-lift\)/);
-
-  const sunk = block(kinds, list, ':is(:active, [aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"])');
-  assert.match(sunk, /box-shadow:\s*var\(--desk-btn-press\)/, "sunk when pressed, on or open");
-  assert.match(sunk, /transform:\s*none/);
-
-  const on = block(kinds, list, ':is([aria-pressed="true"], [aria-expanded="true"]):not(:disabled, [aria-disabled="true"])');
-  assert.match(on, /border-color:\s*var\(--green-text\)/, "an on toggle or open menu: the text green's edge");
-  assert.match(on, /color:\s*var\(--green-text\)/, "and its words");
-  assert.ok(kinds.indexOf(on) > kinds.indexOf(sunk), "after the sunk rule, so its whole edge is green");
-
-  const off = block(kinds, list, ':is(:disabled, [aria-disabled="true"])');
-  assert.match(off, /color:\s*rgba\(var\(--ink-rgb\), 0\.7\)/, "words at 70%: 4.5:1 on every surface");
-  assert.match(off, /border-color:\s*var\(--field-border\)/, "and still a button's edge");
-  assert.match(off, /box-shadow:\s*none/);
-  assert.match(off, /opacity:\s*1/, "no faded opacity under it");
-  assert.match(off, /background:\s*var\(--desk-control\)/, "E159: flat, but its fill stays, never the color behind it");
-  assert.match(search, /\.desk-gather__btn:where\(:not\(\.desk-gather__btn--primary, \.desk-gather__btn--quiet\)\):is\(:disabled, \[aria-disabled="true"\]\)\s*\{[^}]*background:\s*var\(--desk-control\)/, "and /search's");
+test("every button in the desk's inventory takes one level of the kit", () => {
+  takes("filled", FILLED);
+  takes("tinted", TINTED);
+  takes("plain", PLAIN);
+  takes("danger", DANGER);
+  takes("row", ROW);
+  takes("tab", TAB);
+  takes("inline", INLINE);
+  // A toggle is a button with aria-pressed, which the kit draws on: Stay
+  // here, Bible order and the Greek's word choices among them.
+  takes("tab-on", [".desk-seg__option:has(:checked)", ".desk-editor__marker:has(:checked)"]);
 });
 
-test("E159: a .desk-seg pill fills its choices and takes a control's 3:1 edge, as the other pills do", () => {
-  const seg = components.match(/\.desk-seg\s*\{([^}]*)\}/);
+test("the desk keeps none of E126's kinds: no rules, no tokens, no lift", () => {
+  for (const [name, css] of [["desk.css", desk], ["desk-search.css", search]]) {
+    assert.doesNotMatch(css, /Four kinds of button/, `${name}: the kinds' section is gone`);
+    assert.doesNotMatch(css, /--desk-(control|btn-[\w-]+|primary-[\w-]+)\b/, `${name}: the buttons' tokens are gone`);
+    assert.doesNotMatch(css, /@media \(prefers-reduced-motion: reduce\) \{\s*:root \{[^}]*--desk-btn-lift-y/, `${name}: nothing lifts, so reduced motion has nothing to take away`);
+  }
+  // A row whose checkbox is checked keeps the desk's own tint, in both dark
+  // selectors alike (desk-search.css's rows on /search draw a rule only).
+  const block = (head) => {
+    const at = desk.indexOf(head);
+    assert.ok(at >= 0, `no ${head} block`);
+    return desk.slice(at, desk.indexOf("}", at));
+  };
+  const tint = (head) => block(head).match(/--desk-pick-tint:\s*([^;]+);/)?.[1];
+  assert.ok(tint(":root {"), "--desk-pick-tint in :root");
+  const followed = tint(':root:not([data-theme="light"]) {');
+  assert.ok(followed, "--desk-pick-tint in the followed dark block");
+  assert.equal(tint(':root[data-theme="dark"] {'), followed, "the same in both dark selectors");
+  assert.notEqual(followed, tint(":root {"), "with a dark value of its own");
+});
+
+/** The subject of a selector (its last compound), with :not() and :has() taken out. */
+function subjectOf(sel) {
+  const last = sel.trim().split(/\s*[>+~]\s*|\s+(?![^(]*\))/).filter(Boolean).pop() || "";
+  return last.replace(/:(?:not|has|is|where)\((?:[^()]|\([^()]*\))*\)/g, "");
+}
+
+test("no desk rule paints a control's edge, fill or shadow, a modifier's included", () => {
+  // The kit's names are read at a class's weight, so a modifier or a second
+  // class on the same button (.desk-flag--row, .desk-pin--glyph) would draw
+  // over the kit unseen by the kit's own test, which knows controls by name.
+  // A control is a name's subject: in `.desk-np__ask button` the box is not
+  // one. A transparent edge, forced colors' system colors, and a mark drawn
+  // in a ::before or ::after (a dot that says something is due) are allowed;
+  // showing and hiding by opacity is not a look, and fading what can't be
+  // used is the kit test's to catch.
+  const classes = new Set(
+    Object.values(allNames(kit)).flat()
+      .flatMap((n) => [...subjectOf(n).matchAll(/\.(desk-[\w-]+|account__[\w-]+)/g)].map((m) => m[1])),
+  );
+  const base = (c) => c.replace(/--[\w-]+$/, "");
+  const found = [];
+  for (const [name, css] of [["desk.css", desk], ["desk-search.css", search]]) {
+    let screen = css.replace(/\/\*[\s\S]*?\*\//g, "");
+    // Forced colors' and print's rules are their own.
+    for (const at of ["@media (forced-colors: active)", "@media print"]) {
+      for (let i = screen.indexOf(at); i >= 0; i = screen.indexOf(at, i + 1)) {
+        let depth = 0;
+        let j = screen.indexOf("{", i);
+        for (; j < screen.length; j++) {
+          if (screen[j] === "{") depth++;
+          else if (screen[j] === "}" && --depth === 0) break;
+        }
+        screen = screen.slice(0, i) + screen.slice(j + 1);
+      }
+    }
+    for (const m of screen.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      for (const sel of m[1].split(/,(?![^(]*\))/)) {
+        if (/::?(before|after)\b/.test(sel)) continue;
+        const subject = subjectOf(sel);
+        const hit = [...subject.matchAll(/\.([\w-]+)/g)].map((c) => c[1]).find((c) => classes.has(c) || classes.has(base(c)));
+        if (!hit) continue;
+        for (const d of m[2].split(";").map((x) => x.trim()).filter(Boolean)) {
+          const [prop, value = ""] = d.split(/:\s*/, 2);
+          if (!/^(border(-top|-bottom|-left|-right)?(-color)?|background(-color|-image)?|box-shadow|filter)$/.test(prop)) continue;
+          if (/^(0|none|transparent)$|transparent|Highlight|ButtonText|ButtonBorder|GrayText|Canvas/.test(value)) continue;
+          found.push(`${name}: ${sel.trim().replace(/\s+/g, " ")} { ${d} } (.${hit})`);
+        }
+      }
+    }
+  }
+  assert.deepEqual(found, []);
+});
+
+test("E159: a row of choices is the kit's tabs; .desk-seg draws no pill of its own", () => {
+  const seg = desk.match(/\n\.desk-seg\s*\{([^}]*)\}/);
   assert.ok(seg, "no .desk-seg rule");
-  assert.match(seg[1], /background:\s*var\(--desk-control\)/, "its unchosen choices are a control's fill, not the background");
-  assert.match(seg[1], /border:\s*1px solid var\(--field-border\)/);
+  assert.match(seg[1], /display:\s*inline-flex/);
+  assert.match(seg[1], /flex-wrap:\s*wrap/, "a row that wraps, as the kit's choices do");
+  assert.doesNotMatch(seg[1], /background|border|box-shadow/, "no fill or edge: each choice is a tab");
+  // The hidden radio's focus is drawn on its words, in the one ring.
+  assert.match(desk, /\.desk-seg__input:focus-visible \+ \.desk-seg__text \{[^}]*outline:\s*2px solid var\(--focus-ring\)[^}]*outline-offset:\s*2px/);
 });
 
-test("E169: a highlight color's swatch is a flat toggle as a button, and paints no fill or edge of its own", () => {
+test("E169: a highlight color's swatch is the kit's color dot, and paints no fill or edge of its own", () => {
   // The menus' Highlight row and the color filters drew the menu's own
-  // surface inside a faint edge, so the button was the color behind it.
-  assert.ok(has(listFrom(kinds, PILLS[0]).list, ".desk-swatch:where(button)"), "the flat toggles take it, at a class's weight");
-  const plain = components.replace(/\/\*[\s\S]*?\*\//g, "");
+  // surface inside a faint edge, so the button was the color behind it. Now
+  // each color is the kit's dot, filled with its color through --kit-dot,
+  // and "All", a chip with words, is the kit's tinted.
+  takes("dot", [".desk-swatch:where(button)[data-color]"]);
+  takes("tinted", ['.desk-swatch[data-choice="all"]']);
+  for (const color of ["yellow", "green", "blue", "pink"]) {
+    assert.match(desk, new RegExp(`\\.desk-swatch\\[data-color="${color}"\\] \\{\\s*--kit-dot:\\s*var\\(--desk-hl-${color}\\);`), color);
+  }
+  const plain = desk.replace(/\/\*[\s\S]*?\*\//g, "");
   for (const m of plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (!m[1].split(",").some((sel) => /\.desk-swatch(?![\w-])/.test(sel) && !/\.desk-swatch__sample/.test(sel))) continue;
     assert.doesNotMatch(m[2], /(^|;)\s*(border(-color)?|background(-color)?|box-shadow)\s*:/, `${m[1].trim()} paints its own`);
   }
 });
 
-test("E126: a toggle is an ordinary button with aria-pressed, or a pill", () => {
-  const { list } = listFrom(kinds, ".desk-cmdrow__btn");
-  for (const sel of [".desk-pane__pin", ".desk-greek__choice", ".desk-search__btn:where(:not(.desk-search__btn--primary))"]) {
-    assert.ok(has(list, sel), `${sel} takes the ordinary rule's on state`);
-  }
-  const pills = listFrom(kinds, PILLS[0]).list;
-  for (const sel of PILLS) assert.ok(has(pills, sel), sel);
-  const base = block(kinds, pills);
-  assert.match(base, /border:\s*1px solid var\(--field-border\)/);
-  assert.match(base, /background:\s*var\(--desk-control\)/);
-  assert.doesNotMatch(base, /^\s*box-shadow:/m, "flat at rest: a row of chips with shadows reads as noise");
-  const on = block(kinds, pills, '[aria-pressed="true"]:not(:disabled)');
-  assert.match(on, /border-color:\s*var\(--green-text\)/);
-  assert.match(on, /color:\s*var\(--green-text\)/);
-});
-
-test("E126: the primary is Deep Green with white words, and disabled it still reads as a button", () => {
-  const { list } = listFrom(kinds, PRIMARY[0]);
-  for (const sel of PRIMARY) assert.ok(has(list, sel), sel);
-  const base = block(kinds, list);
-  assert.match(base, /background:\s*var\(--green-deep\)/);
-  assert.match(base, /color:\s*#fff/);
-  assert.match(base, /border-color:\s*var\(--desk-primary-edge\)/, "in dark the text green at 70%");
-  const off = block(kinds, list, ':is(:disabled, [aria-disabled="true"])');
-  assert.match(off, /border-color:\s*var\(--desk-primary-edge\)/);
-  assert.match(off, /background:\s*var\(--desk-primary-off\)/);
-  assert.match(off, /color:\s*var\(--green-text\)/);
-  assert.match(off, /opacity:\s*1/);
-  // /search's head row and chooser take the same looks from desk-search.css.
-  assert.match(search, /\.desk-gather__btn--primary\s*\{[^}]*background:\s*var\(--green-deep\)[^}]*color:\s*#fff/);
-  assert.match(search, /\.desk-gather__btn--primary:is\(:disabled, \[aria-disabled="true"\]\)\s*\{[^}]*background:\s*var\(--desk-primary-off\)[^}]*color:\s*var\(--green-text\)/);
-  assert.match(search, /\.desk-gather__btn:where\(:not\(\.desk-gather__btn--primary, \.desk-gather__btn--quiet\)\)\s*\{[^}]*border-color:\s*var\(--field-border\)[^}]*background:\s*var\(--desk-control\)/);
-});
-
-test("E126: no component rule paints an inventory button's edge, fill or shadow (the old outlines are gone)", () => {
-  // Each component rule says its size and shape; the looks are the kinds'. A
-  // transparent edge (a width for the kinds to color) and forced colors'
-  // system colors are allowed. Every Pin is a flat toggle, the reading pages'
-  // too (E159); the Footnotes list's still shows and hides by opacity (E82).
-  const classes = [
-    ".desk-cmdrow__btn", ".desk-lit__show", ".desk-pane__pin", ".desk-pane__page", ".desk-item__edit", ".desk-item__delete", ".desk-verse__remove",
-    ".desk-verse__step", ".desk-mine__more-button", ".desk-note__more", ".desk-np__more", ".desk-mine__add", ".desk-editor__actions", ".desk-editor__save",
-    ".desk-notice__actions", ".desk-notice__keep", ".desk-panel__reset", ".desk-panel__print-button", ".desk-greek__goto",
-    ".desk-greek__back", ".desk-greek__retry", ".desk-greek__choice", ".desk-greek__choices-more", ".desk-greek__hits-more",
-    ".desk-dp__retry", ".desk-search__btn", ".desk-search__choice", ".desk-sheet__btn", ".desk-sheet__choice",
-    ".desk-mine__label", ".desk-greek__show-sources", ".desk-sheet__chip",
-    ".desk-note__edit", ".desk-home-card__choose", ".desk-tour__next", ".desk-tour__back", ".desk-offer__go", ".desk-offer__later",
-    ".desk-labels__add", ".desk-ws__shape", ".desk-ws__menu-actions", ".desk-print-menu__choices", ".desk-rich-link__button",
-    ".desk-pin",
-  ];
-  const named = (sel) => classes.some((c) => new RegExp(`${c.replace(/\./g, "\\.")}(?![\\w-])`).test(sel));
-  const plain = components.replace(/\/\*[\s\S]*?\*\//g, "");
-  const found = [];
-  for (const m of plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-    const sel = m[1].trim();
-    if (!named(sel)) continue;
-    for (const d of m[2].split(";").map((x) => x.trim())) {
-      const [prop, value = ""] = d.split(/:\s*/, 2);
-      if (!/^(border(-top|-bottom|-left|-right)?(-color)?|background(-color)?|box-shadow|opacity)$/.test(prop)) continue;
-      if (/transparent|Highlight|ButtonText|ButtonBorder|GrayText|Canvas/.test(value)) continue;
-      if (prop === "opacity" && /\.desk-fn-pills(?![\w-])/.test(sel)) continue; // E82's show and hide
-      found.push(`${sel.replace(/\s+/g, " ")} { ${d} }`);
-    }
-  }
-  assert.deepEqual(found, []);
-  // The faint outlines E126 replaced, by name.
-  assert.doesNotMatch(components, /\.desk-cmdrow__btn\s*\{[^}]*rgba\(var\(--ink-rgb\), 0\.(2|3)\d?\)/);
-  assert.doesNotMatch(components, /\.desk-search__btn\s*\{[^}]*border:\s*1px solid rgba/);
-});
-
-test("E141: This verse's arrows and every Pin are rounded rectangles, never a circle or a pill", () => {
+test("E141: a button's corner is the kit's, so the arrows, every Pin and the lock are never a circle or a pill", () => {
   // BVJ, 2026-11-17: "The next/previous and pin buttons in the notebook are
-  // still circles/ovals instead of rounded rectangles. Same with the pin
-  // buttons beside the footnotes on the scripture page."
+  // still circles/ovals instead of rounded rectangles." The kit gives every
+  // button and chip the pressed corner (6px); no desk rule sets its own.
+  for (const anchor of ["kit-btn--plain", "kit-btn--tinted"]) {
+    const m = kit.match(new RegExp(`\\n:is\\(\\.${anchor}, [^{]*\\)\\) \\{([^}]*)\\}`));
+    assert.ok(m, `no look rule for .${anchor}`);
+    assert.match(m[1], /border-radius:\s*var\(--radius-press\)/, anchor);
+  }
   const plain = desk.replace(/\/\*[\s\S]*?\*\//g, "");
   const radii = (sel) =>
     [...plain.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
-      .filter((m) => m[1].split(",").some((s) => new RegExp(`${sel.replace(/\./g, "\\.")}(?![\\w-])`).test(s)))
+      .filter((m) => m[1].split(",").some((s) => new RegExp(`${sel.replace(/\./g, "\\.")}(?![\\w-])`).test(s) && !/::?(before|after)/.test(s)))
       .flatMap((m) => [...m[2].matchAll(/border-radius:\s*([^;]+)/g)].map((r) => r[1].trim()));
-  assert.deepEqual(radii(".desk-verse__step"), ["8px"], "the ordinary button's corner");
-  assert.deepEqual(radii(".desk-pin"), ["6px"], "one shape wherever a footnote is pinned");
-  // The arrows take the ordinary look, spent look included, from the kinds.
-  assert.ok(has(listFrom(kinds, ".desk-cmdrow__btn").list, ".desk-verse__step"));
-  // The rest of the round controls, the same day ("go with your
-  // recommendations"): shape says what a control is. A button is a rounded
-  // rectangle, the lock and a lone switch included; a chip in a set stays a
-  // pill; a mark on the page stays a circle.
-  assert.deepEqual(radii(".desk-pane__pin"), ["8px"], "Stay here: an ordinary button, never a circle");
-  assert.deepEqual(radii(".desk-greek__show-sources"), ["6px"], "Show sources: a lone switch, in Pin's shape");
-  assert.deepEqual(radii(".desk-mine__label"), ["999px"], "label chips are a set");
-  assert.deepEqual(radii(".desk-sheet__chip"), ["999px"], "a sheet's blank chips are a set");
-  assert.deepEqual(radii(".desk-circle"), ["50%"], "a margin note's circle is a mark");
+  for (const sel of [".desk-verse__step", ".desk-pin", ".desk-pane__pin", ".desk-greek__show-sources", ".desk-mine__label", ".desk-sheet__chip"]) {
+    assert.deepEqual(radii(sel), [], `${sel} takes the kit's corner`);
+  }
 });
 
-test("E168: the way back as the arrow alone is an ordinary button, and naming its place it stays quiet", () => {
-  // BVJ, 2026-11-19: “When there's not enough room for the verse reference
-  // and it only shows the arrow, it's subtle and easy to miss. Can we turn
-  // that into a button?” Only the bar's width says which kind it is, so the
-  // kinds restate the ordinary look under the widths that hide its name.
-  const ordinary = block(kinds, listFrom(kinds, ".desk-cmdrow__btn").list);
+test("E168: the way back as the arrow alone is the bar's square, and the kit's tinted button at every width", () => {
+  // BVJ, 2026-11-19, found the arrow alone, quiet, "subtle and easy to miss"
+  // and asked for it to read as a button. Its look is the kit's tinted level
+  // (a box at rest) at every width (queue Q19); the bar's width only decides
+  // whether its place's name shows.
+  takes("tinted", [".desk-lit__back"]);
   const rule = (css, sel) => {
     const at = css.indexOf(`${sel} {`);
     assert.ok(at >= 0, `no rule ${sel}`);
@@ -241,100 +245,16 @@ test("E168: the way back as the arrow alone is an ordinary button, and naming it
     ["@container deskLitBar (max-width: 32em) {", ".desk-lit__back"],
     ['@container deskLitBar (max-width: 38em) {', 'html[data-font="dyslexic"] .desk-lit__back'],
   ]) {
-    // The component's query says the shape (the Show eye's square and corner)
-    // and hides the name; the kinds' says the look.
-    const shape = components.slice(components.indexOf(query));
-    assert.ok(components.includes(query), `the bar's ${query}`);
-    assert.equal(decl(rule(shape, sel), "width"), "30px");
-    assert.equal(decl(rule(shape, sel), "border-radius"), "8px", "the ordinary button's corner");
-    assert.ok(kinds.includes(query), `the kinds restate the look under ${query}`);
-    const look = kinds.slice(kinds.indexOf(query));
-    const base = rule(look, sel);
-    for (const prop of ["border", "border-bottom-color", "background", "color", "box-shadow", "transition"]) {
-      assert.equal(decl(base, prop), decl(ordinary, prop), `${sel} ${prop}, as the ordinary kind's`);
+    assert.ok(desk.includes(query), `the bar's ${query}`);
+    const shape = rule(desk.slice(desk.indexOf(query)), sel);
+    assert.equal(decl(shape, "width"), "30px", "the square of the bar's other controls");
+    for (const prop of ["background", "border", "border-radius", "box-shadow", "color"]) {
+      assert.equal(decl(shape, prop), undefined, `${sel} ${prop}: the kit's`);
     }
-    const hover = rule(look, `${sel}:hover:not(:active)`);
-    assert.match(hover, /box-shadow:\s*var\(--desk-btn-lift\)/);
-    assert.match(hover, /transform:\s*translateY\(var\(--desk-btn-lift-y\)\)/, "the lift on hover");
-    const sunk = rule(look, `${sel}:active`);
-    assert.match(sunk, /box-shadow:\s*var\(--desk-btn-press\)/, "sunk when pressed");
-    assert.match(sunk, /transform:\s*none/);
   }
-  // With its name, it keeps the quiet look: no fill, edge or shadow, the text green.
-  const quiet = rule(components, ".desk-lit__back");
-  assert.equal(decl(quiet, "background"), "transparent");
-  assert.equal(decl(quiet, "border"), "0");
-  assert.equal(decl(quiet, "color"), "var(--green-text)");
-  assert.equal(decl(quiet, "box-shadow"), undefined);
-});
-
-/** The custom properties declared in the first block opening with `head` whose body declares `marker`. */
-function tokens(css, head, marker = "--desk-btn-rest") {
-  let from = 0;
-  for (;;) {
-    const at = css.indexOf(head, from);
-    assert.ok(at >= 0, `no ${head} block declaring ${marker}`);
-    const body = css.slice(at + head.length, css.indexOf("}", at));
-    if (body.includes(marker)) return new Map([...body.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
-    from = at + head.length;
-  }
-}
-
-const LIGHT_ONLY = ["--desk-btn-lift-y", "--desk-btn-motion"]; // the same in every theme
-const BUTTON_TOKENS = [
-  "--desk-control",
-  "--desk-btn-edge-low",
-  "--desk-btn-rest",
-  "--desk-btn-lift",
-  "--desk-btn-press",
-  "--desk-btn-hover",
-  "--desk-btn-down",
-  ...LIGHT_ONLY,
-  "--desk-primary-edge",
-  "--desk-primary-press",
-  "--desk-primary-off",
-  "--desk-pick-tint",
-];
-
-test("E126: both dark selectors carry every token, with a dark pair for every shadow, in desk.css and desk-search.css alike", () => {
-  const sets = {};
-  for (const [name, css] of [["desk.css", desk], ["desk-search.css", search]]) {
-    const light = tokens(css, ":root {");
-    const followed = tokens(css, ':root:not([data-theme="light"]) {');
-    const forced = tokens(css, ':root[data-theme="dark"] {');
-    assert.match(css, /@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\) \{[^}]*--desk-btn-rest/, `${name}: the followed dark block is inside the media query`);
-    for (const t of BUTTON_TOKENS) {
-      assert.ok(light.has(t), `${name}: ${t} in :root`);
-      if (LIGHT_ONLY.includes(t)) continue;
-      assert.ok(followed.has(t), `${name}: ${t} in the followed dark block`);
-      assert.ok(forced.has(t), `${name}: ${t} in [data-theme="dark"]`);
-      assert.equal(followed.get(t), forced.get(t), `${name}: ${t} is the same in both dark selectors`);
-    }
-    for (const t of ["--desk-btn-rest", "--desk-btn-lift", "--desk-btn-press", "--desk-primary-press"]) {
-      assert.notEqual(followed.get(t), light.get(t), `${name}: ${t} has a dark value of its own`);
-    }
-    sets[name] = { light, dark: forced };
-  }
-  for (const t of BUTTON_TOKENS) {
-    assert.equal(sets["desk-search.css"].light.get(t), sets["desk.css"].light.get(t), `${t}: /search's copy matches, light`);
-    if (!LIGHT_ONLY.includes(t)) assert.equal(sets["desk-search.css"].dark.get(t), sets["desk.css"].dark.get(t), `${t}: /search's copy matches, dark`);
-  }
-  // The dark primary's edge is the text green (#3abf6a) at 70%.
-  assert.equal(sets["desk.css"].dark.get("--desk-primary-edge"), "rgba(58, 191, 106, 0.7)");
-});
-
-test("E126: under reduced motion the lift and the transitions go, and the shadows stay", () => {
-  for (const [name, css] of [["desk.css", desk], ["desk-search.css", search]]) {
-    const m = css.match(/@media \(prefers-reduced-motion: reduce\) \{\s*:root \{([^}]*)\}\s*\}/);
-    assert.ok(m, `${name}: no reduced-motion block`);
-    assert.match(m[1], /--desk-btn-lift-y:\s*0px/, name);
-    assert.match(m[1], /--desk-btn-motion:\s*0s/, name);
-    assert.doesNotMatch(m[1], /shadow/, `${name}: the shadows still say hover and pressed`);
-  }
-  // Every lift and every transition in the kinds goes through the two tokens.
-  for (const t of kinds.matchAll(/transform:\s*([^;]+);/g)) assert.match(t[1], /^(none|translateY\(var\(--desk-btn-lift-y\)\))$/, t[0]);
-  for (const t of kinds.matchAll(/transition:([^;]+);/g)) {
-    for (const part of t[1].split(",")) assert.match(part, /var\(--desk-btn-motion\)/, part.trim());
+  const named = rule(desk, ".desk-lit__back");
+  for (const prop of ["background", "border", "border-radius", "box-shadow", "color"]) {
+    assert.equal(decl(named, prop), undefined, `.desk-lit__back ${prop}: the kit's`);
   }
 });
 
@@ -357,19 +277,4 @@ test("E116, E117: the strips stay in view, a long label ends in “…”, and c
   assert.match(search, /\.desk-gather__row-item--picked > \.result-link[^{]*\{[^}]*inset 3px 0 0 var\(--green-text\)/);
   // A head row's [hidden] wins over its display: flex.
   assert.match(search, /\.desk-gather\[hidden\] \{[^}]*display:\s*none/);
-});
-
-test("E163: Site 2.0's /search keeps the green rule on a checked result, at rest and on hover", () => {
-  // restyle.css's card list (:root[data-restyle] :is(.search-page .result-link, …))
-  // outweighs desk-search.css's rule, so v2/search.css restates it with the
-  // restyle's own shadows behind it.
-  const v2 = read("v2/search.css");
-  const picked = ":root[data-restyle] .search-page .desk-gather__row-item--picked > .result-link";
-  const rest = v2.slice(v2.indexOf(`${picked} {`));
-  assert.ok(v2.includes(`${picked} {`), "no rule for a checked card");
-  assert.match(rest, /^[^}]*box-shadow:\s*inset 3px 0 0 var\(--green-text\), var\(--restyle-link-card-shadow\)/);
-  const hover = v2.slice(v2.indexOf(`${picked}:hover {`));
-  assert.ok(v2.includes(`${picked}:hover {`), "no rule for a checked card under the pointer");
-  assert.match(hover, /^[^}]*box-shadow:\s*inset 3px 0 0 var\(--green-text\), var\(--restyle-link-card-hover-shadow\)/);
-  assert.match(v2, /@media \(forced-colors: active\) \{\s*:root\[data-restyle\] \.search-page \.desk-gather__row-item--picked > \.result-link \{[^}]*border-color:\s*Highlight/);
 });

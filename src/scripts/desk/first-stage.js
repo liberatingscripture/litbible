@@ -3,10 +3,10 @@
 // The Study Desk on a reading page, stage one (Audit 3, LG3-2; BVJ,
 // 2026-11-07, decision 3: load the desk lazily). desk-gate.js loads this on a
 // page with a reading column. It draws the minimized Notebook's tab (and its
-// stylesheet, desk-tab.css, alone), puts the Notebook's switches in the
-// Display tray (note-settings.js, which the shell finds already started, so
-// the tray, the H key and "Show the Notebook" need no shell; BVJ, 2026-11-07),
-// and takes a look at the notebook; the rest of the desk, the shell and
+// stylesheet, desk-tab.css, alone), puts "Your marks" in the Display tray
+// (note-settings.js, which the shell finds already started, so the tray and
+// the H key need no shell; BVJ, 2026-11-07), and takes a look at the
+// notebook; the rest of the desk, the shell and
 // desk.css, comes only when there is something to draw on this page or the
 // reader reaches for it. The rules are src/lib/desk-first-stage.mjs.
 //
@@ -16,15 +16,15 @@
 //   - the notebook holds records this page draws (`peekNotebook`: this
 //     chapter's in Chapter View, the book's in Read View; nothing elsewhere
 //     while N11 is off), or can't say, or another tab writes to it;
-//   - the reader presses the tab, Read View's Notebook button or "Skip to
-//     the Notebook" (which the Notebook then opens for, so no press is lost),
-//     or turns "Show the Notebook" on where the Notebook starts expanded;
+//   - the reader presses the tab, a Notebook button (the place line's or
+//     Read View's) or "Skip to the Notebook" (which the Notebook then opens
+//     for, so no press is lost);
 //   - the reader starts toward a menu the desk adds to: a verse number or a
 //     footnote letter pressed or focused, or words selected (a head start);
 //   - the chapter's Footnotes list comes within a screen of the window,
 //     where every note gets its Pin button (pins.js);
 //   - an event the desk answers arrives first: `lit:panel-actions`,
-//     `lit:footnote-actions`, `lit:desk-command`, `lit:greek-word`. Each is
+//     `lit:footnote-actions`, `lit:desk-command`. Each is
 //     held and sent again once the shell is
 //     up; a menu still open then gets its rows late, and is moved to keep its
 //     place (`grownPanelShift`).
@@ -34,13 +34,13 @@ import { standDown } from "../desk-frame.js";
 import { currentPanel } from "../lit-panel.js";
 import { startState } from "../../lib/desk-start.mjs";
 import {
-  CHANNEL, REMIND_HOME, REMIND_HOME_KEY, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook, peekReminder,
+  CHANNEL, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook,
 } from "../../lib/desk-first-stage.mjs";
 import { peekLinked } from "../../lib/desk-sync-link.mjs";
 import { createRail } from "./margin.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { addTabStyle, notebookTab } from "./notebook-tab.js";
-import { SETTINGS_EVENT, initNoteSettings } from "./note-settings.js";
+import { initNoteSettings } from "./note-settings.js";
 
 const root = document.documentElement;
 const readLocal = (k) => {
@@ -62,30 +62,6 @@ function drawnHere() {
   const rm = document.querySelector("[data-rm-root]");
   if (rm?.dataset.rmBook && rm.querySelector("[data-rm-text]")) return { bookKey: rm.dataset.rmBook };
   return null;
-}
-
-// A chapter whose Greek the Notebook shows (greekChapter in page.js).
-const greekHere = () => Boolean(document.querySelector("article.chapter[data-last-read-book], article.chapter[data-draft-book]"));
-
-/**
- * Start the backup reminder (reminder.js) on a Chapter View chapter or Read
- * View, from a look at the notebook that never creates it and never loads the
- * shell. Nowhere else: not an intro, an article or the glossary. Only for a
- * reader who asked to be reminded, so no one else loads its code or looks.
- */
-function beginReminder(where) {
-  if (!where || !globalThis.indexedDB || readLocal(REMIND_HOME_KEY) !== REMIND_HOME) return;
-  import("./reminder.js")
-    .then(({ startReminder }) => startReminder({
-      surface: "reading",
-      // The link only changes the reminder's words (UX9b-2); peekLinked is
-      // light and already loaded here for the sync.
-      getFacts: async () => {
-        const facts = await peekReminder({ idb: indexedDB, now: new Date() });
-        return facts ? { ...facts, linked: await peekLinked({ idb: indexedDB }) } : facts;
-      },
-    }))
-    .catch((err) => console.error("Study Desk: the backup reminder didn’t start", err));
 }
 
 /**
@@ -120,8 +96,6 @@ export async function start({ importShell = () => import("./shell.js") } = {}) {
   try { state = startState(readLocal); } catch (_) {}
   const now = loadAtOnce({ start: state, session: readSession, params: new URL(window.location.href).searchParams });
   if (now) {
-    // The shell's panel draws its own tab and paints the reminder's dot on it (panel.js).
-    beginReminder(where);
     await loadStageTwo(importShell, { stand: standDown });
     return;
   }
@@ -150,29 +124,19 @@ async function drawAndWait({ where, state, importShell, leave }) {
   const tab = notebookTab();
   const rail = createRail(stub, tab, () => {}, { widths: false });
   leave.rail = rail;
-  let railShown = false;
-  const showRail = (on) => {
-    if (on === railShown) return;
-    railShown = on;
-    if (on) rail.show();
-    else rail.hide();
-  };
-  showRail(state.open);
+  if (state.open) rail.show();
 
   // A way in for a keyboard reader, as panel.js adds (NB-4).
   const skip = document.createElement("a");
   skip.href = "#deskPanel";
   skip.className = "skip-link";
-  // So desk-tab.css hides it while "Show the Notebook" is off, as panel.js's
-  // link is hidden (NB3-10; NB6-1), and the page-text readers pass it over.
+  // So the page-text readers pass it over, as panel.js's link is marked.
   skip.setAttribute("data-desk-skip", "");
   skip.textContent = "Skip to the Notebook";
   const firstSkip = document.querySelector("a.skip-link");
   if (firstSkip) firstSkip.after(skip);
   else document.body.prepend(skip);
   leave.skip = skip;
-  // The backup reminder: a read-only look, so the shell stays unloaded (E113).
-  beginReminder(where);
   // And the sync, for a browser linked to an account.
   beginSync();
 
@@ -215,14 +179,7 @@ async function drawAndWait({ where, state, importShell, leave }) {
         rail.destroy();
         skip.remove();
         standDown();
-        // A Greek result taken from the search box was held for a shell that
-        // isn't coming: follow its link as the box would have, to the verse
-        // (NB8-9). Any other held event had no link of its own.
-        const word = held.splice(0).filter((e) => e.type === "lit:greek-word").pop()?.detail;
-        if (Number.isInteger(word?.verse) && Number.isInteger(word?.t)) {
-          window.location.assign(`${window.location.pathname}?greek=${word.verse}.${word.t}#v${word.verse}`);
-          return;
-        }
+        held.length = 0;
         // The pressed tab is gone: focus goes to the page's text, not <body> (NB6-2).
         const main = focused && document.getElementById("main-content");
         if (main) {
@@ -280,7 +237,8 @@ async function drawAndWait({ where, state, importShell, leave }) {
     e.preventDefault();
     openWhenUp(null, tab);
   });
-  // Read View's Notebook button (the header's are links to /desk).
+  // The Notebook buttons: the place line's and Read View's (the header's
+  // Study is a link to /desk).
   for (const t of document.querySelectorAll("button[data-desk-toggle]")) {
     on(t, "click", (e) => {
       e.stopPropagation();
@@ -324,10 +282,9 @@ async function drawAndWait({ where, state, importShell, leave }) {
   }
 
   // Events the shell answers, held until it does.
-  const hold = (type, { ifHere = () => true, take = false } = {}) =>
+  const hold = (type, { ifHere = () => true } = {}) =>
     on(document, type, (e) => {
       if (up || !ifHere(e.detail)) return;
-      if (take) e.preventDefault();
       held.push({ type, detail: e.detail });
       want();
     });
@@ -337,28 +294,6 @@ async function drawAndWait({ where, state, importShell, leave }) {
   // A footnote's popover: Pin and "Add a note" (pins.js), on a chapter.
   hold("lit:footnote-actions", { ifHere: () => Boolean(where?.chapter) });
   hold("lit:desk-command");
-  // A Greek result for this chapter: taken now, so the search box keeps its
-  // link from loading, and shown by greek-link.js once it is here.
-  hold("lit:greek-word", { ifHere: greekHere, take: true });
-
-  // "Show the Notebook" (the Display tray's, or another tab's through
-  // note-settings.js), as panel.js follows it: off hides the tab and writes
-  // none of the reader's panel keys; on brings the Notebook back as they left
-  // it, which needs the shell only where it was left expanded.
-  on(document, SETTINGS_EVENT, (e) => {
-    if (e.detail?.name !== "show") return;
-    if (e.detail.value === "off") {
-      root.removeAttribute("data-desk-panel");
-      showRail(false);
-      return;
-    }
-    let st = { open: true, minimized: true };
-    try { st = startState(readLocal); } catch (_) {}
-    if (!st.open) return;
-    root.setAttribute("data-desk-panel", "open");
-    showRail(true);
-    if (!st.minimized) want();
-  });
 
   /* ── The look at the notebook ────────────────────────────────────── */
 

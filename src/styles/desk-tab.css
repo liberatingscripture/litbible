@@ -28,7 +28,7 @@
 /* The collapsed notebook: a tab at the window's edge, clear of the text
    (TAB_WIDTH and TAB_EDGE in src/lib/desk-margin.mjs), starting level with
    the page's heading and pinned 16px from the top as the reader scrolls,
-   like the panel it stands for. */
+   like the panel it stands for. A plain button, the kit's. */
 .desk-tab {
   display: none;
 }
@@ -44,17 +44,9 @@
   gap: 8px;
   padding: 12px 0 14px;
   pointer-events: auto;
-  border: 1px solid rgba(var(--ink-rgb), 0.14);
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
-}
-
-.desk-tab:hover {
-  background: linear-gradient(rgba(var(--ink-rgb), 0.06), rgba(var(--ink-rgb), 0.06)) var(--surface-raised);
 }
 
 /* While the rest of the desk loads after a press of the tab. */
@@ -70,46 +62,18 @@
   letter-spacing: 0.02em;
 }
 
-/* "Skip to the Notebook" has nothing to skip to while the Display tray's
-   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
-   tab order. Here, not in desk.css, so stage one's link (Audit 6, NB6-1)
-   is hidden before the shell loads. No colors, so both themes alike. */
-html[data-desk-show="off"] .skip-link[data-desk-skip] {
-  display: none;
-}
-
 /* The Display tray's additions, added by note-settings.js in stage one (the
-   tray's own styles are in global.css). The one line under the Show group's
-   boxes, muted like the tray's list of keys. */
+   tray's own styles are in global.css): the line under a View switch (the
+   numbers' and "Your marks"), set in from the edge as far as the switch's
+   words, past its 36px track and the kit's gap. The third ink is a token, so
+   both themes alike. */
 .font-tray__hint {
-  margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), 0.7);
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-
-/* "Reset widths" in the tray, shown only while the reader has set widths. The
-   look is the Edit button's (.desk-panel__reset, in desk.css). With the
-   restyle on, restyle.css's ordinary kind draws it instead (E159). */
-.font-tray__reset {
-  align-self: flex-start;
-  margin-top: 8px;
-  padding: 5px 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.25);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 0.8125rem;
-  cursor: pointer;
-}
-
-.font-tray__reset:hover {
-  background: rgba(var(--ink-rgb), 0.07);
-}
-
-.font-tray__reset[hidden] {
-  display: none;
+  margin: 0 0 var(--space-1);
+  padding-left: calc(36px + var(--space-3));
+  color: var(--color-text-3);
+  font-family: var(--font-control);
+  font-size: var(--size-small-label);
+  line-height: var(--leading-small-label);
 }
 
 /* The rail doesn't print (BA145): it is appended to <body>, outside what
@@ -117,40 +81,5 @@ html[data-desk-show="off"] .skip-link[data-desk-skip] {
 @media print {
   .desk-rail {
     display: none !important;
-  }
-}
-
-/* The first record written while "kept in this browser" is unanswered marks
-   the tab and the Notebook buttons until the panel is opened (E74; panel.js,
-   nudgePanel). A dot in the text green; in forced colors, Highlight, since a
-   background alone draws nothing there. */
-.desk-tab:is([data-desk-nudge], [data-desk-due]),
-[data-desk-toggle]:is([data-desk-nudge], [data-desk-due]) {
-  position: relative;
-}
-
-.desk-rail--collapsed .desk-tab:is([data-desk-nudge], [data-desk-due]) {
-  position: sticky;
-}
-
-.desk-tab:is([data-desk-nudge], [data-desk-due])::after,
-[data-desk-toggle]:is([data-desk-nudge], [data-desk-due])::after {
-  content: "";
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green-text);
-}
-
-/* The same dot says a backup is due (E113; reminder.js sets data-desk-due).
-   Opening the Notebook clears the first-write mark, never this one. */
-@media (forced-colors: active) {
-  .desk-tab:is([data-desk-nudge], [data-desk-due])::after,
-  [data-desk-toggle]:is([data-desk-nudge], [data-desk-due])::after {
-    forced-color-adjust: none;
-    background: Highlight;
   }
 }

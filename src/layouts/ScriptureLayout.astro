@@ -1,14 +1,14 @@
 ---
-// ScriptureLayout.astro
-import "../styles/scripture-tools.css";
-import "../styles/v2/scripture.css";
-
+// ScriptureLayout.astro: a chapter (drafts included) or a book's
+// introduction. Its place line (PlaceLine.astro, drawn by Layout from
+// `readingLine`) holds the page's passage picker, its one search field,
+// Previous and Next, and Study's way in; under 700px the phone's two bars
+// do that work (src/layouts/CLAUDE.md).
 import Layout from "./Layout.astro";
-import ReadMenu from "../components/ReadMenu.astro";
-import SearchBar from "../components/SearchBar.astro";
 import ScriptureHeader from "../components/ScriptureHeader.astro";
 import PrintCredit from "../components/PrintCredit.astro";
 import SblgntNotice from "../components/SblgntNotice.astro";
+import PhoneBar from "../components/PhoneBar.astro";
 import { bookKeyToLabel } from "../data/books.js";
 
 const {
@@ -19,7 +19,7 @@ const {
 
   /**
    * Pagefind + scripture metadata
-   * book: MUST match your ReadMenu slug keys (e.g., "luke", "1peter", "hebrews")
+   * book: a book key (src/data/books.js: "luke", "1peter", "hebrews")
    * chapter: "intro" or a chapter number (e.g., "1")
    * type: "scripture" | "intro" | "search" | ...
    */
@@ -32,12 +32,6 @@ const {
    * These are indexed as Pagefind meta "topics"
    */
   topics,
-
-  /**
-   * Layout toggles
-   */
-  showToolsReadMenu = true,
-  showToolsSearch = true,
 
   /**
    * Controls the robots meta (noindex/index) via Layout, and — for intro
@@ -60,6 +54,13 @@ const {
    * nothing, since they have neither.
    */
   scriptureControls,
+
+  /**
+   * A published chapter, which reads on into the next (src/scripts/read-on.js),
+   * and whether it has Go deeper rows; both reach ScriptureHeader's heading row.
+   */
+  readsOn = false,
+  goDeeper = false,
 } = Astro.props;
 
 const pagefindBook = book ?? "";
@@ -116,28 +117,34 @@ if (headerKind === "chapter") {
   headerChapter = Number.isFinite(n) ? n : 1;
 }
 
-// The Study Desk pill's address (E50, BVJ 2026-11-06): /desk at the chapter
-// being read (E8's ?place=), and on a book's introduction at chapter 1 (the
-// desk has no pane for an introduction; E173 retired E53's ?intro=). The pill is
-// in the markup for every reader and shown by CSS only with the desk preview on.
-// The header's Study group takes the same address, so the two never disagree.
+// "Study John 3"'s address on the place line (ST-15, CT-09; E50's pill
+// before it): /desk at the chapter being read (E8's ?place=), and on a
+// book's introduction at chapter 1 (the desk has no pane for an
+// introduction; E173 retired E53's ?intro=). The line draws it for every
+// reader and shows it only on a computer with the Study preview on. The
+// header's Study group takes the same address, so the two never disagree.
 const deskPlaceChapter = headerKind === "chapter" ? (headerChapter ?? 1) : 1;
-const deskPlaceHref =
-  headerKind === "intro"
-    ? `/desk/?place=${pagefindBook}-1`
-    : `/desk/?place=${pagefindBook}-${deskPlaceChapter}`;
-const deskPlaceLabel =
-  headerKind === "intro"
-    ? `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} 1`
-    : `Open in Study Desk at ${bookKeyToLabel(pagefindBook)} ${deskPlaceChapter}`;
-const showDeskPill = pagefindType === "scripture" || pagefindType === "intro";
+const deskPlaceHref = `/desk/?place=${pagefindBook}-${deskPlaceChapter}`;
+// The passage, for the place line and the passage picker (Layout.astro).
+const readingLine = isScriptureLike
+  ? { book: pagefindBook, chapter: headerKind === "intro" ? "intro" : (headerChapter ?? 1), studyHref: deskPlaceHref }
+  : undefined;
+// The phone's two bars (SITE-FEATHERBOA.md, "The phone"): the header's row
+// names the chapter ("John 3," "John · Intro"), which opens the passage
+// picker as a sheet, and PhoneBar.astro is the bar at the thumb. A chapter
+// or an introduction, drafts included; never Read View or /search.
+const phonePicker = isScriptureLike
+  ? headerKind === "intro"
+    ? `${bookKeyToLabel(pagefindBook)} · Intro`
+    : `${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1}`
+  : undefined;
 // Which reading surface this is, for the Study Desk's pre-paint stamps
 // (Layout.astro, desk-frame.js's hasPanel; E124): a chapter, drafts included,
 // or a book's introduction, which has no Notebook panel in version 1.
 const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === "intro" ? "intro" : undefined;
 ---
 
-<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={showToolsSearch} deskHref={showDeskPill ? deskPlaceHref : undefined} deskSurface={deskSurface}>
+<Layout title={title} description={description} canonical={canonical} bg={bg} robotsNoindex={!shouldIndex} ogImage={ogImage} twitterCard={twitterCard} scriptureControls={scriptureControls} pageSearch={isScriptureLike} deskHref={isScriptureLike ? deskPlaceHref : undefined} deskSurface={deskSurface} picker={phonePicker} readingLine={readingLine}>
   <slot slot="head" name="head" />
 
   {/* Fetch the previous or next chapter as soon as a reader shows intent
@@ -153,8 +160,9 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
         {
           "where": {
             "selector_matches": [
-              ".chapter-nav a.nav-button",
-              ".chapter-ctas a.chapter-cta"
+              ".place-line a[rel]",
+              ".chapter-ctas a.chapter-cta",
+              ".phone-bar a[rel]"
             ]
           },
           "eagerness": "moderate"
@@ -164,125 +172,6 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
   </script>
 
   <div class={`scripture-layout scripture-layout--${pagefindType}`}>
-    {
-      (showToolsReadMenu || showToolsSearch) && (
-        <section
-          class="scripture-tools"
-          data-pagefind-ignore
-          aria-label="Scripture tools"
-        >
-          <div class="scripture-tools__inner">
-            <div class="scripture-tools__left" aria-label="Jump to passage">
-              {showToolsReadMenu ? <ReadMenu currentBook={pagefindBook} currentChapter={String(pagefindChapter)} /> : null}
-            </div>
-
-            <div class="scripture-tools__center" aria-label="Search the LIT">
-              {/* Phones, with JS: search starts as this button and opens in
-                  place of the row (see the script after this section). */}
-              {showToolsSearch ? (
-                <button type="button" class="tools-search-toggle" aria-label="Search" aria-expanded="false" hidden>
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-                       stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
-                    <circle cx="10.5" cy="10.5" r="6.5" />
-                    <path d="M15.5 15.5 21 21" />
-                  </svg>
-                </button>
-              ) : null}
-              {showToolsSearch ? (
-                <SearchBar />
-              ) : null}
-              {showToolsSearch ? (
-                <button type="button" class="tools-search-close" aria-label="Close search" hidden>×</button>
-              ) : null}
-            </div>
-
-            <div class="scripture-tools__right" aria-label="Read View">
-              {pagefindType === "scripture" && headerKind === "chapter" ? (
-                <div class="reading-view-right" data-pagefind-ignore>
-                  <a
-                    class="reading-view-pill"
-                    href={`/read/${pagefindBook}/#ch-${headerChapter ?? 1}`}
-                    aria-label={`Switch to Read View for ${bookKeyToLabel(pagefindBook)} ${headerChapter ?? 1}`}
-                  >
-                    <span class="reading-view-pill__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
-                           stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                           stroke-linejoin="round" aria-hidden="true" focusable="false">
-                        <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/>
-                        <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
-                      </svg>
-                    </span>
-                    <span class="rvp-full">Switch to Read View</span>
-                    <span class="rvp-short">Read View</span>
-                  </a>
-                </div>
-              ) : null}
-              {showDeskPill ? (
-                <div class="reading-view-right reading-view-right--desk" data-pagefind-ignore>
-                  <a
-                    class="reading-view-pill"
-                    href={deskPlaceHref}
-                    aria-label={deskPlaceLabel}
-                  >
-                    <span class="reading-view-pill__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none"
-                           stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                           stroke-linejoin="round" aria-hidden="true" focusable="false">
-                        <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" />
-                        <path d="M14.5 4h3l2.5 6h-8z" />
-                        <path d="M16 13.5v2" />
-                      </svg>
-                    </span>
-                    <span class="rvp-full">Open in Study Desk</span>
-                    <span class="rvp-short">Study Desk</span>
-                  </a>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </section>
-      )
-    }
-
-    {/* The compact phone toolbar (audit F3). Runs while the page is still
-        parsing, right after the toolbar, so the one-row layout is in place
-        before first paint and nothing shifts. Without JS phones keep the
-        stacked toolbar, whose search field works on its own. */}
-    {isScriptureLike && (showToolsReadMenu || showToolsSearch) && (
-      <script is:inline>
-          (() => {
-            const tools = document.querySelector(".scripture-layout .scripture-tools");
-            if (!tools) return;
-            tools.setAttribute("data-compact", "");
-            const toggle = tools.querySelector(".tools-search-toggle");
-            const close = tools.querySelector(".tools-search-close");
-            if (!toggle || !close) return;
-            toggle.hidden = false;
-            close.hidden = false;
-            const input = tools.querySelector(".searchbar__input");
-            const open = () => {
-              tools.setAttribute("data-search-open", "");
-              toggle.setAttribute("aria-expanded", "true");
-              input && input.focus();
-            };
-            const shut = () => {
-              if (!tools.hasAttribute("data-search-open")) return;
-              tools.removeAttribute("data-search-open");
-              toggle.setAttribute("aria-expanded", "false");
-              const bar = tools.querySelector("[data-searchbar]");
-              if (bar) bar.dataset.open = "false";
-              toggle.focus();
-            };
-            toggle.addEventListener("click", open);
-            close.addEventListener("click", shut);
-            tools.addEventListener("keydown", (e) => {
-              if (e.key === "Escape") shut();
-            });
-          })();
-      </script>
-    )}
-
-
     <div
       class="scripture-main"
       aria-labelledby={isScriptureLike ? "chapter-title" : undefined}
@@ -383,6 +272,8 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
                 kind={headerKind}
                 bookKey={pagefindBook}
                 chapter={headerChapter}
+                readsOn={readsOn}
+                goDeeper={goDeeper}
               />
             ) : null
           }
@@ -396,11 +287,13 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
 
     <SblgntNotice />
 
-    {/* Site 2.0: the phone toolbar's hide and return. Does nothing without
-        the restyle's stamp (src/scripts/v2-scripture.js). */}
     <script>
-      import "../scripts/v2-scripture.js";
+      import "../scripts/place-line.js";
     </script>
+
+    {isScriptureLike && (
+      <PhoneBar bookKey={pagefindBook} chapter={headerKind === "intro" ? "intro" : (headerChapter ?? 1)} />
+    )}
 
     <style>
       /* The reader's text size (Display tray) is set here rather than on the
@@ -410,9 +303,40 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
          itself, so the side padding is added on top (border-box). */
       .scripture-main {
         margin: 0 auto;
-        font-size: calc(1em * var(--reading-scale, 1));
+        font-size: calc(var(--size-text) * var(--reading-scale, 1));
         max-width: calc(var(--reading-width, 72ch) + 32px);
         padding: 12px 16px 64px;
+      }
+
+      /* Three columns on a computer (SZ-13; SITE-FEATHERBOA.md, "Three
+         columns, always the same widths"): a 220 quiet side, the text, and a
+         320 margin Phase 5 gives the reader's notes, the three centered
+         together, so the text sits half their difference (50px) left of the
+         window's middle and only the outer space grows. Where the window
+         holds less, the margin gives way first, the text keeping 220 on its
+         left, and once that would pass the middle the column is centered, as
+         on a tablet or a phone. The 16px is the column's own padding. With
+         the Study preview on, the desk places the column (its pre-paint
+         placement measures it centered: FIRST_PAINT, src/lib/desk-margin.mjs),
+         so the preview keeps it centered until Phase 5 puts the notes in
+         this margin. */
+      @media screen {
+        :global(html:not([data-desk])) .scripture-main {
+          margin-left: max(
+            0px,
+            calc((100% - var(--reading-width)) / 2 - (var(--col-margin) - var(--col-side)) / 2 - 16px),
+            min(calc((100% - var(--reading-width)) / 2 - 16px), calc(var(--col-side) - 16px))
+          );
+          margin-right: auto;
+        }
+      }
+
+      /* A chapter reads at the Scripture size (tokens.css), an intro at
+         Text. FIRST_PAINT in src/lib/desk-margin.mjs restates the
+         Scripture size, since the desk's pre-paint placement measures this
+         column before any stylesheet loads. */
+      .scripture-layout--scripture .scripture-main {
+        font-size: calc(var(--size-scripture) * var(--reading-scale, 1));
       }
 
       /* Hidden-but-indexed metadata for Pagefind */
@@ -423,116 +347,6 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
         height: 1px;
         overflow: hidden;
         white-space: nowrap;
-      }
-
-      @media (min-width: 641px) {
-        :global(.scripture-tools__right) {
-          justify-self: end;
-        }
-      }
-
-      /* Read View pill: right column, on the shared toolbar row */
-      .reading-view-right {
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      /* The Read View pill is gone while the Study Desk preview is on (BVJ,
-         2026-10-29), and the Study Desk pill takes its place (E50, BVJ
-         2026-11-06): same slot, same design, shown only with the preview on. */
-      :global(html[data-desk]) .reading-view-right:not(.reading-view-right--desk) {
-        display: none;
-      }
-
-      :global(html:not([data-desk])) .reading-view-right--desk {
-        display: none;
-      }
-
-      /* Mirror the ReadMenu picker's trigger so the two ends of the tools bar
-         read as one design family. --green-text flips to a LIGHT green in dark
-         mode (it's a text token), so where we use it as the hover fill it needs
-         a paired foreground that flips to dark ink. */
-      .reading-view-pill {
-        --rvp-accent-fg: #ffffff;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-
-        /* Pinned to the same floor as the ReadMenu picker trigger so the
-           toolbar's two ends are the same size. Keep in sync with ReadMenu. */
-        min-width: 245px;
-        padding: 10px 18px;
-        border-radius: 999px;
-
-        background: var(--surface-input);
-        border: 1px solid rgba(var(--ink-rgb), 0.11);
-
-        color: var(--text);
-        text-decoration: none;
-        user-select: none;
-
-        font-weight: 500;
-        font-size: 16px;
-        /* The picker is a <button>, which doesn't inherit the page's line
-           height and so takes "normal"; with line-height: 1 this pill stood
-           about 2px shorter. Same fix as .read-menu__desk on /read. */
-        line-height: normal;
-
-        box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
-        transition:
-          background-color 0.2s ease,
-          color 0.2s ease;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        :global(:root:not([data-theme="light"])) .reading-view-pill {
-          --rvp-accent-fg: #1d231c;
-        }
-      }
-
-      :global(:root[data-theme="dark"]) .reading-view-pill {
-        --rvp-accent-fg: #1d231c;
-      }
-
-      .reading-view-pill__icon {
-        display: inline-flex;
-        align-items: center;
-        color: var(--green-text);
-        font-size: 17px;
-        line-height: 1;
-      }
-
-      .reading-view-pill:hover {
-        background: var(--green-text);
-        color: var(--rvp-accent-fg);
-      }
-
-      .reading-view-pill:hover .reading-view-pill__icon {
-        color: var(--rvp-accent-fg);
-      }
-
-      .reading-view-pill:focus-visible {
-        outline: 2px solid var(--focus-ring);
-        outline-offset: 1px;
-      }
-
-      /* Mobile-only breathing room BETWEEN the two tool columns.
-     (We do NOT style SearchBar internals here.) */
-      @media (max-width: 640px) {
-        :global(.scripture-tools__inner) {
-          gap: 18px;
-        }
-
-        :global(.scripture-tools__center) {
-          margin-top: 8px;
-        }
-
-        .reading-view-right {
-          margin-top: 0.75rem;
-          justify-content: center;
-        }
       }
     </style>
   </div>

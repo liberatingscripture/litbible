@@ -58,7 +58,6 @@ const q = (sel) => document.querySelector(sel);
 const click = (el) => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true }));
 const submit = (form) => form.dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true }));
 const key = (el, k, extra = {}) => el.dispatchEvent(new window.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true, ...extra }));
-const button = (box, text) => [...box.querySelectorAll("button")].find((b) => b.textContent === text);
 
 async function addLabel(name) {
   q("#deskNpNewLabel").value = name;
@@ -103,51 +102,8 @@ test("GF8a-2: a refused label write says so and changes nothing", quiet(async ()
   }
 }));
 
-test("GF8a-2: a refused \"Delete all notes and marks\" write says so and gives the confirm button back", quiet(async () => {
-  await openPage();
-  await addLabel("Hope");
-  const box = q("[data-np-delete-box]");
-  click(box.querySelector("button"));
-  const yes = button(box, "Delete all notes and marks");
-  assert.ok(yes, "the question is asked");
-  const restore = refuseWrites();
-  try {
-    click(yes);
-    await settle(50);
-    const failed = box.querySelector(".desk-np__error");
-    assert.equal(failed.hidden, false);
-    assert.match(failed.textContent, /nothing was deleted/);
-    assert.equal(yes.disabled, false, "asking again is possible");
-    assert.equal(document.activeElement, yes);
-    assert.equal(document.querySelectorAll(".desk-np__label").length, 1, "the label is still there");
-  } finally {
-    restore();
-  }
-}));
-
-test("GF8a-2: a refused \"Empty the trash now\" write says so and gives the confirm button back", quiet(async () => {
-  await openPage();
-  await addLabel("Hope");
-  // Move it to the trash, so there is something to empty.
-  const del = q("[data-np-delete-box]");
-  click(del.querySelector("button"));
-  click(button(del, "Delete all notes and marks"));
-  await until(() => q("[data-np-trash-box] button")?.textContent === "Empty the trash now…");
-  const box = q("[data-np-trash-box]");
-  click(box.querySelector("button"));
-  const yes = button(box, "Empty the trash now");
-  const restore = refuseWrites();
-  try {
-    click(yes);
-    await settle(50);
-    const failed = box.querySelector(".desk-np__error");
-    assert.equal(failed.hidden, false);
-    assert.match(failed.textContent, /nothing was wiped/);
-    assert.equal(yes.disabled, false);
-  } finally {
-    restore();
-  }
-}));
+// Delete in bulk's refused writes (GF8a-2) are All settings' now:
+// test/desk-settings-page.test.js.
 
 async function startRename(name) {
   await addLabel(name);
@@ -211,64 +167,20 @@ test("SEC8-3: an older ?q= link is still read and stripped", async () => {
   assert.equal(window.location.search, "");
 });
 
-/* ── Delete in bulk: marks and sheets apart (Audit 8 decision 8) ── */
+/* ── What moved to All settings (Featherboa, Phase 4) ── */
 
-const { createRecord } = await import("../src/lib/desk-records.mjs");
-const { createSheet } = await import("../src/lib/desk-sheets.mjs");
-const seedCtx = { now: "2026-11-09T12:00:00.000Z", client: "web/test", contentVersion: "v1" };
-const aSheet = () => createSheet({ title: "Advent study" }, seedCtx);
-const aNote = () => createRecord("note", { bookKey: "john", chapter: 3, verse: 16, endVerse: 16, body: "grace", marker: "note" }, seedCtx);
-const liveKinds = async () => {
-  const { openStore } = await import(`../src/scripts/desk/store.js?check=${n}`);
-  const store = await openStore({ ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
-  return (await store.all()).filter((r) => r.kind !== "trash").map((r) => r.kind).sort();
-};
-
-test("decision 8: \"Delete all notes and marks\" trashes notes and labels and leaves the sheets", async () => {
-  await openPage(undefined, { seed: [aSheet(), aNote()] });
-  await addLabel("Hope");
-  const box = q("[data-np-delete-box]");
-  assert.equal(box.querySelector("button").textContent, "Delete all notes and marks…");
-  click(box.querySelector("button"));
-  assert.match(box.querySelector(".desk-np__ask-text").textContent, /2 items/);
-  click(button(box, "Delete all notes and marks"));
-  await until(() => box.querySelector(".desk-np__none"));
-  assert.deepEqual(await liveKinds(), ["sheet"]);
-  assert.equal(q("[data-np-delete-sheets-box] button").textContent, "Delete all sheets…", "the sheets can still be deleted");
-});
-
-test("decision 8: \"Delete all sheets\" trashes the sheets and leaves the marks", async () => {
-  await openPage(undefined, { seed: [aSheet(), aSheet(), aNote()] });
-  const box = q("[data-np-delete-sheets-box]");
-  click(box.querySelector("button"));
-  assert.match(box.querySelector(".desk-np__ask-text").textContent, /2 sheets/);
-  click(button(box, "Delete all sheets"));
-  await until(() => box.querySelector(".desk-np__none"));
-  assert.equal(box.querySelector(".desk-np__none").textContent, "There are no sheets to delete.");
-  assert.deepEqual(await liveKinds(), ["note"]);
-});
-
-const aCollection = async () => {
-  const { createCollection } = await import("../src/lib/desk-collections.mjs");
-  return createCollection({ name: "Advent series" }, seedCtx);
-};
-
-test("D13: \"Delete all collections\" trashes the collections alone, and the other two say collections stay", async () => {
-  await openPage(undefined, { seed: [aSheet(), aNote(), await aCollection(), await aCollection()] });
-  const marks = q("[data-np-delete-box]");
-  click(marks.querySelector("button"));
-  assert.match(marks.querySelector(".desk-np__ask-text").textContent, /Your sheets, templates, and collections stay./);
-  // E183: Delete all sheets names collections too (BVJ, 2026-11-19).
-  const sheets = q("[data-np-delete-sheets-box]");
-  assert.match(sheets.previousElementSibling.textContent, /Your notes, marks, and collections stay\./);
-  click(sheets.querySelector("button"));
-  assert.match(sheets.querySelector(".desk-np__ask-text").textContent, /\(templates included\) to the trash\. Your notes, marks, and collections stay\./);
-  const box = q("[data-np-delete-collections-box]");
-  assert.equal(box.querySelector("button").textContent, "Delete all collections…");
-  click(box.querySelector("button"));
-  assert.match(box.querySelector(".desk-np__ask-text").textContent, /2 collections to the trash. What’s in them stays in your notebook./);
-  click(button(box, "Delete all collections"));
-  await until(() => box.querySelector(".desk-np__none"));
-  assert.equal(box.querySelector(".desk-np__none").textContent, "There are no collections to delete.");
-  assert.deepEqual(await liveKinds(), ["note", "sheet"]);
+test("NB-25 to NB-27: the start setting and Delete in bulk are gone from the page, and its last line says where they are", async () => {
+  await openPage();
+  for (const gone of ["#panel", "#delete-everything", "[data-np-start]", "[data-np-delete-box]", "[data-np-delete-sheets-box]", "[data-np-delete-collections-box]", "[data-np-trash-box]"]) {
+    assert.equal(q(gone), null, `${gone} is gone`);
+  }
+  const jumps = [...document.querySelectorAll(".desk-np__jump a")].map((a) => a.getAttribute("href"));
+  assert.deepEqual(jumps, ["#continue", "#kept", "#whats-new", "#labels", "#backup", "#trash"]);
+  const moved = q("[data-np-moved]");
+  assert.ok(moved, "the page says where they went");
+  assert.equal(moved.querySelector("a").getAttribute("href"), "/settings/");
+  assert.match(moved.textContent, /Delete in bulk \(“Empty the trash now” among its choices\)/);
+  // Its last section is the Trash, with the line after it.
+  const sections = [...document.querySelectorAll("[data-notebook-page] section")].map((s) => s.id);
+  assert.equal(sections.at(-1), "trash");
 });

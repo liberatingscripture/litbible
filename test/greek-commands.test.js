@@ -39,6 +39,9 @@ class StubElement {
   set textContent(v) { this.text = String(v); }
   get textContent() { return this.text; }
   get offsetWidth() { return this.rect.width; }
+  // A <template>'s content, for iconNode (src/lib/icons.mjs): the close
+  // button's icon is an element like any other here.
+  get content() { return { firstElementChild: new StubElement("svg") }; }
   // In the document only while every ancestor up to <body> is attached.
   get isConnected() {
     let n = this;

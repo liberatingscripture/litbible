@@ -53,7 +53,7 @@ test("a construction, typed in Greek or in words, comes back as hits", async () 
     assert.equal(first.book, "romans");
     assert.deepEqual(first.marked, [...new Set(first.matches.flat())].sort((a, b) => a - b));
     assert.equal(first.t, first.matches[0][0]);
-    assert.equal(first.href, `/romans-3/?greek=22.${first.t}#v22`);
+    assert.equal(first.href, `/desk/?place=romans-3:22&greek=22.${first.t}`);
   }
 });
 

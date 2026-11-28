@@ -113,7 +113,7 @@ test("the Add pane flyout is placed again when its kinds replace its sides, and 
   const sidesTop = parseFloat(fly.style.top);
   const below = [...fly.querySelectorAll("button")].find((b) => b.textContent.startsWith("Below"));
   click(below);
-  assert.ok(fly.textContent.includes("‹ Below"), "the kinds, with a way back");
+  assert.ok(fly.querySelector("svg[data-icon=back]") && fly.querySelector("svg[data-icon=back]").closest("button").textContent.trim() === "Below", "the kinds, with a way back");
   const kinds = fly.querySelectorAll("button").length;
   assert.ok(kinds * LINE > 640 - 8 - sidesTop, "the kinds would have run past the window's foot where the sides were");
   assert.ok(footOf(fly) <= 640 - 8, `the kinds end inside the window (at ${footOf(fly)}), moved up`);
@@ -162,10 +162,10 @@ test("the command row's Add pane menu stops at the window's foot at its kinds, a
   click(row.addButton);
   assert.equal(row.addMenu.style.maxHeight, "", "column and row fit");
   click(row.addMenu.querySelector("[role=menuitem]"));
-  assert.ok(row.addMenu.textContent.includes("‹ Add column"), "the kinds");
+  assert.ok(row.addMenu.querySelector("svg[data-icon=back]"), "the kinds");
   assert.equal(row.addMenu.style.maxHeight, `${500 - 116 - 8}px`, "cut to the room under its top");
   row.addMenu.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
-  assert.ok(!row.addMenu.textContent.includes("‹ Add column"), "back at column or row");
+  assert.ok(!row.addMenu.querySelector("svg[data-icon=back]"), "back at column or row");
   assert.equal(row.addMenu.style.maxHeight, "", "which fit again");
 });
 

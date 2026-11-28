@@ -1,0 +1,153 @@
+/* =========================================================
+   The footer (SiteFooter.astro; SITE-FEATHERBOA.md, "The phone and the
+   footer"; HD-36, BS-24): the header's four places as groups under their
+   names (src/lib/places.mjs), Study only on a computer with the Study
+   preview on, then Privacy and the Terms of Use and the brand marks, with
+   the newsletter beside them on a computer and under them on anything
+   narrower. The newsletter's own rules and the license band under the
+   footer stay in global.css.
+   ========================================================= */
+
+.site-footer {
+  padding: var(--space-8) var(--space-6);
+  background: var(--color-page);
+  border-top: 1px solid var(--color-hairline);
+}
+
+/* One column: the groups, then the newsletter. On a computer, two. */
+.footer-inner {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-7);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1100px) {
+  .footer-inner {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+.footer-nav {
+  display: grid;
+  gap: var(--space-6);
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  line-height: var(--leading-label);
+}
+
+/* ---------- The places ---------- */
+
+.footer-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-6);
+}
+
+/* Study, as in the header: a computer with the Study preview on. */
+.footer-group--study {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  html[data-desk] .footer-group--study {
+    display: block;
+  }
+}
+
+.footer-group__heading {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  font-weight: 700;
+  line-height: var(--leading-label);
+}
+
+.footer-group__rows,
+.footer-legal,
+.footer-nav .social-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-group__rows a,
+.footer-legal a {
+  display: inline-block;
+  padding: var(--space-1) 0;
+}
+
+/* ---------- Privacy, the Terms of Use, and the brand marks ---------- */
+
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-5);
+}
+
+/* Each mark stands alone, named in its aria-label (queue Q17); the kit's
+   plain level draws it. Its place and size are here. */
+.footer-nav .social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.footer-nav .social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--target);
+  height: var(--target);
+  text-decoration: none;
+}
+
+@media (pointer: coarse) {
+  .footer-nav .social-links a {
+    width: var(--target-touch);
+    height: var(--target-touch);
+  }
+}
+
+.footer-nav .social-links svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* ---------- The newsletter's column ---------- */
+
+.footer-right {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The email field gives up its own width (about 196px from the input's
+   default size, 327px in OpenDyslexic), so the row is never wider than the
+   column holding it: once it was, and the page scrolled sideways on every
+   page, or the Subscribe button was clipped at 320px. It takes what the row
+   has left beside the button instead, in every font. */
+.footer-newsletter__row {
+  max-width: 320px;
+}
+
+.footer-newsletter__input {
+  width: 0;
+}
+
+@media (max-width: 699px) {
+  .site-footer {
+    padding: var(--space-7) var(--space-5);
+  }
+
+  .footer-groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

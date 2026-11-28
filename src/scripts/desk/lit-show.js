@@ -26,19 +26,16 @@
 // pane clips; a scroll that moves the button, a new window size, a press
 // elsewhere, Tab or Escape closes it.
 
+import { icon } from "../../lib/icons.mjs";
 import { LIT_MARKS } from "../../lib/desk-lit-marks.mjs";
 import { make } from "./dom.js";
 import { describeUnavailable } from "./menu-reasons.js";
 import { SETTINGS_EVENT, allHidden, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
 import { setTip } from "../tip.js";
 
-const ICON_CARET = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"
-  stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 9l6 6 6-6" /></svg>`;
+const ICON_CARET = icon("down", { size: 12 });
 
-const ICON_CHECK = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"
-  stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M5 12.5l4.5 4.5L19 7.5" /></svg>`;
+const ICON_CHECK = icon("check", { size: 12 });
 
 // An eye, for a pane too narrow for the word (desk.css): the bar's passage
 // field keeps the room. Decorative: the button names itself.

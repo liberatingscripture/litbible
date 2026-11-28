@@ -37,7 +37,7 @@ below unless it is already loaded.** Rules that keep this from decaying:
 | Read | Before working on |
 |------|-------------------|
 | `src/data/chapters/CLAUDE.md` | Chapter JSON: its format, `indexed` (drafts), curly quotes, en dashes, the validator's rules, poetry blocks (`hbq`), topics, the SBLGNT policy, bracketed passages, verse-number gaps |
-| `src/scripts/CLAUDE.md` | Reader tools in `src/scripts/` (the verse menu, the selection panel, sharing, verse images, printing and handouts, search, Continue reading, Read View's landing, keyboard shortcuts) and the module map of `src/scripts/` |
+| `src/scripts/CLAUDE.md` | Reader tools in `src/scripts/` (the verse menu, the selection panel, sharing, verse images, printing and handouts, search, Continue reading, reading on through a book, keyboard shortcuts) and the module map of `src/scripts/` |
 | `src/scripts/desk/CLAUDE.md` | Anything to do with the Study Desk, wherever it lives: `src/lib/desk-*.mjs`, the /desk and /notebook pages, `desk.css`, printing with notes |
 | `public/greek/CLAUDE.md` | The Study Desk's Greek (read the desk file too): the Greek tab, `public/greek/` and `build:greek`, searching the Greek and its commands, `src/lib/greek-*.mjs` |
 | `src/scripts/desk/sheets/CLAUDE.md` | The Sheets (read the desk file too): the Sheets pane and its editor, the /sheets page, paper copies, Copy and Save as, present mode, templates, sharing, the print check, `src/lib/desk-sheet*.mjs` |
@@ -46,12 +46,12 @@ below unless it is already loaded.** Rules that keep this from decaying:
 | `src/scripts/desk/account/CLAUDE.md` | The account pages (4h): /account, sign-in, passkeys, setup, joining, devices, the header's "Sign in," Apple and Google (off); `src/lib/desk-account*.mjs`, `desk-passkey.mjs` |
 | `src/lib/CLAUDE.md` | The module map of `src/lib/`; scripture reference linking (Sefaria, eBible), external links, Go deeper, the release notes page and feed |
 | `src/styles/CLAUDE.md` | CSS anywhere, including component `<style>` blocks: theming, the Display tray's settings, `--ch`, Greek and Hebrew fonts, the brand greens, the emblem, the LSC mark, focus rings |
-| `src/layouts/CLAUDE.md` | Chapter View's phone toolbar; chapter prefetching |
+| `src/layouts/CLAUDE.md` | A chapter's place line and a phone's two bars; chapter prefetching |
 | `src/content/CLAUDE.md` | Articles, glossary entries, the /apps collections; the apps' glossary feed |
 | `src/data/alignment/CLAUDE.md` | The alignment dataset, both review tools, MorphGNT, /glossary's "Where it appears", the term lens |
-| `src/components/CLAUDE.md` | The header's title swap (an inline script); the announcement popover |
+| `src/components/CLAUDE.md` | The header, the line under it, and the footer: the four places (`src/lib/places.mjs`), their menus, the news marks (`src/lib/news.mjs`); the passage picker; the announcement popover |
 | `src/components/apps/CLAUDE.md`, `scripts/apps-studio/CLAUDE.md` | The /apps mirror shared with the LSC site; the page's section data; the Apps Page Studio (BDR's editing board, its scripts, the `/apps-studio` skill) |
-| `src/pages/CLAUDE.md` | The privacy page and the Terms of Use; the podcast page's embeds; the 404 page's address guessing; measuring Read View |
+| `src/pages/CLAUDE.md` | The privacy page and the Terms of Use; the podcast page's embeds; the 404 page's address guessing; measuring the Read page |
 | `scripts/CLAUDE.md` | The toolchain's pins (Node, Astro), commands run by hand, **the apps' sync contract**, the build pipeline step by step, the table of `scripts/`, release-notes automation, raw-byte hashing and line endings, the importer |
 | `scripts/reconcile/CLAUDE.md` | The Word masters and the reconcile toolchain |
 | `scripts/alignment-review/CLAUDE.md`, `scripts/alignment-words/CLAUDE.md` | Pointers to the alignment file |
@@ -121,8 +121,9 @@ companion iOS/Android apps consume.
   Cloudflare Pages. Read `scripts/CLAUDE.md`, "The toolchain's pins," before
   changing either.
 - **TypeScript** (strict, `astro/tsconfigs/strict`); **vanilla CSS** (no
-  utility framework): `global.css` plus a per-page stylesheet under
-  `src/styles/pages/`.
+  utility framework): `tokens.css` (Featherboa's colors, sizes, and speeds),
+  `global.css`, `kit.css` (every control, drawn once), `header.css` and
+  `footer.css`, and a per-page stylesheet under `src/styles/pages/`.
 - **No client framework, no hydration.** Hand-written vanilla JS in
   `src/scripts/` is progressive enhancement only; the site is fully
   functional with JS disabled.
@@ -131,8 +132,11 @@ companion iOS/Android apps consume.
   over `dist/`) covers glossary, articles and book intros. A third, the Greek
   (`public/greek/search/`), runs only with the Study Desk preview on
   (`public/greek/CLAUDE.md`, rule 15).
-- **Fonts**: `@fontsource` faces, Latin only (`src/styles/CLAUDE.md`).
-  **Icons**: simple-icons.
+- **Fonts**: three faces by job, Fraunces for headings, Source Sans 3 for
+  reading, Atkinson Hyperlegible Next for controls, from `@fontsource`
+  files served Latin only (`src/styles/CLAUDE.md`).
+  **Icons**: Lucide's, generated into `src/lib/icons.mjs` (`npm run
+  build:icons`); simple-icons for brands' marks.
 
 ## Common Commands
 
@@ -188,12 +192,11 @@ src/
     verse-gaps.js    # Verse numbers the LIT leaves out (Matthew 17:21)
     release-notes.json, release-notes-skip.md   # see Key Conventions
     podcast-feed.xml, podcastOverrides.json, translation-commitments.json
-  layouts/           # Layout, ScriptureLayout, ReadLayout, SearchLayout
+  layouts/           # Layout, ScriptureLayout, SearchLayout
   lib/               # Build-time helpers, mostly pure and unit-tested
   pages/             # File-based routes (below)
   scripts/           # CLIENT-side vanilla JS; desk/ is the Study Desk preview
-  styles/            # global.css, read-mode.css, pages/<page>.css, desk.css,
-                     #   restyle.css and v2/ (Site 2.0, behind data-restyle)
+  styles/            # global.css, reading-page.css, pages/<page>.css, desk.css
 scripts/             # BUILD/validation Node scripts (.mjs); reconcile/,
                      #   alignment-review/, alignment-words/, apps-studio/
 test/                # node:test suite; fixtures/ holds committed vectors the apps run
@@ -214,21 +217,23 @@ workers/             # Cloudflare Workers, deployed separately, each with its ow
 
 | Route | File | Purpose |
 |-------|------|---------|
-| `/<book>-<chapter>` | `[slug].astro` | Scripture chapter ("Chapter View") |
+| `/<book>-<chapter>` | `[slug].astro` | A chapter, reading on through its book: the Read page |
 | `/<book>-intro` | `[book]-intro.astro` | Book introduction |
-| `/read` | `read.astro` | The /read landing (Chapter View, Read View, the apps) |
-| `/read/<book>` | `read/[book].astro` | Read View: a whole book on one page |
+| `/read` | `read.astro` | The passage picker at full size under the page's lede; where Read goes without JavaScript |
+| `/read/<book>` | `read/[book].astro` | Read View's old address (noindex): forwards to the chapter's page, keeping its place |
 | `/articles`, `/articles/<slug>` | `articles.astro`, `articles/[...slug].astro` | Articles |
 | `/glossary` | `glossary.astro` | Glossary |
 | `/search` | `search.astro` | Full search UI (verse index + Pagefind) |
 | `/notebook`, `/desk`, `/sheets`, `/collections` | `notebook.astro`, `desk.astro`, `sheets.astro`, `collections.astro` | The Study Desk preview's pages (noindex, out of the sitemap and Pagefind, empty without `?desk=on`; `src/scripts/desk/CLAUDE.md`, "Routes") |
 | `/account`, `/account/connect` | `account.astro`, `account/connect.astro` | The account pages (noindex, out of the sitemap and Pagefind, one line without `?account=preview`; `src/scripts/desk/account/CLAUDE.md`, "Routes") |
+| `/settings` | `settings.astro` | All settings, from the Display tray's foot: every reader's keyboard shortcuts switch, and Study's settings with the preview on (noindex, out of the sitemap and Pagefind; `src/scripts/desk/CLAUDE.md`, "Routes") |
 | `/release-notes` | `release-notes.astro` | The release notes by month, filterable; `/translation-updates.xml` is the same record as RSS |
+| `/whats-new` | `whats-new.astro` | News that isn't a change to the text (site and app updates, launches), written by hand in `src/lib/whats-new.mjs`, with no feed; in no menu, linked from the footer (`src/pages/CLAUDE.md`) |
 | `/apps` | `apps.astro` | Mobile-apps promo page; every section is data (`src/components/apps/CLAUDE.md`) |
 | `/app-support` | `app-support.astro` | App support form (linked from the apps; `/app-support/thanks` is the no-JS success page) |
 | `/found-in-translation-podcast` | `found-in-translation-podcast.astro` | Podcast page (`/podcast` redirects here); read `src/pages/CLAUDE.md` before touching its embeds |
 | `/404` | `404.astro` | Not found; a guessable scripture address lands on its page |
-| others | `delete-account` (noindex; `workers/CLAUDE.md`, and its box, the account file's "Routes"), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy` and `terms` (`src/pages/CLAUDE.md`), `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
+| others | `delete-account` (noindex; `workers/CLAUDE.md`, and its box, the account file's "Routes"), `about`, `contact` (+ `contact/thanks`), `courses`, `support`, `privacy` and `terms` (`src/pages/CLAUDE.md`), `colophon` ("How this site is made," the accessibility statement; `src/pages/CLAUDE.md`), `license` (the license notice; `/read#license`, `#license-terms`, and `#sblgnt-disclaimer` forward to it, because the apps and Study link them; `src/pages/CLAUDE.md`), `unsubscribe`, `liberating-scripture-collective`, `translation-commitments` |
 
 Redirects (`/read-now`→`/read`, `/podcast`→`/found-in-translation-podcast`) and
 the sitemap filter live in `astro.config.mjs`.
@@ -267,26 +272,18 @@ the sitemap filter live in `astro.config.mjs`.
   icons, `public/greek/`, the alignment data, the test vectors the apps
   fetch) never run in the build; they are listed in `scripts/CLAUDE.md`,
   "Commands run by hand."
-- **Chapter View and Read View differ in what a page holds, and that decides
-  where a new tool goes** (owner, 2026-09-30). Chapter View is one chapter
-  with everything the site has for it: footnotes, the verse menu, the term
-  lens, reference previews, Go deeper. Read View is a whole book on one page,
-  read straight through, with no notes and no page turn between chapters.
-  **Read View gets what serves reading a book straight through** (display
-  settings, the selection panel and its handouts, keeping and restoring a
-  place, print, focus mode), and **a tool about a verse or a word goes in
-  Chapter View only** unless the owner decides otherwise. Featherboa
-  replaces the pair with one reading page whose chapters read on into each
-  other (`SITE-FEATHERBOA.md`, "A whole book"); until it is built, this
-  holds.
-  Call them "Chapter View" and "Read View" in anything a reader sees; with
-  the Study Desk preview on, labels say "Scripture page(s)" instead (E130),
-  the public name from launch. Featherboa calls the reading page "the Read
-  page" and the Study Desk "Study" (`SITE-FEATHERBOA.md`, "Study and its
-  places"); until it is built, this holds. Older records use older names: "Study View"
-  (until 2026-11-02, still in STUDY-DESK.md and FIXLIST.md), "Reading View"
-  and "Reading Mode" (until 2026-09-30); the `rm-` classes and
-  `read-mode.js` keep the old initials.
+- **One reading page, and a tool about a verse or a word goes on it**
+  (`SITE-FEATHERBOA.md`, "A whole book"; WB-45). A chapter's page reads on
+  into the chapters around it (`src/scripts/read-on.js`), so a tool works
+  on every chapter loaded there, not only the page's own. Read View retired
+  in Featherboa's Phase 4: `/read/<book>` forwards to the chapter's page
+  with its anchor (`src/lib/read-view-retirement.mjs`). A reader sees "the
+  Read page"; Study's labels keep E130's "Scripture page(s)" until Phase 9
+  renames them (`test/featherboa-labels.test.js`), and Featherboa calls the
+  Study Desk "Study." Older records say "Chapter View" and "Read View"
+  (2026-09-30 to Phase 4), "Study View" (until 2026-11-02, still in
+  STUDY-DESK.md and FIXLIST.md), and "Reading View" or "Reading Mode"
+  (until 2026-09-30).
 - **Release notes are automated** from pushes to `main`. To keep a publish
   out of the changelog (a typo fix, a mechanical pass), touch
   `src/data/release-notes-skip.md` in the same commit and log why there. The
@@ -337,8 +334,8 @@ Area files list their own key modules; these are the cross-cutting ones.
 | Path | Purpose |
 |------|---------|
 | `src/data/books.js` | Source of truth for NT book list + chapter counts |
-| `src/pages/[slug].astro`, `src/pages/read/[book].astro` | Chapter View and Read View |
-| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing (Chapter View); the selection bar alone in Read View |
+| `src/pages/[slug].astro`, `src/scripts/read-on.js` | The Read page: a chapter, and its reading on through the book |
+| `src/scripts/chapter-tools.js` | Verse highlight/menu, footnote popovers, and selection sharing, on each chapter the page holds |
 | `src/styles/global.css` | Main stylesheet |
 | `astro.config.mjs` | Site config, redirects, sitemap/noindex draft logic, the pinned Astro defaults |
 | `src/content.config.ts` | Content-collection schemas |
@@ -350,6 +347,7 @@ Area files list their own key modules; these are the cross-cutting ones.
 | `STUDY-DESK.md`, `STUDY-DESK-FIXES.md`, `STUDY-DESK-FORMAT.md`, `STUDY-DESK-ENCRYPTION.md`, `STUDY-DESK-AUDIT-*.md` | The Study Desk's planning record, its Phase 5 log (E1 onward; new ones go here), its record format and encryption spec (shared with the apps) and its audits. Grep, never read whole |
 | `API-2-FORMAT.md` | The content API, version 2, beside version 1; opens with the manifest rule that protects installed apps |
 | `SITE-FEATHERBOA.md`, `SITE-FEATHERBOA-BUILD.md` | Site Design: Featherboa, the next design, which replaces Site 2.0: BVJ's decisions as they are made, and what is open; then the plan for building it (order of work, checks, the questions' queue). Read the first before a design or font change |
-| `SITE-2.0.md` | Site 2.0 (replaced by Featherboa; built behind `data-restyle`, not launched): the plan, its ground rules, every page's decision, the launch steps |
+| `FEATHERBOA-LEDGER.md` | Featherboa's build checklist: one row per decision in `SITE-FEATHERBOA.md`, with its phase, its check, and its state, and notes for later phases. The build keeps it current |
+| `SITE-2.0.md` | Site 2.0, the design Featherboa replaced (built behind a preview stamp, never launched, its code removed in Featherboa's Phase 0): the record of its plan and decisions, none of which carries over |
 | `IMAGE-CREDITS.md` | Source, creator and terms of every image by others; a new stock image gets a row |
 | `DISASTER-RECOVERY.md` | Every dashboard and secret behind the deploy (names only), the DNS inventory, the from-zero redeploy. Update it when an integration, secret, or DNS record changes |

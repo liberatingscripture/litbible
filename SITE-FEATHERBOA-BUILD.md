@@ -163,7 +163,8 @@ an earlier one.
   `?desk=on` once on that address, as on the live site.
 - **Checkpoint A** comes after Phase 8, when the public site is done: an
   audit and the queue to BVJ. The run keeps going into Phase 9 while BVJ
-  answers.
+  answers (BVJ, 2026-11-27: “keep going through Checkpoint A and
+  beyond”): the queue is sent as a file, and the run doesn't wait for it.
 - **Checkpoint B** comes after Phase 14: the final audit, the queue, and
   the launch list.
 - **The launch is BVJ's merge, and it launches both** (BVJ, 2026-11-27:
@@ -735,9 +736,10 @@ Entered before the run, from BVJ's answers:
   review”). It describes today's styling ("in bold… In italics…
   Underlined…"), so it stops matching in Phase 7, but it is BVJ's, so it
   stays until answered. Claude's draft: “As you look through the entries
-  below, you’ll find the traditional word on the left and, on the right,
-  what the LIT Bible uses in its place most often (it can change based on
-  context). Under them is the Greek behind it.”
+  below, you’ll find the traditional word first, then what the LIT Bible
+  uses in its place most often (it can change based on context), and
+  under them the Greek behind it.” (“First,” not “on the left,” since a
+  phone stacks the pair.)
 - **Q2. The colophon's sentence about AI** (BVJ: “ask me at the review.
   You can draft it, but we'll see what is decided”). The run drafts it and
   puts it in place, marked here; BVJ words it, keeps it, or drops it. If it
@@ -745,13 +747,1023 @@ Entered before the run, from BVJ's answers:
   draft: “People make every decision about this site, and much of its code
   is written with Claude, an AI model made by Anthropic. The translation is
   not: Brandon translates every word of the LIT.”
+  In place: /colophon's “Who makes it” (b8fcd43b).
 - **Q3. The What's New page's words**: the apps' entry and its date, the
   new site's entry, and the Study entry as a mock-up (Phase 7 and Phase
   13).
+  In place: /whats-new, its entries in `src/lib/whats-new.mjs`. The apps'
+  entry is dated July 20, 2026, the day the site announced them (PR #27);
+  the stores' own date is BVJ's or BDR's to give. The new site's entry is
+  dated February 10, 2027, the launch date Phase 14 sets, and its
+  paragraph on Display and the phone's bar is checked then against what
+  Phases 3 and 4 built. Both entries' words are drafts: BVJ keeps,
+  rewords, or drops each.
 - **Q4. The launch's words**: the announcement window, and the band's and
   the mark's set time (Phase 14).
 - **Q5. Study's stage at launch**: "beta," unless the opening and sync land
   on the same day (Phase 14; `STUDY-DESK.md`, "Launching").
+
+Entered by the run:
+
+- **Q6. The new-tab mark** (Phase 0; `SITE-FEATHERBOA.md` has no row for
+  it). Site 2.0's `restyle.css` drew E71's open-page mark after every link
+  that opens a new tab, prose included (D7 of E132, BVJ 2026-11-13), and
+  it went with `restyle.css`; the Study Desk's own marks (`newTabMark`,
+  E71) stay. The record draws no mark. Meanwhile: none on prose links.
+  Other choices: a mark in the kit (Phase 2) from the icon set, after the
+  link's last word, kept off pictures, icons, and /apps' body as D7 was.
+  Cost: one rule and one icon; the period-after-a-link case 2.0 handled
+  (BVJ, 2026-11-17) comes back with it.
+- **Q7. Old-style figures** (SZ-24, OP-04). "Sizes" asks for old-style
+  figures in running text and lining figures in counts and dates, but the
+  Source Sans 3 files Fontsource serves have none (no `onum` feature);
+  Adobe's own release has them. Meanwhile: lining figures everywhere. Other
+  choices: cut a Source Sans 3 file that keeps them, with a script run by
+  hand into `public/fonts/` (as the bracket and text-critical fonts are),
+  and set `oldstyle-nums` on reading text; or drop old-style figures. Cost:
+  the script needs fonttools (Python), which isn't installed here and is
+  BVJ's go-ahead to install; one session. Recommendation: cut it with
+  Q8's file, since both need the same tool.
+- **Q8. Fraunces's file size** (TY-04, TY-14, OP-01). Only Fontsource's
+  "full" files carry softness and wonk; the Latin one is 121 KB, with all
+  four axes at every weight, and it is preloaded. The plan says to serve
+  only the axes and weights used. Meanwhile: the full file. Other choice:
+  once BVJ settles Fraunces's settings on the preview (OP-01), cut a file
+  with fonttools' instancer: weights 300 to 800, softness held to the range
+  used, wonk fixed on, into `public/fonts/` by a script run by hand. Cost:
+  fonttools (BVJ's go-ahead), one script, and a new cut if the settings
+  change later. Recommendation: cut it after OP-01, together with Q7.
+- **Q9. Source Sans 3's Latin Extended** (TY-05). The plan names Latin and
+  polytonic Greek; 29 chapters' footnotes have transliterations with ē, ō,
+  and their kin, which drew those letters from a system face in the middle
+  of a word (as Inter did). Meanwhile: served (`faces.css`), with ranges
+  that leave out the Latin file's, so a page fetches it (60 KB) only for
+  such a letter. Other choice: drop its two rules. Cost: none either way.
+  Recommendation: keep it.
+- **Q10. Values the record gives only as ratios or ranges** (CO and NI
+  rows, SZ-01, SZ-02). The run chose them and the tests hold them: the
+  night press green `#4DD383` (9.7:1 on the night page; the table says 9.6
+  for links and 9.7 for the filled button's label, which is one pair), the
+  night red `#EA8A85` (7.5:1), the night sunshine `#E2AD00`, the night float
+  `#181C18`, the hairline at 14% of the text by day and 16% by night, the
+  tints at 4% and 7.5%, the night grays at 74% and 57.8% (9.0 and 5.9:1),
+  the four night highlighter washes (words on each 8:1 or more), the
+  float's shadow, and the headline (56 to 104px) and title (48 to 62px)
+  growing with the window from about 380 to 1450 wide. The day highlight
+  is 13.4:1, where the table says 13.3: "Color" keeps today's four
+  highlighter colors, and today's yellow gives 13.4. Meanwhile: built as
+  listed (`tokens.css`). Recommendation: accept; any of them changes in
+  `tokens.css` alone.
+- **Q11. The reading sizes** (SZ-05 to SZ-07, SZ-11, TY-12; question 11).
+  Refit so Source Sans 3's small letters stand as tall as the proposal drew
+  them in Literata, each keeping the proposal's line in pixels: Scripture
+  1.33rem (21.3px) on 1.52, Text 1.13rem (18.1px) on 1.5, Margin 1rem on
+  1.4. John 1 on the preview is the specimen, ready for BVJ's look and the
+  five-reader test. Meanwhile: built. Recommendation: accept, and adjust by
+  eye if a size reads large.
+- **Q12. The motion pass's calls** (MO rows). Each moving thing took the
+  nearest of the four speeds. Large: the launch and welcome dialogs, the
+  menu's overlay and side tray, Read View's phone tools sheet, and present
+  mode's blanking and strip. Settled: the home chat's bubbles and Read
+  View's floating button. Quick: menus, popovers, tooltips (the search
+  tooltip's delay too), the footnote pill, the grips, the desk tour, and
+  What's New. Motion on hover, press, color, and chevrons became Instant:
+  the glossary's and Home's drawn underlines now appear whole, focus mode's
+  dimming switches at once, and the menu's links no longer arrive one after
+  another. E147's flash on the notes runs once at Large (260 ms; it was
+  1.6 s). Meanwhile: built. Other choices: per item. Cost: one token each.
+  Recommendation: accept, but look at the notes' flash, which may now be
+  too short to notice.
+- **Q13. A doc under a hard stop** (`src/data/chapters/CLAUDE.md`,
+  "Bracketed passages"). It says the ⟦ ⟧ patch is registered in
+  `global.css` under Inter; Phase 1 moved it to `faces.css` under Source
+  Sans 3. The hard stop covers all of `src/data/` but
+  `release-notes-skip.md`, so the run left it, and `faces.css` and
+  `src/styles/CLAUDE.md` say where the patch is. Other choice: let the run
+  edit the `CLAUDE.md` files under `src/data/`, which nothing that builds
+  the apps' content reads (the manifest takes `chapters/*.json` only).
+  Cost: none to the apps. Recommendation: allow it, for docs only.
+  Phase 4's part two (9b7c10ed) adds to what waits on it: `src/data/chapters/CLAUDE.md`
+  (lines 59, 81 to 89, 110 to 113, and 326) and `src/data/alignment/CLAUDE.md`
+  (line 445) still describe Read View, ReadMenu, `read-mode.js`, and
+  `read-mode.css`, all gone, and a comment in `books.js` names ReadMenu's
+  book grid. The comment is in a data file, so it stays either way.
+  Phase 7 adds `src/data/alignment/CLAUDE.md`'s paragraph on how /glossary
+  draws "Where it appears": now an `aside.entry-occ` in the margin from
+  1300px with Study off (under the entry otherwise), and the full list a
+  `div.entry-places` at `#places-<id>`, opened by `:target` or the
+  script's `data-open` (`src/pages/glossary.astro`).
+- **Q14. Tabs and list rows keep the ink** (KT-06; "Color"). "Color"
+  makes deep green the color of what can be pressed, and the kit draws the
+  words of filled, tinted, plain, and red buttons in it. A tab's and a
+  list row's words are names (a pane's, a menu item's), so the kit keeps
+  them in the ink (a tab at the second strength) and gives green only to
+  "on," the underline. Meanwhile: built so. Other choice: every pressable
+  word in deep green, tabs and rows too. Cost: two declarations in
+  `kit.css`. Recommendation: keep the ink, since a menu of green words
+  reads as a page of links.
+- **Q15. The kit's other names** (KT-04; Phase 2's "Done when").
+  Rewriting every control's markup with the kit's classes now would touch
+  some 300 places that the phases after this one redraw anyway.
+  Meanwhile: today's names take the kit's looks by name, listed level by
+  level in `kit.css` (`scripts/kit-names.mjs` keeps the lists alike), and
+  each surface's phase moves its markup to the kit's classes and takes its
+  names out. A control keeps its size (height, padding, text size) until
+  then, so nothing jumps between phases; the label size and the 36px
+  target arrive with each redraw. Other choice: rewrite the markup now.
+  Cost: about two sessions more now, and the same markup redrawn again by
+  its phase. Recommendation: accept.
+- **Q16. Two controls the record doesn't list** (KT-01, KT-02). The ten
+  have no place for a press inside a line of text (a footnote letter, a
+  key term, a reference, a "More" at a paragraph's end) or for a color dot
+  (Highlight's swatches, a label's color), which "Shapes" names among the
+  round things. Meanwhile: the kit draws both, "inline" (the text's own
+  face and weight in deep green, underlined when pointed at, a tint while
+  its panel is open) and "dot" (a 24px circle with a 3:1 edge and a green
+  ring when chosen). Verse numbers and footnote letters join "inline" with
+  the Read page (Phase 4), which draws them without an underline
+  ("Color"). They are deep green without the underline since Phase 1
+  (CO-18) and upright (RP-06), but Phase 4 left them out of the kit's
+  list: they join it in Phase 5, which redraws the verse menu and the
+  footnotes they open. The Greek's words that open their details (the Greek tab's
+  words and signs, This verse's Greek words) are presses inside a line
+  too: they take no level until Phase 12 redraws the Greek, This verse's
+  keeping its own hover tint, since "inline" would color every Greek word
+  deep green. Other choices: inline presses as plain buttons (a box in the
+  line), and dots as tinted chips. Cost: none now; each is one set of
+  rules in `kit.css`. Recommendation: accept both.
+- **Q17. The footer's brand marks stand alone** (CT-19). Facebook,
+  Threads, Bluesky, and Instagram are four links in the footer, each a
+  brand's mark with no word beside it. "Icons" lets an icon stand alone
+  only if it is one of five, but a brand's mark is its name rather than an
+  icon from the set, and every site draws these links this way. Meanwhile:
+  the marks stay alone, each named for screen readers ("Liberation and
+  Inclusion Translation on Facebook," as today), drawn by the kit's plain
+  level (no box until pointed at) in place of the outlined square they
+  had. Other choice: a word beside each mark ("Facebook"). Cost: four
+  short words in the footer, which Phase 3 redraws anyway.
+  Recommendation: keep the marks alone.
+- **Q18. Four controls wait for Phase 7** (CT-19, KT-02; Phase 2's "Done
+  when"). On the glossary, the sort switch (a green track whose two
+  labels fade to 0.7), the "Where it appears" rows (in capitals, at 0.9),
+  and the back-to-top button (an arrow alone); on About, the contents
+  toggle (an arrow alone, beside the words "On this page"). Phase 7
+  redraws each as the record says: the sort becomes a switch in the
+  "Glossary ▾" list, "Where it appears" moves to the margin, the jump list
+  becomes that menu, and About's contents go on a sheet. Meanwhile: left
+  as they were, and listed in the ledger's notes for Phase 7. Other
+  choice: an interim fix for each now. Cost: an hour, thrown away by
+  Phase 7. Recommendation: wait for Phase 7.
+  Done in Phase 7: the glossary's three with its redraw (2be9767b: the
+  order switch in the “Glossary ▾” list, “Where it appears” as the kit's
+  rows in the margin, Back to top with its words). About's contents stay
+  as the record has the pages no section draws, so its toggle reads “On
+  this page” beside its chevron on a phone (2e2bd8df), and the articles
+  index's featured card, the ledger's other note, is no longer a link
+  drawn as a button (2e2bd8df).
+- **Q19. The LIT pane's way back is tinted at every width** (CT-22,
+  CT-23, E168). On 2026-11-19 BVJ found the way back's arrow alone, drawn
+  quietly, “subtle and easy to miss,” and had it read as a button whenever
+  it shows only its arrow, and as a quiet link while it names its place.
+  The kit draws an icon alone plain (no box until pointed at), and a
+  level can't change with a pane's width. Meanwhile: tinted at every width
+  (a box at rest, its place's name included), and its arrow stays an
+  arrow, not the set's back chevron, since the bar's chevrons step a
+  chapter. Other choice: plain at every width, as every other icon alone.
+  Cost: one line in `kit.css`. Recommendation: tinted, for BVJ's reason.
+- **Q20. Icons the record doesn't name** (CT-17, CT-20, KT-01). The
+  record's sixteen lack some the screens need: forward (one of the five
+  that may stand alone), the ▾ that marks a menu and its twin pointing up,
+  Trash (the folded sidebar's), a check, and the phone's menu. Meanwhile:
+  each is Lucide's, at the set's stroke, in `src/lib/icons.mjs` (forward,
+  down, up, trash, check, menu), so the set stays one set. Study still
+  draws some icons of its own (the Pin, the Notebook panel's fold, the
+  pane's lock, grip, and flag, the Show eye, the way back's arrow, the
+  sort, the refresh, the Sheets editor's text tools): each surface's phase
+  takes Lucide's for them as it redraws the surface (the ledger's notes
+  list them). Other choice: only the sixteen, with words where an icon is
+  missing. Cost: none now. Recommendation: accept.
+- **Q21. About names the Read page for the license** (FP-21). About says
+  licensing details are “on the Read page,” twice (the LIT's license, and
+  the SBLGNT text's credits), in BVJ's words. The record moves About's
+  links to /license. Meanwhile: both links go to /license, with the words
+  unchanged, so each says “Read” and opens the License page. (The License
+  rows in About ▾ and the footer open /license too, by `LICENSE_HREF` in
+  `src/lib/places.mjs`. Study's own links, its export's license line, the
+  Sheets' terms links, and its help page moved too, as the repo's own;
+  `llms-full.txt` with `llms.txt`.)
+  Other choice: leave About's links on /read's old anchors, which forward
+  to /license (the words still name a page that no longer holds it).
+  Cost: two words. Recommendation: “on the License page” in both.
+- **Q22. The verse image's Paper and Ink take Featherboa's two colors**
+  (OS-20, "Color"). "The rest stays: Ink and Paper" could keep today's
+  colors, the share cards' bright cream `#F2F0E9`; "Color" gives Paper
+  `#FAFAF8` the page and Ink `#1D231C` all text, with grays as ink at 78%.
+  Meanwhile: Paper is `#FAFAF8` with ink text, Ink is `#1D231C` with paper
+  text, and the name and address are the text at 78%. The link-preview
+  cards (`build-og-images.mjs`), which no decision names, keep the cream.
+  Other choice: today's `#F2F0E9`. Cost: two values. Recommendation: the
+  record's two colors, so an image matches the page it came from.
+- **Q23. The pages no decision draws, as drawn** (BP-07; question 8).
+  They take the foundations with today's words and order, and five calls
+  came with it. A page's name is at the Title size, 48 to 62px ("Type":
+  "The name of a book or a page"), larger than today's on every one, and
+  /license, /colophon, and /whats-new match. Small capitals are gone
+  (eyebrows, dates, badges, the podcast's season heading), by "Labels"'
+  sentence case. A lede is at the Text size, where today's were a step
+  larger. A box that neither floats nor is pressed (the FAQ's questions,
+  the podcast's episodes) takes the 10px corner. The podcast page's photo
+  and its cover still overlap by negative margins, off the spacing scale,
+  which has no step for an overlap. Other choices: today's title sizes,
+  the capitals, ledes at the Subhead size, 6px corners. Cost: a line
+  each. Recommendation: as built; BVJ looks at each page on the preview
+  and names any to redraw, which becomes its own decision.
+- **Q24. Read is a link until the picker** (HD-02, FP-15, HD-29). The
+  record makes Read open the passage picker in place, which Phase 4
+  builds. Meanwhile: Read is a link to /read, the footer's Read group
+  lists “Books” (/read) and “Release Notes,” and /read's line reads
+  “Read / Books” (its heading stays “Read the LIT Online”). Other
+  choices: a small Read menu now, or “Read the LIT Online” as the row's
+  name. Cost: none, since Phase 4 replaces the link. Recommendation: the
+  link, and “Books” until Phase 4. Phase 4's first part (246ab483): with
+  JavaScript from 700px Read opens the picker's panel, and otherwise it
+  stays the link to /read, which is now the picker at full size, so
+  “Books” still names it.
+- **Q25. Study's menu keeps “Help for study tools” until Phase 9**
+  (HD-09). The record puts help at the foot of Study's sidebar, which
+  Phase 9 builds. Meanwhile: it is the menu's last row, below a line, and
+  it is in the footer's Study group. Other choice: drop it now, which
+  leaves help reachable only from /desk's title menu. Cost: a row and a
+  test line in Phase 9. Recommendation: keep it until then.
+- **Q26. “Take the tour” waits for Home's Study panel** (NX-22). Knowing
+  who is visiting for the first time means reading Study's tour state on
+  every page, and Study's code loads only behind its gate. Meanwhile:
+  Study's menu has no tour row. Other choice: an inline check of the
+  tour's stored key in the header, without Study's code. Cost: NX-22 stays
+  open until Phase 7. Recommendation: build it with Home's Study panel in
+  Phase 7.
+- **Q27. Pages the record doesn't place** (HD-22). Meanwhile, each of
+  these is in no place, and its line gives its name alone: /search,
+  /app-support and its thank-you page, /unsubscribe, /courses,
+  /colophon, /whats-new, /delete-account, /account, /account/connect, and
+  the 404. Contact's thank-you page sits under About and Contact. Other
+  choices: /app-support under About and Apps, since it is the apps'
+  support page, and /search under Read. Cost: a line each.
+  Recommendation: /app-support under About and Apps; the rest as built.
+- **Q28. The account button's tooltip repeats “Account”** (CT-19). A
+  tooltip that repeats the button's own word adds nothing. Meanwhile:
+  kept, because removing it changes sync's `test/desk-sync-gate.test.js`,
+  and sync is off limits to this run. Other choice: drop it now. Cost: an
+  import and a test line. Recommendation: drop it in sync's next change.
+- **Q29. The account entry shows from 700px** (HD-12). It showed from
+  760px; the full header now starts at 700px, and the entry comes with it.
+  In OpenDyslexic, from 700 to 899px, it sits in the phone's row.
+  Other choice: keep it in the menu there. Cost: none now, since Phase 3's
+  second part redraws the phone. Recommendation: keep.
+- **Q30. The magnifier on a page with its own box** (HD-13; the feature
+  audit's U6). /read, /search, /articles, and an article had no
+  magnifier, since each has its own search box. Meanwhile: the magnifier
+  takes the reader to the page's box, and without JavaScript it is a link
+  to /search. Other choice: no magnifier there, as before. Cost: none.
+  Recommendation: keep it, so the header is the same on every page.
+- **Q31. When “New” goes** (NX-26). Meanwhile: a place's dot goes as soon
+  as its menu opens; a row's “New” stays while that menu is open, and an
+  entry's `until` date ends it everywhere. The phone's menu shows no marks
+  until Phase 3's second part. Other choice: clear “New” with the dot.
+  Cost: none. Recommendation: keep.
+- **Q32. /privacy names `lit-news-seen` before the first news entry**
+  (NX-25 to NX-27). Opening a menu that holds news keeps what was seen
+  under that key, on the reader's device, and /privacy lists every key
+  the site keeps; `test/news.test.js` fails if an entry goes in before
+  /privacy names it. /privacy is BVJ's page and words, so the run adds
+  nothing there, and the news list is empty, so nothing is kept yet.
+  Recommendation: BVJ words the line when the first entry goes in.
+- **Q33. The footer's layout** (HD-36). From 1100px the four groups sit
+  in a row with the newsletter beside them; below that the groups come
+  first and the newsletter under them, and a phone sets the groups two by
+  two. Release Notes is in both the Read and About groups (HD-29).
+  Other choice: the newsletter first on a phone. Cost: a line.
+  Recommendation: as built (seen at 390, 820, and 1440).
+- **Q34. A disclosure's question is at the Text size** (SZ-08; About's
+  and /license's questions). “Sizes” puts every button, tab, and menu row
+  at the Label size, 14.5px, and a disclosure's summary takes the kit's
+  plain look. A question there is a full sentence, read before its
+  answer, so it is drawn at the Text size in the controls' face, and it
+  follows the Display tray as its answer does. Other choice: the Label
+  size, which sets a long question smaller than the answer under it.
+  Cost: a line each. Recommendation: the Text size. A summary that is a
+  command, not a question, stays at the Label size as a plain control:
+  the account page's “Enter a code from the other device instead” and
+  “I can’t do any of these” (cf6f21c8).
+- **Q35. The passage picker before Phase 4** (PH-01, PH-10, PH-26). “John
+  3 ▾” in a phone's top row must open something until Phase 4's picker
+  sheet. Meanwhile: with JavaScript, ReadMenu makes the row's link a
+  second button for today's picker panel, which hangs from that button,
+  and its × gives focus back there; without JavaScript it is a link to
+  /read. Its name is “Go to passage. Current: John 3” (an introduction's,
+  “John · Intro”), with no draft mark. Other choice: a link to /read even
+  with JavaScript. Cost: ReadMenu serves two buttons for one panel until
+  Phase 4 removes it. Recommendation: keep until Phase 4. Done in 246ab483:
+  the row's “John 3 ▾” opens the picker's sheet, ReadMenu's second button
+  (`data-rm-also`) is gone, and ReadMenu serves Read View alone.
+- **Q36. How far a scroll moves the bars** (PH-05; the ledger's “Where the
+  record is unclear”). The record says any scroll up brings them back;
+  Site 2.0 answered every pixel. Meanwhile: the ledger's `barState`, plus
+  an 8px give measured from the turning point (the lowest point while they
+  are away, the highest while they show), so a resting thumb, an image
+  settling, or Safari's own bars never flicker them, and a slow scroll
+  still adds up. Nothing hides before the reader's first wheel, touch,
+  pointer, or key, so a link to /john-3/#v16 arrives with both bars
+  showing and the verse below the row. They hold while search, the picker,
+  Aa's tray, or the menu is open, or while keyboard focus is in either
+  bar. Other choices: 2.0's every pixel, or a 16 to 24px give.
+  Recommendation: keep 8, and feel it on a real iPhone and Android phone.
+- **Q37. The top row's measures** (PH-01, PH-02, PH-06). The record names
+  the row's contents, not its measures. Meanwhile: sticky through CSS, so
+  it holds without JavaScript; 52px and a hairline, on the page's surface;
+  the emblem 40px inside a 44px link; the chapter's name centered, cut
+  short with an ellipsis only at 320px in OpenDyslexic (“2 Thessalonians
+  3” loses 31px); the page's h1 visually hidden under 700px. Other choice:
+  no hairline. Recommendation: keep; Phase 4's progress line takes the
+  hairline's place.
+- **Q38. The bar's drawing** (PH-03, PH-04). Meanwhile: the kit's plain
+  buttons, the icon over the word at the Label size, in four columns on
+  the page's surface under a hairline; a missing Previous or Next keeps
+  its place in the kit's unavailable look; the page's foot gains 64px so
+  the footer clears the bar; no safe-area inset, since the page's viewport
+  has no `viewport-fit=cover`. Other choice: hide a missing button, which
+  moves the others. Recommendation: keep, and check the band above an
+  iPhone's home indicator.
+- **Q39. OpenDyslexic on the narrowest phones** (PH-03, PH-15). The bar's
+  four words need 360px in OpenDyslexic with its edges and gaps, so Next
+  overran 320 by 12px, and the header's “Menu” cut 8px off “LIT Bible” at
+  360. Meanwhile, the room is bought back and the type is never shrunk:
+  under 375px the bar drops its edges and gaps; under 360px Previous,
+  Search, and Next show their icons alone (three of the five icons the
+  record lets stand alone, their words kept as their names) and Menu keeps
+  its word; under 380px the magnifier moves into the menu sheet as its
+  Search row; Menu's icon shows from 430px (400px in the other faces).
+  Re-measured, nothing is cut or overruns from 320 to 430px. Other
+  choices: smaller OpenDyslexic type, which the styles' rules make the
+  last resort, or the overrun. Recommendation: keep; it breaks “a word
+  under each” only in OpenDyslexic under 360px.
+- **Q40. Where a link's target stops** (PH-05). The plan said
+  `scroll-margin-top`. Meanwhile: `scroll-padding-top` and
+  `scroll-padding-bottom` of 53px on `html` on a phone's reading pages,
+  one rule for every anchor and focus scroll, which `readingLine` counts.
+  Other choice: `scroll-margin-top` on `main [id]`, as Site 2.0 had.
+  Recommendation: keep. The place line isn't sticky (246ab483), so Continue
+  reading's line needs nothing more on a computer.
+- **Q41. Search in place of the top row** (PH-09, HD-13). A page's
+  SearchBar renders once, with fixed ids, and its toolbar is hidden on a
+  phone. Meanwhile: the bar's Search moves that one SearchBar into the row
+  and back, its × beside the field's 44px submit button, and the row grows
+  from 53 to 60px (68 in OpenDyslexic) while it is open, since the field
+  is that tall. Other choice: a second SearchBar, which repeats ids.
+  Recommendation: keep; Phase 6's field takes the row's height.
+- **Q42. One sheet wherever a “Menu” shows** (PH-11, PH-15). The record
+  says the same sheet rises “from the bottom, so the menu looks the same
+  everywhere.” The header's Menu also shows in Study's own header at every
+  width, from 700 to 899px in OpenDyslexic, and in a narrow computer
+  window (where BVJ's side tray of 2026-11-04 was). Meanwhile: one bottom
+  sheet everywhere, at most 660px wide and centered, so on /desk at 1440px
+  it rises from the window's foot. Other choice: with a mouse or trackpad,
+  hang it from its button like the header's menus. Cost: at 1440px it
+  opens far from its button. Recommendation: keep until Phase 9 redraws
+  Study's header.
+- **Q43. The sheet's head and focus** (PH-11). Meanwhile: the title “Menu”
+  and a ×; opening moves focus to the ×, Tab stays inside, and closing
+  gives focus back to the button that opened it. Other choice: focus the
+  first row. Recommendation: keep.
+- **Q44. The sheet's groups and marks** (PH-12, HD-35, NI-18, NX-26; the
+  ledger's “Where the record is unclear”). Meanwhile: two columns, Read
+  and Learn on the left and About on the right, with Study a third only
+  where the header shows Study (its own header from 1100px with the
+  preview on); the page's place underlined in LIT Green; news as in the
+  header's menus (a dot on a group's name, “New” beside a row, “See what’s
+  new →” at the group's foot), with a dot on both Menu buttons, and
+  opening the sheet sees what it shows. Other choice: one column, 20 rows
+  long. Recommendation: keep.
+- **Q45. The sheet's foot** (PH-13, NX-11). Meanwhile: Search under 360px
+  (380px in OpenDyslexic) on a page whose magnifier opens the strip;
+  Account under 700px with accounts open (a phone never has the preview,
+  so in practice a narrow computer window), left out of Study's own
+  header, which shows the entry itself; and “Get the app” at every width.
+  Other choice: “Get the app” under 700px only. Recommendation: at every
+  width.
+- **Q46. The dim behind the sheet** (PH-11). tokens.css has no scrim
+  color. Meanwhile: 40% black by day and night, fading at the Large speed.
+  Other choice: a `--color-scrim` token now. Recommendation: add the token
+  when Phase 5's phone sheets need a dim too.
+- **Q47. The header's “Menu”** (PH-15). The old button was three bars
+  drawn with backgrounds, its word hidden, which the record's icon rule
+  forbids. Meanwhile: the kit's plain button with the `menu` icon and the
+  word “Menu,” the word alone under 400px (430px in OpenDyslexic), where
+  the icon stops fitting. Other choice: the word alone at every phone
+  width. Recommendation: keep.
+- **Q48. Read View on a phone until Phase 4** (PH-06). Today's phone
+  toolbar had an icon-only “Switch to Read View,” and that toolbar is gone
+  on a phone. Meanwhile: Read View is reached from /read. Other choice: a
+  “Read View” row in the sheet on chapter pages. Cost: one more step on a
+  phone, until Phase 4 makes the two views one. Recommendation: keep.
+  Since 246ab483 /read has no Read View card, so Read View is reached only
+  from search's second link and from old links until it retires.
+- **Q49. The kit's draft state** (FP-10). The record wants drafts dimmed
+  and saying “in progress,” and the kit had no draft state. Meanwhile:
+  `.kit-tab--draft` and `.kit-row--draft`, whose words take the third ink
+  (never opacity), still opening and still marking the current page;
+  5.11:1 by day and 5.68:1 on the night panel. Other choice: no new state,
+  “in progress” at full ink. Cost: drafts read as finished at a glance in
+  the grid. Recommendation: keep, as a kit state.
+- **Q50. The picker's markup on every page** (FP-02, FP-15). G and Read
+  open it anywhere, and the whole picker is 59 KB raw (3.7 KB gzipped) and
+  1,018 elements. Meanwhile: it waits in a `<template>` that its first
+  opening puts in place, so a page carries none of those elements live
+  (John 3: 1,060 live of 2,078), and without JavaScript no dialog opens
+  anyway. Other choice: fetch /read's picker on the first opening. Cost: a
+  wait and a loading state on the first G, and a failure path.
+  Recommendation: keep.
+- **Q51. “Show the Notebook” stays in the tray for now** (DI-16).
+  Meanwhile: the Notebook button is on the line, the tray's switch stays,
+  and turning it off hides the line's Notebook with the tab. Other choice:
+  remove the switch in this part. Cost: the tray and the first stage's tab
+  rules reworked here rather than with the Display tray. Recommendation:
+  the Display tray's part of Phase 4 removes it. Done (96b343e1): the tray
+  has no such switch, and a stored `lit-desk-show` “off” is read as shown
+  and removed once.
+- **Q52. The phone's “John 3 ▾” focuses chapter 3** (PH-10, FP-14). The
+  sheet's order is as written, the field first, but focus starts on the
+  chapter, as “Chapter 3” does on a computer, so at 390 the sheet opens
+  scrolled to John's grid, with the field and Continue above it, out of
+  view. Other choices: focus the field, which raises the keyboard over the
+  grid at once; or focus the sheet's ×, as the menu sheet does, which
+  shows the field and Continue but puts the chapters a scroll away.
+  Recommendation: keep.
+- **Q53. A tablet's line has no Notebook or Study** (RP-32, ST-15). From
+  700 to 1099px the line is the picker, Search, and the arrows, matching
+  ST-16; Read opens the panel from 700px. Other choice: show both from
+  700px. Cost: Study is made for a computer, and a tablet never gets the
+  preview's stamp. Recommendation: keep.
+- **Q54. A whole draft's tab** (FP-10). Revelation's tab reads “Revelation
+  in progress.” Measured: one line at 1440 and 820 in the text face and at
+  1440 in OpenDyslexic; at 768 in OpenDyslexic it wraps inside its tab,
+  which is 3px taller than its neighbors. Other choice: dim the tab and
+  keep the words for screen readers and the note under the grid. Cost: a
+  test change. Recommendation: keep; the wrap stays inside the tab and
+  moves nothing else.
+- **Q55. A book alone offers chapter 1 first** (FP-04, FP-05). “romans”
+  offers Romans 1, then its introduction. Other choice: the introduction
+  first. Cost: the search box's jump goes to chapter 1, so the two would
+  disagree. Recommendation: keep.
+- **Q56. “Go to Matthew introduction”** (FP-05). Labels take no articles,
+  and the line's arrows already say “Previous: Matthew introduction.”
+  Other choice: “Go to Matthew’s introduction.” Cost: a word, and the
+  arrows would differ. Recommendation: keep, unless BVJ prefers the
+  possessive.
+- **Q57. Escape empties the field first, then closes** (FP-13), as the
+  search box closes its results first. Other choice: Escape always closes.
+  Cost: none to build. Recommendation: keep.
+- **Q58. Where the panel hangs** (FP-02, FP-15). Meanwhile: 8px under what
+  opened it and kept 16px inside the window; G hangs it under the line's
+  book, else the header's Read, and where both are scrolled away, centered
+  at the window's top. Other choice: a centered dialog every time. Cost:
+  the panel loses its tie to what opened it. Recommendation: keep.
+- **Q59. Continue hides when it names this page** (FP-07, NX-12). Other
+  choice: always show it. Cost: a row that goes nowhere. Recommendation:
+  keep.
+- **Q60. The dialog's names** (FP-02). The dialog is “Choose passage,” its
+  × “Close picker,” and the field “Book, chapter, or verse.” Other choice:
+  “Find a passage” and “Close.” Cost: a word change. Recommendation: keep
+  (a verb, then a thing).
+- **Q61. /read's frame, and the picker's size** (FP-16, BP-08). Meanwhile:
+  /read keeps its emblem and title over the lede, at 60rem rather than the
+  content width, and like the other display pages is left to browser zoom;
+  the picker is drawn at the kit's sizes everywhere, not with the
+  `--control-scale` ReadMenu followed. Other choice: scale the picker with
+  `--control-scale`. Cost: picker.css would size the kit's controls, which
+  the kit's rules forbid. Recommendation: keep, and measure Extra large in
+  the accessibility pass.
+- **Q62. /read without JavaScript** (FP-16). Each book links to
+  `#picker-<book>` and is shown by `:target` (Matthew's first), and the
+  field is a form to /search. Other choice: all 27 books' chapters at
+  once. Cost: a long page of 260 numbers. Recommendation: keep.
+- **Q63. /read with JavaScript opens at the reader's book** (FP-07,
+  FP-16): the address's `#picker-luke`, else Continue's book, else
+  Matthew. Other choice: always Matthew. Cost: a returning reader picks
+  their book again. Recommendation: keep.
+- **Q64. /read keeps the header's magnifier** (FP-31), the strip, as on
+  every page that isn't a reading page. Other choice: none on /read, since
+  its field searches too. Cost: none to build, but /read would break
+  FP-31's rule. Recommendation: keep.
+- **Q65. “Study John” on an introduction opens chapter 1** (ST-15, CT-09),
+  since no pane shows an introduction (E173). Other choice: no Study link
+  on an introduction. Cost: no way into Study from one. Recommendation:
+  keep.
+- **Q66. The book's name heads its grid** (FP-09): an h2 in Fraunces at
+  the subhead size, which also names the grid to a screen reader. Other
+  choice: no visible heading. Cost: the grid loses its name.
+  Recommendation: keep.
+- **Q67. The line's Search keeps today's box** (FP-30). Meanwhile: the
+  SearchBar's height and its submit button under 900px, so at 1440 the
+  line grows from 37 to 59px while Search is open and the page below moves
+  down 22px. Other choice: redraw the box in this part. Cost: Phase 6's
+  redraw lands early. Recommendation: leave it to Phase 6, whose field
+  takes the line's height. Done in f1a6b2af: the field takes the line's
+  height (`--target`), so at 1440 the line stays 37px with Search open.
+- **Q68. /search loses “Go to passage” until Phase 6** (FP-01). Its field
+  still jumps to a reference, G and Read open the picker, and its toolbar
+  stays. Other choice: keep ReadMenu on /search. Cost: ReadMenu's Chapter
+  View mode stays alive. Recommendation: keep it removed.
+- **Q69. G in Read View presses Read View's own picker** (FP-13). The
+  dialog is on that page too, but G uses ReadMenu's trigger there. Other
+  choice: the passage picker. Cost: two pickers that disagree on one page.
+  Recommendation: keep until Read View retires, later in Phase 4.
+- **Q70. ReadMenu's Chapter View mode is dead code** (FP-01, FP-11). Its
+  Chapter View footer, with the preview's “Open Romans in Study Desk →”
+  and `&layout=reading` (E114), is never drawn now; E114's link lives only
+  in search's second jump. Other choice: strip it now. Cost: a riskier
+  diff in a file Read View still uses. Recommendation: remove it with Read
+  View.
+- **Q71. Study help's sentences** (RP-32, ST-15). `desk/help.astro` named
+  the toolbar's “Open in Study Desk” and /read's “Study Desk” button.
+  Meanwhile: four sentences name the line's “Notebook” and “Study John 3”
+  (named for the chapter being read) at the end of the line under a
+  Scripture page's header, and the chapter picker's “Open Romans in Study
+  Desk →” is gone. Other choice: leave them until Phase 9. Cost: help
+  describes buttons that are gone. Recommendation: keep; BVJ skims the
+  four sentences.
+- **Q72. The tour's search step presses the line's Search** (FP-30): it
+  shows “>” in the field, and on skip or end puts back the reader's words
+  and closes the line. Other choice: skip the step on chapters. Cost: the
+  tour loses its search step there. Recommendation: keep.
+- **Q73. FP-01's grep still finds “Go to passage,”** in ReadMenu.astro
+  alone (Read View's trigger). Other choice: leave FP-01 open until Read
+  View retires. Cost: the row stays open for a page that is leaving.
+  Recommendation: mark it built for every page but Read View.
+- **Q74. The picker's two ×** (FP-02). Its field is `type="search"`, so
+  Chrome draws its own clear × inside the field, beside the picker's
+  “Close picker” ×: two × a few pixels apart, one clearing and one closing
+  (seen at 1440). Meanwhile: both stay. Other choice: hide the browser's
+  clear button in a field that sits beside a close (the picker's, and the
+  line's Search box, which is the SearchBar's), since Escape empties the
+  field (Q57). Cost: a mouse loses its one-press clear. Recommendation:
+  hide it, decided with Phase 6's field, which redraws the SearchBar too.
+  Done: the line's field leaves it out (f1a6b2af), and the picker's
+  (e896463b) in the panel, the dialog, and the phone's sheet; /read's
+  picker has no close, and keeps it.
+- **Q75. OpenDyslexic's picker** (FP-08, FP-09). At 50rem its three
+  columns of book names took about 630px, leaving the chapters two to a
+  row, so a long book's panel scrolled, and at 768 a chapter cell was
+  about 40px. Meanwhile: in OpenDyslexic the panel is 60rem from 700px, as
+  the window allows, and in a picker under 880px its books and chapters
+  stack: at 1440 the chapters stand five to a row, at 768 fourteen, and at
+  1100 by 700 the panel shows all 27 books without scrolling. Other
+  choice: smaller book names in OpenDyslexic. Cost: the styles' rules make
+  shrinking that font's type the last resort. Recommendation: keep.
+
+- **Q76. One row of tabs, and the menus** (SE-04, SE-09, SE-27). The
+  record puts the tabs, then “All books ▾,” the sort, and with Study on
+  Select, at the row's right end. In the 647px column at 1440 the five
+  tabs take 618px, so the menus (292px, 360 with Select) never fit beside
+  them, and the preview's seven tabs take two lines. Meanwhile: the tabs
+  wrap, and the menus take a line of their own under them, at the right
+  end. Other choices: the tabs scroll sideways on a computer as on a
+  phone, the menus at the row's end; a top wider than the column; or the
+  menus moved down into the results they sort and filter. Cost: a scroll
+  hides tabs on a computer; a wider top parts the field from the results'
+  edge, which this review joined; menus in the results move as the tab
+  changes. Recommendation: keep.
+- **Q77. A Greek search and the other tabs** (SE-07). A query in Greek
+  letters or a Strong's number is searched in the Greek alone, as before
+  (BA40), with the reader's notes holding it listed above. Meanwhile: the
+  other tabs show their names with no number, and choosing one shows the
+  Greek again, since the query is still Greek. Other choices: draw the
+  other tabs unavailable on a Greek query, with the reason in words; or
+  search the English too, for every tab's count. Cost: the first, a reason
+  under the row; the second, an English search that finds little, run
+  every time. Recommendation: the first, with the Checkpoint A fixes.
+  Done ahead of Checkpoint A (20e0fa36): the first. A search command
+  counts as Greek too, and an English query under the chosen Greek tab is
+  not one, so its tabs stay and the reader can leave the Greek. The
+  reason, drafted for BVJ: “Greek letters, Strong’s numbers, and search
+  commands are searched in the Greek only.”
+- **Q78. Study's Search pane waits for Phase 9** (SD-42, GK-37, GK-38,
+  GK-44). The record gives Study's Search tab /search's tabs and rows and
+  the one “Build a search…” link; that pane is part of Study's frame,
+  which Phase 9 redraws. Meanwhile: the pane (`desk/search-pane.js`) keeps
+  its type menu, its rows, and its “Search commands” button, which opens
+  the same window, now titled “Build a search.” Other choice: redraw the
+  pane now. Cost: Phase 9's frame work done twice. Recommendation: keep
+  until Phase 9.
+- **Q79. Select also boxes Greek rows** (SE-28 names Scripture and
+  Chapters about it). Before Phase 6 the Greek results could already be
+  gathered for a sheet (`test/desk-search-sheet-greek.test.js`), so Select
+  keeps them. Other choice: Scripture and Chapters about it only. Cost:
+  the Greek loses its way to a sheet. Recommendation: keep.
+- **Q80. The page links** (SE-26). Meanwhile: Previous, the numbers, and
+  Next are plain kit buttons, the current page tinted and named as current
+  (`aria-current`), since the kit has no “on” for a button. Other choice:
+  the numbers as a kit tab row. Cost: a tab row says “one of these views,”
+  not “a page of a list.” Recommendation: keep.
+- **Q81. When the glossary line shows** (SE-21: “when a term matches”).
+  Meanwhile (24408884): only when what was typed is one of an entry's own
+  words (its traditional word, a LIT word, or its transliteration), named
+  as the entry writes it (“Trust is in the glossary →”), first over the
+  verses. Other choice: whenever the Glossary tab has a hit. Cost: an
+  entry that only uses the word in its prose is named, as Phase 6 first
+  built it (“Faith → trust / faithfulness is in the glossary →” for
+  “trusting”). Recommendation: keep. 24408884's line read the entry from
+  a result's address and never showed, since Pagefind indexes /glossary as
+  one page and names its entries only as sub-results; a475a2f3 finds them
+  in the term map SearchBar embeds, shows the line in the tray too (which
+  had named any matching entry's title after the chapters line), and
+  after “No results for “pistis.”” when nothing else matched.
+- **Q82. The Notebook tab is not an address** (SE-23, BP-03). The URL's
+  `mode` names the other tabs; the Notebook's is page state, since
+  `search-core.js` and its hidden `#searchbar-mode` select have no
+  notebook mode, and a link to it would open an empty tab for anyone
+  without the preview. Other choice: `?mode=notebook`. Cost: a new mode in
+  `search-core.js`, which Phase 6 left unchanged. Recommendation: keep.
+- **Q83. The Greek tab's hits are rows** (SE-13). Phase 6 had left them
+  bordered cards, under the class name of the builder's word cards.
+  Meanwhile (563f837b): a row like the others: its reference drawn as a
+  verse row's but taller, since it is the row's only link (27px), then the
+  Greek with the match marked, the parsing, and the LIT's verse, with a
+  step more space between hits than between verse rows, since a hit is
+  four lines. Other choice: the cards. Cost: the one place results looked
+  unlike the rest. Recommendation: keep.
+- **Q84. The gap between chapters** (WB-15). The record's mock measured
+  88px from one chapter's last line to the next one's first. Built from
+  the record's own values (the next chapter's name in Fraunces at the
+  Subhead size, 32px above it, no rule), it is 75px at the page's text
+  size, measured with the preview from James 1 into James 2. Meanwhile:
+  75. Other choice: 88, by 13px more under the heading. Cost: one margin.
+  Recommendation: keep 75; both are close beside the first drawing's 141,
+  which BVJ found too big.
+- **Q85. The progress line on a computer** (WB-33). It runs along the
+  place line's bottom edge as the record says, and on a computer the line
+  scrolls away with the page, so the progress line is out of sight while
+  the reader reads; on a phone it rides the top row, which comes back on
+  any scroll up. Meanwhile: it scrolls away. Other choices: once the line
+  has gone, the progress line alone rides the window's top edge (2px,
+  adding no height); or the place line stays at the window's top. Cost:
+  the first, a few rules and a class read-on.js sets; the second, a line's
+  height over the text all the time, which BVJ has kept off reading pages.
+  Recommendation: the first, since a line that is seen only at a
+  chapter's top hardly says how far through the book the reader is.
+- **Q86. A draft's Greek link opens Study at the chapter, not its Greek**
+  (WB-32, ST-63). “Read its Greek in Study” goes to `/desk/?place=acts-2`,
+  which moves Study's leading text pane to that chapter in the layout the
+  reader last had (E8), so the Greek shows only if that layout holds a
+  Greek pane. Meanwhile: that link, with the preview only. Other choice:
+  an arrival that opens the Greek pane at the chapter. Cost: a new
+  parameter in /desk's arrival, which is Phase 9's frame. Recommendation:
+  build it in Phase 9 and point the link at it then.
+- **Q87. A draft entry's place** (WB-04, WB-05, WB-29). With the reading
+  line in “Acts 2–28,” the address and the place line name the run's
+  first chapter (/acts-2/, a draft's own page), and Continue reading keeps
+  the last published verse the reader passed, since a draft has no verse
+  to keep. Meanwhile: that. Other choice: the address stays on the last
+  published chapter until the next one is reached. Cost: a branch in
+  read-on.js's address. Recommendation: keep; a reload there opens Acts
+  2's own page, which says the same thing the entry does.
+- **Q88. Two Read View clauses left on /privacy** (WB-43). The phase took
+  out the Focus phrase. Two more describe what retired with Read View:
+  “the place you last reached in each book in Read View” (nothing writes
+  those places now) and `lit-desk-read-highlights` (“whether your
+  highlights show in Read View”). They are BVJ's words, so they stay.
+  Other choice: remove both. Cost: none to the apps, but /privacy is
+  mirrored with LSC, so its apps-mirror-notify issue would name them.
+  Recommendation: remove both, with BVJ's yes. Since the Display tray
+  (96b343e1), the key is kept in “Your marks”' memory with the rest and read by
+  the search box's notebook results (`desk/notebook-search.js`), so if
+  its line goes, the key goes with Study's frame (Phase 9).
+- **Q89. Read View's verse-number setting still reaches the Read page**
+  (`src/styles/CLAUDE.md`, “The Display tray,” rule 6). The plan keeps
+  every reader setting, so a reader who hid verse numbers in Read View
+  (`lit-read-numbers`, or the older `lit_rm_markers`) has them hidden on
+  every chapter's page until the switch is next set. There a hidden
+  number is a 1px box, so on a touch screen the verse menu has nothing to
+  tap. Meanwhile: the fallback, as the plan says. Other choice: drop both
+  fallbacks, so such a reader sees numbers again and turns them off once.
+  Cost: one line in Layout.astro's first-paint script and one in the
+  tray. Recommendation: drop them; the setting was for a whole-book page
+  that is gone.
+- **Q90. Analytics count each chapter read on into** (`src/pages/CLAUDE.md`,
+  on page views). In a browser with the Navigation API, Cloudflare's
+  beacon hears each `replaceState` as the address moves to the next
+  chapter and reports it as a page view; elsewhere only the chapter opened
+  counts, so a chapter's page views mix the two. Meanwhile: as it comes,
+  noted in that file. Other choice: a beacon placed by hand with its
+  single-page counting off. Cost: turning off the automatic beacon in
+  Cloudflare's dashboard, which is BVJ's. Recommendation: keep; a chapter
+  read is a fair page view, and the note says how to read the numbers.
+- **Q91. The glossary's line names the LIT word in either order** (GL-04,
+  GL-09). It names the entry in view by its LIT word's first option
+  (“trust” for “trust / faithfulness”), as the record's example does, and
+  keeps doing so when the page is ordered by the traditional word.
+  Meanwhile: the LIT word in both orders. Other choice: the traditional
+  word while the page is in that order. Cost: a second name per entry in
+  the line's data. Recommendation: keep; the LIT word is the entry's
+  answer, and the list under “Glossary ▾” already shows the order chosen.
+- **Q92. “Where it appears” takes the margin from 1300px** (GL-20, GL-23).
+  It needs the 320px margin beside the text, which the page's column
+  leaves from 1300px with Study off; narrower, and with Study on (whose
+  frame moves the text), it sits under the entry as today. A long note
+  makes its entry taller rather than running into the next. Meanwhile:
+  from 1300px. Other choice: the width at which Phase 5 puts the Read
+  page's footnotes in the margin, since the record ties the two together.
+  Cost: one media query. Recommendation: match Phase 5's width, which that
+  phase checks against this one.
+- **Q93. The glossary's line stays at the window's top** (GL-04). It names
+  the entry in view and steps between entries, so it sticks under the
+  header at every width (37px). The Read page's line scrolls away on a
+  computer (Q85) and hides on a scroll down on a phone. Meanwhile: it
+  sticks at every width. Other choice: the Read page's behavior. Cost: a
+  few lines reusing `phone-bars.js`'s rule. Recommendation: keep it; a
+  reader moves about the glossary more than reading it straight through,
+  and the line is how they do it and where it says what they are reading.
+- **Q94. “Copy link” shows its words** (GL-10). The record keeps the
+  button “as today,” and today's is a copy icon with hover text (BVJ,
+  2026-10-09). The kit lets only five icons stand alone (search, close,
+  back, forward, more), so it reads “Copy link” beside its icon, with no
+  hover text. Meanwhile: the words. Other choice: the icon alone with its
+  tooltip, an exception to the kit. Cost: none either way.
+  Recommendation: the words.
+- **Q95. The glossary keeps “Back to top”** (GL-03). Today's page has one
+  and the record doesn't mention it. Meanwhile: the kit's plain button,
+  floating at the window's bottom right once the first entry has passed
+  the top, which puts focus on the page's title. Other choice: drop it,
+  since the line's “Glossary ▾” reaches every entry. Cost: none.
+  Recommendation: keep; 47 entries make a long page, on a phone above all.
+- **Q96. An article's lead paragraph stays** (GL-26). The record puts the
+  author and date on one small line under the title, and every article's
+  own `author` names BVJ, so all 13 now show “Brandon C. Vélez Johnson ·
+  4/10/2024” where today shows the date alone. The article's description
+  stays under that line as its lead paragraph, in the second ink, as
+  today; the record doesn't mention it. Meanwhile: kept. Other choice:
+  drop it, since search results and shared links show it too. Cost: none.
+  Recommendation: keep; it says what the article argues before the
+  picture.
+- **Q97. An introduction's title stays centered** (GL-01, GL-24). Its text
+  now has the Read page's column, faces, and measure, but its title is
+  today's, “Mark — Introduction,” centered in Fraunces at 32px, where an
+  article's title is left-aligned at the title size and a chapter's
+  heading is left-aligned at the Subhead size. Meanwhile: centered. Other
+  choice: left-aligned, at an article's title size. Cost: two rules in
+  `ScriptureHeader.astro`. Recommendation: left, so an introduction reads
+  as an article does.
+- **Q98. An article's footnotes would sit at the margin's top** (GL-25).
+  No article has any, so this is a place made ready: from 1300px with
+  Study off a footnotes section sits in the margin beside the article's
+  top, and under the text elsewhere. Meanwhile: that. Other choice: each
+  note beside the line that calls it, as Phase 5 sets a chapter's notes.
+  Cost: Phase 5's code, reused. Recommendation: reuse Phase 5's when an
+  article first has footnotes.
+- **Q99. A stored “Closed” start is still honored** (NB-25, SD-56). The
+  record names three ways the Notebook panel opens (Open, Minimized, As I
+  left it); before it, a reader could also choose Closed. Meanwhile: a
+  reader who stored Closed sees it as a fourth choice, last, and it still
+  works; everyone else sees three. Other choice: change a stored Closed
+  to “As I left it” once and drop the code. Cost: a few lines either way.
+  Recommendation: keep it until the launch, then change it once.
+- **Q100. “Reset widths” stays in each line's own menu** (DI-25, DI-23).
+  DI-25's check is “no Reset widths,” but DI-23 and E189 keep each drag
+  line's menu, whose last choice is “Reset widths” (tested in
+  `test/desk-e189-lines.test.js`). Meanwhile: the tray's and the panel's
+  buttons are gone and the line menus keep theirs. Other choice: rename
+  the menus' choice. Cost: one label and its test. Recommendation: keep
+  the name, and read DI-25's check as “no Reset widths outside the line
+  menus.”
+- **Q101. OpenDyslexic's narrowest column** (SZ-17, DI-24). The text drags
+  within 45 to 75 of the face's own characters, but 45 OpenDyslexic
+  characters are wider than the column every page opens with, so its
+  narrow end is the opening width instead (about 33 of its characters).
+  Atkinson and the default face fit inside 45 to 75. Meanwhile: that.
+  Other choice: open the page wider for OpenDyslexic readers so 45 holds.
+  Cost: Phase 5 sets the opening columns anyway. Recommendation: Phase 5
+  sets them in each face's characters, which settles this.
+- **Q102. The text column's width is spoken in characters** (SZ-17). The
+  drag line tells a screen reader “Text 57 characters wide,” counting the
+  face's characters, and each arrow step moves one character; a width
+  kept from another face is held to this face's range when the page
+  opens, where it used to be dropped. Meanwhile: that. Other choice: the
+  page's own units. Cost: none. Recommendation: keep; characters are the
+  record's measure.
+- **Q103. Delete in bulk and how the panel opens moved, not copied**
+  (NB-25, NB-27). They left /notebook for All settings, which a line on
+  /notebook points to; backup is on both pages. Meanwhile: moved.
+  Other choice: on both pages. Cost: none. Recommendation: keep; one
+  home each.
+- **Q104. All settings links the account page only where accounts are
+  open** (DI-21, AC-22). Elsewhere the link would reach a page that says
+  accounts aren't open. Meanwhile: hidden until then. Other choice: always
+  shown. Cost: none. Recommendation: keep until accounts open.
+- **Q105. The tray scrolls in OpenDyslexic with Study on** (DI-01). At a
+  1440 by 900 window it is 360px wide and taller than the window, so it
+  scrolls inside itself, stopping 8px from the foot. Meanwhile: that.
+  Other choice: tighter rows in OpenDyslexic. Cost: a few rules.
+  Recommendation: look at it in the pane first.
+- **Q106. Justify where it can't apply** (RP-38). On most phones (a 390px
+  phone's column is too narrow) and in Atkinson or OpenDyslexic, the
+  switch does nothing visible, by E106's rule. Meanwhile: the switch shows
+  and does nothing there. Other choice: a quiet line under it, only where
+  it can't apply (“Your text is set ragged at this width,” say), or the
+  switch unavailable with that reason. Cost: a few lines.
+  Recommendation: the quiet line.
+- **Q107. A smaller size near a chapter's top loads the chapter above**
+  (WB, the tray). Keeping the reader's place scrolls the page up there,
+  which reading on takes for the reader nearing the top. The place holds
+  and the tray stays open, but a chapter loads unasked. Meanwhile: built
+  in Phase 5, part one (a095c300; Q118): reading on ignores the scroll
+  that holds the place. Other choice: as it was. Cost: none now.
+  Recommendation: as built.
+- **Q108. The tray's close button says “Close display settings”**
+  (CT-11). The tray and its button say “Display.” Meanwhile: today's
+  words. Other choice: “Close Display.” Cost: one label.
+  Recommendation: “Close Display,” so the names agree.
+- **Q109. /privacy's words for the new and changed settings** (DI-18;
+  `src/pages/CLAUDE.md`, “The privacy page”). /privacy names every key
+  the site keeps, so three lines changed, drafted for BVJ: the display
+  settings add “justification”; `lit-desk-show` is “an older note that
+  the Display menu's “Show the Notebook” was off. That switch is gone, so
+  the note is removed the next time you read a chapter with Study on”;
+  and `lit-desk-hide` is what was showing “while “Your marks” is off.”
+  One sentence of BVJ's is now out of date and left as it is: “You can
+  remove everything with the notebook page's “Delete in bulk” buttons,”
+  which are on All settings now. Meanwhile: the three drafts; the
+  sentence unchanged; the effective date unchanged. Other choice: none
+  for the keys (a test holds /privacy to them). Recommendation: approve
+  the three; reword the sentence to “with the “Delete in bulk” buttons on
+  All settings”; call it not a material change, so the date stays.
+- **Q110. A pane hidden beside a place keeps its tabs** (SD-33, ST-24).
+  The Notebook, a sheet, and a collection have “Panes 1 2.” Going to one
+  hides the pane beside rather than emptying it, so going back to two
+  returns its tabs. Meanwhile: kept, hidden (7ed9170a). Other choice:
+  close them. Cost: none. Recommendation: keep, since “changing the count
+  keeps everything.”
+- **Q111. Where a new reader's green underline starts** (SD-37). A new
+  reader's two panes are the LIT and, beside it, Notes, Footnotes, This
+  verse, and Greek. The underline, where something new opens, starts on
+  the pane beside, so the header's search opens next to the text, not over
+  it. Meanwhile: beside. Other choice: on the LIT's pane, as today's
+  active pane is. Cost: none. Recommendation: beside.
+- **Q112. Opening what is already open leaves the underline** (SD-30).
+  Opening something open in another pane brings its tab forward there; the
+  green underline stays where it was, and only a click on a tab moves it.
+  Meanwhile: that. Other choice: the underline goes with every tab
+  brought forward. Cost: none. Recommendation: as built, so opening from
+  the sidebar doesn't move where the next thing opens.
+- **Q113. A saved layout's sheet and collection panes** (SD-63). Sheets
+  and collections are places now, so a pane that held one isn't carried
+  over, and the sheet opens as it first does. The preview's few readers
+  lose only which sheet sat in a pane. Meanwhile: dropped. Other choice:
+  start that sheet's place from the pane. Cost: a little code.
+  Recommendation: drop.
+- **Q114. A Reading layout's hidden marks stay hidden** (RP-41, SD-63). A
+  layout saved with the Reading layout on had turned its LIT pane's marks
+  off for reading. It reopens with them still off in that tab, so no
+  notes or highlights reappear unasked. Meanwhile: that. Other choice: the
+  marks come back, since the Reading layout is gone. Cost: none.
+  Recommendation: keep them off.
+- **Q115. One LIT tab per chapter when opening a passage** (SD-30).
+  Opening a passage in a chapter a LIT tab already shows brings that tab
+  forward at the verse; another chapter adds a tab, and so does choosing
+  to open a second (to compare). Meanwhile: that. Other choice: one per
+  passage, so Romans 8:1 and 8:28 are two tabs. Cost: none.
+  Recommendation: per chapter.
+- **Q116. Widths are kept as shares of the room** (SD-36). Each pane count
+  keeps its widths as fractions, so a dragged width keeps its share when
+  the window changes; the pane beside a sheet keeps its pixels (320 at
+  first). Meanwhile: that. Other choice: pixels, which drift as the window
+  changes. Cost: none. Recommendation: as built.
+- **Q117. Twenty sheets and twenty collections keep their panes** (ST-26).
+  Each place keeps its own panes, and the saved layout keeps the 20
+  sheets and the 20 collections opened most recently, so it can't grow
+  without end; an older one opens as it first did. Meanwhile: 20 each.
+  Other choice: another number. Cost: none. Recommendation: 20.
+- **Q118. What reading on ignores while the place is held** (Q107, WB).
+  The scroll that holds the reader's line no longer counts as a scroll up,
+  so a smaller size near a chapter's top loads nothing above. Only the
+  “up” is ignored; the address, the chapter in view, and loading below
+  still follow the scroll. Meanwhile: that (a095c300). Other choice:
+  ignore that whole moment of scrolling. Cost: none. Recommendation: as
+  built.
+- **Q119. The column stays 48 while the Notebook is open** (BS-15). So
+  that opening and minimizing the Notebook move no scripture, the column
+  is 48 whenever it is open, minimized included, where BVJ's rule of
+  2026-10-14 gave 52 while minimized. A page that opens with the Notebook
+  closed still narrows once, 52 to 48, the first time it opens.
+  Meanwhile: 48 while open. Other choice: 52 throughout, now that the
+  Greek tab that needed the room has left the panel. Cost: a few rules.
+  Recommendation: keep 48 until the 220, 660, and 320 columns are built
+  (SZ-20), then measure again.
+- **Q120. What leaves the margin while the Notebook shows** (BS-15). Only
+  the notes, which Notes lists: bookmarks and highlights stay on the text.
+  Meanwhile: that. Other choice: every mark leaves. Cost: a line.
+  Recommendation: as built, since a highlight is on the words themselves
+  and a bookmark marks a place.
+- **Q121. This verse and a chapter read on into** (BS-20). This verse
+  keeps to the page's own chapter, as Phase 4 left it, and that has a
+  fault: on a chapter read on into, the margin's “N more notes” opens This
+  verse at that verse number in the page's own chapter, the wrong verse
+  (only while the Notebook is minimized or closed and six or more notes
+  stack). Meanwhile: the fault stands until part two. Other choice: This
+  verse keeps to the page's own chapter, and on a chapter read on into
+  “N more notes” opens that chapter's page at the verse. Cost: part two's
+  work either way. Recommendation: This verse follows the chapter in view,
+  with BS-08 and RP-22, which fixes it.
+- **Q122. /desk loses its backup reminder for now** (NX-07). The
+  reminder's bar and the title's dot are gone everywhere, so /desk says
+  nothing about backups until Study's sidebar has the foot line (Phase 9);
+  /notebook's backup section stays. Meanwhile: that. Other choice: keep
+  /desk's bar until then. Cost: a few lines back. Recommendation: as built.
+- **Q123. Where a Greek result leads** (ST-61, ST-62). Every Greek result
+  (the tray, /search, Study's Search pane, and Add to sheet) and every
+  Greek word in This verse opens Study at the verse with the Greek pane at
+  the word. An old `?greek=` link to a chapter lands on its verse, the
+  parameter left unread. Meanwhile: that. Other choice: the chapter's page
+  at the verse. Cost: none. Recommendation: as built.
+- **Q124. The Notebook's title** (BS-30). “Notebook ▾” is the kit's plain
+  button in the controls' face; the “Preview” badge stays until NX-24
+  (Phase 9); the head's link to Study is gone, since the header's Study
+  and the place line's “Study John 3” lead there. Meanwhile: that. Other
+  choice: the title's word in Fraunces, as “Type” names panel titles and
+  /desk's “Study Desk ▾” is set. Cost: a few lines. Recommendation:
+  Fraunces for the word, the button and chevron the kit's, in part two.
+- **Q125. The title menu's words** (BS-30). “Whole notebook” stands for
+  the record's “the whole notebook,” since “Notebook” alone reads as the
+  panel; Feedback keeps the shared “Send feedback on the preview.”
+  Meanwhile: that. Other choice: “Open the notebook page.” Cost: one
+  label. Recommendation: keep, and make Feedback's “Send feedback” when the
+  stage word goes (NX-24).
+- **Q126. What Notes' count counts** (ST-69). “All 128 in the Notebook”
+  counts everything the notebook lists but sheets, says “1 in the
+  Notebook” for one, and hides while the notebook is empty. Meanwhile:
+  that. Other choice: notes, highlights, and bookmarks only. Cost: none.
+  Recommendation: as built, so the number matches the page it opens.
+- **Q127. The empty state's names** (NX-08, NX-13). “No notes on John 3
+  yet. Select a verse number or any words, then choose Note, Highlight, or
+  Bookmark.” uses the record's names, while the verse menu says “Add a
+  note” and “Add bookmark” until CT-08 renames them in part two. “Show me
+  how” is tinted, since “Take the tour” above it is the view's one filled
+  button. Meanwhile: that. Recommendation: keep; part two makes the menu
+  agree.
+- **Q128. Where “Start here” stands** (NX-19, NX-20). Under the title, on
+  every tab, until any step of the tour is seen or the reader chooses “I
+  know my way around”; the reply to a first mark comes only while it
+  stands. Meanwhile: that. Other choice: on Notes only. Cost: none.
+  Recommendation: as built.
+- **Q129. The foot line's “Back up…”** (NX-16, NB-34). It opens
+  /notebook's backup section in the same tab, and shows only when the
+  notebook holds something and the browser doesn't sync. The line reads
+  the notebook again on a mark, on its settings, and when the window takes
+  focus, not on each sheet or collection save, which can come every few
+  hundred milliseconds. Meanwhile: that. Recommendation: as built.
+- **Q130. Three tabs in a narrow panel** (BS-13). At 280px and the largest
+  sizes the tabs can wrap to two rows. Meanwhile: they wrap. Other choice:
+  a row that scrolls sideways. Cost: a few rules. Recommendation: keep,
+  and check OpenDyslexic at Extra large at 1100 at Checkpoint A.
+- **Q131. Where the lines about keeping went** (BS-21, DI-17). Safari's
+  seven-day line, “Ask this browser to keep it,” and the line to an
+  account moved from the Settings tab to the backup section on /notebook
+  and All settings. Meanwhile: there. Other choice: the foot line, which
+  would need more than its one line. Recommendation: as built.
+- **Q132. The tours' offers** (NX-18). The notebook tour's Greek step is a
+  Footnotes step now, and the Read page's floating offer is gone; /desk's
+  and the Sheets' offers stay until Phase 13. Meanwhile: that.
+  Recommendation: as built.
+- **Q133. Continue reading left Notes** (NX-12). Notes no longer starts
+  with it; the passage picker's first row is the way back. /notebook's
+  section and Home's card stay until Phases 9 and 7. Meanwhile: that.
+  Recommendation: as built.
+- **Q134. Three lines of /privacy name keys nothing writes now** (DI-17,
+  NX-07): `lit-desk-home` (where the notebook is kept), `lit-desk-remind`
+  (the reminder put off), and `lit-desk-note-font` (the notes' lettering).
+  They are BVJ's words, so they stay, and the storage test lists the three
+  as named until BVJ edits them; values a browser already holds are left.
+  Meanwhile: that. Other choice: clear the old values when a page loads.
+  Cost: a few lines. Recommendation: BVJ drops the three lines, then the
+  test's list goes; not a material change, so the date stays.
+- **Q135. The sync's leftovers** (NX-15). The sync is outside this run, so
+  its status line keeps today's words, and its stopped or waiting dot
+  still names places that are gone (the minimized tab, the Notebook
+  buttons, /desk's title, and the Settings tab: `notice-parts.js`,
+  `desk-sync.css`), as do comments in `status-line.js`,
+  `stopped-notice.js`, and the sync's doc; two sync tests fake a Settings
+  tab. Meanwhile: untouched. Recommendation: a session on the sync after
+  the run, with NX-15's words.
+- **Q136. A pinned footnote's link from 1100px** (WB-18, WB-21). The
+  page's footnote list leaves the flow there, so a pinned footnote's link
+  (a Notes row, or a change notice's “Show in the text”) opens the
+  Footnotes tab at its note, marked and focused; under 1100px it goes to
+  the page's list as before. Meanwhile: that. Recommendation: as built
+  until part two's WB-21.
+- **Q137. All settings has no row in the title menu** (BS-21). The
+  record's table gives the Settings tab's link to All settings no home;
+  the Display tray's foot reaches /settings for every reader. Meanwhile:
+  no row. Other choice: an “All settings” row in the menu. Cost: one row.
+  Recommendation: as built.
 
 ## Questions answered before the run
 
@@ -832,23 +1844,60 @@ recommendation, and BVJ's answers. The run follows them.
 The run's own record, kept current with every phase. Mark a phase `[x]`
 with its last commit when done; never delete a line.
 
-- [ ] Phase 0: Set up, clear Site 2.0, write the ledger
-- [ ] Phase 1: Foundations
-- [ ] Phase 2: The kit and its words
-- [ ] Phase 3: The header, the line under it, the footer, and the phone's bars
-- [ ] Phase 4: The Read page
-- [ ] Phase 5: Beside scripture
-- [ ] Phase 6: Search
-- [ ] Phase 7: Learn, the front door, and every other page
-- [ ] Phase 8: Off the screen
+- [x] Phase 0: Set up, clear Site 2.0, write the ledger (cf1cf82d; Site 2.0
+  removed in 63d07ac0)
+- [x] Phase 1: Foundations (c1bb5383)
+- [x] Phase 2: The kit and its words (f47df065; the kit and its icons in
+  7216b1ef). What each surface's phase redraws is in the ledger's "What
+  Phase 2 left to each surface's phase"
+- [x] Phase 3: The header, the line under it, the footer, and the phone's bars
+  (782271a5; the computer's header, the line, the news marks, and the footer in
+  ec3378b6)
+- [x] Phase 4: The Read page (/license built ahead, de0085a8; the place
+  line, the passage picker, and /read, 246ab483; reading on and Read
+  View's retirement, 9b7c10ed, with d1160921; the Display tray, Justify,
+  and All settings, 96b343e1)
+- [ ] Phase 5: Beside scripture (the Notebook panel, a095c300)
+- [x] Phase 6: Search (f1a6b2af; review fixes 24408884, d30c03c5,
+  563f837b, e896463b, a475a2f3, 3dcc8475, bf05dafb; Q77's unavailable
+  tabs, 20e0fa36)
+- [ ] Phase 7: Learn, the front door, and every other page (built ahead:
+  the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
+  draws, bae1d1cb, and the account pages, cf6f21c8; the glossary,
+  articles, and introductions, 2be9767b, with the app announcement's
+  button, 36c00d4b; About's toggle and the articles' featured card,
+  2e2bd8df)
+- [ ] Phase 8: Off the screen (the verse image built ahead, 60952c32)
 - [ ] Checkpoint A: the public site
-- [ ] Phase 9: Study's frame
+- [ ] Phase 9: Study's frame (the model, 7ed9170a)
 - [ ] Phase 10: The Notebook place
 - [ ] Phase 11: Sheets, collections, and shared sheets
 - [ ] Phase 12: The Greek in Study
 - [ ] Phase 13: First visit, signing in, status, small screens, and the tours
 - [ ] Phase 14: The launch switch
 - [ ] Checkpoint B: the whole build
+
+**Baselines** (Phase 0), from a build of `main` at `18166ff7`, gzip at
+level 9, a page counting its HTML, its stylesheets, and the scripts it loads
+at once (`import`s followed, not dynamic ones):
+
+- **Fonts**: 43 files, 1,560,020 bytes in `dist/_astro/`. Playpen Sans
+  576,192; OpenDyslexic 463,988; Atkinson Hyperlegible Next 110,864; Crimson
+  Text 102,788; Inter's Latin 96,744 and its Greek 81,480; Cardo 79,732;
+  Fraunces (static 400 and 500) 35,968; Noto Sans Hebrew 12,264. Preloaded:
+  67,676 on Home, 49,676 on John 3.
+- **Home**: 83,148 bytes (HTML 27,421; CSS 27,108 in 3 files; scripts
+  28,619 in 15 modules). After Phase 0's removal of 2.0: 68,001.
+- **John 3** (`dist/john-3/`): 108,982 bytes (HTML 34,591; CSS 25,436 in 4
+  files; scripts 48,955 in 24 modules). After Phase 0: 101,778.
+- **Contrast** (WCAG 2), by day: ink `#1D231C` on the cream `#E1DFD9`
+  12.03, on the card `#FAFAF8` 15.35; ink at 78% on the cream 6.57, on the
+  card 7.63; at 60% 3.89 and 4.24; deep green `#0F6B33` on the cream 4.97,
+  on the card 6.34; white on deep green 6.62; LIT Green `#209D50` on the
+  cream 2.63, on the card 3.35; ink on LIT Green 4.58. By night: text
+  `#F0F0F0` on the page `#0E0E0F` 16.93, on the surface `#161617` 15.87, on
+  a raised surface `#1D1D1F` 14.77; the night green `#3ABF6A` on the page
+  8.12, on a raised surface 7.08.
 
 ## The brief for the session that builds it
 

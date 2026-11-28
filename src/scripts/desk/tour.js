@@ -10,11 +10,12 @@
 // 2026-10-13: "more thorough in walking through how to use the features",
 // with steps that act).
 //
-// It never starts by itself. It starts when the reader asks: "Yes" on the
-// quiet offer made right after the first-time choice (first-use.js), "Take
-// the tour" at the panel's foot, the search box's `tour` command (a
-// `lit:desk-command` event on `document`), or `?desk-tour` on a chapter's
-// address, which the help page links to. Anywhere the reader is mid-reading
+// It never starts by itself. It starts when the reader asks: "Start here:
+// Take the tour" at the Notebook's head, "Show me how" under a chapter with
+// nothing kept, "Take the tour" in the Notebook's title menu, "New here? Take
+// the tour" in the line a first mark brings (first-use.js), the search box's
+// `tour` command (each a `lit:desk-command` event on `document`), or
+// `?desk-tour` on a chapter's address, which the help page links to. Anywhere the reader is mid-reading
 // it is therefore their own doing, never over scripture unasked (CLAUDE.md,
 // "One announcement popover at a time", whose spirit this keeps; the tour is
 // not an announcement and doesn't use that slot).
@@ -68,14 +69,6 @@ const EXAMPLE_MARGIN =
 
 const visible = (e) => Boolean(e && e.getClientRects().length && e.getBoundingClientRect().width > 4);
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
-
-/** The scripture toolbar holding `input` when its search is closed behind the
-    round button (a phone, or OpenDyslexic in the 2.0 look), else null. */
-function searchRow(input) {
-  const row = input?.closest(".scripture-tools[data-compact]");
-  if (!row || row.hasAttribute("data-search-open")) return null;
-  return visible(row.querySelector(".tools-search-toggle")) ? row : null;
-}
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** "study" (a chapter), "read" (Read View) or "prose" (an article or the glossary). */
@@ -87,7 +80,7 @@ function viewOfPage() {
 /**
  * @param {{ panel: { el: HTMLElement, open: Function, close: Function,
  *   isOpen: () => boolean, showTab: (id: string, opts?: object) => boolean,
- *   showGreekWord: Function | null, snapshot: () => object, restore: (s: object) => void },
+ *   snapshot: () => object, restore: (s: object) => void },
  *   canKeep?: boolean, store?: object | null }} options
  *   `canKeep` is false where this browser keeps no notebook: the steps about
  *   marking the text and keeping it are left out, since there they don't work
@@ -135,17 +128,16 @@ export function createTour({ panel, canKeep = true, store = null }) {
       const page = prosePage();
       return page ? page.targets.flatMap((t) => Array.from(t.root.querySelectorAll("p"))) : [];
     }
-    const root = view === "read" ? document.querySelector(".rm-reader") : document.querySelector(".chapter-paragraphs");
+    const root = view === "read" ? document.querySelector(".rm-reader") : document.querySelector("article.chapter > .chapter-paragraphs");
     return root ? Array.from(root.querySelectorAll("p")) : [];
   };
 
   // The verse every Chapter View step uses, chosen once per run: the first
   // verse number in view, else the chapter's first.
   const pickVerse = () => {
-    const numbers = Array.from(document.querySelectorAll(".chapter-paragraphs sup.vn")).filter(visible);
+    const numbers = Array.from(document.querySelectorAll("article.chapter > .chapter-paragraphs sup.vn")).filter(visible);
     return numbers.find(inView) ?? numbers[0] ?? null;
   };
-  const verseNumber = () => Number.parseInt(state.verse?.id?.slice(1) ?? "", 10) || 1;
 
   const byText = (root, ...texts) =>
     Array.from(root?.querySelectorAll("button, a") ?? []).find((b) => texts.some((t) => b.textContent.trim().startsWith(t)));
@@ -225,7 +217,7 @@ export function createTour({ panel, canKeep = true, store = null }) {
   // An example note in the margin, drawn by the tour beside `line` where the
   // margin holds notes in full; null where it doesn't.
   function exampleNote(line) {
-    const box = (view === "prose" ? prosePage()?.box : document.querySelector(".chapter-paragraphs"))?.getBoundingClientRect();
+    const box = (view === "prose" ? prosePage()?.box : document.querySelector("article.chapter > .chapter-paragraphs"))?.getBoundingClientRect();
     if (!box || !line || marginMode(box.left) !== "full") return null;
     const width = noteWidth(box.left, box.width);
     const wrap = document.createElement("div");
@@ -294,7 +286,7 @@ export function createTour({ panel, canKeep = true, store = null }) {
 
     async pin(live) {
       closePanel();
-      const refs = Array.from(document.querySelectorAll(".chapter-paragraphs .fn-ref a")).filter(visible);
+      const refs = Array.from(document.querySelectorAll("article.chapter > .chapter-paragraphs .fn-ref a")).filter(visible);
       const after = refs.find((a) => state.verse && state.verse.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING);
       const ref = refs.find(inView) ?? after ?? refs[0];
       if (!ref) return null;
@@ -313,7 +305,8 @@ export function createTour({ panel, canKeep = true, store = null }) {
     async panel() {
       closePanel();
       panel.showTab("mine", { focus: false, remember: false });
-      const marks = [".desk-panel__collapse"].map((s) => panel.el.querySelector(s)).filter(visible);
+      // The title's menu and the minimize button, which the card names.
+      const marks = [".desk-panel__title-button", ".desk-panel__collapse"].map((s) => panel.el.querySelector(s)).filter(visible);
       return { el: panel.el, side: "left", marks };
     },
 
@@ -323,44 +316,46 @@ export function createTour({ panel, canKeep = true, store = null }) {
       return { el: panel.el, side: "left", marks: tabButton("verse") };
     },
 
-    async greek() {
+    // The chapter's footnotes, each whole, in the place of the Greek tab,
+    // which left the Notebook for Study (Featherboa's Phase 5).
+    async footnotes() {
       closePanel();
-      if (panel.showGreekWord) {
-        await panel.showGreekWord(verseNumber(), firstWord(), { focus: false, remember: false });
-        // The word it chose is let go again, so the tab reads as it did before
-        // the tour (LV8-6): the entry's own close button.
-        later(() => panel.el.querySelector(".desk-greek__close")?.click());
-      } else panel.showTab("greek", { focus: false, remember: false });
-      return { el: panel.el, side: "left", marks: tabButton("greek") };
+      panel.showTab("footnotes", { focus: false, remember: false });
+      return { el: panel.el, side: "left", marks: tabButton("footnotes") };
     },
 
     async undo() {
       closePanel();
-      panel.showTab("settings", { focus: false, remember: false });
-      const hide = panel.el.querySelector('input[data-desk-hide-check]')?.closest("label");
-      return { el: panel.el, side: "left", marks: visible(hide) ? [hide] : [] };
+      // "Your marks" is the Display tray's since Featherboa's Phase 4, so the
+      // step marks the "Aa" button that opens it, the one showing.
+      const aa = [...document.querySelectorAll("button[data-font-toggle]")].find(visible);
+      return { el: panel.el, side: "left", marks: aa ? [aa] : [] };
     },
 
     async search(live) {
       closePanel();
       const input = document.getElementById("site-search-input");
-      // In OpenDyslexic the toolbar keeps search behind its round button
-      // (v2/scripture.css). Open the row as the button does, but leave focus
-      // on the card, and close it again after.
-      const row = searchRow(input);
-      if (row) {
-        row.setAttribute("data-search-open", "");
-        later(() => row.removeAttribute("data-search-open"));
-      }
-      if (!visible(input)) return null;
-      const root = input.closest("[data-searchbar]");
-      const before = input.value;
+      // On a chapter the field waits behind the place line's Search, which
+      // the step presses and puts back (place-line.js); Read View's toolbar
+      // shows it. A phone's waits behind its bar's Search, but the desk is
+      // off under 768px.
+      const lineSearch = document.querySelector("[data-line-search]");
+      if (!visible(input) && !visible(lineSearch)) return null;
+      const root = input?.closest("[data-searchbar]");
+      const before = input?.value ?? "";
       // The click on the card that brought the tour here is still bubbling,
       // and the tray closes on any click outside itself (searchbar.js), so
       // the tray is opened only once that click is over; opened within it,
       // it shut at once and the step showed an empty box.
       await frame();
       if (!live()) return null;
+      if (!visible(input) && lineSearch?.getAttribute("aria-expanded") === "false") {
+        lineSearch.click();
+        later(() => {
+          if (lineSearch.getAttribute("aria-expanded") === "true") lineSearch.click();
+        });
+      }
+      if (!visible(input)) return null;
       // ">" lists the box's commands, the one thing a reader with an empty
       // notebook can be shown. The commands are the box's desk part, loaded
       // on its first focus (searchbar.js listens for focusin), and once it
@@ -380,13 +375,14 @@ export function createTour({ panel, canKeep = true, store = null }) {
       return { el: input, side: "right", marks: [input] };
     },
 
-    // The notebook page's link and the foot that says where it's kept.
+    // The title, whose menu has "Whole notebook," and the foot line that
+    // says where the notebook is kept.
     async kept() {
       closePanel();
-      panel.showTab("settings", { focus: false, remember: false });
-      const link = panel.el.querySelector(".desk-panel__page a");
-      const foot = panel.el.querySelector(".desk-home");
-      return { el: panel.el, side: "left", marks: [link, foot].filter(visible) };
+      panel.showTab("mine", { focus: false, remember: false });
+      const title = panel.el.querySelector(".desk-panel__title-button");
+      const foot = panel.el.querySelector(".desk-panel__foot");
+      return { el: panel.el, side: "left", marks: [title, foot].filter(visible) };
     },
   };
 
@@ -395,18 +391,14 @@ export function createTour({ panel, canKeep = true, store = null }) {
     return visible(b) ? [b] : [];
   };
 
-  // The verse's first Greek word, in MorphGNT's numbering: 1 in every verse
-  // the Greek has.
-  const firstWord = () => 1;
-
   // Whether a step can be shown on this page at all. The rest are judged
   // when the step is reached, and fall back to a card in the middle.
   const available = () => {
     const ids = new Set(TOUR_STEPS.filter((s) => s.views.includes(view)).map((s) => s.id));
     const field = document.getElementById("site-search-input");
-    if (!visible(field) && !searchRow(field)) ids.delete("search");
-    if (!document.querySelector(".chapter-paragraphs .fn-ref a")) ids.delete("pin");
-    if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) ids.delete("greek");
+    if (!visible(field) && !visible(document.querySelector("[data-line-search]"))) ids.delete("search");
+    if (!document.querySelector("article.chapter > .chapter-paragraphs .fn-ref a")) ids.delete("pin");
+    if (!document.querySelector('#deskPanel [role="tab"][data-tab="footnotes"]')) ids.delete("footnotes");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {
       for (const id of ["actions", "note", "margin"]) ids.delete(id);
@@ -439,10 +431,10 @@ export function createTour({ panel, canKeep = true, store = null }) {
       },
       // The Notebook back as it was, shown, minimized or closed.
       finish: () => panel.restore(state.snap),
-      // Where the tour was started from (a button in the offer window, which
-      // the tour closes, or in a panel it folds away) may be gone: the
-      // Notebook's tab when it is folded, the panel when it is open, else
-      // the page's heading (LV3-4).
+      // Where the tour was started from ("Start here," which the tour takes
+      // away, a row of the title menu, which closes, or a panel it folds
+      // away) may be gone: the Notebook's tab when it is folded, the panel
+      // when it is open, else the page's heading (LV3-4).
       returnFallback: () => {
         const tab = document.querySelector(".desk-tab");
         if (tab && tab.getClientRects().length) return tab;

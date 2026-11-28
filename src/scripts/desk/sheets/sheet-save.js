@@ -19,6 +19,7 @@
 // Escape closes it and gives focus back to the button, and a click outside
 // or a Tab out closes it.
 
+import { icon } from "../../../lib/icons.mjs";
 import { SAVE_GROUPS } from "../../../lib/desk-sheet-doc.mjs";
 import { make } from "../dom.js";
 
@@ -122,8 +123,7 @@ export function createSaveMenu({ version, onChoose }) {
   button.title = "Save this version as a document to open in Word or another program";
   const chevron = make("span", "sheets-page__save-more");
   chevron.setAttribute("aria-hidden", "true");
-  chevron.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 9l6 6 6-6" /></svg>`;
+  chevron.innerHTML = icon("down", { size: 14 });
   button.append(chevron);
 
   const menu = make("div", "sheets-page__save-menu");

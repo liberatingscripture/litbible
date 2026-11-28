@@ -288,7 +288,6 @@ test("the order switch writes the collection's order and My order shows the head
   input.closest("form").requestSubmit();
   await until(() => root.querySelector(".collection-page__heading"), 3000, "the heading row");
   assert.match(root.querySelector(".collection-page__heading").textContent, /Week 1/);
-  assert.ok(root.querySelector(".collection-page__heading").classList.contains("v2-rule"));
   assert.equal((await collections())[0].members.filter((m) => m.type === "heading").length, 1);
   page.destroy();
 });

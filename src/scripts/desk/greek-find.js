@@ -16,8 +16,8 @@
 // a time as before, or a command query (the parsing link's *.aor.impv) whose
 // verses show with the words that matched, under the query said back. A result
 // in the chapter on the page selects that word here; one in another chapter is
-// the ordinary verse link with ?greek=, which loads the chapter and opens the
-// Notebook at the word (desk/greek-link.js). On /desk (`openHit`,
+// Study's address for the word (greekHref), which opens /desk at the verse with
+// the Greek pane at the word (desk-page.js). On /desk (`openHit`,
 // desk-panes.js) one in another chapter moves the Greek pane there instead, so
 // the reader stays on the desk.
 //

@@ -1,7 +1,7 @@
 /* =========================================================
    Articles page styles (Astro)
    Uses ONLY:
-   - solid tokens: --cream, --white, --green, --ink, --black
+   - theme tokens: --text, --text-strong, --page-bg, --color-hairline, --green-text, --white
    - rgba(0,0,0,alpha) for overlays/shadows only.
    ========================================================= */
 
@@ -9,8 +9,7 @@
    Hero
    ========================= */
 .articles-hero {
-  background: var(--green);
-  color: var(--white);
+  color: var(--text);
   padding: clamp(72px, 9vh, 108px) var(--gutter) 44px;
 }
 
@@ -24,30 +23,20 @@
   font-size: clamp(2.25rem, 4vw, 3.25rem);
   line-height: 1.1;
   margin: 0 0 12px;
-  color: var(--white);
+  color: var(--text-strong);
 }
 
 .articles-hero__subtitle {
   margin: 0 auto 22px;
   max-width: calc(62 * var(--ch));
   font-size: 1.05rem;
-  /* Ink at full opacity, not the hero's inherited white: at this size white
-     on #209D50 is 3.5:1 and WCAG AA needs 4.5:1; ink is 4.6:1. The title
-     above stays white — it always renders as large text (3:1 bar). */
-  color: var(--ink);
-  opacity: 1;
+  /* The second ink: secondary words on the page, following the theme. */
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
 }
 
 .articles-hero__search {
   width: min(720px, 100%);
   margin: 0 auto;
-}
-
-/* The search input and button sit straight on the hero's fixed green, so their
-   ring is ink (4.58:1). Pinned on the form, not the hero: the results panel is
-   a sibling with a themed surface of its own and keeps the page's ring. */
-.articles-hero .searchbar__form {
-  --focus-ring: var(--ink);
 }
 
 /* Divider pill */
@@ -59,7 +48,7 @@
   width: min(520px, 100%);
   margin-left: auto;
   margin-right: auto;
-  background: rgba(0, 0, 0, 0.18);
+  background: var(--color-hairline);
 }
 
 /* =========================
@@ -81,8 +70,8 @@
   margin-bottom: 28px;
 
   background: var(--surface-raised);
-  border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-float);
+  border: 1px solid var(--color-hairline);
   padding: 18px;
 }
 
@@ -152,39 +141,17 @@
   color: #ff8a7d;
 }
 
-.subscribe-strip__form input[type="email"] {
-  height: 48px;
-  border-radius: 12px;
-  border: 1px solid var(--field-border);
-  background: var(--surface-input);
-  color: var(--text);
-  padding: 0 14px;
-  font-size: 1rem;
+/* The button is the kit's (filled); the form's row sizes it. */
+.subscribe-strip__go {
+  white-space: nowrap;
 }
 
-/* CTA button */
-.btn--cta {
-  height: 48px;
-  padding: 0 16px;
-  border-radius: 12px;
-  border: 2px solid var(--green-deep);
-
-  background: var(--green-deep);
-  color: var(--white);
-
-  cursor: pointer;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-  transition:
-    transform 180ms ease-in-out,
-    background-color 180ms ease-in-out,
-    color 180ms ease-in-out;
-}
-
-.btn--cta:hover,
-.btn--cta:focus {
-  transform: translateY(-2px);
-  background: var(--surface-raised);
-  color: var(--green-text);
+/* The field takes its column's width and may shrink with it: at its own
+   width (twenty characters) it ran past a 320px phone's edge in OpenDyslexic,
+   on the live site too. */
+.subscribe-strip__form .kit-field {
+  width: 100%;
+  min-width: 0;
 }
 
 /* =========================
@@ -196,22 +163,26 @@
   margin-bottom: 28px;
 }
 
+/* The card holds the fill and the edge, and its link fills it, as a grid
+   card's does: a link drawn with a fill or an edge reads as a button
+   (src/styles/CLAUDE.md, "The kit"). */
 .featured__card {
+  border-radius: var(--radius-float);
+  overflow: hidden;
+  background: var(--surface-raised);
+  border: 1px solid var(--color-hairline);
+}
+
+.featured__inner {
   display: grid;
   gap: 16px;
-
-  border-radius: 22px;
-  overflow: hidden;
-
-  background: var(--surface-raised);
+  height: 100%;
   color: inherit;
   text-decoration: none;
-
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 @media (min-width: 900px) {
-  .featured__card {
+  .featured__inner {
     grid-template-columns: 1.15fr 1fr;
     min-height: 320px;
   }
@@ -231,9 +202,11 @@
   gap: 10px;
 }
 
+/* A date is the third ink and a summary the second: a gray is the text at
+   a strength, never a fade (src/styles/CLAUDE.md, "Fonts and theming"). */
 .featured__meta time {
   font-size: 0.95rem;
-  opacity: 0.75;
+  color: var(--color-text-3);
 }
 
 .featured__title {
@@ -246,7 +219,7 @@
 .featured__summary {
   margin: 0;
   max-width: calc(62 * var(--ch));
-  opacity: 0.9;
+  color: var(--color-text-2);
 }
 
 .featured__link {
@@ -280,9 +253,9 @@
    ========================= */
 .articles .card {
   background: var(--surface-raised);
-  border-radius: 18px;
+  border-radius: var(--radius-float);
   overflow: hidden;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-hairline);
 }
 
 .articles .card__link {
@@ -331,7 +304,7 @@
 
 .articles .card__date {
   font-size: 0.95rem;
-  opacity: 0.75;
+  color: var(--color-text-3);
 }
 
 .articles .card__title {
@@ -345,7 +318,7 @@
    Also prevent "peek" artifacts by clamping via max-height. */
 .articles .card__summary {
   margin: 0;
-  opacity: 0.9;
+  color: var(--color-text-2);
 
   white-space: normal;
   overflow-wrap: anywhere;
@@ -393,7 +366,7 @@
 
   font-size: 0.85rem;
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-press);
 
   background: var(--surface-raised);
   border: 1px solid var(--green);
@@ -429,7 +402,7 @@
 
 /* =========================================================
    Tray normalization on /articles
-   The hero sets white + centered text; the tray needs ink + left.
+   The hero centers its text; the tray needs left.
    ========================================================= */
 
 /* Your wrapper in articles.astro is .articles-hero-search */
@@ -438,7 +411,7 @@
   color: var(--text);
 }
 
-/* Ensure tray content doesn't inherit hero centering / white text */
+/* Ensure tray content doesn't inherit hero centering */
 .articles-hero-search .searchbar__tray,
 .articles-hero-search .searchbar__tray * {
   text-align: left;
@@ -448,119 +421,4 @@
 /* Keep tray links consistent with site */
 .articles-hero-search .searchbar__tray a {
   color: var(--green-text);
-}
-
-/* =========================================================
-   Single article page
-   ========================================================= */
-
-.article {
-  background: var(--page-bg);
-  color: var(--text);
-  padding: 18px var(--gutter) 86px;
-}
-
-.article__search {
-  width: min(var(--content-max), calc(100% - (var(--gutter) * 2)));
-  margin-inline: auto;
-  margin-bottom: 16px;
-}
-
-.article__card {
-  width: min(var(--content-max), calc(100% - (var(--gutter) * 2)));
-  margin-inline: auto;
-
-  background: var(--surface-raised);
-  border-radius: 22px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-
-  padding: 18px;
-}
-
-@media (min-width: 900px) {
-  .article__card {
-    padding: 26px;
-  }
-}
-
-.article__back {
-  display: inline-block;
-  margin-bottom: 10px;
-
-  color: var(--green-text);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.article__hero {
-  margin: 8px 0 18px;
-  border-radius: 18px;
-  overflow: hidden;
-  background: var(--page-bg);
-}
-
-.article__hero-img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.article__header {
-  display: grid;
-  gap: 10px;
-}
-
-.article__date {
-  opacity: 0.75;
-  /* Follows the Display tray's text size and line spacing through
-     --reading-scale / --reading-leading-extra (see src/styles/CLAUDE.md). */
-  font-size: calc(0.95rem * var(--reading-scale, 1));
-}
-
-.article__title {
-  margin: 0;
-  color: var(--text-strong);
-  line-height: 1.05;
-  font-size: calc(clamp(2rem, 3.6vw, 3rem) * var(--heading-scale, 1));
-}
-
-.article__dek {
-  margin: 0;
-  opacity: 0.9;
-  max-width: calc(70 * var(--ch));
-  font-size: calc(1.05rem * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-}
-
-.article__rule {
-  margin: 18px 0;
-  border: 0;
-  height: 1px;
-  background: rgba(var(--ink-rgb), 0.12);
-}
-
-/* Markdown body defaults. The body is a reading surface: it takes the reader's
-   text size and line spacing (Display tray). Its width is set by the card
-   around it, which the article page sizes to the shared reading measure (see
-   --article-width there). */
-.article__body {
-  font-size: calc(1em * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-}
-
-.article__body :is(p, ul, ol) {
-  line-height: calc(1.7 + var(--reading-leading-extra, 0));
-}
-
-.article__body :is(h2, h3) {
-  color: var(--text-strong);
-  line-height: 1.2;
-  margin-top: 1.6em;
-}
-
-.article__body a {
-  color: var(--green-text);
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }

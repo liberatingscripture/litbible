@@ -1,5 +1,6 @@
 ---
 import ScriptureLayout from "../layouts/ScriptureLayout.astro";
+import Icon from "../components/Icon.astro";
 import { BOOKS as books, bookKeyToLabel } from "../data/books.js";
 import { prepareStudyParagraph } from "../lib/chapter-html";
 import { linkRefs } from "../lib/scripture-refs-data.mjs";
@@ -8,6 +9,10 @@ import GoDeeper from "../components/GoDeeper.astro";
 import DraftPage from "../components/DraftPage.astro";
 import { getCollection } from "astro:content";
 import { termLensFor } from "../lib/term-lens-data.mjs";
+import { scanDraftChapters } from "../lib/draft-chapters.mjs";
+import { isDraftIntro, navFor } from "../lib/chapter-nav-data.mjs";
+import { goDeeperFor } from "../lib/go-deeper-data";
+import "../styles/reading-page.css";
 
 type Footnote = {
   id: string; // e.g. "fn-a"
@@ -150,6 +155,33 @@ const termOrder = [...new Set(termLens?.marks.map((m) => m.id) ?? [])];
 const termLensJson = termLens?.marks.length
   ? JSON.stringify({ marks: termLens.marks, terms: termLens.terms }).replace(/</g, "\\u003c")
   : null;
+// The reading page (SITE-FEATHERBOA.md, "A whole book"): a published chapter
+// reads on into the rest of its book (src/scripts/read-on.js), which needs
+// the book's drafts, so a run of them loads as one entry, and each chapter's
+// Previous and Next (the one rule, chapter-nav.mjs), so the place line's
+// arrows follow the chapter being read: [prevHref, prevLabel, nextHref,
+// nextLabel], "" where there is none. Its heading carries Go deeper when the
+// chapter has rows; chapter 1 links its introduction (WB-40); and a book with
+// chapters after this one keeps its way on at the end for the loader to
+// place (WB-10).
+const readsOn = !isDraftPage;
+const bookEnd = Number((books as Record<string, number>)[normalizedBookKey]) || 0;
+const bookDrafts = scanDraftChapters().draftChaptersByBook[normalizedBookKey] ?? [];
+const bookNav = Object.fromEntries(
+  Array.from({ length: bookEnd }, (_, i) => {
+    const { prev, next } = navFor(normalizedBookKey, i + 1);
+    return [i + 1, [prev?.href ?? "", prev?.label ?? "", next?.href ?? "", next?.label ?? ""]];
+  }),
+);
+const readOnJson = readsOn
+  ? JSON.stringify({ book: normalizedBookKey, chapter: props.chapter, drafts: bookDrafts, nav: bookNav }).replace(/</g, "\\u003c")
+  : null;
+const hasDeeper = readsOn && (await goDeeperFor(normalizedBookKey, props.chapter, termOrder)).length > 0;
+const introLink =
+  readsOn && props.chapter === 1 && !isDraftIntro(normalizedBookKey)
+    ? { href: `/${normalizedBookKey}-intro/`, label: `Introduction to ${bookName}` }
+    : null;
+const moreBelow = readsOn && props.chapter < bookEnd;
 ---
 
 <ScriptureLayout
@@ -163,6 +195,8 @@ const termLensJson = termLens?.marks.length
   ogImage={`${Astro.site ? Astro.site.origin : "https://litbible.net"}/og/${chapterSlug}.png`}
   twitterCard="summary_large_image"
   scriptureControls={isDraftPage ? undefined : "study"}
+  readsOn={readsOn}
+  goDeeper={hasDeeper}
 >
   <Fragment slot="head">
     {/* Citation meta — helps academic crawlers and AI systems attribute the text */}
@@ -220,14 +254,14 @@ const termLensJson = termLens?.marks.length
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://litbible.net/" },
           { "@type": "ListItem", "position": 2, "name": "Read", "item": "https://litbible.net/read/" },
-          { "@type": "ListItem", "position": 3, "name": bookName, "item": `https://litbible.net/read/${normalizedBookKey}/` },
+          { "@type": "ListItem", "position": 3, "name": bookName, "item": `https://litbible.net/${normalizedBookKey}-1/` },
           { "@type": "ListItem", "position": 4, "name": `${bookName} ${chapterNumberLabel}`, "item": `https://litbible.net/${chapterSlug}/` }
         ]
       })} />
     )}
   </Fragment>
   {/* The last-read attributes arm Continue reading; drafts never set them.
-      A draft names its chapter apart, for the Study Desk's Greek tab
+      A draft names its chapter apart, for the Notebook's Notes there
       (greekChapter in src/scripts/desk/page.js). */}
   <article
     class="chapter"
@@ -242,6 +276,11 @@ const termLensJson = termLens?.marks.length
 
         {!isDraftPage ? (
           <>
+            {introLink && (
+              <p class="chapter-intro-link">
+                <a class="kit-inline" href={introLink.href}>{introLink.label}<Icon name="forward" /></a>
+              </p>
+            )}
             <div class="chapter-paragraphs">
               {paragraphs.map((html) => (
                 <div class="p" set:html={html} />
@@ -250,6 +289,7 @@ const termLensJson = termLens?.marks.length
             {termLensJson && (
               <script type="application/json" id="term-lens-data" set:html={termLensJson} />
             )}
+            <script type="application/json" id="read-on-data" set:html={readOnJson} />
 
             {/* Chapter CTAs (below scripture text, above footnotes) */}
             <ChapterCtas bookKey={normalizedBookKey} chapter={props.chapter} />
@@ -285,10 +325,19 @@ const termLensJson = termLens?.marks.length
               </section>
             ) : null}
 
+            {/* The way on at the book's end, which read-on.js places after the
+                last chapter it loads (the one above is this chapter's own,
+                for a reader without JavaScript). */}
+            {moreBelow && (
+              <template data-read-on-end>
+                <ChapterCtas bookKey={normalizedBookKey} chapter={bookEnd} showPrevSkipped={false} />
+              </template>
+            )}
+
             {/* Back to top (excluded from Pagefind indexing + excerpts) */}
             <div class="back-to-top" data-pagefind-ignore>
-              <a class="back-to-top__link" href="#chapter-title">
-                Back to top ↑
+              <a class="kit-btn kit-btn--plain back-to-top__link" href="#chapter-title">
+                Back to top<Icon name="up" />
               </a>
             </div>
           </>
@@ -304,7 +353,7 @@ const termLensJson = termLens?.marks.length
     /* Paragraph mode styling */
     .chapter-paragraphs :global(p) {
       margin: 0 0 12px;
-      line-height: calc(1.75 + var(--reading-leading-extra, 0));
+      line-height: calc(var(--leading-scripture) + var(--reading-leading-extra, 0));
     }
 
 
@@ -320,14 +369,16 @@ const termLensJson = termLens?.marks.length
       scroll-margin-top: 16px;
     }
 
-    /* Verse numbers inside paragraphs (ONLY these) */
+    /* Verse numbers inside paragraphs (ONLY these): Atkinson Hyperlegible
+       Next at 0.56 of the text, so they grow and shrink with it ("Sizes,
+       space, and the measure"), in deep green with no underline (global.css). */
     .chapter-paragraphs :global(sup.vn),
     .chapter-paragraphs :global(sup[id^="v"]) {
-      font-weight: 400; /* unbold */
-      font-size: 0.8em;
+      font-family: var(--font-control);
+      font-weight: 600;
+      font-size: var(--size-verse-number);
       line-height: 1;
       margin-right: 0;
-      opacity: 0.85; /* optional, subtle */
     }
 
     /* Footnote refs in the MAIN scripture text only */
@@ -340,89 +391,13 @@ const termLensJson = termLens?.marks.length
       text-decoration: underline;
     }
 
-    /* Chapter CTAs — prev left, next right. margin-left:auto keeps a lone
-       "next" on the right without invisible spacer elements; a lone "prev"
-       (Revelation 22) sits left naturally. */
-    :global(.chapter-ctas) {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      margin: 18px 0 14px;
-    }
-
-    :global(.chapter-cta--next) {
-      margin-left: auto;
-    }
-
-    /* Big, consistent button size */
-    :global(.chapter-cta) {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
-      width: clamp(240px, 42%, 420px);
-      min-height: 56px;
-
-      padding: 14px 22px;
-      border-radius: 14px;
-
-      background-color: var(--green-deep, #0f6b33);
-      color: var(--white, #fff);
-
-      font-size: 16px;
-      font-weight: 400;
-      letter-spacing: 0; /* match ScriptureHeader buttons */
-      line-height: 1.15;
-      text-align: center;
-      white-space: normal;
-
-      text-decoration: none; /* no underline ever */
-      user-select: none;
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
-
-      transition:
-        background-color 0.2s ease,
-        /* match ScriptureHeader timing */ transform 0.2s ease;
-    }
-
-    :global(.chapter-cta:hover) {
-      background-color: var(--ink); /* match ScriptureHeader hover */
-      transform: translateY(-1px);
-      text-decoration: none;
-    }
-
-    /* Inject arrows consistently via CSS (instead of hard-coding in labels) */
-    :global(.chapter-cta--prev)::before {
-      content: "◀ ";
-      display: inline-block;
-      width: 1.2em;
-      text-align: left;
-    }
-
-    :global(.chapter-cta--next)::after {
-      content: " ▶";
-      display: inline-block;
-      width: 1.2em;
-      text-align: right;
-    }
-
-    @media (max-width: 560px) {
-      :global(.chapter-ctas) {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      :global(.chapter-cta) {
-        width: 100%;
-      }
-    }
-
     /* Footnotes section */
+    /* Footnotes at full length are Text, under the chapter's Scripture size. */
     .footnotes-wrap {
       margin-top: 28px;
       padding-top: 18px;
-      border-top: 1px solid rgba(var(--ink-rgb), 0.14);
+      border-top: 1px solid var(--color-hairline);
+      font-size: calc(var(--size-text) * var(--reading-scale, 1));
     }
 
     .footnotes-wrap h2 {
@@ -446,7 +421,7 @@ const termLensJson = termLens?.marks.length
 
     .footnotes .fn-body {
       margin: 0;
-      line-height: calc(1.6 + var(--reading-leading-extra, 0));
+      line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
       /* A raw web address in a note (Matthew 5's fn-oo) is one run of
          unbreakable characters and pushed the page sideways on a phone.
          `anywhere` breaks only a run that cannot fit a line by itself, and
@@ -473,33 +448,6 @@ const termLensJson = termLens?.marks.length
       padding-top: 10px;
       display: flex;
       justify-content: center;
-    }
-
-    .back-to-top__link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 18px;
-      border-radius: 999px;
-      text-decoration: none;
-      user-select: none;
-
-      background: var(--green-deep, #0f6b33);
-      color: var(--white, #fff);
-      font-weight: 600;
-
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
-
-      transition:
-        background-color 0.18s ease,
-        color 0.18s ease,
-        transform 0.18s ease;
-    }
-
-    .back-to-top__link:hover {
-      background: var(--surface-raised);
-      color: var(--green-deep, #0f6b33);
-      transform: translateY(-1px);
     }
 
     /* Hidden but still indexable */
@@ -548,9 +496,14 @@ const termLensJson = termLens?.marks.length
     import "../scripts/ref-preview.js";
     import "../scripts/term-lens.js";
     import { trackStudyView } from "../scripts/last-read.js";
+    import { startReadingOn } from "../scripts/read-on.js";
 
+    // Reading on first, so Continue reading follows the chapter being read.
     const lastReadRoot = document.querySelector("article.chapter[data-last-read-book]");
-    if (lastReadRoot instanceof HTMLElement) trackStudyView(lastReadRoot);
+    if (lastReadRoot instanceof HTMLElement) {
+      const reading = startReadingOn(lastReadRoot);
+      trackStudyView(lastReadRoot, reading?.placeNow ?? null);
+    }
   </script>
 </ScriptureLayout>
 

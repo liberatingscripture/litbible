@@ -15,6 +15,7 @@
 import { closePanel, panelMaxWidth } from "./lit-panel.js";
 import { panelRoom } from "./desk-frame.js";
 import { flyoutRow } from "./panel-flyout.js";
+import { iconNode } from "../lib/icons.mjs";
 
 // The kind of pointer that last pressed the page: "mouse", "touch" or "pen".
 // Both panels take their layout from it, not from the screen width: a finger
@@ -313,7 +314,7 @@ export function footnotePanel({ title, label = title, body }) {
   closeBtn.type = "button";
   closeBtn.className = "lit-panel__close";
   closeBtn.setAttribute("aria-label", "Close footnote");
-  closeBtn.textContent = "×";
+  closeBtn.append(iconNode("close"));
   closeBtn.addEventListener("click", closePanel);
   header.appendChild(closeBtn);
 
