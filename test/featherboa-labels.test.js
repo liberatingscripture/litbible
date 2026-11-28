@@ -44,7 +44,6 @@ export const LATER = new Map([
   ["src/pages/notebook.astro", 10], // the Notebook
   ["src/pages/privacy.astro", 13], // privacy words wait for SK5
   ["src/pages/read/[book].astro", 4], // the Read page
-  ["src/pages/search.astro", 6], // Search
   ["src/pages/sheets.astro", 11], // Sheets
   ["src/pages/terms.astro", 13], // privacy words wait for SK5
   ["src/scripts/desk-gate.js", 9], // Study's frame
@@ -118,7 +117,6 @@ export const LATER = new Map([
   ["src/scripts/read-mode.js", 4], // the Read page
   ["src/scripts/search-core.js", 6], // Search
   ["src/scripts/search.js", 6], // Search
-  ["src/scripts/searchbar.js", 6], // Search
   ["src/scripts/sheet-share-gate.js", 11], // Sheets
 ]);
 

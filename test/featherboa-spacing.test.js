@@ -21,6 +21,8 @@ const NEW = [
   // The passage picker and /read, its page at full size (Phase 4).
   "src/styles/picker.css",
   "src/styles/pages/read.css",
+  // Search: its page, the tray's rows, and the Build a search window (Phase 6).
+  "src/styles/search.css",
   // The pages no decision draws (BP-07): on the scale since Phase 7. The
   // podcast page's stays out, for its photo and cover's overlap (queue Q23).
   "src/styles/pages/about.css",

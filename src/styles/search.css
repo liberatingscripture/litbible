@@ -1,0 +1,695 @@
+/* =========================================================
+   Search (Featherboa Phase 6; SITE-FEATHERBOA.md, "Search"): the field, the
+   row of tabs, the rows of results, and the tray under a reading page's
+   Search and the header's magnifier. SearchBar.astro imports it, so every
+   page that has the box has these rules.
+
+   Every control here is the kit's (kit-btn, kit-icon, kit-tab, kit-field,
+   kit-row, kit-check, kit-inline): this file says only where one sits, never
+   its size, fill, edge, or words. Spacing is the scale's tokens. The rows are
+   drawn by src/lib/search-rows.mjs, for /search and the tray alike.
+   ========================================================= */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- The box ---------- */
+
+.searchbar {
+  width: 100%;
+  position: relative;
+}
+
+.searchbar__form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.searchbar__input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.searchbar__input {
+  width: 100%;
+}
+
+/* The count sits at the field's right end on /search (search.js writes it). */
+.searchbar__count {
+  display: none;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: var(--space-3);
+  align-items: center;
+  font-family: var(--font-control);
+  font-size: var(--size-small-label);
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  pointer-events: none;
+}
+
+.scripture-layout--search .searchbar__count:not(:empty) {
+  display: flex;
+}
+
+.scripture-layout--search .searchbar__input {
+  padding-inline-end: var(--space-9);
+}
+
+/* The ghost completion is laid over the field's own text, so it takes the
+   field's padding and type. */
+.searchbar__ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  font-family: var(--font-control);
+  font-size: 1rem;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.searchbar__ghost-typed {
+  color: transparent;
+  pointer-events: none;
+}
+
+.searchbar__ghost-rest {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  pointer-events: auto;
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+
+/* "Build a search…" is a quiet link in the field's row, shown only while the
+   Greek is what is searched (search.js and searchbar.js). */
+.searchbar__build[hidden] {
+  display: none;
+}
+
+.searchbar .searchbar__submit {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .searchbar .searchbar__submit {
+    display: inline-grid;
+  }
+}
+
+/* ---------- The tray under the box ---------- */
+
+.searchbar__panel {
+  display: none;
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + var(--space-2));
+  z-index: 999;
+}
+
+[data-searchbar][data-open="true"] .searchbar__panel {
+  display: block;
+}
+
+.searchbar__panel-inner {
+  background: var(--color-float);
+  color: var(--color-text);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-float);
+  padding: var(--space-4);
+}
+
+.searchbar__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.searchbar__filters {
+  display: contents;
+}
+
+.searchbar__filter {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.searchbar__book,
+.searchbar__mode {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.searchbar__status {
+  margin: var(--space-2) 0;
+  font-size: var(--size-small-label);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.searchbar__greek-line,
+.searchbar__greek-offer {
+  margin: 0 0 var(--space-2);
+  font-size: var(--size-small-label);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.searchbar__greek-line {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.searchbar__greek-line[hidden],
+.searchbar__greek-offer[hidden] {
+  display: none;
+}
+
+.searchbar__active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 var(--space-1);
+}
+
+.searchbar__readback {
+  margin: 0 0 var(--space-1);
+  font-size: var(--size-small-label);
+  line-height: 1.45;
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.searchbar__group + .searchbar__group {
+  margin-top: var(--space-3);
+}
+
+.searchbar__group-title {
+  margin: var(--space-3) 0 var(--space-1);
+  font-family: var(--font-control);
+  font-size: var(--size-small-label);
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+}
+
+.searchbar__results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.searchbar__link {
+  display: block;
+  padding: var(--space-2) 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.searchbar__link--button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: left;
+}
+
+.searchbar__link--more .searchbar__title {
+  color: var(--color-press);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.searchbar__title {
+  color: var(--color-text);
+}
+
+.searchbar__title [data-greek-forms] {
+  font-weight: 400;
+}
+
+.searchbar__group [lang="grc"] {
+  font-family: var(--font-text);
+  font-size: 1.1em;
+}
+
+.searchbar__group-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.searchbar__credit {
+  margin: var(--space-2) 0 0;
+  font-size: var(--size-small-label);
+  line-height: 1.45;
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.searchbar__credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The tray's last row: "See all results →" at the left, Notebook actions
+   (with the Study preview) and Close at the right. */
+.searchbar__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.searchbar__footer .searchbar__full {
+  margin-inline-end: auto;
+}
+
+.searchbar__footer .searchbar__full[hidden],
+.searchbar__footer .searchbar__commands[hidden] {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .searchbar__controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.searchbar__jump {
+  margin-bottom: var(--space-2);
+}
+
+.searchbar__jump-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.searchbar__jump-keys {
+  font-size: var(--size-small-label);
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+}
+
+/* ---------- Rows (src/lib/search-rows.mjs) ---------- */
+
+.search-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.search-row__link {
+  display: block;
+  padding: var(--space-2) 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.search-row--verse,
+.search-row--title {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.search-row--verse > .search-row__link,
+.search-row--title > .search-row__link {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.search-row__pick {
+  margin-top: var(--space-3);
+}
+
+.search-row__ref {
+  font-family: var(--font-control);
+  font-size: var(--size-small-label);
+  font-weight: 600;
+  color: var(--color-press);
+}
+
+.search-row__text {
+  font-family: var(--font-text);
+  line-height: var(--leading-text);
+}
+
+.search-row__title {
+  font-family: var(--font-text);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.search-row__aside {
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.search-row__excerpt {
+  display: block;
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+/* The match: bold with a green underline. Never a highlight, which is
+   yellow, and yellow means "yours." */
+.search-rows mark,
+.search-row__link mark,
+.search-page mark {
+  background: none;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--color-mark);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.search-heading {
+  list-style: none;
+}
+
+.search-heading__title {
+  margin: var(--space-5) 0 var(--space-1);
+  font-family: var(--font-display);
+  font-size: var(--size-subhead);
+  font-weight: 500;
+  line-height: var(--leading-subhead);
+}
+
+.search-heading:first-child .search-heading__title {
+  margin-top: 0;
+}
+
+.search-answers {
+  display: grid;
+  margin-bottom: var(--space-3);
+}
+
+.search-answer__link {
+  color: var(--color-press);
+}
+
+.search-line {
+  margin: 0 0 var(--space-3);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.search-line--glossary {
+  margin-top: 0;
+}
+
+/* ---------- /search ---------- */
+
+/* The column is SearchLayout's .scripture-main, which also takes the reader's
+   text size, once (src/styles/CLAUDE.md, "Making a page follow"); the field
+   above has the same width, so their edges meet. */
+.search-page {
+  padding-top: var(--space-4);
+  /* Space reserved for results that arrive after the page, so the footer
+     doesn't jump (CLS). */
+  min-height: 70vh;
+}
+
+.search-bar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.search-bar-row .kit-tabs {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The menus and Select keep to the row's right end (SE-09, SE-27), on a line
+   of their own when the tabs leave no room beside them (queue Q76). */
+.search-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  margin-inline-start: auto;
+}
+
+.search-tools .searchbar__filters {
+  display: contents;
+}
+
+.search-tools .searchbar__filter--mode {
+  display: none;
+}
+
+/* A tab with no results is dimmed to the third ink, which still reads at
+   4.5:1, and still opens. */
+.search-tab__count {
+  font-variant-numeric: tabular-nums;
+}
+
+.search-tab--none:not([aria-selected="true"]) {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+}
+
+/* On a phone the tabs scroll sideways in one row, the menus under them. */
+@media (max-width: 700px) {
+  /* nowrap: a wrapping column sizes its line to the tabs' full width, and
+     the tabs would push the page sideways instead of scrolling. */
+  .search-bar-row {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .search-bar-row .kit-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .search-tools {
+    margin-inline-start: 0;
+  }
+
+  .search-bar-row .kit-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.search-note {
+  margin: 0 0 var(--space-3);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.search-status {
+  margin: 0 0 var(--space-3);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.search-status:empty,
+.greek-offer:empty {
+  display: none;
+}
+
+.search-ref {
+  margin-bottom: var(--space-3);
+}
+
+.search-group {
+  scroll-margin-top: var(--space-3);
+}
+
+.search-group[hidden],
+.search-page [hidden] {
+  display: none;
+}
+
+.search-group__more {
+  margin-top: var(--space-2);
+}
+
+.search-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  margin: var(--space-5) auto 0;
+}
+
+.search-pager__gap {
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+  user-select: none;
+}
+
+/* Select's foot bar: "3 chosen · Add to sheet… · Cancel" (Study preview). */
+.search-pickbar {
+  position: sticky;
+  bottom: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-float);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-float);
+  box-shadow: var(--shadow-float);
+}
+
+.search-pickbar[hidden] {
+  display: none;
+}
+
+.search-pickbar__row {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.search-pickbar__count {
+  margin-inline-end: auto;
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+}
+
+/* ---------- The Greek tab (search.js) ---------- */
+
+.greek-lemmas {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-3);
+}
+
+.greek-lemma-one {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.greek-exact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+  cursor: pointer;
+}
+
+.greek-card {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-float);
+  border: 1px solid var(--color-hairline);
+}
+
+.greek-ref {
+  font-weight: 700;
+  color: var(--color-press);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.greek-text {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-text);
+  color: var(--color-text);
+}
+
+.greek-parse {
+  margin: var(--space-1) 0 0;
+  font-size: var(--size-small-label);
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+}
+
+.greek-lit {
+  margin: var(--space-2) 0 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.greek-empty {
+  list-style: none;
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.greek-readback {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text);
+}
+
+.greek-readback [lang="grc"],
+.greek-help [lang="grc"],
+.greek-parse [lang="grc"] {
+  font-family: var(--font-text);
+  font-size: 1.08em;
+}
+
+.greek-help {
+  padding: var(--space-4);
+  border: 1px dashed var(--color-hairline);
+  border-radius: var(--radius-float);
+}
+
+.greek-help[hidden] {
+  display: none;
+}
+
+.greek-help__lead,
+.greek-help__error {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text);
+}
+
+.greek-credit {
+  margin: var(--space-4) 0 0;
+  font-size: var(--size-small-label);
+  color: rgba(var(--color-text-rgb), var(--text-2-alpha));
+}
+
+.greek-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.search-results-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Rows that say nothing matched, and a sort menu that takes its width from its words. */
+.search-row--empty {
+  padding-block: var(--space-3);
+  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
+}
+
+.search-sort {
+  width: auto;
+}

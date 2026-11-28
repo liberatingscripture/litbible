@@ -524,16 +524,14 @@ License page of their own, forwarding /read's old anchors:
     BVJ 2026-11-12) as `{ kind: "book", bookKey, intro: true }`. The tray and
     /search then offer only the introduction (no second link), and the
     desk's Search pane opens its page in a new tab (E173).
-    Otherwise their second link, and the tray's Shift+Enter, is Read View;
-    with the Study Desk preview on it opens /desk in its Reading layout at
-    the passage instead (`/desk/?place=john-3:16&layout=reading`, a book at
-    chapter 1; E114, BVJ 2026-11-12), and its label says so. Both build it
-    with `readingJumpLink` in `search-core.js`, which reads `deskEnabled()`.
+    Otherwise /search's answer is "Go to John 3:16," and with the Study
+    preview on a second row, "Study John 3:16," opens /desk at the passage
+    (`/desk/?place=john-3:16`, a book at chapter 1, no `&layout=reading`); the
+    tray's Enter goes and Shift+Enter studies (`studyHrefFor` in
+    `search-rows.mjs`).
     The passage picker's field reads the same parse first (`readTyping`,
     `src/lib/passage-picker.mjs`), then the 404 page's guesser, and offers
-    no Read View. Featherboa retires the Reading layout, so these open the desk at the passage
-    alone, without `&layout=reading` (`SITE-FEATHERBOA.md`, "The reading
-    page"); until it is built, this holds.
+    no Read View.
   - *Reference parsing* accepts a period as the chapter:verse separator
     ("John 3.16", the OSIS "John.3.16", "Rom. 8.3"): `cleanReferenceInput` turns
     a period **between two digits** into a colon before it strips the
@@ -567,18 +565,37 @@ License page of their own, forwarding /read's old anchors:
        `data-pagefind-ignore` at render: the "Takeaways on Liberation and
        Inclusion" heading ending most intros is stamped in `[book]-intro.astro`,
        and the intro files keep it plain.
-  - */search opens with jump links* under the count ("117 verses · 47
-    chapters by topic · 24 introductions · …"), verses first because their
-    group sits last. They scroll and focus the group in script rather than
-    following the hash, since a fragment navigation fires `popstate`, which
-    re-renders the results. A topic card names the topics that matched it
-    when they differ from the query (a loose one-word match). That matching
-    is `topicMatches`, which the desk's Search pane calls too (E166).
-    Featherboa replaces /search's sort row, type filter, jump links, and
-    group list with one row of tabs under the field ("Chapters about it" for
-    Topic matches; Introductions keeps its own), Relevance still the
-    default, and gives the tray the same rows (`SITE-FEATHERBOA.md`,
-    "Search"); the engines don't change. Until it is built, this holds.
+  - */search is a field, one row of tabs, and the rows* (Featherboa, Phase 6;
+    `SITE-FEATHERBOA.md`, "Search"). The field is the page (an sr-only "Search"
+    heading), its count at its right end, and with the preview Notebook
+    actions beside it; the field and everything under it share one column
+    (`SearchLayout.astro`), whose size `.scripture-main` alone scales. Under
+    it one row of kit tabs with
+    counts (Scripture, Chapters about it, Glossary, Articles, Introductions;
+    with the preview Notebook and Greek), a tab with none dimmed but still
+    opening, the page opening on Scripture or the first tab with results; at
+    the row's right end the book menu, the sort (Relevance, Bible order; book
+    headings only in Bible order), and with the preview Select, on a line of
+    their own when the tabs leave no room (queue Q76: seven tabs don't fit
+    one row of the column). On a phone the tabs scroll sideways and the
+    menus take the row under them. **The URL's `mode` is the tab**; the hidden `#searchbar-mode`
+    select stays the state holder, so `search-core.js` is unchanged, and
+    every kind is searched so every tab has a count. The Notebook tab is
+    client-only state, not an address. **The rows are one module,
+    `src/lib/search-rows.mjs`**, shared with the tray (tested once in
+    `test/search-rows.test.js`): reading rows with the matched word bold and
+    underlined in green, the reference answer first ("Go to John 3:16," then
+    with the preview "Study John 3:16" at `/desk/?place=john-3:16`), the
+    chapters line and glossary line over the verses. The tray shows the same
+    rows and "See all results →" opens /search on the same tab. A new search
+    surface takes its rows from that module. **"Build a search…"** is one
+    quiet link in the field's row on the Greek tab only; it opens the
+    `greek-commands.js` window, "Build a search," builder on top and
+    "Examples and all commands" under it. Select (the Study preview) puts
+    boxes on Scripture, Chapters, and Greek rows only while on, and a foot bar
+    reads "3 chosen · Add to sheet… · Cancel" (`desk/sheets/search-sheet.js`).
+    A topic card names the topics that matched it when they differ from the
+    query (`topicMatches`, which the desk's Search pane calls too, E166).
   - *Every page has exactly one way in* (audit U6, owner 2026-09-28).
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`

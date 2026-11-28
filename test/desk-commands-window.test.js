@@ -47,6 +47,6 @@ test("the three ways in open it through the desk module, labeled Notebook action
   assert.match(src("src/scripts/search.js"), /openCommands\(\{ anchor/);
   assert.match(src("src/scripts/desk/panel.js"), /openCommands\(\{ anchor/);
   assert.match(src("src/components/SearchBar.astro"), /hidden>Notebook actions<\/button/);
-  // The Greek window's button is back to a Greek-only "Search commands".
-  assert.match(src("src/scripts/search.js"), /commandsBtn\.textContent = "Search commands"/);
+  // The Greek window's way in is the one quiet "Build a search…" link.
+  assert.match(src("src/components/SearchBar.astro"), /Build a search…/);
 });

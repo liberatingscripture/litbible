@@ -2216,15 +2216,6 @@ button.greek-cmd {
   display: none;
 }
 
-/* Beside the search box on /search: its own small, quiet link in the box's
-   row, so the page gains no height. */
-.greek-cmd-link--field {
-  flex: none;
-  padding: 6px 4px;
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-
 .greek-cmd-link:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
@@ -2262,47 +2253,6 @@ button.greek-cmd {
 .greek-notes-switch input:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-}
-
-/* /search's Greek controls (search.js): the link and the switch in one box,
-   inline in the field's row where there is room. Where there isn't, the box
-   drops to a line of its own under the field, the link at the left and the
-   switch at the right, so a narrow window never squeezes the field (E11). */
-.searchbar__form--extras {
-  flex-wrap: wrap;
-}
-
-.greek-field-extras {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 4px 14px;
-}
-
-.greek-field-extras[hidden] {
-  display: none;
-}
-
-.greek-notes-switch--field {
-  flex: none;
-  padding: 6px 4px;
-  font-size: 0.85rem;
-}
-
-@media (max-width: 960px) {
-  .searchbar__form--extras .searchbar__input-wrap {
-    order: 1;
-  }
-
-  .searchbar__form--extras .searchbar__submit {
-    order: 2;
-  }
-
-  .searchbar__form--extras .greek-field-extras {
-    order: 3;
-    flex: 1 1 100%;
-    justify-content: space-between;
-  }
 }
 
 /* Scripture reference previews (ref-preview.js): the verses themselves, set a

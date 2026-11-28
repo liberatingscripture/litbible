@@ -905,6 +905,12 @@ M5, M9, S8 and "Order of work", 3k). Four things to know:
   which part is the reading**: it is found by its heading ("Reading",
   "Read", "The text"; `readingPart`); a renamed one isn't, which only
   sends a passage to the end.
+- **Featherboa's /search puts all of this behind Select** (Phase 6): the
+  head rows below are still built but hidden, the row boxes exist only while
+  Select (at the tab row's right end) is on, and a foot bar, "3 chosen · Add
+  to sheet… · Cancel," drives the head row of the tab showing, so the counts,
+  the chooser and the write are as described. The chooser and its "Open the
+  sheet" line show in the foot bar (`#search-pickbar`).
 - **A sheet from a search or a topic** (M5) keeps desk code out of
   search.js: /search announces every hit (not just the page on screen)
   with a `lit:search-results` event on `document` and calls

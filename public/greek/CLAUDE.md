@@ -218,8 +218,10 @@ Four things to know:
   or finds nothing (BA45, BVJ 2026-10-27). `isGreekQuery` also counts `*`
   and a dot followed by a parsing word, for the tray (no type menu).
 - **The commands window is the one place for instructions and
-  examples** (BVJ, 2026-10-14): a page gains only a "Search commands"
-  button, a placeholder under the "Greek" type, the readback, and
+  examples** (BVJ, 2026-10-14): a page gains only a quiet "Build a
+  search…" link (on /search, in the field's row, on the Greek tab only; the
+  window is titled "Build a search," its builder on top and "Examples and all
+  commands" under it, with nothing about the notebook), a placeholder under the "Greek" type, the readback, and
   examples where an empty search's results would be. Before adding a
   hint or a control to a search page, put it in the window
   (`src/scripts/greek-commands.js`).

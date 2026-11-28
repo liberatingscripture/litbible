@@ -33,6 +33,8 @@ async function until(fn, tries = 200) {
   }
   throw new Error("timed out");
 }
+const pk = (sel) => document.querySelector(`#search-pickbar ${sel}`);
+const foot = () => pk(".search-pickbar__add");
 const click = (el) => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
 function toggle(box, on) {
   box.checked = on;
@@ -46,12 +48,11 @@ const VERSES = [
   { bookKey: "romans", chapter: 8, verse: 1 },
 ];
 const occurrence = (r) =>
-  `<li class="result-occurrence"><a class="result-link result-link--occurrence" href="/${r.bookKey}-${r.chapter}#v${r.verse}">Verse ${r.verse}</a></li>`;
-const chapterGroup = (title, verses) =>
-  `<li class="result-group"><h3 class="result-group__title">${title}</h3><ol class="result-group__occurrences">${verses.map(occurrence).join("")}</ol></li>`;
+  `<li class="search-row search-row--verse"><a class="search-row__link" href="/${r.bookKey}-${r.chapter}#v${r.verse}"><span class="search-row__ref">${r.bookKey === "john" ? "John" : "Romans"} ${r.chapter}:${r.verse}</span></a></li>`;
+const chapterGroup = (title, verses) => verses.map(occurrence).join("");
 // A topic's chapter as search.js draws it.
 const topicRow = (c) =>
-  `<li class="result"><a class="result-link" href="/${c.bookKey}-${c.chapter}/"><div class="result-title">${c.title}<span class="result-topics"> · ${c.labels.join(", ")}</span></div></a></li>`;
+  `<li class="search-row search-row--title"><a class="search-row__link" href="/${c.bookKey}-${c.chapter}/"><span class="search-row__title">${c.title}</span></a></li>`;
 
 let started = false;
 let queries = 0;
@@ -68,6 +69,7 @@ function head(groupId, listId) {
 function draw({ verses = VERSES, chapters = [] } = {}) {
   resetDom("http://localhost/search/?q=loved");
   document.body.innerHTML = `<main class="search-page">
+    <div id="search-tools"></div><div id="search-pickbar" hidden></div>
     <section id="group-subject"><h2 class="group-title">Chapters by topic</h2><ol id="results-subject">${chapters.map(topicRow).join("")}</ol></section>
     <section id="group-keyword"><h2 class="group-title">Verses</h2><ol id="results-keyword">${
       verses.length ? chapterGroup("John 3", verses.filter((r) => r.bookKey === "john")) + chapterGroup("Romans 8", verses.filter((r) => r.bookKey === "romans")) : ""
@@ -79,6 +81,9 @@ function draw({ verses = VERSES, chapters = [] } = {}) {
   } else {
     document.dispatchEvent(new window.CustomEvent("lit:search-results", { detail }));
   }
+  // Select is how a reader gets the boxes (Featherboa, "Search").
+  // (Selecting is the page's state and outlives a redraw, so press it only when it is off.)
+  if (document.querySelector(".search-tools__select")?.getAttribute("aria-pressed") !== "true") click(document.querySelector(".search-tools__select"));
   return { ...head("group-keyword", "results-keyword"), chapters: head("group-subject", "results-subject") };
 }
 
@@ -107,7 +112,7 @@ test("E116: the head row holds the box that checks every verse and a card with o
   assert.equal(go.getAttribute("aria-haspopup"), "dialog");
   assert.equal(bar.classList.contains("desk-gather--some"), false, "no green rule with nothing checked");
   assert.equal(document.body.textContent.includes("With none checked"), false, "the old all-by-default line is gone");
-  for (const li of document.querySelectorAll("#results-keyword li.result-occurrence")) {
+  for (const li of document.querySelectorAll("#results-keyword li.search-row--verse")) {
     assert.ok(li.querySelector(":scope > input.desk-gather__tick"), "every verse has a box");
   }
 });
@@ -120,7 +125,7 @@ test("E116: nothing checked adds nothing; the button stays focusable, is describ
   assert.equal(go.getAttribute("aria-describedby"), q(".desk-gather__lead").id);
   click(go);
   await settle(20);
-  assert.equal(q(".desk-gather__panel"), null, "no chooser opens");
+  assert.equal(pk(".desk-gather__panel"), null, "no chooser opens");
   assert.equal(go.getAttribute("aria-expanded"), "false");
   assert.equal(await until(() => heard()), "Check the verses you want, or check all 4.");
 });
@@ -172,8 +177,8 @@ test("E116: the chooser names what it adds, and a new sheet holds only the check
   const go = q(".desk-gather__go");
   toggle(row("Include John 3:16 in the sheet"), true);
   toggle(row("Include John 3:17 in the sheet"), true);
-  click(go);
-  const panel = await until(() => q(".desk-gather__panel"));
+  click(foot());
+  const panel = await until(() => pk(".desk-gather__panel"));
   assert.equal(panel.getAttribute("role"), "dialog");
   assert.equal(panel.getAttribute("aria-label"), "Add to a sheet");
   assert.equal(panel.querySelector(".desk-gather__title").textContent, "Add 2 verses to a sheet");
@@ -189,7 +194,7 @@ test("E116: the chooser names what it adds, and a new sheet holds only the check
 
   await until(() => panel.querySelector(".desk-gather__note")?.textContent !== "Reading your sheets…");
   click(buttons[0]);
-  const done = await until(() => q(".desk-gather__done"));
+  const done = await until(() => pk(".desk-gather__done"));
   assert.match(done.textContent, /Open the sheet, or open it in the Study Desk\./);
   const store = await openStore({ ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
   const sheets = (await store.all()).filter((r) => r.kind === "sheet");
@@ -201,10 +206,10 @@ test("E116: the chooser names what it adds, and a new sheet holds only the check
 test("E116: unchecking everything closes an open chooser, which has nothing left to add", async () => {
   const { q, row } = draw();
   toggle(row("Include Romans 8:1 in the sheet"), true);
-  click(q(".desk-gather__go"));
-  await until(() => q(".desk-gather__panel"));
+  click(foot());
+  await until(() => pk(".desk-gather__panel"));
   toggle(row("Include Romans 8:1 in the sheet"), false);
-  assert.equal(q(".desk-gather__panel"), null);
+  assert.equal(pk(".desk-gather__panel"), null);
   assert.equal(q(".desk-gather__go").getAttribute("aria-expanded"), "false");
 });
 
@@ -223,7 +228,7 @@ test("E163: the chapters by topic are checked as the verses are, with their own 
   assert.equal(go.getAttribute("aria-disabled"), "true");
   click(go);
   await settle(20);
-  assert.equal(q(".desk-gather__panel"), null, "nothing checked adds nothing");
+  assert.equal(pk(".desk-gather__panel"), null, "nothing checked adds nothing");
   assert.equal(await until(() => heard()), "Check the chapters you want, or check all 3.");
   for (const li of document.querySelectorAll("#results-subject li.result")) {
     assert.ok(li.querySelector(":scope > input.desk-gather__tick"), "every chapter has a box");
@@ -260,11 +265,11 @@ test("E163: a new sheet holds only the checked chapters, each whole, named for t
   toggle(row("Include Romans 8 in the sheet"), true);
   toggle(row("Include Matthew 18 in the sheet"), true);
   click(q(".desk-gather__go"));
-  const panel = await until(() => q(".desk-gather__panel"));
+  const panel = await until(() => pk(".desk-gather__panel"));
   assert.equal(panel.querySelector(".desk-gather__title").textContent, "Add 2 chapters to a sheet");
   await until(() => panel.querySelector(".desk-gather__note")?.textContent !== "Reading your sheets…");
   click(panel.querySelector(".desk-gather__actions button"));
-  const done = await until(() => q(".desk-gather__done"));
+  const done = await until(() => pk(".desk-gather__done"));
   assert.match(done.textContent, /^Made “love” with 2 passages\./);
   const store = await openStore({ ctx: () => ({ client: "web/test", contentVersion: "v1" }) });
   const sheet = (await store.all()).find((r) => r.kind === "sheet" && r.title === "love");
@@ -275,4 +280,21 @@ test("E163: a new sheet holds only the checked chapters, each whole, named for t
     [["matthew", 18, 1, 35], ["romans", 8, 1, 39]],
     "Bible order, each chapter whole; John 3 left out",
   );
+});
+
+test("Select: boxes and the foot bar exist only while selecting, and Cancel puts the page back", async () => {
+  draw();
+  const select = document.querySelector(".search-tools__select");
+  assert.equal(select.getAttribute("aria-pressed"), "true");
+  const foot = document.getElementById("search-pickbar");
+  assert.equal(foot.hidden, false);
+  assert.equal(foot.querySelector(".search-pickbar__count").textContent, "0 chosen");
+  toggle(document.querySelector('.search-row > .desk-gather__tick[aria-label="Include John 3:16 in the sheet"]'), true);
+  toggle(document.querySelector('.search-row > .desk-gather__tick[aria-label="Include John 3:17 in the sheet"]'), true);
+  assert.equal(foot.querySelector(".search-pickbar__count").textContent, "2 chosen");
+  assert.equal(foot.querySelector(".search-pickbar__add").getAttribute("aria-disabled"), "false");
+  click(foot.querySelector(".search-pickbar__cancel"));
+  assert.equal(foot.hidden, true);
+  assert.equal(document.querySelectorAll(".search-row > .desk-gather__tick").length, 0, "no boxes once it is off");
+  assert.equal(select.getAttribute("aria-pressed"), "false");
 });

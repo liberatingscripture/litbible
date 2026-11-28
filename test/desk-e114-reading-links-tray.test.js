@@ -57,18 +57,18 @@ function preview(on) {
   else delete document.documentElement.dataset.desk;
 }
 
-/** Type a query and read the jump row the tray draws for it. */
+/** Type a query and read the answer rows the tray draws for it. */
 async function jumpFor(q, desk) {
   preview(desk);
   input.value = q;
   input.dispatchEvent(new Event("input", { bubbles: true }));
   await settle(200);
-  const links = [...root.querySelectorAll("a.searchbar__jump-link")];
+  const links = [...root.querySelectorAll("a.search-answer__link")];
   return {
     count: links.length,
     first: links[0]?.getAttribute("href") ?? null,
     href: links[1]?.getAttribute("href") ?? null,
-    hint: links[1]?.querySelector(".searchbar__jump-hint")?.textContent.trim() ?? null,
+    text: links[1]?.textContent.trim() ?? null,
     keys: root.querySelector(".searchbar__jump-keys")?.textContent.replace(/\s+/g, " ").trim() ?? null,
   };
 }
@@ -77,65 +77,45 @@ test("the tray is set up", () => {
   assert.equal(root.dataset.enhanced, "true");
 });
 
-test("preview on: a reference's second link opens the Study Desk in Reading", async () => {
+test("preview on: Go to the verse, then Study it", async () => {
   const row = await jumpFor("John 3:16", true);
   assert.equal(row.count, 2);
-  assert.equal(row.first, "/john-3#v16", "Chapter View is unchanged");
-  assert.equal(row.href, "/desk/?place=john-3:16&layout=reading");
-  assert.equal(row.hint, "in Study Desk, Reading layout");
-  assert.equal(row.keys, "Enter: Scripture page · Shift+Enter: Study Desk");
+  assert.equal(row.first, "/john-3#v16");
+  assert.equal(row.href, "/desk/?place=john-3:16");
+  assert.equal(row.text, "Study John 3:16");
+  assert.equal(row.keys, "Enter: Go to · Shift+Enter: Study");
 });
 
 test("preview on: a range opens at its first verse, a chapter at the chapter", async () => {
-  assert.equal((await jumpFor("Romans 8:16-18", true)).href, "/desk/?place=romans-8:16&layout=reading");
-  assert.equal((await jumpFor("1 Cor 13", true)).href, "/desk/?place=1corinthians-13&layout=reading");
+  assert.equal((await jumpFor("Romans 8:16-18", true)).href, "/desk/?place=romans-8:16");
+  assert.equal((await jumpFor("1 Cor 13", true)).href, "/desk/?place=1corinthians-13");
 });
 
-test("preview on: a book's second link opens the desk in Reading at chapter 1", async () => {
-  const row = await jumpFor("Romans", true);
-  assert.equal(row.href, "/desk/?place=romans-1&layout=reading");
-  assert.equal(row.hint, "whole book, in Study Desk");
-  assert.equal(row.keys, "Enter: Scripture page · Shift+Enter: Study Desk");
-});
-
-test("preview on: a book's introduction still has no second link (E123)", async () => {
+test("preview on: a book's introduction has no Study link (E123)", async () => {
   const row = await jumpFor("Matthew intro", true);
   assert.equal(row.count, 1);
-  assert.equal(row.keys, "Enter: Scripture page");
+  assert.equal(row.keys, null);
 });
 
-test("preview off: the second link is Read View, as before", async () => {
+test("preview off: Go alone, with no Read View link", async () => {
   const ref = await jumpFor("John 3:16", false);
-  assert.equal(ref.href, "/read/john#john-3-v16");
-  assert.equal(ref.hint, "in Read View, whole book");
-  assert.equal(ref.keys, "Enter: Chapter View · Shift+Enter: Read View");
-  const book = await jumpFor("Romans", false);
-  assert.equal(book.href, "/read/romans");
-  assert.equal(book.hint, "whole book, in Read View");
+  assert.equal(ref.count, 1);
+  assert.equal(ref.keys, null);
 });
 
-test("Shift+Enter follows the second link, Enter the first", async () => {
+test("Shift+Enter follows Study, Enter the first", async () => {
   // The tray navigates by setting window.location.href; catch it here.
   const went = [];
   Object.defineProperty(window, "location", {
     configurable: true,
-    value: { search: "", hash: "", pathname: "/", get href() { return "http://localhost/"; }, set href(v) { went.push(v); } },
+    value: { origin: "http://localhost", search: "", hash: "", pathname: "/", get href() { return "http://localhost/"; }, set href(v) { went.push(v); } },
   });
   try {
     await jumpFor("John 3:16", true);
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true, bubbles: true }));
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-    await jumpFor("John 3:16", false);
-    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: true, bubbles: true }));
   } finally {
     delete window.location;
   }
-  assert.deepEqual(went, ["/desk/?place=john-3:16&layout=reading", "/john-3#v16", "/read/john#john-3-v16"]);
-});
-
-test("E130: preview off, the keys line still says Chapter View", async () => {
-  const ref = await jumpFor("John 3:16", false);
-  assert.equal(ref.keys, "Enter: Chapter View · Shift+Enter: Read View");
-  const intro = await jumpFor("Matthew intro", false);
-  assert.equal(intro.keys, "Enter: Chapter View");
+  assert.deepEqual(went, ["/desk/?place=john-3:16", "/john-3#v16"]);
 });

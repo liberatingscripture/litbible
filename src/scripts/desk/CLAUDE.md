@@ -781,13 +781,13 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        offers on this page).
        It is desk code (`desk/commands-window.js`), a `float-window.js`
        window styled in `desk-search.css`, and
-       **it is kept apart from the Greek "Search commands" window** (BVJ's
+       **it is kept apart from the Greek "Build a search" window** (BVJ's
        choice), so don't put desk commands in `greek-commands.js` or Greek
        ones here. A row runs its command and closes the window; link commands
        are plain links. It has three ways in, each a quiet "Notebook actions"
        link (not "prompts", which reads as AI or reflection questions; BVJ
-       2026-11-06): the tray's footer row (`SearchBar.astro`), a link in
-       /search's field row with the desk on, and the Notebook's Settings tab
+       2026-11-06): the tray's footer row (`SearchBar.astro`), a button in
+       /search's field's row with the desk on (SE-23), and the Notebook's Settings tab
        (`panel.js`). The tray and /search call `openCommands` on
        `notebook-search.js` through `loadDeskSearch()`, never importing desk
        code (`test/desk-commands-window.test.js` holds it).
