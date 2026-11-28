@@ -515,6 +515,11 @@
   display: none;
 }
 
+/* ">" lists the notebook's commands here, in the tray's own rows (search.js). */
+.search-commands {
+  margin: 0 0 var(--space-4);
+}
+
 .search-ref {
   margin-bottom: var(--space-3);
 }

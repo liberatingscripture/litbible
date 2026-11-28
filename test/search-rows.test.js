@@ -141,6 +141,20 @@ test("the glossary line", () => {
   assert.match(rows.glossaryLineHtml({ term: "trust", href: "/glossary/#trust", count: 3 }), /Trust and 2 more are in the glossary/);
 });
 
+test("the glossary line names an entry's own word, as the entry writes it (SE-21)", () => {
+  const faith = { traditional: "Faith", lit: "trust / faithfulness", greek: "pistis" };
+  assert.equal(rows.glossaryLineTerm("trust", faith), "Trust");
+  assert.equal(rows.glossaryLineTerm("Faithfulness", faith), "Faithfulness");
+  assert.equal(rows.glossaryLineTerm("faith", faith), "Faith");
+  assert.equal(rows.glossaryLineTerm("pistis", faith), "Pistis");
+  assert.equal(rows.glossaryLineTerm("“trust”", faith), "Trust");
+  // An entry that only uses the word in its prose gets no line.
+  assert.equal(rows.glossaryLineTerm("trusting", faith), null);
+  assert.equal(rows.glossaryLineTerm("light", faith), null);
+  assert.equal(rows.glossaryLineTerm("trust", undefined), null);
+  assert.equal(rows.glossaryLineTerm("", faith), null);
+});
+
 test("See all results keeps the tab and the book", () => {
   assert.equal(rows.seeAllHref("/search", { q: "light" }), "/search/?q=light");
   assert.equal(rows.seeAllHref("/search/", { q: "light love", mode: "subject", book: "john" }), "/search/?q=light+love&mode=subject&book=john");

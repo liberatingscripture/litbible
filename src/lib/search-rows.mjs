@@ -252,6 +252,29 @@ export function chaptersLineHtml({ first, count, query, href = "#" }) {
 }
 
 /**
+ * The word a glossary line names, or null: the line is for a glossary term
+ * that matches what was typed (SE-21), not for an entry that only uses the
+ * word in its prose. The query must be one of the entry's own words, its
+ * traditional word, one of its LIT words, or its transliteration, and is named
+ * as the entry writes it: "trust" in "trust / faithfulness" gives "Trust,"
+ * "faith" gives "Faith," "pistis" gives "Pistis."
+ *
+ * @param {string} query what the reader typed
+ * @param {{ traditional?: string, lit?: string, greek?: string } | null | undefined} entry
+ * @returns {string | null}
+ */
+export function glossaryLineTerm(query, entry) {
+  if (!entry) return null;
+  const q = String(query || "").replace(/["“”]/g, "").trim().toLowerCase();
+  if (!q) return null;
+  const names = [entry.traditional, ...String(entry.lit || "").split(/\s*[/,]\s*/), entry.greek]
+    .map((s) => String(s || "").trim())
+    .filter(Boolean);
+  const hit = names.find((s) => s.toLowerCase() === q);
+  return hit ? hit.charAt(0).toUpperCase() + hit.slice(1) : null;
+}
+
+/**
  * Over the verses, one line for a glossary term that matched (SE-21): "Trust is
  * in the glossary →," a link to the entry. With more than one match the others
  * wait in the tab: "Trust and 2 more are in the glossary →."

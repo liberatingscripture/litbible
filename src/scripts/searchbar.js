@@ -966,7 +966,7 @@ const _initSearchbars = async () => {
           status.textContent =
             hasJump && !sCount
               ? ""
-              : `${sCount} topic match${sCount === 1 ? "" : "es"}`;
+              : `${sCount} ${sCount === 1 ? "chapter" : "chapters"} about it`;
 
           renderGroups({
             glossary: [],
@@ -1104,22 +1104,23 @@ const _initSearchbars = async () => {
         const showK = activeMode === "all" || activeMode === "keyword";
 
         // With a jump row or a command showing, a zero count reads as a
-        // failed search, so only the kinds that matched are listed.
+        // failed search, so only the kinds that matched are listed. Each is
+        // named as /search's tabs name it, never "topic" (SE-15).
         const parts = [];
         if (nCount)
           parts.push(`${nCount} ${(notebook.nouns ?? ["notebook match", "notebook matches"])[nCount === 1 ? 0 : 1]}`);
         if (showG && gCount)
-          parts.push(`${gCount} glossary match${gCount === 1 ? "" : "es"}`);
+          parts.push(`${gCount} glossary ${gCount === 1 ? "entry" : "entries"}`);
         if (showS && (sCount || !(hasJump || commands.length)))
-          parts.push(`${sCount} topic match${sCount === 1 ? "" : "es"}`);
+          parts.push(`${sCount} ${sCount === 1 ? "chapter" : "chapters"} about it`);
         if (showI && iCount)
-          parts.push(`${iCount} book intro match${iCount === 1 ? "" : "es"}`);
+          parts.push(`${iCount} ${iCount === 1 ? "introduction" : "introductions"}`);
         if (showA && aCount)
-          parts.push(`${aCount} article match${aCount === 1 ? "" : "es"}`);
+          parts.push(`${aCount} ${aCount === 1 ? "article" : "articles"}`);
         if (showK && versesFailed) parts.push(VERSES_FAILED);
         else if (showK && (kCount || !(hasJump || commands.length)))
           parts.push(
-            `${kCount} keyword match${kCount === 1 ? "" : "es"}` +
+            `${kCount} ${kCount === 1 ? "verse" : "verses"}` +
               (verseCorrection ? ` for “${verseCorrection}”` : ""),
           );
         status.textContent = parts.join(sep);

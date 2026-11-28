@@ -20,6 +20,7 @@ import {
   parseBookChapterFromUrl,
   scriptureResultTitle,
   glossaryTermFromResult,
+  glossaryTermsFromDom,
   enrichSearchResult,
   topicsIndexSubjectItem,
   bucketSearchResults,
@@ -58,6 +59,7 @@ import {
   studyHrefFor,
   chaptersLineHtml,
   glossaryLineHtml,
+  glossaryLineTerm,
 } from "../lib/search-rows.mjs";
 import { hasGreek } from "../lib/greek-detect.mjs";
 
@@ -1253,17 +1255,27 @@ function renderFromCache() {
     const start = (page - 1) * pageSize;
     if (counts.keyword) renderKeyword(keywordMatchesAll.slice(start, start + pageSize));
     else empty(keywordEl, "the Scripture");
-    // Over the verses, the chapters line and the glossary line (SE-20, SE-21).
+    // Over the verses, the glossary line, since the glossary still answers
+    // first, then the chapters line (SE-21, SE-20). The glossary's is only
+    // for an entry whose own word is what was typed (glossaryLineTerm).
     if (page === 1 && linesEl) {
       const bits = [];
+      if (counts.glossary) {
+        const terms = glossaryTermsFromDom() ?? {};
+        const named = glossaryMatches
+          .map((g) => {
+            const id = decodeURIComponent(String(g.d?.url || "").split("#")[1] || "");
+            const term = glossaryLineTerm(displayQ, terms[id]);
+            return term ? { term, href: g.d.url } : null;
+          })
+          .filter(Boolean);
+        if (named.length) {
+          bits.push(`<p class="search-line">${glossaryLineHtml({ term: named[0].term, href: named[0].href, count: named.length })}</p>`);
+        }
+      }
       if (counts.subject) {
         const first = prettyTitleFromUrl(subjectMatches[0].url, subjectMatches[0].meta?.title || "Result");
         bits.push(`<p class="search-line">${chaptersLineHtml({ first, count: counts.subject, query: displayQ })}</p>`);
-      }
-      if (counts.glossary) {
-        const g = glossaryMatches[0];
-        const term = glossaryTermFromResult(g.d, g.locs, qPhrase);
-        bits.push(`<p class="search-line">${glossaryLineHtml({ term, href: g.d.url, count: counts.glossary })}</p>`);
       }
       linesEl.innerHTML = bits.join("");
       linesEl.querySelector("[data-line-tab]")?.addEventListener("click", (e) => {
@@ -1350,9 +1362,53 @@ async function syncGreekOffer(q, mode) {
   greekOfferEl.hidden = false;
 }
 
+// ">" asks for the notebook's commands alone, as it does in the tray (SE-23,
+// D3): with the Study preview they are listed where the results go, nothing
+// is searched, and Enter runs the first.
+let commandsEl = null;
+const isCommandQuery = (text) => deskEnabled() && /^\s*>/.test(String(text || ""));
+
+function hideCommands() {
+  if (!commandsEl) return;
+  commandsEl.hidden = true;
+  commandsEl.replaceChildren();
+}
+
+function showCommands(m, q) {
+  const commands = m.commandsFor(q);
+  setStatus(commands.length
+    ? `${commands.length} ${commands.length === 1 ? "command" : "commands"}`
+    : "No command begins that way.");
+  if (!commandsEl) {
+    commandsEl = document.createElement("div");
+    commandsEl.className = "search-commands";
+    statusEl.after(commandsEl);
+  }
+  commandsEl.replaceChildren();
+  m.renderTray(commandsEl, {
+    commands,
+    onRun: (c) => {
+      m.runCommand(c.id);
+      if (input) input.value = "";
+      updateFromControls({ resetPage: true, push: true });
+    },
+  });
+  commandsEl.hidden = !commands.length;
+}
+
+/** Enter on a ">" query: the first command listed, as the tray does. */
+function runFirstCommand() {
+  if (!commandsEl || commandsEl.hidden) return false;
+  const first = commandsEl.querySelector("[data-desk-command]");
+  if (!first) return false;
+  first.click();
+  return true;
+}
+
 async function runFullSearch() {
   const { q, book } = readState();
   const displayQ = displayQueryLabel(q);
+  hideCommands();
   syncGreekOffer(q.length >= MIN_QUERY_LEN ? q : "", readState().mode);
 
   if (!q) {
@@ -1361,6 +1417,16 @@ async function runFullSearch() {
     clearResults();
     if (greekSearchEnabled() && readState().mode === "greek") showGreekStart();
     return;
+  }
+
+  if (isCommandQuery(q)) {
+    const m = await loadDeskSearch();
+    if (m && readState().q === q) {
+      setRefBanner("", false);
+      clearResults();
+      showCommands(m, q);
+      return;
+    }
   }
 
   const parsedJump = parseReferenceJump(q);
@@ -1609,11 +1675,13 @@ if (input) {
     // with no query and empties the search. The tray stops it where it has
     // set itself up; this page doesn't depend on that.
     e.preventDefault();
+    if (isCommandQuery(input.value) && runFirstCommand()) return;
     updateFromControls({ resetPage: true, push: true });
   });
   // The form's own submit button (on a phone) is the same Enter.
   input.closest("form")?.addEventListener("submit", (e) => {
     e.preventDefault();
+    if (isCommandQuery(input.value) && runFirstCommand()) return;
     updateFromControls({ resetPage: true, push: true });
   });
 }
