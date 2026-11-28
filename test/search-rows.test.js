@@ -48,8 +48,8 @@ test("the tab row shows counts, dims a tab with none, and keeps it clickable", (
   assert.equal(tabs[0].tabIndex, 0);
   assert.equal(tabs[1].tabIndex, -1);
   assert.match(tabs[0].textContent, /Scripture\s+75/);
-  assert.equal(tabs[2].classList.contains("search-tab--none"), true);
-  assert.equal(tabs[1].classList.contains("search-tab--none"), false);
+  assert.equal(tabs[2].classList.contains("kit-tab--none"), true);
+  assert.equal(tabs[1].classList.contains("kit-tab--none"), false);
   assert.match(tabs[2].getAttribute("aria-label"), /no results/);
   assert.ok(tabs.every((t) => t.classList.contains("kit-tab")));
   tabs[2].click();

@@ -471,10 +471,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.search-tab--none:not([aria-selected="true"]) {
-  color: rgba(var(--color-text-rgb), var(--text-3-alpha));
-}
-
 /* On a phone the tabs scroll sideways in one row, the menus under them. */
 @media (max-width: 700px) {
   /* nowrap: a wrapping column sizes its line to the tabs' full width, and

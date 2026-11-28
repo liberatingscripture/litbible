@@ -111,7 +111,7 @@ export function renderTabs(host, { tabs, counts, active, onPick, idPrefix = "tab
       b.append(" ", count);
       // "Scripture, 75 results" is what a screen reader hears, with no stray digits.
       b.setAttribute("aria-label", `${tab.label}, ${n === 0 ? "no results" : resultsCount(n)}`);
-      if (n === 0) b.classList.add("search-tab--none");
+      if (n === 0) b.classList.add("kit-tab--none");
     }
     b.addEventListener("click", () => onPick(tab.id));
     buttons.push(b);
