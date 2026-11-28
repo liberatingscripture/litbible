@@ -142,6 +142,54 @@ lede, so these left the page; FP-23 and FP-24 bring them to Home.
 - **ReadLayout's search bar and its Study Desk pill**: gone with the
   layout; /read keeps the header's magnifier (queue Q64).
 
+### Phase 4, part two: what reading on leaves
+
+Reading on (9b7c10ed) is `src/scripts/read-on.js` with its rules in
+`src/lib/read-on.mjs` and its look in `src/styles/reading-page.css`; a
+chapter read on into is an `article.read-on__chapter`, the page's own is
+still `article.chapter`, and Study hears each through the `lit:read-on`
+event and `pageTextBox` (`desk/page.js`).
+
+- **Phase 4's third part (the Display tray)**: a face change loses the
+  reader's place, on main too (OpenDyslexic moved John 3's line 520px and
+  Atkinson 334px, with the browser's anchoring on or off), since the text
+  reflows again when the face's file arrives; it isn't held by
+  `keepReadingPlace` today. Hold the line through it, on a chapter read on
+  into as well.
+- **Phase 5 (beside scripture)**: with the preview, Study still places the
+  column, so the three columns hold only without it (SZ-13); without the
+  preview the footnote list and Go deeper sit between chapters until the
+  panel's Footnotes tab takes them (WB-18); on a phone Go deeper scrolls
+  to its chapter's section until the sheet (WB-23); Print, Show in
+  Notebook, the Greek tab, printing with notes, and the tour still serve
+  the page's own chapter (WB-14); verse numbers and footnote letters join
+  the kit's inline list (queue Q16).
+- **Checkpoint A's fixes**: `search-core.js`'s `resolveMistypedPath` still
+  sends a book to `/read/<book>`, two hops to its chapter 1 now (point it at
+  `/<book>-1/`), and `readingJumpLink` and `makeReadJumpHref` have no
+  callers left.
+- **Phase 9 (Study's frame)**: the draft's Greek arrival (queue Q86).
+  `desk.css`'s `html[data-desk-workspace]` turns scroll anchoring off on
+  the root alone, the shape that held the Read page at its end; probed in
+  headless Chrome at 40, 120, and 400px down and at the end, /desk holds,
+  since nothing arrives below while the window sits at its end. Give body
+  the rule too if that changes.
+- **Every surface's phase**: comments and names that still say Read View
+  (`chapter-html.ts`'s “Read View passes,” `Layout.astro`,
+  `SiteHeader.astro`, `desk-bookmarks.mjs`, and others) are rewritten as
+  their surface is redrawn; check first whether `chapter-html.ts`'s Read
+  View pipeline still has a caller.
+- **Checking a scroll in headless Chrome**: emulate
+  `prefers-reduced-motion: reduce`, or global.css's smooth scrolling turns a
+  script's jump into a glide and the measure is taken mid-way; and try a
+  jump to the page's very end, which is what showed the anchoring bug
+  (d1160921). Since that fix, reduced motion transitions only what
+  declares a transition (`global.css`), so a layout change lands at once
+  there as it does without it.
+- **A flaky test**: `test/desk-greek-slow-load.test.js:39` failed once in a
+  full `npm test` under load and passes alone (4 of 4); it is main's. Widen
+  its timers if CI meets it.
+
 ### Where the record is unclear
 
 Found while writing and checking this ledger. Each is settled when its phase
@@ -296,8 +344,8 @@ run's best reading, entered in the plan's queue with what was done.
 | SZ-10 | Verse number: Atkinson Hyperlegible Next 600 at 0.56 of the text, growing and shrinking with it, in deep green with no underline | 1, 4 | The ratio measured at S and XL | built (c1bb5383) |
 | SZ-11 | The three reading sizes are refit so Source Sans 3's small letters stand as tall as the proposal drew them, measured when built; their line heights are checked with them | 1 | The measured values written beside the tokens; John 1, the specimen, on the preview | built (c1bb5383): the values beside the tokens; Q11 |
 | SZ-12 | One spacing scale: every gap, padding, and margin is 4, 8, 12, 16, 24, 32, 48, 64, or 96 | all (1) | `test/featherboa-spacing.test.js` over the new stylesheets | tokens built (c1bb5383); the spacing test starts with the kit's stylesheet (Phase 2) |
-| SZ-13 | On a computer the reading page is a 220 quiet side, a 660 text column, and a 320 margin | 4 | Measure at 1440: 220, 660, 320 | open |
-| SZ-14 | The text column never gets wider; on a bigger screen only the outer space grows | 4 | The column measured at 1440 and 1920 | open |
+| SZ-13 | On a computer the reading page is a 220 quiet side, a 660 text column, and a 320 margin | 4 | Measure at 1440: 220, 660, 320 | built without the preview (9b7c10ed): 220, 660, 320 at 1440; in a real browser the outer space is even (113 and 112px); with the preview the desk places the column until Phase 5 |
+| SZ-14 | The text column never gets wider; on a bigger screen only the outer space grows | 4 | The column measured at 1440 and 1920 | built (9b7c10ed): the column is 660 from 1100 to 1920; only the outer space grows |
 | SZ-15 | The measure stays inside 45 to 75 characters (the 660 column's count measured again in Source Sans 3 through `--ch`); larger sizes shorten it | 1, 4 | Count characters a line on John 3 at each size and face | built (c1bb5383): `--reading-width` holds 45 to 75 `--char`; counted again in Phase 4 |
 | SZ-16 | These widths are where every page starts, not a limit (“Keep dragging”): with Study on, the reader still drags the lines between the text, their notes' margin, and the Notebook (E189) | 4, 5 | Kept: `test/desk-e189-lines.test.js` green; drag each line at 1440 | open |
 | SZ-17 | The text column drags only within 45 to 75 characters a line | 4 | Drag to each end and count characters | open |
@@ -371,7 +419,7 @@ run's best reading, entered in the plan's queue with what was done.
 | MO-05 | One curve: everything arrives fast and settles gently (a sharp ease-out) | 1 | `test/featherboa-motion.test.js`: one easing token, no bare `ease` | built (c1bb5383) |
 | MO-06 | Leaving takes two thirds as long as arriving | 1 | `test/featherboa-motion.test.js` | built (c1bb5383) |
 | MO-07 | Nothing bounces, and nothing loops | 1 | Grep: no `infinite` animation and no overshooting curve | built (c1bb5383) |
-| MO-08 | Scripture never moves: it does not animate, shift, or reflow when a note or panel opens, since the margin is already reserved | 4, 5 | Open a footnote and the panel at 1440; the first verse keeps its position | open |
+| MO-08 | Scripture never moves: it does not animate, shift, or reflow when a note or panel opens, since the margin is already reserved | 4, 5 | Open a footnote and the panel at 1440; the first verse keeps its position | Phase 4's part held (9b7c10ed): a chapter loading above keeps the line; the footnote and the panel with Phase 5 |
 | MO-09 | Reduced motion is unchanged: a reader whose device asks for less gets no movement | 1 | Kept: emulate `prefers-reduced-motion`; open a menu, a sheet, and the panel | built (c1bb5383, kept) |
 | MO-10 | Built as four duration tokens and one easing token, then one pass pointing every transition at one of them | 1 | `test/featherboa-motion.test.js`: no transition or animation outside the four durations | built (c1bb5383); Q12 |
 
@@ -441,14 +489,14 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| RP-01 | The chapter page feels like a well-made reader's Bible: a book face, a true measure, quiet numbers, and margins that do work; no paper texture, no page curl, no card | 4 | John 3 at 1440 against the proposal's drawing | open |
-| RP-02 | Built mostly as styles on today's markup; every Display setting keeps working; the margin footnote is the new behavior | 4 | Each tray setting on the new page | open |
+| RP-01 | The chapter page feels like a well-made reader's Bible: a book face, a true measure, quiet numbers, and margins that do work; no paper texture, no page curl, no card | 4 | John 3 at 1440 against the proposal's drawing | built for the screen (9b7c10ed): John 3 at 1440, the book face, a 660 column, quiet numbers; the margin's work with Phase 5 |
+| RP-02 | Built mostly as styles on today's markup; every Display setting keeps working; the margin footnote is the new behavior | 4 | Each tray setting on the new page | built (9b7c10ed): styles on the chapter's markup; the tray's settings reach every chapter read on into (seen: Extra large in OpenDyslexic at 375, numbers off, night) |
 | RP-03 | Scripture in Source Sans 3 at its refit size, about 70 characters a line in the 660 column | 1, 4 | Count characters a line on John 3 at size M | built (c1bb5383): the size; counted in Phase 4 |
 | RP-04 | The chapter number is a drop numeral in LIT Green, as in the apps | 4 | None; see WB-16 | superseded → WB-16 |
-| RP-05 | Verse numbers and footnote letters are deep green with no underline, not the proposal's small gray figures and small italics (CO-18) | 4 | Covered by CO-18 | open |
-| RP-06 | Footnote letters stand upright, never italic | 4 | Computed `font-style: normal` on footnote letters | open |
+| RP-05 | Verse numbers and footnote letters are deep green with no underline, not the proposal's small gray figures and small italics (CO-18) | 4 | Covered by CO-18 | built (c1bb5383), by CO-18; kept on every chapter read on into (9b7c10ed) |
+| RP-06 | Footnote letters stand upright, never italic | 4 | Computed `font-style: normal` on footnote letters | built (9b7c10ed): every footnote letter computes `font-style: normal`, on the page's chapter and loaded ones |
 | RP-07 | No sheet: the text sits on the page | 1, 4 | John 3 at 1440: no card behind the text | built (63d07ac0, c1bb5383) |
-| RP-08 | The way on at the foot is large type in deep green (“John 2 →,” with “Luke 24” back), not a filled button | 4 | The foot of John 21, and John 3 without JavaScript | open |
+| RP-08 | The way on at the foot is large type in deep green (“John 2 →,” with “Luke 24” back), not a filled button | 4 | The foot of John 21, and John 3 without JavaScript | built (9b7c10ed): large type in deep green, not a filled button: after Luke 24, and at John 3's foot without JavaScript |
 | RP-09 | The way on at every chapter's foot | 4 | None; see WB-10 | superseded → WB-10 |
 | RP-10 | Footnotes and the reader's notes share the 320 margin, one place for everything about a line | 5 | John 3 at 1440 with notes and a footnote open | open |
 | RP-11 | A footnote opens in the margin when its letter is pressed, one at a time | 5 | Press a letter at 1440 | open |
@@ -470,11 +518,11 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-27 | On a phone, a footnote opens as a sheet from the bottom, whole | 5 | Covered by PH-21 | open |
 | RP-28 | The reader's notes are Study's, which a phone doesn't have | 5 | At 390 with `?desk=on`: no margin notes | open |
 | RP-29 | One line under the header says where the reader is, and each part is a picker: “John” lists the books, “Chapter 1” the chapters | 4 | Press each part at 1440 | built (246ab483): “John ▾ / Chapter 3 ▾” at 1440; John opens the panel at the books with focus in the field, Chapter 3 with focus on 3 |
-| RP-30 | Previous and next are plain arrows in the line, and large type at the foot | 4 | The line's arrows at 1440 | built (246ab483): plain icons named “Previous: John 2” and “Next: John 4,” unavailable at the ends and stepping over drafts as Previous and Next do; the foot's large buttons kept |
+| RP-30 | Previous and next are plain arrows in the line, and large type at the foot | 4 | The line's arrows at 1440 | built (246ab483, 9b7c10ed): plain icons named “Previous: John 2” and “Next: John 4,” unavailable at the ends and stepping over drafts as Previous and Next do; the foot's way on in large type (RP-08) |
 | RP-31 | The line's right end loses “Switch to Read View” | 4 | Grep: no such label | built (246ab483): no “Switch to Read View” on a chapter (grep) |
 | RP-32 | The line keeps Study's way in at its right end | 4, 9 | The line at 1440 with the preview | built (246ab483): from 1100px with the preview, Notebook and “Study John 3” end the line; a tablet has neither (Q53); Study's own side with Phase 9 |
 | RP-33 | That way in labeled “Open in Study Desk” | 4 | None; see ST-15 | superseded → ST-15 |
-| RP-34 | Read View retires at launch (E8), and its pill goes with it | 4 | Covered by WB-44 | open |
+| RP-34 | Read View retires at launch (E8), and its pill goes with it | 4 | Covered by WB-44 | built (9b7c10ed), by WB-44 |
 | RP-35 | The phone's bars are proposal 15's (one row at the top, a bar at the thumb, both hiding on a scroll down), replacing today's one row (audit F3) | 3 | Covered by PH-01 to PH-06 | built (782271a5), by PH-01 to PH-06 |
 | RP-36 | One switch, “Justify,” in the Display tray, directly under Line spacing | 4 | The tray at 1440 | open |
 | RP-37 | Justify brings hyphenation with it, as E106 does | 4 | `hyphens: auto` with Justify on, seen in headless Chrome (the Browser pane draws no hyphens) | open |
@@ -488,7 +536,7 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-45 | The links that stood for Read View (the search's second jump and the picker's footer, E114) open Study at the passage like every other link into it, keeping the reader's own layout | 6, 9 | `test/desk-e114-reading-links-search.test.js` and `-tray` rewritten | Search's built (f1a6b2af): “Study John 3:16” opens `/desk/?place=john-3:16` with no `&layout=reading` (both E114 tests rewritten); ReadMenu's footer leaves with Read View (Q70) |
 | RP-46 | The search's second row reads “Open in Study Desk” | 6 | None; see ST-15 | superseded → ST-15 |
 | RP-47 | The new picker has no “Read the whole book” row | 4 | Covered by FP-11 | built (246ab483), by FP-11 |
-| RP-48 | Proposal 14's switch on the reading page (Chapter \| Whole book) is not taken; every chapter reads on into the next | 4 | No such switch on any page | open |
+| RP-48 | Proposal 14's switch on the reading page (Chapter \| Whole book) is not taken; every chapter reads on into the next | 4 | No such switch on any page | built (9b7c10ed): no such switch on any page |
 
 ## Beside scripture (BS)
 
@@ -597,52 +645,52 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| WB-01 | Chapter View retires into one reading page by “Continuous chapters”; the proposal's switch (Chapter \| Whole book \| Focus), title page, and green numerals in the text are not built | 4 | Covered by the rows below | open |
-| WB-02 | Every chapter keeps its address and opens as itself (`/luke-3`, `/luke-3#v16`) | 4 | `test/featherboa-continuous.test.js`; open `/luke-3#v16` | open |
-| WB-03 | With JavaScript, the next chapter loads below as the reader nears it, and the previous one above on a scroll up, as Study's text pane does (`desk-corpus.mjs`, `desk/lit-pane.js`) | 4 | `test/featherboa-continuous.test.js`; scroll John 3 into John 4 and back | open |
-| WB-04 | The place line and the address follow the chapter in view | 4 | Scroll into John 4: the line and the address say John 4 | open |
-| WB-05 | Continue reading keeps following the verse at the reading line | 4 | Stop at John 4:10, leave, open the picker | open |
-| WB-06 | It needs no Study, so phones and tablets read straight through too | 4 | At 390 and 820 without the preview, chapters read on | open |
-| WB-07 | Without JavaScript a page is one chapter, with the way on at its foot | 4 | John 3 with JavaScript off | open |
-| WB-08 | The address changes without adding to the browser's history, so Back leaves the book | 4 | `test/featherboa-continuous.test.js`: `history.length` unchanged | open |
-| WB-09 | The place line's ‹ › go to the start of the previous or next chapter, loading it first if it isn't on the page, and so do ← → and [ ] | 4 | `test/featherboa-continuous.test.js`; press each | open |
-| WB-10 | Previous and Next in large type appear at the book's end (“John 1 →” after Luke 24) and, without JavaScript, at each chapter's foot | 4 | The end of Luke 24; John 3 with JavaScript off | open |
-| WB-11 | Not one page per book: the chapter addresses stay, for the links already out there and the apps' link files | 4 | `test/link-files.test.js` kept green; no book page built | open |
-| WB-12 | Link previews and search entries stay one per chapter | 4 | Each chapter's preview tags and Pagefind entry name it | open |
+| WB-01 | Chapter View retires into one reading page by “Continuous chapters”; the proposal's switch (Chapter \| Whole book \| Focus), title page, and green numerals in the text are not built | 4 | Covered by the rows below | built (9b7c10ed): no switch, title page, “Read the whole book,” or green numerals; the rows below |
+| WB-02 | Every chapter keeps its address and opens as itself (`/luke-3`, `/luke-3#v16`) | 4 | `test/featherboa-continuous.test.js`; open `/luke-3#v16` | built (9b7c10ed): /luke-3 and /luke-3/#v16 open as themselves (`test/featherboa-continuous.test.js`, and seen) |
+| WB-03 | With JavaScript, the next chapter loads below as the reader nears it, and the previous one above on a scroll up, as Study's text pane does (`desk-corpus.mjs`, `desk/lit-pane.js`) | 4 | `test/featherboa-continuous.test.js`; scroll John 3 into John 4 and back | built (9b7c10ed, d1160921): below once the last entry's end is within 2.5 windows, above only on a scroll up near the top (wheel, a finger drawn down, ↑, Page Up, Home, Shift+Space); John 2 up into John 1 held the line to 0.5px, nothing above John 1; a jump to the page's end loads one chapter, not the book (d1160921: scroll anchoring off on body too) |
+| WB-04 | The place line and the address follow the chapter in view | 4 | Scroll into John 4: the line and the address say John 4 | built (9b7c10ed): the place line, the address, the title, the phone's “John 4 ▾,” the picker, and Study's link follow the chapter at the reading line (seen at 1440, 820, and 390) |
+| WB-05 | Continue reading keeps following the verse at the reading line | 4 | Stop at John 4:10, leave, open the picker | built (9b7c10ed): John 4:10 recorded from John 3's page, in the chapter that holds it |
+| WB-06 | It needs no Study, so phones and tablets read straight through too | 4 | At 390 and 820 without the preview, chapters read on | built (9b7c10ed): chapters read on at 390, at 820 in a window, and on an 820 touch tablet, without the preview |
+| WB-07 | Without JavaScript a page is one chapter, with the way on at its foot | 4 | John 3 with JavaScript off | built (9b7c10ed): with JavaScript off, John 3 is one chapter with “John 2” and “John 4” at its foot, and Back to top |
+| WB-08 | The address changes without adding to the browser's history, so Back leaves the book | 4 | `test/featherboa-continuous.test.js`: `history.length` unchanged | built (9b7c10ed): `replaceState` only, `history.length` unchanged (tested); Back and a reload land on John 4:10 |
+| WB-09 | The place line's ‹ › go to the start of the previous or next chapter, loading it first if it isn't on the page, and so do ← → and [ ] | 4 | `test/featherboa-continuous.test.js`; press each | built (9b7c10ed): ‹ › ← → [ ] load the neighbor if needed and land on its heading with focus (tested, and seen) |
+| WB-10 | Previous and Next in large type appear at the book's end (“John 1 →” after Luke 24) and, without JavaScript, at each chapter's foot | 4 | The end of Luke 24; John 3 with JavaScript off | built (9b7c10ed): after Luke 24, “John 1” with “Luke 23” back; without JavaScript at each chapter's foot; after a run of drafts the end names none of them again (Acts 1) |
+| WB-11 | Not one page per book: the chapter addresses stay, for the links already out there and the apps' link files | 4 | `test/link-files.test.js` kept green; no book page built | built (9b7c10ed): every chapter address kept, no book page; `test/link-files.test.js` green |
+| WB-12 | Link previews and search entries stay one per chapter | 4 | Each chapter's preview tags and Pagefind entry name it | built (9b7c10ed): each chapter's page keeps its own preview tags and Pagefind entry (Pagefind reads the built pages, one chapter each; a chapter read on into is drawn in the browser only) |
 | WB-13 | The whole-book browser tools (Ctrl+F, Read Aloud, page translation, printing a book) were let go on 2026-11-02 (E8) | 4 | None | n/a (record only) |
-| WB-14 | Every tool on the page works across chapters: the verse menu, footnotes, key terms, and Study's marks and margin notes | 4, 5 | Use each on a second, loaded chapter | open |
-| WB-15 | Between chapters, only the next chapter's heading, set close as Study's text pane sets it (“James 2” in Fraunces at about 23px, 32px below the last line, no rule) | 4 | Measure 88px from James 1's last line to James 2's first | open |
-| WB-16 | The drop numeral goes on the screen | 4 | No drop numeral on any chapter at any width | open |
+| WB-14 | Every tool on the page works across chapters: the verse menu, footnotes, key terms, and Study's marks and margin notes | 4, 5 | Use each on a second, loaded chapter | built (9b7c10ed): on a loaded chapter the verse menu (“John 4:7 (LIT)”), footnote popovers and “See in footnotes,” the selection panel, key terms, and reference previews work; with the preview Study's marks and margin notes reach it through `lit:read-on`; Print, Show in Notebook, the Greek tab, printing with notes, and the tour stay with the page's own chapter (Phase 5) |
+| WB-15 | Between chapters, only the next chapter's heading, set close as Study's text pane sets it (“James 2” in Fraunces at about 23px, 32px below the last line, no rule) | 4 | Measure 88px from James 1's last line to James 2's first | built (9b7c10ed): the next chapter's heading in Fraunces, no rule; 75px from James 1's last line to James 2's first with the preview against the record's 88, from Study's pane's values at the page's size (Q84) |
+| WB-16 | The drop numeral goes on the screen | 4 | No drop numeral on any chapter at any width | built (9b7c10ed): no drop numeral on any chapter at any width |
 | WB-17 | Paper keeps the drop numeral, since a print is one chapter | 8 | Covered by OS-04 | open |
-| WB-18 | The footnote list and Go deeper leave the reading flow on the screen | 4 | John 3 at 1440: neither sits between chapters | open |
-| WB-19 | The list stays in the page for printing, and both stay for readers without JavaScript and for Study, which reads them from the chapter's page (`desk/chapter-page.js`) | 4, 8 | JavaScript off shows both; a print shows the list; Study still loads them | open |
+| WB-18 | The footnote list and Go deeper leave the reading flow on the screen | 4 | John 3 at 1440: neither sits between chapters | partly built (9b7c10ed): with the preview from 1100px the footnote list and Go deeper leave the flow (Go deeper opens This verse at “This chapter”); without it, the list sits between chapters until Phase 5's panel |
+| WB-19 | The list stays in the page for printing, and both stay for readers without JavaScript and for Study, which reads them from the chapter's page (`desk/chapter-page.js`) | 4, 8 | JavaScript off shows both; a print shows the list; Study still loads them | built (9b7c10ed): JavaScript off shows both; a print shows the list; Study reads them from the chapter's page as before |
 | WB-20 | Where the Notebook panel runs, they are its Footnotes tab and This verse's “This chapter,” which shows the chapter's Go deeper rows | 5 | The panel with the preview | open |
 | WB-21 | A margin footnote's “In the notes ↓” opens the Footnotes tab at its note where the panel runs; elsewhere, the Footnotes sheet or panel (PH-23) | 5 | Press it with and without the preview, at 1440 and 820 | open |
 | WB-22 | On a phone or tablet the heading's Go deeper opens a sheet (a panel on a tablet) with “Go deeper” and “Footnotes” tabs | 5 | Covered by PH-23 and PH-25 | open |
-| WB-23 | “Go deeper” sits at the right end of each chapter's heading (not the place line, not the margin) and opens the Notebook on This verse, scrolled to “This chapter” for that chapter | 4, 5 | Press it on James 2's heading | open |
-| WB-24 | The Verse and chapter numbers switch hides the headings too; with it off, the chapters run on with an ordinary paragraph's gap, as one long passage | 4 | Turn it off with John 3 and 4 loaded | open |
-| WB-25 | With it off, the headings stay for screen readers and come back into view when a keyboard reaches them | 4 | `read_page` lists them; Tab to one | open |
-| WB-26 | Go deeper hides with its heading and stays in This verse; the place line and the progress line still say where the reader is | 4 | The same, at 1440 | open |
-| WB-27 | Footnote letters start again each chapter, as today | 4 | Kept: John 4's first letter is “a” | open |
+| WB-23 | “Go deeper” sits at the right end of each chapter's heading (not the place line, not the margin) and opens the Notebook on This verse, scrolled to “This chapter” for that chapter | 4, 5 | Press it on James 2's heading | Phase 4's part built (9b7c10ed): Go deeper at the heading's right end on every chapter; with the preview it opens This verse at “This chapter” for that chapter, without it, to the chapter's own Go deeper section; on a phone with Phase 5's sheet |
+| WB-24 | The Verse and chapter numbers switch hides the headings too; with it off, the chapters run on with an ordinary paragraph's gap, as one long passage | 4 | Turn it off with John 3 and 4 loaded | built (9b7c10ed): numbers off clips each heading to 1×1 and the chapters run on with a paragraph's gap |
+| WB-25 | With it off, the headings stay for screen readers and come back into view when a keyboard reaches them | 4 | `read_page` lists them; Tab to one | built (9b7c10ed): the headings stay in the tree for screen readers and come back over the chapter's first line on focus |
+| WB-26 | Go deeper hides with its heading and stays in This verse; the place line and the progress line still say where the reader is | 4 | The same, at 1440 | built (9b7c10ed): Go deeper hides with its heading and shows its row (35px) while focused; the place line and the progress line still say where the reader is |
+| WB-27 | Footnote letters start again each chapter, as today | 4 | Kept: John 4's first letter is “a” | built (9b7c10ed): kept; John 4's first letter is “a” |
 | WB-28 | The Footnotes tab lists the chapter in view | 5 | Scroll into John 4; the tab lists John 4's | open |
-| WB-29 | A chapter still being translated loads as Study's text pane loads it: a run of drafts in one book is one entry, headed “Luke 23–24” (or “Acts” when the whole book is in draft), saying they are still being translated | 4 | `test/featherboa-continuous.test.js`: drafts as one entry | open |
+| WB-29 | A chapter still being translated loads as Study's text pane loads it: a run of drafts in one book is one entry, headed “Luke 23–24” (or “Acts” when the whole book is in draft), saying they are still being translated | 4 | `test/featherboa-continuous.test.js`: drafts as one entry | built (9b7c10ed): a run of drafts is one entry (“Acts 2–28,” or the book's name when all are drafts), saying it is still being translated (tested); its place in the address and Continue reading is Q87 |
 | WB-30 | The draft entry's line about the Greek points to the Notebook's Greek tab | 4 | None; see WB-32 | superseded → WB-32 |
-| WB-31 | A draft asked for by name, from the picker or its address, still opens its own page | 4 | Open `/acts-5`, and pick Acts 5 | open |
-| WB-32 | The draft entry's line links to the chapter's Greek in Study, since the Read page's panel has no Greek tab | 4 | Press the line with the preview | open |
-| WB-33 | The progress line is kept: a thin green line along the place line's bottom edge, in place of its border, adding no height | 4 | The line's height with and without it | open |
-| WB-34 | It fills as the reader moves through the book, measured in verses, so a long chapter counts for more | 4 | Half of Luke's verses read: half full | open |
-| WB-35 | Screen readers skip it, since the place line names the chapter | 4 | `read_page` shows no progress node | open |
-| WB-36 | On a phone it runs along the top row's bottom edge and hides with it | 3, 4 | At 390, scroll down and up | open: Phase 4 (the phone's row is built, 782271a5; its hairline holds the line's place, Q37) |
-| WB-37 | Printing stays one chapter with its notes, the chapter in view | 8 | `test/featherboa-continuous.test.js`: a print is one chapter; a PDF of John 4 reached from John 3 | open |
-| WB-38 | “Read the whole book,” the switch, and the title page aren't needed, since any chapter reads on | 4 | None of the three built | open |
+| WB-31 | A draft asked for by name, from the picker or its address, still opens its own page | 4 | Open `/acts-5`, and pick Acts 5 | built (9b7c10ed): /acts-5 opens its own page and reads on into nothing |
+| WB-32 | The draft entry's line links to the chapter's Greek in Study, since the Read page's panel has no Greek tab | 4 | Press the line with the preview | built (9b7c10ed): the draft entry's line links to its Greek in Study with the preview only (`draftGreekLink`, tested); where it lands waits on Study's Greek arrival (Q86) |
+| WB-33 | The progress line is kept: a thin green line along the place line's bottom edge, in place of its border, adding no height | 4 | The line's height with and without it | built (9b7c10ed): along the place line's bottom edge, adding no height; on a computer it scrolls away with the line (Q85) |
+| WB-34 | It fills as the reader moves through the book, measured in verses, so a long chapter counts for more | 4 | Half of Luke's verses read: half full | built (9b7c10ed): by verses through the book (`bookProgress`, tested); Luke 24:53 fills it |
+| WB-35 | Screen readers skip it, since the place line names the chapter | 4 | `read_page` shows no progress node | built (9b7c10ed): a pseudo-element on the place line (`header.css`), so no node for a screen reader |
+| WB-36 | On a phone it runs along the top row's bottom edge and hides with it | 3, 4 | At 390, scroll down and up | built (9b7c10ed): at 390 the line runs along the top row's bottom edge (`.site-header--reading::after`) and hides with it |
+| WB-37 | Printing stays one chapter with its notes, the chapter in view | 8 | `test/featherboa-continuous.test.js`: a print is one chapter; a PDF of John 4 reached from John 3 | built early (9b7c10ed): a print is the chapter in view with its notes (print media, tested); the PDF check with Phase 8 |
+| WB-38 | “Read the whole book,” the switch, and the title page aren't needed, since any chapter reads on | 4 | None of the three built | built (9b7c10ed): none of the three |
 | WB-39 | The introduction keeps its own page (`/mark-intro`) | 7 | Kept: `/mark-intro` at its address | open |
-| WB-40 | “Introduction to Mark →” at the top of chapter 1, and the picker's row under the chapter grid | 4, 7 | Mark 1 at 1440; the picker on Mark | open |
+| WB-40 | “Introduction to Mark →” at the top of chapter 1, and the picker's row under the chapter grid | 4, 7 | Mark 1 at 1440; the picker on Mark | the chapter's side built (9b7c10ed): “Introduction to Mark” at Mark 1's top, above the text; the picker's row with Phase 7 |
 | WB-41 | The introduction ends with “Mark 1 →” into the text | 7 | The foot of `/mark-intro` | open |
-| WB-42 | Focus retires: neither Read View's (every paragraph dimmed but one) nor the proposal's (the header and place line fading) | 4 | Grep: no Focus code or label | open |
-| WB-43 | /privacy's line about Focus goes too | 4 | /privacy's text | open |
-| WB-44 | Read View still retires as E8 planned: `/read/<book>` forwards to chapter 1, and `#ch-N` to chapter N | 4 | `test/featherboa-old-addresses.test.js`; `test/read-view-retirement.test.js` green | open |
-| WB-45 | One reading page replaces the 2026-09-30 rule that Chapter View and Read View decide where a new tool goes: a tool about a verse or a word goes on the reading page | 14 | The root `CLAUDE.md`'s "Key Conventions" rewritten at Checkpoint B | open |
-| WB-46 | Go deeper names its chapter by where it sits in the heading, adds no height, and works the same at every width (the margin's and the place line's placements were rejected) | 4 | A chapter heading at 1440, 820, and 390: Go deeper is in the heading row, the row is no taller with it, and nothing of it sits in the margin or the place line | open |
+| WB-42 | Focus retires: neither Read View's (every paragraph dimmed but one) nor the proposal's (the header and place line fading) | 4 | Grep: no Focus code or label | built (9b7c10ed): Focus, `read-mode.js`, `read-mode.css`, and ReadMenu gone (grep), `lit_rm_focus` with them |
+| WB-43 | /privacy's line about Focus goes too | 4 | /privacy's text | built (9b7c10ed): /privacy's Focus phrase removed; two more Read View clauses there are BVJ's words (Q88) |
+| WB-44 | Read View still retires as E8 planned: `/read/<book>` forwards to chapter 1, and `#ch-N` to chapter N | 4 | `test/featherboa-old-addresses.test.js`; `test/read-view-retirement.test.js` green | built (9b7c10ed): every book tested; /read/luke/#luke-10-v25 forwards to /luke-10/#v25, and without JavaScript a meta refresh goes to chapter 1 |
+| WB-45 | One reading page replaces the 2026-09-30 rule that Chapter View and Read View decide where a new tool goes: a tool about a verse or a word goes on the reading page | 14 | The root `CLAUDE.md`'s "Key Conventions" rewritten at Checkpoint B | built early (9b7c10ed): the root `CLAUDE.md`'s Key Conventions say a tool about a verse or a word goes on the reading page; Checkpoint B reads it again |
+| WB-46 | Go deeper names its chapter by where it sits in the heading, adds no height, and works the same at every width (the margin's and the place line's placements were rejected) | 4 | A chapter heading at 1440, 820, and 390: Go deeper is in the heading row, the row is no taller with it, and nothing of it sits in the margin or the place line | built (9b7c10ed): in the heading row at 1440, 820, and 390, the row no taller with it, nothing of it in the margin |
 
 ## The phone (PH)
 
@@ -655,7 +703,7 @@ run's best reading, entered in the plan's queue with what was done.
 | PH-05 | Both bars hide together on a scroll down and return on any scroll up, one rule, at “Motion”'s timing | 3 | At 390, scroll down and up (this file's Phase 3 notes) | built (782271a5), with an 8px give (Q36) and `scroll-padding` for a link's target (Q40); the feel on a real phone for BVJ |
 | PH-06 | This replaces today's one-row toolbar on a phone (audit F3), the round ‹ › beside the title there, and the title row itself | 3 | None of the three at 390 | built (782271a5): none of the three from 320 to 699px, all back at 700; Read View on a phone until Phase 4 queued (Q48) |
 | PH-07 | The app banner stays above the row | 3 | Kept: the banner at 390 with an Android user agent | built (782271a5, kept): the banner on top at 360 and 412 with an Android user agent, the row sticking at 0 once it scrolls away |
-| PH-08 | The progress line runs along the top row's bottom edge, as on a computer, and hides with it | 3, 4 | Covered by WB-36 | open: Phase 4, with WB-36 (the row's hairline holds its place, Q37) |
+| PH-08 | The progress line runs along the top row's bottom edge, as on a computer, and hides with it | 3, 4 | Covered by WB-36 | built (9b7c10ed), by WB-36 |
 | PH-09 | Search opens the field in place of the top row, results below and verses first | 3, 6 | Press Search at 390 | built (782271a5, f1a6b2af): at 390 the bar's Search opens the field in place of the top row, and “light” lists John 12:36 first; the page stays 390 wide |
 | PH-10 | “John 1 ▾” opens the picker as a sheet rising nearly to the top: the typing field first, then Continue reading, the 27 books, the chapter grid, and the introduction | 4 | At 390 | built (246ab483): at 390, “John 3 ▾” raises the sheet nearly to the top at the Large speed, focus on 3 (Q52), and Escape gives focus back to the row |
 | PH-11 | The menu is a sheet rising from the bar, not today's panel from the top corner | 3 | Press Menu at 390 | built (782271a5): 526px tall at 390 by 844, the page dimmed (Q46), focus on its × (Q43), Escape back to Menu; one sheet at every width (Q42) |
@@ -779,7 +827,7 @@ run's best reading, entered in the plan's queue with what was done.
 | HD-01 | Read, Study, Learn, and About, the current one underlined in green (the mark's green) | 3 | The header at 1440 on a page in each place | built (ec3378b6); widths measured in three fonts: 700px, 900 in OpenDyslexic, 1100 with Study |
 | HD-02 | The black “Read” button goes: Read is a place like the others | 3 | No filled button in the header | built (ec3378b6) |
 | HD-03 | Read opens the passage picker, as “Finding a passage” decided | 3, 4 | Covered by FP-15 | built (246ab483), by FP-15; a link to /read without JavaScript and under 700px (Q24) |
-| HD-04 | The proposal's “Read View becomes a whole-book switch” falls away, since every chapter reads on into the next | 4 | No such switch built | open |
+| HD-04 | The proposal's “Read View becomes a whole-book switch” falls away, since every chapter reads on into the next | 4 | No such switch built | built (9b7c10ed): no such switch |
 | HD-05 | Learn, Study, and About open menus, and keep their ▾ | 3 | `test/header-menus.test.js` rewritten; each menu at 1440 | built (ec3378b6) |
 | HD-06 | No address changes, so no page gathers Learn's or About's pages for the word to lead to | 3 | No /learn page; `npm run check:links` passes | built (ec3378b6) |
 | HD-07 | Study's rows are the Study sidebar's places: Scripture, Notebook, Sheets, and Collections | 3, 9 | Study ▾ at 1440 with `?desk=on` | built (ec3378b6) |
@@ -1015,8 +1063,8 @@ run's best reading, entered in the plan's queue with what was done.
 | ST-06 | A place's name is its pane's title (“Advent 2 handout ▾”), and the sidebar marks the place | 9 | A sheet's place at 1440 | open |
 | ST-07 | The page keeps “Study” as a heading for screen readers, out of sight | 9 | `read_page` finds the heading | open |
 | ST-08 | The word is “pane,” not “column”: “Panes 1 2 3” (“Panes 1 2” in a place), “Open in this pane ▸,” and “This pane is empty.” | 9 | `test/featherboa-labels.test.js`: no “column” in Study's labels | open |
-| ST-09 | The reading page keeps “column” for its text column, a layout | 4 | Display's column labels | open |
-| ST-10 | The reading page is “the Read page,” replacing E130's “Scripture page(s)” | 4, 9 | `test/featherboa-labels.test.js`: no “Scripture page” | open |
+| ST-09 | The reading page keeps “column” for its text column, a layout | 4 | Display's column labels | held (9b7c10ed): Display's column labels unchanged |
+| ST-10 | The reading page is “the Read page,” replacing E130's “Scripture page(s)” | 4, 9 | `test/featherboa-labels.test.js`: no “Scripture page” | Phase 4's part held (9b7c10ed): the reader's words say “the Read page”; Study's labels keep “Scripture page(s)” until Phase 9 |
 | ST-11 | Each label is worded case by case, a verb often serving better than the name (“Read Romans 8,” not “Read Romans 8 on its Read page”) | all (4) | The checkpoints' label audits | open |
 | ST-12 | The address is /study, and /desk does not forward to it | 9 | `test/featherboa-old-addresses.test.js`: /study builds, /desk is the 404 page | open |
 | ST-13 | The help page moves with it (BP-20) | 9 | `test/desk-help-page.test.js` rewritten for /study/help | open |
@@ -1069,7 +1117,7 @@ run's best reading, entered in the plan's queue with what was done.
 | ST-60 | The formatting bar sits over the part holding the cursor, at the part's left edge and above its own controls | 11 | Type in a part: the bar sits above it | open |
 | ST-61 | The Read page's Notebook panel loses its Greek tab, leaving Notes, Footnotes, and This verse (reversing BVJ's four in “Beside scripture”) | 5 | The panel with the preview | open |
 | ST-62 | This verse's Greek words open Study at that verse, with the Greek tab at the word | 5, 9 | Press a Greek word in This verse | open |
-| ST-63 | A draft chapter's line links to that chapter's Greek in Study | 4 | Covered by WB-32 | open |
+| ST-63 | A draft chapter's line links to that chapter's Greek in Study | 4 | Covered by WB-32 | built (9b7c10ed), by WB-32 |
 | ST-64 | Study keeps the Greek: Scripture's panes start with it beside the LIT, and it is beside the Notebook | 9, 10 | A fresh profile; the Notebook's pane list | open |
 | ST-65 | Sheets and collections leave the panes: a pane can show Scripture (The LIT, Greek, Footnotes, This verse), Yours (Notes), and Search | 9 | An empty pane in Scripture | open |
 | ST-66 | “A Sheets or Collections tab opens the last one” becomes the place's title, whose name is still a menu (another, a new one, or all) | 11 | Press a sheet's title | open |
@@ -1191,11 +1239,11 @@ run's best reading, entered in the plan's queue with what was done.
 | DA-06 | The dare's sentence that people direct the site and an AI writes much of its code is BVJ's to word or leave out | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
 | DA-07 | If it is in, the page says as plainly who translates the text | 7 | BVJ's answer at Checkpoint A | queued (Q2) |
 | DA-08 | Declined, i: the front page is John 1 (“The front page” took John 1 open on the first screen) | 7 | Covered by FR-09 | open |
-| DA-09 | Declined, ii: a reader's edition by default (Display's “Verse and chapter numbers” and “Footnote letters” put it one switch away) | 4 | Both switches on by default | open |
-| DA-10 | Declined for now, iii: show the argument (a “Compare” switch), revisited with the word links | 4 | No Compare switch | open |
+| DA-09 | Declined, ii: a reader's edition by default (Display's “Verse and chapter numbers” and “Footnote letters” put it one switch away) | 4 | Both switches on by default | kept (9b7c10ed): both switches on by default |
+| DA-10 | Declined for now, iii: show the argument (a “Compare” switch), revisited with the word links | 4 | No Compare switch | kept (9b7c10ed): no Compare switch |
 | DA-11 | Declined where it is left, iv: “Notebook” doesn't become “Notes” | 9, 10 | Covered by NB-18 | open |
 | DA-12 | Declined, v: one highlighter (“Color” kept the four highlighter colors and the six note markers) | 1 | Covered by CO-13 | built (c1bb5383, kept) |
-| DA-13 | Declined, vi: pages, not a scroll | 4 | Covered by WB-01 | open |
+| DA-13 | Declined, vi: pages, not a scroll | 4 | Covered by WB-01 | kept (9b7c10ed): every chapter keeps its page; by WB-01 |
 | DA-14 | Declined, vii: retire the header while you read | 3 | The header stays on John 3 at 1440 | built (ec3378b6, kept) |
 
 ## Decided with the build plan (BP)

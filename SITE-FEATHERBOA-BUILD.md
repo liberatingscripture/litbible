@@ -841,6 +841,11 @@ Entered by the run:
   edit the `CLAUDE.md` files under `src/data/`, which nothing that builds
   the apps' content reads (the manifest takes `chapters/*.json` only).
   Cost: none to the apps. Recommendation: allow it, for docs only.
+  Phase 4's part two (9b7c10ed) adds to what waits on it: `src/data/chapters/CLAUDE.md`
+  (lines 59, 81 to 89, 110 to 113, and 326) and `src/data/alignment/CLAUDE.md`
+  (line 445) still describe Read View, ReadMenu, `read-mode.js`, and
+  `read-mode.css`, all gone, and a comment in `books.js` names ReadMenu's
+  book grid. The comment is in a data file, so it stays either way.
 - **Q14. Tabs and list rows keep the ink** (KT-06; "Color"). "Color"
   makes deep green the color of what can be pressed, and the kit draws the
   words of filled, tinted, plain, and red buttons in it. A tab's and a
@@ -870,7 +875,10 @@ Entered by the run:
   its panel is open) and "dot" (a 24px circle with a 3:1 edge and a green
   ring when chosen). Verse numbers and footnote letters join "inline" with
   the Read page (Phase 4), which draws them without an underline
-  ("Color"). The Greek's words that open their details (the Greek tab's
+  ("Color"). They are deep green without the underline since Phase 1
+  (CO-18) and upright (RP-06), but Phase 4 left them out of the kit's
+  list: they join it in Phase 5, which redraws the verse menu and the
+  footnotes they open. The Greek's words that open their details (the Greek tab's
   words and signs, This verse's Greek words) are presses inside a line
   too: they take no level until Phase 12 redraws the Greek, This verse's
   keeping its own hover tint, since "inline" would color every Greek word
@@ -1363,6 +1371,69 @@ Entered by the run:
   step more space between hits than between verse rows, since a hit is
   four lines. Other choice: the cards. Cost: the one place results looked
   unlike the rest. Recommendation: keep.
+- **Q84. The gap between chapters** (WB-15). The record's mock measured
+  88px from one chapter's last line to the next one's first. Built from
+  the record's own values (the next chapter's name in Fraunces at the
+  Subhead size, 32px above it, no rule), it is 75px at the page's text
+  size, measured with the preview from James 1 into James 2. Meanwhile:
+  75. Other choice: 88, by 13px more under the heading. Cost: one margin.
+  Recommendation: keep 75; both are close beside the first drawing's 141,
+  which BVJ found too big.
+- **Q85. The progress line on a computer** (WB-33). It runs along the
+  place line's bottom edge as the record says, and on a computer the line
+  scrolls away with the page, so the progress line is out of sight while
+  the reader reads; on a phone it rides the top row, which comes back on
+  any scroll up. Meanwhile: it scrolls away. Other choices: once the line
+  has gone, the progress line alone rides the window's top edge (2px,
+  adding no height); or the place line stays at the window's top. Cost:
+  the first, a few rules and a class read-on.js sets; the second, a line's
+  height over the text all the time, which BVJ has kept off reading pages.
+  Recommendation: the first, since a line that is seen only at a
+  chapter's top hardly says how far through the book the reader is.
+- **Q86. A draft's Greek link opens Study at the chapter, not its Greek**
+  (WB-32, ST-63). “Read its Greek in Study” goes to `/desk/?place=acts-2`,
+  which moves Study's leading text pane to that chapter in the layout the
+  reader last had (E8), so the Greek shows only if that layout holds a
+  Greek pane. Meanwhile: that link, with the preview only. Other choice:
+  an arrival that opens the Greek pane at the chapter. Cost: a new
+  parameter in /desk's arrival, which is Phase 9's frame. Recommendation:
+  build it in Phase 9 and point the link at it then.
+- **Q87. A draft entry's place** (WB-04, WB-05, WB-29). With the reading
+  line in “Acts 2–28,” the address and the place line name the run's
+  first chapter (/acts-2/, a draft's own page), and Continue reading keeps
+  the last published verse the reader passed, since a draft has no verse
+  to keep. Meanwhile: that. Other choice: the address stays on the last
+  published chapter until the next one is reached. Cost: a branch in
+  read-on.js's address. Recommendation: keep; a reload there opens Acts
+  2's own page, which says the same thing the entry does.
+- **Q88. Two Read View clauses left on /privacy** (WB-43). The phase took
+  out the Focus phrase. Two more describe what retired with Read View:
+  “the place you last reached in each book in Read View” (nothing writes
+  those places now) and `lit-desk-read-highlights` (“whether your
+  highlights show in Read View”). They are BVJ's words, so they stay.
+  Other choice: remove both. Cost: none to the apps, but /privacy is
+  mirrored with LSC, so its apps-mirror-notify issue would name them.
+  Recommendation: remove both, with BVJ's yes.
+- **Q89. Read View's verse-number setting still reaches the Read page**
+  (`src/styles/CLAUDE.md`, “The Display tray,” rule 6). The plan keeps
+  every reader setting, so a reader who hid verse numbers in Read View
+  (`lit-read-numbers`, or the older `lit_rm_markers`) has them hidden on
+  every chapter's page until the switch is next set. There a hidden
+  number is a 1px box, so on a touch screen the verse menu has nothing to
+  tap. Meanwhile: the fallback, as the plan says. Other choice: drop both
+  fallbacks, so such a reader sees numbers again and turns them off once.
+  Cost: one line in Layout.astro's first-paint script and one in the
+  tray. Recommendation: drop them; the setting was for a whole-book page
+  that is gone.
+- **Q90. Analytics count each chapter read on into** (`src/pages/CLAUDE.md`,
+  on page views). In a browser with the Navigation API, Cloudflare's
+  beacon hears each `replaceState` as the address moves to the next
+  chapter and reports it as a page view; elsewhere only the chapter opened
+  counts, so a chapter's page views mix the two. Meanwhile: as it comes,
+  noted in that file. Other choice: a beacon placed by hand with its
+  single-page counting off. Cost: turning off the automatic beacon in
+  Cloudflare's dashboard, which is BVJ's. Recommendation: keep; a chapter
+  read is a fair page view, and the note says how to read the numbers.
 
 ## Questions answered before the run
 
@@ -1453,10 +1524,11 @@ with its last commit when done; never delete a line.
   (782271a5; the computer's header, the line, the news marks, and the footer in
   ec3378b6)
 - [ ] Phase 4: The Read page (/license built ahead, de0085a8; the place
-  line, the passage picker, and /read, 246ab483)
+  line, the passage picker, and /read, 246ab483; reading on and Read
+  View's retirement, 9b7c10ed, with d1160921)
 - [ ] Phase 5: Beside scripture
 - [x] Phase 6: Search (f1a6b2af; review fixes 24408884, d30c03c5,
-  563f837b, e896463b)
+  563f837b, e896463b, a475a2f3, 3dcc8475, bf05dafb)
 - [ ] Phase 7: Learn, the front door, and every other page (built ahead:
   the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
   draws, bae1d1cb, and the account pages, cf6f21c8)
