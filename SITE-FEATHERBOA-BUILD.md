@@ -1187,7 +1187,9 @@ Entered by the run:
   and turning it off hides the line's Notebook with the tab. Other choice:
   remove the switch in this part. Cost: the tray and the first stage's tab
   rules reworked here rather than with the Display tray. Recommendation:
-  the Display tray's part of Phase 4 removes it.
+  the Display tray's part of Phase 4 removes it. Done (96b343e1): the tray
+  has no such switch, and a stored `lit-desk-show` “off” is read as shown
+  and removed once.
 - **Q52. The phone's “John 3 ▾” focuses chapter 3** (PH-10, FP-14). The
   sheet's order is as written, the field first, but focus starts on the
   chapter, as “Chapter 3” does on a computer, so at 390 the sheet opens
@@ -1431,7 +1433,10 @@ Entered by the run:
   highlights show in Read View”). They are BVJ's words, so they stay.
   Other choice: remove both. Cost: none to the apps, but /privacy is
   mirrored with LSC, so its apps-mirror-notify issue would name them.
-  Recommendation: remove both, with BVJ's yes.
+  Recommendation: remove both, with BVJ's yes. Since the Display tray
+  (96b343e1), the key is kept in “Your marks”' memory with the rest and read by
+  the search box's notebook results (`desk/notebook-search.js`), so if
+  its line goes, the key goes with Study's frame (Phase 9).
 - **Q89. Read View's verse-number setting still reaches the Read page**
   (`src/styles/CLAUDE.md`, “The Display tray,” rule 6). The plan keeps
   every reader setting, so a reader who hid verse numbers in Read View
@@ -1514,6 +1519,82 @@ Entered by the run:
   note beside the line that calls it, as Phase 5 sets a chapter's notes.
   Cost: Phase 5's code, reused. Recommendation: reuse Phase 5's when an
   article first has footnotes.
+- **Q99. A stored “Closed” start is still honored** (NB-25, SD-56). The
+  record names three ways the Notebook panel opens (Open, Minimized, As I
+  left it); before it, a reader could also choose Closed. Meanwhile: a
+  reader who stored Closed sees it as a fourth choice, last, and it still
+  works; everyone else sees three. Other choice: change a stored Closed
+  to “As I left it” once and drop the code. Cost: a few lines either way.
+  Recommendation: keep it until the launch, then change it once.
+- **Q100. “Reset widths” stays in each line's own menu** (DI-25, DI-23).
+  DI-25's check is “no Reset widths,” but DI-23 and E189 keep each drag
+  line's menu, whose last choice is “Reset widths” (tested in
+  `test/desk-e189-lines.test.js`). Meanwhile: the tray's and the panel's
+  buttons are gone and the line menus keep theirs. Other choice: rename
+  the menus' choice. Cost: one label and its test. Recommendation: keep
+  the name, and read DI-25's check as “no Reset widths outside the line
+  menus.”
+- **Q101. OpenDyslexic's narrowest column** (SZ-17, DI-24). The text drags
+  within 45 to 75 of the face's own characters, but 45 OpenDyslexic
+  characters are wider than the column every page opens with, so its
+  narrow end is the opening width instead (about 33 of its characters).
+  Atkinson and the default face fit inside 45 to 75. Meanwhile: that.
+  Other choice: open the page wider for OpenDyslexic readers so 45 holds.
+  Cost: Phase 5 sets the opening columns anyway. Recommendation: Phase 5
+  sets them in each face's characters, which settles this.
+- **Q102. The text column's width is spoken in characters** (SZ-17). The
+  drag line tells a screen reader “Text 57 characters wide,” counting the
+  face's characters, and each arrow step moves one character; a width
+  kept from another face is held to this face's range when the page
+  opens, where it used to be dropped. Meanwhile: that. Other choice: the
+  page's own units. Cost: none. Recommendation: keep; characters are the
+  record's measure.
+- **Q103. Delete in bulk and how the panel opens moved, not copied**
+  (NB-25, NB-27). They left /notebook for All settings, which a line on
+  /notebook points to; backup is on both pages. Meanwhile: moved.
+  Other choice: on both pages. Cost: none. Recommendation: keep; one
+  home each.
+- **Q104. All settings links the account page only where accounts are
+  open** (DI-21, AC-22). Elsewhere the link would reach a page that says
+  accounts aren't open. Meanwhile: hidden until then. Other choice: always
+  shown. Cost: none. Recommendation: keep until accounts open.
+- **Q105. The tray scrolls in OpenDyslexic with Study on** (DI-01). At a
+  1440 by 900 window it is 360px wide and taller than the window, so it
+  scrolls inside itself, stopping 8px from the foot. Meanwhile: that.
+  Other choice: tighter rows in OpenDyslexic. Cost: a few rules.
+  Recommendation: look at it in the pane first.
+- **Q106. Justify where it can't apply** (RP-38). On most phones (a 390px
+  phone's column is too narrow) and in Atkinson or OpenDyslexic, the
+  switch does nothing visible, by E106's rule. Meanwhile: the switch shows
+  and does nothing there. Other choice: a quiet line under it, only where
+  it can't apply (“Your text is set ragged at this width,” say), or the
+  switch unavailable with that reason. Cost: a few lines.
+  Recommendation: the quiet line.
+- **Q107. A smaller size near a chapter's top loads the chapter above**
+  (WB, the tray). Keeping the reader's place scrolls the page up there,
+  which reading on takes for the reader nearing the top. The place holds
+  and the tray stays open, but a chapter loads unasked. Meanwhile: that.
+  Other choice: reading on ignores a scroll while the place is being
+  held. Cost: a few lines and a test. Recommendation: that, in Phase 5,
+  which touches reading on next.
+- **Q108. The tray's close button says “Close display settings”**
+  (CT-11). The tray and its button say “Display.” Meanwhile: today's
+  words. Other choice: “Close Display.” Cost: one label.
+  Recommendation: “Close Display,” so the names agree.
+- **Q109. /privacy's words for the new and changed settings** (DI-18;
+  `src/pages/CLAUDE.md`, “The privacy page”). /privacy names every key
+  the site keeps, so three lines changed, drafted for BVJ: the display
+  settings add “justification”; `lit-desk-show` is “an older note that
+  the Display menu's “Show the Notebook” was off. That switch is gone, so
+  the note is removed the next time you read a chapter with Study on”;
+  and `lit-desk-hide` is what was showing “while “Your marks” is off.”
+  One sentence of BVJ's is now out of date and left as it is: “You can
+  remove everything with the notebook page's “Delete in bulk” buttons,”
+  which are on All settings now. Meanwhile: the three drafts; the
+  sentence unchanged; the effective date unchanged. Other choice: none
+  for the keys (a test holds /privacy to them). Recommendation: approve
+  the three; reword the sentence to “with the “Delete in bulk” buttons on
+  All settings”; call it not a material change, so the date stays.
 
 ## Questions answered before the run
 
@@ -1603,9 +1684,10 @@ with its last commit when done; never delete a line.
 - [x] Phase 3: The header, the line under it, the footer, and the phone's bars
   (782271a5; the computer's header, the line, the news marks, and the footer in
   ec3378b6)
-- [ ] Phase 4: The Read page (/license built ahead, de0085a8; the place
+- [x] Phase 4: The Read page (/license built ahead, de0085a8; the place
   line, the passage picker, and /read, 246ab483; reading on and Read
-  View's retirement, 9b7c10ed, with d1160921)
+  View's retirement, 9b7c10ed, with d1160921; the Display tray, Justify,
+  and All settings, 96b343e1)
 - [ ] Phase 5: Beside scripture
 - [x] Phase 6: Search (f1a6b2af; review fixes 24408884, d30c03c5,
   563f837b, e896463b, a475a2f3, 3dcc8475, bf05dafb; Q77's unavailable

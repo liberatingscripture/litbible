@@ -158,7 +158,9 @@ event and `pageTextBox` (`desk/page.js`).
   Atkinson 334px, with the browser's anchoring on or off), since the text
   reflows again when the face's file arrives; it isn't held by
   `keepReadingPlace` today. Hold the line through it, on a chapter read on
-  into as well.
+  into as well. Done (96b343e1): `keepReadingPlace`'s `fonts` option holds the
+  line through both reflows, within 0.5px in headless Chrome, a chapter
+  read on into included.
 - **Phase 5 (beside scripture)**: with the preview, Study still places the
   column, so the three columns hold only without it (SZ-13); without the
   preview the footnote list and Go deeper sit between chapters until the
@@ -211,6 +213,39 @@ event and `pageTextBox` (`desk/page.js`).
 - **A flaky test**: `test/desk-greek-slow-load.test.js:39` failed once in a
   full `npm test` under load and passes alone (4 of 4); it is main's. Widen
   its timers if CI meets it.
+
+### Phase 4, part three: what the Display tray leaves
+
+The tray (96b343e1) is `src/lib/display-tray.mjs` (its settings and markup)
+and `src/scripts/display-tray.js`; “Your marks” is `src/lib/desk-marks.mjs`
+with `desk/note-settings.js`; All settings is `src/pages/settings.astro`
+with `src/scripts/settings-page.js` and, with the preview,
+`desk/settings-page.js`. Its hooks for a headless check:
+`[data-font-toggle]`, `#fontTray`, `[data-tray-choices="size|font|leading|theme"]
+[data-tray-choice]`, `[data-tray-switch="justify|vn|fn|terms|marks"]`; the
+choices are buttons, so click them.
+
+- **Phase 5 (beside scripture)**: the opening columns (220, 660, 320) set
+  in each face's characters settles OpenDyslexic's narrow end (Q101); the
+  notes' lettering stays in the panel's Settings tab (“View,” with the
+  All settings link) until Playpen Sans goes (DI-17); `footnote-pills.js`,
+  `notes-margin.js`, and `read-marks.js` re-measure on `data-justify`, so
+  keep it in any rewrite's attribute filter; and reading on should ignore
+  a scroll while `isHoldingPlace()` is true (Q107).
+- **Phase 9 (Study's frame)**: stale copy left for the sweep:
+  `src/pages/desk/help.astro` (about line 275: “In Read View… “My
+  highlights” is on in the Display settings”), the tour's “read” step in
+  `src/lib/desk-first-use.mjs` (about line 202, “My highlights” in
+  Display options, pinned by `test/desk-first-use.test.js`), the tour's
+  step title “Undo, and Your marks,” and /desk's title menu's “Display
+  options” with the help page's mentions of it (SD-12).
+  `lit-desk-read-highlights` is still in “Your marks”' memory and read by
+  `desk/notebook-search.js`'s `notesHidden()` (Q88).
+- **Every later phase's docs**: `src/scripts/desk/CLAUDE.md` is 112,474
+  bytes against its 114,688 limit (`test/claude-docs.test.js`), so prune
+  before adding to it.
+- **The launch (Phase 14)**: change a stored Closed start to “As I left
+  it” once (Q99); show the account link when accounts open (Q104).
 
 ### Phase 7: what Learn leaves
 
@@ -385,8 +420,8 @@ run's best reading, entered in the plan's queue with what was done.
 | SZ-13 | On a computer the reading page is a 220 quiet side, a 660 text column, and a 320 margin | 4 | Measure at 1440: 220, 660, 320 | built without the preview (9b7c10ed): 220, 660, 320 at 1440; in a real browser the outer space is even (113 and 112px); with the preview the desk places the column until Phase 5 |
 | SZ-14 | The text column never gets wider; on a bigger screen only the outer space grows | 4 | The column measured at 1440 and 1920 | built (9b7c10ed): the column is 660 from 1100 to 1920; only the outer space grows |
 | SZ-15 | The measure stays inside 45 to 75 characters (the 660 column's count measured again in Source Sans 3 through `--ch`); larger sizes shorten it | 1, 4 | Count characters a line on John 3 at each size and face | built (c1bb5383): `--reading-width` holds 45 to 75 `--char`; counted again in Phase 4 |
-| SZ-16 | These widths are where every page starts, not a limit (“Keep dragging”): with Study on, the reader still drags the lines between the text, their notes' margin, and the Notebook (E189) | 4, 5 | Kept: `test/desk-e189-lines.test.js` green; drag each line at 1440 | open |
-| SZ-17 | The text column drags only within 45 to 75 characters a line | 4 | Drag to each end and count characters | open |
+| SZ-16 | These widths are where every page starts, not a limit (“Keep dragging”): with Study on, the reader still drags the lines between the text, their notes' margin, and the Notebook (E189) | 4, 5 | Kept: `test/desk-e189-lines.test.js` green; drag each line at 1440 | kept in Phase 4 (96b343e1): each line still drags, with its menu and its own reset (`test/desk-e189-lines.test.js` green); Phase 5 sets the opening widths |
+| SZ-17 | The text column drags only within 45 to 75 characters a line | 4 | Drag to each end and count characters | built (96b343e1): 45 to 75 of the face's own characters (`test/desk-widths-range.test.js`); OpenDyslexic's narrow end is the opening width (Q101) |
 | SZ-18 | Phone, under 700: text full width with 24 at each side; notes and footnotes a sheet from the bottom; one row on top and a bar at the thumb | 3, 5 | The preview at 390 | open |
 | SZ-19 | Tablet, 700 to 1099: text 660, centered; notes and footnotes a panel that slides over the right edge; the full header | 3, 5 | The preview at 820 | open |
 | SZ-20 | Computer, 1100 and up: text 660; the 320 margin, beside the line; the full header and the place line | 4, 5 | The preview at 1100 and 1440 | open |
@@ -408,8 +443,8 @@ run's best reading, entered in the plan's queue with what was done.
 | CT-07 | Rename: Sheets, My sheets, and Sheets page become Sheets | 9, 11 | `test/featherboa-labels.test.js` | open |
 | CT-08 | Rename: Add a note, Add bookmark, and Add a bookmark that moves become Add note and Add bookmark | 5 | The verse menu's and the selection panel's labels | open |
 | CT-09 | Rename: Open in Study Desk, Edit in Study Desk, and Open the Study Desk become one label, the verb with its passage, “Study Romans 8”; the proposal's “Open in Desk” is not taken | 4, 9 | `test/featherboa-labels.test.js`: no “Study Desk” a reader sees | the place line's built (246ab483), and Search's second row (f1a6b2af); Study's own labels with Phase 9 |
-| CT-10 | Rename: “Show” (four different controls) becomes View for what a page displays and Filter for lists | 4, 10 | No reader-facing “Show” heading in the tray or a list | open |
-| CT-11 | Rename: Display settings, Display, and Display options become Display | 4 | The tray and its button say “Display” | open |
+| CT-10 | Rename: “Show” (four different controls) becomes View for what a page displays and Filter for lists | 4, 10 | No reader-facing “Show” heading in the tray or a list | built for the tray (96b343e1): its heading is “View”; Phase 10's lists to come |
+| CT-11 | Rename: Display settings, Display, and Display options become Display | 4 | The tray and its button say “Display” | built (96b343e1): the tray's heading and Aa's name are “Display”; the close button's name queued (Q108); /desk's title menu is Phase 9's (SD-12) |
 | CT-12 | Rename: Stay here and Stop following become one switch, Follow reading | 9 | A following tab offers the switch; no “Stay here” or “Stop following” | open |
 | CT-13 | Rename: Layout… and Make this pane wider become a layout switch in view (the pane count) and dragging the divider | 9 | No “Layout…” or “Make this pane wider” in Study | open |
 | CT-14 | This reverses “My Notes” (BA138, BA139) and “My Notebook” (E70), which `src/scripts/desk/CLAUDE.md` holds until Featherboa is built | 9, 10 | The desk file's rules rewritten in the same commit | open |
@@ -440,7 +475,7 @@ run's best reading, entered in the plan's queue with what was done.
 | KT-08 | Unavailable stays legible: its fill stays, its words stand at 4.5:1 or more on every surface, and it is never faded with `opacity` | 2 | `test/featherboa-kit.test.js`: no `opacity` on an unavailable control; contrast measured | built (7216b1ef, f47df065) |
 | KT-09 | An unavailable control's reason is given where a keyboard or a finger reaches it too (beside the line, and to screen readers) | 2 | Tab to an unavailable control; read its description with `read_page` | kept as today (f47df065): the Study's menus give each unavailable row its reason beside it and to screen readers (menu-reasons.js); each Study phase rechecks its own |
 | KT-10 | Tabs change what a pane shows; a switch turns one thing on at once; a checkbox is for a list of things to tick, then act on | 2 | Checkpoint audits: each control used for its own job | built (7216b1ef, f47df065) |
-| KT-11 | Today's green-filled pills (“John 1 / Everything,” Theme, Text size) become tabs or a plain row of choices | 2, 4 | No green-filled pill left in the tray or the panel | built (f47df065) for the Display tray's Theme and Text size and the panel's “John 1 / Everything”; Phase 4 rechecks the tray |
+| KT-11 | Today's green-filled pills (“John 1 / Everything,” Theme, Text size) become tabs or a plain row of choices | 2, 4 | No green-filled pill left in the tray or the panel | built (f47df065) for the Display tray's Theme and Text size and the panel's “John 1 / Everything”; Phase 4 rechecks the tray; rechecked (96b343e1): the tray's faces are kit rows, Size, Line spacing, and Theme kit-tab radios, the rest switches |
 | KT-12 | This settles E160: a chosen segment and a lone toggle that is on share one look (a fill or a green underline with a heavier weight) | 2 | A chosen segment beside an on switch at 1440 | built (7216b1ef, f47df065) |
 | KT-13 | Everything pressed has 6-pixel corners | 2 | `test/featherboa-shapes.test.js` | built (7216b1ef, f47df065); the shapes test holds it |
 | KT-14 | The only round things are switches, color dots, and the emblem | 2 | `test/featherboa-shapes.test.js`: a full round only on those three | built (7216b1ef, f47df065); the shapes test holds it |
@@ -551,7 +586,7 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-22 | Notes stack beside their lines as today (five on a line, then “N more notes”) | 5 | Kept: six notes on one verse | open |
 | RP-23 | Playpen Sans goes, and the notes' “Plain” setting with it | 5 | Grep: no Playpen Sans file or rule, no “Plain” setting | open |
 | RP-24 | The reader's notes follow the reader's Display face at the Margin size (Source Sans 3 by default, or Atkinson or OpenDyslexic) | 5 | Switch faces; a note follows | open |
-| RP-25 | The site keeps three reading faces | 4 | The tray's Text row has three choices | open |
+| RP-25 | The site keeps three reading faces | 4 | The tray's Text row has three choices | built (96b343e1): three kit rows, each name in its own face |
 | RP-26 | Without a margin, the popover is the fallback and shows the whole note, with the same “In the notes ↓” | 5 | Press a letter at 820 | open |
 | RP-27 | On a phone, a footnote opens as a sheet from the bottom, whole | 5 | Covered by PH-21 | open |
 | RP-28 | The reader's notes are Study's, which a phone doesn't have | 5 | At 390 with `?desk=on`: no margin notes | open |
@@ -562,15 +597,15 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-33 | That way in labeled “Open in Study Desk” | 4 | None; see ST-15 | superseded → ST-15 |
 | RP-34 | Read View retires at launch (E8), and its pill goes with it | 4 | Covered by WB-44 | built (9b7c10ed), by WB-44 |
 | RP-35 | The phone's bars are proposal 15's (one row at the top, a bar at the thumb, both hiding on a scroll down), replacing today's one row (audit F3) | 3 | Covered by PH-01 to PH-06 | built (782271a5), by PH-01 to PH-06 |
-| RP-36 | One switch, “Justify,” in the Display tray, directly under Line spacing | 4 | The tray at 1440 | open |
-| RP-37 | Justify brings hyphenation with it, as E106 does | 4 | `hyphens: auto` with Justify on, seen in headless Chrome (the Browser pane draws no hyphens) | open |
-| RP-38 | E106's exceptions stay: poetry, OpenDyslexic and Atkinson, and a column under 22em are never justified | 4 | Kept: `test/desk-reading-justify.test.js` rewritten for the switch | open |
-| RP-39 | Justify is off by default | 4 | A fresh profile: text is left-aligned | open |
+| RP-36 | One switch, “Justify,” in the Display tray, directly under Line spacing | 4 | The tray at 1440 | built (96b343e1): under Line spacing, on chapter pages and /desk only |
+| RP-37 | Justify brings hyphenation with it, as E106 does | 4 | `hyphens: auto` with Justify on, seen in headless Chrome (the Browser pane draws no hyphens) | built (96b343e1): `text-align: justify` and `hyphens: auto` in headless Chrome (Romans 3) |
+| RP-38 | E106's exceptions stay: poetry, OpenDyslexic and Atkinson, and a column under 22em are never justified | 4 | Kept: `test/desk-reading-justify.test.js` rewritten for the switch | built (96b343e1): never poetry, Atkinson, OpenDyslexic, or a column under 22em (a container query; a 390 phone stays ragged, Q106); the test rewritten |
+| RP-39 | Justify is off by default | 4 | A fresh profile: text is left-aligned | built (96b343e1): `lit-justify` is stored only as “on”; a fresh profile reads left-aligned |
 | RP-40 | Justify reaches Study's LIT panes too, like the face and the size; it replaces E106 there and is typography, not one of the marks each pane keeps | 9 | Turn it on; a LIT tab in Study follows | open |
 | RP-41 | /desk's Reading layout (E8) goes (“Retire it”) | 9 | Grep: no Reading layout code or label | open |
 | RP-42 | The Layout window loses its “Reading” row | 9 | Covered by SD-60 | open |
 | RP-43 | Reading's own rules go: the mark that tells it from One pane (E107), turning the marks off and restoring only those, the undo bar naming them, and the `&layout=reading` arrival (E114) | 9 | Grep: no `layout=reading` handling; an old link opens Study at its passage | open |
-| RP-44 | E106's justification of Reading alone becomes the Justify switch everywhere | 4, 9 | Covered by RP-36 and RP-40 | open |
+| RP-44 | E106's justification of Reading alone becomes the Justify switch everywhere | 4, 9 | Covered by RP-36 and RP-40 | built for Phase 4 (96b343e1): E106's rule follows `html[data-justify]` on chapter pages and in Study's LIT panes; Reading's retirement is Phase 9's |
 | RP-45 | The links that stood for Read View (the search's second jump and the picker's footer, E114) open Study at the passage like every other link into it, keeping the reader's own layout | 6, 9 | `test/desk-e114-reading-links-search.test.js` and `-tray` rewritten | Search's built (f1a6b2af): “Study John 3:16” opens `/desk/?place=john-3:16` with no `&layout=reading` (both E114 tests rewritten); ReadMenu's footer leaves with Read View (Q70) |
 | RP-46 | The search's second row reads “Open in Study Desk” | 6 | None; see ST-15 | superseded → ST-15 |
 | RP-47 | The new picker has no “Read the whole book” row | 4 | Covered by FP-11 | built (246ab483), by FP-11 |
@@ -601,7 +636,7 @@ run's best reading, entered in the plan's queue with what was done.
 | BS-19 | This verse stays: its words, footnotes (with Pin), and Greek; the reader's notes, highlights, and bookmark with every action (E148); notes elsewhere that cite it (N4); the collections that hold it; stepping verse by verse; the gap view (E157) | 5 | Kept: `test/desk-verse.test.js` and `test/desk-verse-gap.test.js` green | open |
 | BS-20 | “N more notes” opens This verse, and opening a verse's menu moves it to that verse, as today | 5 | Kept: press “N more notes,” then open another verse's menu | open |
 | BS-21 | The panel's Settings tab goes, and nothing in it is lost | 5 | Each of the next eight rows reachable | open |
-| BS-22 | Settings' Show (the switches) goes to Display, merged into “Your marks,” still on the H key | 4, 5 | Covered by DI-11 | open |
+| BS-22 | Settings' Show (the switches) goes to Display, merged into “Your marks,” still on the H key | 4, 5 | Covered by DI-11 | built (96b343e1), with DI-11 |
 | BS-23 | Where the notebook is kept goes to the panel's foot line, “Kept in this browser only. Back up…” | 5 | The panel's foot line | open |
 | BS-24 | My sheets and My collections go to the header's Study menu and the footer's Study group, as today | 3 | The Study menu and the footer with the preview | built (ec3378b6) |
 | BS-25 | Print… (with notes, or with room to write) goes to the panel's title menu | 5 | Open “Notebook ▾” | open |
@@ -653,31 +688,31 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| DI-01 | The tray keeps what changes how the page reads; the rest moves to All settings | 4 | The tray at 1440 with the preview holds only the rows below | open |
-| DI-02 | Text: Default, Atkinson, OpenDyslexic, each set in its own face; the default keeps the name “Default” | 4 | The tray's Text row | open |
-| DI-03 | Size: four steps, drawn as a small A, four dots, and a large A, in place of S, M, L, and XL | 4 | The tray's Size row | open |
-| DI-04 | To a screen reader the sizes are four labeled choices: Small, Medium, Large, Extra large | 4 | `read_page` on the Size row | open |
-| DI-05 | Line spacing: Normal or Roomy | 4 | Kept: both choices work | open |
-| DI-06 | Justify directly under Line spacing, off by default | 4 | Covered by RP-36 and RP-39 | open |
-| DI-07 | Theme: Auto, Light, Dark | 4 | Kept: each choice works | open |
-| DI-08 | The heading is “View,” not “Show” | 4 | The tray's heading | open |
-| DI-09 | View's switches: Footnote letters, Key terms, and Your marks, after the numbers switch (DI-14) | 4 | Each switch works | open |
+| DI-01 | The tray keeps what changes how the page reads; the rest moves to All settings | 4 | The tray at 1440 with the preview holds only the rows below | built (96b343e1): Text, Size, Line spacing, Justify, Theme, View, then “All settings →”; seen at 1440 and 390, by day and night, in each face |
+| DI-02 | Text: Default, Atkinson, OpenDyslexic, each set in its own face; the default keeps the name “Default” | 4 | The tray's Text row | built (96b343e1) |
+| DI-03 | Size: four steps, drawn as a small A, four dots, and a large A, in place of S, M, L, and XL | 4 | The tray's Size row | built (96b343e1) |
+| DI-04 | To a screen reader the sizes are four labeled choices: Small, Medium, Large, Extra large | 4 | `read_page` on the Size row | built (96b343e1): a radiogroup named “Size” with four radios |
+| DI-05 | Line spacing: Normal or Roomy | 4 | Kept: both choices work | built (96b343e1): kit tabs |
+| DI-06 | Justify directly under Line spacing, off by default | 4 | Covered by RP-36 and RP-39 | built (96b343e1), with RP-36 and RP-39 |
+| DI-07 | Theme: Auto, Light, Dark | 4 | Kept: each choice works | built (96b343e1): Auto (was “System”), Light, Dark |
+| DI-08 | The heading is “View,” not “Show” | 4 | The tray's heading | built (96b343e1) |
+| DI-09 | View's switches: Footnote letters, Key terms, and Your marks, after the numbers switch (DI-14) | 4 | Each switch works | built (96b343e1): kit switches; Your marks with the preview |
 | DI-10 | View's first switch named “Verse numbers” | 4 | None; see DI-14 | superseded → DI-14 |
-| DI-11 | “Your marks” merges My bookmarks, My highlights, Notes in the margin, and Hide my marks into one switch, and H still flips it (“Hide your marks (H)”) | 4, 5 | Old keys read or migrated (`test/desk-storage-keys.test.js`); press H | open |
-| DI-12 | It is “Your,” not the proposal's “My,” as the margin's “Your note · verse 5” says | 4 | The switch's label | open |
-| DI-13 | The finer mark choices (only highlights, say) are in All settings | 4 | /settings with the preview | open |
-| DI-14 | “Verse numbers” became “Verse and chapter numbers,” the desk's own name for its pane's switch, since it hides the chapters' headings too | 4 | Turn it off with John 3 and 4 loaded | open |
-| DI-15 | “All settings →” at the tray's foot | 4 | The tray's last row | open |
-| DI-16 | “Show the Notebook” is the Notebook button itself, on the place line | 4 | No “Show the Notebook” switch in the tray | partly built (246ab483): the Notebook is a button on the line; the tray's switch stays until the Display tray is built (Q51) |
+| DI-11 | “Your marks” merges My bookmarks, My highlights, Notes in the margin, and Hide my marks into one switch, and H still flips it (“Hide your marks (H)”) | 4, 5 | Old keys read or migrated (`test/desk-storage-keys.test.js`); press H | built (96b343e1): one switch over notes in the margin, bookmarks, and highlights (`src/lib/desk-marks.mjs`, every combination tested); H flips it; “Hide your marks” and “Show your marks” |
+| DI-12 | It is “Your,” not the proposal's “My,” as the margin's “Your note · verse 5” says | 4 | The switch's label | built (96b343e1) |
+| DI-13 | The finer mark choices (only highlights, say) are in All settings | 4 | /settings with the preview | built (96b343e1): /settings' “Which of your marks show” |
+| DI-14 | “Verse numbers” became “Verse and chapter numbers,” the desk's own name for its pane's switch, since it hides the chapters' headings too | 4 | Turn it off with John 3 and 4 loaded | built (96b343e1) |
+| DI-15 | “All settings →” at the tray's foot | 4 | The tray's last row | built (96b343e1): a kit plain button to /settings/, on every page |
+| DI-16 | “Show the Notebook” is the Notebook button itself, on the place line | 4 | No “Show the Notebook” switch in the tray | built (96b343e1): no switch in the tray; a stored `lit-desk-show` “off” reads as shown and is removed once (Q51) |
 | DI-17 | The notes' lettering choice is gone with Playpen Sans | 5 | No lettering row anywhere | open |
-| DI-18 | No reader loses a setting | 4 | Each `localStorage` key the tray wrote is still read or migrated; /privacy names what is written | open |
-| DI-19 | All settings: one page every reader can reach from the tray, showing Study's parts only where Study is on (at /settings, BP-19) | 4 | /settings with and without the preview | open |
-| DI-20 | All settings holds the keyboard-shortcuts switch, required for every reader (WCAG 2.1.4) | 4 | Turn shortcuts off; G does nothing | open |
-| DI-21 | Its other parts: the finer mark choices, backup, and a link to the account pages, which it doesn't replace | 4 | /settings with the preview | open |
-| DI-22 | The Notebook adds the panel's start setting and, last, Delete in bulk | 4 | Covered by NB-25 and NB-27 | open |
-| DI-23 | The reader still drags the reading page's lines (the text column, the notes' margin, the Notebook's edge), each with its menu of steps and its own reset (E189) | 4, 5 | Kept: `test/desk-e189-lines.test.js` green | open |
-| DI-24 | The text column drags only within 45 to 75 characters a line | 4 | Covered by SZ-17 | open |
-| DI-25 | “Reset widths” leaves the tray and goes nowhere: each line's own menu is the local reset, and the widths are kept only for the visit | 4 | Grep: no “Reset widths” | open |
+| DI-18 | No reader loses a setting | 4 | Each `localStorage` key the tray wrote is still read or migrated; /privacy names what is written | built (96b343e1): every key still read, listed in `src/styles/CLAUDE.md`, “The Display tray”; /privacy names `lit-justify` and the changed meanings (Q109); old settings carried over in headless Chrome, all 16 mark combinations in tests |
+| DI-19 | All settings: one page every reader can reach from the tray, showing Study's parts only where Study is on (at /settings, BP-19) | 4 | /settings with and without the preview | built (96b343e1): noindex, out of the sitemap and Pagefind; Study's sections only with the preview |
+| DI-20 | All settings holds the keyboard-shortcuts switch, required for every reader (WCAG 2.1.4) | 4 | Turn shortcuts off; G does nothing | built (96b343e1): off writes `lit-shortcuts` “off,” and G does nothing |
+| DI-21 | Its other parts: the finer mark choices, backup, and a link to the account pages, which it doesn't replace | 4 | /settings with the preview | built (96b343e1): backup (on /notebook too), the finer choices, and the account link where accounts are open (Q104) |
+| DI-22 | The Notebook adds the panel's start setting and, last, Delete in bulk | 4 | Covered by NB-25 and NB-27 | built (96b343e1), with NB-25 and NB-27 |
+| DI-23 | The reader still drags the reading page's lines (the text column, the notes' margin, the Notebook's edge), each with its menu of steps and its own reset (E189) | 4, 5 | Kept: `test/desk-e189-lines.test.js` green | kept in Phase 4 (96b343e1): `test/desk-e189-lines.test.js` green |
+| DI-24 | The text column drags only within 45 to 75 characters a line | 4 | Covered by SZ-17 | built (96b343e1), with SZ-17 (Q101, Q102) |
+| DI-25 | “Reset widths” leaves the tray and goes nowhere: each line's own menu is the local reset, and the widths are kept only for the visit | 4 | Grep: no “Reset widths” | built (96b343e1): gone from the tray and the panel; each line's menu keeps its own (Q100) |
 
 ## A whole book (WB)
 
@@ -982,7 +1017,7 @@ run's best reading, entered in the plan's queue with what was done.
 | SD-53 | Back up, and Merge a backup, become the sidebar foot's “Back up…,” one window holding both | 9, 10 | Press Back up…; merge a backup file | open |
 | SD-54 | The Trash (30 days) in the sidebar, opening as a tab | 9 | None; see ST-30 | superseded → ST-30 |
 | SD-55 | What's new for you moves to the top of the list, with the dot on Notebook, renamed “Changed since you marked it” | 10 | Covered by NB-16 and ST-70 | open |
-| SD-56 | The Notebook panel's start setting goes to All settings | 4 | Covered by NB-25 | open |
+| SD-56 | The Notebook panel's start setting goes to All settings | 4 | Covered by NB-25 | built (96b343e1), with NB-25 |
 | SD-57 | Print… on the Notes tab's More menu | 10 | None; see ST-70 | superseded → ST-70 |
 | SD-58 | 8 of the 11 arrangements go: the seven with rows, and four panes | 9 | `test/desk-layout.test.js` rewritten | open |
 | SD-59 | The fourth pane goes, reversing BVJ's 2026-10-18 arrangements and the four-pane limit (`MAX_PANES`) | 9 | `MAX_PANES` is 3 | open |
@@ -1018,17 +1053,17 @@ run's best reading, entered in the plan's queue with what was done.
 | NB-16 | What's new for you is renamed “Changed since you marked it,” the filter the notice at the top of the list opens; the dot stays on Notebook in the sidebar | 10 | `test/desk-whats-new.test.js` rewritten | open |
 | NB-17 | A changed row says “Text changed Nov 1,” as a link to that release note, so its green is a link's | 10 | A row on a changed verse | open |
 | NB-18 | “Notebook” is the place; “Notes,” “Highlights,” and “Bookmarks” are what it holds, and “kept” counts them together (“128 kept”) | 10 | `test/featherboa-labels.test.js` | open |
-| NB-19 | “Marks” stops naming the things kept: “Delete all notes and marks” becomes “Delete all notes, highlights, and bookmarks” | 4, 10 | Grep labels: “marks” only in “Your marks” | open |
+| NB-19 | “Marks” stops naming the things kept: “Delete all notes and marks” becomes “Delete all notes, highlights, and bookmarks” | 4, 10 | Grep labels: “marks” only in “Your marks” | built for Phase 4 (96b343e1): “Delete all notes, highlights, and bookmarks”; /settings' group is “Which of your marks show” |
 | NB-20 | The tab is still “Notes,” holding all three kinds as it does on the reading page | 5, 9 | The panel's tab and Study's | open |
-| NB-21 | The Display tray's “Your marks” stays, since it names what is drawn on the text | 4 | Covered by DI-11 | open |
+| NB-21 | The Display tray's “Your marks” stays, since it names what is drawn on the text | 4 | Covered by DI-11 | built (96b343e1) |
 | NB-22 | Labels stay on bookmarks (E149), so the drawing's labels on notes aren't taken: Label… acts on bookmarks, the Label filter counts bookmarks, and renaming and deleting stay in “Manage labels…” | 10 | Kept: `test/desk-labels.test.js` green | open |
 | NB-23 | The format and the apps' sync are untouched | 10 | No change to `STUDY-DESK-FORMAT.md` or the sync code | open |
-| NB-24 | The drawing's Settings is All settings, not a new sidebar row | 4, 9 | No Settings row in the sidebar | open |
-| NB-25 | The Notebook panel's start setting (“When a page opens, the Notebook panel is” Open, Minimized, or As I left it) goes to All settings | 4 | Set each, then open a chapter | open |
-| NB-26 | The bulk deletes choosing rows can't reach (labels, the reader's own templates, and “Empty the trash now”) go to All settings | 4 | Covered by NB-27 | open |
-| NB-27 | Delete in bulk is All settings' last section, in red words, with today's four choices: all notes, highlights, and bookmarks (with pinned footnotes and labels), all sheets (with templates), all collections, and Empty the trash now | 4 | /settings with the preview: the four choices, in red | open |
+| NB-24 | The drawing's Settings is All settings, not a new sidebar row | 4, 9 | No Settings row in the sidebar | built for Phase 4 (96b343e1): /settings is a page; the sidebar is Phase 9's |
+| NB-25 | The Notebook panel's start setting (“When a page opens, the Notebook panel is” Open, Minimized, or As I left it) goes to All settings | 4 | Set each, then open a chapter | built (96b343e1): Open, Minimized, As I left it; a stored Closed still shows, last (Q99) |
+| NB-26 | The bulk deletes choosing rows can't reach (labels, the reader's own templates, and “Empty the trash now”) go to All settings | 4 | Covered by NB-27 | built (96b343e1), with NB-27 |
+| NB-27 | Delete in bulk is All settings' last section, in red words, with today's four choices: all notes, highlights, and bookmarks (with pinned footnotes and labels), all sheets (with templates), all collections, and Empty the trash now | 4 | /settings with the preview: the four choices, in red | built (96b343e1): last, in red words, each asking again in place; unit-tested (the headless notebook was empty) |
 | NB-28 | Choosing rows still deletes whatever is chosen | 10 | Covered by SD-51 | open |
-| NB-29 | All settings is reached from the Aa tray, as on every page | 4 | Covered by DI-15 | open |
+| NB-29 | All settings is reached from the Aa tray, as on every page | 4 | Covered by DI-15 | built (96b343e1) |
 | NB-30 | Every /notebook link keeps working, its anchors too: `#backup` opens Back up, `#whats-new` “Changed since you marked it,” `#q=` the list filtered by its words, `#labels` Manage labels…, and any other the list | 10 | `test/featherboa-old-addresses.test.js`; open each | open |
 | NB-31 | Printing the list, drawn first from the Notes tab's More menu (now the Notebook place, ST-70) | 10 | Kept: print the Notebook's list | open |
 | NB-32 | Continue reading, already the picker's first row and Home's | 4, 7 | Kept: covered by NX-12 | the picker's row built (246ab483); Home's with Phase 7 |
@@ -1245,7 +1280,7 @@ run's best reading, entered in the plan's queue with what was done.
 | AC-19 | The account page stays a page of its own (`/account`), as built: setup, devices, the recovery code, signing out, and deleting | 13 | Kept: `test/desk-account-page.test.js` green | open |
 | AC-20 | It gains step SK4's “End-to-end encryption,” on and off, holding “Follows my account” and “This device only” | 13 | Drawn once SK4 is on `main` | open |
 | AC-21 | The proposal's three screens are its first steps, drawn in Featherboa's look | 13 | /account's setup at 1440 | open |
-| AC-22 | All settings links to the account page | 4 | Covered by DI-21 | open |
+| AC-22 | All settings links to the account page | 4 | Covered by DI-21 | built (96b343e1), where accounts are open (Q104) |
 | AC-23 | The header's “Sign in” stays | 3 | Kept: covered by HD-12 | built (ec3378b6, kept) |
 | AC-24 | The words wait for step SK5, which rewrites /privacy, /terms/, the help page, the first-time card, the tour, and the Settings tab; the drafts here are Claude's, to be checked there | 13 | Each draft listed for SK5 | open |
 | AC-25 | The joined device's notice carries more weight under the default, so its bar stays | 13 | Covered by AC-18 | open |
@@ -1306,7 +1341,7 @@ run's best reading, entered in the plan's queue with what was done.
 | BP-16 | The front page on a phone keeps the computer's order: the buttons right under the claim and the name, John 1 after them | 7 | Home at 390 | open |
 | BP-17 | New address: `/license` (for FP-18) | 4 | The page builds; `npm run check:links` passes | built (de0085a8): the page builds, and `check:links` passes (362 pages) |
 | BP-18 | New address: `/colophon` (for DA-04) | 7 | The page builds; `npm run check:links` passes | built (b8fcd43b): the page builds, and `check:links` passes (362 pages) |
-| BP-19 | New address: `/settings` for All settings (DI-19) | 4 | The page builds; `npm run check:links` passes | open |
+| BP-19 | New address: `/settings` for All settings (DI-19) | 4 | The page builds; `npm run check:links` passes | built (96b343e1): it builds, and `npm run check:links` passes |
 | BP-20 | New address: `/study/help` for the help page (ST-13) | 9 | The page builds; `npm run check:links` passes | open |
 | BP-21 | New address: `/whats-new` (BP-05) | 7 | The page builds; `npm run check:links` passes | built (1253bf85) |
 
