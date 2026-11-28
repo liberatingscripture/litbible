@@ -21,45 +21,47 @@ const heroImage = data.heroImage; // string | undefined (from your schema)
 ---
 
 <section class="featured" aria-label="Featured article">
-  <a class="featured__card" href={href}>
-    <div class="featured__media" aria-hidden="true">
-      {
-        heroImage ? (
-          <img
-            class="featured__img"
-            src={heroImage}
-            alt=""
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <div class="featured__img featured__img--fallback" />
-        )
-      }
-    </div>
-
-    <div class="featured__body">
-      <div class="featured__meta">
-        <time datetime={data.date.toISOString()}>{dateLabel}</time>
+  <article class="featured__card">
+    <a class="featured__inner" href={href}>
+      <div class="featured__media" aria-hidden="true">
+        {
+          heroImage ? (
+            <img
+              class="featured__img"
+              src={heroImage}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div class="featured__img featured__img--fallback" />
+          )
+        }
       </div>
 
-      <h2 class="featured__title">{data.title}</h2>
+      <div class="featured__body">
+        <div class="featured__meta">
+          <time datetime={data.date.toISOString()}>{dateLabel}</time>
+        </div>
 
-      {summary && <p class="featured__summary">{summary}</p>}
+        <h2 class="featured__title">{data.title}</h2>
 
-      {
-        tags.length > 0 && (
-          <ul class="tags tags--featured" aria-label="Tags">
-            {tags.map((t: string) => (
-              <li class="tag">{t}</li>
-            ))}
-          </ul>
-        )
-      }
+        {summary && <p class="featured__summary">{summary}</p>}
 
-      <div class="featured__link">Read article</div>
-    </div>
-  </a>
+        {
+          tags.length > 0 && (
+            <ul class="tags tags--featured" aria-label="Tags">
+              {tags.map((t: string) => (
+                <li class="tag">{t}</li>
+              ))}
+            </ul>
+          )
+        }
+
+        <div class="featured__link">Read article</div>
+      </div>
+    </a>
+  </article>
 </section>
 
 <style>

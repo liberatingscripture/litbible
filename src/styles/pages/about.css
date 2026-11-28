@@ -207,8 +207,10 @@
   color: var(--color-text-3);
 }
 
-/* The toggle is the kit's plain button, on a phone only; its chevron turns
-   when the tray is open. */
+/* The toggle is the kit's plain button, on a phone only, in place of the
+   label: "On this page" and its chevron, across the bar as the FAQs'
+   questions are, the chevron turning when the tray is open (a chevron may
+   not stand alone in the kit). */
 .about-toc__toggle {
   display: none;
 }
@@ -245,8 +247,14 @@
     --toc-top-gap: var(--space-2);
   }
 
+  .about-toc__label {
+    display: none;
+  }
+
   .about-toc__toggle {
     display: inline-flex;
+    width: 100%;
+    justify-content: space-between;
   }
 
   .about-toc__tray {

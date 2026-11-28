@@ -163,22 +163,26 @@
   margin-bottom: 28px;
 }
 
+/* The card holds the fill and the edge, and its link fills it, as a grid
+   card's does: a link drawn with a fill or an edge reads as a button
+   (src/styles/CLAUDE.md, "The kit"). */
 .featured__card {
-  display: grid;
-  gap: 16px;
-
   border-radius: var(--radius-float);
   overflow: hidden;
-
   background: var(--surface-raised);
-  color: inherit;
-  text-decoration: none;
-
   border: 1px solid var(--color-hairline);
 }
 
+.featured__inner {
+  display: grid;
+  gap: 16px;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
 @media (min-width: 900px) {
-  .featured__card {
+  .featured__inner {
     grid-template-columns: 1.15fr 1fr;
     min-height: 320px;
   }
@@ -198,9 +202,11 @@
   gap: 10px;
 }
 
+/* A date is the third ink and a summary the second: a gray is the text at
+   a strength, never a fade (src/styles/CLAUDE.md, "Fonts and theming"). */
 .featured__meta time {
   font-size: 0.95rem;
-  opacity: 0.75;
+  color: var(--color-text-3);
 }
 
 .featured__title {
@@ -213,7 +219,7 @@
 .featured__summary {
   margin: 0;
   max-width: calc(62 * var(--ch));
-  opacity: 0.9;
+  color: var(--color-text-2);
 }
 
 .featured__link {
@@ -298,7 +304,7 @@
 
 .articles .card__date {
   font-size: 0.95rem;
-  opacity: 0.75;
+  color: var(--color-text-3);
 }
 
 .articles .card__title {
@@ -312,7 +318,7 @@
    Also prevent "peek" artifacts by clamping via max-height. */
 .articles .card__summary {
   margin: 0;
-  opacity: 0.9;
+  color: var(--color-text-2);
 
   white-space: normal;
   overflow-wrap: anywhere;
