@@ -34,8 +34,7 @@ export const PROSE_NOTES = false;
  * below), and `move`: the elements that make up the column, which are what
  * move left when the margin is too narrow for the panel. Only those move, so
  * full-width bands (the license band, the glossary's cream band) and the tool
- * row above the text stay put at their full width. Read View's column is its
- * toolbar and its text together, since the toolbar is the wider.
+ * row above the text stay put at their full width.
  *
  * global.css hides the Notebook button on every other page with a :has()
  * rule naming the same first selectors; test/desk-frame.test.js holds the
@@ -72,13 +71,6 @@ export const ALL_SURFACES = [
     move: [".scripture-layout--intro .scripture-main"],
   },
   {
-    kind: "read",
-    column: [".rm-page .rm-reader", ".rm-page .rm-toolbar"],
-    title: ".rm-page .rm-title",
-    end: LICENSE_BAND,
-    move: [".rm-page > .rm-toolbar", ".rm-page > .rm-resume-chip", ".rm-page > .rm-reader"],
-  },
-  {
     kind: "article",
     prose: true,
     column: [".article__card"],
@@ -110,7 +102,7 @@ export const ALL_SURFACES = [
   },
 ];
 
-/** The pages that have the Notebook panel now: Chapter View and Read View in version 1. */
+/** The pages that have the Notebook panel now: a chapter's page, in version 1 (Read View retired in Featherboa's Phase 4). */
 export const READING_SURFACES = ALL_SURFACES.filter((s) => PROSE_NOTES || !s.prose);
 
 /**

@@ -15,7 +15,7 @@
 //
 // A found key must be named on /privacy as <code>key</code>, or be in ALLOWLIST
 // with a reason. ALLOWLIST is for keys the page describes in prose rather than
-// by name (the Display tray's settings, the Read View place, keyboard shortcuts),
+// by name (the Display tray's settings, keyboard shortcuts),
 // and the header's news marks' key, which nothing writes while the news list is
 // empty, and nothing else. Cookies are checked by the last test: a rendered component's
 // cookie is named on /privacy, and the page's count of them is right.
@@ -41,14 +41,12 @@ const ALLOWLIST = new Map([
   ["lit-size", "display setting: text size (prose on /privacy)"],
   ["lit-leading", "display setting: line spacing (prose on /privacy)"],
   ["lit-verse-numbers", "display setting: verse numbers in Chapter View (prose on /privacy, what the page shows)"],
-  ["lit-read-numbers", "display setting: verse numbers in Read View (prose on /privacy, what the page shows)"],
+  ["lit-read-numbers", "display setting: Read View's verse numbers, read as the chapter page's fallback since Read View retired and cleared once its switch is set (prose on /privacy, what the page shows)"],
   ["lit-fn-letters", "display setting: footnote letters (prose on /privacy, what the page shows)"],
   ["lit-terms", "display setting: term underlines (prose on /privacy, what the page shows)"],
   ["lit_rm_fontSize", "Read View's legacy text size key, read once and moved to lit-size (display settings, prose on /privacy)"],
   ["lit_rm_lineHeight", "Read View's legacy line spacing key, read once and moved to lit-leading (display settings, prose on /privacy)"],
-  ["lit_rm_markers", "Read View's legacy verse-number key, read once and moved to lit-read-numbers (display settings, prose on /privacy)"],
-  ["lit_rm_resume_", "the place you last reached in each book in Read View (prose on /privacy)"],
-  ["lit_rm_focus", "display setting: Read View's focus mode (prose on /privacy, \"whether focus mode is on in Read View\")"],
+  ["lit_rm_markers", "Read View's legacy verse-number key, read as the chapter page's last fallback and cleared once its switch is set (display settings, prose on /privacy)"],
   ["lit-shortcuts", "keyboard shortcuts switch (prose on /privacy: whether you have turned keyboard shortcuts off)"],
   ["lit_last_read", "the chapter you last read (prose on /privacy; the record is src/scripts/last-read.js)"],
   ["lit_app_banner_dismissed", "the Android app banner, closed (prose on /privacy)"],
@@ -84,8 +82,8 @@ function codeKeys() {
       if (key) add(key, rel);
     }
     // 2. A literal starting lit- or lit_ in a key position: a KEY-named constant,
-    //    a `key:` or `legacy:` property, or a lit_ value in a property map (read-mode's
-    //    STORAGE table). lit_ values are never class names here; lit- values often are.
+    //    a `key:` or `legacy:` property, or a lit_ value in a property map. lit_
+    //    values are never class names here; lit- values often are.
     for (const m of text.matchAll(/\b\w*(?:KEY|Key|key|legacy)\w*\s*[:=]\s*(["'`])([^"'`]*)/g)) {
       const hole = m[2].indexOf("${");
       const key = hole === -1 ? m[2] : m[2].slice(0, hole);

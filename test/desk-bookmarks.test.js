@@ -247,15 +247,18 @@ test("an inherited property name is not a book", () => {
   assert.deepEqual(parseFollowFlag('{"id":"x","bookKey":"romans"}'), { id: "x", bookKey: "romans" });
 });
 
-test("Continue reading is one row, with its address and the view it was kept in", () => {
+test("Continue reading is one row, with its address on the chapter's page", () => {
   const item = continueItem({ book: "luke", chapter: 15, verse: 11, view: "study" });
   assert.equal(item.title, "Luke 15:11");
-  assert.equal(item.detail, "Continue reading · Scripture page");
+  assert.equal(item.detail, "Continue reading");
   assert.equal(item.href, "/luke-15/#v11");
   assert.equal(item.bookKey, "luke");
+  // A record Read View kept before it retired leads to the chapter's page.
   const read = continueItem({ book: "john", chapter: 3, verse: null, view: "read" });
   assert.equal(read.title, "John 3");
-  assert.equal(read.detail, "Continue reading · Read View");
+  assert.equal(read.detail, "Continue reading");
+  assert.equal(read.href, "/john-3/");
+  assert.equal(continueItem({ book: "john", chapter: 3, verse: 16, view: "read" }).href, "/john-3/#v16");
   assert.equal(continueItem(null), null);
 });
 

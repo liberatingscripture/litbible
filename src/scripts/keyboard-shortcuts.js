@@ -4,10 +4,11 @@
 //   /          search (the place line's Search on a chapter or an
 //              introduction, the phone bar's there on a phone, the page's
 //              own box, or the header's search strip; on /desk, a Search pane)
-//   g          the passage picker (passage-picker.js; Read View's own there)
-//   ← → [ ]    previous and next chapter: the place line's ‹ ›, the
-//              neighbouring chapter in Read View, or on /desk the pane
-//              being read (the leading LIT pane)
+//   g          the passage picker (passage-picker.js)
+//   ← → [ ]    previous and next chapter: the place line's ‹ › (on a
+//              chapter's page, the start of the chapter before or after the
+//              one being read, loaded first: read-on.js), or on /desk the
+//              pane being read (the leading LIT pane)
 //   h          hide or show my marks, where the Study Desk is on (M1)
 //
 // On by default, with a "Keyboard shortcuts" box in the Display tray to turn
@@ -98,16 +99,9 @@ function openSearch() {
 }
 
 function openPicker() {
-  // Read View keeps its own picker until it retires (ReadMenu swaps its
-  // fallback link for a button of the same class).
-  const trigger = Array.from(document.querySelectorAll("button.read-menu__trigger")).find(visible);
-  if (trigger) {
-    trigger.click();
-    return true;
-  }
-  // Everywhere else the passage picker answers (passage-picker.js): the panel
-  // or the phone's sheet opens at the books, or /read's field takes focus.
-  // Nothing answers before its script runs, or on /desk.
+  // The passage picker answers (passage-picker.js): the panel or the phone's
+  // sheet opens at the books, or /read's field takes focus. Nothing answers
+  // before its script runs, or on /desk.
   const ev = new CustomEvent("lit:picker-open", { cancelable: true });
   document.dispatchEvent(ev);
   return ev.defaultPrevented;
@@ -115,7 +109,9 @@ function openPicker() {
 
 function goToChapter(step) {
   // A chapter, an introduction, or a draft: the place line's ‹ › (in the
-  // page at every width; under 700px the phone's bar shows the same two).
+  // page at every width; under 700px the phone's bar shows the same two). On
+  // a chapter's page they follow the chapter being read, and read-on.js
+  // answers their click by loading the next chapter and landing on it.
   const link = document.querySelector(`.place-line a[rel="${step < 0 ? "prev" : "next"}"]`);
   if (link) {
     link.click();
@@ -129,16 +125,7 @@ function goToChapter(step) {
     document.dispatchEvent(ev);
     if (ev.defaultPrevented) return true;
   }
-  // Read View: the whole book is on the page, so move to the next chapter
-  // heading. The picker's root tracks which chapter is being read.
-  const current = Number(document.querySelector("[data-current-chapter]")?.dataset.currentChapter);
-  if (!current) return false;
-  const target = document.getElementById(`ch-${current + step}`);
-  if (!target) return false;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  history.replaceState(null, "", `#ch-${current + step}`);
-  return true;
+  return false;
 }
 
 // The Study Desk's "Hide my marks" (M1), only where the desk is on: the desk

@@ -766,6 +766,19 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   }
 
   /**
+   * Open the panel on "This verse" at "This chapter," a chapter's Go deeper
+   * rows (the reading page's Go deeper, WB-18; commands.js).
+   */
+  function showChapter(bookKey, chapter) {
+    const verseTab = tabs.get("verse");
+    if (!verseTab || !bookKey || !chapter) return;
+    if (panel.hidden) open(null, { focus: false });
+    else if (rail.state().collapsed) rail.expand();
+    selectTab("verse");
+    verseTab.view.showChapter?.(bookKey, chapter);
+  }
+
+  /**
    * Open the Greek tab with a word selected and focused (a word in This
    * verse's Greek). The tour passes `focus: false, remember: false`.
    */
@@ -847,6 +860,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     close,
     showTab,
     showVerse: tabs.has("verse") ? showVerse : null,
+    showChapter: tabs.has("verse") ? showChapter : null,
     // A Greek search result (greek-link.js): the Greek tab, at that word.
     showGreekWord: tabs.has("greek") ? openGreekWord : null,
     // What the tour (tour.js) needs.
@@ -881,6 +895,9 @@ function lazyTab(load, { listensForVerse } = {}, options) {
   const onActions = (e) => {
     const d = e.detail;
     if (real || d?.kind !== "verse" || d.view !== "study" || !listensForVerse?.()) return;
+    // A chapter the reading page loaded beside the page's isn't This verse's.
+    const here = pageChapter();
+    if (d.chapter && here && (d.book !== here.bookKey || d.chapter !== here.chapter)) return;
     wantVerse = d.start;
   };
   if (listensForVerse) document.addEventListener("lit:panel-actions", onActions);
@@ -923,6 +940,10 @@ function lazyTab(load, { listensForVerse } = {}, options) {
     async showNotes() {
       const v = await ready();
       return v?.showNotes?.();
+    },
+    async showChapter(...args) {
+      const v = await ready();
+      return v?.showChapter?.(...args);
     },
     async selectWord(...args) {
       const v = await ready();

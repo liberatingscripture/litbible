@@ -20,6 +20,9 @@ export function initCommands({ panel, printNotes = null, printRoom = null }) {
     "open-notebook": () => panel.open(null),
     "show-my-notes": () => panel.showTab("mine"),
     "show-this-verse": () => panel.showTab("verse"),
+    // The reading page's Go deeper where the panel runs (read-on.js): This
+    // verse at "This chapter," for the chapter it was pressed in.
+    "show-this-chapter": (d) => panel.showChapter?.(d?.book, Number(d?.chapter)),
     // The Greek tab exists on Chapter View chapters and draft chapters; showTab
     // returns false where it is absent, so the command does nothing there.
     "show-greek": () => panel.showTab("greek"),
@@ -38,6 +41,6 @@ export function initCommands({ panel, printNotes = null, printRoom = null }) {
   };
   document.addEventListener("lit:desk-command", (e) => {
     const id = e.detail?.id;
-    if (typeof id === "string" && Object.hasOwn(run, id)) run[id]();
+    if (typeof id === "string" && Object.hasOwn(run, id)) run[id](e.detail);
   });
 }

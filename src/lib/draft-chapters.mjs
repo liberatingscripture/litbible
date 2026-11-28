@@ -2,11 +2,12 @@
 // and, below, which book intros are.
 //
 // Consumed by astro.config.mjs (sitemap filter — runs in plain Node before
-// Vite) and ReadMenu.astro ("(draft)" chapter markers — Astro frontmatter at
-// build time), so it reads the chapter JSON directly from disk with node:fs
-// rather than import.meta.glob. Slugs derive from filenames because the
-// site's routes are filename-addressed ({bookKey}-{chapter}.json ↔
-// /{bookKey}-{chapter}); an unparseable file counts as a non-draft chapter.
+// Vite) and by Astro frontmatter at build time (the passage picker's
+// "(draft)" markers, among others), so it reads the chapter JSON directly
+// from disk with node:fs rather than import.meta.glob. Slugs derive from
+// filenames because the site's routes are filename-addressed
+// ({bookKey}-{chapter}.json ↔ /{bookKey}-{chapter}); an unparseable file
+// counts as a non-draft chapter.
 //
 // Plain .mjs (not .ts): astro.config.mjs imports it before any TS tooling
 // is in play.

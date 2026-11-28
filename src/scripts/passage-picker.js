@@ -72,7 +72,6 @@ export function wirePicker(root, { doc, win, signal, go }) {
   const tabs = [...root.querySelectorAll("[data-picker-book]")];
   const sections = new Map([...root.querySelectorAll("[data-picker-section]")].map((s) => [s.dataset.pickerSection, s]));
   const pageBook = root.dataset.book || null;
-  const pageChapter = root.dataset.chapter ?? null;
   let shown = null;
 
   // ---------- The books, as tabs over their chapters ----------
@@ -251,7 +250,9 @@ export function wirePicker(root, { doc, win, signal, go }) {
    *  returns the record. */
   function refreshContinue() {
     const record = loadLastRead();
-    const here = record && record.book === pageBook && String(record.chapter) === pageChapter;
+    // The chapter being read, read now: a chapter's page reads on into the
+    // rest of its book and moves this along (read-on.js).
+    const here = record && record.book === pageBook && String(record.chapter) === (root.dataset.chapter ?? null);
     if (!record || here) {
       cont.hidden = true;
       return record;

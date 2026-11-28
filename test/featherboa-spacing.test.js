@@ -23,6 +23,8 @@ const NEW = [
   "src/styles/pages/read.css",
   // Search: its page, the tray's rows, and the Build a search window (Phase 6).
   "src/styles/search.css",
+  // The reading page: chapters reading on, their headings, drafts (Phase 4, part two).
+  "src/styles/reading-page.css",
   // The pages no decision draws (BP-07): on the scale since Phase 7. The
   // podcast page's stays out, for its photo and cover's overlap (queue Q23).
   "src/styles/pages/about.css",

@@ -54,6 +54,13 @@ const {
    * nothing, since they have neither.
    */
   scriptureControls,
+
+  /**
+   * A published chapter, which reads on into the next (src/scripts/read-on.js),
+   * and whether it has Go deeper rows; both reach ScriptureHeader's heading row.
+   */
+  readsOn = false,
+  goDeeper = false,
 } = Astro.props;
 
 const pagefindBook = book ?? "";
@@ -265,6 +272,8 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
                 kind={headerKind}
                 bookKey={pagefindBook}
                 chapter={headerChapter}
+                readsOn={readsOn}
+                goDeeper={goDeeper}
               />
             ) : null
           }
@@ -297,6 +306,29 @@ const deskSurface = pagefindType === "scripture" ? "chapter" : pagefindType === 
         font-size: calc(var(--size-text) * var(--reading-scale, 1));
         max-width: calc(var(--reading-width, 72ch) + 32px);
         padding: 12px 16px 64px;
+      }
+
+      /* Three columns on a computer (SZ-13; SITE-FEATHERBOA.md, "Three
+         columns, always the same widths"): a 220 quiet side, the text, and a
+         320 margin Phase 5 gives the reader's notes, the three centered
+         together, so the text sits half their difference (50px) left of the
+         window's middle and only the outer space grows. Where the window
+         holds less, the margin gives way first, the text keeping 220 on its
+         left, and once that would pass the middle the column is centered, as
+         on a tablet or a phone. The 16px is the column's own padding. With
+         the Study preview on, the desk places the column (its pre-paint
+         placement measures it centered: FIRST_PAINT, src/lib/desk-margin.mjs),
+         so the preview keeps it centered until Phase 5 puts the notes in
+         this margin. */
+      @media screen {
+        :global(html:not([data-desk])) .scripture-main {
+          margin-left: max(
+            0px,
+            calc((100% - var(--reading-width)) / 2 - (var(--col-margin) - var(--col-side)) / 2 - 16px),
+            min(calc((100% - var(--reading-width)) / 2 - 16px), calc(var(--col-side) - 16px))
+          );
+          margin-right: auto;
+        }
       }
 
       /* A chapter reads at the Scripture size (tokens.css), an intro at

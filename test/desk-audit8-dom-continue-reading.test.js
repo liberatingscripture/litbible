@@ -27,20 +27,22 @@ test("nothing read yet: the section stays hidden, or shows the empty text when g
   assert.equal(told.querySelector(".desk-continue__empty").hidden, false);
 });
 
-test("a kept place draws as a link to where the reader was, in the view it was kept in", () => {
+test("a kept place draws as a link to where the reader was, on its chapter's page", () => {
   keep({ book: "john", chapter: 3, verse: 16, view: "study" });
   const s = continueSection();
   assert.equal(s.hidden, false);
   const [row] = rows(s);
   const link = row.querySelector("a");
   assert.equal(link.textContent, "John 3:16");
-  assert.match(link.getAttribute("href"), /john-3/);
-  assert.match(row.textContent, /Continue reading · Scripture page/);
+  assert.equal(link.getAttribute("href"), "/john-3/#v16");
+  assert.match(row.textContent, /Continue reading$/);
 
+  // Read View retired into the chapter's page (Featherboa, Phase 4): a place
+  // it kept leads there too, and the row names no view.
   keep({ book: "john", chapter: 3, verse: null, view: "read" });
   const read = continueSection();
-  assert.match(rows(read)[0].textContent, /Read View/);
-  assert.match(rows(read)[0].querySelector("a").getAttribute("href"), /\/read\/john/);
+  assert.doesNotMatch(rows(read)[0].textContent, /Read View|Scripture page/);
+  assert.equal(rows(read)[0].querySelector("a").getAttribute("href"), "/john-3/");
 });
 
 test("the place already on screen is left out", () => {

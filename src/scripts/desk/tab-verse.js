@@ -60,7 +60,8 @@ import { fillNoteWords } from "./note-words.js";
 import { loadChapterGreek } from "./greek-data.js";
 import { routeFootnoteLinks } from "./footnote-links.js";
 import { undoEntry } from "./history.js";
-import { chapterText } from "./page.js";
+import { chapterText, goDeeperOf, pageTextBox } from "./page.js";
+import { bookKeyToLabel } from "../../data/books.js";
 import { pinButton } from "./pins.js";
 import { showUndo } from "./undo-bar.js";
 import { setTip } from "../tip.js";
@@ -105,13 +106,14 @@ const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons(18);
  *   only by the /desk pane: a plain click on a scripture reference in a
  *   footnote moves the LIT pane (footnote-links.js).
  * @returns {{ el: HTMLElement, render: () => Promise<void>, setVerse: (verse: number) => void,
- *   focusHeading: () => void, showNotes: () => Promise<void>, destroy: () => void }}
+ *   focusHeading: () => void, showNotes: () => Promise<void>,
+ *   showChapter: (bookKey: string, chapter: number) => void, destroy: () => void }}
  */
 export function createVerseTab({
   store, here, visible, panelOpen, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null,
   greek = null, source = null, startVerse = null, idSuffix = "", onVerse = null, showPassage = null,
 }) {
-  const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
+  const textBox = source ? source.textBox : pageTextBox();
   const footnoteBody = source
     ? source.footnoteBody
     : (id) => document.getElementById(id)?.querySelector(".fn-body") ?? null;
@@ -733,6 +735,9 @@ export function createVerseTab({
   const onPanelActions = (e) => {
     const d = e.detail;
     if (d?.kind !== "verse" || d.view !== "study" || !panelOpen()) return;
+    // A chapter the reading page loaded beside this one (read-on.js) isn't
+    // this tab's: its verse menu leaves the tab where it is.
+    if (d.chapter && (d.book !== here.bookKey || d.chapter !== here.chapter)) return;
     setVerse(d.start);
   };
   document.addEventListener("lit:panel-actions", onPanelActions);
@@ -760,12 +765,41 @@ export function createVerseTab({
     flashTimer = setTimeout(() => notesSection.classList.remove("desk-verse__notes--flash"), 1600);
   }
 
+  /**
+   * "This chapter" at the tab's foot: a chapter's Go deeper rows, from its
+   * section on the page (the page's own chapter or one it reads on into),
+   * with its heading focused. The reading page's Go deeper asks for it where
+   * the Notebook panel runs, since the section leaves the flow there (WB-18;
+   * read-on.js sends `show-this-chapter`).
+   */
+  let chapterPart = null;
+  function showChapter(bookKey, chapter) {
+    const rows = goDeeperOf(bookKey, chapter)?.querySelector(".go-deeper__rows");
+    chapterPart?.remove();
+    chapterPart = make("section", "desk-verse__section desk-chapter");
+    const title = make("h4", "desk-verse__subhead", "This chapter");
+    title.id = `deskChapterTitle${idSuffix}`;
+    title.tabIndex = -1;
+    chapterPart.setAttribute("aria-labelledby", title.id);
+    chapterPart.append(title, make("p", "desk-chapter__open", `${bookKeyToLabel(bookKey)} ${chapter}`));
+    if (rows) {
+      const copy = rows.cloneNode(true);
+      copy.className = "desk-chapter__rows";
+      for (const node of copy.querySelectorAll("[id]")) node.removeAttribute("id");
+      chapterPart.append(copy);
+    }
+    el.append(chapterPart);
+    chapterPart.scrollIntoView({ block: "nearest" });
+    title.focus({ preventScroll: true });
+  }
+
   return {
     el,
     render,
     setVerse,
     focusHeading: () => heading.focus({ preventScroll: true }),
     showNotes,
+    showChapter,
     // For /desk, whose This verse pane builds a tab per chapter (BA31).
     destroy: () => {
       document.removeEventListener("lit:panel-actions", onPanelActions);

@@ -1,8 +1,8 @@
 ---
 // The source-text notice: the LIT is an adaptation of the SBL Greek New
 // Testament, whose CC BY 4.0 license asks for this attribution. It closes
-// every page that prints the translation: Chapter View chapters and intros
-// (ScriptureLayout) and Read View (read/[book].astro). One sentence
+// every page that prints the translation: chapters and introductions
+// (ScriptureLayout), and Study's pages. One sentence
 // carries the whole attribution and the rest of the credit waits in a
 // disclosure (FIXLIST V5); the wording is SblgntCredits.astro's, shared
 // with /read. print.css keeps it on paper, in small type, disclosure open.
@@ -18,7 +18,7 @@ import Icon from "./Icon.astro";
   <div class="scripture-disclaimer__inner">
     <SblgntCredits part="line" />
     <details class="scripture-disclaimer__more">
-      <summary>Source text and license<Icon name="down" /></summary>
+      <summary class="kit-btn kit-btn--plain">Source text and license<Icon name="down" /></summary>
       <SblgntCredits part="rest" />
     </details>
   </div>

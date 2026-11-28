@@ -130,12 +130,12 @@ const deskChapter = deskPanel && deskSurface === READING_SURFACES[0].kind;
          that came before the shared Display tray (lit_rm_fontSize, lit_rm_lineHeight,
          lit_rm_markers) are still read as fallbacks; the tray deletes each one when
          its setting changes, so it can't resurrect an older choice.
-         Verse numbers are one setting per view. Chapter View reads lit-verse-numbers
-         alone: a number there is the verse menu's button, so hiding it for Read
-         View's sake took the menu away on a touch screen. Read View reads
-         lit-read-numbers, then lit_rm_markers (its own key before the tray), then
-         Chapter View's, so it follows Chapter View until the reader sets it. */}
-    <script is:inline define:vars={{ readView: scriptureControls === "read" }}>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=readView?(s.getItem('lit-read-numbers')||s.getItem('lit_rm_markers')||s.getItem('lit-verse-numbers')):s.getItem('lit-verse-numbers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k)}catch(_){}</script>
+         Verse numbers had one setting per view until Read View retired into the
+         chapter's page, which reads on through the book (Featherboa, Phase 4). The
+         page reads lit-verse-numbers, which is stored only when off, then Read
+         View's own (lit-read-numbers, then lit_rm_markers), so a reader who hid
+         them for reading a whole book keeps that until the switch is next set. */}
+    <script is:inline>try{var s=localStorage,d=document.documentElement,z=s.getItem('lit-size')||s.getItem('lit_rm_fontSize'),l=s.getItem('lit-leading')||s.getItem('lit_rm_lineHeight'),n=s.getItem('lit-verse-numbers')||s.getItem('lit-read-numbers')||s.getItem('lit_rm_markers'),r=s.getItem('lit-fn-letters'),k=s.getItem('lit-terms');if(z==='sm'||z==='lg'||z==='xl')d.setAttribute('data-size',z);if(l==='roomy')d.setAttribute('data-leading',l);if(n==='off')d.setAttribute('data-vn',n);if(r==='off')d.setAttribute('data-fn',r);if(k==='off')d.setAttribute('data-terms',k)}catch(_){}</script>
     {/* The Study Desk preview (STUDY-DESK.md, phase 1b). ?desk=on or ?desk=off sets or
          clears lit-desk-preview in this browser (off clears lit-desk-panel too) and is
          taken out of the address, so a copied link never carries it. With the flag on, and on a computer (the test in

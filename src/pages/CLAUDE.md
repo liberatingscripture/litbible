@@ -151,10 +151,17 @@ its page: `/John-3`, `/jn-3`, `/john-3-16`, `/john/3`, `/1-corinthians-13`,
 (`/john-30`) gets "Did you mean John?" instead of a redirect; anything else,
 and no JS, leaves the page as it was.
 
-## Measuring Read View
+## Measuring the Read page
 
-**Don't measure Read View with Cloudflare's Visits view.** A visit is a page
-view whose referrer isn't the site, and Read View is reached almost only from
-inside it (Chapter View's toolbar, the /read card, the search links), so it
-barely appears there. Use page views, and remember one Read View page view
-can hold a whole book where Chapter View logs one per chapter.
+**Don't measure reading with Cloudflare's Visits view.** A visit is a page
+view whose referrer isn't the site, and most chapters are reached from
+inside it, so they barely appear there; use page views. **A chapter's page
+reads on through its book, and its address follows by `replaceState`**
+(`src/scripts/read-on.js`). The site's own `lit_pv` counts page loads
+only, but Cloudflare's beacon, in a browser with the Navigation API, hears
+the `navigate` event `replaceState` fires and reports each chapter the
+address moves to as a page view; in one without it, only the chapter
+opened counts. So a chapter's page views mix the two. Read View's old
+addresses forward (`read/[book].astro`) and may log a view of their own
+first. (From the beacon's code, read 2026-11-27; not yet seen in the
+dashboard.) Before Phase 4 one Read View page view could hold a whole book.

@@ -26,27 +26,25 @@ const columnWidth = () => (root.hasAttribute("data-desk-expanded") ? 48 : 52) * 
 let viewport = 1009; // a 1024px window less its scrollbar
 Object.defineProperty(root, "clientWidth", { get: () => viewport, configurable: true });
 
-/** A Chapter View chapter (or Read View), laid out as the browser would. */
-function page({ read = false } = {}) {
+/** A chapter's page, laid out as the browser would. */
+function page() {
   resetDom();
   for (const a of ["data-desk", "data-desk-panel", "data-desk-expanded", "data-desk-widths"]) root.removeAttribute(a);
   root.removeAttribute("style");
   localStorage.clear();
-  document.body.innerHTML = read
-    ? `<main><div class="rm-page"><div class="rm-toolbar"></div><h1 class="rm-title">Luke</h1><div class="rm-reader">text</div></div></main>`
-    : `<main><div class="scripture-layout scripture-layout--scripture"><div class="scripture-main">
+  document.body.innerHTML = `<main><div class="scripture-layout scripture-layout--scripture"><div class="scripture-main">
         <h1 id="chapter-title">Luke 4</h1>
         <article class="chapter"><div class="chapter-paragraphs"><div class="p">text</div></div></article>
       </div></div></main>`;
   const main = document.querySelector("main");
   main.getBoundingClientRect = () => ({ left: 0, right: viewport, top: 100, bottom: 4000, width: viewport, height: 3900 });
-  const column = document.querySelector(read ? ".rm-reader" : ".scripture-main");
+  const column = document.querySelector(".scripture-main");
   column.getBoundingClientRect = () => {
     const width = columnWidth();
     // The column's own translate wins; else global.css's rule draws the stamp
     // on a chapter's column while the notebook is expanded.
     const drawn = column.style.translate
-      || (!read && root.hasAttribute("data-desk-expanded") ? root.style.getPropertyValue(MOVE_PROP) : "");
+      || (root.hasAttribute("data-desk-expanded") ? root.style.getPropertyValue(MOVE_PROP) : "");
     const left = (viewport - width) / 2 + (parseFloat(drawn) || 0);
     return { left, right: left + width, top: 200, bottom: 3800, width, height: 3600 };
   };
@@ -173,16 +171,6 @@ test("E137: a stamp is taken over only where it is drawn", () => {
   let rail = createRail(panel, tab);
   assert.equal(column.style.translate, "");
   assert.equal(root.style.getPropertyValue(MOVE_PROP), "", "and it doesn't linger");
-  rail.destroy();
-
-  // Not in Read View, whose column the stamp was never worked out for.
-  ({ column, panel, tab } = page({ read: true }));
-  root.setAttribute("data-desk", "on");
-  root.setAttribute("data-desk-expanded", "");
-  root.style.setProperty(MOVE_PROP, "-85px 0");
-  rail = createRail(panel, tab);
-  for (const el of document.querySelectorAll(".rm-toolbar, .rm-reader")) assert.equal(el.style.translate, "");
-  assert.equal(root.style.getPropertyValue(MOVE_PROP), "");
   rail.destroy();
 });
 

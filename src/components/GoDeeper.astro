@@ -75,7 +75,7 @@ const moreLabel = (row: Row) => {
                   );
                   return g === 0 ? list : (
                     <details class="go-deeper__more">
-                      <summary>{moreLabel(row)}<Icon name="down" /></summary>
+                      <summary class="kit-btn kit-btn--plain">{moreLabel(row)}<Icon name="down" /></summary>
                       {list}
                     </details>
                   );
@@ -119,11 +119,12 @@ const moreLabel = (row: Row) => {
     border-top: 1px solid rgba(var(--ink-rgb), 0.1);
   }
 
+  /* A row's label, in sentence case at the Label size (the audit's
+     capitals and tracking went with Featherboa's small labels). */
   .go-deeper dt {
-    font-size: calc(0.8rem * var(--reading-scale, 1));
+    font-family: var(--font-control);
+    font-size: calc(var(--size-label) * var(--reading-scale, 1));
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     padding-top: 0.2em;
   }
 
@@ -172,7 +173,6 @@ const moreLabel = (row: Row) => {
 
   .go-deeper__more summary {
     width: fit-content;
-    font-size: calc(0.9rem * var(--reading-scale, 1));
     list-style: none;
   }
 

@@ -1,10 +1,10 @@
-// test/desk-corpus.test.js — the LIT pane's corpus (src/lib/desk-corpus.mjs).
+// test/desk-corpus.test.js — the LIT pane's corpus, shared with the reading page (src/lib/read-on.mjs).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { BOOKS, BOOK_ORDER } from "../src/data/books.js";
-import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../src/lib/desk-corpus.mjs";
+import { corpusUnits, draftStubText, unitHeading, unitIndex } from "../src/lib/read-on.mjs";
 
 const drafts = { luke: [23, 24], acts: Array.from({ length: 28 }, (_, i) => i + 1), john: [5] };
 

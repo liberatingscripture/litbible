@@ -1,12 +1,12 @@
 // test/desk-lit-line.test.js
 //
-// indexAtLine (src/lib/desk-lit-text.mjs): which verse start the LIT pane's
+// indexAtLine (src/lib/read-on.mjs): which verse start the LIT pane's
 // reading line has reached, read from the verses' own spans (E29), so the
 // location field and keep() work with the verse numbers hidden.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { indexAtLine } from "../src/lib/desk-lit-text.mjs";
+import { indexAtLine } from "../src/lib/read-on.mjs";
 
 test("the last start at or above the line", () => {
   assert.equal(indexAtLine([10, 40, 70, 100], 75), 2);

@@ -1,7 +1,8 @@
 // src/scripts/desk/highlights.js
 //
-// The reader's highlights, drawn on a Chapter View chapter, on the book Read
-// View shows, or on /desk's LIT panes (STUDY-DESK.md, highlights; 3g). Four colours, one CSS Custom
+// The reader's highlights, drawn on a chapter's page and every chapter it
+// reads on into (read-on.js), or on /desk's LIT panes (STUDY-DESK.md,
+// highlights; 3g). Four colours, one CSS Custom
 // Highlight per colour (`desk-hl-yellow` and the rest; their look is in
 // desk.css), so the scripture's text and markup are never touched: Copy text,
 // the handout and the anchor reader all read the verses off the page, and a
@@ -28,7 +29,7 @@ import { forChapter, MOVE_KIND, NO_CHAPTER_KINDS } from "../../lib/desk-store-co
 import { SETTINGS_EVENT, getSetting, highlightSetting, highlightsSupported } from "./note-settings.js";
 import { highlightsShownIn } from "./lit-marks.js";
 import { watchLitRecords } from "./lit-records.js";
-import { chapterTextFor, pageChapter, readBook } from "./page.js";
+import { chapterTextFor, pageChapter, pageTextBox, readBook, readsOnPage } from "./page.js";
 
 const nameOf = (color) => `desk-hl-${color}`;
 
@@ -40,13 +41,12 @@ const nameOf = (color) => `desk-hl-${color}`;
  */
 export function createHighlights({ store }) {
   if (!store || !highlightsSupported()) return null;
-  if (document.querySelector("[data-desk-page]")) return deskHighlights(store);
+  // Many chapters: /desk's panes, and a chapter's page that reads on.
+  if (document.querySelector("[data-desk-page]") || readsOnPage()) return deskHighlights(store);
   const study = pageChapter();
   const book = study ? null : readBook();
   if (!(study || book)) return null;
-  const textBox = study
-    ? document.querySelector(".chapter-paragraphs")
-    : document.querySelector("[data-rm-root] [data-rm-text]");
+  const textBox = study ? pageTextBox() : document.querySelector("[data-rm-root] [data-rm-text]");
   if (!textBox) return null;
 
   let records = []; // this page's highlight records
@@ -110,7 +110,7 @@ function deskHighlights(store) {
     paint(
       entries.flatMap(({ box, records }) => {
         const mine = records.filter((r) => r.kind === "highlight");
-        if (!mine.length || !highlightsShownIn(box)) return [];
+        if (!mine.length || !shownIn(box)) return [];
         const text = pageAnchorText(box.children); // read fresh, once per box per drawing
         return mine.map((record) => ({ text, record }));
       }),
@@ -124,6 +124,14 @@ function deskHighlights(store) {
   });
   document.addEventListener(SETTINGS_EVENT, draw);
   return { refresh: watch.refresh };
+}
+
+/**
+ * Whether a text shows highlights: a LIT pane by its own "Show" (E108), and
+ * the reading page's chapters by the page's switch.
+ */
+function shownIn(box) {
+  return box.closest(".desk-lit") ? highlightsShownIn(box) : getSetting(highlightSetting()) === "on";
 }
 
 function clear() {

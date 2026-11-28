@@ -1,22 +1,19 @@
 // src/lib/read-view-retirement.mjs
 //
-// The rules for Read View's retirement at the Study Desk's launch (STUDY-DESK.md,
-// E8, "At launch"; work session 8b, BVJ 2026-11-02). Built and tested, and
-// **not switched on**: nothing imports this yet, because `/read/<book>` is what
-// every reader has until the launch. Work session 8c is the cutover, which wires
-// these in and then removes Read View's code, copy and docs:
+// The rules for Read View's retirement (STUDY-DESK.md, E8, "At launch"; work
+// session 8b, BVJ 2026-11-02), switched on in Featherboa's Phase 4 (WB-44),
+// when a chapter's page came to read on through its book:
 //
-// - `readViewRedirects()`: the Astro `redirects` entries for `/read/<book>`,
-//   spread into astro.config.mjs's `redirects` at 8c. A static redirect page
-//   is a meta refresh, which drops the address's `#fragment`, so it is only
-//   the no-script fallback.
-// - `studyAddress(pathname, hash)`: where an old Read View address belongs in
-//   Chapter View, anchors included. At 8c `/read/[book].astro` becomes a small
+// - `studyAddress(pathname, hash)`: where an old Read View address belongs on
+//   the chapter's page, anchors included. `/read/[book].astro` is a small
 //   noindex page whose script (src/scripts/read-view-redirect.js) does
 //   `location.replace(studyAddress(...))`, so an old `#ch-10` or
-//   `#luke-10-v25` link keeps its place; the pages leave the sitemap.
-//   Search results that built Read View anchors (search-core.js) take the
-//   same function's chapter and verse forms.
+//   `#luke-10-v25` link keeps its place; the pages are out of the sitemap,
+//   and without scripts a meta refresh takes the reader to chapter 1.
+// - `readViewRedirects()`: each book's no-script destination, the same as
+//   `studyAddress` with no anchor. Not used as Astro `redirects` entries:
+//   those would be pages at the same addresses, and a meta refresh drops
+//   the address's `#fragment`, so the page is its own fallback.
 // - `studyRecord(r)` and `studyContinueHref(r)`: "Continue reading"
 //   (`lit_last_read`, last-read.js) records written by Read View (`view:
 //   "read"`) are read as Chapter View places, not dropped: the same book,

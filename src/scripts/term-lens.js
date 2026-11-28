@@ -46,7 +46,10 @@ const CLOSE_DELAY = 250;
 
 const dataEl = document.getElementById("term-lens-data");
 const pageData = dataEl ? JSON.parse(dataEl.textContent || "null") : null;
-const pageContainer = document.querySelector(".chapter-paragraphs");
+// The page's own chapter; one the reading page loads gets attachTermLens from
+// read-on.js with its own page's data.
+const pageContainer =
+  document.querySelector("article.chapter > .chapter-paragraphs") ?? document.querySelector(".chapter-paragraphs");
 
 const lensOff = () => document.documentElement.getAttribute("data-terms") === "off";
 

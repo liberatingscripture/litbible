@@ -110,13 +110,9 @@ means each of these, in one change:
    (LG8-9; `sheets/CLAUDE.md`, rule 21).
 10. Release notes (automated), `llms.txt`, README and the CLAUDE.md "preview"
     wording.
-11. **Read View's retirement (8c)** ships with the flip (BVJ, 2026-11-07);
-    where the desk runs, E114's Reading links succeed its jumps. Wire
-    `src/lib/read-view-retirement.mjs` and `src/scripts/read-view-redirect.js`
-    in (redirects in `astro.config.mjs`, the `/read/[book].astro` rewrite, the
-    sitemap filter, the `lit_last_read` records Read View writes). Delete
-    `test/read-view-retirement.test.js`'s guard that nothing imports the
-    retirement rules, and rewrite its "with the preview on" test.
+11. **Read View's retirement (8c)** is done: Featherboa's Phase 4 made
+    `/read/<book>` forward to the chapter's page (`src/pages/CLAUDE.md`).
+    Where the desk runs, E114's Reading links succeed its jumps.
 12. **The header's Study place**, and the place line's Notebook and "Study
     John 3," go live with the flip by themselves: their rules read
     `html[data-desk]` (from 1100px), which item 1 keeps; a tablet, which
@@ -259,8 +255,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `keepReadingPlace`) and stamped before paint when it starts expanded;
      `data-desk-panel` still means open-or-minimized.
      **It appears only on the pages `READING_SURFACES`
-     (`src/scripts/desk-frame.js`) lists**: Chapter View chapters and Read
-     View. Intros, articles and the glossary wait in `ALL_SURFACES`, marked
+     (`src/scripts/desk-frame.js`) lists**: a chapter's page. Intros, articles and the glossary wait in `ALL_SURFACES`, marked
      `prose`, behind `PROSE_NOTES` (E124, BVJ 2026-11-12: the panel did
      nothing there). A page names its kind to Layout as `deskSurface`, and
      the pre-paint script stamps the panel only where `hasPanel` allows.
@@ -1004,9 +999,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        link, which reads `a[data-study-place]` (BVJ, 2026-11-10: all three
        alike). A new link into /desk at a passage uses `place`, never the
        stored layout.
-     - **Read View's retirement is prepared, not live** (E8, 8b; BVJ,
-       2026-11-02): the rest is built and tested, imported by nothing until
-       "Launching", item 11.
+     - **Read View retired** in Featherboa's Phase 4 (E8; "Launching", 11).
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
        Notebook's own modules rather than copies, so a pane and its tab
        can't drift apart: My Notes is `tab-mine.js`, This verse
@@ -1132,12 +1125,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        among themselves (BVJ, 2026-10-19, option A); a pinned pane keeps
        its own in `pin.at`.
      - **The LIT pane scrolls the whole New Testament**, a chapter fetched
-       as the reader nears it (`src/lib/desk-corpus.mjs`: a run of drafts in
+       as the reader nears it (`src/lib/read-on.mjs`: a run of drafts in
        one book is one stub, from the draft list `desk.astro` writes at
-       build). Featherboa's reading page will load chapters on this way,
-       drafts as these stubs (`SITE-FEATHERBOA.md`, "A whole book").
+       build), as a chapter's page reads on (`src/scripts/read-on.js`).
        Its text is the page's own with every id prefixed by pane and
-       chapter (`src/lib/desk-lit-text.mjs`), which
+       chapter (`prepareLitBlocks`), which
        `test/desk-anchor-dom.test.js` sweeps as a third view; **a new
        render-time change to the chapter text must pass that sweep too.** A
        chapter loading above is held in place by measuring the reading line
@@ -1146,7 +1138,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        the line (`--desk-lit-below`, BA57), so the last verses reach it.
        **The verse at the line is read from the verses' `[data-verse]`
        spans, never their numbers** (`placeNow`, `keep`, `indexAtLine` in
-       `desk-lit-text.mjs`; E29), since "Show" may hide the
+       `read-on.mjs`; E29), since "Show" may hide the
        numbers. **The scroller is positioned** for the same reason: a hidden
        number, letter or heading is a 1px absolute box (global.css), so
        without a positioned scroller the location field read verse 1 and a
@@ -1205,7 +1197,11 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Notes and This verse panes, BA121); a new such view needs it too.
        `desk/lit-records.js` keeps each chapter's records for whatever draws on
        them (BA123; `highlights.js` and `verse-labels.js` have a /desk mode on
-       it). Pins work per chapter (`pinButton(id, label, where)` in
+       it). **A chapter's page that reads on is one such text**: its column
+       is registered, `lit:read-on` says a chapter came, and
+       `readingChapterBoxes()` lists them, so the /desk modes and the
+       margin (`readingSource`) draw on every chapter; `pageTextBox()` is
+       the page's own (a bare `.chapter-paragraphs` may be one above). Pins work per chapter (`pinButton(id, label, where)` in
        `pins.js`), reading a fetched chapter's footnotes through
        `loadedChapterPage` (`chapter-page.js`), which is also how a pin's
        change notice is judged on /desk.

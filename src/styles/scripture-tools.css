@@ -1,6 +1,6 @@
 /* The tools row of /search (SearchLayout: its heading over the search
-   field) and of Read View (the search-only variant). A chapter's and an
-   introduction's went with Featherboa's place line (PlaceLine.astro). */
+   field). A chapter's and an introduction's went with Featherboa's place
+   line (PlaceLine.astro), and Read View's with Read View (Phase 4). */
 
 .scripture-tools {
   padding: 18px 16px 10px;
@@ -37,8 +37,8 @@
     minmax(320px, 1fr)
     minmax(227px, 260px);
 
-  /* One toolbar row: trigger, search, and Read View pill share a
-     vertical center instead of staggering */
+  /* One toolbar row: the three columns share a vertical center instead
+     of staggering */
   align-items: center;
   gap: 18px;
 
@@ -62,15 +62,6 @@
 
 .scripture-tools__right {
   justify-self: end;
-}
-
-/* Search-only variant (Read View pages): the passage picker lives in the
-   sticky reading toolbar instead, so the bar holds just the search field —
-   one centered column at every width. Out-specifies the breakpoint
-   grid-template-columns overrides below (0,2,0 vs 0,1,0). */
-.scripture-tools--search-only .scripture-tools__inner {
-  grid-template-columns: minmax(0, 680px);
-  justify-content: center;
 }
 
 /* Tablet band (641-900px): one row, like desktop, the search field taking

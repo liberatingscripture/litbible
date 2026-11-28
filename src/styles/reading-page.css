@@ -1,0 +1,172 @@
+/* =========================================================
+   The reading page (Featherboa's Phase 4, part two; SITE-FEATHERBOA.md,
+   "The reading page" and "A whole book"): a chapter's page reads on into
+   the chapters around it. src/scripts/read-on.js loads them below and
+   above (src/layouts/CLAUDE.md); this sheet draws what it adds and how a
+   chapter's page looks around them. Imported by [slug].astro alone, and
+   held to the spacing scale (test/featherboa-spacing.test.js). The three
+   columns are ScriptureLayout.astro's, beside the column's own width.
+   ========================================================= */
+
+/* While chapters load into the page, read-on.js holds the reader's line
+   itself when one arrives above (scripture never moves), so the browser's
+   scroll anchoring would correct a second time, as in Study's text pane. */
+html[data-read-on] {
+  overflow-anchor: none;
+}
+
+/* ---------- A chapter's heading ----------
+   The chapter's name, and Go deeper at its right end (WB-23, WB-46), which
+   names its chapter by where it sits. The button's cell is no taller than
+   nothing, so the row is the heading's height and the button adds none. The
+   page's own heading is ScriptureHeader's h1 in this row; a loaded
+   chapter's is read-on.js's h2. */
+.chapter-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-4);
+}
+
+.chapter-head__go {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 0;
+}
+
+/* Between chapters only the next one's heading, set close, as Study's text
+   pane sets it: Fraunces at the Subhead size, 32px above, no rule (WB-15). */
+.read-on__chapter > .chapter-head {
+  margin: var(--space-6) 0 var(--space-3);
+}
+
+/* The first chapter on the page sits under the line as the page's own
+   heading does before any loads above it (ScriptureHeader.astro), as the
+   text pane's first does. */
+html:not([data-vn="off"]) .read-on--before > .read-on__chapter:first-child > .chapter-head {
+  margin-top: var(--space-2);
+}
+
+.read-on__heading {
+  margin: 0;
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Chapters run on: the text's own gap before the next heading, and no way
+   on at a chapter's foot while another follows (the book's end has one, from
+   the page's template). Without JavaScript none of this applies, and a page
+   is one chapter with its way on at its foot. */
+html[data-read-on] .scripture-layout--scripture .chapter-paragraphs {
+  margin-bottom: 0;
+}
+
+html[data-read-on-more] article.chapter > :is(.chapter-ctas, .chapter-ctas__note, .back-to-top) {
+  display: none;
+}
+
+/* ---------- "Introduction to Mark →" at the top of chapter 1 ---------- */
+.chapter-intro-link {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-control);
+  font-size: calc(var(--size-label) * var(--reading-scale, 1));
+  line-height: 1.4;
+}
+
+.chapter-intro-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.chapter-intro-link .icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+/* ---------- A run of drafts, and a chapter that didn't load ----------
+   One entry for a run (WB-29, WB-31): its heading, a line saying it is
+   still being translated, and a link to its Greek in Study, which only the
+   Study preview opens until Study launches. */
+.read-on__stub {
+  margin: 0 0 var(--space-3);
+  font-size: calc(var(--size-text) * var(--reading-scale, 1));
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
+}
+
+html:not([data-desk]) .read-on__greek {
+  display: none;
+}
+
+.read-on__retry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ---------- Verse and chapter numbers off (WB-24 to WB-26) ----------
+   With the Display tray's verse numbers off the chapters run on as one
+   text, so each heading makes no break: out of the flow, adding no height,
+   still a heading for a screen reader, and Go deeper hides with it. A
+   keyboard reaching Go deeper shows the row over the start of its chapter,
+   as a hidden verse number comes back (src/styles/CLAUDE.md, "The Display
+   tray," rule 4; desk.css hides a text pane's headings the same way). */
+html[data-vn="off"] .scripture-layout--scripture .chapter-head {
+  position: absolute;
+  margin: 0;
+}
+
+html[data-vn="off"] .scripture-layout--scripture .chapter-head:not(:focus-within) {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+html[data-vn="off"] .scripture-layout--scripture .chapter-head:focus-within {
+  z-index: 1;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-press);
+  background: var(--color-float);
+  box-shadow: var(--shadow-float);
+}
+
+/* ---------- Where the Notebook panel runs (WB-18) ----------
+   A computer with the Study preview on, from 1100px, where the place line
+   shows the Notebook: the chapters' Go deeper and footnote lists leave the
+   reading flow, since This verse holds Go deeper ("This chapter") and the
+   footnote letters open their notes. They stay in the markup for paper, for
+   readers without JavaScript, and for the desk, which reads them from each
+   chapter's page. Everywhere else they stay in the flow until Phase 5 gives
+   phones and tablets their sheet. */
+@media screen and (min-width: 1100px) {
+  html[data-desk]:not([data-desk-show="off"]) .scripture-layout--scripture :is(.go-deeper, .footnotes-wrap) {
+    display: none;
+  }
+}
+
+/* ---------- Paper ----------
+   A print is one chapter with its notes, the one in view (WB-37):
+   read-on.js marks it at beforeprint and takes the mark off after. */
+@media print {
+  .chapter-head__go,
+  .chapter-intro-link,
+  .read-on__end,
+  .read-on__chapter--draft,
+  .read-on__chapter--failed {
+    display: none !important;
+  }
+
+  html[data-read-on-print] :is([data-read-on-page], .read-on__chapter):not([data-read-on-printing]) {
+    display: none !important;
+  }
+}

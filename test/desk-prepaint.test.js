@@ -241,8 +241,10 @@ test("a page without the Notebook panel gets data-desk alone, whatever the reade
     assert.deepEqual(on.attrs, { "data-desk": "on" });
     assert.equal(on.stored["lit-desk-min"], "0");
   }
-  // The same reader on a chapter and in Read View gets the panel as before.
-  for (const kind of ["chapter", "read"]) {
+  // The same reader on a chapter gets the panel as before. Read View, which
+  // had it too, retired in Featherboa's Phase 4.
+  assert.equal(hasPanel("read"), false);
+  for (const kind of ["chapter"]) {
     const r = run({ surface: kind, stored: { "lit-desk-preview": "on", "lit-desk-min": "0" } });
     assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, kind);
   }
@@ -260,7 +262,6 @@ test("Layout hands the script hasPanel of the page's deskSurface, and each readi
   const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
   assert.match(read("../src/layouts/ScriptureLayout.astro"), /const deskSurface = pagefindType === "scripture" \? "chapter" : pagefindType === "intro" \? "intro" : undefined;/);
   assert.match(read("../src/layouts/ScriptureLayout.astro"), /<Layout [^>]*deskSurface=\{deskSurface\}/);
-  assert.match(read("../src/pages/read/[book].astro"), /\bdeskSurface="read"/);
   assert.match(read("../src/pages/articles/[...slug].astro"), /\bdeskSurface="article"/);
   assert.match(read("../src/pages/glossary.astro"), /\bdeskSurface="glossary"/);
 });
@@ -481,12 +482,6 @@ test("the script decides as firstPaint does, for every font, size and window", (
             assert.equal("data-desk-expanded" in r.attrs, want.expanded, at);
             assert.equal("data-desk-widths" in r.attrs, Boolean(want.widths), at);
             assert.deepEqual(r.props, stamps(want), at);
-            // Read View opens expanded in the same windows and gets the same
-            // widths, but neither the move nor the center: its column is not
-            // the one this script knows (E137).
-            const read = run({ surface: "read", stored: expandedStart, session, viewport, html, rootPx });
-            assert.deepEqual(read.attrs, r.attrs, at);
-            assert.deepEqual(read.props, stamps({ ...want, shift: 0, center: null }), at);
           }
         }
       }

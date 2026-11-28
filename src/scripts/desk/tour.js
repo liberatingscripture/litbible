@@ -127,14 +127,14 @@ export function createTour({ panel, canKeep = true, store = null }) {
       const page = prosePage();
       return page ? page.targets.flatMap((t) => Array.from(t.root.querySelectorAll("p"))) : [];
     }
-    const root = view === "read" ? document.querySelector(".rm-reader") : document.querySelector(".chapter-paragraphs");
+    const root = view === "read" ? document.querySelector(".rm-reader") : document.querySelector("article.chapter > .chapter-paragraphs");
     return root ? Array.from(root.querySelectorAll("p")) : [];
   };
 
   // The verse every Chapter View step uses, chosen once per run: the first
   // verse number in view, else the chapter's first.
   const pickVerse = () => {
-    const numbers = Array.from(document.querySelectorAll(".chapter-paragraphs sup.vn")).filter(visible);
+    const numbers = Array.from(document.querySelectorAll("article.chapter > .chapter-paragraphs sup.vn")).filter(visible);
     return numbers.find(inView) ?? numbers[0] ?? null;
   };
   const verseNumber = () => Number.parseInt(state.verse?.id?.slice(1) ?? "", 10) || 1;
@@ -217,7 +217,7 @@ export function createTour({ panel, canKeep = true, store = null }) {
   // An example note in the margin, drawn by the tour beside `line` where the
   // margin holds notes in full; null where it doesn't.
   function exampleNote(line) {
-    const box = (view === "prose" ? prosePage()?.box : document.querySelector(".chapter-paragraphs"))?.getBoundingClientRect();
+    const box = (view === "prose" ? prosePage()?.box : document.querySelector("article.chapter > .chapter-paragraphs"))?.getBoundingClientRect();
     if (!box || !line || marginMode(box.left) !== "full") return null;
     const width = noteWidth(box.left, box.width);
     const wrap = document.createElement("div");
@@ -286,7 +286,7 @@ export function createTour({ panel, canKeep = true, store = null }) {
 
     async pin(live) {
       closePanel();
-      const refs = Array.from(document.querySelectorAll(".chapter-paragraphs .fn-ref a")).filter(visible);
+      const refs = Array.from(document.querySelectorAll("article.chapter > .chapter-paragraphs .fn-ref a")).filter(visible);
       const after = refs.find((a) => state.verse && state.verse.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING);
       const ref = refs.find(inView) ?? after ?? refs[0];
       if (!ref) return null;
@@ -401,7 +401,7 @@ export function createTour({ panel, canKeep = true, store = null }) {
     const ids = new Set(TOUR_STEPS.filter((s) => s.views.includes(view)).map((s) => s.id));
     const field = document.getElementById("site-search-input");
     if (!visible(field) && !visible(document.querySelector("[data-line-search]"))) ids.delete("search");
-    if (!document.querySelector(".chapter-paragraphs .fn-ref a")) ids.delete("pin");
+    if (!document.querySelector("article.chapter > .chapter-paragraphs .fn-ref a")) ids.delete("pin");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="greek"]')) ids.delete("greek");
     if (!document.querySelector('#deskPanel [role="tab"][data-tab="verse"]')) ids.delete("verse");
     if (view !== "study" ? !textParagraphs().length : !pickVerse()) {

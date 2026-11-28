@@ -62,6 +62,7 @@ export const RULES = [
   { id: "my", pattern: /\bMy [A-Za-z]+/g, why: "no “My”: inside Study everything is the reader's (CT-04)" },
   { id: "study-desk", pattern: /\bStudy Desk\b/g, why: "“Study,” never “Study Desk” (CT-09, CT-16)" },
   { id: "views", pattern: /\b(Chapter|Read) View\b/g, why: "Chapter View and Read View become the Read page (A whole book)" },
+  { id: "scripture-page", pattern: /\bScripture pages?\b/g, why: "the reading page is “the Read page,” not E130's “Scripture page(s)” (ST-10)" },
   {
     id: "article",
     // A label that is a verb and then an article: "Add a note," "Open the

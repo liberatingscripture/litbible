@@ -2,6 +2,14 @@
 // The title of a chapter or a book's introduction, the page's h1. Previous
 // and Next are the place line's ‹ › (PlaceLine.astro; CO-11), the phone
 // bar's, and the large links at the foot.
+//
+// A published chapter reads on into the next (SITE-FEATHERBOA.md, "A whole
+// book"), so its title is set as every chapter's heading is between
+// chapters ("Between chapters": Fraunces at the Subhead size, at the
+// column's start), with "Go deeper" at its right end, naming its chapter by
+// where it sits and adding no height (WB-23, WB-46). The heading row's look
+// is reading-page.css's, shared with the headings src/scripts/read-on.js
+// draws for the chapters it loads.
 import { bookKeyToLabel } from "../data/books.js";
 
 /**
@@ -12,6 +20,10 @@ export type Props = {
   kind?: "intro" | "chapter";
   bookKey?: string;
   chapter?: number;
+  /** A published chapter: the heading row of the reading page. */
+  readsOn?: boolean;
+  /** The chapter has Go deeper rows, so its heading carries the button. */
+  goDeeper?: boolean;
 };
 
 const props = Astro.props as Props;
@@ -73,10 +85,26 @@ const headingText = !bookKey
     : `${bookName} ${chapter ?? 1}`;
 ---
 
-<header class="scripture-header">
-  <h1 id="chapter-title" class="chapter-title" data-pagefind-meta="title">
-    {headingText}
-  </h1>
+<header class:list={["scripture-header", { "scripture-header--reads-on": props.readsOn }]}>
+  {props.readsOn ? (
+    <div class="chapter-head">
+      <h1 id="chapter-title" class="chapter-title chapter-head__title" data-pagefind-meta="title">
+        {headingText}
+      </h1>
+      {props.goDeeper && (
+        <span class="chapter-head__go">
+          {/* Without JavaScript, or without the Notebook, the chapter's Go
+              deeper section; with the Study preview, src/scripts/read-on.js
+              asks the Notebook for This verse's "This chapter" instead. */}
+          <a class="kit-btn kit-btn--plain" href="#go-deeper-title" data-go-deeper data-book={bookKey} data-chapter={chapter}>Go deeper</a>
+        </span>
+      )}
+    </div>
+  ) : (
+    <h1 id="chapter-title" class="chapter-title" data-pagefind-meta="title">
+      {headingText}
+    </h1>
+  )}
 </header>
 
 <style>
@@ -95,12 +123,35 @@ const headingText = !bookKey
     text-align: center;
   }
 
+  /* The reading page's title is a chapter heading (reading-page.css draws the
+     row); these undo the centered page title, at every width (the phone's
+     rules, below, hide it). */
+  .scripture-header--reads-on {
+    text-align: start;
+    margin: var(--space-2) 0 var(--space-3);
+  }
+
+  .scripture-header--reads-on .chapter-title {
+    font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+    font-weight: 500;
+    line-height: 1.2;
+    padding: 0;
+    text-align: start;
+  }
+
+  /* Once a chapter has loaded above it (read-on.js), the title is a heading
+     between chapters, set as the others are (reading-page.css), at every
+     width; read-on.js holds the reader's line through the change. */
+  :global(html[data-read-on-above]) .scripture-header--reads-on {
+    margin: var(--space-6) 0 var(--space-3);
+  }
+
   @media (min-width: 641px) {
-    .scripture-header {
+    .scripture-header:not(.scripture-header--reads-on) {
       margin: 6px 0 18px;
     }
 
-    .chapter-title {
+    .scripture-header:not(.scripture-header--reads-on) .chapter-title {
       font-size: calc(32px * var(--heading-scale, 1));
       line-height: 1.8;
     }
@@ -125,5 +176,27 @@ const headingText = !bookKey
       clip: rect(0, 0, 0, 0);
       white-space: nowrap;
     }
+
+    /* Go deeper goes with the title row it sits in; the chapter's Go deeper
+       section stays in the flow on a phone until Phase 5's sheet. */
+    .chapter-head__go {
+      display: none;
+    }
+
+    /* Once a chapter has loaded above (read-on.js), this title is a heading
+       between chapters, drawn like the others. */
+    :global(html[data-read-on-above]) .chapter-title {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+      white-space: normal;
+    }
+
+    :global(html[data-read-on-above]) .chapter-head__go {
+      display: flex;
+    }
   }
+
 </style>

@@ -1,7 +1,8 @@
 // Featherboa's labels (SITE-FEATHERBOA.md, "Controls," "Labels"; CT-04,
 // CT-05, CT-06, CT-09, CT-16): no "My" a reader sees, no article after a
 // label's verb ("Add note," not "Add a note"), "Study," never "Study Desk,"
-// and no Chapter View or Read View once the Read page takes their place.
+// and no Chapter View, Read View, or "Scripture page" (E130's name) once the
+// Read page takes their place (ST-10).
 // Held over the words the code draws, comments left out
 // (test/helpers/featherboa-labels.mjs). The files that keep today's words
 // until their surface's phase renames them are in LATER, by that phase
@@ -19,15 +20,14 @@ const ALLOWED = [{ file: "src/pages/about.astro", why: "BVJ's own story, in the 
 
 /** Files whose words wait for their surface's phase, by phase. */
 export const LATER = new Map([
-  ["src/components/ReadMenu.astro", 4], // the Read page
   ["src/lib/desk-account-words.mjs", 13], // signing in and the account
-  ["src/lib/desk-bookmarks.mjs", 10], // the Notebook
   ["src/lib/desk-commands.mjs", 9], // Study's frame
   ["src/lib/desk-doc-odt.mjs", 11], // Sheets
   ["src/lib/desk-export.mjs", 10], // the Notebook
   ["src/lib/desk-first-stage.mjs", 13], // first visit, the tours, and help
   ["src/lib/desk-first-use.mjs", 13], // first visit, the tours, and help
   ["src/lib/desk-layout.mjs", 9], // Study's frame
+  ["src/lib/desk-reminder.mjs", 9], // Study's frame: "on a Scripture page" (ST-10)
   ["src/lib/desk-lit-marks.mjs", 10], // the Notebook
   ["src/lib/desk-notes.mjs", 10], // the Notebook
   ["src/lib/desk-print-part.mjs", 11], // Sheets
@@ -43,7 +43,6 @@ export const LATER = new Map([
   ["src/pages/desk/help.astro", 13], // first visit, the tours, and help
   ["src/pages/notebook.astro", 10], // the Notebook
   ["src/pages/privacy.astro", 13], // privacy words wait for SK5
-  ["src/pages/read/[book].astro", 4], // the Read page
   ["src/pages/sheets.astro", 11], // Sheets
   ["src/pages/terms.astro", 13], // privacy words wait for SK5
   ["src/scripts/desk-gate.js", 9], // Study's frame
@@ -64,6 +63,7 @@ export const LATER = new Map([
   ["src/scripts/desk/collections/new-collection.js", 11], // collections
   ["src/scripts/desk/command-row.js", 9], // Study's frame
   ["src/scripts/desk/desk-page.js", 9], // Study's frame
+  ["src/scripts/desk/desk-panes.js", 9], // Study's frame: "on its Scripture page" (ST-10)
   ["src/scripts/desk/desk-tour.js", 13], // first visit, the tours, and help
   ["src/scripts/desk/export-import.js", 10], // the Notebook
   ["src/scripts/desk/first-stage.js", 13], // first visit, the tours, and help
@@ -114,7 +114,6 @@ export const LATER = new Map([
   ["src/scripts/desk/trash-list.js", 10], // the Notebook
   ["src/scripts/desk/undo-bar.js", 9], // Study's frame
   ["src/scripts/greek-builder.js", 6], // Search: the Greek builder
-  ["src/scripts/read-mode.js", 4], // the Read page
   ["src/scripts/search-core.js", 6], // Search
   ["src/scripts/search.js", 6], // Search
   ["src/scripts/sheet-share-gate.js", 11], // Sheets
@@ -151,4 +150,6 @@ test("the rules' reader leaves comments out and keeps what a reader sees", () =>
   assert.deepEqual(find('button("Add note")', "article"), []);
   assert.deepEqual(find('"Open in Study Desk"', "study-desk"), ["Study Desk"]);
   assert.deepEqual(find('"Switch to Read View"', "views"), ["Read View"]);
+  assert.deepEqual(find('"Open the Scripture page"', "scripture-page"), ["Scripture page"]);
+  assert.deepEqual(find('"on Scripture pages"', "scripture-page"), ["Scripture pages"]);
 });

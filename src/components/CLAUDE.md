@@ -75,15 +75,15 @@ introduction on a phone has the phone's two bars instead
   `"strip"` opens the search strip under the header (`header-search.js`);
   `"page"`, on a page passing `pageSearch`, takes the reader to the page's
   own box, since `SearchBar` renders once a page; `"none"` on the Read page
-  (a chapter or an introduction, whose search is the place line's Search;
-  Read View, whose is its toolbar's) and in Study's own header. Without
+  (a chapter or an introduction, whose search is the place line's Search)
+  and in Study's own header. Without
   JavaScript it is a link to /search.
 - **Without JavaScript**, Aa and the menu button go (a `<noscript>` style),
   and below the full header's width a row of two links stands in: Read, and
   Menu, which goes to the footer's links (`#footer-nav`). A phone's reading
   row doesn't draw them: its picker and the bar's four links do that work.
 - **The line under the header** (`PlaceLine.astro`; HD-14, HD-22) is on
-  every page but Home, Read View, and Study's own pages. On a chapter or an
+  every page but Home and Study's own pages. On a chapter or an
   introduction it is the place line (`readingLine`; `src/layouts/CLAUDE.md`).
   Elsewhere it names the place and the page ("Learn / Glossary"), or the page alone for a page in
   no place, the place a link up when the page is inside a row ("Learn /
@@ -157,8 +157,11 @@ line's book and chapter, and the phone row's name. G sends
   shown by `:target` (Matthew's when the address names none), and the
   field is a search form for /search.
 
-Read View keeps ReadMenu's own panel until it retires, and G presses that
-there.
+On a chapter's page that has read on, the picker follows the chapter being
+read: read-on.js moves the root's `data-chapter` and the grid's
+`aria-current` (in the live picker and its template), and Continue reading's
+row is left out while it names that chapter (`refreshContinue` reads the
+root's chapter as it is now). ReadMenu, Read View's own panel, retired with it.
 
 ## The announcement popover
 

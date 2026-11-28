@@ -50,9 +50,10 @@ const INTRO = ".scripture-layout--intro .scripture-main";
 const ARTICLE = ".article__card";
 const GLOSSARY = ".glossary-entries .entries-wrap";
 
-test("readingSurface finds Chapter View and Read View, and nothing else", () => {
+test("readingSurface finds a chapter's page, and nothing else", () => {
   assert.equal(readingSurface(docWith(".scripture-layout--scripture .scripture-main")), READING_SURFACES[0]);
-  assert.equal(readingSurface(docWith(".rm-page .rm-reader")).title, ".rm-page .rm-title");
+  // Read View retired in Featherboa's Phase 4: its old addresses forward.
+  assert.equal(readingSurface(docWith(".rm-page .rm-reader")), null);
   // /search uses .scripture-main inside its own layout type, and the home
   // page and the articles list have no reading column at all.
   assert.equal(readingSurface(docWith(".scripture-layout--search .scripture-main")), null);
@@ -70,11 +71,11 @@ test("book introductions, articles and the glossary have no Notebook panel while
     assert.ok(!rule[1].includes(column), `global.css hides the Notebook buttons on a ${kind}`);
   }
   assert.equal(hasPanel("chapter"), true);
-  assert.equal(hasPanel("read"), true);
+  assert.equal(hasPanel("read"), false, "Read View retired");
   assert.equal(hasPanel(undefined), false, "a page that names no surface");
   // Chapter View stays first: margin.js tells it by its place.
   assert.equal(READING_SURFACES[0].kind, "chapter");
-  assert.deepEqual(READING_SURFACES.map((s) => s.kind), ["chapter", "read"]);
+  assert.deepEqual(READING_SURFACES.map((s) => s.kind), ["chapter"]);
 });
 
 // Version 2 turns PROSE_NOTES on; their entries are kept whole for it, and are
@@ -100,7 +101,7 @@ test("each page names the elements that make up its column, and never a full-wid
 
 test("each page names where its reading area ends; the license band counts as footer", () => {
   const ends = Object.fromEntries(ALL_SURFACES.map((s) => [s.column[0], s.end]));
-  for (const page of [".scripture-layout--scripture .scripture-main", ".scripture-layout--intro .scripture-main", ".rm-page .rm-reader"]) {
+  for (const page of [".scripture-layout--scripture .scripture-main", ".scripture-layout--intro .scripture-main"]) {
     assert.deepEqual(ends[page], { selector: ".scripture-disclaimer", at: "top", gap: 16 }, page);
   }
   assert.deepEqual(ends[".article__card"], { selector: ".article__card", at: "bottom", gap: 0 });

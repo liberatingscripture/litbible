@@ -3,9 +3,9 @@
 
    A printed page is the text and its notes, black on white, with the credit
    the license asks for. Everything that only works on a screen goes: the
-   header and footer, the tools bar, Previous/Next, the panels, Read View's
-   toolbar. Imported by Layout.astro after global.css, so it reaches every
-   page, and nothing here applies on screen.
+   header and footer, the tools bar, Previous/Next, and the panels. Imported
+   by Layout.astro after global.css, so it reaches every page, and nothing
+   here applies on screen.
 
    Rules are !important where a page or component stylesheet, bundled after
    this one, would otherwise win on source order at equal specificity.
@@ -14,8 +14,8 @@
    - Verse numbers and footnote letters, unless the reader turned them off in
      the Display tray, which a printout follows like the screen does.
    - The footnotes, as the endnote list they already are, each with its letter.
-   - The SBLGNT source notice (SblgntNotice.astro) after a chapter, an intro
-     or a Read View book: the Greek text's license asks for it.
+   - The SBLGNT source notice (SblgntNotice.astro) after a chapter or an
+     intro: the Greek text's license asks for it.
    - The reader's text size (as a multiple of 12pt) and accessibility font.
      The default fonts print in the site's serif.
    ========================================================= */
@@ -65,10 +65,6 @@
   .lit-panel,
   .lit-clear-chip,
   .continue-reading,
-  .rm-toolbar,
-  .rm-fab,
-  .rm-resume-chip,
-  .rm-draft-stub a,
   .draft-page__links {
     display: none !important;
   }
@@ -93,18 +89,15 @@
 
   /* The reading surfaces fill the page's text block. Their size follows the
      Display tray, 12pt at the default. */
-  .scripture-main,
-  .rm-page .rm-reader {
+  .scripture-main {
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
     font-size: calc(12pt * var(--reading-scale, 1)) !important;
   }
 
-  /* .rm-page sizes itself short of the viewport for a screen gutter, and a
-     sheet of paper is narrow enough to trip its phone-width rule. */
+  /* The layout's widths and gutters give way to the sheet's text block. */
   .scripture-layout,
-  .rm-page,
   main {
     width: auto !important;
     min-height: 0 !important;
@@ -114,15 +107,13 @@
 
   /* The screen's 1.75 leading runs a chapter onto extra sheets. The reader's
      "Roomy" setting still adds its extra. */
-  .scripture-main p,
-  .rm-page .rm-reader p {
+  .scripture-main p {
     line-height: calc(1.45 + var(--reading-leading-extra, 0)) !important;
   }
 
   /* A verse number or footnote letter would otherwise open up the gap above
      its own line, leaving the spacing uneven down the page. */
-  .scripture-main sup,
-  .rm-page .rm-reader sup {
+  .scripture-main sup {
     line-height: 0 !important;
   }
 
@@ -130,25 +121,13 @@
      own (global.css): with no height, its digit drew above the box, and
      where a page broke before its line, half of it printed at the foot of
      the page before (E178). */
-  .scripture-main blockquote.hbq .hbq-line .vn,
-  .rm-page .rm-reader blockquote.hbq .hbq-line .vn {
+  .scripture-main blockquote.hbq .hbq-line .vn {
     line-height: 1.2 !important;
   }
 
-  .chapter-title,
-  .rm-page .rm-title {
+  .chapter-title {
     font-size: 20pt !important;
     margin: 0 0 12pt !important;
-  }
-
-  .rm-page .rm-chapter {
-    font-size: 14pt !important;
-    margin: 16pt 0 6pt !important;
-  }
-
-  /* Focus mode dims every paragraph but one; paper shows them all. */
-  .rm-page .rm-reader * {
-    opacity: 1 !important;
   }
 
   /* Keep a line from being stranded and a heading from ending a page. A
@@ -162,8 +141,7 @@
 
   h1,
   h2,
-  h3,
-  .rm-page .rm-chapter {
+  h3 {
     break-after: avoid;
   }
 

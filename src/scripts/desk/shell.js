@@ -22,7 +22,7 @@ import { openBookmarkForm } from "./bookmark-form.js";
 import { openNoteEditor } from "./note-editor.js";
 import { createVerseLabels } from "./verse-labels.js";
 import { createHighlights } from "./highlights.js";
-import { proseSource, studySource } from "./note-sources.js";
+import { proseSource, readingSource, studySource } from "./note-sources.js";
 import { pageChapter } from "./page.js";
 import { standDown } from "../desk-frame.js";
 import { initProseActions } from "./prose-actions.js";
@@ -129,7 +129,7 @@ async function start({ handOver }) {
     ? createNotesMargin({
         store,
         onEdit: edit,
-        source: studySource() ?? proseSource(),
+        source: readingSource() ?? studySource() ?? proseSource(),
         ctx,
         showInText,
         // The panel is built after the margin; "N more notes" opens This verse

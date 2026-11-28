@@ -82,6 +82,10 @@ const FLAG = 18;
 export function createNotesMargin({ store, source, onEdit, ctx = null, showInText = null, showVerse = null }) {
   if (!store || !source) return null;
   const textBox = source.textBox;
+  // The box the margin runs beside: on the reading page, every chapter on it.
+  const textRect = () => source.rect?.() ?? textBox.getBoundingClientRect();
+  // The verse number a record sits on, in whichever chapter on the page.
+  const verseOf = (r) => (source.verseNumber ? source.verseNumber(r) : document.getElementById(`v${r.verse}`));
 
   const aside = document.createElement("aside");
   aside.className = "desk-notes";
@@ -149,7 +153,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
     // shown, wherever it is drawn today (a lost one is not drawn).
     const flagged =
       highlights.length && getSetting(highlightSetting()) === "on" ? drawnNotices(highlights) : [];
-    const box = textBox.getBoundingClientRect();
+    const box = textRect();
     mode = notesOn || flagged.length ? marginMode(box.left) : "none";
     const lineHeight = parseFloat(getComputedStyle(source.lineEl()).lineHeight) || 30;
     const sx = window.scrollX;
@@ -244,7 +248,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
           noteLine,
           height: 0,
         })),
-        showVerse ? { bottom: textBox.getBoundingClientRect().bottom + sy } : { maxStack: Infinity },
+        showVerse ? { bottom: textRect().bottom + sy } : { maxStack: Infinity },
       );
       const folded = new Set(plan.more.flatMap((m) => m.ids));
       const moreEls = plan.more.map((m) => {
@@ -422,7 +426,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
    */
   function focusGone(id, nextId) {
     const r = known.get(id);
-    const verse = r && Number.isInteger(r.verse) ? document.getElementById(`v${r.verse}`) : null;
+    const verse = r && Number.isInteger(r.verse) ? verseOf(r) : null;
     const next = nextId
       ? aside.querySelector(
           `.desk-note[data-id="${CSS.escape(nextId)}"] .desk-note__hit, .desk-circle[data-id="${CSS.escape(nextId)}"]`,
@@ -554,7 +558,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
         // The flag may be gone now (Keep), and the aside is drawn again: put
         // focus back on the note's words, or on a highlight's verse number.
         if (record.kind === "highlight") {
-          document.getElementById(`v${record.verse}`)?.focus({ preventScroll: true });
+          verseOf(record)?.focus({ preventScroll: true });
         } else if (what === "keep") {
           afterDraw = () =>
             aside
@@ -787,7 +791,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
       if (!holder) {
         // The notes are hidden, so the margin holds none: focus goes to
         // where the marked words are, the verse number they start in (BA19).
-        document.getElementById(`v${at.record.verse}`)?.focus({ preventScroll: true });
+        verseOf(at.record)?.focus({ preventScroll: true });
         return;
       }
       if (holder.classList.contains("desk-circle")) {
@@ -813,6 +817,8 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   document.addEventListener(SETTINGS_EVENT, schedule);
   document.fonts?.addEventListener?.("loadingdone", schedule);
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(textBox);
+  // The reading page's chapters coming in bring their records.
+  source.watch?.(load);
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],

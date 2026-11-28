@@ -26,7 +26,7 @@ import { planEdit } from "../../lib/desk-store-core.mjs";
 import { closePanel, currentPanel, showPanel } from "../lit-panel.js";
 import { glyph } from "./glyphs.js";
 import { undoEntry } from "./history.js";
-import { chapterText } from "./page.js";
+import { chapterText, verseNumber } from "./page.js";
 import { hiddenNotice } from "./note-settings.js";
 import { announce, showUndo } from "./undo-bar.js";
 import { escapeHtml } from "./dom.js";
@@ -416,6 +416,7 @@ function landFocus(place) {
   const now = document.activeElement;
   if (now && now !== document.body) return;
   if (!Number.isInteger(place.verse)) return;
-  document.getElementById(`v${place.verse}`)?.focus({ preventScroll: true });
+  // In whichever chapter the page shows it (the reading page reads on).
+  verseNumber(place.bookKey, place.chapter, place.verse)?.focus({ preventScroll: true });
 }
 

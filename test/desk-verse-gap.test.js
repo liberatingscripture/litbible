@@ -46,7 +46,7 @@ function tabOn(book, ch) {
   const notes = c.footnotes
     .map((fn) => `<li id="${fn.id}"><div class="fn-body"><a href="#${fn.refId}" class="footnote-backlink">${fn.label}</a> <span>${fn.html}</span></div></li>`)
     .join("");
-  document.body.innerHTML = `<div class="chapter-paragraphs">${body}</div><ol class="footnotes">${notes}</ol>`;
+  document.body.innerHTML = `<article class="chapter"><div class="chapter-paragraphs">${body}</div><ol class="footnotes">${notes}</ol></article>`;
   const label = `${bookKeyToLabel(book)} ${ch}`;
   const tab = createVerseTab({
     store: null,

@@ -10,12 +10,14 @@
 From the root's project tree.
 
 ```
-  scripts/           # CLIENT-side vanilla JS (chapter-tools, read-mode,
+  scripts/           # CLIENT-side vanilla JS (chapter-tools; read-on, a
+                     #   chapter's page reading on through its book, and
+                     #   read-view-redirect, Read View's old addresses;
                      #   search-core + searchbar + search — see "Search" below;
                      #   lit-panel, the one floating panel every reader tool
                      #   shares; ref-preview, scripture reference previews;
                      #   last-read + continue-reading, "Continue reading";
-                     #   term-lens, the Chapter View term underline and card;
+                     #   term-lens, the reading page's term underline and card;
                      #   header-search, the header's magnifier (its
                      #   search strip, or the page's own box);
                      #   header-menus, the header's Learn, Study, and
@@ -69,8 +71,8 @@ change that opens a new paragraph.
 **The anchor is the block's own id, which every authored paragraph and
 blockquote already has** (`john-8-p9`, `1peter-2-p2`). Nothing extra is
 authored for this. Those ids are already book-namespaced, so the same anchor
-resolves in Read View too — `rewriteVerseIdsAndAnchors` rewrites only
-`id="vN"` and leaves them alone.
+resolves on a chapter the page has read on into: `prepareLitBlocks`
+(`src/lib/read-on.mjs`) prefixes only `id="vN"` and leaves them alone.
 
 `verseParts()` in `chapter-tools.js` groups a verse's `data-verse` spans by
 their **outermost** block, so a poetry quotation is one part rather than one
@@ -91,13 +93,11 @@ nature, and a button per block would bury the whole-range actions.
 The general form of the above: select any run of scripture text and a panel
 offers the verse menu's actions under the same names (see "One set of
 actions, two ways in," below), for a half-sentence, a phrase crossing two
-verses, or part of a poetry quotation. It runs in **both views**, and in
-Read View it is the only such tool: that view's verse numbers stay plain
-text, because the verse menu belongs to the chapter's Chapter View page (owner,
-2026-09-28). In Read View a selection is clamped to the first chapter it
-touches, since one reference names one chapter, and every link it produces,
-Copy link's included, is the Chapter View verse link (`/john-3#v16`), never a
-Read View anchor.
+verses, or part of a poetry quotation. It runs on every chapter the page
+holds, each a view of its own (`attachChapter`), and in /desk's LIT panes.
+A selection crossing two chapters shares one chapter's part of it, since one
+reference names one chapter, and every link it produces, Copy link's
+included, is that chapter's verse link (`/john-3#v16`).
 Four owner decisions (2026-09) shape it:
 
 1. **It sits beside the selection, and the side follows the input**, not the
@@ -169,7 +169,7 @@ a tap elsewhere or on Escape. Dragging marks it `acting`, as a button press
 does, because a finger on it clears a phone's selection.
 
 The panel never takes focus, so the verse-number menu stays the keyboard and
-screen-reader route to the same copy (in Chapter View; Read View has none).
+screen-reader route to the same copy.
 
 ### One set of actions, two ways in
 
@@ -308,7 +308,7 @@ selection clears.
 ### Verse images
 
 **"Share image…"** (E39, E111) closes the verse menu and the selection panel, so it
-works in both views (audit X8, owner 2026-09-28). It draws the passage in the
+works from both (audit X8, owner 2026-09-28). It draws the passage in the
 share-card design, in the reader's browser, and hands it on: the phone's
 share sheet on a phone or tablet, a download on a computer, told apart by the
 OS (`isAppPlatform`, the app announcement's test), never the screen width. A
@@ -382,15 +382,17 @@ License page of their own, forwarding /read's old anchors:
 /read.)
 
 - **`src/styles/print.css`** (imported by `Layout.astro`, all `@media print`)
-  prints a chapter, an intro or a whole Read View book as text and notes
-  only: black on white in any theme, Crimson Text (a reader's accessibility
-  font prints as chosen), 12pt times the Display tray's text size, with the
-  header, tools bar, Previous/Next, panels and Read View's toolbar gone.
-  The footnotes stay the endnote list they are on screen, and the SBLGNT
-  notice still prints after the text on all three. (Where Featherboa's
-  chapters read on into each other, a print is still one chapter with its
-  notes, the chapter in view: `SITE-FEATHERBOA.md`, "A whole book"; until it
-  is built, this holds.) (Featherboa prints in Source Sans 3 with Fraunces
+  prints a chapter or an intro as text and notes only: black on white in
+  any theme, Crimson Text (a reader's accessibility font prints as chosen),
+  12pt times the Display tray's text size, with the header, tools bar,
+  Previous/Next, and panels gone. The footnotes stay the endnote list they
+  are on screen, and the SBLGNT notice still prints after the text on both.
+  **A page that has read on into other chapters prints one chapter with its
+  notes, the chapter in view** (WB-37): read-on.js marks it at
+  `beforeprint` (`html[data-read-on-print]`, its parts
+  `[data-read-on-printing]`), `reading-page.css` hides the rest, and the
+  credit's address follows it; the page's own chapter prints when Study's
+  print is under way or the chapter in view is a draft's entry. (Featherboa prints in Source Sans 3 with Fraunces
   headings and the drop numeral, notes after the chapter in two columns,
   never cut, and a running head, footer, and page numbers in page-margin
   boxes, the end notice kept for browsers without them:
@@ -458,11 +460,11 @@ License page of their own, forwarding /read's old anchors:
   keeps the 1 Corinthians 11 chiasm outline legible. Notes skip the
   bracket-marker strip (`tidyLines`, not `cleanForShare`), since a note is
   quoted as it stands. Both layouts go through `assembleHandout`.
-- **The selection bar copies a handout too** (`selectionHandout`), in both
-  views, so a handout can start mid-verse. Read View prints no footnote
-  letters and has no notes on the page, so there the handout reads them from
-  the chapter's Chapter View page, fetched when the bar opens (`readingView` in
-  `chapter-tools.js`). Three things make that work:
+- **The selection bar copies a handout too** (`selectionHandout`), wherever
+  it opens, so a handout can start mid-verse. In a LIT pane on /desk the
+  handout reads the notes from the chapter's page, fetched when the bar
+  opens (the view's `scope`, `chapter-tools.js`). Three things make that
+  work:
   1. **A selection's ends are recorded as counts, not DOM positions**: how
      many characters of the verse come before each end, with verse numbers,
      footnote letters and all whitespace left out (`countable`). Both views
@@ -608,12 +610,11 @@ License page of their own, forwarding /read's old anchors:
     `SearchBar` renders once per page (its ids, `site-search-input` among
     them, are fixed), so a page that carries its own box passes `pageSearch`
     to `Layout`: chapters, intros and drafts (through `ScriptureLayout`),
-    Read View, `/search`, and the articles pages. The header's magnifier
+    `/search`, and the articles pages. The header's magnifier
     beside "Aa" is on every page but the Read page (HD-13) and /desk, whose
     search is a pane. **A chapter's or an introduction's way in is "Search"
     on the place line** (FP-27 to FP-31), which opens the box in place of
-    the line (`place-line.js`), and `/` presses it; Read View's box is its
-    toolbar's. On a phone the line isn't drawn, and the bar's Search moves
+    the line (`place-line.js`), and `/` presses it. On a phone the line isn't drawn, and the bar's Search moves
     that same box into the top row while it is open (`phone-bars.js`), so
     the page still has one.
     Without JS the magnifier is a link to `/search`. With JS
@@ -627,21 +628,20 @@ License page of their own, forwarding /read's old anchors:
     row, or leaves the page's own box as the way in. **A new page with its own `SearchBar` must pass
     `pageSearch`**, or it renders two. The passage picker's field is not a
     `SearchBar`: it goes to passages and offers a search of /search.
-## Continue reading, Read View's landing, and keyboard shortcuts
+## Continue reading, reading on through a book, and keyboard shortcuts
 
 - **"Continue reading" is one record, `localStorage['lit_last_read']`**
   (`{ v: 1, book, chapter, verse | null, view: "study" | "read", t }`), kept by
-  `src/scripts/last-read.js`. Chapter View writes it on arrival (at a `#vN`
+  `src/scripts/last-read.js`. A chapter's page writes it on arrival (at a `#vN`
   verse) and as the reader scrolls, taking the last verse number above the
   reading line, 10% of the way down the window (BVJ, 2026-10-29; it was 30%)
   but never above where a link to a verse puts its number (`readingLine`),
   which counts the scroll padding a phone's top row adds.
-  Read View writes it whenever it saves its own per-book resume position,
-  with the verse at the same line (which can be in the chapter before the
-  one its toolbar names). `read-mode.js` is loaded through `?url`, so Vite serves it
-  unbundled and it **cannot import**: it announces each save with an
-  `rm:position` event, and a bundled script in `read/[book].astro` records
-  it. Draft chapters are never recorded. **The passage picker offers it
+  On a page that has read on, the verse is the one at that line in
+  whichever chapter holds it (read-on.js's `placeNow`). Read View wrote
+  `view: "read"` records until it retired; they still lead to the
+  chapter's page (`continueHref`, `lastReadHref`). Draft chapters are
+  never recorded. **The passage picker offers it
   back as its first row** ("Continue: Romans 8"; FP-07, NX-12), with nothing
   to dismiss, unless it names the page being read; the menu sheet doesn't
   (PH-14). `ContinueReading.astro`, on Home until Phase 7 makes it Home's
@@ -652,32 +652,52 @@ License page of their own, forwarding /read's old anchors:
   `view: "study"`, after 500 ms, never a draft; BVJ, 2026-11-10). Each save also dispatches a `lit:last-read` window
   event, which only the Study Desk (places, when the preview is on) hears. The privacy page's storage paragraph names it: keep
   it there if the record ever changes shape or purpose.
-- **Read View lands on a link instantly, then holds it.** `/read/<book>` is
-  the whole book on one page, tens of thousands of pixels tall, so arriving at
-  `#ch-10` (from the old "Switch to Read View") or `#luke-10-v25` (search)
-  is fragile: any height change above the target after the jump (a web font
-  finishing, the Android banner) slides the text under a fixed scroll offset,
-  and Safari has no scroll anchoring to undo it. (The reader's text size is
-  not one of them: the Display tray applies it before first paint.)
-  `landOnHash` in `read-mode.js` therefore jumps without animation (the
-  stylesheet's `scroll-behavior: smooth` is overridden for that one call, since
-  an animated scroll fixes its destination when it starts) and re-lands on
-  every resize of the text until the reader scrolls, touches, clicks or types.
-  Don't make that first landing smooth again: this replaced it after the owner
-  saw the switch land "at random places within the book" (2026-09-27).
+- **A chapter's page reads on through its book** (`src/scripts/read-on.js`,
+  its rules in `src/lib/read-on.mjs`; `SITE-FEATHERBOA.md`, "A whole book";
+  WB-01 to WB-12, WB-29). With JavaScript the next chapter loads below once
+  the last one's end is within 2.5 windows, and the one before loads above
+  only on a scroll up near the page's top (a wheel or a drag up, ↑, Page Up,
+  Home, Shift+Space), so a link to a verse never sets the page moving. Each
+  chapter is fetched from its own built page and parsed, never run: its
+  text, Go deeper and footnotes, every id prefixed (`john-4-v16`), in an
+  `article.read-on__chapter`. **`article.chapter` is the page's own
+  chapter alone**, so `article.chapter > .chapter-paragraphs` is always the
+  page's text (`pageTextBox` in `desk/page.js`); a bare
+  `.chapter-paragraphs` may be a chapter loaded above. A run of drafts is
+  one entry, and a chapter that fails to load is one with "Try again."
+  **The reader's line holds** when a chapter comes in above: the page
+  scrolls by what was added (scroll anchoring is off, `reading-page.css`).
+  **The address follows the chapter at the reading line by
+  `replaceState`**, only when the chapter changes (Safari limits how often
+  it may be called), so Back leaves the book; from then on
+  `history.scrollRestoration` is manual and `pagehide` keeps the verse in
+  `history.state.readOn`, which a reload or Back lands on. The line, the
+  phone's row, the title, the picker, and the progress line follow it
+  (`src/layouts/CLAUDE.md`), and Continue reading asks `placeNow`. **The
+  arrows are answered in the page**: they load the chapter if need be and
+  land on its heading, instantly, with focus on it; into another book they
+  are links as ever. A loaded chapter gets the page's tools
+  (`attachChapter`, `attachTermLens`), and `lit:read-on` (`{ type:
+  "loaded", book, chapter, box }`, then `"place"` as the reader moves)
+  tells the Study Desk, which takes the reading column as one of its texts
+  (`desk/page.js`), so marks and margin notes draw on every chapter;
+  nothing here imports the desk. Go deeper in a chapter's heading scrolls to
+  its section, or where the Notebook panel runs (the section is out of the
+  flow there, `reading-page.css`) sends `lit:desk-command`
+  `show-this-chapter`, which opens This verse at "This chapter." Without
+  JavaScript a page is one chapter with the way on at its foot.
 - **Keyboard shortcuts** (`src/scripts/keyboard-shortcuts.js`, audit U4, owner
   2026-09-28): `/` search (the place line's Search on a chapter or an
   introduction, the bar's on a phone, a Search pane on /desk), `g` the
   passage picker (a `lit:picker-open` event that `passage-picker.js`
-  answers; Read View's own picker there), and
+  answers), and
   ← → or `[` `]` for the
   previous and next chapter (the place line's ‹ ›, found by
-  `.place-line a[rel="prev"]` / `[rel="next"]`, the neighboring `#ch-N` in Read View, or on
+  `.place-line a[rel="prev"]` / `[rel="next"]`, or on
   /desk a `lit:desk-chapter` event that `desk-page.js` answers by pressing the
   passage bar's arrow of the pane holding focus, else the leading LIT pane).
-  Featherboa keeps them where chapters read on into each other: they go to
-  the start of the neighboring chapter, loading it first
-  (`SITE-FEATHERBOA.md`, "A whole book").
+  On a chapter's page they go to the start of the neighboring chapter,
+  loading it first (read-on.js answers the line's arrows).
   `h` is the Study Desk's "Hide my marks" and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
   stays out of this file.

@@ -100,7 +100,10 @@ export function describeSkipped(pages) {
   for (const [bookKey, { intro, chapters }] of byBook) {
     const book = bookKeyToLabel(bookKey);
     if (chapters.length) onlyIntros = false;
-    if (intro && chapters.length === BOOKS[bookKey]) {
+    // A book whose every chapter is stepped over is named whole ("Acts is
+    // still being translated."), its introduction with it or not: a
+    // chapter's walk never lists introductions (neighbours, below).
+    if (chapters.length === BOOKS[bookKey]) {
       parts.push(book);
       continue;
     }
@@ -129,10 +132,18 @@ export function neighbours(pages, bookKey, chapter) {
   const i = pages.findIndex((p) => p.bookKey === bookKey && p.chapter === chapter);
   const none = { prev: null, next: null, prevSkipped: null, nextSkipped: null };
   if (i < 0) return none;
+  // A chapter's way on steps over the introductions as well as the drafts
+  // ("John 1 →" after Luke 24, and "Luke 24" back from John 1:
+  // SITE-FEATHERBOA.md, "A whole book"), since chapters read on into each
+  // other and an introduction keeps its own page, reached from the top of
+  // its chapter 1 and from the picker. An introduction's own way on still
+  // steps into the text ("Mark 1 →") and back to the chapter before it.
+  const fromChapter = chapter !== "intro";
 
   function walk(step) {
     const skipped = [];
     for (let j = i + step; j >= 0 && j < pages.length; j += step) {
+      if (fromChapter && pages[j].chapter === "intro") continue;
       if (!pages[j].draft) return { page: pages[j], skipped };
       skipped.push(pages[j]);
     }

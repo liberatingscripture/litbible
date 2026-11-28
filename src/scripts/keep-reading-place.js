@@ -3,8 +3,8 @@
 // Keep the reader's place through a change that reflows the page. The
 // Display tray's text size, spacing and numbers settings reflow it, and so
 // does opening or closing the Study Desk's docked panel, which narrows the
-// page. Either would carry a reader's place away (in Read View, a whole
-// book's worth).
+// page. Either would carry a reader's place away (on a chapter's page that
+// has read on, several chapters' worth).
 //
 // It pins the line of text at the reading line (10% down, as last-read.js's;
 // BVJ, 2026-11-04, it was 30%, just inside the text column) and scrolls it back to where it was. A paragraph's top is not
@@ -13,8 +13,9 @@
 // panel needed the same thing (phase 1b).
 
 // In order of preference (a selector list would return whichever comes
-// first in the document, which is always <main>).
-const READING_SURFACES = [".chapter-paragraphs", ".intro", ".rm-text", ".article__body", "main"];
+// first in the document, which is always <main>). Only the surface's left
+// edge is read, which every chapter on a reading page shares.
+const READING_SURFACES = [".chapter-paragraphs", ".intro", ".article__body", "main"];
 
 let holding = false;
 

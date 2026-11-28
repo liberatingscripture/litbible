@@ -478,6 +478,30 @@ body.bg-green .site-header :is(.site-nav__place, .site-header__actions > .kit-bt
   border-bottom: 1px solid var(--color-hairline);
 }
 
+/* The progress line (SITE-FEATHERBOA.md, "The progress line"; WB-33 to
+   WB-36, PH-08): on a chapter, a thin green line along the line's bottom
+   edge, over its border, so it adds no height, filling as the reader moves
+   through the book, counted in verses. src/scripts/read-on.js sets
+   --read-progress (0 to 1) on <html>; without it nothing is drawn. It is a
+   pseudo-element, so screen readers skip it: the line names the chapter. On
+   a phone it rides the top row's bottom edge instead (below), so it goes and
+   comes back with the row (phone-bars.js). Instant, as a scroll is. */
+.place-line--reading {
+  position: relative;
+}
+
+.place-line--reading::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-mark);
+  transform: scaleX(var(--read-progress, 0));
+  transform-origin: left center;
+  pointer-events: none;
+}
+
 .place-line__inner {
   box-sizing: border-box;
   display: flex;
@@ -633,6 +657,20 @@ a.place-line__page {
     min-height: 0;
     background: var(--color-page);
     border-bottom: 1px solid var(--color-hairline);
+  }
+
+  /* The progress line on a phone (PH-08, WB-36): the place line's, along
+     this row's hairline (queue Q37), hiding with the row. */
+  .site-header.site-header--reading::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--color-mark);
+    transform: scaleX(var(--read-progress, 0));
+    transform-origin: left center;
+    pointer-events: none;
   }
 
   /* Emblem | the chapter, centered | Aa. The outer columns share what is

@@ -25,7 +25,7 @@ import {
   pageAnchorText,
   rangeToOffsets,
 } from "../src/lib/desk-anchor-dom.mjs";
-import { litPrefix, prepareLitBlocks } from "../src/lib/desk-lit-text.mjs";
+import { litPrefix, prepareLitBlocks } from "../src/lib/read-on.mjs";
 import { parseHtml } from "./helpers/mini-dom.js";
 
 const CHAPTER_DIR = new URL("../src/data/chapters/", import.meta.url);
@@ -97,7 +97,7 @@ test("sweep: Read View's page text is the anchor text, verse by verse, in every 
 });
 
 // /desk's LIT pane shows Chapter View's text with its ids prefixed
-// (src/lib/desk-lit-text.mjs), so it is a third way the page is read.
+// (src/lib/read-on.mjs), so it is a third way the page is read.
 test("sweep: the LIT pane's text on /desk is the anchor text, and its ids are its own, in every published chapter", () => {
   const failures = [];
   const seen = new Set();

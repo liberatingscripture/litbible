@@ -46,9 +46,9 @@ import { NEWS, WHATS_NEW_HREF } from "../lib/news.mjs";
 // deskHref: where Study's "Scripture" goes. A chapter or an introduction
 // passes its place line's "Study John 3" address (?place=), so the two
 // never disagree.
-// scriptureControls: "study" on a chapter page (verse numbers and footnote
-// letters), "read" in Read View (numbers only: it prints no footnote
-// letters, and its numbers setting hides the chapter headings too).
+// scriptureControls: "study" on a chapter page (verse numbers, footnote
+// letters, and key terms; its numbers switch hides the chapters' headings
+// too, reading-page.css).
 // picker: the chapter's name on a chapter or an introduction ("John 3,"
 // "John · Intro"), which makes the row the phone's top bar under 700px.
 // It opens the passage picker's sheet at the chapter's grid
@@ -373,9 +373,7 @@ const SIZE_OPTIONS = [
           <div class="font-tray__checks">
             <label class="font-tray__check">
               <input type="checkbox" class="font-tray__check-input" data-vn-check data-vn-view={scriptureControls} />
-              <span class="font-tray__check-label">
-                {scriptureControls === "read" ? "Verse and chapter numbers" : "Verse numbers"}
-              </span>
+              <span class="font-tray__check-label">Verse numbers</span>
             </label>
             {scriptureControls === "study" ? (
               <label class="font-tray__check">
@@ -473,19 +471,13 @@ const SIZE_OPTIONS = [
       // first paint. `legacy` is the Read View key the setting replaced,
       // which the pre-paint script still falls back to, so it is deleted on
       // every change or it could resurrect an older choice.
-      // Verse numbers are one setting per view. In Chapter View a number is
-      // the verse menu's button, so a shared switch meant that hiding numbers
-      // in Read View took the menu away on a touch screen. Read View's
-      // setting follows Chapter View's until the reader sets it, so it is
-      // stored as set (`keep`), 'on' included: removing it would hand it back
-      // to Chapter View's. Its legacy key was Read View's own before the tray.
-      const readView = vnCheck?.getAttribute('data-vn-view') === 'read';
+      // Verse numbers were one setting per view until Read View retired into
+      // the chapter's page (Featherboa, Phase 4). Its keys are read as the
+      // page's fallbacks (Layout.astro) and go once the switch is set here.
       const SETTINGS = {
         size: { attr: 'data-size', key: 'lit-size', legacy: 'lit_rm_fontSize', fallback: 'md' },
         leading: { attr: 'data-leading', key: 'lit-leading', legacy: 'lit_rm_lineHeight', fallback: 'normal' },
-        vn: readView
-          ? { attr: 'data-vn', key: 'lit-read-numbers', legacy: 'lit_rm_markers', fallback: 'on', keep: true }
-          : { attr: 'data-vn', key: 'lit-verse-numbers', legacy: null, fallback: 'on' },
+        vn: { attr: 'data-vn', key: 'lit-verse-numbers', legacy: ['lit-read-numbers', 'lit_rm_markers'], fallback: 'on' },
         fn: { attr: 'data-fn', key: 'lit-fn-letters', legacy: null, fallback: 'on' },
         terms: { attr: 'data-terms', key: 'lit-terms', legacy: null, fallback: 'on' },
       };
@@ -516,15 +508,15 @@ const SIZE_OPTIONS = [
       // measures, since it can sit over the text on a phone, and the one
       // corrective scroll is let through without closing it (isHoldingPlace).
       const applySetting = (name, value) => {
-        const { attr, key, legacy, fallback, keep } = SETTINGS[name];
+        const { attr, key, legacy, fallback } = SETTINGS[name];
         const root = document.documentElement;
         keepReadingPlace(() => {
           if (value === fallback) root.removeAttribute(attr);
           else root.setAttribute(attr, value);
         }, { overlay: tray });
         try {
-          value === fallback && !keep ? localStorage.removeItem(key) : localStorage.setItem(key, value);
-          if (legacy) localStorage.removeItem(legacy);
+          value === fallback ? localStorage.removeItem(key) : localStorage.setItem(key, value);
+          for (const old of [legacy ?? []].flat()) localStorage.removeItem(old);
         } catch (_) {}
       };
 

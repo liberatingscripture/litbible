@@ -928,8 +928,7 @@ blockquote.hbq {
   color: inherit;
 }
 
-/* Explicit parity targets: Read View + Chapter View text */
-.rm-page .rm-text blockquote.hbq,
+/* The chapter's text (and Study's LIT panes, which carry the same markup) */
 .chapter-paragraphs blockquote.hbq {
   margin: 0.6rem 0 0.9rem;
   margin-left: 0.6rem;
@@ -940,7 +939,6 @@ blockquote.hbq {
 }
 
 blockquote.hbq .hbq-line,
-.rm-page .rm-text blockquote.hbq .hbq-line,
 .chapter-paragraphs blockquote.hbq .hbq-line {
   position: relative;
   margin: 0;
@@ -955,15 +953,16 @@ blockquote.hbq .hbq-line,
 
 /* Verse marker lives in the gutter while staying glued to the first word */
 blockquote.hbq .hbq-line > .vglue,
-.rm-page .rm-text blockquote.hbq .hbq-line > .vglue,
 .chapter-paragraphs blockquote.hbq .hbq-line > .vglue {
   position: relative;
   display: inline;
   white-space: nowrap;
 }
 
+/* A poem's verse number is the prose's (the reading page, "Color": deep
+   green at full strength, at the verse numbers' size and weight), only
+   hung in the gutter. It was 0.72em at 78% opacity (3.97:1). */
 blockquote.hbq .hbq-line .vn,
-.rm-page .rm-text blockquote.hbq .hbq-line .vn,
 .chapter-paragraphs blockquote.hbq .hbq-line .vn {
   position: absolute;
   top: 0;
@@ -971,9 +970,8 @@ blockquote.hbq .hbq-line .vn,
   width: var(--hbq-vn-gutter);
   text-align: right;
   white-space: nowrap;
-  font-size: 0.72em;
-  font-weight: 500;
-  opacity: 0.78;
+  font-size: var(--size-verse-number);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1013,6 +1011,14 @@ blockquote.hbq .hbq-line .vn,
    verse's menu. */
 .chapter-paragraphs sup.fn-ref a {
   position: relative;
+}
+
+/* Footnote letters stand upright, inside an italic run too (the reading
+   page: italics read worse for dyslexic readers, and the green already sets
+   them apart). */
+.chapter-paragraphs sup.fn-ref,
+.chapter-paragraphs sup.fn-ref a {
+  font-style: normal;
 }
 
 .chapter-paragraphs sup.fn-ref a::after {
@@ -1247,8 +1253,7 @@ html[data-leading="roomy"] {
    and a scroll target (#v16, the note's backlink), so it is hidden visually
    rather than removed: it stays in the tab order and reappears while it has
    keyboard focus, the skip-link pattern. The .vn-gap after a number is its
-   no-break space (chapter-html.ts), which goes with it. Read View has its
-   own rule (read-mode.css), and strips footnote letters at build.
+   no-break space (chapter-html.ts), which goes with it.
    A text with switches of its own is left to them ([data-own-marks]: the
    Study Desk's LIT pane, where each pane sets its own; desk.css). */
 html[data-vn="off"] .chapter-paragraphs:not([data-own-marks]) sup.vn:not(:focus-visible),
@@ -2295,7 +2300,7 @@ html[data-desk-show="off"] button[data-desk-toggle],
 /* Its own rule (LG-7): in a selector list one :has() an old engine can't parse
    would drop the gate above with it. The :has() list is the reading-column
    case alone. */
-body:not(:has(.scripture-layout--scripture .scripture-main, .rm-page .rm-reader)) button[data-desk-toggle] {
+body:not(:has(.scripture-layout--scripture .scripture-main)) button[data-desk-toggle] {
   display: none !important;
 }
 /* The ways into Study are links to /desk, so they need no reading column:

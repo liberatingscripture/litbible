@@ -38,7 +38,7 @@ import { noticesFor } from "./change-notice.js";
 import { SETTINGS_EVENT, getSetting } from "./note-settings.js";
 import { highlightsShownIn } from "./lit-marks.js";
 import { watchLitRecords } from "./lit-records.js";
-import { pageChapter } from "./page.js";
+import { pageChapter, pageTextBox, readsOnPage } from "./page.js";
 
 /**
  * @param {{ store: object }} options
@@ -47,12 +47,16 @@ import { pageChapter } from "./page.js";
  */
 export function createVerseLabels({ store }) {
   if (!store) return null;
-  // /desk's LIT panes (3g): each chapter they show, from its own records.
-  if (document.querySelector("[data-desk-page]")) {
+  // /desk's LIT panes (3g), and a chapter's page that reads on (read-on.js):
+  // each chapter they show, from its own records.
+  const onDesk = Boolean(document.querySelector("[data-desk-page]"));
+  if (onDesk || readsOnPage()) {
     let entries = [];
-    // Each pane's own "Show" says whether its text carries highlights (E108).
+    // Each pane's own "Show" says whether its text carries highlights (E108);
+    // on the reading page, the page's switch.
+    const lights = (box) => (box.closest(".desk-lit") ? highlightsShownIn(box) : getSetting("highlights") === "on");
     const applyAll = () => {
-      for (const { box, records } of entries) label(box, records, highlightsShownIn(box));
+      for (const { box, records } of entries) label(box, records, lights(box));
     };
     const watch = watchLitRecords({
       store,
@@ -62,11 +66,13 @@ export function createVerseLabels({ store }) {
       },
     });
     document.addEventListener(SETTINGS_EVENT, applyAll);
+    // A follow starting or stopping changes which bookmark rests on a verse.
+    if (!onDesk) window.addEventListener(FOLLOW_CHANGED, watch.refresh);
     return { refresh: watch.refresh };
   }
 
   const here = pageChapter();
-  const textBox = document.querySelector(".chapter-paragraphs");
+  const textBox = pageTextBox();
   if (!here || !textBox) return null;
 
   let records = []; // this chapter's live records

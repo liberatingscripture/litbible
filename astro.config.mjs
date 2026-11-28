@@ -10,12 +10,8 @@ import { scanDraftChapters, scanDraftIntros } from './src/lib/draft-chapters.mjs
 import { claudeDocsGuard, isClaudeDocPath } from './src/lib/claude-docs-guard.mjs';
 
 // Chapter slugs marked "indexed": false (in-progress drafts) are noindex'd,
-// so they must also stay out of the sitemap. We also track per-book draft
-// status: a /read/<book> aggregate page is de-indexed only when EVERY chapter
-// of that book is a draft (mirrors src/pages/read/[book].astro), so books with
-// even one published chapter (e.g. Luke) keep their read page in the sitemap.
-// Derivation is shared with ReadMenu.astro via src/lib/draft-chapters.mjs.
-const { noindexSlugs, fullyDraftBooks } = scanDraftChapters();
+// so they must also stay out of the sitemap (src/lib/draft-chapters.mjs).
+const { noindexSlugs } = scanDraftChapters();
 // Placeholder book intros are noindex'd the same way (see scanDraftIntros).
 const draftIntroSlugs = new Set([...scanDraftIntros()].map((book) => `${book}-intro`));
 
@@ -92,10 +88,8 @@ export default defineConfig({
         if (slug === 'sheets' || slug.startsWith('sheets/')) return false;
         // The collections page (noindex, a preview, and only the reader's own collections)
         if (slug === 'collections' || slug.startsWith('collections/')) return false;
-        // /read/<book> aggregate pages for books that are entirely drafts
-        if (slug.startsWith('read/') && fullyDraftBooks.has(slug.slice('read/'.length))) {
-          return false;
-        }
+        // Read View's old addresses, which forward to the chapters' pages (noindex)
+        if (slug.startsWith('read/')) return false;
         return !noindexSlugs.has(slug) && !draftIntroSlugs.has(slug);
       },
     }),

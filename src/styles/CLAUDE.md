@@ -112,11 +112,9 @@
      rather than 700px, the phone title's scale, the magnifier moving into
      the menu sheet under 380px and "Menu"'s icon leaving under 430px, and
      the phone bar's edges and gaps given up under 375px, its Previous,
-     Search, and Next showing their icons alone under 360px),
+     Search, and Next showing their icons alone under 360px), and
      `picker.css` (the passage picker's book cells, and its panel at 60rem
-     rather than 50rem), `ReadMenu.astro` (grid floors), and
-     `read-mode.css` (Read View's toolbar floor and its sheet buttons'
-     side padding). Prefer
+     rather than 50rem). Prefer
      **buying back space over shrinking type** — an accessibility font is the
      last thing that should be made smaller. The header keeps the menu button
      until 900px rather than compressing the places; the hero scroll's
@@ -162,22 +160,21 @@
   an attribute on `<html>` stamped before first paint by `Layout.astro`,
   absent for the default, mirrored to one `localStorage` key each
   (`data-size` sm | lg | xl in `lit-size`; `data-leading` roomy in
-  `lit-leading`; `data-vn` off in `lit-verse-numbers`, or `lit-read-numbers`
-  in Read View (rule 6); `data-fn` off in
+  `lit-leading`; `data-vn` off in `lit-verse-numbers`, Read View's keys
+  its fallbacks (rule 6); `data-fn` off in
   `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
-  switch, which Chapter View alone shows; with the desk preview on, the tray's
+  switch, which a chapter's page alone shows; with the desk preview on, the tray's
   Show group also gains the desk's own switches, "My highlights" among them,
   injected by `desk/note-settings.js` and sharing the Notebook panel's stored
   setting). (Featherboa keeps text, size as four steps, line spacing with
   Justify under it, theme, and a "View" group whose desk switches merge into
   one "Your marks," and moves the rest, the Keyboard switch and "Reset
   widths" among them, out of the tray: `SITE-FEATHERBOA.md`, "Display";
-  its verse-numbers switch becomes "Verse and chapter numbers" and hides
-  the chapters' headings too, as a desk pane's does: "A whole book"; until
-  it is built, this holds.) There is **one
-  panel**: Read View's toolbar "Aa" opens this same tray (it's a
-  `data-font-toggle`, like the header's two), which opens upward when there
-  is no room below. Six rules:
+  its verse-numbers switch becomes "Verse and chapter numbers," and it
+  already hides the chapters' headings, rule 6; until it is built, this
+  holds.) There is **one panel**: every "Aa" (a `data-font-toggle`, the
+  header's two) opens this same tray, which opens upward when there is no
+  room below. Six rules:
   1. **They reach every page of running text, and what a thing is decides
      how far** (BVJ, 2026-11-12, for preference and for accessibility; before
      then only the scripture pages and article bodies followed). Three scales, each a custom property on
@@ -186,7 +183,7 @@
      nothing anywhere:
      - **`--reading-scale`** (16 / 18 / 20 / 23px at the 18px body size) and
        **`--reading-leading-extra`** (what "Roomy" adds) are for words a
-       reader reads: Chapter View, book intros, Read View, article pages,
+       reader reads: the chapters (every one a page reads on into), book intros, article pages,
        the glossary, /search's results, the release notes, About, Privacy,
        Translation Commitments, the Collective's page, /license, the
        colophon, What's New, the account pages, the source-text notice,
@@ -200,8 +197,8 @@
        screen. A heading of short fixed words ("Footnotes", "Chapter 3")
        takes `--reading-scale`.
      - **`--control-scale`** is the gentler one for controls whose words sit
-       on one line in a fixed width: the verse menu and the selection panel,
-       Read View's passage list (ReadMenu), toolbar, and resume chip. It
+       on one line in a fixed width: the verse menu and the selection
+       panel. It
        never shrinks a control (Small leaves it alone) and stops at the Large
        step, since the full Extra large step pushes a label out of its tile.
        **On a phone (640px and under) it stays 1**: the sheets' two-button
@@ -261,53 +258,47 @@
      `lit_rm_lineHeight`, `lit_rm_markers`). The pre-paint script still reads
      them as fallbacks and the tray deletes each on change, the same
      arrangement as `dyslexic-font`. Don't drop the fallbacks.
-     `lit_rm_markers` is a fallback for Read View's numbers only (rule 6),
-     so only a change made in Read View deletes it. Focus mode
-     stayed in Read View's toolbar (`lit_rm_focus`).
-  4. **A hidden verse number or footnote letter in Chapter View is still a
+     `lit_rm_markers`, after `lit-read-numbers`, is now the chapter page's
+     numbers fallback (rule 6), deleted when its switch is set. Focus mode
+     retired with Read View, and `lit_rm_focus` with it (WB-42).
+  4. **A hidden verse number or footnote letter on a chapter's page is still a
      control and a scroll target** (the verse menu's button, `#v16`, a
      footnote's backlink), so it is clipped rather than removed, stays in the
      tab order, and reappears while it has keyboard focus. The no-break space
      after a number is wrapped in `.vn-gap` at render (`markVerseGap` in
      `chapter-html.ts`) so it can hide too; left alone it doubles the gap
-     before every verse. Read View is different: its numbers are not
-     controls, and turning them off also hides the chapter headings, as its
-     own button always did (hence "Verse and chapter numbers" there).
+     before every verse. Turning numbers off hides the chapters' headings
+     the same way (rule 6).
   5. **Scripture pages pass `scriptureControls`** down through the layouts:
-     `"study"` from a chapter page with text, `"read"` from `/read/<book>`
-     (numbers only, since Read View prints no footnote letters). Other
+     `"study"` from a chapter page with text. Other
      pages don't show the "Show" group at all, /desk included: each LIT
      pane there has its own four switches on its bar (`desk/lit-show.js`,
      E108), which mark up that pane alone. **These three attributes on
-     `<html>` are Chapter View's and never reach a LIT pane**: the rules
+     `<html>` are the chapter page's and never reach a LIT pane**: the rules
      keyed on them in `global.css` leave out a text that carries
      `data-own-marks`, as each chapter in a LIT pane does, and `desk.css`
      hides the same things by the pane's own attributes
      (`.desk-lit[data-vn="off"]`). A new rule keyed on the page's switch
      needs the same `:not([data-own-marks])`.
-  6. **Verse numbers are one setting per view** (owner, 2026-09-30). Every
-     other setting is the reader's everywhere; what a page shows depends on
-     what the page is for. As one switch, hiding numbers to read a book
-     straight through also hid them in Chapter View, where (rule 4) a hidden
-     number is a 1px box a finger can't tap, and the verse menu vanished from
-     touch screens with nothing on the page saying why. Chapter View reads `lit-verse-numbers` alone. Read View reads
-     `lit-read-numbers`, then `lit_rm_markers`, then Chapter View's key, so
-     it **follows Chapter View until the reader sets it**, and nobody's Read
-     View changed when the switch split. That fallback is why the tray
-     stores Read View's value as set, `'on'` included (`keep` in its
-     `SETTINGS`): removing it at the default would hand the page back to
-     Chapter View's choice. Layout.astro learns the view from
-     `scriptureControls` through `define:vars`.
-     **Chapter headings follow the numbers only where chapters run
-     together** (BVJ, 2026-11-05; STUDY-DESK-FIXES.md E29): Read View and
-     /desk's LIT pane, where numbers off means one unbroken text. Read View
-     removes its headings (`display: none`, `read-mode.css`); the LIT pane
-     hides its `.desk-lit__heading` the way rule 4 hides a number (`desk.css`):
-     out of the flow, adding no height, still a heading, a link and a focus
-     stop, shown over its chapter's first line while focused. E29's rule is
-     that a heading may stay wherever it makes no visual break, so Read View's
-     `display: none` could move to the same treatment. A Chapter View page is
-     one chapter already, so its heading and `h1` stay whatever the setting.
+  6. **Verse numbers were one setting per view** (owner, 2026-09-30) until
+     Read View retired into the chapter's page (Featherboa's Phase 4). As one
+     switch, hiding numbers to read a book straight through had also hidden
+     them in Chapter View, where (rule 4) a hidden number is a 1px box a
+     finger can't tap, and the verse menu vanished from touch screens with
+     nothing on the page saying why. Now one page reads `lit-verse-numbers`
+     (stored only when off), then Read View's `lit-read-numbers`, then
+     `lit_rm_markers`, so a reader who hid them for a whole book keeps that
+     until the switch is next set, which deletes both (no reader setting is
+     lost: `SITE-FEATHERBOA-BUILD.md`, Phase 4). Such a reader meets the
+     old cost on a touch screen until they turn numbers back on.
+     **Chapter headings follow the numbers wherever chapters run together**
+     (BVJ, 2026-11-05; STUDY-DESK-FIXES.md E29; WB-24 to WB-26): the
+     reading page and /desk's LIT pane, where numbers off means one unbroken
+     text. Both hide a heading the way rule 4 hides a number
+     (`reading-page.css`, `desk.css`): out of the flow, adding no height,
+     still a heading and a focus stop (the page's Go deeper, the pane's
+     link), shown over its chapter's first line while focused. Go deeper
+     hides with its heading.
   Changing any of these reflows the page, so the tray pins the block at the
   reading line and scrolls it back (`keepReadingPlace`, in
   `src/scripts/keep-reading-place.js`, which the Study Desk's panel uses

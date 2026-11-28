@@ -63,6 +63,7 @@ import {
 } from "./greek-data.js";
 import { make } from "./dom.js";
 import { glyph } from "./glyphs.js";
+import { pageTextBox } from "./page.js";
 import { setTip } from "../tip.js";
 import { describeUnavailable } from "./menu-reasons.js";
 import { DRAFT_NOTE_REASON, greekNoteLabel, greekVerses, noteFromGreek } from "../../lib/desk-note-from-greek.mjs";
@@ -231,7 +232,7 @@ export function createGreekTab({
 }) {
   // Why a note can't be added here, or null where one can (or none is offered).
   const noteWhy = onAddNote ? null : NOTE_UNAVAILABLE[noteUnavailable] ?? null;
-  const textBox = source ? source.textBox : document.querySelector(".chapter-paragraphs");
+  const textBox = source ? source.textBox : pageTextBox();
   const markers = source ? [] : Array.from(textBox?.querySelectorAll('sup.vn[id^="v"]') ?? []);
   const termData = source ? source.termData : readTermData();
 

@@ -60,7 +60,7 @@ import { openNoteEditor } from "./note-editor.js";
 import { createSheetAdd } from "./sheets/sheet-add.js";
 import { createCollectionAdd } from "./collections/collection-add.js";
 import { getSetting, hiddenNotice, highlightSetting, highlightsSupported, setSetting } from "./note-settings.js";
-import { blockAt, chapterText, chapterTextFor, pageChapter } from "./page.js";
+import { blockAt, chapterTextFor, pageChapter } from "./page.js";
 import { undoEntry } from "./history.js";
 import { announce, showNotice, showUndo } from "./undo-bar.js";
 import { buttons } from "./dom.js";
@@ -75,12 +75,16 @@ export function initActions({ store, ctx, showVerse = null, printPart = null, pa
 
   document.addEventListener("lit:panel-actions", (e) => {
     const d = e.detail;
-    const where =
-      d.view === "study" && here
-        ? { bookKey: here.bookKey, chapter: here.chapter }
-        : (d.view === "read" || d.view === "desk") && d.book && d.chapter
-          ? { bookKey: d.book, chapter: d.chapter }
-          : null;
+    // A chapter the reading page loaded beside its own names itself
+    // (read-on.js, through chapter-tools.js's view), as a LIT pane's does;
+    // what acts on the page's own chapter alone (Print, Show in Notebook)
+    // is offered there only.
+    const own = d.view === "study" && Boolean(here) && (!d.chapter || (d.book === here.bookKey && d.chapter === here.chapter));
+    const where = own
+      ? { bookKey: here.bookKey, chapter: here.chapter }
+      : (d.view === "study" || d.view === "read" || d.view === "desk") && d.book && d.chapter
+        ? { bookKey: d.book, chapter: d.chapter }
+        : null;
     if (!where) return;
     const notes = d.view === "study" || d.view === "desk";
 
@@ -127,12 +131,12 @@ export function initActions({ store, ctx, showVerse = null, printPart = null, pa
     const collectionBox = collectionRow(d, where);
     if (collectionBox) d.append(collectionBox);
     // "Print ▸" (E40): this verse or selection on paper.
-    const printBox = printRow(d, where);
+    const printBox = own || d.view !== "study" ? printRow(d, where) : null;
     if (printBox) d.append(printBox);
     // Show in Notebook (Chapter View).
     const second = document.createElement("div");
     second.className = "lit-panel__row";
-    if (d.view === "study" && showVerse) {
+    if (own && showVerse) {
       const show = button("Show in Notebook");
       show.addEventListener("click", () => {
         d.acting?.();
@@ -357,8 +361,9 @@ export function initActions({ store, ctx, showVerse = null, printPart = null, pa
   function addNote(d, where, btn) {
     d.acting?.();
     let draft = { ...where, verse: d.start, endVerse: d.end };
-    // The LIT pane on /desk reads its own chapter; Chapter View, the page's.
-    const textOf = d.textFor ?? chapterText;
+    // The LIT pane on /desk reads its own chapter; the reading page, the
+    // chapter the menu was opened in.
+    const textOf = d.textFor ?? (() => chapterTextFor(where.bookKey, where.chapter));
     if (d.kind === "selection" && d.range) {
       try {
         const text = textOf();
