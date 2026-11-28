@@ -170,10 +170,9 @@ event and `pageTextBox` (`desk/page.js`).
   a book alone at its chapter 1 (`test/search-core.test.js`), and the five
   helpers left with no caller (`readingJumpLink`, `makeReadJumpHref`,
   `makeReadReferenceHref`, `makeReadBookHref`, and Study's Reading link
-  `makeDeskReadingHref`) are gone. Still to check at the checkpoint: the
-  book introduction's BreadcrumbList gave the book's level as
-  `/read/<book>/` (Learn's brief points it at `/<book>-1/`, as the chapter
-  page's does).
+  `makeDeskReadingHref`) are gone. The book introduction's BreadcrumbList,
+  which gave the book's level as `/read/<book>/`, points at `/<book>-1/`
+  as the chapter page's does (2be9767b).
 - **Phase 9 (Study's frame)**: Study still has a Read View branch in seven
   files, keyed on `[data-rm-root]`, which no page draws now, so none runs:
   `desk/first-stage.js`, `highlights.js`, `page-kind.js`, `panel.js` (its
@@ -201,6 +200,22 @@ event and `pageTextBox` (`desk/page.js`).
 - **A flaky test**: `test/desk-greek-slow-load.test.js:39` failed once in a
   full `npm test` under load and passes alone (4 of 4); it is main's. Widen
   its timers if CI meets it.
+
+### Phase 7: what Learn leaves
+
+- **Phase 5 (Beside scripture)**: the glossary's "Where it appears" takes
+  the margin from 1300px with Study off (`pages/glossary.css`; queue
+  Q92), and an article's footnotes the same (`pages/article.css`, Q98).
+  Put the Read page's footnotes in the margin at a width that matches, or
+  move these two to the Read page's, so a reader meets one margin.
+- **Phase 9 (Study's frame)**: `desk/page-kind.js` finds an entry's title
+  by `.entries-strike strong` and its head by `.entries-strike`, which the
+  glossary keeps as bare hooks on the traditional word (no strike draws
+  now). Rename both together.
+- **Checkpoint A's audit**: Phase 2 put controls on the kit's looks by
+  name and dropped some sizes with the old looks; the app announcement's
+  “Get the app” lost its padding (36c00d4b). Compare each name in
+  `kit.css`'s lists with its size on `main` where it still draws.
 
 ### Where the record is unclear
 
@@ -695,9 +710,9 @@ run's best reading, entered in the plan's queue with what was done.
 | WB-36 | On a phone it runs along the top row's bottom edge and hides with it | 3, 4 | At 390, scroll down and up | built (9b7c10ed): at 390 the line runs along the top row's bottom edge (`.site-header--reading::after`) and hides with it |
 | WB-37 | Printing stays one chapter with its notes, the chapter in view | 8 | `test/featherboa-continuous.test.js`: a print is one chapter; a PDF of John 4 reached from John 3 | built early (9b7c10ed): a print is the chapter in view with its notes (print media, tested); the PDF check with Phase 8 |
 | WB-38 | “Read the whole book,” the switch, and the title page aren't needed, since any chapter reads on | 4 | None of the three built | built (9b7c10ed): none of the three |
-| WB-39 | The introduction keeps its own page (`/mark-intro`) | 7 | Kept: `/mark-intro` at its address | open |
-| WB-40 | “Introduction to Mark →” at the top of chapter 1, and the picker's row under the chapter grid | 4, 7 | Mark 1 at 1440; the picker on Mark | the chapter's side built (9b7c10ed): “Introduction to Mark” at Mark 1's top, above the text; the picker's row built in 246ab483 (`picker__intro`, under the chapter grid); the introduction's side with Phase 7 |
-| WB-41 | The introduction ends with “Mark 1 →” into the text | 7 | The foot of `/mark-intro` | open |
+| WB-39 | The introduction keeps its own page (`/mark-intro`) | 7 | Kept: `/mark-intro` at its address | built (2be9767b): `/mark-intro` at its address, its breadcrumb now to chapter 1's |
+| WB-40 | “Introduction to Mark →” at the top of chapter 1, and the picker's row under the chapter grid | 4, 7 | Mark 1 at 1440; the picker on Mark | the chapter's side built (9b7c10ed): “Introduction to Mark” at Mark 1's top, above the text; the picker's row built in 246ab483 (`picker__intro`, under the chapter grid); the introduction's side (2be9767b): its breadcrumb points at `/mark-1/` |
+| WB-41 | The introduction ends with “Mark 1 →” into the text | 7 | The foot of `/mark-intro` | built (2be9767b): the introduction's foot ends with “Mark 1 ›” into the text, after “‹ Matthew 28” |
 | WB-42 | Focus retires: neither Read View's (every paragraph dimmed but one) nor the proposal's (the header and place line fading) | 4 | Grep: no Focus code or label | built (9b7c10ed): Focus, `read-mode.js`, `read-mode.css`, and ReadMenu gone (grep), `lit_rm_focus` with them |
 | WB-43 | /privacy's line about Focus goes too | 4 | /privacy's text | built (9b7c10ed): /privacy's Focus phrase removed; two more Read View clauses there are BVJ's words (Q88) |
 | WB-44 | Read View still retires as E8 planned: `/read/<book>` forwards to chapter 1, and `#ch-N` to chapter N | 4 | `test/featherboa-old-addresses.test.js`; `test/read-view-retirement.test.js` green | built (9b7c10ed): every book tested; /read/luke/#luke-10-v25 forwards to /luke-10/#v25, and without JavaScript a meta refresh goes to chapter 1 |
@@ -776,34 +791,34 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| GL-01 | Articles and book introductions take the reading page's column, margin, and faces | 7 | An article and an intro at 1440 | open |
+| GL-01 | Articles and book introductions take the reading page's column, margin, and faces | 7 | An article and an intro at 1440 | built (2be9767b): an article's and an introduction's text take the Read page's column, faces, and measure; the introduction's title stays today's (Q97) |
 | GL-02 | Site 2.0's choices (the glossary's list in a left column, an article's picture edge to edge, an introduction's headings beside the text) are not taken | 0, 7 | None of the three on the branch | built (63d07ac0); Phase 7 draws the pages |
-| GL-03 | /glossary stays one page, read on, each entry at its anchor, so every `/glossary#faith-trust` link keeps working | 7 | `test/featherboa-old-addresses.test.js`: every entry's anchor present | open |
-| GL-04 | The line at the top reads “Learn / Glossary ▾ / trust,” naming the entry in view | 7 | Scroll the glossary at 1440 | open |
-| GL-05 | “Glossary ▾” lists the entries, in place of today's jump list | 7 | Open it; no jump list on the page | open |
-| GL-06 | ‹ › step from entry to entry | 7 | Press › on the “trust” entry | open |
-| GL-07 | BVJ's opening words stay at the top | 7 | Kept: the opening diffed against `main` | open |
+| GL-03 | /glossary stays one page, read on, each entry at its anchor, so every `/glossary#faith-trust` link keeps working | 7 | `test/featherboa-old-addresses.test.js`: every entry's anchor present | built (2be9767b): one page; `test/glossary-learn.test.js` holds every entry's anchor on its heading |
+| GL-04 | The line at the top reads “Learn / Glossary ▾ / trust,” naming the entry in view | 7 | Scroll the glossary at 1440 | built (2be9767b): the line names the entry in view by its LIT word (Q91) and stays at the window's top (Q93) |
+| GL-05 | “Glossary ▾” lists the entries, in place of today's jump list | 7 | Open it; no jump list on the page | built (2be9767b): the list under “Glossary ▾,” a list of links without JavaScript; the jump list is gone |
+| GL-06 | ‹ › step from entry to entry | 7 | Press › on the “trust” entry | built (2be9767b): ‹ › step to the next or previous entry and put focus on its heading |
+| GL-07 | BVJ's opening words stay at the top | 7 | Kept: the opening diffed against `main` | built (2be9767b): the opening held verbatim by `test/glossary-learn.test.js` |
 | GL-08 | The opening's third paragraph describes today's styling, so Claude drafts a replacement for BVJ to approve or rewrite; it stays as written until answered | 7 | BVJ's answer at Checkpoint A | queued (Q1) |
-| GL-09 | Both orders stay (by the LIT word or by the traditional word), as a switch at the top of the “Glossary ▾” list; the page follows it | 7 | Kept: `test/glossary-sort.test.js` green; flip the switch | open |
-| GL-10 | The copy-link button stays beside each entry's pair | 7 | Kept: press it on an entry | open |
-| GL-11 | The pair is the headline: “Traditionally” and the traditional word, lighter and gray, beside “In the LIT” and the LIT's word in full weight | 7 | An entry at 1440 and 390 | open |
-| GL-12 | No arrow and no strike-through; today's ink scribble through the traditional word goes | 7 | Grep the glossary's styles | open |
-| GL-13 | The gray still meets 4.5:1, like every word on the site | 7 | Covered by NI-10 | open |
-| GL-14 | The LIT side is as the entry has it: “trust / faithfulness” keeps its slash | 7 | The faith-trust entry | open |
-| GL-15 | Each word on its own line on a phone, as today | 7 | Kept: an entry at 390 | open |
-| GL-16 | A note such as “(prepared for sacred purposes)” sits under the word | 7 | That entry at 1440 | open |
-| GL-17 | Where the LIT keeps the traditional word (Demon / demon), the pair still shows | 7 | That entry | open |
-| GL-18 | The Greek spelling beside its transliteration (“πίστις pistis”) comes from the alignment's lemma map, `scripts/lib/glossary-lemmas.mjs` | 7 | Every entry shows its Greek, read at build time | open |
-| GL-19 | No entry gains a field, and the apps' glossary feed doesn't change | 7 | The contract guard over `src/content/glossary/`; `test/build-glossary-feed.test.js` green | open |
-| GL-20 | “Where it appears” moves to the margin, where footnotes sit on a chapter page | 7 | An entry at 1440 | open |
-| GL-21 | It carries today's numbers: the total (“N occurrences”) and each rendering with its count, not the drawing's first three verses | 7 | The numbers compared with `main` | open |
-| GL-22 | “Every place →” opens the full list under the entry, as today's folded list does, without JavaScript too | 7 | With JavaScript off | open |
-| GL-23 | With no margin (a phone, a narrow window), the list sits under the entry, as today | 7 | At 820 and 390 | open |
-| GL-24 | Articles and introductions: a Fraunces title, Source Sans 3 at the reading size, and the reading measure | 7 | An article at 1440: faces and measure | open |
-| GL-25 | Footnotes go in the margin where a piece has them (none does today) | 7 | Nothing to check until a piece has one | open |
-| GL-26 | The author and date share one small line under the title | 7 | An article at 1440 | open |
-| GL-27 | Every article keeps its picture, under the title and byline at the column's width, not edge to edge | 7 | All 13 articles at 1440 | open |
-| GL-28 | Tags move to the article's foot | 7 | An article's foot | open |
+| GL-09 | Both orders stay (by the LIT word or by the traditional word), as a switch at the top of the “Glossary ▾” list; the page follows it | 7 | Kept: `test/glossary-sort.test.js` green; flip the switch | built (2be9767b): the switch at the list's top, shown with JavaScript; `test/glossary-sort.test.js` green |
+| GL-10 | The copy-link button stays beside each entry's pair | 7 | Kept: press it on an entry | built (2be9767b): “Copy link” in words beside its icon, since copy may not stand alone (Q94) |
+| GL-11 | The pair is the headline: “Traditionally” and the traditional word, lighter and gray, beside “In the LIT” and the LIT's word in full weight | 7 | An entry at 1440 and 390 | built (2be9767b) |
+| GL-12 | No arrow and no strike-through; today's ink scribble through the traditional word goes | 7 | Grep the glossary's styles | built (2be9767b): no arrow, no strike, no ink scribble; `.entries-strike strong` stays only as Study's hook (the ledger's Phase 9 notes) |
+| GL-13 | The gray still meets 4.5:1, like every word on the site | 7 | Covered by NI-10 | built (2be9767b): the traditional word in the second ink |
+| GL-14 | The LIT side is as the entry has it: “trust / faithfulness” keeps its slash | 7 | The faith-trust entry | built (2be9767b) |
+| GL-15 | Each word on its own line on a phone, as today | 7 | Kept: an entry at 390 | built (2be9767b): under 780px each option on its own line, the slash hidden |
+| GL-16 | A note such as “(prepared for sacred purposes)” sits under the word | 7 | That entry at 1440 | built (2be9767b) |
+| GL-17 | Where the LIT keeps the traditional word (Demon / demon), the pair still shows | 7 | That entry | built (2be9767b) |
+| GL-18 | The Greek spelling beside its transliteration (“πίστις pistis”) comes from the alignment's lemma map, `scripts/lib/glossary-lemmas.mjs` | 7 | Every entry shows its Greek, read at build time | built (2be9767b): from `GLOSSARY_LEMMAS` at build time, every entry matched |
+| GL-19 | No entry gains a field, and the apps' glossary feed doesn't change | 7 | The contract guard over `src/content/glossary/`; `test/build-glossary-feed.test.js` green | built (2be9767b): the contract guard empty; `test/build-glossary-feed.test.js` green |
+| GL-20 | “Where it appears” moves to the margin, where footnotes sit on a chapter page | 7 | An entry at 1440 | built (2be9767b): in the margin from 1300px with Study off, the entry growing to hold it (Q92) |
+| GL-21 | It carries today's numbers: the total (“N occurrences”) and each rendering with its count, not the drawing's first three verses | 7 | The numbers compared with `main` | built (2be9767b) |
+| GL-22 | “Every place →” opens the full list under the entry, as today's folded list does, without JavaScript too | 7 | With JavaScript off | built (2be9767b): checked headless with JavaScript off (`#places-<id>` by `:target`) |
+| GL-23 | With no margin (a phone, a narrow window), the list sits under the entry, as today | 7 | At 820 and 390 | built (2be9767b): under the entry below 1300px and with Study on; checked at 1100, 390, and 320 |
+| GL-24 | Articles and introductions: a Fraunces title, Source Sans 3 at the reading size, and the reading measure | 7 | An article at 1440: faces and measure | built (2be9767b): checked at 1440 and 390, and in OpenDyslexic at Extra large at 320 and 375 |
+| GL-25 | Footnotes go in the margin where a piece has them (none does today) | 7 | Nothing to check until a piece has one | built (2be9767b) as a place, since no article has footnotes (Q98) |
+| GL-26 | The author and date share one small line under the title | 7 | An article at 1440 | built (2be9767b): every article's own `author`, with the date; the lead paragraph kept (Q96) |
+| GL-27 | Every article keeps its picture, under the title and byline at the column's width, not edge to edge | 7 | All 13 articles at 1440 | built (2be9767b) |
+| GL-28 | Tags move to the article's foot | 7 | An article's foot | built (2be9767b) |
 
 ## Off the screen (OS)
 
@@ -851,7 +866,7 @@ run's best reading, entered in the plan's queue with what was done.
 | HD-13 | The magnifier is there on every page but the Read page, whose Search is on its place line (one way in per page) | 3 | /about and John 3 at 1440 | built (ec3378b6); on a page with its own box it goes to that box (Q30) |
 | HD-14 | Every page but Home has one line under the header that names the page, its one or two main commands at the right (“Learn / Glossary ▾ / trust,” “About / Contact”) | 3 | Each page at 1440; none on Home | built (ec3378b6); each page's commands with its phase |
 | HD-15 | The Read page's place line is this line | 4 | Covered by RP-29 | built (246ab483), by RP-29 |
-| HD-16 | A part with ▾ is a menu of what sits beside the page: “Glossary ▾” lists the entries | 3, 7 | Covered by GL-05 | open |
+| HD-16 | A part with ▾ is a menu of what sits beside the page: “Glossary ▾” lists the entries | 3, 7 | Covered by GL-05 | built (2be9767b): “Glossary ▾” lists the entries |
 | HD-17 | On Study, the title row is the line: “Fold sidebar” at its left, then “Study / Sheets ▾ / Advent 2 handout,” then the pane count and Full screen at its right | 9 | Study at 1440 with a sheet open | open |
 | HD-18 | “Sheets ▾” lists the reader's sheets and “Collections ▾” their collections, so a reader switches without the sidebar | 9, 11 | Fold the sidebar; switch sheets from the line | open |
 | HD-19 | Scripture, Notebook, and Trash list nothing, so their line reads plainly (“Study / Notebook”) | 9 | Each place's line at 1440 | open |

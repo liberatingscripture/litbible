@@ -846,6 +846,11 @@ Entered by the run:
   (line 445) still describe Read View, ReadMenu, `read-mode.js`, and
   `read-mode.css`, all gone, and a comment in `books.js` names ReadMenu's
   book grid. The comment is in a data file, so it stays either way.
+  Phase 7 adds `src/data/alignment/CLAUDE.md`'s paragraph on how /glossary
+  draws "Where it appears": now an `aside.entry-occ` in the margin from
+  1300px with Study off (under the entry otherwise), and the full list a
+  `div.entry-places` at `#places-<id>`, opened by `:target` or the
+  script's `data-open` (`src/pages/glossary.astro`).
 - **Q14. Tabs and list rows keep the ink** (KT-06; "Color"). "Color"
   makes deep green the color of what can be pressed, and the kit draws the
   words of filled, tinted, plain, and red buttons in it. A tab's and a
@@ -1434,6 +1439,68 @@ Entered by the run:
   single-page counting off. Cost: turning off the automatic beacon in
   Cloudflare's dashboard, which is BVJ's. Recommendation: keep; a chapter
   read is a fair page view, and the note says how to read the numbers.
+- **Q91. The glossary's line names the LIT word in either order** (GL-04,
+  GL-09). It names the entry in view by its LIT word's first option
+  (“trust” for “trust / faithfulness”), as the record's example does, and
+  keeps doing so when the page is ordered by the traditional word.
+  Meanwhile: the LIT word in both orders. Other choice: the traditional
+  word while the page is in that order. Cost: a second name per entry in
+  the line's data. Recommendation: keep; the LIT word is the entry's
+  answer, and the list under “Glossary ▾” already shows the order chosen.
+- **Q92. “Where it appears” takes the margin from 1300px** (GL-20, GL-23).
+  It needs the 320px margin beside the text, which the page's column
+  leaves from 1300px with Study off; narrower, and with Study on (whose
+  frame moves the text), it sits under the entry as today. A long note
+  makes its entry taller rather than running into the next. Meanwhile:
+  from 1300px. Other choice: the width at which Phase 5 puts the Read
+  page's footnotes in the margin, since the record ties the two together.
+  Cost: one media query. Recommendation: match Phase 5's width, which that
+  phase checks against this one.
+- **Q93. The glossary's line stays at the window's top** (GL-04). It names
+  the entry in view and steps between entries, so it sticks under the
+  header at every width (37px). The Read page's line scrolls away on a
+  computer (Q85) and hides on a scroll down on a phone. Meanwhile: it
+  sticks at every width. Other choice: the Read page's behavior. Cost: a
+  few lines reusing `phone-bars.js`'s rule. Recommendation: keep it; a
+  reader moves about the glossary more than reading it straight through,
+  and the line is how they do it and where it says what they are reading.
+- **Q94. “Copy link” shows its words** (GL-10). The record keeps the
+  button “as today,” and today's is a copy icon with hover text (BVJ,
+  2026-10-09). The kit lets only five icons stand alone (search, close,
+  back, forward, more), so it reads “Copy link” beside its icon, with no
+  hover text. Meanwhile: the words. Other choice: the icon alone with its
+  tooltip, an exception to the kit. Cost: none either way.
+  Recommendation: the words.
+- **Q95. The glossary keeps “Back to top”** (GL-03). Today's page has one
+  and the record doesn't mention it. Meanwhile: the kit's plain button,
+  floating at the window's bottom right once the first entry has passed
+  the top, which puts focus on the page's title. Other choice: drop it,
+  since the line's “Glossary ▾” reaches every entry. Cost: none.
+  Recommendation: keep; 47 entries make a long page, on a phone above all.
+- **Q96. An article's lead paragraph stays** (GL-26). The record puts the
+  author and date on one small line under the title, and every article's
+  own `author` names BVJ, so all 13 now show “Brandon C. Vélez Johnson ·
+  4/10/2024” where today shows the date alone. The article's description
+  stays under that line as its lead paragraph, in the second ink, as
+  today; the record doesn't mention it. Meanwhile: kept. Other choice:
+  drop it, since search results and shared links show it too. Cost: none.
+  Recommendation: keep; it says what the article argues before the
+  picture.
+- **Q97. An introduction's title stays centered** (GL-01, GL-24). Its text
+  now has the Read page's column, faces, and measure, but its title is
+  today's, “Mark — Introduction,” centered in Fraunces at 32px, where an
+  article's title is left-aligned at the title size and a chapter's
+  heading is left-aligned at the Subhead size. Meanwhile: centered. Other
+  choice: left-aligned, at an article's title size. Cost: two rules in
+  `ScriptureHeader.astro`. Recommendation: left, so an introduction reads
+  as an article does.
+- **Q98. An article's footnotes would sit at the margin's top** (GL-25).
+  No article has any, so this is a place made ready: from 1300px with
+  Study off a footnotes section sits in the margin beside the article's
+  top, and under the text elsewhere. Meanwhile: that. Other choice: each
+  note beside the line that calls it, as Phase 5 sets a chapter's notes.
+  Cost: Phase 5's code, reused. Recommendation: reuse Phase 5's when an
+  article first has footnotes.
 
 ## Questions answered before the run
 
@@ -1531,7 +1598,9 @@ with its last commit when done; never delete a line.
   563f837b, e896463b, a475a2f3, 3dcc8475, bf05dafb)
 - [ ] Phase 7: Learn, the front door, and every other page (built ahead:
   the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
-  draws, bae1d1cb, and the account pages, cf6f21c8)
+  draws, bae1d1cb, and the account pages, cf6f21c8; the glossary,
+  articles, and introductions, 2be9767b, with the app announcement's
+  button, 36c00d4b)
 - [ ] Phase 8: Off the screen (the verse image built ahead, 60952c32)
 - [ ] Checkpoint A: the public site
 - [ ] Phase 9: Study's frame
