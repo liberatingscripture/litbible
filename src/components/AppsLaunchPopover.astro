@@ -300,8 +300,13 @@ import Icon from "./Icon.astro";
     line-height: 1.4;
   }
 
+  /* The kit's filled button by name (kit.css); its size stays here until
+     the popover is redrawn (Phase 2 dropped it with the old look). */
   .applaunch-cta-primary {
     display: inline-flex;
+    align-items: center;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.975rem;
     text-decoration: none;
   }
 </style>
