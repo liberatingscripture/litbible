@@ -53,8 +53,14 @@ import Icon from "./Icon.astro";
     word-break: break-word;
   }
 
+  /* Its words wrap inside the column: the kit's button keeps one line, and
+     in OpenDyslexic on a 320px phone that line ran past the window and
+     widened the whole page. */
   .scripture-disclaimer__more summary {
     list-style: none;
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
   }
 
   .scripture-disclaimer__more summary::-webkit-details-marker {
