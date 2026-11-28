@@ -19,10 +19,8 @@ import {
   rankVerseHits,
   highlightVerseHit,
   resolveMistypedPath,
-  makeDeskReadingHref,
   topicMatches,
 } from "../src/scripts/search-core.js";
-import { parsePlaceParam } from "../src/lib/desk-passage.mjs";
 import { stemWord } from "../src/lib/word-stem.mjs";
 
 /** Mirrors how loadVerseIndex groups the corpus vocabulary by stem, so
@@ -165,25 +163,6 @@ for (const [input, bookKey] of [
 ]) {
   test(`parseReferenceJump: '${input}' is the book's introduction`, () => {
     assert.deepEqual(parseReferenceJump(input), { kind: "book", bookKey, intro: true });
-  });
-}
-
-// E114: with the Study Desk preview on, the jump's Read View link opens the
-// desk in Reading. The place is one the desk's own parser reads.
-for (const [input, href, place] of [
-  ["John 3:16", "/desk/?place=john-3:16&layout=reading", "john 3:16"],
-  ["Romans 8:16-18", "/desk/?place=romans-8:16&layout=reading", "romans 8:16"],
-  ["1 Cor 13", "/desk/?place=1corinthians-13&layout=reading", "1corinthians 13"],
-  ["Romans", "/desk/?place=romans-1&layout=reading", "romans 1"],
-  ["Jude", "/desk/?place=jude-1&layout=reading", "jude 1"],
-  ["John 30", "/desk/?place=john-1&layout=reading", "john 1"],
-]) {
-  test(`makeDeskReadingHref: '${input}' opens the desk in Reading at ${place}`, () => {
-    const got = makeDeskReadingHref(parseReferenceJump(input));
-    assert.equal(got, href);
-    const params = new URL(got, "https://litbible.net").searchParams;
-    assert.equal(parsePlaceParam(params.get("place")), place);
-    assert.equal(params.get("layout"), "reading");
   });
 }
 
@@ -450,8 +429,11 @@ for (const [path, href, label] of [
   ["/jn-intro", "/john-intro/", "John introduction"],
   ["/romans", "/romans-intro/", "Romans"],
   ["/1-john", "/1john-intro/", "1 John"],
-  ["/read/1-corinthians", "/read/1corinthians/", "1 Corinthians"],
-  ["/read/jn-3", "/read/john/#ch-3", "John 3"],
+  // Read View's old address lands on the chapter's page, as a real one does
+  // (read-view-retirement.mjs), a book alone at its chapter 1.
+  ["/read/1-corinthians", "/1corinthians-1/", "1 Corinthians"],
+  ["/read/jn-3", "/john-3/", "John 3"],
+  ["/read/jn-3-16", "/john-3/#v16", "John 3:16"],
 ]) {
   test(`resolveMistypedPath: '${path}' resolves to ${href}`, () => {
     assert.deepEqual(resolveMistypedPath(path), { href, label, sure: true });
@@ -464,6 +446,17 @@ test("resolveMistypedPath: a chapter the book doesn't have asks rather than redi
     label: "John",
     sure: false,
   });
+  assert.deepEqual(resolveMistypedPath("/read/john-30"), {
+    href: "/john-1/",
+    label: "John",
+    sure: false,
+  });
+});
+
+test("resolveMistypedPath: no address it offers is Read View's", () => {
+  for (const path of ["/read/1-corinthians", "/read/jn-3", "/read/jn-3-16", "/read/john-30", "/read/rev"]) {
+    assert.doesNotMatch(resolveMistypedPath(path).href, /^\/read\//, path);
+  }
 });
 
 test("resolveMistypedPath: addresses that name no book return null", () => {

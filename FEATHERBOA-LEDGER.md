@@ -164,11 +164,23 @@ event and `pageTextBox` (`desk/page.js`).
   Notebook, the Greek tab, printing with notes, and the tour still serve
   the page's own chapter (WB-14); verse numbers and footnote letters join
   the kit's inline list (queue Q16).
-- **Checkpoint A's fixes**: `search-core.js`'s `resolveMistypedPath` still
-  sends a book to `/read/<book>`, two hops to its chapter 1 now (point it at
-  `/<book>-1/`), and `readingJumpLink` and `makeReadJumpHref` have no
-  callers left.
-- **Phase 9 (Study's frame)**: the draft's Greek arrival (queue Q86).
+- **Checkpoint A's fixes**, done early: the 404 page's
+  `resolveMistypedPath` sent a mistyped `/read/<book>` to Read View's
+  address, two hops from its chapter; it now lands on the chapter's page,
+  a book alone at its chapter 1 (`test/search-core.test.js`), and the five
+  helpers left with no caller (`readingJumpLink`, `makeReadJumpHref`,
+  `makeReadReferenceHref`, `makeReadBookHref`, and Study's Reading link
+  `makeDeskReadingHref`) are gone. Still to check at the checkpoint: the
+  book introduction's BreadcrumbList gave the book's level as
+  `/read/<book>/` (Learn's brief points it at `/<book>-1/`, as the chapter
+  page's does).
+- **Phase 9 (Study's frame)**: Study still has a Read View branch in seven
+  files, keyed on `[data-rm-root]`, which no page draws now, so none runs:
+  `desk/first-stage.js`, `highlights.js`, `page-kind.js`, `panel.js` (its
+  `inReadView`, which sends `desk/tab-mine.js` to `recordReadHref` in
+  `desk-store-core.mjs`, tested in `test/desk-chapter-address.test.js`),
+  `print-notes.js`, `read-marks.js`, and `tour.js`. Take them out with Read
+  View's other Study code. Also the draft's Greek arrival (queue Q86); and
   `desk.css`'s `html[data-desk-workspace]` turns scroll anchoring off on
   the root alone, the shape that held the Read page at its end; probed in
   headless Chrome at 40, 120, and 400px down and at the end, /desk holds,
@@ -684,7 +696,7 @@ run's best reading, entered in the plan's queue with what was done.
 | WB-37 | Printing stays one chapter with its notes, the chapter in view | 8 | `test/featherboa-continuous.test.js`: a print is one chapter; a PDF of John 4 reached from John 3 | built early (9b7c10ed): a print is the chapter in view with its notes (print media, tested); the PDF check with Phase 8 |
 | WB-38 | “Read the whole book,” the switch, and the title page aren't needed, since any chapter reads on | 4 | None of the three built | built (9b7c10ed): none of the three |
 | WB-39 | The introduction keeps its own page (`/mark-intro`) | 7 | Kept: `/mark-intro` at its address | open |
-| WB-40 | “Introduction to Mark →” at the top of chapter 1, and the picker's row under the chapter grid | 4, 7 | Mark 1 at 1440; the picker on Mark | the chapter's side built (9b7c10ed): “Introduction to Mark” at Mark 1's top, above the text; the picker's row with Phase 7 |
+| WB-40 | “Introduction to Mark →” at the top of chapter 1, and the picker's row under the chapter grid | 4, 7 | Mark 1 at 1440; the picker on Mark | the chapter's side built (9b7c10ed): “Introduction to Mark” at Mark 1's top, above the text; the picker's row built in 246ab483 (`picker__intro`, under the chapter grid); the introduction's side with Phase 7 |
 | WB-41 | The introduction ends with “Mark 1 →” into the text | 7 | The foot of `/mark-intro` | open |
 | WB-42 | Focus retires: neither Read View's (every paragraph dimmed but one) nor the proposal's (the header and place line fading) | 4 | Grep: no Focus code or label | built (9b7c10ed): Focus, `read-mode.js`, `read-mode.css`, and ReadMenu gone (grep), `lit_rm_focus` with them |
 | WB-43 | /privacy's line about Focus goes too | 4 | /privacy's text | built (9b7c10ed): /privacy's Focus phrase removed; two more Read View clauses there are BVJ's words (Q88) |

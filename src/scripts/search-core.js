@@ -160,20 +160,8 @@ export function makeStudyReferenceHref(ref) {
   return `${base}#v${ref.verse}${range}`;
 }
 
-export function makeReadReferenceHref(ref) {
-  const base = `/read/${ref.bookKey}`;
-  const hash = ref.verse
-    ? `${ref.bookKey}-${ref.chapter}-v${ref.verse}`
-    : `ch-${ref.chapter}`;
-  return `${base}#${hash}`;
-}
-
 export function makeStudyBookHref(bookKey) {
   return `/${bookKey}-intro`;
-}
-
-export function makeReadBookHref(bookKey) {
-  return `/read/${bookKey}`;
 }
 
 /* ── Mistyped addresses (the 404 page) ──────────────────────────────── */
@@ -211,6 +199,11 @@ function pathWordsToReference(words) {
  * `sure` is false when the book is clear but the chapter doesn't exist
  * ("/john-30"), so the page can ask rather than send the reader somewhere
  * they didn't mean.
+ *
+ * "/read/<book>" was Read View's address, retired in Featherboa's Phase 4:
+ * a mistyped one lands where src/lib/read-view-retirement.mjs sends a real
+ * one, the chapter's page, and a book alone (or a chapter it lacks) at its
+ * chapter 1, the book's start, rather than its introduction.
  */
 export function resolveMistypedPath(pathname) {
   let path;
@@ -224,6 +217,8 @@ export function resolveMistypedPath(pathname) {
 
   const readView = /^read\/(.+)$/.exec(path);
   const words = readView ? readView[1] : path;
+  const bookStart = (bookKey) =>
+    readView ? makeStudyReferenceHref({ bookKey, chapter: 1 }) : makeStudyBookHref(bookKey);
 
   const intro = /^(.+?)[/_+ -]*intro(?:duction)?$/.exec(words);
   if (intro && !readView) {
@@ -241,20 +236,10 @@ export function resolveMistypedPath(pathname) {
   if (ref) {
     const label = bookKeyToLabel(ref.bookKey);
     if (ref.chapter > (BOOKS[ref.bookKey] || 0)) {
-      return {
-        href: withTrailingSlash(
-          readView
-            ? makeReadBookHref(ref.bookKey)
-            : makeStudyBookHref(ref.bookKey),
-        ),
-        label,
-        sure: false,
-      };
+      return { href: withTrailingSlash(bookStart(ref.bookKey)), label, sure: false };
     }
     return {
-      href: withTrailingSlash(
-        readView ? makeReadReferenceHref(ref) : makeStudyReferenceHref(ref),
-      ),
+      href: withTrailingSlash(makeStudyReferenceHref(ref)),
       label: formatReferenceLabel(ref),
       sure: true,
     };
@@ -263,11 +248,7 @@ export function resolveMistypedPath(pathname) {
   const book = parseBookOnly(words.replace(/[/_+-]+/g, " "));
   if (!book) return null;
   return {
-    href: withTrailingSlash(
-      readView
-        ? makeReadBookHref(book.bookKey)
-        : makeStudyBookHref(book.bookKey),
-    ),
+    href: withTrailingSlash(bookStart(book.bookKey)),
     label: bookKeyToLabel(book.bookKey),
     sure: true,
   };
@@ -284,36 +265,6 @@ export function makeStudyJumpHref(jump) {
   return jump.kind === "book"
     ? makeStudyBookHref(jump.bookKey)
     : makeStudyReferenceHref(jump);
-}
-
-export function makeReadJumpHref(jump) {
-  return jump.kind === "book"
-    ? makeReadBookHref(jump.bookKey)
-    : makeReadReferenceHref(jump);
-}
-
-/**
- * The Study Desk in its Reading layout at a jump's passage (E114; BVJ,
- * 2026-11-12): `/desk/?place=john-3:16&layout=reading`. A book opens at its
- * chapter 1, and so does a chapter the book lacks, as Read View landed at the
- * book's top; a range opens at its first verse. desk-passage.mjs's
- * deskPlaceHref with `&layout=reading`, written out because shared reader
- * code never imports desk code.
- */
-export function makeDeskReadingHref(jump) {
-  const isRef = jump.kind !== "book" && jump.chapter <= (BOOKS[jump.bookKey] || 0);
-  const at = isRef ? `${jump.chapter}${jump.verse ? `:${jump.verse}` : ""}` : "1";
-  return `/desk/?place=${jump.bookKey}-${at}&layout=reading`;
-}
-
-/**
- * The jump's second link, the one that stood for Read View: Read View, or
- * with the Study Desk preview on the desk's Reading layout (E114). `desk`
- * tells the tray and /search which words to put on it.
- */
-export function readingJumpLink(jump) {
-  const desk = deskEnabled();
-  return { href: desk ? makeDeskReadingHref(jump) : makeReadJumpHref(jump), desk };
 }
 
 /* ── Query normalization + Pagefind query building ───────────────────── */

@@ -147,9 +147,12 @@ litbible.net is rewritten; a third-party read link keeps its own scheme.
 Its script reads the address with `resolveMistypedPath` (in `search-core.js`,
 the same parser as the search box), so a guessable scripture address lands on
 its page: `/John-3`, `/jn-3`, `/john-3-16`, `/john/3`, `/1-corinthians-13`,
-`/read/1-corinthians`. A known book with a chapter it doesn't have
-(`/john-30`) gets "Did you mean John?" instead of a redirect; anything else,
-and no JS, leaves the page as it was.
+`/read/1-corinthians`. Read View's old address lands where a real one now
+forwards (`src/lib/read-view-retirement.mjs`): the chapter's page, and a
+book alone at its chapter 1 rather than its introduction. A known book
+with a chapter it doesn't have (`/john-30`) gets "Did you mean John?"
+instead of a redirect; anything else, and no JS, leaves the page as it
+was.
 
 ## Measuring the Read page
 
