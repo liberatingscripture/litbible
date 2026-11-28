@@ -1574,10 +1574,10 @@ Entered by the run:
 - **Q107. A smaller size near a chapter's top loads the chapter above**
   (WB, the tray). Keeping the reader's place scrolls the page up there,
   which reading on takes for the reader nearing the top. The place holds
-  and the tray stays open, but a chapter loads unasked. Meanwhile: that.
-  Other choice: reading on ignores a scroll while the place is being
-  held. Cost: a few lines and a test. Recommendation: that, in Phase 5,
-  which touches reading on next.
+  and the tray stays open, but a chapter loads unasked. Meanwhile: built
+  in Phase 5, part one (a095c300; Q118): reading on ignores the scroll
+  that holds the place. Other choice: as it was. Cost: none now.
+  Recommendation: as built.
 - **Q108. The tray's close button says “Close display settings”**
   (CT-11). The tray and its button say “Display.” Meanwhile: today's
   words. Other choice: “Close Display.” Cost: one label.
@@ -1642,6 +1642,128 @@ Entered by the run:
   sheets and the 20 collections opened most recently, so it can't grow
   without end; an older one opens as it first did. Meanwhile: 20 each.
   Other choice: another number. Cost: none. Recommendation: 20.
+- **Q118. What reading on ignores while the place is held** (Q107, WB).
+  The scroll that holds the reader's line no longer counts as a scroll up,
+  so a smaller size near a chapter's top loads nothing above. Only the
+  “up” is ignored; the address, the chapter in view, and loading below
+  still follow the scroll. Meanwhile: that (a095c300). Other choice:
+  ignore that whole moment of scrolling. Cost: none. Recommendation: as
+  built.
+- **Q119. The column stays 48 while the Notebook is open** (BS-15). So
+  that opening and minimizing the Notebook move no scripture, the column
+  is 48 whenever it is open, minimized included, where BVJ's rule of
+  2026-10-14 gave 52 while minimized. A page that opens with the Notebook
+  closed still narrows once, 52 to 48, the first time it opens.
+  Meanwhile: 48 while open. Other choice: 52 throughout, now that the
+  Greek tab that needed the room has left the panel. Cost: a few rules.
+  Recommendation: keep 48 until the 220, 660, and 320 columns are built
+  (SZ-20), then measure again.
+- **Q120. What leaves the margin while the Notebook shows** (BS-15). Only
+  the notes, which Notes lists: bookmarks and highlights stay on the text.
+  Meanwhile: that. Other choice: every mark leaves. Cost: a line.
+  Recommendation: as built, since a highlight is on the words themselves
+  and a bookmark marks a place.
+- **Q121. This verse and a chapter read on into** (BS-20). This verse
+  keeps to the page's own chapter, as Phase 4 left it, and that has a
+  fault: on a chapter read on into, the margin's “N more notes” opens This
+  verse at that verse number in the page's own chapter, the wrong verse
+  (only while the Notebook is minimized or closed and six or more notes
+  stack). Meanwhile: the fault stands until part two. Other choice: This
+  verse keeps to the page's own chapter, and on a chapter read on into
+  “N more notes” opens that chapter's page at the verse. Cost: part two's
+  work either way. Recommendation: This verse follows the chapter in view,
+  with BS-08 and RP-22, which fixes it.
+- **Q122. /desk loses its backup reminder for now** (NX-07). The
+  reminder's bar and the title's dot are gone everywhere, so /desk says
+  nothing about backups until Study's sidebar has the foot line (Phase 9);
+  /notebook's backup section stays. Meanwhile: that. Other choice: keep
+  /desk's bar until then. Cost: a few lines back. Recommendation: as built.
+- **Q123. Where a Greek result leads** (ST-61, ST-62). Every Greek result
+  (the tray, /search, Study's Search pane, and Add to sheet) and every
+  Greek word in This verse opens Study at the verse with the Greek pane at
+  the word. An old `?greek=` link to a chapter lands on its verse, the
+  parameter left unread. Meanwhile: that. Other choice: the chapter's page
+  at the verse. Cost: none. Recommendation: as built.
+- **Q124. The Notebook's title** (BS-30). “Notebook ▾” is the kit's plain
+  button in the controls' face; the “Preview” badge stays until NX-24
+  (Phase 9); the head's link to Study is gone, since the header's Study
+  and the place line's “Study John 3” lead there. Meanwhile: that. Other
+  choice: the title's word in Fraunces, as “Type” names panel titles and
+  /desk's “Study Desk ▾” is set. Cost: a few lines. Recommendation:
+  Fraunces for the word, the button and chevron the kit's, in part two.
+- **Q125. The title menu's words** (BS-30). “Whole notebook” stands for
+  the record's “the whole notebook,” since “Notebook” alone reads as the
+  panel; Feedback keeps the shared “Send feedback on the preview.”
+  Meanwhile: that. Other choice: “Open the notebook page.” Cost: one
+  label. Recommendation: keep, and make Feedback's “Send feedback” when the
+  stage word goes (NX-24).
+- **Q126. What Notes' count counts** (ST-69). “All 128 in the Notebook”
+  counts everything the notebook lists but sheets, says “1 in the
+  Notebook” for one, and hides while the notebook is empty. Meanwhile:
+  that. Other choice: notes, highlights, and bookmarks only. Cost: none.
+  Recommendation: as built, so the number matches the page it opens.
+- **Q127. The empty state's names** (NX-08, NX-13). “No notes on John 3
+  yet. Select a verse number or any words, then choose Note, Highlight, or
+  Bookmark.” uses the record's names, while the verse menu says “Add a
+  note” and “Add bookmark” until CT-08 renames them in part two. “Show me
+  how” is tinted, since “Take the tour” above it is the view's one filled
+  button. Meanwhile: that. Recommendation: keep; part two makes the menu
+  agree.
+- **Q128. Where “Start here” stands** (NX-19, NX-20). Under the title, on
+  every tab, until any step of the tour is seen or the reader chooses “I
+  know my way around”; the reply to a first mark comes only while it
+  stands. Meanwhile: that. Other choice: on Notes only. Cost: none.
+  Recommendation: as built.
+- **Q129. The foot line's “Back up…”** (NX-16, NB-34). It opens
+  /notebook's backup section in the same tab, and shows only when the
+  notebook holds something and the browser doesn't sync. The line reads
+  the notebook again on a mark, on its settings, and when the window takes
+  focus, not on each sheet or collection save, which can come every few
+  hundred milliseconds. Meanwhile: that. Recommendation: as built.
+- **Q130. Three tabs in a narrow panel** (BS-13). At 280px and the largest
+  sizes the tabs can wrap to two rows. Meanwhile: they wrap. Other choice:
+  a row that scrolls sideways. Cost: a few rules. Recommendation: keep,
+  and check OpenDyslexic at Extra large at 1100 at Checkpoint A.
+- **Q131. Where the lines about keeping went** (BS-21, DI-17). Safari's
+  seven-day line, “Ask this browser to keep it,” and the line to an
+  account moved from the Settings tab to the backup section on /notebook
+  and All settings. Meanwhile: there. Other choice: the foot line, which
+  would need more than its one line. Recommendation: as built.
+- **Q132. The tours' offers** (NX-18). The notebook tour's Greek step is a
+  Footnotes step now, and the Read page's floating offer is gone; /desk's
+  and the Sheets' offers stay until Phase 13. Meanwhile: that.
+  Recommendation: as built.
+- **Q133. Continue reading left Notes** (NX-12). Notes no longer starts
+  with it; the passage picker's first row is the way back. /notebook's
+  section and Home's card stay until Phases 9 and 7. Meanwhile: that.
+  Recommendation: as built.
+- **Q134. Three lines of /privacy name keys nothing writes now** (DI-17,
+  NX-07): `lit-desk-home` (where the notebook is kept), `lit-desk-remind`
+  (the reminder put off), and `lit-desk-note-font` (the notes' lettering).
+  They are BVJ's words, so they stay, and the storage test lists the three
+  as named until BVJ edits them; values a browser already holds are left.
+  Meanwhile: that. Other choice: clear the old values when a page loads.
+  Cost: a few lines. Recommendation: BVJ drops the three lines, then the
+  test's list goes; not a material change, so the date stays.
+- **Q135. The sync's leftovers** (NX-15). The sync is outside this run, so
+  its status line keeps today's words, and its stopped or waiting dot
+  still names places that are gone (the minimized tab, the Notebook
+  buttons, /desk's title, and the Settings tab: `notice-parts.js`,
+  `desk-sync.css`), as do comments in `status-line.js`,
+  `stopped-notice.js`, and the sync's doc; two sync tests fake a Settings
+  tab. Meanwhile: untouched. Recommendation: a session on the sync after
+  the run, with NX-15's words.
+- **Q136. A pinned footnote's link from 1100px** (WB-18, WB-21). The
+  page's footnote list leaves the flow there, so a pinned footnote's link
+  (a Notes row, or a change notice's “Show in the text”) opens the
+  Footnotes tab at its note, marked and focused; under 1100px it goes to
+  the page's list as before. Meanwhile: that. Recommendation: as built
+  until part two's WB-21.
+- **Q137. All settings has no row in the title menu** (BS-21). The
+  record's table gives the Settings tab's link to All settings no home;
+  the Display tray's foot reaches /settings for every reader. Meanwhile:
+  no row. Other choice: an “All settings” row in the menu. Cost: one row.
+  Recommendation: as built.
 
 ## Questions answered before the run
 
@@ -1735,7 +1857,7 @@ with its last commit when done; never delete a line.
   line, the passage picker, and /read, 246ab483; reading on and Read
   View's retirement, 9b7c10ed, with d1160921; the Display tray, Justify,
   and All settings, 96b343e1)
-- [ ] Phase 5: Beside scripture
+- [ ] Phase 5: Beside scripture (the Notebook panel, a095c300)
 - [x] Phase 6: Search (f1a6b2af; review fixes 24408884, d30c03c5,
   563f837b, e896463b, a475a2f3, 3dcc8475, bf05dafb; Q77's unavailable
   tabs, 20e0fa36)

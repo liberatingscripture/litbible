@@ -241,9 +241,9 @@ choices are buttons, so click them.
   options” with the help page's mentions of it (SD-12).
   `lit-desk-read-highlights` is still in “Your marks”' memory and read by
   `desk/notebook-search.js`'s `notesHidden()` (Q88).
-- **Every later phase's docs**: `src/scripts/desk/CLAUDE.md` is 112,474
-  bytes against its 114,688 limit (`test/claude-docs.test.js`), so prune
-  before adding to it.
+- **Every later phase's docs**: `src/scripts/desk/CLAUDE.md` is 111,752
+  bytes against its 114,688 limit (`test/claude-docs.test.js`) since Phase
+  5, part one, so prune before adding to it.
 - **The launch (Phase 14)**: change a stored Closed start to “As I left
   it” once (Q99); show the account link when accounts open (Q104).
 
@@ -260,8 +260,51 @@ choices are buttons, so click them.
   now). Rename both together.
 - **Checkpoint A's audit**: Phase 2 put controls on the kit's looks by
   name and dropped some sizes with the old looks; the app announcement's
-  “Get the app” lost its padding (36c00d4b). Compare each name in
+  “Get the app” lost its padding (36c00d4b), and has it back as the kit's
+  filled button (a095c300). Compare each name in
   `kit.css`'s lists with its size on `main` where it still draws.
+
+### Phase 5, part one: what the Notebook panel leaves
+
+The panel (a095c300) is `desk/panel.js` with `notebook-menu.js` (the title
+menu), `tab-mine.js` (Notes, `inPanel`), `tab-footnotes.js`, and
+`tab-verse.js`; the foot line, “Start here,” and the first mark's reply are
+`desk/first-use.js` over `src/lib/desk-first-use.mjs` and
+`desk-reminder.mjs`. Hooks for a headless check: `.desk-tab` (the
+minimized tab; click it), `#deskPanel`, `.desk-panel__title-button`,
+`#deskPanelMenu`, `#deskPanelPrint`, `#deskTab-mine|footnotes|verse`,
+`#deskTabpanel-…`, `.desk-start`, `.desk-panel__foot`, and
+`<html data-desk-shown>`. Queue Q118 to Q137.
+
+- **Phase 5, part two**: on a chapter read on into, the margin's “N more
+  notes” opens This verse at that verse number in the page's own chapter
+  (Q121): make This verse follow the chapter in view (with BS-08 and
+  RP-22), which fixes it. A chapter read on into has no Pin on its own
+  footnote list below 1100px, since `initPins` marks only the lists there at
+  start. The verse menu still says “Add a note” and “Add bookmark” beside
+  the empty state's Note, Highlight, and Bookmark (CT-08, Q127). The
+  panel's title is the controls' face; “Type” names panel titles among
+  Fraunces's jobs, and /desk's “Study Desk ▾” takes the heading's type:
+  set the title's word in Fraunces 500, the button and chevron the kit's
+  (Q124). Still drawn by hand: the Pin glyph (`ICON_PIN`,
+  `THUMBTACK_INNER`) and the margin's markers; `.desk-item__more`'s caret
+  in Notes rows is an icon alone (CT-19). Keep `data-justify` in
+  `notes-margin.js`'s attribute filter.
+- **Dead code to take out with its phase**: the `needs: "greek"` branch in
+  `desk-commands.mjs` (no command needs it now), and `greek-commands.js`'s
+  `source: "notebook"` path with its `lit:notebook-state` listener.
+- **Phase 9 and the docs**: `src/scripts/desk/CLAUDE.md` is 111,752 bytes
+  against its 114,688 limit, under the 8 KB of headroom it asks for: trim
+  before adding (9e). /desk has no backup line until Study's sidebar has
+  the foot line (Q122). Continue reading is still /notebook's section and
+  Home's card (Q133).
+- **Five files are CRLF on disk** though their index copies are LF:
+  `SearchBar.astro`, `SearchLayout.astro`, `greek-commands.js`,
+  `header.css`, `test/search-page-enter.test.js`. An edit to one must
+  strip the CRs before committing.
+- **The sync (after the run)**: its status line's words wait for NX-15's,
+  and its stopped or waiting dot still names the Settings tab and places
+  that are gone (Q135).
 
 ### Phase 9, part one: what the model leaves
 
@@ -274,8 +317,8 @@ reader can see them, each checked when 9b to 9d draw it. Queue Q110 to Q117.
 - **9b (Scripture's panes of tabs)**: read and write the key with
   `readState` and `writeState` (the same `lit-desk-layout`), then delete
   `desk-layout.mjs` and its test; `MAX_PANES` becomes 3 in
-  `test/desk-copy-constants.test.js`. The model parses a Greek word's
-  arrival (`&greek=16.7`) itself: make it Phase 5's one parser. A tab
+  `test/desk-copy-constants.test.js`. /desk already reads a Greek word's
+  arrival (`&greek=16.7`) through `parseAddress` (a095c300): keep it. A tab
   keeps only the fields `checkTab` lists, so anything else a tab must
   keep (a Search tab's query) needs a line there. Which control a
   following tab shows, "Pin to this passage," the "Follow reading" switch,
@@ -469,7 +512,7 @@ run's best reading, entered in the plan's queue with what was done.
 | CT-03 | An ellipsis only when the command needs more from the reader before it acts (“Add to sheet…,” “Share…”) | all (2) | Checkpoint audits: every label with “…” asks for more | held from Phase 2 (f47df065) for the shared pieces; checked at each checkpoint |
 | CT-04 | One name per thing, and no “My”; inside Study everything is the reader's | all (2) | `test/featherboa-labels.test.js`: no reader-facing “My ” but the record's own exceptions | built for the shared pieces (7216b1ef, f47df065); each surface's phase takes its files off the test's LATER |
 | CT-05 | No articles: “Add note,” not “Add a note” | all (2) | `test/featherboa-labels.test.js` | built for the shared pieces (7216b1ef, f47df065); each surface's phase takes its files off the test's LATER |
-| CT-06 | Rename: Notebook, My Notebook, the Notebook, and My Notes become Notebook (the place) and Notes (what is in it) | 2, 5, 9, 10 | `test/featherboa-labels.test.js` | the header's part built (f47df065); the Notebook's names with Phases 5, 9, and 10 |
+| CT-06 | Rename: Notebook, My Notebook, the Notebook, and My Notes become Notebook (the place) and Notes (what is in it) | 2, 5, 9, 10 | `test/featherboa-labels.test.js` | the header's part built (f47df065); the panel's built (a095c300): “Notebook ▾,” “Whole notebook,” “All 12 in the Notebook,” This verse's “Notes”; Study's with Phases 9 and 10 |
 | CT-07 | Rename: Sheets, My sheets, and Sheets page become Sheets | 9, 11 | `test/featherboa-labels.test.js` | open |
 | CT-08 | Rename: Add a note, Add bookmark, and Add a bookmark that moves become Add note and Add bookmark | 5 | The verse menu's and the selection panel's labels | open |
 | CT-09 | Rename: Open in Study Desk, Edit in Study Desk, and Open the Study Desk become one label, the verb with its passage, “Study Romans 8”; the proposal's “Open in Desk” is not taken | 4, 9 | `test/featherboa-labels.test.js`: no “Study Desk” a reader sees | the place line's built (246ab483), and Search's second row (f1a6b2af); Study's own labels with Phase 9 |
@@ -517,12 +560,12 @@ run's best reading, entered in the plan's queue with what was done.
 |---|---|---|---|---|
 | MO-01 | Instant, 0: pointing, pressing, selecting, switching tabs, turning a setting on, highlighting a verse; nothing moves | 1 | `test/featherboa-motion.test.js` | built (c1bb5383) |
 | MO-02 | Quick, 120 ms: menus, popovers, tooltips; fades in and rises 4 pixels toward where it was called from | 1 | `test/featherboa-motion.test.js` | built (c1bb5383): the speed; each menu's 4px rise with the kit (Phase 2) |
-| MO-03 | Settled, 180 ms: a margin note opening, the Notebook panel, the phone bar hiding; slides 8 pixels from its edge and fades | 1, 3, 5 | `test/featherboa-motion.test.js` | built (c1bb5383): the speed; the slides with Phases 3 and 5 |
+| MO-03 | Settled, 180 ms: a margin note opening, the Notebook panel, the phone bar hiding; slides 8 pixels from its edge and fades | 1, 3, 5 | `test/featherboa-motion.test.js` | built (c1bb5383): the speed; the Notebook panel's slide and fade built (a095c300), none under reduced motion; the margin note's and the phone bar's slides to check at Checkpoint A |
 | MO-04 | Large, 260 ms: bottom sheets, dialogs, present mode; travels its full height while the page dims behind it | 1, 5 | `test/featherboa-motion.test.js` | built (c1bb5383): the speed; the dimming with Phase 5 |
 | MO-05 | One curve: everything arrives fast and settles gently (a sharp ease-out) | 1 | `test/featherboa-motion.test.js`: one easing token, no bare `ease` | built (c1bb5383) |
 | MO-06 | Leaving takes two thirds as long as arriving | 1 | `test/featherboa-motion.test.js` | built (c1bb5383) |
 | MO-07 | Nothing bounces, and nothing loops | 1 | Grep: no `infinite` animation and no overshooting curve | built (c1bb5383) |
-| MO-08 | Scripture never moves: it does not animate, shift, or reflow when a note or panel opens, since the margin is already reserved | 4, 5 | Open a footnote and the panel at 1440; the first verse keeps its position | Phase 4's part held (9b7c10ed): a chapter loading above keeps the line; the footnote and the panel with Phase 5 |
+| MO-08 | Scripture never moves: it does not animate, shift, or reflow when a note or panel opens, since the margin is already reserved | 4, 5 | Open a footnote and the panel at 1440; the first verse keeps its position | Phase 4's part held (9b7c10ed): a chapter loading above keeps the line; the panel's held (a095c300): opening and minimizing the Notebook keep the first verse in place at 1440 (Q119); the floating footnote with part two (BS-16) |
 | MO-09 | Reduced motion is unchanged: a reader whose device asks for less gets no movement | 1 | Kept: emulate `prefers-reduced-motion`; open a menu, a sheet, and the panel | built (c1bb5383, kept) |
 | MO-10 | Built as four duration tokens and one easing token, then one pass pointing every transition at one of them | 1 | `test/featherboa-motion.test.js`: no transition or animation outside the four durations | built (c1bb5383); Q12 |
 
@@ -557,23 +600,23 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-02 | Nothing asks to be dismissed | all (5) | Checkpoint audits: no “Got it,” “Remind me later,” or “Don't show this again” | open |
 | NX-03 | If a message matters, it has a permanent place; if it does not, it is not shown | all (5) | Checkpoint audits | open |
 | NX-04 | Pull, and push: a message waits in its place; what a reader doesn't know exists, or doesn't know is ready, is pushed, once and never over scripture; any new message is tested by which of the two it is | all (5) | Each new message's queue entry says which it is | open |
-| NX-05 | Anything that would lose a reader's writing (a failed save, a notebook this computer can no longer open) may interrupt, once, in plain words, with the fix as its button | 5, 13 | Kept: force a failed save; one notice, its fix the button | open |
-| NX-06 | Two more exceptions, never over scripture: a launch's announcement window, and the app banner on phones | 5, 14 | `test/announcement-gate.test.js` kept green; the banner at 390 | open |
-| NX-07 | Status: one line at the foot of the thing it is about, changing its words, never its place (in place of the notice card atop the Notebook panel, the reminder checkbox, and a dot on a tab) | 5, 13 | The panel's foot line in each state; no notice card | open |
-| NX-08 | Teaching: the empty state, one sentence and one button, shown exactly when there is nothing else to show; Help holds the rest (tour cards over the page, with Take the tour now, Remind me later, and Don't show this again, go) | 5, 13 | A fresh profile with the preview: no tour card; the empty state shows | open |
+| NX-05 | Anything that would lose a reader's writing (a failed save, a notebook this computer can no longer open) may interrupt, once, in plain words, with the fix as its button | 5, 13 | Kept: force a failed save; one notice, its fix the button | kept (a095c300), unchanged |
+| NX-06 | Two more exceptions, never over scripture: a launch's announcement window, and the app banner on phones | 5, 14 | `test/announcement-gate.test.js` kept green; the banner at 390 | the gate kept (a095c300; `announcement-gate` green) and the window's controls the kit's; the banner with Phase 14 |
+| NX-07 | Status: one line at the foot of the thing it is about, changing its words, never its place (in place of the notice card atop the Notebook panel, the reminder checkbox, and a dot on a tab) | 5, 13 | The panel's foot line in each state; no notice card | the Notebook's built (a095c300): one foot line, the card, the reminder's bar and checkbox, and the dots gone (the sync's dot stays, Q135); Study's with Phase 13 |
+| NX-08 | Teaching: the empty state, one sentence and one button, shown exactly when there is nothing else to show; Help holds the rest (tour cards over the page, with Take the tour now, Remind me later, and Don't show this again, go) | 5, 13 | A fresh profile with the preview: no tour card; the empty state shows | the Notebook's built (a095c300): Notes' empty state is one sentence and “Show me how,” and Help lists the tour; Study's with Phase 13 |
 | NX-09 | News: where its subject lives, and a “Changed since you marked it” filter in the Notebook; nothing opens by itself, save a launch's window | 3, 10 | The header's popover never opens outside a launch | the header's part built (ec3378b6); the Notebook's filter with Phase 10 |
 | NX-10 | News behind a dot beside About (the proposal's) | 3 | None; see NX-26 | superseded → NX-26 |
 | NX-11 | Asks: the front page and the footer, never above scripture; the phone menu carries one “Get the app” row | 3, 7 | The newsletter in the footer; no ask above scripture at 390 and 1440 | the footer's newsletter kept (ec3378b6); the menu sheet's row built (782271a5); Home with Phase 7 |
 | NX-12 | Your place: “Continue: Romans 8” is the first row of the book picker and of Home, in place of “Continue reading” chips to dismiss | 4, 7 | Read Romans 8, then open the picker and Home | the picker's row built (246ab483); Home's with Phase 7 |
-| NX-13 | The empty state for a chapter with none of the reader's notes: “No notes on John 1 yet. Select a verse number or any words, then choose Note, Highlight, or Bookmark,” with “Show me how” | 5 | The panel's Notes tab on an unmarked chapter | open |
+| NX-13 | The empty state for a chapter with none of the reader's notes: “No notes on John 1 yet. Select a verse number or any words, then choose Note, Highlight, or Bookmark,” with “Show me how” | 5 | The panel's Notes tab on an unmarked chapter | built (a095c300) |
 | NX-14 | The foot line's first state, “Kept on this computer only” with “Back up…” | 5 | None; see NB-34 | superseded → NB-34 |
-| NX-15 | The foot line's other states: “In sync,” “Offline. Your changes are saved here.,” and “Signed out. Your notebook is still here.” with “Sign in” | 5, 13 | `test/desk-sync-status-line.test.js` rewritten to these words | open |
-| NX-16 | The backup reminder becomes the foot line's words, not a bar: when due (E113: 7 days after the last backup) the line says so (“Last backed up 9 days ago”) beside “Back up…” | 5 | `test/desk-reminder-bar.test.js` rewritten; set the last backup 9 days back | open |
-| NX-17 | The tour stays, behind “Show me how” in the empty state, and Help lists it; it is the acting tour, not rewritten as text | 5, 13 | Press “Show me how”; the tour acts | open |
-| NX-18 | The tour offer stays prominent by its place rather than a floating window | 5, 13 | No floating tour offer on any page | open |
-| NX-19 | “Start here” heads Study until the tour is taken: the first time the Notebook or the workspace opens, its first line is “Start here: Take the tour,” the view's one filled button | 13 | A fresh profile: open Study, then the Notebook | open |
-| NX-20 | It keeps its place across visits and never asks to be dismissed; taking the tour, or “I know my way around,” moves it into Help | 13 | Take the tour and reload: the line has moved into Help | open |
-| NX-21 | A reply at the first use: the first highlight, note, or bookmark adds “New here? Take the tour” to the line the action brings (“Highlighted · Undo”) | 5 | A fresh profile with the preview: highlight a verse | open |
+| NX-15 | The foot line's other states: “In sync,” “Offline. Your changes are saved here.,” and “Signed out. Your notebook is still here.” with “Sign in” | 5, 13 | `test/desk-sync-status-line.test.js` rewritten to these words | the foot line's slot built (a095c300): the sync's status line draws there; the record's words wait (Q135) |
+| NX-16 | The backup reminder becomes the foot line's words, not a bar: when due (E113: 7 days after the last backup) the line says so (“Last backed up 9 days ago”) beside “Back up…” | 5 | `test/desk-reminder-bar.test.js` rewritten; set the last backup 9 days back | built (a095c300): “Last backed up 9 days ago.” beside “Back up…” |
+| NX-17 | The tour stays, behind “Show me how” in the empty state, and Help lists it; it is the acting tour, not rewritten as text | 5, 13 | Press “Show me how”; the tour acts | the Notebook's built (a095c300): “Show me how” runs the acting tour; Study's with Phase 13 |
+| NX-18 | The tour offer stays prominent by its place rather than a floating window | 5, 13 | No floating tour offer on any page | the Read page's built (a095c300): no floating tour offer; /desk's and the Sheets' with Phase 13 (Q132) |
+| NX-19 | “Start here” heads Study until the tour is taken: the first time the Notebook or the workspace opens, its first line is “Start here: Take the tour,” the view's one filled button | 13 | A fresh profile: open Study, then the Notebook | the Notebook's built (a095c300): “Start here: Take the tour” under its title on every tab (Q128); the workspace's with Phase 13 |
+| NX-20 | It keeps its place across visits and never asks to be dismissed; taking the tour, or “I know my way around,” moves it into Help | 13 | Take the tour and reload: the line has moved into Help | the Notebook's built (a095c300): it stays until the tour is taken or “I know my way around,” then the title menu and Help hold the tour; Study's with Phase 13 |
+| NX-21 | A reply at the first use: the first highlight, note, or bookmark adds “New here? Take the tour” to the line the action brings (“Highlighted · Undo”) | 5 | A fresh profile with the preview: highlight a verse | built (a095c300) |
 | NX-22 | The front door: Study's way in on Home (its panel) and the header's Study menu offer “Take the tour” to a first-time visitor | 3, 7 | A fresh profile with the preview: Home's Study panel and the Study menu | queued (Q26) |
 | NX-23 | The app banner stays on phones, dismissed for 90 days as today | 3 | Kept: the banner at 390 with an Android user agent; dismiss and reload | built (ec3378b6, kept) |
 | NX-24 | The stage badge is shown once, at the foot of the Study sidebar, not on every panel | 9 | The Notebook panel and Study's panes show no badge | open |
@@ -584,7 +627,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NX-29 | Never only under About: the preview's About menu drops its “What's new” link | 3 | The About menu with the preview has no “What's new” row | built (ec3378b6) |
 | NX-30 | A launch (the apps, Study's opening, the What's New page itself; BVJ names each) spells its mark out on its menu (“Study · New”) for a set time | 14 | The Study menu with the launch's entry set | open |
 | NX-31 | A launch adds the front page's band for its set time | 7, 14 | Home with the launch's entry set | open |
-| NX-32 | A launch adds the announcement window, kept for launches only under today's rules (one at a time, never on a session's first page or over scripture, once per reader) | 5, 14 | `test/announcement-gate.test.js` kept green | open |
+| NX-32 | A launch adds the announcement window, kept for launches only under today's rules (one at a time, never on a session's first page or over scripture, once per reader) | 5, 14 | `test/announcement-gate.test.js` kept green | the gate kept (a095c300; `announcement-gate` green), its close and “Get the app” the kit's; the launch's window with Phase 14 |
 | NX-33 | The window announcing the What's New page is how readers learn it exists; after that the marks point to it | 14 | The launch window links /whats-new | open |
 | NX-34 | Home's “Continue” sits on the front page's first screen | 7 | Covered by FR-07 | open |
 
@@ -614,8 +657,8 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-20 | A note is headed “Your note · verse 5,” with its marker's dot when it has a label | 5 | A labeled and an unlabeled note | open |
 | RP-21 | Notes and footnotes differ by floating against flat, printed against tinted, and a letter against “Your note,” never by color alone | 5 | A grayscale screenshot at 1440 still tells them apart | open |
 | RP-22 | Notes stack beside their lines as today (five on a line, then “N more notes”) | 5 | Kept: six notes on one verse | open |
-| RP-23 | Playpen Sans goes, and the notes' “Plain” setting with it | 5 | Grep: no Playpen Sans file or rule, no “Plain” setting | open |
-| RP-24 | The reader's notes follow the reader's Display face at the Margin size (Source Sans 3 by default, or Atkinson or OpenDyslexic) | 5 | Switch faces; a note follows | open |
+| RP-23 | Playpen Sans goes, and the notes' “Plain” setting with it | 5 | Grep: no Playpen Sans file or rule, no “Plain” setting | the notes' part built (a095c300): no lettering setting; Playpen's file and its `faces.css` entry stay for the Sheets until Phase 11 |
+| RP-24 | The reader's notes follow the reader's Display face at the Margin size (Source Sans 3 by default, or Atkinson or OpenDyslexic) | 5 | Switch faces; a note follows | built (a095c300): notes take `--font-text` at the Margin size |
 | RP-25 | The site keeps three reading faces | 4 | The tray's Text row has three choices | built (96b343e1): three kit rows, each name in its own face |
 | RP-26 | Without a margin, the popover is the fallback and shows the whole note, with the same “In the notes ↓” | 5 | Press a letter at 820 | open |
 | RP-27 | On a phone, a footnote opens as a sheet from the bottom, whole | 5 | Covered by PH-21 | open |
@@ -657,25 +700,25 @@ run's best reading, entered in the plan's queue with what was done.
 | BS-10 | Where Study is off (phones), a sheet at the thumb with Copy text, Copy link, Share text…, Share image…, and Copy with footnotes; Share's two stand alone, with no Print | 5 | Covered by PH-16 and PH-20 | open |
 | BS-11 | This replaces E39's “Copy text” split row and the Share flyout as the menu's layout, and E112's order of the Notebook's rows | 5 | `test/desk-verse-menu-order.test.js` and `test/share-image-flyout.test.js` rewritten | open |
 | BS-12 | The Notebook panel's four tabs in BVJ's order: Notes, Footnotes, This verse, Greek | 5 | None; see ST-61 | superseded → ST-61 |
-| BS-13 | Greek has left the panel: it is Notes, Footnotes, and This verse | 5 | Covered by ST-61 | open |
-| BS-14 | Notes and Footnotes each list the chapter one kind at a time; This verse gathers every kind for one verse | 5 | Each tab on John 3 | open |
-| BS-15 | The panel takes the margin's column: while it is open, the reader's notes are its Notes list rather than beside their lines; closing it brings the margin back | 5 | Open and close the panel at 1440; the text doesn't move | open |
+| BS-13 | Greek has left the panel: it is Notes, Footnotes, and This verse | 5 | Covered by ST-61 | built (a095c300), with ST-61 |
+| BS-14 | Notes and Footnotes each list the chapter one kind at a time; This verse gathers every kind for one verse | 5 | Each tab on John 3 | built (a095c300) |
+| BS-15 | The panel takes the margin's column: while it is open, the reader's notes are its Notes list rather than beside their lines; closing it brings the margin back | 5 | Open and close the panel at 1440; the text doesn't move | built (a095c300): the margin draws no notes while the panel shows, and the open Notebook keeps the 48 minimized too (Q119, Q120) |
 | BS-16 | A footnote letter opens its footnote floating beside its line whatever the panel shows, over the panel; the Footnotes list doesn't scroll or change | 5 | With the Footnotes tab open, press another letter | open |
 | BS-17 | The floating footnote drags aside by its header, as the verse menu and the selection panel do | 5 | Drag it by its header | open |
-| BS-18 | It keeps its Pin button; pinned footnotes are listed in Notes | 5 | Pin one; Notes lists it | open |
-| BS-19 | This verse stays: its words, footnotes (with Pin), and Greek; the reader's notes, highlights, and bookmark with every action (E148); notes elsewhere that cite it (N4); the collections that hold it; stepping verse by verse; the gap view (E157) | 5 | Kept: `test/desk-verse.test.js` and `test/desk-verse-gap.test.js` green | open |
-| BS-20 | “N more notes” opens This verse, and opening a verse's menu moves it to that verse, as today | 5 | Kept: press “N more notes,” then open another verse's menu | open |
-| BS-21 | The panel's Settings tab goes, and nothing in it is lost | 5 | Each of the next eight rows reachable | open |
+| BS-18 | It keeps its Pin button; pinned footnotes are listed in Notes | 5 | Pin one; Notes lists it | kept (a095c300): Pin stays, and Notes lists pinned footnotes |
+| BS-19 | This verse stays: its words, footnotes (with Pin), and Greek; the reader's notes, highlights, and bookmark with every action (E148); notes elsewhere that cite it (N4); the collections that hold it; stepping verse by verse; the gap view (E157) | 5 | Kept: `test/desk-verse.test.js` and `test/desk-verse-gap.test.js` green | kept (a095c300); its Greek words open Study (ST-62) |
+| BS-20 | “N more notes” opens This verse, and opening a verse's menu moves it to that verse, as today | 5 | Kept: press “N more notes,” then open another verse's menu | kept (a095c300) on the page's own chapter; on a chapter read on into, “N more notes” opens the wrong verse (Q121), for part two |
+| BS-21 | The panel's Settings tab goes, and nothing in it is lost | 5 | Each of the next eight rows reachable | built (a095c300): the switches in Display, where it is kept in the foot line, the rest in the title menu, the lines about keeping in the backup sections (Q131, Q137) |
 | BS-22 | Settings' Show (the switches) goes to Display, merged into “Your marks,” still on the H key | 4, 5 | Covered by DI-11 | built (96b343e1), with DI-11 |
-| BS-23 | Where the notebook is kept goes to the panel's foot line, “Kept in this browser only. Back up…” | 5 | The panel's foot line | open |
+| BS-23 | Where the notebook is kept goes to the panel's foot line, “Kept in this browser only. Back up…” | 5 | The panel's foot line | built (a095c300) |
 | BS-24 | My sheets and My collections go to the header's Study menu and the footer's Study group, as today | 3 | The Study menu and the footer with the preview | built (ec3378b6) |
-| BS-25 | Print… (with notes, or with room to write) goes to the panel's title menu | 5 | Open “Notebook ▾” | open |
-| BS-26 | The notebook page goes to the title menu and the header's Study menu | 3, 5 | Both menus | Study ▾ built (ec3378b6); the title menu with Phase 5 |
-| BS-27 | Notebook actions go to the title menu, and stay in the search tray and /search | 5, 6 | All three places | the tray's and /search's built (f1a6b2af): “Notebook actions” in the field's row; the title menu's with Phase 5 |
-| BS-28 | Take the tour goes to the title menu, beside “Start here” | 5 | The title menu | open |
-| BS-29 | Help and Feedback go to the title menu | 5 | The title menu | open |
-| BS-30 | The panel's title is a menu, “Notebook ▾”: Print…, the whole notebook, Notebook actions, Take the tour, Help, and Feedback | 5 | Open it by keyboard and pointer | open |
-| BS-31 | The title menu opens over the reader's notes rather than replacing them | 5 | The notes stay beneath the open menu | open |
+| BS-25 | Print… (with notes, or with room to write) goes to the panel's title menu | 5 | Open “Notebook ▾” | built (a095c300) |
+| BS-26 | The notebook page goes to the title menu and the header's Study menu | 3, 5 | Both menus | Study ▾ built (ec3378b6); the title menu's built (a095c300) |
+| BS-27 | Notebook actions go to the title menu, and stay in the search tray and /search | 5, 6 | All three places | the tray's and /search's built (f1a6b2af): “Notebook actions” in the field's row; the title menu's built (a095c300) |
+| BS-28 | Take the tour goes to the title menu, beside “Start here” | 5 | The title menu | built (a095c300) |
+| BS-29 | Help and Feedback go to the title menu | 5 | The title menu | built (a095c300) |
+| BS-30 | The panel's title is a menu, “Notebook ▾”: Print…, the whole notebook, Notebook actions, Take the tour, Help, and Feedback | 5 | Open it by keyboard and pointer | built (a095c300) (Q124, Q125) |
+| BS-31 | The title menu opens over the reader's notes rather than replacing them | 5 | The notes stay beneath the open menu | built (a095c300) |
 
 ## Finding a passage (FP)
 
@@ -734,7 +777,7 @@ run's best reading, entered in the plan's queue with what was done.
 | DI-14 | “Verse numbers” became “Verse and chapter numbers,” the desk's own name for its pane's switch, since it hides the chapters' headings too | 4 | Turn it off with John 3 and 4 loaded | built (96b343e1) |
 | DI-15 | “All settings →” at the tray's foot | 4 | The tray's last row | built (96b343e1): a kit plain button to /settings/, on every page |
 | DI-16 | “Show the Notebook” is the Notebook button itself, on the place line | 4 | No “Show the Notebook” switch in the tray | built (96b343e1): no switch in the tray; a stored `lit-desk-show` “off” reads as shown and is removed once (Q51) |
-| DI-17 | The notes' lettering choice is gone with Playpen Sans | 5 | No lettering row anywhere | open |
+| DI-17 | The notes' lettering choice is gone with Playpen Sans | 5 | No lettering row anywhere | built (a095c300) |
 | DI-18 | No reader loses a setting | 4 | Each `localStorage` key the tray wrote is still read or migrated; /privacy names what is written | built (96b343e1): every key still read, listed in `src/styles/CLAUDE.md`, “The Display tray”; /privacy names `lit-justify` and the changed meanings (Q109); old settings carried over in headless Chrome, all 16 mark combinations in tests |
 | DI-19 | All settings: one page every reader can reach from the tray, showing Study's parts only where Study is on (at /settings, BP-19) | 4 | /settings with and without the preview | built (96b343e1): noindex, out of the sitemap and Pagefind; Study's sections only with the preview |
 | DI-20 | All settings holds the keyboard-shortcuts switch, required for every reader (WCAG 2.1.4) | 4 | Turn shortcuts off; G does nothing | built (96b343e1): off writes `lit-shortcuts` “off,” and G does nothing |
@@ -767,15 +810,15 @@ run's best reading, entered in the plan's queue with what was done.
 | WB-17 | Paper keeps the drop numeral, since a print is one chapter | 8 | Covered by OS-04 | open |
 | WB-18 | The footnote list and Go deeper leave the reading flow on the screen | 4 | John 3 at 1440: neither sits between chapters | partly built (9b7c10ed): with the preview from 1100px the footnote list and Go deeper leave the flow (Go deeper opens This verse at “This chapter”); without it, the list sits between chapters until Phase 5's panel |
 | WB-19 | The list stays in the page for printing, and both stay for readers without JavaScript and for Study, which reads them from the chapter's page (`desk/chapter-page.js`) | 4, 8 | JavaScript off shows both; a print shows the list; Study still loads them | built (9b7c10ed): JavaScript off shows both; a print shows the list; Study reads them from the chapter's page as before |
-| WB-20 | Where the Notebook panel runs, they are its Footnotes tab and This verse's “This chapter,” which shows the chapter's Go deeper rows | 5 | The panel with the preview | open |
+| WB-20 | Where the Notebook panel runs, they are its Footnotes tab and This verse's “This chapter,” which shows the chapter's Go deeper rows | 5 | The panel with the preview | built (a095c300) |
 | WB-21 | A margin footnote's “In the notes ↓” opens the Footnotes tab at its note where the panel runs; elsewhere, the Footnotes sheet or panel (PH-23) | 5 | Press it with and without the preview, at 1440 and 820 | open |
 | WB-22 | On a phone or tablet the heading's Go deeper opens a sheet (a panel on a tablet) with “Go deeper” and “Footnotes” tabs | 5 | Covered by PH-23 and PH-25 | open |
-| WB-23 | “Go deeper” sits at the right end of each chapter's heading (not the place line, not the margin) and opens the Notebook on This verse, scrolled to “This chapter” for that chapter | 4, 5 | Press it on James 2's heading | Phase 4's part built (9b7c10ed): Go deeper at the heading's right end on every chapter; with the preview it opens This verse at “This chapter” for that chapter, without it, to the chapter's own Go deeper section; on a phone with Phase 5's sheet |
+| WB-23 | “Go deeper” sits at the right end of each chapter's heading (not the place line, not the margin) and opens the Notebook on This verse, scrolled to “This chapter” for that chapter | 4, 5 | Press it on James 2's heading | Phase 4's part built (9b7c10ed): Go deeper at the heading's right end on every chapter; with the preview it opens This verse at “This chapter” for that chapter (retested with the new tabs, a095c300), without it, to the chapter's own Go deeper section; on a phone with Phase 5's sheet |
 | WB-24 | The Verse and chapter numbers switch hides the headings too; with it off, the chapters run on with an ordinary paragraph's gap, as one long passage | 4 | Turn it off with John 3 and 4 loaded | built (9b7c10ed): numbers off clips each heading to 1×1 and the chapters run on with a paragraph's gap |
 | WB-25 | With it off, the headings stay for screen readers and come back into view when a keyboard reaches them | 4 | `read_page` lists them; Tab to one | built (9b7c10ed): the headings stay in the tree for screen readers and come back over the chapter's first line on focus |
 | WB-26 | Go deeper hides with its heading and stays in This verse; the place line and the progress line still say where the reader is | 4 | The same, at 1440 | built (9b7c10ed): Go deeper hides with its heading and shows its row (35px) while focused; the place line and the progress line still say where the reader is |
 | WB-27 | Footnote letters start again each chapter, as today | 4 | Kept: John 4's first letter is “a” | built (9b7c10ed): kept; John 4's first letter is “a” |
-| WB-28 | The Footnotes tab lists the chapter in view | 5 | Scroll into John 4; the tab lists John 4's | open |
+| WB-28 | The Footnotes tab lists the chapter in view | 5 | Scroll into John 4; the tab lists John 4's | built (a095c300): after reading on, the tab lists John 4's 22 |
 | WB-29 | A chapter still being translated loads as Study's text pane loads it: a run of drafts in one book is one entry, headed “Luke 23–24” (or “Acts” when the whole book is in draft), saying they are still being translated | 4 | `test/featherboa-continuous.test.js`: drafts as one entry | built (9b7c10ed): a run of drafts is one entry (“Acts 2–28,” or the book's name when all are drafts), saying it is still being translated (tested); its place in the address and Continue reading is Q87 |
 | WB-30 | The draft entry's line about the Greek points to the Notebook's Greek tab | 4 | None; see WB-32 | superseded → WB-32 |
 | WB-31 | A draft asked for by name, from the picker or its address, still opens its own page | 4 | Open `/acts-5`, and pick Acts 5 | built (9b7c10ed): /acts-5 opens its own page and reads on into nothing |
@@ -1084,7 +1127,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NB-17 | A changed row says “Text changed Nov 1,” as a link to that release note, so its green is a link's | 10 | A row on a changed verse | open |
 | NB-18 | “Notebook” is the place; “Notes,” “Highlights,” and “Bookmarks” are what it holds, and “kept” counts them together (“128 kept”) | 10 | `test/featherboa-labels.test.js` | open |
 | NB-19 | “Marks” stops naming the things kept: “Delete all notes and marks” becomes “Delete all notes, highlights, and bookmarks” | 4, 10 | Grep labels: “marks” only in “Your marks” | built for Phase 4 (96b343e1): “Delete all notes, highlights, and bookmarks”; /settings' group is “Which of your marks show” |
-| NB-20 | The tab is still “Notes,” holding all three kinds as it does on the reading page | 5, 9 | The panel's tab and Study's | open |
+| NB-20 | The tab is still “Notes,” holding all three kinds as it does on the reading page | 5, 9 | The panel's tab and Study's | the panel's built (a095c300); Study's with Phase 9 |
 | NB-21 | The Display tray's “Your marks” stays, since it names what is drawn on the text | 4 | Covered by DI-11 | built (96b343e1) |
 | NB-22 | Labels stay on bookmarks (E149), so the drawing's labels on notes aren't taken: Label… acts on bookmarks, the Label filter counts bookmarks, and renaming and deleting stay in “Manage labels…” | 10 | Kept: `test/desk-labels.test.js` green | open |
 | NB-23 | The format and the apps' sync are untouched | 10 | No change to `STUDY-DESK-FORMAT.md` or the sync code | open |
@@ -1098,7 +1141,7 @@ run's best reading, entered in the plan's queue with what was done.
 | NB-31 | Printing the list, drawn first from the Notes tab's More menu (now the Notebook place, ST-70) | 10 | Kept: print the Notebook's list | open |
 | NB-32 | Continue reading, already the picker's first row and Home's | 4, 7 | Kept: covered by NX-12 | the picker's row built (246ab483); Home's with Phase 7 |
 | NB-33 | The Trash's 30 days, in the sidebar | 9 | Kept: an item older than 30 days is gone from the Trash | open |
-| NB-34 | The foot line says “browser,” not the drawing's “computer,” since a notebook is kept in one browser | 5, 9 | Grep labels: no “this computer” | open |
+| NB-34 | The foot line says “browser,” not the drawing's “computer,” since a notebook is kept in one browser | 5, 9 | Grep labels: no “this computer” | the panel's built (a095c300): “Kept in this browser only.”; Study's with Phase 9 |
 
 ## Sheets (SH)
 
@@ -1218,15 +1261,15 @@ run's best reading, entered in the plan's queue with what was done.
 | ST-58 | The sheet's commands are at the right end of its row: Print…, Share…, a filled Present, and More | 11 | Covered by SH-24 | open |
 | ST-59 | Under the row, a bar holds the copy tabs, with the template's name and “saved” at its right (“Bible study · saved”) | 11 | A sheet at 1440 | open |
 | ST-60 | The formatting bar sits over the part holding the cursor, at the part's left edge and above its own controls | 11 | Type in a part: the bar sits above it | open |
-| ST-61 | The Read page's Notebook panel loses its Greek tab, leaving Notes, Footnotes, and This verse (reversing BVJ's four in “Beside scripture”) | 5 | The panel with the preview | open |
-| ST-62 | This verse's Greek words open Study at that verse, with the Greek tab at the word | 5, 9 | Press a Greek word in This verse | open |
+| ST-61 | The Read page's Notebook panel loses its Greek tab, leaving Notes, Footnotes, and This verse (reversing BVJ's four in “Beside scripture”) | 5 | The panel with the preview | built (a095c300) |
+| ST-62 | This verse's Greek words open Study at that verse, with the Greek tab at the word | 5, 9 | Press a Greek word in This verse | built (a095c300): `/desk/?place=john-3:16&greek=16.7` opens the Greek pane at the word; Study's tab with Phase 9 |
 | ST-63 | A draft chapter's line links to that chapter's Greek in Study | 4 | Covered by WB-32 | built (9b7c10ed), by WB-32 |
 | ST-64 | Study keeps the Greek: Scripture's panes start with it beside the LIT, and it is beside the Notebook | 9, 10 | A fresh profile; the Notebook's pane list | open |
 | ST-65 | Sheets and collections leave the panes: a pane can show Scripture (The LIT, Greek, Footnotes, This verse), Yours (Notes), and Search | 9 | An empty pane in Scripture | open |
 | ST-66 | “A Sheets or Collections tab opens the last one” becomes the place's title, whose name is still a menu (another, a new one, or all) | 11 | Press a sheet's title | open |
 | ST-67 | Two sheets side by side are now a sheet with another beside it | 11 | Covered by ST-39 | open |
 | ST-68 | Dragging an item from the sidebar onto a pane goes | 9 | Drag a sidebar row: nothing opens | open |
-| ST-69 | The Notes tab lists the chapter (“This chapter”), with a link to the Notebook (“All 128 in the Notebook”) | 5, 9 | The panel's and Study's Notes tab on John 3 | open |
+| ST-69 | The Notes tab lists the chapter (“This chapter”), with a link to the Notebook (“All 128 in the Notebook”) | 5, 9 | The panel's and Study's Notes tab on John 3 | the panel's built (a095c300); Study's with Phase 9 |
 | ST-70 | “Everything” is the Notebook place: the list and its filters, Manage labels…, Print…, and “Changed since you marked it” go there | 10 | Each in the Notebook place | open |
 | ST-71 | The Trash is a place rather than a tab | 9 | Covered by ST-30 | open |
 | ST-72 | Every address keeps working but /desk, now /study | 9 | Covered by ST-12 | open |
