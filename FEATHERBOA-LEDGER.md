@@ -321,7 +321,7 @@ run's best reading, entered in the plan's queue with what was done.
 | CT-06 | Rename: Notebook, My Notebook, the Notebook, and My Notes become Notebook (the place) and Notes (what is in it) | 2, 5, 9, 10 | `test/featherboa-labels.test.js` | the header's part built (f47df065); the Notebook's names with Phases 5, 9, and 10 |
 | CT-07 | Rename: Sheets, My sheets, and Sheets page become Sheets | 9, 11 | `test/featherboa-labels.test.js` | open |
 | CT-08 | Rename: Add a note, Add bookmark, and Add a bookmark that moves become Add note and Add bookmark | 5 | The verse menu's and the selection panel's labels | open |
-| CT-09 | Rename: Open in Study Desk, Edit in Study Desk, and Open the Study Desk become one label, the verb with its passage, “Study Romans 8”; the proposal's “Open in Desk” is not taken | 4, 9 | `test/featherboa-labels.test.js`: no “Study Desk” a reader sees | the place line's built (246ab483); Search's second row with Phase 6, and Study's own labels with Phase 9 |
+| CT-09 | Rename: Open in Study Desk, Edit in Study Desk, and Open the Study Desk become one label, the verb with its passage, “Study Romans 8”; the proposal's “Open in Desk” is not taken | 4, 9 | `test/featherboa-labels.test.js`: no “Study Desk” a reader sees | the place line's built (246ab483), and Search's second row (f1a6b2af); Study's own labels with Phase 9 |
 | CT-10 | Rename: “Show” (four different controls) becomes View for what a page displays and Filter for lists | 4, 10 | No reader-facing “Show” heading in the tray or a list | open |
 | CT-11 | Rename: Display settings, Display, and Display options become Display | 4 | The tray and its button say “Display” | open |
 | CT-12 | Rename: Stay here and Stop following become one switch, Follow reading | 9 | A following tab offers the switch; no “Stay here” or “Stop following” | open |
@@ -485,7 +485,7 @@ run's best reading, entered in the plan's queue with what was done.
 | RP-42 | The Layout window loses its “Reading” row | 9 | Covered by SD-60 | open |
 | RP-43 | Reading's own rules go: the mark that tells it from One pane (E107), turning the marks off and restoring only those, the undo bar naming them, and the `&layout=reading` arrival (E114) | 9 | Grep: no `layout=reading` handling; an old link opens Study at its passage | open |
 | RP-44 | E106's justification of Reading alone becomes the Justify switch everywhere | 4, 9 | Covered by RP-36 and RP-40 | open |
-| RP-45 | The links that stood for Read View (the search's second jump and the picker's footer, E114) open Study at the passage like every other link into it, keeping the reader's own layout | 6, 9 | `test/desk-e114-reading-links-search.test.js` and `-tray` rewritten | open |
+| RP-45 | The links that stood for Read View (the search's second jump and the picker's footer, E114) open Study at the passage like every other link into it, keeping the reader's own layout | 6, 9 | `test/desk-e114-reading-links-search.test.js` and `-tray` rewritten | Search's built (f1a6b2af): “Study John 3:16” opens `/desk/?place=john-3:16` with no `&layout=reading` (both E114 tests rewritten); ReadMenu's footer leaves with Read View (Q70) |
 | RP-46 | The search's second row reads “Open in Study Desk” | 6 | None; see ST-15 | superseded → ST-15 |
 | RP-47 | The new picker has no “Read the whole book” row | 4 | Covered by FP-11 | built (246ab483), by FP-11 |
 | RP-48 | Proposal 14's switch on the reading page (Chapter \| Whole book) is not taken; every chapter reads on into the next | 4 | No such switch on any page | open |
@@ -520,7 +520,7 @@ run's best reading, entered in the plan's queue with what was done.
 | BS-24 | My sheets and My collections go to the header's Study menu and the footer's Study group, as today | 3 | The Study menu and the footer with the preview | built (ec3378b6) |
 | BS-25 | Print… (with notes, or with room to write) goes to the panel's title menu | 5 | Open “Notebook ▾” | open |
 | BS-26 | The notebook page goes to the title menu and the header's Study menu | 3, 5 | Both menus | Study ▾ built (ec3378b6); the title menu with Phase 5 |
-| BS-27 | Notebook actions go to the title menu, and stay in the search tray and /search | 5, 6 | All three places | open |
+| BS-27 | Notebook actions go to the title menu, and stay in the search tray and /search | 5, 6 | All three places | the tray's and /search's built (f1a6b2af): “Notebook actions” in the field's row; the title menu's with Phase 5 |
 | BS-28 | Take the tour goes to the title menu, beside “Start here” | 5 | The title menu | open |
 | BS-29 | Help and Feedback go to the title menu | 5 | The title menu | open |
 | BS-30 | The panel's title is a menu, “Notebook ▾”: Print…, the whole notebook, Notebook actions, Take the tour, Help, and Feedback | 5 | Open it by keyboard and pointer | open |
@@ -559,9 +559,9 @@ run's best reading, entered in the plan's queue with what was done.
 | FP-27 | The reading row's search box goes | 4 | No search field in John 3's row | built (246ab483): no search field in John 3's line |
 | FP-28 | “Search” (magnifier and word) joins the place line, ordered Search · ‹ › · Notebook, with Study's way in | 4 | The line at 1440 in that order | built (246ab483): John ▾ / Chapter 3 ▾, Search, ‹ ›, Notebook, “Study John 3,” at 1440 with the preview |
 | FP-29 | The place line's way in to Study named “Open in Study Desk” | 4 | None; see ST-15 | superseded → ST-15 |
-| FP-30 | Pressing Search, or /, opens the field in place of the line, reading “Search the LIT, or go to a passage,” with results dropping below, verses first | 4, 6 | Press / on John 3 at 1440 | the line's part built (246ab483): Search or / opens “Search the LIT, or go to a passage” in place of the line, with results below (Q67); verses first with Phase 6 |
+| FP-30 | Pressing Search, or /, opens the field in place of the line, reading “Search the LIT, or go to a passage,” with results dropping below, verses first | 4, 6 | Press / on John 3 at 1440 | built (246ab483, f1a6b2af): Search or / opens “Search the LIT, or go to a passage” in place of the line, the field at the line's height (Q67), results below with verses first |
 | FP-31 | One way in per page holds (audit U6): a reading page's is the place line's Search, and every other page keeps the header's magnifier | 3, 4 | John 3 has no magnifier in the header; /about has one | built: the magnifier (ec3378b6), and the place line's Search (246ab483); John 3's header has no magnifier, and /about's opens the strip |
-| FP-32 | What search finds and how its results look is “Search”'s: the same rows as /search | 6 | Covered by SE-31 | open |
+| FP-32 | What search finds and how its results look is “Search”'s: the same rows as /search | 6 | Covered by SE-31 | built (f1a6b2af), by SE-31 |
 
 ## Display (DI)
 
@@ -656,7 +656,7 @@ run's best reading, entered in the plan's queue with what was done.
 | PH-06 | This replaces today's one-row toolbar on a phone (audit F3), the round ‹ › beside the title there, and the title row itself | 3 | None of the three at 390 | built (782271a5): none of the three from 320 to 699px, all back at 700; Read View on a phone until Phase 4 queued (Q48) |
 | PH-07 | The app banner stays above the row | 3 | Kept: the banner at 390 with an Android user agent | built (782271a5, kept): the banner on top at 360 and 412 with an Android user agent, the row sticking at 0 once it scrolls away |
 | PH-08 | The progress line runs along the top row's bottom edge, as on a computer, and hides with it | 3, 4 | Covered by WB-36 | open: Phase 4, with WB-36 (the row's hairline holds its place, Q37) |
-| PH-09 | Search opens the field in place of the top row, results below and verses first | 3, 6 | Press Search at 390 | built (782271a5) for the field in place of the row (Q41); verses first with Phase 6 |
+| PH-09 | Search opens the field in place of the top row, results below and verses first | 3, 6 | Press Search at 390 | built (782271a5, f1a6b2af): at 390 the bar's Search opens the field in place of the top row, and “light” lists John 12:36 first; the page stays 390 wide |
 | PH-10 | “John 1 ▾” opens the picker as a sheet rising nearly to the top: the typing field first, then Continue reading, the 27 books, the chapter grid, and the introduction | 4 | At 390 | built (246ab483): at 390, “John 3 ▾” raises the sheet nearly to the top at the Large speed, focus on 3 (Q52), and Escape gives focus back to the row |
 | PH-11 | The menu is a sheet rising from the bar, not today's panel from the top corner | 3 | Press Menu at 390 | built (782271a5): 526px tall at 390 by 844, the page dimmed (Q46), focus on its × (Q43), Escape back to Menu; one sheet at every width (Q42) |
 | PH-12 | Its rows are Read, Learn, and About, each with its own, the current place marked; Study stays off a phone | 3 | At 390 with and without `?desk=on` | built (782271a5), no Study at 390 with or without `?desk=on`; its groups and marks queued (Q44) |
@@ -679,38 +679,38 @@ run's best reading, entered in the plan's queue with what was done.
 
 | ID | Decision | Phase | Check | State |
 |---|---|---|---|---|
-| SE-01 | Site 2.0's /search (“Yes to two panes,” in its quieter redraw) is not taken | 0, 6 | /search has no two-pane layout | built (63d07ac0); Phase 6 draws /search |
-| SE-02 | The field is the page, with the count at its right end (“75 results”) | 6 | /search for “light” at 1440 | open |
-| SE-03 | The visible title and the instruction go; a “Search” heading stays for screen readers | 6 | `read_page` finds the heading; nothing visible above the field | open |
-| SE-04 | One row of tabs does the filtering: Scripture, Chapters about it, Glossary, Articles, Introductions, and with Study on, the notebook's tab (BP-03) and Greek | 6 | /search at 1440, with and without the preview | open |
+| SE-01 | Site 2.0's /search (“Yes to two panes,” in its quieter redraw) is not taken | 0, 6 | /search has no two-pane layout | built (63d07ac0, f1a6b2af): /search is one column, with no two panes |
+| SE-02 | The field is the page, with the count at its right end (“75 results”) | 6 | /search for “light” at 1440 | built (f1a6b2af): the field is the page, its count at its right end (seen for “light” at 1440; `resultsCount` tested) |
+| SE-03 | The visible title and the instruction go; a “Search” heading stays for screen readers | 6 | `read_page` finds the heading; nothing visible above the field | built (f1a6b2af): an sr-only “Search” heading, nothing visible above the field |
+| SE-04 | One row of tabs does the filtering: Scripture, Chapters about it, Glossary, Articles, Introductions, and with Study on, the notebook's tab (BP-03) and Greek | 6 | /search at 1440, with and without the preview | built (f1a6b2af): Scripture, Chapters about it, Glossary, Articles, Introductions, and with the preview Notebook and Greek (`visibleTabs`, tested; seen at 1440 both ways); the tabs wrap, and the menus take a line of their own (Q76) |
 | SE-05 | The notebook's tab named “My Notebook” | 6 | None; overridden by BP-03 | superseded → BP-03 |
-| SE-06 | The tabs replace the type filter, its help button, and the list of result groups | 6 | None of the three left | open |
-| SE-07 | Every tab shows its count; a tab with none reads 0 and is dimmed (still 4.5:1, KT-08) | 6 | Search a word with no glossary entry | open |
-| SE-08 | The page opens on Scripture, or on the first tab with results when Scripture has none | 6 | Search “light,” then a word found only in an article | open |
-| SE-09 | “All books ▾” and the sort sit at the row's right end | 6 | /search at 1440 | open |
-| SE-10 | Relevance stays the default (exact forms above related ones) | 6 | Kept: `test/search-core.test.js` green; “liberation” lists its own verses first | open |
-| SE-11 | The sort's other choice is “Bible order,” today's “Book order” | 6 | The sort menu | open |
-| SE-12 | Book headings appear only in Bible order; under Relevance each verse stands with its reference | 6 | Switch the sort | open |
-| SE-13 | Results are reading: each match is the verse in the book face with its reference, the matched word bold with a green underline | 6 | A result row's computed styles | open |
-| SE-14 | No sunshine on a match, since yellow means “yours” | 6 | Grep the search styles for sunshine | open |
-| SE-15 | “Chapters about it” is today's “Topic matches,” avoiding the word “topic” | 6 | The tab's label | open |
-| SE-16 | On a phone the tabs scroll sideways in one row, with the book and sort menus on a row under them | 6 | /search at 390 | open |
-| SE-17 | A reference goes there: “john 3:16” makes the first row “Go to John 3:16,” and Enter goes there | 6 | `test/search-page-enter.test.js` kept or rewritten | open |
-| SE-18 | /search carries no passage picker of its own | 6 | /search at 1440 | open |
+| SE-06 | The tabs replace the type filter, its help button, and the list of result groups | 6 | None of the three left | built (f1a6b2af): no type menu, help button, or list of groups; the hidden `#searchbar-mode` select holds the tab |
+| SE-07 | Every tab shows its count; a tab with none reads 0 and is dimmed (still 4.5:1, KT-08) | 6 | Search a word with no glossary entry | built (f1a6b2af, d30c03c5): each tab's count; a tab with none takes the kit's `.kit-tab--none` (the draft state's third ink), still opens, and is named “no results” (tested); a Greek search gives the English tabs no number (Q77) |
+| SE-08 | The page opens on Scripture, or on the first tab with results when Scripture has none | 6 | Search “light,” then a word found only in an article | built (f1a6b2af): `openingTab` (tested), Scripture or the first tab with results |
+| SE-09 | “All books ▾” and the sort sit at the row's right end | 6 | /search at 1440 | built (f1a6b2af): “All books ▾” and the sort at the right end, on a line of their own under the tabs at 1440 with the preview or without, since the five tabs take 618 of the column's 647px (Q76) |
+| SE-10 | Relevance stays the default (exact forms above related ones) | 6 | Kept: `test/search-core.test.js` green; “liberation” lists its own verses first | built (f1a6b2af): Relevance the default; `search-core.js` and `test/search-core.test.js` unchanged and green |
+| SE-11 | The sort's other choice is “Bible order,” today's “Book order” | 6 | The sort menu | built (f1a6b2af): Relevance and Bible order |
+| SE-12 | Book headings appear only in Bible order; under Relevance each verse stands with its reference | 6 | Switch the sort | built (f1a6b2af): book headings only in Bible order (`verseRowsHtml`, tested, and seen) |
+| SE-13 | Results are reading: each match is the verse in the book face with its reference, the matched word bold with a green underline | 6 | A result row's computed styles | built (f1a6b2af, 563f837b): the verse in the text face with its reference, the match bold with an underline in LIT Green; the Greek tab's hits are rows too, not cards (Q83) |
+| SE-14 | No sunshine on a match, since yellow means “yours” | 6 | Grep the search styles for sunshine | built (f1a6b2af): no sunshine in search.css, SearchLayout.astro, or search-rows.mjs (grep) |
+| SE-15 | “Chapters about it” is today's “Topic matches,” avoiding the word “topic” | 6 | The tab's label | built (f1a6b2af, 24408884): the tab is “Chapters about it,” and the tray's status line names them the same way, never “topic” |
+| SE-16 | On a phone the tabs scroll sideways in one row, with the book and sort menus on a row under them | 6 | /search at 390 | built (f1a6b2af): at 390 the tabs scroll sideways in one row with the page staying 390 wide, and the menus take the row under them |
+| SE-17 | A reference goes there: “john 3:16” makes the first row “Go to John 3:16,” and Enter goes there | 6 | `test/search-page-enter.test.js` kept or rewritten | built (f1a6b2af): “john 3:16” answers “Go to John 3:16” first, and Enter goes there (`test/search-page-enter.test.js` rewritten, green) |
+| SE-18 | /search carries no passage picker of its own | 6 | /search at 1440 | built (f1a6b2af): no picker of its own on /search |
 | SE-19 | With Study on, the second row stays “Open in Study Desk” at the passage | 6 | None; see ST-15 | superseded → ST-15 |
-| SE-20 | Over the verses, one line for the chapters: “John 1 is one of 6 chapters about light,” with “See all 6 →” opening that tab | 6 | Search “light” | open |
-| SE-21 | The glossary still answers first: when a term matches, one line above the verses, as “Trust is in the glossary →” | 6 | Search “trust” and “logos” | open |
-| SE-22 | Book introductions keep a group of their own, now the “Introductions” tab, so an introduction is never mistaken for scripture | 6 | Search a word found in an intro | open |
-| SE-23 | With Study on, the notebook stays in search: its tab (matches in the reader's own notes), the “Notebook actions” link in the field's row, and “>” in the field offering commands | 6 | /search with the preview; type “>” | open |
-| SE-24 | The Greek tab shows only where the Greek search runs, with Study on, as today; a Greek word or a Strong's number typed there opens it | 6 | Kept: `test/search-greek-auto.test.js` green | open |
-| SE-25 | Underneath, nothing changes: the verse index, Pagefind, and the Greek search (`search-core.js`'s logic) | 6 | Kept: `test/search-core.test.js` unchanged and green | open |
-| SE-26 | The page links stay, and so do the “Showing results for ‘jerusalem’” note, related forms, and the topics a chapter matched | 6 | Kept: a misspelled search, and “liberation” | open |
-| SE-27 | “Select” sits at the right end of the tab row, with Study on only | 6 | /search with and without the preview | open |
-| SE-28 | Select puts a box on each row of Scripture and Chapters about it, and a bar at the foot reads “3 chosen · Add to a sheet… · Cancel” | 6 | Choose three rows | open |
-| SE-29 | A reader who is only looking sees no boxes | 6 | /search before Select | open |
+| SE-20 | Over the verses, one line for the chapters: “John 1 is one of 6 chapters about light,” with “See all 6 →” opening that tab | 6 | Search “light” | built (f1a6b2af): “John 1 is one of 6 chapters about light,” and “See all 6 →” opens the tab (`chaptersLineHtml`, tested, and seen) |
+| SE-21 | The glossary still answers first: when a term matches, one line above the verses, as “Trust is in the glossary →” | 6 | Search “trust” and “logos” | built (24408884): first, and only when what was typed is one of an entry's own words (its traditional word, a LIT word, or its transliteration), named as the entry writes it: “Trust is in the glossary →” (`glossaryLineTerm`, tested; Q81) |
+| SE-22 | Book introductions keep a group of their own, now the “Introductions” tab, so an introduction is never mistaken for scripture | 6 | Search a word found in an intro | built (f1a6b2af): the Introductions tab |
+| SE-23 | With Study on, the notebook stays in search: its tab (matches in the reader's own notes), the “Notebook actions” link in the field's row, and “>” in the field offering commands | 6 | /search with the preview; type “>” | built (f1a6b2af, 24408884): with the preview, the Notebook tab (page state, not an address: Q82), “Notebook actions” in the field's row, and “>” listing the notebook's commands where the results go, Enter running the first (`test/search-page-commands.test.js`) |
+| SE-24 | The Greek tab shows only where the Greek search runs, with Study on, as today; a Greek word or a Strong's number typed there opens it | 6 | Kept: `test/search-greek-auto.test.js` green | built (f1a6b2af): kept; `test/search-greek-auto.test.js` unchanged and green |
+| SE-25 | Underneath, nothing changes: the verse index, Pagefind, and the Greek search (`search-core.js`'s logic) | 6 | Kept: `test/search-core.test.js` unchanged and green | built (f1a6b2af): `search-core.js` unchanged (git diff); the verse index, Pagefind, and the Greek search as they were |
+| SE-26 | The page links stay, and so do the “Showing results for ‘jerusalem’” note, related forms, and the topics a chapter matched | 6 | Kept: a misspelled search, and “liberation” | built (f1a6b2af): the page links (Q80), “Showing results for “jerusalem.”” on a misspelling, related forms for “liberation,” and the topics a chapter matched, seen |
+| SE-27 | “Select” sits at the right end of the tab row, with Study on only | 6 | /search with and without the preview | built (f1a6b2af): Select ends the menus' line, with the preview only (Q76) |
+| SE-28 | Select puts a box on each row of Scripture and Chapters about it, and a bar at the foot reads “3 chosen · Add to a sheet… · Cancel” | 6 | Choose three rows | built (f1a6b2af): boxes on Scripture, Chapters about it, and Greek rows (Q79) while Select is on, and the foot bar “3 chosen · Add to sheet… · Cancel” (no article, as the verse menu's Add to sheet…) |
+| SE-29 | A reader who is only looking sees no boxes | 6 | /search before Select | built (f1a6b2af): no boxes before Select |
 | SE-30 | One verse still goes to a sheet from its own verse menu | 5 | Kept: Add to sheet… in the verse menu | open |
-| SE-31 | The results under a reading page's Search and the header's magnifier use the same rows as /search: the verse in the book face, the word bold and underlined, book headings in Bible order | 6 | A row in each of the three places | open |
-| SE-32 | Their “See all results →” opens /search on the same tab | 6 | Press it from the Glossary tab | open |
+| SE-31 | The results under a reading page's Search and the header's magnifier use the same rows as /search: the verse in the book face, the word bold and underlined, book headings in Bible order | 6 | A row in each of the three places | built (f1a6b2af): the tray under a reading page's Search and the header's magnifier draw /search's rows from `search-rows.mjs` (seen on John 3 and /about) |
+| SE-32 | Their “See all results →” opens /search on the same tab | 6 | Press it from the Glossary tab | built (f1a6b2af): “See all results →” keeps the tab and the book (`seeAllHref`, tested) |
 
 ## The glossary and articles (GL)
 
@@ -882,7 +882,7 @@ run's best reading, entered in the plan's queue with what was done.
 | SD-39 | The LIT tab is the reading page's text: chapters read on, footnotes float in the margin, and Display reaches it | 9 | Scroll a LIT tab past a chapter's end; change the text size | open |
 | SD-40 | Search is a tab: the header's magnifier, or “/”, brings it forward or opens one in the pane marked green | 9 | Press “/” on Study | open |
 | SD-41 | The sidebar has no field of its own, so the page keeps one way in (audit U6) | 9 | No field in the sidebar | open |
-| SD-42 | The Search tab shows /search's tabs and rows | 6, 9 | Covered by SE-31 | open |
+| SD-42 | The Search tab shows /search's tabs and rows | 6, 9 | Covered by SE-31 | open: Study's Search tab keeps its own rows until Phase 9 (Q78) |
 | SD-43 | A Sheets or Collections tab opens the last one the reader had there, or the list, and its name is a menu (another sheet, a new one, or all of them) | 11 | None; see ST-66 | superseded → ST-66 |
 | SD-44 | The sidebar, top to bottom: Notebook (its count, and a dot while there is news), Sheets (its count, the three most recent, and All sheets), Collections (the same), and Trash, with Scripture added first (ST-17) | 9 | The sidebar at 1440 | open |
 | SD-45 | At the sidebar's foot: “New…,” Help with “Start here” (the tour) and Feedback, the stage badge, and the line “Kept in this browser only. Back up….” | 9 | The foot at 1440 | open |
@@ -1021,13 +1021,13 @@ run's best reading, entered in the plan's queue with what was done.
 | ST-12 | The address is /study, and /desk does not forward to it | 9 | `test/featherboa-old-addresses.test.js`: /study builds, /desk is the 404 page | open |
 | ST-13 | The help page moves with it (BP-20) | 9 | `test/desk-help-page.test.js` rewritten for /study/help | open |
 | ST-14 | /notebook, /sheets (with a sheet's `?id=`, present mode, and shared links), and /collections open their places on the Study page | 9 | Open each with the preview | open |
-| ST-15 | The link that opens a passage in Study is the verb and the passage, “Study Romans 8,” as the Read page's is “Read Romans 8” (not “Open study”); it only ever opens a passage | 4, 6, 9 | The place line and Search's second row, with the preview | the place line's built (246ab483): “Study John 3,” and “Study John” on an introduction, to its chapter 1 (Q65); Search's second row with Phase 6 |
+| ST-15 | The link that opens a passage in Study is the verb and the passage, “Study Romans 8,” as the Read page's is “Read Romans 8” (not “Open study”); it only ever opens a passage | 4, 6, 9 | The place line and Search's second row, with the preview | the place line's built (246ab483): “Study John 3,” and “Study John” on an introduction, to its chapter 1 (Q65); Search's second row (f1a6b2af), “Study John 3:16”; Study's own with Phase 9 |
 | ST-16 | Where no passage is named, the header's “Study” is the way in | 3 | Covered by HD-01 | built (ec3378b6) |
 | ST-17 | The sidebar, top to bottom: Scripture, Notebook, Sheets (the three most recent, and All sheets), Collections (the same), and Trash, with the foot “The Study Desk” drew | 9 | The sidebar at 1440 | open |
 | ST-18 | Each sidebar row opens its place in the page's panes | 9 | Press each row | open |
 | ST-19 | The sidebar marks the open place with a tint and a green bar; folded, it marks the group's icon | 9 | Open a sheet, with the sidebar open and folded | open |
 | ST-20 | Scripture is “The Study Desk”'s panes of tabs: Panes 1 2 3, any of its kinds in any pane, following, and the widths | 9 | Covered by SD-15 and the rows after it | open |
-| ST-21 | “Scripture” is also the word the place's own lists use: the first group of what a pane can show, and Search's first tab | 6, 9 | An empty pane's list; Search's tabs | open |
+| ST-21 | “Scripture” is also the word the place's own lists use: the first group of what a pane can show, and Search's first tab | 6, 9 | An empty pane's list; Search's tabs | Search's built (f1a6b2af): “Scripture” is its first tab; an empty pane's list with Phase 9 |
 | ST-22 | Scripture's row shows the passage it holds at its right (“Scripture … Luke 3”) | 9 | The sidebar with Luke 3 open | open |
 | ST-23 | The Notebook, a sheet, and a collection are places of their own: the place's own pane, and beside it a pane of tabs | 9 | Open each at 1440 | open |
 | ST-24 | A place's title row shows “Panes 1 2,” never 3 | 9 | The title row in each place | open |
@@ -1122,17 +1122,17 @@ run's best reading, entered in the plan's queue with what was done.
 | GK-31 | The arrow keys through the words stay | 12 | Kept: arrow through John 1:1 | open |
 | GK-32 | The line saying where John 7:53–8:11 and Romans 16:25–27 take their Greek stays | 12 | Kept: John 8 and Romans 16 | open |
 | GK-33 | A copy that pastes as plain Greek stays | 12 | Kept: copy and paste a verse | open |
-| GK-34 | The Greek search commands and their builder stay (`public/greek/CLAUDE.md`, rule 17), in a window of their own | 6 | Kept: `test/greek-builder.test.js` green | open |
-| GK-35 | The window stays a window opened on request, dragged aside and keeping its place, in Featherboa's look | 6 | Open it, drag it, close it, and reopen it | open |
-| GK-36 | What it holds stays: the builder on top, “Examples and all commands” under it, and nothing about the notebook | 6 | Kept: the window's contents | open |
-| GK-37 | Its one way in is a quiet link in the field's row, shown only while the Greek tab is chosen, wherever that row is: /search, the tray, and Study's Search tab | 6 | Each of the three, with the Greek tab chosen and not | open |
-| GK-38 | The link replaces today's three “Search commands” buttons | 6 | No “Search commands” button left | open |
-| GK-39 | A Greek tab with nothing searched yet shows a few examples where results would be, as today | 6 | Kept: the Greek tab, empty | open |
+| GK-34 | The Greek search commands and their builder stay (`public/greek/CLAUDE.md`, rule 17), in a window of their own | 6 | Kept: `test/greek-builder.test.js` green | built (f1a6b2af): the window kept; `test/greek-builder.test.js` green |
+| GK-35 | The window stays a window opened on request, dragged aside and keeping its place, in Featherboa's look | 6 | Open it, drag it, close it, and reopen it | built (f1a6b2af): the same float window, opened on request; its drag and saved place are unchanged code, not dragged again in this review |
+| GK-36 | What it holds stays: the builder on top, “Examples and all commands” under it, and nothing about the notebook | 6 | Kept: the window's contents | built (f1a6b2af): the builder on top, “Examples and all commands” under it, nothing about the notebook (seen) |
+| GK-37 | Its one way in is a quiet link in the field's row, shown only while the Greek tab is chosen, wherever that row is: /search, the tray, and Study's Search tab | 6 | Each of the three, with the Greek tab chosen and not | /search's and the tray's built (f1a6b2af): “Build a search…” in the field's row, on the Greek tab only; Study's Search tab with Phase 9 (Q78) |
+| GK-38 | The link replaces today's three “Search commands” buttons | 6 | No “Search commands” button left | /search's and the tray's built (f1a6b2af); Study's Search pane keeps its “Search commands” button until Phase 9 (Q78) |
+| GK-39 | A Greek tab with nothing searched yet shows a few examples where results would be, as today | 6 | Kept: the Greek tab, empty | built (f1a6b2af): kept, the empty Greek tab's examples |
 | GK-40 | It meets “Find this word ▾” through the field: each of the card's four searches puts its search in the Search tab's field, and the builder reads it, starting with that word as its first card | 12 | Run a card's search, then open the builder | open |
 | GK-41 | “Find this word ▾” takes no fifth item | 12 | The menu has four | open |
-| GK-42 | Typed commands keep working in every field that searches the Greek | 6 | Kept: `test/greek-commands.test.js` green | open |
-| GK-43 | The field's placeholder keeps its example (“Try πίστις.gen or *.aor.impv”) | 6 | Kept: the placeholder | open |
-| GK-44 | It is called “Build a search” (not “Search commands” or “Advanced search”): the link reads “Build a search…,” the window carries the name as its title, and the commands sit under a heading of their own inside it | 6 | `test/greek-commands-ui.test.js` rewritten | open |
+| GK-42 | Typed commands keep working in every field that searches the Greek | 6 | Kept: `test/greek-commands.test.js` green | built (f1a6b2af): `test/greek-commands.test.js` green |
+| GK-43 | The field's placeholder keeps its example (“Try πίστις.gen or *.aor.impv”) | 6 | Kept: the placeholder | built (f1a6b2af): the placeholder kept |
+| GK-44 | It is called “Build a search” (not “Search commands” or “Advanced search”): the link reads “Build a search…,” the window carries the name as its title, and the commands sit under a heading of their own inside it | 6 | `test/greek-commands-ui.test.js` rewritten | /search's and the tray's built (f1a6b2af): the link reads “Build a search…,” the window's title is “Build a search,” the commands sit under “Examples and all commands” (`test/desk-commands-window.test.js` holds the link's name; `greek-commands-ui.test.js` covers the window's pure pieces, unchanged); Study's pane with Phase 9 (Q78) |
 
 ## First visit, signing in, and sync (AC)
 
@@ -1204,7 +1204,7 @@ run's best reading, entered in the plan's queue with what was done.
 |---|---|---|---|---|
 | BP-01 | Featherboa and Study launch together, in one merge that is also Study's public beta, so no computer ever has the new site without Study (settles SD-66) | 14 | Phase 14's launch list | open |
 | BP-02 | Site 2.0's code is removed, and `SITE-2.0.md` stays as the record (settles WS-03) | 0 | No `data-restyle`, `restyle.css`, or `v2/` left; `SITE-2.0.md` kept | built (63d07ac0) |
-| BP-03 | Search's tab for the reader's notes is “Notebook,” not “My Notebook,” by “Controls”' rule of no “My” (overrides SE-05) | 6 | /search with the preview | open |
+| BP-03 | Search's tab for the reader's notes is “Notebook,” not “My Notebook,” by “Controls”' rule of no “My” (overrides SE-05) | 6 | /search with the preview | built (f1a6b2af): the tab is “Notebook” |
 | BP-04 | About's rows include License: The LIT, Commitments, License, The Collective, Apps, Release Notes, Support, Contact (overrides HD-24; FP-18 put it under About) | 3 | About ▾ at 1440; `test/featherboa-labels.test.js` | built (ec3378b6) |
 | BP-05 | The What's New page is built with the rest, its entries written by hand, with no feed, at `/whats-new` | 7 | /whats-new builds, with no feed | built (1253bf85) |
 | BP-06 | Its entries: the apps, dated to their release; the new site (“Featherboa” isn't a public name); and the Study page and its features as a mock-up near the end (words in OP-07) | 7, 13 | The three entries on /whats-new | two of three drafted (1253bf85); Study's with Phase 13; the words queued (Q3) |

@@ -1244,7 +1244,8 @@ Entered by the run:
   line grows from 37 to 59px while Search is open and the page below moves
   down 22px. Other choice: redraw the box in this part. Cost: Phase 6's
   redraw lands early. Recommendation: leave it to Phase 6, whose field
-  takes the line's height.
+  takes the line's height. Done in f1a6b2af: the field takes the line's
+  height (`--target`), so at 1440 the line stays 37px with Search open.
 - **Q68. /search loses “Go to passage” until Phase 6** (FP-01). Its field
   still jumps to a reference, G and Read open the picker, and its toolbar
   stays. Other choice: keep ReadMenu on /search. Cost: ReadMenu's Chapter
@@ -1283,6 +1284,9 @@ Entered by the run:
   line's Search box, which is the SearchBar's), since Escape empties the
   field (Q57). Cost: a mouse loses its one-press clear. Recommendation:
   hide it, decided with Phase 6's field, which redraws the SearchBar too.
+  Done: the line's field leaves it out (f1a6b2af), and the picker's
+  (e896463b) in the panel, the dialog, and the phone's sheet; /read's
+  picker has no close, and keeps it.
 - **Q75. OpenDyslexic's picker** (FP-08, FP-09). At 50rem its three
   columns of book names took about 630px, leaving the chapters two to a
   row, so a long book's panel scrolled, and at 768 a chapter cell was
@@ -1292,6 +1296,68 @@ Entered by the run:
   1100 by 700 the panel shows all 27 books without scrolling. Other
   choice: smaller book names in OpenDyslexic. Cost: the styles' rules make
   shrinking that font's type the last resort. Recommendation: keep.
+
+- **Q76. One row of tabs, and the menus** (SE-04, SE-09, SE-27). The
+  record puts the tabs, then “All books ▾,” the sort, and with Study on
+  Select, at the row's right end. In the 647px column at 1440 the five
+  tabs take 618px, so the menus (292px, 360 with Select) never fit beside
+  them, and the preview's seven tabs take two lines. Meanwhile: the tabs
+  wrap, and the menus take a line of their own under them, at the right
+  end. Other choices: the tabs scroll sideways on a computer as on a
+  phone, the menus at the row's end; a top wider than the column; or the
+  menus moved down into the results they sort and filter. Cost: a scroll
+  hides tabs on a computer; a wider top parts the field from the results'
+  edge, which this review joined; menus in the results move as the tab
+  changes. Recommendation: keep.
+- **Q77. A Greek search and the other tabs** (SE-07). A query in Greek
+  letters or a Strong's number is searched in the Greek alone, as before
+  (BA40), with the reader's notes holding it listed above. Meanwhile: the
+  other tabs show their names with no number, and choosing one shows the
+  Greek again, since the query is still Greek. Other choices: draw the
+  other tabs unavailable on a Greek query, with the reason in words; or
+  search the English too, for every tab's count. Cost: the first, a reason
+  under the row; the second, an English search that finds little, run
+  every time. Recommendation: the first, with the Checkpoint A fixes.
+- **Q78. Study's Search pane waits for Phase 9** (SD-42, GK-37, GK-38,
+  GK-44). The record gives Study's Search tab /search's tabs and rows and
+  the one “Build a search…” link; that pane is part of Study's frame,
+  which Phase 9 redraws. Meanwhile: the pane (`desk/search-pane.js`) keeps
+  its type menu, its rows, and its “Search commands” button, which opens
+  the same window, now titled “Build a search.” Other choice: redraw the
+  pane now. Cost: Phase 9's frame work done twice. Recommendation: keep
+  until Phase 9.
+- **Q79. Select also boxes Greek rows** (SE-28 names Scripture and
+  Chapters about it). Before Phase 6 the Greek results could already be
+  gathered for a sheet (`test/desk-search-sheet-greek.test.js`), so Select
+  keeps them. Other choice: Scripture and Chapters about it only. Cost:
+  the Greek loses its way to a sheet. Recommendation: keep.
+- **Q80. The page links** (SE-26). Meanwhile: Previous, the numbers, and
+  Next are plain kit buttons, the current page tinted and named as current
+  (`aria-current`), since the kit has no “on” for a button. Other choice:
+  the numbers as a kit tab row. Cost: a tab row says “one of these views,”
+  not “a page of a list.” Recommendation: keep.
+- **Q81. When the glossary line shows** (SE-21: “when a term matches”).
+  Meanwhile (24408884): only when what was typed is one of an entry's own
+  words (its traditional word, a LIT word, or its transliteration), named
+  as the entry writes it (“Trust is in the glossary →”), first over the
+  verses. Other choice: whenever the Glossary tab has a hit. Cost: an
+  entry that only uses the word in its prose is named, as Phase 6 first
+  built it (“Faith → trust / faithfulness is in the glossary →” for
+  “trusting”). Recommendation: keep.
+- **Q82. The Notebook tab is not an address** (SE-23, BP-03). The URL's
+  `mode` names the other tabs; the Notebook's is page state, since
+  `search-core.js` and its hidden `#searchbar-mode` select have no
+  notebook mode, and a link to it would open an empty tab for anyone
+  without the preview. Other choice: `?mode=notebook`. Cost: a new mode in
+  `search-core.js`, which Phase 6 left unchanged. Recommendation: keep.
+- **Q83. The Greek tab's hits are rows** (SE-13). Phase 6 had left them
+  bordered cards, under the class name of the builder's word cards.
+  Meanwhile (563f837b): a row like the others: its reference drawn as a
+  verse row's but taller, since it is the row's only link (27px), then the
+  Greek with the match marked, the parsing, and the LIT's verse, with a
+  step more space between hits than between verse rows, since a hit is
+  four lines. Other choice: the cards. Cost: the one place results looked
+  unlike the rest. Recommendation: keep.
 
 ## Questions answered before the run
 
@@ -1384,7 +1450,8 @@ with its last commit when done; never delete a line.
 - [ ] Phase 4: The Read page (/license built ahead, de0085a8; the place
   line, the passage picker, and /read, 246ab483)
 - [ ] Phase 5: Beside scripture
-- [ ] Phase 6: Search
+- [x] Phase 6: Search (f1a6b2af; review fixes 24408884, d30c03c5,
+  563f837b, e896463b)
 - [ ] Phase 7: Learn, the front door, and every other page (built ahead:
   the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
   draws, bae1d1cb, and the account pages, cf6f21c8)
