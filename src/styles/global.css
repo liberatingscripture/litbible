@@ -356,7 +356,13 @@ body.bg-green .skip-link {
   --focus-ring: var(--ink);
 }
 
-/* Global reduced-motion safety net */
+/* Global reduced-motion safety net. Only what declares a transition takes
+   one (every rule that does names its properties,
+   test/featherboa-motion.test.js): transition-property starts as `all`, so
+   the duration alone made every change of size or space a transition that
+   landed a frame late, after the scripts that hold the reader's place had
+   measured it (keep-reading-place.js, read-on.js, Study's text pane), and
+   a size change in the Display tray threw the text hundreds of pixels. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -364,6 +370,7 @@ body.bg-green .skip-link {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-property: none;
     scroll-behavior: auto !important;
   }
 }

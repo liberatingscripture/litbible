@@ -21,7 +21,9 @@
 //   desk (test/desk-gate-imports.test.js).
 // - The reader's line never moves when a chapter loads above: the page
 //   scrolls by what was added (the browser's scroll anchoring is off,
-//   reading-page.css).
+//   reading-page.css, on body as well as the root: off on the root alone,
+//   Chrome kept a reader at the page's very end at the new end as each
+//   chapter arrived, so every one called for the next).
 // - The address follows the chapter at the reading line (10% down, as
 //   Continue reading's) through history.replaceState, so a reload or a copied
 //   address lands there and Back still leaves the book: nothing is pushed.

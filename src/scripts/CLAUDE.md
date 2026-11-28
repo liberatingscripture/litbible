@@ -666,7 +666,10 @@ License page of their own, forwarding /read's old anchors:
   `.chapter-paragraphs` may be a chapter loaded above. A run of drafts is
   one entry, and a chapter that fails to load is one with "Try again."
   **The reader's line holds** when a chapter comes in above: the page
-  scrolls by what was added (scroll anchoring is off, `reading-page.css`).
+  scrolls by what was added (scroll anchoring is off, `reading-page.css`,
+  **on body as well as the root**: off on the root alone, Chrome kept a
+  reader at the page's very end at the new end as each chapter arrived,
+  so every one called for the next).
   **The address follows the chapter at the reading line by
   `replaceState`**, only when the chapter changes (Safari limits how often
   it may be called), so Back leaves the book; from then on

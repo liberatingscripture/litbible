@@ -10,8 +10,12 @@
 
 /* While chapters load into the page, read-on.js holds the reader's line
    itself when one arrives above (scripture never moves), so the browser's
-   scroll anchoring would correct a second time, as in Study's text pane. */
-html[data-read-on] {
+   scroll anchoring would correct a second time, as in Study's text pane.
+   Body takes it too: off on the root alone, Chrome kept a reader at the
+   page's very end at the new end as each chapter arrived below, so every
+   one called for the next (John 3 through 16 in two seconds). */
+html[data-read-on],
+html[data-read-on] body {
   overflow-anchor: none;
 }
 

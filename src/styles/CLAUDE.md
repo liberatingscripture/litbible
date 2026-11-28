@@ -58,9 +58,13 @@
     takes two thirds as long (`--dur-*-out`). **Pointing, pressing,
     selecting, toggles, and chevrons are Instant: no transition at all.**
     Nothing loops, and reduced motion zeroes every duration in
-    `global.css`. A script that animates uses the same numbers and says
-    which token in a comment (`verse-image.js`). `test/featherboa-motion.test.js`
-    holds stylesheets and scripts to this.
+    `global.css`, where **only what declares a transition takes one**:
+    `transition-property` starts as `all`, so the short duration alone made
+    every change of size or space land a frame late, after the scripts that
+    hold the reader's place had measured it. A transition therefore always
+    names its properties, never `all`. A script that animates uses the
+    same numbers and says which token in a comment (`verse-image.js`).
+    `test/featherboa-motion.test.js` holds stylesheets and scripts to this.
   - **LIT Green marks and is never behind words; deep green is only for
     what can be pressed; the cream (`#E1DFD9`) is gone** and the page is
     the paper everywhere. Home's green sections wait for Phase 7.

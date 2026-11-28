@@ -642,3 +642,16 @@ test("the book's way on after a run of drafts names none of them again: the entr
   const ctas = readFileSync(new URL("../src/components/ChapterCtas.astro", import.meta.url), "utf8");
   assert.match(ctas, /\[showPrevSkipped \? prevSkipped : null, nextSkipped\]/, "the note going on stays");
 });
+
+test("scroll anchoring is off on body as well as the root, or a reader at the page's end loads the whole book", () => {
+  // Headless Chrome, John 3 at 1440×900, the window put at the page's very
+  // end: with the root's anchoring off and body's on, the window kept to the
+  // new end as each chapter arrived below, so John 4 through 16 loaded in
+  // two seconds. With both off (or both on) only John 4 loads.
+  const css = readFileSync(new URL("../src/styles/reading-page.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const rule = css.match(/([^{}]*)\{\s*overflow-anchor:\s*none;\s*\}/);
+  assert.ok(rule, "reading-page.css turns scroll anchoring off");
+  const selectors = rule[1].split(",").map((s) => s.trim());
+  assert.ok(selectors.includes("html[data-read-on]"), "on the root");
+  assert.ok(selectors.includes("html[data-read-on] body"), "and on body");
+});

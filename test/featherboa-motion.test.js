@@ -72,6 +72,34 @@ test("reduced motion still zeroes every duration, site-wide", () => {
   }
 });
 
+test("under reduced motion only what declares a transition takes one, so a change of size lands at once", () => {
+  // The scripts that hold the reader's place (keep-reading-place.js,
+  // read-on.js, Study's text pane) measure right after a change. With the
+  // property's initial "all" and the short duration, every margin or font
+  // size became a transition that landed a frame later: in headless Chrome
+  // the Display tray's Large threw John 3 144px, and a chapter loading above
+  // moved the text 22px.
+  const global = styleSources().find((s) => s.rel === "src/styles/global.css").css;
+  const reduced = [...declarations(global)].filter((d) => inReducedMotion(d.context));
+  assert.ok(
+    reduced.some((d) => d.prop === "transition-property" && d.value === "none" && !d.important),
+    "transition-property: none under reduced motion, below any rule that declares one",
+  );
+  // So every transition names its properties: one leaning on "all" would
+  // take every change with it again.
+  const leaning = [];
+  for (const d of motion()) {
+    if (d.prop === "transition-duration") leaning.push(`${d.where} (a duration with no property)`);
+    if (d.prop !== "transition" || d.value === "none") continue;
+    for (const item of splitTop(d.value)) {
+      const parts = splitTop(item, " ");
+      const named = parts.filter((p) => !TIME.test(p) && !EASINGS.test(p) && !/^(allow-discrete|normal)$/.test(p));
+      if (named.length === 0 || named.includes("all")) leaning.push(d.where);
+    }
+  }
+  assert.deepEqual(leaning, []);
+});
+
 test("scripts that move things use the speeds and the curve too", () => {
   const bad = [];
   for (const { rel, text } of scriptSources()) {
