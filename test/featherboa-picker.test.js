@@ -912,7 +912,8 @@ test("no “Read the whole book” row, and the books and chapters are the kit's
   assert.ok(pickerMarkup.includes('class:list={["kit-tab", "picker__chapter", c.draft && "kit-tab--draft"]}'));
   assert.ok(pickerMarkup.includes('class:list={["kit-row", "picker__intro", b.intro.draft && "kit-row--draft"]}'));
   assert.ok(pickerMarkup.includes("{c.draft && <span class=\"sr-only\">, {IN_PROGRESS}</span>}"), "a draft chapter's number says so aloud");
-  assert.match(read("src/styles/kit.css"), /\.kit-tab--draft,\s*\.kit-row--draft:not\(\[aria-selected="true"\], \[aria-current\]:not\(\[aria-current="false"\]\)\) \{\s*color: rgba\(var\(--color-text-rgb\), var\(--text-3-alpha\)\);/, "dimmed to the third ink, never faded");
+  // Search's tab with no results shares the look (SE-07), in the same rule.
+  assert.match(read("src/styles/kit.css"), /\.kit-tab--draft,\s*\.kit-tab--none,\s*\.kit-row--draft:not\(\[aria-selected="true"\], \[aria-current\]:not\(\[aria-current="false"\]\)\) \{\s*color: rgba\(var\(--color-text-rgb\), var\(--text-3-alpha\)\);/, "dimmed to the third ink, never faded");
 });
 
 test("the test's picker is the component's: every hook the script reads is in PassagePicker.astro", () => {
