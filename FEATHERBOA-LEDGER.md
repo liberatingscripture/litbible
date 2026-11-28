@@ -94,6 +94,9 @@ surface:
   (`.occ-title`, in capitals at 0.9 opacity, and `.occ-summary`), and its
   back-to-top button (the "up" icon alone), and About's contents toggle
   (the "down" icon alone). Also the articles index's featured card.
+  Done: the glossary's three in 2be9767b; About's toggle, which now reads
+  "On this page" beside its chevron, and the featured card, a link no
+  longer drawn with a fill and an edge, in 2e2bd8df.
 - **Phase 9 (Study's frame)**: icons still drawn by hand (Q20): the pane's
   lock, grip, flag, and shape (`desk-page.js`), the Show eye
   (`lit-show.js`), the way back's arrow (`lit-back.js`, an arrow, since
@@ -406,7 +409,7 @@ run's best reading, entered in the plan's queue with what was done.
 | CT-16 | The workspace is “Study”; the proposal's “Desk” (“Open in Desk,” and Desk among the places) is not taken | 9 | `test/featherboa-labels.test.js` | open |
 | CT-17 | One icon set, in place of the sixteen scattered today: a 24-pixel grid, a 1.5-pixel stroke, round ends, sized to sit beside its label (Lucide's, BP-12) | 2 | `test/featherboa-icons.test.js`: every icon comes from `src/lib/icons.mjs` | the set built (7216b1ef); every shared piece draws from it (f47df065); Study's icons still drawn by hand go with their phases (Q20, the notes above) |
 | CT-18 | Typed glyphs (× ‹ › ▾) stop standing in for icons | 2 | Grep the markup and scripts for typed ×, ‹, ›, and ▾ drawn as controls | built (f47df065) |
-| CT-19 | An icon stands alone only if it is one of five everyone knows (search, close, back, forward, and more); every other icon keeps its word | 2 | `test/featherboa-icons.test.js`: an icon-only control is one of the five and has an accessible name | built (7216b1ef, f47df065); a note's “Show all” caret in the Notebook panel waits for Phase 5 (the notes above) |
+| CT-19 | An icon stands alone only if it is one of five everyone knows (search, close, back, forward, and more); every other icon keeps its word | 2 | `test/featherboa-icons.test.js`: an icon-only control is one of the five and has an accessible name | built (7216b1ef, f47df065; the four Q18 left for Phase 7, 2be9767b and 2e2bd8df); a note's “Show all” caret in the Notebook panel waits for Phase 5 (the notes above) |
 | CT-20 | The set the proposal draws: Read, Notebook, Sheet, Collection, Highlight, Note, Bookmark, Copy, Share, Print, Layout, New, Search, Close, Back, More | 2 | `src/lib/icons.mjs` exports each by name, for `.astro` files and client scripts | built (7216b1ef) |
 | CT-21 | Emphasis, filled (deep green): the one main action; a view may use it once | 2 | `test/featherboa-kit.test.js`; count filled buttons per view in the preview | built (7216b1ef, f47df065) |
 | CT-22 | Emphasis, tinted: the usual next step | 2 | `test/featherboa-kit.test.js` | built (7216b1ef, f47df065) |

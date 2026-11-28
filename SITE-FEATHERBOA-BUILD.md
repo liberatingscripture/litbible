@@ -735,9 +735,10 @@ Entered before the run, from BVJ's answers:
   review”). It describes today's styling ("in bold… In italics…
   Underlined…"), so it stops matching in Phase 7, but it is BVJ's, so it
   stays until answered. Claude's draft: “As you look through the entries
-  below, you’ll find the traditional word on the left and, on the right,
-  what the LIT Bible uses in its place most often (it can change based on
-  context). Under them is the Greek behind it.”
+  below, you’ll find the traditional word first, then what the LIT Bible
+  uses in its place most often (it can change based on context), and
+  under them the Greek behind it.” (“First,” not “on the left,” since a
+  phone stacks the pair.)
 - **Q2. The colophon's sentence about AI** (BVJ: “ask me at the review.
   You can draft it, but we'll see what is decided”). The run drafts it and
   puts it in place, marked here; BVJ words it, keeps it, or drops it. If it
@@ -912,6 +913,13 @@ Entered by the run:
   as they were, and listed in the ledger's notes for Phase 7. Other
   choice: an interim fix for each now. Cost: an hour, thrown away by
   Phase 7. Recommendation: wait for Phase 7.
+  Done in Phase 7: the glossary's three with its redraw (2be9767b: the
+  order switch in the “Glossary ▾” list, “Where it appears” as the kit's
+  rows in the margin, Back to top with its words). About's contents stay
+  as the record has the pages no section draws, so its toggle reads “On
+  this page” beside its chevron on a phone (2e2bd8df), and the articles
+  index's featured card, the ledger's other note, is no longer a link
+  drawn as a button (2e2bd8df).
 - **Q19. The LIT pane's way back is tinted at every width** (CT-22,
   CT-23, E168). On 2026-11-19 BVJ found the way back's arrow alone, drawn
   quietly, “subtle and easy to miss,” and had it read as a button whenever
@@ -1600,7 +1608,8 @@ with its last commit when done; never delete a line.
   the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
   draws, bae1d1cb, and the account pages, cf6f21c8; the glossary,
   articles, and introductions, 2be9767b, with the app announcement's
-  button, 36c00d4b)
+  button, 36c00d4b; About's toggle and the articles' featured card,
+  2e2bd8df)
 - [ ] Phase 8: Off the screen (the verse image built ahead, 60952c32)
 - [ ] Checkpoint A: the public site
 - [ ] Phase 9: Study's frame
