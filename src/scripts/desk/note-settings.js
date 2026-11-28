@@ -19,11 +19,11 @@
 //     C2/H1), which no page offers since Read View retired, but which the hide
 //     still remembers and puts back with the rest (queue Q88).
 //     `highlightSetting()` names the one this page uses.
-//   - "Handwriting / Plain": Playpen Sans or the text face for margin notes
-//     (handwriting by default), in the Notebook panel's Settings tab until
-//     Playpen Sans goes (DI-17, Phase 5). The reader's own font choice,
-//     Atkinson Hyperlegible or OpenDyslexic, still wins: global.css sets
-//     every element to it under html[data-font].
+//   - The notes' lettering is not a setting (DI-17): margin notes follow the
+//     reader's Display face (--font-text, which the Display tray's Atkinson
+//     and OpenDyslexic override under html[data-font]) at the Margin size.
+//     The old "Handwriting / Plain" choice, `lit-desk-note-font`, is gone;
+//     nothing reads, writes, or stamps it.
 //
 // Like the tray's own settings, each is an attribute on <html>, absent for the
 // default, with one localStorage key; unlike them there is no pre-paint
@@ -39,7 +39,6 @@ import { FINER_MARKS, HIDE_KEY, MARK_SETTINGS, hideMarks, marksOn, readHidden, s
 
 const SETTINGS = {
   notes: { attr: "data-desk-notes", key: MARK_SETTINGS.notes.key, fallback: MARK_SETTINGS.notes.fallback },
-  noteFont: { attr: "data-desk-note-font", key: "lit-desk-note-font", fallback: "handwriting" },
   bookmarks: { attr: "data-desk-bookmarks", key: MARK_SETTINGS.bookmarks.key, fallback: MARK_SETTINGS.bookmarks.fallback },
   highlights: { attr: "data-desk-highlights", key: MARK_SETTINGS.highlights.key, fallback: MARK_SETTINGS.highlights.fallback },
   readHighlights: {
@@ -326,39 +325,5 @@ export function settingsMarkControls() {
     finer.append(button);
   }
   wrap.append(finer);
-  return wrap;
-}
-
-/**
- * The notes' lettering for the Notebook panel's Settings tab, the one of its
- * switches left there (Featherboa moved the rest to the tray and All settings;
- * the lettering goes with Playpen Sans, DI-17): Handwriting or Plain, as a
- * pill of two radio buttons that follows its setting wherever it changes.
- */
-export function panelLettering() {
-  const n = ++uid;
-  const seg = document.createElement("div");
-  seg.className = "desk-seg";
-  seg.setAttribute("role", "radiogroup");
-  seg.setAttribute("aria-label", "Notes’ lettering");
-  seg.innerHTML = ["handwriting", "plain"]
-    .map(
-      (v) => `<label class="desk-seg__option">
-        <input type="radio" class="desk-seg__input" name="desk-note-font-${n}" value="${v}" />
-        <span class="desk-seg__text">${v === "handwriting" ? "Handwriting" : "Plain"}</span>
-      </label>`,
-    )
-    .join("");
-  const radios = Array.from(seg.querySelectorAll("input"));
-  for (const r of radios) r.addEventListener("change", () => r.checked && setSetting("noteFont", r.value));
-  const sync = () => {
-    const font = getSetting("noteFont");
-    for (const r of radios) r.checked = r.value === font;
-  };
-  sync();
-  document.addEventListener(SETTINGS_EVENT, sync);
-  const wrap = document.createElement("div");
-  wrap.className = "desk-panel__settings";
-  wrap.append(seg);
   return wrap;
 }

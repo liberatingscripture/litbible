@@ -527,7 +527,7 @@ License page of their own, forwarding /read's old anchors:
     are `search-greek.js`, loaded through `loadGreekSearch()` so no page carries
     them until a Greek search starts, desk on or off; never import that file
     statically from anything a page loads at the start (the rules are in
-    `src/lib/greek-search.mjs`, which the Notebook's Greek tab shares). The
+    `src/lib/greek-search.mjs`, which Study's Greek pane shares). The
     Study Desk's Search pane (`desk/search-pane.js`) is a third UI over the
     same modules.
   - *A jump is one parse* (`parseReferenceJump`): a reference, a book, or a

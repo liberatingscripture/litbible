@@ -196,9 +196,6 @@ const SOURCES = styleSources().filter(({ rel }) => !isMirrored(rel));
  *  and why. */
 export const MARKS = [
   // { file, selector, why }
-  { file: "src/styles/desk.css", selector: ".desk-title__button[data-desk-due]::after", why: "the dot that says a backup is due (E113)" },
-  { file: "src/styles/desk.css", selector: ".desk-title__item[data-desk-due]::after", why: "the dot that says a backup is due (E113)" },
-  { file: "src/styles/desk-tab.css", selector: ".desk-tab:is([data-desk-nudge], [data-desk-due])::after", why: "the dot on the Notebook's tab: a first record kept (E74) or a backup due (E113)" },
   { file: "src/styles/desk-sync.css", selector: 'html:is([data-desk-sync="stopped"], [data-desk-account="waiting"]) :is(.desk-tab, [data-desk-toggle], .desk-panel__tabs [data-tab="settings"], .desk-title__button, [data-desk-notebook-item], .site-header__account-btn)::after', why: "the dot that says the sync has stopped or a request waits on the account" },
   { file: "src/styles/desk-sync.css", selector: 'html[data-desk-account="news"] .site-header__account-btn::after', why: "the dot that says something is new on the account" },
 ];

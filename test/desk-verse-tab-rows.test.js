@@ -146,8 +146,9 @@ test("E147: showNotes puts focus on the verse's notes and tints them for a momen
   await showVerse16();
   await tab.showNotes();
   const section = tab.el.querySelector(".desk-verse__notes");
-  assert.equal(document.activeElement, section.querySelector(".desk-verse__subhead"));
-  assert.equal(document.activeElement.textContent, "My Notes");
+  assert.ok(document.activeElement === section.querySelector(".desk-verse__subhead"), "focus is on the notes' subhead");
+  // "Notes," not "My Notes": Featherboa drops "My" (Phase 5).
+  assert.equal(document.activeElement.textContent, "Notes");
   assert.ok(section.classList.contains("desk-verse__notes--flash"), "the tint starts");
   assert.ok(row(note.id), "the notes are drawn");
 });

@@ -45,7 +45,9 @@ test("the three ways in open it through the desk module, labeled Notebook action
   const src = (p) => readFileSync(join(root, p), "utf8");
   assert.match(src("src/scripts/searchbar.js"), /openCommands\(\{ anchor/);
   assert.match(src("src/scripts/search.js"), /openCommands\(\{ anchor/);
-  assert.match(src("src/scripts/desk/panel.js"), /openCommands\(\{ anchor/);
+  // The Notebook's way in is its title menu's row (Featherboa's Phase 5).
+  assert.match(src("src/scripts/desk/notebook-menu.js"), /openCommands\(\{ anchor/);
+  assert.match(src("src/scripts/desk/notebook-menu.js"), /actions: "Notebook actions"/);
   assert.match(src("src/components/SearchBar.astro"), /hidden>Notebook actions<\/button/);
   // The Greek window's way in is the one quiet "Build a search…" link.
   assert.match(src("src/components/SearchBar.astro"), /Build a search…/);

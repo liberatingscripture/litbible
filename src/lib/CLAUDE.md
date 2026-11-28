@@ -347,11 +347,11 @@
   a "Go deeper" button that scrolls to it, and every chapter the page reads on
   into brings its own (WB-23). Where the Notebook panel runs (a computer from
   1100px with the Study preview), it and the footnote list leave the flow
-  (WB-18, `reading-page.css`) and the button opens This verse at "This
-  chapter" instead; both stay in the markup for printing, for readers without
-  JavaScript, and for the desk, which reads them there. (Phase 5 adds the
-  Footnotes tab and the phone's sheet: `SITE-FEATHERBOA.md`, "A whole
-  book.") Everything is worked out at
+  (WB-18, `reading-page.css`): the button opens This verse at "This
+  chapter" instead, and the footnotes are the Notebook's Footnotes tab
+  (WB-20, WB-28); both stay in the markup for printing, for readers without
+  JavaScript, and for the desk, which reads them there. (The phone's sheet,
+  WB-22, is still to come: `SITE-FEATHERBOA.md`, "A whole book.") Everything is worked out at
   build (`go-deeper-data.ts`, with the pure rules in `go-deeper.mjs`):
   - **Listen** takes the episodes whose **title** names the chapter
     (`episodeChapters` in `podcast-feed-core.ts`: "Matthew 14 & 15",

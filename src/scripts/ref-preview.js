@@ -26,13 +26,15 @@ import { showPanel, closePanel, currentPanel } from "./lit-panel.js";
 import { iconNode } from "../lib/icons.mjs";
 
 // The Greek tab's search results are previewed too (they link a verse, with a
-// ?greek= word parameter the preview ignores; one for the chapter on screen is
+// Study address (greekHref: /desk/?place=john-3:16&greek=16.7), read as its
+// verse; one for the chapter on screen is
 // a button, so it names its verse in data-preview-href instead). So are the
 // Study Desk's Search pane's links to a verse, a topic's chapter, a Greek
 // result and a glossary entry's references (.desk-search__link, 3m); a link
 // there that isn't scripture has no preview, as parseRef finds.
 const SELECTOR = "a.sref, .article__body a[href], .desk-greek__hit, .desk-search__link";
 const HREF_RE = /^\/([0-9a-z]+)-(\d+)\/?(?:\?[^#]*)?(?:#v(\d+)(?:-(\d+))?)?$/;
+const GREEK_RE = /^\/desk\/?\?place=([0-9a-z]+)-(\d+):(\d+)&greek=\d+\.\d+$/;
 const MAX_VERSES = 6;
 const OPEN_DELAY = 350;
 const CLOSE_DELAY = 250;
@@ -42,7 +44,10 @@ const CLOSE_DELAY = 250;
  *  written by hand in an article) also gets `spans` and `cited`, read from
  *  those words, so its preview shows the verses and not the chapter's start. */
 function parseRef(a) {
-  const raw = a.dataset.previewHref || a.getAttribute("href") || "";
+  let raw = a.dataset.previewHref || a.getAttribute("href") || "";
+  // A Greek result's address (greekHref) is its verse, for the preview.
+  const greek = raw.match(GREEK_RE);
+  if (greek) raw = `/${greek[1]}-${greek[2]}#v${greek[3]}`;
   const m = raw.match(HREF_RE);
   if (!m || !(m[1] in BOOKS)) return null;
   const chapter = Number(m[2]);

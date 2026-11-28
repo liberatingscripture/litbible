@@ -83,11 +83,11 @@ never a look of its own.** `test/desk-buttons-css.test.js` holds the
 inventory and that no desk rule paints a control.
 1. **Filled**: the one main action, **at most one per pane or view**: the
    Sheets pane's New sheet, Add and Continue, /search's chooser's New sheet,
-   the note editor's Save, the change notice's Keep, a tour's Next and the
-   tour offer's Take the tour.
+   the note editor's Save, the change notice's Keep, a tour's Next, the
+   tour offer's Take the tour, and the Notebook's "Start here" (NX-19).
 2. **Tinted**: the usual next step: the Search pane strip's and /search's
    Go, every Pin (the reading pages' too), the Greek's Show sources, label
-   and blank chips, "Choose" on the first-use card, the swatches' "All,"
+   and blank chips, the empty state's "Show me how," the swatches' "All,"
    and the LIT pane's way back (E168: queue Q19), whose arrow stays an
    arrow, since the bar's chevrons step a chapter.
 3. **Plain**: everything else, words or an icon with no box until pointed
@@ -421,8 +421,7 @@ The header's Study group is part 3's, built with header C.
 - **/notebook lists sheets under "Sheets"** with "New sheet…" and "All my
   sheets" (`kept-list.js`), shown too while nothing narrows the list. "New
   sheet…" is `/sheets/?new`, which opens the list's templates at once and
-  drops the parameter. The Notebook's Settings tab links "My sheets" beside
-  the notebook page.
+  drops the parameter.
 - **Each home offers the other**: a Sheets pane's "Open on its own page" is
   `/sheets/?id=<id>&view=edit&from=desk` in a new tab, and `from=desk` skips
   the two-tab question for that first open (`askFirst: false`), since the

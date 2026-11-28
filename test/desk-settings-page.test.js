@@ -46,7 +46,7 @@ const aCollection = () => createCollection({ name: "Advent series" }, seedCtx);
 
 // What note-settings.js stamps on <html>; it reads storage once a page, so
 // each test starts from the defaults by clearing both.
-const MARK_ATTRS = ["data-desk-notes", "data-desk-bookmarks", "data-desk-highlights", "data-desk-read-highlights", "data-desk-note-font"];
+const MARK_ATTRS = ["data-desk-notes", "data-desk-bookmarks", "data-desk-highlights", "data-desk-read-highlights"];
 
 async function openPage({ seed = [], url = "http://localhost/settings/", account = false, start = null, noNotebook = false } = {}) {
   globalThis.indexedDB = noNotebook ? undefined : new IDBFactory();

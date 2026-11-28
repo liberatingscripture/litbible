@@ -57,6 +57,7 @@ import {
   unitHeading,
 } from "../lib/read-on.mjs";
 import { attachChapter } from "./chapter-tools.js";
+import { isHoldingPlace } from "./keep-reading-place.js";
 import { readingLine } from "./last-read.js";
 import { attachTermLens } from "./term-lens.js";
 import { setTip } from "./tip.js";
@@ -481,7 +482,10 @@ export function startReadingOn(root) {
   function tick() {
     frame = 0;
     const y = window.scrollY;
-    const up = y < lastY;
+    // The scroll keepReadingPlace makes to hold the reader's line (a smaller
+    // size, the numbers turned off) is not the reader's: near the top it
+    // would read as a scroll up and load the chapter above unasked (Q107).
+    const up = y < lastY && !isHoldingPlace();
     lastY = y;
     follow();
     nearing(up);

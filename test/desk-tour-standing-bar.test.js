@@ -1,9 +1,10 @@
 // test/desk-tour-standing-bar.test.js
 //
 // A tour starting closes a bar that stays (BVJ, 2026-11-13, step l of the
-// pass of 2026-11-12): the layout's keyless Undo (E131) and the backup
-// reminder's choices (E113). Closing it that way is no answer, so the
-// reminder's × handler doesn't run. A bar that closes by itself is left alone.
+// pass of 2026-11-12): the layout's keyless Undo (E131) and a bar of choices
+// (the sync's notices; the backup reminder's, E113, until Featherboa's Phase 5).
+// Closing it that way is no answer, so the bar's × handler doesn't run. A bar
+// that closes by itself is left alone.
 
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
@@ -24,10 +25,10 @@ beforeEach(async () => {
   hideUndo();
 });
 
-test("a tour starting closes the reminder's bar of choices, without counting as its ×", async () => {
+test("a tour starting closes a bar of choices, without counting as its ×", async () => {
   let closed = 0;
   let pressed = 0;
-  showChoices("It’s been 9 days since you backed up your notebook.", [{ label: "Back up now", primary: true, onPress: () => pressed++ }], {
+  showChoices("Syncing stopped in this browser.", [{ label: "Sign in again", primary: true, onPress: () => pressed++ }], {
     onClose: () => closed++,
   });
   assert.equal(barShowing(), true);
@@ -35,7 +36,7 @@ test("a tour starting closes the reminder's bar of choices, without counting as 
   await settle(5);
   assert.equal(runner.running(), true);
   assert.equal(barShowing(), false, "the bar is closed");
-  assert.equal(closed, 0, "the × handler (Remind me tomorrow) did not run");
+  assert.equal(closed, 0, "the × handler did not run");
   assert.equal(pressed, 0);
 });
 

@@ -224,8 +224,7 @@ export async function printFonts(noteText = "") {
     document.fonts.load('12pt "Crimson Text"', page),
     document.fonts.load('italic 12pt "Crimson Text"', page),
     document.fonts.load('bold 12pt "Crimson Text"', page),
-    document.fonts.load('500 10pt "Playpen Sans"', noteText),
-    document.fonts.load('10pt Inter', noteText),
+    document.fonts.load('10pt "Source Sans 3 Variable"', noteText),
   ].map((p) => p.catch(() => []));
   const patience = new Promise((resolve) => setTimeout(resolve, 2500));
   await Promise.race([Promise.all(loads).then(() => document.fonts.ready), patience]);

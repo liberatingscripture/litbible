@@ -18,8 +18,8 @@
   webfont (`faces.css`), so the swap moves nothing. Fraunces's softness and
   wonk (`--fraunces-heading`) are set once on `body`; the other faces ignore
   the axes. The tray's OpenDyslexic and Atkinson still replace all three.
-  Playpen Sans is the Study Desk's margin-note face until Phase 4 (the notes
-  then follow the Display face: "The reading page"). Every face is served
+  Playpen Sans is left only for the Sheets (Phase 11); margin notes follow
+  the Display face since Phase 5 (DI-17). Every face is served
   Latin only, save Source Sans 3's Greek, from rules written out with their
   ranges rather than the packages' CSS (see "Greek and Hebrew letters").
   **Inter, Crimson Text, and the static Fraunces** stay declared in

@@ -22,14 +22,13 @@ test("commands appear only where they can work", () => {
   assert.ok(ids("this verse", chapter).includes("show-this-verse"));
   const notStudy = { ...chapter, study: false };
   assert.ok(!ids("this verse", notStudy).includes("show-this-verse"), "This verse is a Chapter View tab");
-  assert.deepEqual(ids("greek", chapter), ["show-greek"], "the Greek tab is found by its name");
-  assert.deepEqual(ids("sblgnt", chapter), ["show-greek"], "and by its keyword");
-  assert.deepEqual(ids("greek", notStudy), [], "the Greek tab is a Chapter View tab");
+  assert.deepEqual(ids("greek", chapter), [], "the Notebook has no Greek tab to show (ST-61)");
+  assert.deepEqual(ids("sblgnt", chapter), []);
 });
 
-test("a draft chapter offers the Greek tab but not This verse", () => {
+test("a draft chapter offers no This verse", () => {
   const draft = { ...chapter, study: false, greek: true };
-  assert.deepEqual(ids("greek", draft), ["show-greek"]);
+  assert.deepEqual(ids("greek", draft), []);
   assert.ok(!ids("this verse", draft).includes("show-this-verse"), "a draft has no LIT verse to show");
 });
 

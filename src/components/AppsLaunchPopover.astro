@@ -28,11 +28,11 @@ import Icon from "./Icon.astro";
     <button
       type="button"
       id="applaunch-close"
-      class="applaunch-close"
+      class="kit-icon applaunch-close"
       aria-label="Close app announcement"
     >
       <Icon name="close" />
-        </button>
+    </button>
 
     <AppIcons size={84} class="applaunch-logo" />
 
@@ -104,7 +104,7 @@ import Icon from "./Icon.astro";
         />
         <p class="applaunch-qr__label">Scan to get the app on your phone</p>
       </div>
-      <a href="/apps" class="applaunch-cta-primary">Get the app</a>
+      <a href="/apps" class="kit-btn kit-btn--filled applaunch-cta-primary">Get the app</a>
     </div>
   </div>
 </dialog>
@@ -162,11 +162,11 @@ import Icon from "./Icon.astro";
     gap: 0;
   }
 
-  /* Close button */
+  /* The kit's icon alone (kit.css); this only places it. */
   .applaunch-close {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: var(--space-2);
+    right: var(--space-2);
   }
 
   /* AppIcons handles its own sizing and Android tiling; this only places the
@@ -175,13 +175,13 @@ import Icon from "./Icon.astro";
     margin-bottom: 0.75rem;
   }
 
-  /* Eyebrow */
+  /* Eyebrow: Featherboa's small label, in sentence case ("Type"). */
   .applaunch-eyebrow {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--green-text, #0f6b33);
+    font-family: var(--font-control);
+    font-size: var(--size-small-label);
+    font-weight: 600;
+    line-height: var(--leading-small-label);
+    color: var(--color-text-2);
     margin: 0 0 0.4rem 0;
   }
 
@@ -298,16 +298,6 @@ import Icon from "./Icon.astro";
     max-width: 11rem;
     font-size: 0.9rem;
     line-height: 1.4;
-  }
-
-  /* The kit's filled button by name (kit.css); its size stays here until
-     the popover is redrawn (Phase 2 dropped it with the old look). */
-  .applaunch-cta-primary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.65rem 1.5rem;
-    font-size: 0.975rem;
-    text-decoration: none;
   }
 </style>
 

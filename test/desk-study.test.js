@@ -1,6 +1,8 @@
 // Study's model of places, panes, and tabs (src/lib/desk-study.mjs; Featherboa Phase 9).
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { greekHref } from "../src/lib/greek-search.mjs";
+import { greekWordHref } from "../src/lib/greek-detect.mjs";
 import {
   HANDLE, MAX_KEPT, MAX_PANES, MIN_WIDTH, SIDE_WIDTH, STATE_KEY, KINDS, PLACES,
   arrive, checkState, closeTab, columnWidths, countFits, countsFor, dragLine, findTab, followedPassage, forgetPlace,
@@ -548,6 +550,19 @@ test("an address names a place and an arrival", () => {
   assert.equal(parseAddress("/desk", "?collection=c1").place.kind, "collection");
   assert.deepEqual(parseAddress("/about", "?place=john-3"), { place: null, at: null, greek: null, list: null });
   assert.equal(parseAddress(undefined, undefined).place, null);
+});
+
+test("a Greek word's link (greekHref, greekWordHref) is an address parseAddress reads", () => {
+  const word = { book: "john", chapter: 3, verse: 16, t: 7 };
+  assert.equal(greekWordHref(word), greekHref(word), "the light builder and greekHref are one address");
+  const url = new URL(greekHref(word), "https://x.test");
+  assert.equal(url.pathname, "/desk/");
+  assert.deepEqual(parseAddress(url.pathname, url.search), { place: SCRIPTURE, at: "john 3:16", greek: { verse: 16, t: 7 }, list: null });
+  // The word's verse is its own, whatever verse the place names (desk-page.js).
+  assert.deepEqual(parseAddress("/desk", "?place=1john-4:8&greek=10.2").greek, { verse: 10, t: 2 });
+  for (const search of ["?place=john-3", "?place=john-3&greek=16", "?place=john-3&greek=x.7", "?place=genesis-1&greek=1.1", "?place=john-3&greek="]) {
+    assert.equal(parseAddress("/desk", search).greek, null, search);
+  }
 });
 
 test("arrival at a passage moves the LIT tab, or opens one; the places keep their own", () => {

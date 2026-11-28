@@ -115,8 +115,13 @@ export function parsingQuery(pos, parse) {
   return words.length ? `*.${words.join(".")}` : null;
 }
 
-/** The word a `greek` parameter names ({ verse, t }), or null. */
-export function parseGreekParam(value) {
-  const m = /^(\d{1,3})\.(\d{1,3})$/.exec(String(value ?? ""));
-  return m ? { verse: Number(m[1]), t: Number(m[2]) } : null;
+/**
+ * Where a Greek word opens: Study at the word's verse, with the Greek pane at
+ * the word, `/desk/?place=john-3:16&greek=16.7`. Light and pure, so a tab in
+ * the Notebook can build the link without the Greek search; `greekHref` in
+ * greek-search.mjs is this. Study's model reads it (`parseAddress`,
+ * desk-study.mjs), the one parser of the address.
+ */
+export function greekWordHref({ book, chapter, verse, t }) {
+  return `/desk/?place=${book}-${chapter}:${verse}&greek=${verse}.${t}`;
 }

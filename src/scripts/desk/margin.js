@@ -23,7 +23,7 @@
 // (BVJ, 2026-10-07): expanded, the panel lies over the ends of the lines;
 // collapsed, the rail holds only a tab at the window's edge, clear of the
 // text. Either way the column moves only as far as the tab needs, so
-// expanding and collapsing never moves the text.
+// expanding and collapsing never moves the text there either.
 //
 // In the margin the reader can minimize it to the same tab (BVJ,
 // 2026-10-09). It starts minimized (BVJ, 2026-10-13), and the reader's choice
@@ -33,17 +33,19 @@
 // the notebook page (src/lib/desk-start.mjs); pressing Notebook or the tab
 // restores the panel.
 //
-// Only the expanded notebook makes room for itself (BVJ, 2026-10-14): the
-// column narrows (global.css, on `data-desk-expanded`, which this file owns),
-// the kept widths apply, and the column moves left where the margin is too
-// narrow. Folded to its tab, minimized or floating, nothing is narrowed and
-// the column moves only if the tab, which never lies over the text, needs
-// the room (placeFloating), and then only that far. Expanding and
-// minimizing therefore reflow the text (the
-// reader's line is held, keepReadingPlace); an earlier rule that they never
-// move it, made 2026-10-09, is withdrawn.
+// The open notebook keeps its room whether it is expanded or minimized
+// (Featherboa's Phase 5, BS-15: opening and closing the panel moves no
+// scripture, which reverses BVJ's "only the expanded notebook makes room" of
+// 2026-10-14): while it is open the column keeps the 48 measure (global.css,
+// on `data-desk-expanded`, which this file owns), the kept widths apply, and
+// the column moves left as far as the expanded panel needs where the margin
+// is too narrow. Minimized, the tab waits at the window's edge beside that
+// same column. Floating, the column moves only as far as the tab needs
+// (placeFloating), expanded or not. Only opening a closed notebook and
+// closing it (a reader's "Closed" start, the tour putting things back)
+// reflow the text, and the reader's line is held (keepReadingPlace).
 //
-// A Chapter View chapter opening with the notebook expanded is already moved
+// A Chapter View chapter opening with the notebook open is already moved
 // when this loads (E137): Layout.astro's pre-paint script works out the move
 // the first placement will make (firstPaint, desk-margin.mjs) and stamps it
 // as --desk-move, which global.css draws, so the page paints once, in place,
@@ -54,9 +56,10 @@
 // On a Chapter View chapter, with the notebook in the margin, the reader can
 // drag the widths of their notes' margin, the LIT and the notebook
 // (widths.js). With widths kept, those place everything instead: the
-// notebook at the window's edge at the kept width, the column (set by
-// global.css from the same values) GAP before it, nothing moved by a
-// translate. Where they don't fit at all, the ordinary placement takes over.
+// notebook at the window's edge at the kept width (minimized, its tab at the
+// edge), the column (set by global.css from the same values) GAP before it,
+// nothing moved by a translate. Where they don't fit at all, the ordinary
+// placement takes over.
 //
 // Floating and expanded, it would hide a link or a footnote reference that
 // keyboard focus reaches under it, and no scrolling brings that out (the
@@ -97,8 +100,10 @@ import { keepClearOfDock } from "../lit-panel.js";
  * @returns {{ show: (opts?: { expand?: boolean, remember?: boolean }) => void, hide: () => void,
  *   collapse: () => void, expand: (opts?: { remember?: boolean }) => void,
  *   state: () => { floating: boolean, collapsed: boolean }, destroy: () => void }}
- *   `destroy` hides the rail, puts the column back and stops listening: the
- *   first stage handing the page over to the panel's own rail.
+ *   `destroy` hides the rail and stops listening: the first stage handing
+ *   the page over to the panel's own rail. The column is left as it is, its
+ *   measure and its move, the move stamped again for the next rail to take
+ *   over (takeOverMove), so nothing reflows or moves between the two.
  */
 /**
  * Whether the rail hides `el`: the topmost thing at the middle of its box is
@@ -210,8 +215,8 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
     return { left: Math.min(...rects.map((r) => r.left)), right: Math.max(...rects.map((r) => r.right)) };
   };
 
-  // The page's room-making state. Setting it narrows or widens the column,
-  // so the reader's line is held through it.
+  // The page's room-making state, on while the notebook is open. Setting it
+  // narrows or widens the column, so the reader's line is held through it.
   function setExpanded(on) {
     if (root.hasAttribute("data-desk-expanded") === on) return;
     keepReadingPlace(() => root.toggleAttribute("data-desk-expanded", on));
@@ -266,21 +271,26 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
       report(before);
       return;
     }
+    // Open, the column has the notebook's measure, minimized or not (BS-15),
+    // set first, since everything below measures it.
+    setExpanded(true);
     const viewport = root.clientWidth;
     const wasFloating = floating;
+    // The collapsed notebook's tab, at the window's edge, beside a column
+    // moved `by`: the expanded placement's move in the margin, so minimizing
+    // and restoring never move the text.
+    const tabAt = (by) => ({ left: viewport - TAB_EDGE - TAB_WIDTH, width: TAB_WIDTH, shift: by });
     // The reader's widths, where kept and where they fit. Applied first, since
     // they set the column (global.css) that everything else measures.
     const lay = widths?.layout() ?? null;
     let box;
     if (opening) keepMinimized(false, openingKept);
-    // Minimized, the kept widths wait: the ordinary placement below puts the
-    // tab at the edge and leaves the page alone.
-    if (lay && !lay.over && !minimized) {
+    if (lay && !lay.over) {
       widths.apply(lay);
       floating = false;
       collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening, minimized });
       opening = false;
-      box = { left: lay.panelLeft, width: lay.width, shift: 0 };
+      box = collapsed ? tabAt(0) : { left: lay.panelLeft, width: lay.width, shift: 0 };
     } else {
       widths?.clear();
       // A chapter keeps room on its left for a footnote's Pin (E81).
@@ -290,23 +300,16 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
       floating = at.over;
       collapsed = nextCollapsed({ floating, wasFloating, collapsed, opening, minimized });
       opening = false;
-      box = at;
-      if (collapsed) {
-        // Folded to its tab, minimized or floating: the tab at the window's
-        // edge. The tab never lies over the text, so the column moves, but
-        // only as far as the tab needs (often not at all).
-        const f = placeFloating(m);
-        box = { ...f.tab, shift: f.shift };
-      } else if (floating) {
+      if (floating) {
+        // The tab never lies over the text, so the column moves, but only as
+        // far as the tab needs (often not at all), expanded or folded.
         const f = placeFloating({ ...m, width: keptFloatWidth() });
-        box = { ...f.panel, shift: f.shift };
+        box = collapsed ? { ...f.tab, shift: f.shift } : { ...f.panel, shift: f.shift };
+      } else {
+        box = collapsed ? tabAt(at.shift) : at;
       }
     }
     setShift(box.shift);
-    // Decided last, since where the notebook ends up (floating can fold it
-    // unasked) says whether it makes room. A change reflows the column, and
-    // the observer places again with the new width.
-    setExpanded(!collapsed);
 
     // Measured after the move, in document coordinates. The panel is shown
     // first so its own heading can be measured: the rail starts that far
@@ -420,8 +423,6 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
       open = true;
       opening = expand;
       openingKept = remember;
-      // Asked to see it: measured as the expanded page it is about to be.
-      if (expand) setExpanded(true);
       place();
     },
     hide() {
@@ -433,14 +434,19 @@ export function createRail(panel, tab, onChange = () => {}, { widths: withWidths
       if (!collapsed) return;
       collapsed = false;
       keepMinimized(false, remember);
-      setExpanded(true);
       place();
       onChange({ floating, collapsed });
     },
     state: () => ({ floating, collapsed }),
     destroy() {
       open = false;
-      place();
+      // The column stays put for the rail that takes over: its translate goes
+      // back to the stamp it was painted with, which global.css draws while
+      // data-desk-expanded stays on (E137), and the next rail takes it over.
+      if (shift && studyColumn) root.style.setProperty(MOVE_PROP, `${-shift}px 0`);
+      for (const el of moveEls) el.style.translate = "";
+      widths?.hideHandles();
+      floatEdge.update({ visible: false });
       observer.disconnect();
       window.removeEventListener("resize", schedule);
       window.removeEventListener("load", schedule);

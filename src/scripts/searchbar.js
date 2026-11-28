@@ -48,7 +48,6 @@ import {
   notePickedMode,
   showModeFor,
   loadGreekSearch,
-  showGreekHere,
   MODE_LABELS,
 } from "./search-core.js";
 import { hasGreek } from "../lib/greek-detect.mjs";
@@ -635,15 +634,8 @@ const _initSearchbars = async () => {
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
-        if (link) {
-          // A result for the chapter on screen opens the Notebook's Greek tab
-          // in place; anywhere else the link loads the chapter as usual.
-          if (showGreekHere(shown[Number(link.dataset.greekHit)])) {
-            e.preventDefault();
-            closePanel();
-          }
-          return;
-        }
+        // A Greek result is a link to Study at the word (greekHref).
+        if (link) return;
         if (e.target.closest?.("[data-greek-cmds]")) {
           openCommands(pointTo);
           return;
@@ -722,15 +714,8 @@ const _initSearchbars = async () => {
 
       group.addEventListener("click", (e) => {
         const link = e.target.closest?.("[data-greek-hit]");
-        if (link) {
-          // A result for the chapter on screen opens the Notebook's Greek tab
-          // in place; anywhere else the link loads the chapter as usual.
-          if (showGreekHere(hits[Number(link.dataset.greekHit)])) {
-            e.preventDefault();
-            closePanel();
-          }
-          return;
-        }
+        // A Greek result is a link to Study at the word (greekHref).
+        if (link) return;
         const btn = e.target.closest?.("[data-greek-lemma]");
         if (!btn) return;
         e.preventDefault();

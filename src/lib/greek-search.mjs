@@ -58,10 +58,10 @@
 // day: a shard or group from another build than the index (`sameBuild`) can
 // put another word's verses under a lemma, so it is never read with it.
 
-import { hasGreek, parseGreekParam, parseStrong } from "./greek-detect.mjs";
+import { greekWordHref, hasGreek, parseStrong } from "./greek-detect.mjs";
 import { levenshtein } from "./levenshtein.mjs";
 
-export { hasGreek, parseGreekParam, parseStrong };
+export { hasGreek, parseStrong };
 
 export const GREEK_SEARCH_FORMAT = 3;
 /** The format of search/parse.json and of each search/parse/<group>.json. */
@@ -612,12 +612,13 @@ export function hasOtherForms(entry, form) {
 /* ── Links ───────────────────────────────────────────────────────── */
 
 /**
- * The link a Greek result opens: the ordinary verse link with one parameter
- * naming the word, `/john-3/?greek=16.7#v16`. The Notebook reads it, opens
- * the Greek tab at that word, and takes the parameter off the address.
+ * The link a Greek result opens: Study at the verse, with the Greek pane at
+ * the word, `/desk/?place=john-3:16&greek=16.7`. /desk reads both and takes
+ * them off the address (desk-page.js). The one builder is `greekWordHref`
+ * (greek-detect.mjs, light enough for the Notebook's This verse to import).
  */
-export function greekHref({ book, chapter, verse, t }) {
-  return `/${book}-${chapter}/?greek=${verse}.${t}#v${verse}`;
+export function greekHref(word) {
+  return greekWordHref(word);
 }
 
 /**

@@ -56,10 +56,7 @@ const allowed = (value) =>
   value === "inherit" ||
   /\bmonospace$/.test(value) ||
   // The Display tray's choice, set on every element with !important.
-  /^'(OpenDyslexic|Atkinson Hyperlegible Next Variable)', sans-serif$/.test(value) ||
-  // The Study Desk's margin-note face, which leaves in Phase 4 ("The reading
-  // page": the notes follow the Display face).
-  /^var\(--desk-note-font\b/.test(value);
+  /^'(OpenDyslexic|Atkinson Hyperlegible Next Variable)', sans-serif$/.test(value);
 
 test("every font-family is one of the three faces (TY-01: no serif on reading text)", () => {
   const bad = [];
@@ -68,10 +65,8 @@ test("every font-family is one of the three faces (TY-01: no serif on reading te
     for (const d of declarations(css)) {
       if (inFontFace(d.context)) continue;
       if (d.prop === "font-family" && !allowed(d.value)) bad.push(`${rel}:${d.line} ${d.value}`);
-      // The margin-note face's own stack: Playpen Sans, then the text face.
-      if (d.prop === "--desk-note-font" && !/^("Playpen Sans", )?var\(--font-text\)$/.test(d.value)) {
-        bad.push(`${rel}:${d.line} --desk-note-font: ${d.value}`);
-      }
+      // The margin notes follow the Display face (DI-17): no note-face variable remains.
+      if (d.prop === "--desk-note-font") bad.push(`${rel}:${d.line} --desk-note-font: ${d.value}`);
       if (d.prop === "font" && /\b(Inter|Crimson|Georgia|serif)\b/.test(d.value.replace(/sans-serif/g, ""))) {
         bad.push(`${rel}:${d.line} font: ${d.value}`);
       }

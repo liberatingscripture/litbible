@@ -136,6 +136,84 @@ export function verseNumber(bookKey, chapter, verse) {
   return readingText ? document.getElementById(`${readOnPrefix(bookKey, chapter)}v${verse}`) : null;
 }
 
+/**
+ * The entry read-on.js made on this page for a chapter it reads on into (a
+ * run of drafts is one entry, naming its chapters in `data-chapters`), or null.
+ */
+function loadedEntry(bookKey, chapter) {
+  if (!readingText) return null;
+  for (const box of readingText.querySelectorAll(".read-on__chapter[data-book]")) {
+    if (box.dataset.book !== bookKey) continue;
+    const chapters = (box.dataset.chapters ?? box.dataset.chapter ?? "").split(/\s+/).map(Number);
+    if (chapters.includes(chapter)) return box;
+  }
+  return null;
+}
+
+/**
+ * A chapter this page holds, as the Notebook names it while the reader is in
+ * it: `{ bookKey, chapter, label, plural, draft, failed }`, its label the
+ * heading the reader sees there ("Luke 23–24" for a run of drafts, which
+ * `plural` marks; "Acts" for a book wholly in draft is one). The page's own
+ * chapter, a draft's page's, or one it reads on into; null for a chapter the
+ * page doesn't hold.
+ */
+export function chapterOnPage(bookKey, chapter) {
+  if (!bookKey || !chapter) return null;
+  const label = `${bookKeyToLabel(bookKey)} ${chapter}`;
+  const here = pageChapter();
+  if (here && here.bookKey === bookKey && here.chapter === chapter) return { ...here, plural: false, draft: false, failed: false };
+  const draftPage = document.querySelector("article.chapter[data-draft-book]");
+  if (draftPage?.dataset.draftBook === bookKey && Number(draftPage.dataset.draftChapter) === chapter) {
+    return { bookKey, chapter, label, plural: false, draft: true, failed: false };
+  }
+  const entry = loadedEntry(bookKey, chapter);
+  if (!entry) return null;
+  const heading = document.getElementById(entry.getAttribute("aria-labelledby") ?? "")?.textContent.trim() || label;
+  const run = (entry.dataset.chapters ?? "").split(/\s+/).filter(Boolean).length > 1;
+  return {
+    bookKey,
+    chapter,
+    label: heading,
+    plural: run && heading !== bookKeyToLabel(bookKey),
+    draft: entry.classList.contains("read-on__chapter--draft"),
+    failed: entry.classList.contains("read-on__chapter--failed"),
+  };
+}
+
+/**
+ * A chapter's footnotes on this page, for the Notebook's Footnotes tab, in
+ * the shape footnotes-view.js draws (as chapter-page.js reads a fetched
+ * page): `{ bookKey, chapter, draft, footnotes: [{ id, pinId, label, verse }],
+ * footnoteBody(id) }`. `id` is the note's id on this page and `pinId` its id
+ * on its chapter's own page, which is what a pin names: a chapter read on
+ * into carries its prefix (`john-4-fn-a`). Null for a chapter the page
+ * doesn't hold or that didn't load.
+ */
+export function chapterFootnotes(bookKey, chapter) {
+  const at = chapterOnPage(bookKey, chapter);
+  if (!at || at.failed) return null;
+  const footnoteBody = (id) => document.getElementById(id)?.querySelector(".fn-body") ?? null;
+  if (at.draft) return { bookKey, chapter, draft: true, footnotes: [], footnoteBody };
+  const here = pageChapter();
+  const own = here && here.bookKey === bookKey && here.chapter === chapter;
+  const article = own ? pageTextBox()?.parentElement : loadedEntry(bookKey, chapter);
+  const text = article?.querySelector(":scope > .chapter-paragraphs");
+  if (!text) return null;
+  const prefix = own ? "" : readOnPrefix(bookKey, chapter);
+  const footnotes = Array.from(article.querySelectorAll(":scope > .footnotes-wrap ol.footnotes > li[id]"), (li) => {
+    const anchor = text.querySelector(`a[href="#${CSS.escape(li.id)}"]`);
+    const verse = Number(anchor?.closest("[data-verse]")?.getAttribute("data-verse"));
+    return {
+      id: li.id,
+      pinId: prefix && li.id.startsWith(prefix) ? li.id.slice(prefix.length) : li.id,
+      label: li.querySelector(".footnote-backlink")?.textContent.trim() ?? "",
+      verse: Number.isFinite(verse) && verse > 0 ? verse : null,
+    };
+  });
+  return { bookKey, chapter, draft: false, footnotes, footnoteBody };
+}
+
 /** A chapter's Go deeper section on this page, its own or one it reads on into, or null. */
 export function goDeeperOf(bookKey, chapter) {
   const here = pageChapter();

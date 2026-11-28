@@ -29,7 +29,6 @@ import {
   matchForTray,
   matchGreek,
   occShard,
-  parseGreekParam,
   parseGroup,
   parseStrong,
   splitCode,
@@ -273,11 +272,8 @@ test("decodeParseGroup reads a group file into words, and refuses another format
 });
 
 test("a result links to the verse, naming the word", () => {
-  assert.equal(greekHref({ book: "john", chapter: 3, verse: 16, t: 7 }), "/john-3/?greek=16.7#v16");
-  assert.deepEqual(parseGreekParam("16.7"), { verse: 16, t: 7 });
-  assert.equal(parseGreekParam("16"), null);
-  assert.equal(parseGreekParam("a.b"), null);
-  assert.equal(parseGreekParam(null), null);
+  // Study's model reads it (parseAddress, desk-study.mjs; its test).
+  assert.equal(greekHref({ book: "john", chapter: 3, verse: 16, t: 7 }), "/desk/?place=john-3:16&greek=16.7");
 });
 
 test("occShard names the file a lemma's verses are in", () => {

@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { settle, resetDom } from "./helpers/browser-env.mjs";
 
 test("NB8-10: steps that throw are logged, and the steps after them still start", async () => {
-  resetDom("http://localhost/john-3/?greek=16.7&print=room");
+  resetDom("http://localhost/john-3/?print=room");
   localStorage.clear();
   sessionStorage.clear();
   document.documentElement.dataset.desk = "on";
@@ -21,7 +21,7 @@ test("NB8-10: steps that throw are logged, and the steps after them still start"
       </article>
     </div></div></main>`;
 
-  // initGreekLink and initPrintLink both rewrite the address, and both throw here.
+  // initPrintLink rewrites the address, and throws here.
   const realReplace = window.history.replaceState;
   window.history.replaceState = () => {
     throw new Error("history is closed");
@@ -38,11 +38,10 @@ test("NB8-10: steps that throw are logged, and the steps after them still start"
     window.history.replaceState = realReplace;
   }
   assert.ok(api?.panel, "the Notebook came up");
-  assert.ok(logged.some((l) => /the Greek link didn't start/.test(l)), logged.join("\n"));
   assert.ok(logged.some((l) => /print from a link didn't start/.test(l)));
 
-  // The steps after the first failure did start: the tour answers its command.
+  // The shell still came up around the failure: the tour answers its command.
   document.dispatchEvent(new CustomEvent("lit:desk-command", { detail: { id: "tour" } }));
   await settle(50);
-  assert.ok(document.querySelector(".desk-tour"), "the tour started (it comes after the Greek link in the shell)");
+  assert.ok(document.querySelector(".desk-tour"), "the tour started");
 });

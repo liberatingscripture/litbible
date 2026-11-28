@@ -14,10 +14,11 @@
 ## Rule 14: the Greek tab
 
 **Phase 1f is the Greek tab** (STUDY-DESK.md,
-"Order of work", 1f). **Featherboa takes it off the reading page's
-Notebook panel and keeps it in Study** (the desk's new name): This verse's
-Greek words and a draft chapter's line lead there (`SITE-FEATHERBOA.md`,
-"Study and its places"). It also redraws a word's details as a card of
+"Order of work", 1f). **Featherboa's Phase 5 took it off the reading
+page's Notebook panel; it stays in Study** (the desk's new name, ST-61):
+This verse's Greek words and a draft entry's line lead there (ST-62,
+`greekWordHref`; `SITE-FEATHERBOA.md`, "Study and its places").
+Featherboa also redraws a word's details as a card of
 labeled rows, its four word searches gathered under one "Find this word ▾"
 (rule 15's starters), with the text's verse numbers in gray (`SITE-FEATHERBOA.md`,
 "The Greek"). Until it is built, this holds. Before touching it:
@@ -157,10 +158,17 @@ labeled rows, its four word searches gathered under one "Find this word ▾"
   the verses the LIT renders it so, and a lemma that never occurs in
   those verses is dropped. Verse-level until alignment phase 2 covers
   every word, when the bridge widens.
-- **A result is the verse link plus `?greek=<verse>.<t>`**
-  (`greekHref`). `desk/greek-link.js` opens the Notebook at that word,
-  even if the reader had closed it, and strips the parameter; a result
-  for the chapter on screen sends `lit:greek-word` instead of loading.
+- **A result is a link to Study at the word**: `/desk/?place=<book>-<chapter>:<verse>&greek=<verse>.<t>`
+  (`greekHref`, from `greekWordHref` in the light `greek-detect.mjs`, so
+  `tab-verse.js` can build it without `greek-search.mjs`). /desk reads it as an
+  arrival (`parseAddress`, Study's model in `desk-study.mjs`, the one parser of
+  the address; `desk-page.js`): the `place`
+  moves the LIT pane, then `openGreekHit` opens the Greek pane at the word by
+  E127's rule, and `greek` is stripped from the address. The chapter's page no
+  longer routes a Greek word anywhere: `lit:greek-word`, `desk/greek-link.js`
+  and the `show-greek` command are gone, so a click on a result simply follows
+  the link. Hover previews and Add to sheet read the link as its verse
+  (`ref-preview.js`, `sheets/search-sheet.js`).
 - **The Greek tab has word searches but no typed search**
   (`desk/greek-find.js`): in a word's details the form, the lemma, the
   Strong's number and the parsing each start a search (BVJ, 2026-10-13),

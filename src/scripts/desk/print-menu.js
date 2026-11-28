@@ -1,7 +1,7 @@
 // src/scripts/desk/print-menu.js
 //
 // The Print menu (STUDY-DESK-FIXES.md, E16), one piece of code for /desk's header
-// and the Notebook's Settings tab: a chapter to print, picked in the same
+// and the Notebook's title menu: a chapter to print, picked in the same
 // passage field the panes use, then the three prints (the chapter plainly,
 // with my notes, with room to write). The picker starts at `start()` each
 // time the menu opens and changes only what is printed; it never moves a pane
@@ -10,8 +10,11 @@
 //   - a chapter other than this page's opens its Chapter View address in a new
 //     tab with `?print=<kind>`, which prints itself (print-link.js) for the
 //     one-time mark a press leaves;
-//   - this page's own chapter (`here`, the Notebook on Chapter View) prints in
-//     place with `inPlace`, as the Notebook's buttons always did;
+//   - this page's own chapter (`here`, the Notebook beside a chapter) prints in
+//     place with `inPlace`, as the Notebook's buttons always did. `here` may
+//     be a function, asked each time the menu draws: beside a chapter that has
+//     read on, the page prints in place only while its own chapter is the one
+//     in view, since a plain print is of the chapter in view (read-on.js);
 //   - in Read View (`book`) there is no picker: the menu prints the book on
 //     the page, in place.
 // The host owns the button that opens it and the closing (Escape, focus); the
@@ -26,7 +29,8 @@ import { createPassageBar } from "./passage-bar.js";
  *   start?: (() => { bookKey: string, chapter: number } | null) | null,
  *   drafts?: Record<string, number[]>,
  *   notebook?: boolean,
- *   here?: { bookKey: string, chapter: number } | null,
+ *   here?: { bookKey: string, chapter: number } | null
+ *     | (() => ({ bookKey: string, chapter: number } | null)),
  *   book?: string | null,
  *   inPlace?: { plain?: () => unknown, notes?: () => unknown, room?: () => unknown } | null,
  *   onChoose?: (() => void) | null }} options
@@ -46,6 +50,7 @@ export function createPrintMenu({
 }) {
   const el = document.createElement("div");
   el.className = "desk-print-menu";
+  const hereNow = () => (typeof here === "function" ? here() : here);
 
   let chosen = null;
   const bar = book
@@ -75,11 +80,6 @@ export function createPrintMenu({
   choices.className = "desk-print-menu__choices";
   const note = document.createElement("p");
   note.className = "desk-print-menu__note";
-  note.textContent = book
-    ? "Prints this book from this page."
-    : here
-      ? "This page’s chapter prints here. Another opens in a new tab, ready to print."
-      : "Each opens the chapter in a new tab, ready to print.";
   el.append(message, choices, note);
 
   // `a` where a choice is an address, `button` where it prints in place only.
@@ -131,7 +131,13 @@ export function createPrintMenu({
   }
 
   function render() {
-    state = printMenuState({ passage: chosen, drafts, notebook, here, book });
+    const at = hereNow();
+    state = printMenuState({ passage: chosen, drafts, notebook, here: at, book });
+    note.textContent = book
+      ? "Prints this book from this page."
+      : at
+        ? "This page’s chapter prints here. Another opens in a new tab, ready to print."
+        : "Each opens the chapter in a new tab, ready to print.";
     message.hidden = !state.message;
     message.textContent = state.message ?? "";
     for (const item of items) {

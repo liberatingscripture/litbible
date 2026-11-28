@@ -17,12 +17,21 @@
 // Nothing is uploaded: the file is made and read in the browser (by
 // backup-file.js, which the reminder's "Back up now" shares). The time of the
 // last backup is kept in the notebook's meta ("lastExport", an ISO string) so
-// the page, and the reminder, can say how long ago it was.
+// the page, and the Notebook's foot line, can say how long ago it was.
+//
+// The section also says what the Notebook's Settings tab said about keeping
+// until Featherboa's Phase 5 took the tab away (DI-17): Safari's seven days
+// (C18); whether the browser may clear the notebook to free up space, with a
+// way to ask it to keep it (DI-5); and, while accounts are open and this
+// browser doesn't sync, the one quiet line to an account (UX9b-4).
 
 import { describeLastExport, planChanges, planOpen, sameOpen } from "../../lib/desk-export.mjs";
+import { ACCOUNT_HREF, ACCOUNT_LINE, SAFARI_LINE, accountLineShown, isDesktopSafari } from "../../lib/desk-first-use.mjs";
 import { backupLede } from "../../lib/desk-reminder.mjs";
 import { planWrite } from "../../lib/desk-store-core.mjs";
 import { FORMATS, LAST_EXPORT_KEY, saveFile } from "./backup-file.js";
+import { accountsOpen } from "./first-use.js";
+import { busy, isBusy } from "./focus-keep.js";
 import { undoEntry } from "./history.js";
 import { showUndo } from "./undo-bar.js";
 
@@ -35,16 +44,21 @@ const MAX_FILE_BYTES = 50_000_000;
  * Build the section's contents inside `el`.
  *
  * @param {HTMLElement} el
- * @param {{ store: object, ctx: () => { client: string, contentVersion: string }, linked?: boolean }} options
+ * @param {{ store: object, ctx: () => { client: string, contentVersion: string }, linked?: boolean, account?: boolean }} options
  *   `linked`: this browser's notebook syncs with an account, which the
- *   section's first line says (step 4j).
+ *   section's first line says (step 4j). `account: false` leaves out the
+ *   line to an account, on a page with an Account section of its own (All
+ *   settings).
  */
-export function mountBackup(el, { store, ctx, linked = false }) {
+export function mountBackup(el, { store, ctx, linked = false, account = true }) {
   el.innerHTML = `
     <h2 class="desk-np__h2" id="deskBackupTitle">Back up your notebook</h2>
     <p>${backupLede(linked)}</p>
+    <p class="desk-backup__safari" data-backup-safari hidden>${SAFARI_LINE}</p>
+    <p class="desk-backup__persist" data-backup-persist hidden></p>
     <p class="desk-backup__last" data-backup-last></p>
     <ul class="desk-backup__formats" data-backup-main></ul>
+    <p class="desk-backup__account" data-backup-account hidden><a href="${ACCOUNT_HREF}">${ACCOUNT_LINE}</a></p>
     <h3 class="desk-np__h3" id="deskOtherTitle">Other formats</h3>
     <p>These are for reading, editing, or other tools. They aren’t backups, and the notebook page can’t restore everything from them.</p>
     <ul class="desk-backup__formats" data-backup-other></ul>
@@ -75,6 +89,52 @@ export function mountBackup(el, { store, ctx, linked = false }) {
     last.textContent = describeLastExport(at);
   }
   showLast();
+
+  el.querySelector("[data-backup-safari]").hidden = !isDesktopSafari(navigator.userAgent);
+  el.querySelector("[data-backup-account]").hidden = !account || !accountLineShown(accountsOpen(), linked);
+
+  // Whether the browser may clear the notebook to free up space. A browser
+  // that asks the reader (Firefox) takes a dismissal as final, so this is the
+  // way to ask again (DI-5); Chrome answers on its own, by use.
+  const persistLine = el.querySelector("[data-backup-persist]");
+  async function showPersistence() {
+    let persisted = null;
+    try {
+      persisted = await store.persisted?.();
+    } catch (_) {}
+    persistLine.hidden = persisted !== false;
+    persistLine.replaceChildren();
+    if (persistLine.hidden) return;
+    persistLine.append("Your browser may clear this notebook to free up space. ");
+    if (!store.askToKeep || !navigator.storage?.persist) return;
+    const ask = document.createElement("button");
+    ask.type = "button";
+    ask.className = "kit-btn kit-btn--plain desk-backup__keep";
+    ask.textContent = "Ask this browser to keep it";
+    ask.addEventListener("click", async () => {
+      // aria-disabled, not disabled (NB3-8): a focused button that is
+      // disabled loses focus in some browsers.
+      if (isBusy(ask)) return;
+      busy(ask);
+      let granted = null;
+      try {
+        granted = await store.askToKeep();
+      } catch (_) {}
+      await showPersistence();
+      if (granted === false && !persistLine.hidden) {
+        persistLine.append(" Your browser said no this time. Backing up your notebook is the safe way.");
+      }
+      // The line was rebuilt, so this button is gone, and focus with it
+      // unless it has moved on: to the button that asks again, or, with
+      // nothing left to ask, to the backup's own button.
+      const a = document.activeElement;
+      if (!ask.isConnected && (!a || a === document.body)) {
+        (persistLine.querySelector("button") ?? el.querySelector(".desk-backup__save"))?.focus({ preventScroll: true });
+      }
+    });
+    persistLine.append(ask);
+  }
+  showPersistence();
 
   for (const f of FORMATS) {
     const li = document.createElement("li");

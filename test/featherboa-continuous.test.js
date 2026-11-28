@@ -447,6 +447,51 @@ test("a chapter loaded above keeps the reader's line where it was, and only a sc
   assert.equal(location.pathname, "/john-3/", "John 3 is the chapter at the reading line");
 });
 
+test("the scroll that holds the reader's line is not a scroll up: near the top it loads nothing above (Q107)", async () => {
+  const { keepReadingPlace } = await import("../src/scripts/keep-reading-place.js");
+  open("john", 4);
+  await settle();
+  await scrollTo(300); // a little way into John 4, well within a window of its top
+  // The line keepReadingPlace pins is the verse at the reading line, measured
+  // by the harness's layout.
+  const verseAt = (y) => [...document.querySelectorAll("article.chapter [data-verse]")].find((v) => {
+    const r = v.getBoundingClientRect();
+    return r.top <= y && r.bottom > y;
+  });
+  const hadCaret = Object.hasOwn(document, "caretPositionFromPoint");
+  const caret = document.caretPositionFromPoint;
+  const rects = window.Range.prototype.getClientRects;
+  document.caretPositionFromPoint = (x, y) => {
+    const v = verseAt(y);
+    const node = v && [...v.childNodes].find((c) => c.nodeType === 3 && c.data.trim());
+    return node ? { offsetNode: node, offset: 0 } : null;
+  };
+  window.Range.prototype.getClientRects = function getClientRects() {
+    return this.startContainer.parentElement.getClientRects();
+  };
+  try {
+    // Hiding the heading above (as the numbers switch does) moves the text up
+    // 60px, so the hold scrolls the page up by as much.
+    const heading = document.getElementById("chapter-title");
+    const before = verseAt(76.8);
+    keepReadingPlace(() => { heading.hidden = true; });
+    window.dispatchEvent(new window.Event("scroll"));
+    assert.equal(window.scrollY, 240, "the hold scrolled the page up");
+    assert.equal(verseAt(76.8)?.dataset.verse, before?.dataset.verse, "the reader's verse is still at the line");
+    await settle();
+    await settle();
+    assert.ok(!fetched.includes("/john-3/"), "John 3 wasn't fetched");
+    assert.equal(document.querySelectorAll(".read-on--before > *").length, 0, "nothing loaded above");
+    // The reader's own scroll up still asks for it.
+    await scrollTo(200);
+    await until(() => loaded(3), "John 3 to load above");
+  } finally {
+    if (hadCaret) document.caretPositionFromPoint = caret;
+    else delete document.caretPositionFromPoint;
+    window.Range.prototype.getClientRects = rects;
+  }
+});
+
 test("at the page's top a key a control has used asks for nothing above, and the same key on the page does", async () => {
   open("john", 4);
   await settle();

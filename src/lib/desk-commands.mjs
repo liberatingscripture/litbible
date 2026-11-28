@@ -9,10 +9,10 @@
 //
 // A command is offered only where it can work. The ones that act on the
 // Notebook panel or the page's settings need the desk's code running, which it
-// is only on a reading surface (desk-frame.js); "This verse" and the Greek tab
-// need a Chapter View chapter, "Print with my notes" and "Print with room to
-// write" a chapter or Read View; the
-// ones that open the notebook's own pages work anywhere.
+// is only on a reading surface (desk-frame.js); the Notebook's Footnotes and
+// This verse need a chapter's page, and so do "Print with my notes" and
+// "Print with room to write"; the ones that open the notebook's own pages
+// work anywhere.
 //
 // A query reaches a command when each of its words begins one of the
 // command's words ("hide" finds "Hide your marks"; "back" finds "Back up
@@ -40,9 +40,16 @@ export const COMMANDS = Object.freeze([
   },
   {
     id: "show-my-notes",
-    name: () => "Show My Notes",
+    name: () => "Show Notes",
     keywords: ["list", "mine"],
     needs: "surface",
+    hint: "In the Notebook",
+  },
+  {
+    id: "show-footnotes",
+    name: () => "Show Footnotes",
+    keywords: ["tab", "letters"],
+    needs: "study",
     hint: "In the Notebook",
   },
   {
@@ -50,13 +57,6 @@ export const COMMANDS = Object.freeze([
     name: () => "Show This verse",
     keywords: ["tab"],
     needs: "study",
-    hint: "In the Notebook",
-  },
-  {
-    id: "show-greek",
-    name: () => "Show the Greek",
-    keywords: ["greek", "sblgnt", "tab"],
-    needs: "greek",
     hint: "In the Notebook",
   },
   {

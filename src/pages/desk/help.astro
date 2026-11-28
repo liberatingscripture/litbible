@@ -4,8 +4,7 @@
 // the Greek. It was /notebook/help/ (that address redirects here). A static
 // page that reads without the desk: it is noindex, out of the sitemap
 // (astro.config.mjs), and (as every generic page) out of Pagefind. The
-// Notebook's foot, the first-time choice, the tours and /desk's command row
-// link here.
+// Notebook's title menu, the tours and /desk's command row link here.
 //
 // Its shape (E125; BVJ, 2026-11-12): eight parts in the order a reader meets
 // them, each a few topics, with a contents list (`parts`, below) that sits
@@ -217,7 +216,10 @@ const parts = [
               <ul>
                 <li><strong>The notebook tour</strong> walks through the notebook
                   on a page of scripture, in three parts: marking the text, the
-                  Notebook, and finding and keeping.
+                  Notebook, and finding and keeping. Until you take it, or
+                  choose “I know my way around,” “Start here: Take the tour”
+                  heads the Notebook, and after that the Notebook’s title menu
+                  has “Take the tour.”
                   <a href="/john-3/?desk-tour">Take the notebook tour</a> on
                   John 3. It needs the Study Desk preview to be on for you.</li>
                 <li><strong>The Study Desk tour</strong> runs on the Study Desk
@@ -349,9 +351,9 @@ const parts = [
                   with Tab. A pinned footnote’s thumbtack always shows. When
                   there isn’t room, or one of your margin notes is already
                   beside that footnote, it sits on the footnote’s own line.</li>
-                <li><strong>In that list, the Notebook’s “This verse” tab, and
-                  the Study Desk’s Footnotes pane</strong>, it carries the word
-                  “Pin” too.</li>
+                <li><strong>In that list, the Notebook’s Footnotes and “This
+                  verse” tabs, and the Study Desk’s Footnotes pane</strong>, it
+                  carries the word “Pin” too.</li>
                 <li><strong>In the popover a footnote letter opens</strong>, it
                   is the icon alone, and pointing at it, or reaching it with
                   Tab, shows its name.</li>
@@ -363,27 +365,55 @@ const parts = [
               <h3 id="panel">The Notebook panel</h3>
               <p>
                 The Notebook sits in the margin beside the text on Scripture
-                pages and in Read View. (A book’s introduction, an article, and
-                the glossary have no Notebook.) It has four tabs:
+                pages. (A book’s introduction, an article, and the glossary
+                have no Notebook.) It has three tabs:
               </p>
               <ul>
-                <li><strong>My Notes</strong> lists what you have kept, with a
-                  link to My Notebook under its count. On a
-                  Scripture page, choose “This chapter” or “Everything.” A long
-                  note or pinned footnote opens with its caret, one at a
-                  time.</li>
+                <li><strong>Notes</strong> lists what you have kept in the
+                  chapter you are reading, and moves on with you as you read
+                  on into the next. Beside the chapter’s name, a link such as
+                  “All 12 in the Notebook” opens
+                  <a href="/notebook/">My Notebook</a>, which holds
+                  everything. A long note or pinned footnote opens with its
+                  caret, one at a time. A chapter where you have kept nothing
+                  says how to begin, with “Show me how,” which takes the tour.
+                  While the Notebook is showing, your notes are listed here
+                  and not in the margin; minimize it and they are back beside
+                  their words.</li>
+                <li><strong>Footnotes</strong> lists the footnotes of the
+                  chapter you are reading, each in full, with its verse
+                  (“Verse 3” takes you there) and its Pin.</li>
                 <li><strong>This verse</strong> shows everything for the verse
-                  you are on.</li>
-                <li><strong>Greek</strong> opens <a href="#greek">the Greek
-                  text</a>.</li>
-                <li><strong>Settings</strong> holds the notes’ lettering, a link
-                  to All settings, the print buttons, “My sheets,” “My
-                  collections,” and where your notebook is kept.</li>
+                  you are on, its Greek included. A Greek word there opens the
+                  <a href="#desk-page">Study Desk page</a> with its Greek pane
+                  at that word (see <a href="#greek">The Greek</a>).</li>
               </ul>
               <p>
-                The » button minimizes the panel to a tab at the window’s edge,
-                and that tab brings it back, as the “Notebook” button on the
-                line under the header does. <a href="/settings/#panel">All
+                <strong>Its title is a menu.</strong> “Notebook ▾” holds
+                “Print…” (see <a href="#print-part">Printing with your
+                notes</a>), “Whole notebook,” which opens My Notebook,
+                “Notebook actions” (see <a href="#commands">Commands</a>),
+                “Take the tour,” “Help,” which opens this page, and
+                “{FEEDBACK_LABEL}.” The arrow keys move through it, and
+                Escape closes it.
+              </p>
+              <p>
+                <strong>Its foot</strong> says where your notebook is kept,
+                “Kept in this browser only,” and once you have kept something
+                it has “Back up…” beside that, which opens
+                <a href="/notebook/#backup">Back up your notebook</a> on My
+                Notebook. When a backup is due, it says instead how long it
+                has been since your last one (see
+                <a href="#copies">Backing up your notebook</a>). In a browser
+                that syncs with your account, it shows the sync. Its words
+                change, but it never moves.
+              </p>
+              <p>
+                “Minimize the Notebook,” the button at the end of its title
+                bar, folds it to a tab at the window’s edge (Escape does the
+                same), and that tab brings it back, as the “Notebook” button
+                on the line under the header does. The text beside it stays
+                where it is either way. <a href="/settings/#panel">All
                 settings</a> sets how it opens on each page: open, minimized,
                 or as you left it. “Study John 3,” at that line’s end,
                 opens the <a href="#desk-page">Study Desk page</a>, where panes
@@ -457,7 +487,7 @@ const parts = [
               <p>
                 <strong>A whole chapter.</strong> Use your browser’s print, or
                 the “Print…” choice on the Study Desk page or in the Notebook’s
-                Settings tab.
+                title menu.
               </p>
             </section>
 
@@ -723,8 +753,8 @@ const parts = [
               <p>
                 <strong>Finding your sheets.</strong> They are listed on the
                 Sheets page and in a Sheets pane. My Notebook lists them under
-                their own heading, and the Notebook’s Settings tab links “My
-                sheets.” In the list, “Duplicate” makes a copy of a sheet, and
+                their own heading, and the header’s “Study” menu links the
+                Sheets page. In the list, “Duplicate” makes a copy of a sheet, and
                 “Delete” moves it to the trash, like a note. On the Sheets page,
                 a sheet’s name opens its leader and participant versions, and
                 “Edit” beside it opens it for editing.
@@ -1097,9 +1127,9 @@ const parts = [
                 Collections pane on the Study Desk, shows everything it holds. Searching My Notebook finds collections by
                 name: they appear in a small
                 “Collections” group as links to their pages, and never as rows
-                of the list. The header’s “Study” menu and the Notebook’s Settings
-                tab each have “My collections,” and on the Study Desk a
-                Collections pane’s header opens the Collections page.
+                of the list. The header’s “Study” menu links the Collections
+                page, and on the Study Desk a Collections pane’s header opens
+                it.
               </p>
               <p>
                 A rule shows as a line at the top of the collection, “Every
@@ -1146,13 +1176,13 @@ const parts = [
             <section class="nbhelp__topic" aria-labelledby="greek-text">
               <h3 id="greek-text">Reading the Greek</h3>
               <p>
-                On a Scripture page, the Notebook’s Greek tab shows the chapter
-                in the Greek of the SBL Greek New Testament (SBLGNT), in its
-                own paragraphs. It opens at the verse you are reading, and a
-                “Go to verse” button brings you back to it. The Study Desk
-                page’s Greek pane is the same thing. “This verse” also shows
-                the Greek of the verse you are on. Like the rest of the
-                notebook, it is for computers.
+                The Study Desk page’s Greek pane shows the chapter in the Greek
+                of the SBL Greek New Testament (SBLGNT), in its own paragraphs.
+                It opens at the verse you are reading, and a “Go to verse”
+                button brings you back to it. On a Scripture page, the
+                Notebook’s “This verse” shows the Greek of the verse you are
+                on, and a word there opens the Greek pane at that word. Like
+                the rest of the notebook, it is for computers.
               </p>
               <p>
                 A text-critical sign in the Greek opens the apparatus at the
@@ -1165,7 +1195,7 @@ const parts = [
               <h3 id="greek-word">A word’s details</h3>
               <p>
                 Select a word, or move through the words with the arrow keys,
-                to see its details at the foot of the tab. They show:
+                to see its details at the foot of the pane. They show:
               </p>
               <ul>
                 <li>its dictionary form, its parsing in words, and its Strong’s
@@ -1232,7 +1262,7 @@ const parts = [
                   it occurs: select its form, its dictionary form, its Strong’s
                   number, or its parsing, and the results take the place of the
                   text until you choose the chapter’s name at the top, such as “← Acts 2.” A result in another
-                  chapter opens that chapter with the Greek tab at the
+                  chapter moves the pane to that chapter, at the
                   word.</li>
               </ul>
             </section>
@@ -1331,8 +1361,8 @@ const parts = [
                 to take the tour again; other pages don’t offer it.
               </p>
               <p>
-                “Notebook actions,” a link in the Notebook’s Settings tab, in
-                the search tray, and beside the field on the search page, lists
+                “Notebook actions,” in the Notebook’s title menu, in the search
+                tray, and beside the field on the search page, lists
                 the commands the box understands on the page you are on. A row
                 in it runs its command.
               </p>
@@ -1380,9 +1410,9 @@ const parts = [
               </ul>
               <p>
                 <strong>The safe way.</strong> A backup file is the safe way to
-                keep your notebook, with or without an account. When you first
-                use the notebook you can ask to be reminded to back it up. You
-                can change that in the Notebook’s Settings tab.
+                keep your notebook, with or without an account. The foot of the
+                Notebook says where it is kept, and tells you when a backup is
+                due.
               </p>
             </section>
 
@@ -1408,20 +1438,15 @@ const parts = [
                 merge your backup into it.
               </p>
               <p>
-                <strong>The reminder.</strong> If you asked to be reminded, a
-                bar appears on a Scripture page, in Read View, or on the Study
-                Desk page when it has been a week since your last backup, or,
-                if you have never
-                made one, a week since your oldest note or mark. It offers
-                four choices: “Back up now,” which downloads the file;
-                “Remind me tomorrow” (the × does the same); “Not this week”;
-                and “Turn off reminders.” While a backup is due, a small dot
-                marks the Notebook’s tab and its Settings tab, and the Study
-                Desk’s title and its My Notebook line, and the Settings tab
-                says so at the top of “Keep and print.” “Not this week” puts
-                the bar and the dots away for seven days. You can turn
-                reminders back on in the Notebook’s Settings tab on a Scripture
-                page.
+                <strong>When a backup is due.</strong> A week after your last
+                backup, or, if you have never made one, a week after your
+                oldest note or mark, the foot of the Notebook says how long it
+                has been since your last backup, or that you haven’t made one
+                yet. Its “Back up…” opens “Back up your notebook” on My
+                Notebook.
+                Nothing pops up, and nothing asks for an answer. In a browser
+                that syncs with your account, the foot shows the sync
+                instead.
               </p>
             </section>
 
@@ -1539,8 +1564,8 @@ const parts = [
               If something is broken, confusing, or missing,
               <a href={FEEDBACK_HREF} target="_blank" rel="noopener noreferrer">{FEEDBACK_LABEL.toLowerCase()}</a>
               (it opens the contact form in a new tab). The same link is in the
-              Study Desk menu on the desk page and at the foot of the
-              Notebook’s Settings tab.
+              Study Desk menu on the desk page and in the Notebook’s title
+              menu.
             </p>
             <p class="nbhelp__back"><a href="#contents">Back to contents</a></p>
           </section>

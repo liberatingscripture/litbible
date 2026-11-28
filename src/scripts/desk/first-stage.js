@@ -24,7 +24,7 @@
 //   - the chapter's Footnotes list comes within a screen of the window,
 //     where every note gets its Pin button (pins.js);
 //   - an event the desk answers arrives first: `lit:panel-actions`,
-//     `lit:footnote-actions`, `lit:desk-command`, `lit:greek-word`. Each is
+//     `lit:footnote-actions`, `lit:desk-command`. Each is
 //     held and sent again once the shell is
 //     up; a menu still open then gets its rows late, and is moved to keep its
 //     place (`grownPanelShift`).
@@ -34,7 +34,7 @@ import { standDown } from "../desk-frame.js";
 import { currentPanel } from "../lit-panel.js";
 import { startState } from "../../lib/desk-start.mjs";
 import {
-  CHANNEL, REMIND_HOME, REMIND_HOME_KEY, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook, peekReminder,
+  CHANNEL, grownPanelShift, loadAtOnce, loadStageTwo, peekNotebook,
 } from "../../lib/desk-first-stage.mjs";
 import { peekLinked } from "../../lib/desk-sync-link.mjs";
 import { createRail } from "./margin.js";
@@ -62,30 +62,6 @@ function drawnHere() {
   const rm = document.querySelector("[data-rm-root]");
   if (rm?.dataset.rmBook && rm.querySelector("[data-rm-text]")) return { bookKey: rm.dataset.rmBook };
   return null;
-}
-
-// A chapter whose Greek the Notebook shows (greekChapter in page.js).
-const greekHere = () => Boolean(document.querySelector("article.chapter[data-last-read-book], article.chapter[data-draft-book]"));
-
-/**
- * Start the backup reminder (reminder.js) on a Chapter View chapter or Read
- * View, from a look at the notebook that never creates it and never loads the
- * shell. Nowhere else: not an intro, an article or the glossary. Only for a
- * reader who asked to be reminded, so no one else loads its code or looks.
- */
-function beginReminder(where) {
-  if (!where || !globalThis.indexedDB || readLocal(REMIND_HOME_KEY) !== REMIND_HOME) return;
-  import("./reminder.js")
-    .then(({ startReminder }) => startReminder({
-      surface: "reading",
-      // The link only changes the reminder's words (UX9b-2); peekLinked is
-      // light and already loaded here for the sync.
-      getFacts: async () => {
-        const facts = await peekReminder({ idb: indexedDB, now: new Date() });
-        return facts ? { ...facts, linked: await peekLinked({ idb: indexedDB }) } : facts;
-      },
-    }))
-    .catch((err) => console.error("Study Desk: the backup reminder didn’t start", err));
 }
 
 /**
@@ -120,8 +96,6 @@ export async function start({ importShell = () => import("./shell.js") } = {}) {
   try { state = startState(readLocal); } catch (_) {}
   const now = loadAtOnce({ start: state, session: readSession, params: new URL(window.location.href).searchParams });
   if (now) {
-    // The shell's panel draws its own tab and paints the reminder's dot on it (panel.js).
-    beginReminder(where);
     await loadStageTwo(importShell, { stand: standDown });
     return;
   }
@@ -163,8 +137,6 @@ async function drawAndWait({ where, state, importShell, leave }) {
   if (firstSkip) firstSkip.after(skip);
   else document.body.prepend(skip);
   leave.skip = skip;
-  // The backup reminder: a read-only look, so the shell stays unloaded (E113).
-  beginReminder(where);
   // And the sync, for a browser linked to an account.
   beginSync();
 
@@ -207,14 +179,7 @@ async function drawAndWait({ where, state, importShell, leave }) {
         rail.destroy();
         skip.remove();
         standDown();
-        // A Greek result taken from the search box was held for a shell that
-        // isn't coming: follow its link as the box would have, to the verse
-        // (NB8-9). Any other held event had no link of its own.
-        const word = held.splice(0).filter((e) => e.type === "lit:greek-word").pop()?.detail;
-        if (Number.isInteger(word?.verse) && Number.isInteger(word?.t)) {
-          window.location.assign(`${window.location.pathname}?greek=${word.verse}.${word.t}#v${word.verse}`);
-          return;
-        }
+        held.length = 0;
         // The pressed tab is gone: focus goes to the page's text, not <body> (NB6-2).
         const main = focused && document.getElementById("main-content");
         if (main) {
@@ -317,10 +282,9 @@ async function drawAndWait({ where, state, importShell, leave }) {
   }
 
   // Events the shell answers, held until it does.
-  const hold = (type, { ifHere = () => true, take = false } = {}) =>
+  const hold = (type, { ifHere = () => true } = {}) =>
     on(document, type, (e) => {
       if (up || !ifHere(e.detail)) return;
-      if (take) e.preventDefault();
       held.push({ type, detail: e.detail });
       want();
     });
@@ -330,9 +294,6 @@ async function drawAndWait({ where, state, importShell, leave }) {
   // A footnote's popover: Pin and "Add a note" (pins.js), on a chapter.
   hold("lit:footnote-actions", { ifHere: () => Boolean(where?.chapter) });
   hold("lit:desk-command");
-  // A Greek result for this chapter: taken now, so the search box keeps its
-  // link from loading, and shown by greek-link.js once it is here.
-  hold("lit:greek-word", { ifHere: greekHere, take: true });
 
   /* ── The look at the notebook ────────────────────────────────────── */
 

@@ -83,38 +83,3 @@
     display: none !important;
   }
 }
-
-/* The first record written while "kept in this browser" is unanswered marks
-   the tab and the Notebook buttons until the panel is opened (E74; panel.js,
-   nudgePanel). A dot in the text green; in forced colors, Highlight, since a
-   background alone draws nothing there. */
-.desk-tab:is([data-desk-nudge], [data-desk-due]),
-[data-desk-toggle]:is([data-desk-nudge], [data-desk-due]) {
-  position: relative;
-}
-
-.desk-rail--collapsed .desk-tab:is([data-desk-nudge], [data-desk-due]) {
-  position: sticky;
-}
-
-.desk-tab:is([data-desk-nudge], [data-desk-due])::after,
-[data-desk-toggle]:is([data-desk-nudge], [data-desk-due])::after {
-  content: "";
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-press); /* on 8px, round */
-  background: var(--green-text);
-}
-
-/* The same dot says a backup is due (E113; reminder.js sets data-desk-due).
-   Opening the Notebook clears the first-write mark, never this one. */
-@media (forced-colors: active) {
-  .desk-tab:is([data-desk-nudge], [data-desk-due])::after,
-  [data-desk-toggle]:is([data-desk-nudge], [data-desk-due])::after {
-    forced-color-adjust: none;
-    background: Highlight;
-  }
-}

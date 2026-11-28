@@ -92,7 +92,7 @@ export function createTitleMenu({ wrap, titleButton, announce, getTour, inTour, 
   // "My Notebook," its one name everywhere (E70).
   const notebookItem = item("My Notebook", "a");
   notebookItem.href = "/notebook/";
-  // Carries the backup reminder's dot (reminder.js, E113).
+  // Carries the sync's dot (sync/notice-parts.js), as the backup reminder's once did.
   notebookItem.setAttribute("data-desk-notebook-item", "");
   // No "My collections" (BVJ, 2026-11-19, E180: "or if it does, sheets
   // should too"): the Sheets and Collections panes' headers open their pages.

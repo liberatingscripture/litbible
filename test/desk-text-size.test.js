@@ -158,16 +158,25 @@ test("the rows the desk adds to a shared panel take that panel's own scale", () 
 
 test("the panel's header gives up its badge before its buttons", () => {
   // Larger words can ask for more than a 280px panel has. The name and badge
-  // share one clipped row, so the badge wraps out of sight whole and the
-  // Study Desk link and the minimize button stay in the panel.
+  // share one clipped row, a target tall, so the badge wraps out of sight
+  // whole and the title's menu button and the minimize button stay in the
+  // panel (the Study Desk link left the head in Featherboa's Phase 5). The
+  // clip keeps room around the row for a focused button's ring, which it cut
+  // to a sliver beside the badge, and the margin gives the room back; the
+  // row gap is wider than that room, so the badge's second line still starts
+  // past the clip.
   const name = body(".desk-panel__name");
   assert.match(name, /flex-wrap:\s*wrap;/);
   assert.match(name, /overflow:\s*hidden;/);
-  assert.match(name, /height:\s*36px;/);
+  assert.match(name, /--ring-room:\s*calc\(var\(--focus-width, 2px\) \+ var\(--focus-offset, 2px\)\);/);
+  assert.match(name, /height:\s*calc\(var\(--target\) \+ 2 \* var\(--ring-room\)\);/);
+  assert.match(name, /padding:\s*var\(--ring-room\);/);
+  assert.match(name, /margin:\s*calc\(-1 \* var\(--ring-room\)\);/);
+  assert.match(name, /gap:\s*var\(--space-2\);/);
   const panelJs = readFileSync(new URL("../src/scripts/desk/panel.js", import.meta.url), "utf8");
   assert.match(
     panelJs,
-    /<div class="desk-panel__name">\s*<h2 class="desk-panel__title"[^>]*>Notebook<\/h2>\s*<span class="desk-panel__badge">[^<]*<\/span>\s*<\/div>\s*<a class="desk-panel__desk"/,
+    /<div class="desk-panel__name">\s*<h2 class="desk-panel__title"[^>]*><button[^>]*>[\s\S]*?>Notebook<\/span>[\s\S]*?<\/button><\/h2>\s*<span class="desk-panel__badge">[^<]*<\/span>\s*<\/div>\s*<button type="button" class="kit-icon desk-panel__collapse"/,
   );
 });
 

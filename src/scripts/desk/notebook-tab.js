@@ -8,10 +8,9 @@
 
 // As text, added as a <style>, for the reason boot.js gives for desk.css.
 import tabCss from "../../styles/desk-tab.css?inline";
-
-const ICON_NOTEBOOK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 3v18M12.5 8h3M12.5 12h3" /></svg>`;
+// The notebook icon from the one set (src/lib/icons.mjs), which every chapter
+// page already carries for its own controls.
+import { icon } from "../../lib/icons.mjs";
 
 /** Add the rail's and the tab's stylesheet to the page, once. */
 export function addTabStyle() {
@@ -33,6 +32,6 @@ export function notebookTab() {
   tab.setAttribute("data-desk-dock", "");
   tab.setAttribute("aria-controls", "deskPanel");
   tab.setAttribute("aria-expanded", "false");
-  tab.innerHTML = `${ICON_NOTEBOOK}<span class="desk-tab__label">Notebook</span>`;
+  tab.innerHTML = `${icon("notebook", { size: 18 })}<span class="desk-tab__label">Notebook</span>`;
   return tab;
 }

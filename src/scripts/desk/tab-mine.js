@@ -1,7 +1,7 @@
 // src/scripts/desk/tab-mine.js
 //
-// The Notebook panel's "My Notes" tab (BVJ, 2026-10-08: it holds bookmarks
-// and highlights too): what the notebook keeps, with Delete, and for a note
+// The Notebook panel's "Notes" tab (BVJ, 2026-10-08: it holds bookmarks
+// and highlights too; NB-20): what the notebook keeps, with Delete, and for a note
 // its marker glyph, its words at two lines and Edit. A caret opens one note
 // for the visit, as one does a pinned footnote cut at three lines (E118: BVJ,
 // 2026-11-12, dropped "Open all" and "Close all"). A note on this page's
@@ -15,11 +15,10 @@
 // colour, and "All" brings everything back. That choice is kept for the
 // visit only, and goes back to All when its colour leaves the list.
 //
-// Continue reading (continue-reading.js) heads the tab, with no bookmark mark:
-// it is where the reader stopped, not something they marked, and it is left
-// out while it names what is on screen (FU4-2). A bookmark is a
-// row in the list like a note (E9): its name, Edit (the name, and "Move as I
-// read"), and Delete. One that moves as the reader reads says so, and following
+// Continue reading has left the tab (Featherboa's Phase 5, "Nothing interrupts
+// the reader"): the passage picker's first row and the notebook page hold it.
+// A bookmark is a row in the list like a note (E9): its name, Edit (the name,
+// and "Move as I read"), and Delete. One that moves as the reader reads says so, and following
 // its link starts it moving (bookmark-follow.js).
 //
 // A record whose wording has changed under it (change-notice.js) carries a
@@ -40,10 +39,13 @@
 // The group follows the list's scope and hides while a highlight colour is
 // chosen, since that choice is about highlights.
 //
-// On a Chapter View chapter the tab starts on that chapter's records, and a
-// small choice at its top switches to everything kept; on an article or the
-// glossary it starts on the notes on this page (N11); elsewhere it lists
-// everything. An article also offers a note on the whole article here.
+// In the Notebook panel beside a chapter (`inPanel`; Featherboa's Phase 5,
+// ST-69) the tab lists the chapter in view, which follows the reader as the
+// page reads on, under "This chapter · John 4" and a link to the notebook
+// page, "All 128 in the Notebook"; a chapter holding nothing says so in one
+// sentence with "Show me how" (the tour; NX-13). On an article or the
+// glossary it starts on the notes on this page (N11), with a small choice at
+// its top that switches to everything kept; elsewhere it lists everything. An article also offers a note on the whole article here.
 // N11 is out of version 1 (note-sources.js, PROSE_NOTES), so for now an
 // article and the glossary list everything, with no such offer.
 //
@@ -68,9 +70,10 @@
 // `.desk-item`, never by its position.
 //
 // Under the count, one quiet line (E176; BVJ, 2026-11-19): “My Notebook,” a link
-// to the notebook page (in a new tab on /desk, as its title menu's is), and,
-// while the search or a label narrows the list, “Add these 12 to a
-// collection…” before it, as My Notebook's list has (D13, step 5).
+// to the notebook page (in a new tab on /desk, as its title menu's is; the
+// panel's is in its head instead), and, while the search or a label narrows
+// the list, “Add these 12 to a collection…” before it, as My Notebook's list
+// has (D13, step 5).
 //
 // On /desk the list follows the LIT pane (E22): the row followed to is the
 // first record at or after the reading line (the last before it, with none
@@ -119,9 +122,6 @@ import { SETTINGS_EVENT, getSetting, setSetting } from "./note-settings.js";
 import { canRevealFootnote, revealFootnote, unpinRecord } from "./pins.js";
 import { drawBookmarkLine, followBookmark, followsHere, stopFollowing } from "./bookmark-follow.js";
 import { followLinkButton, moveItHereButton } from "./bookmark-stop.js";
-import { continueSection } from "./continue-reading.js";
-import { pageChapter } from "./page.js";
-import { readBook } from "./page-kind.js";
 import { showUndo } from "./undo-bar.js";
 import { colorOf, highlightedWords, keepLines, nameOf, readChapterLines } from "./record-words.js";
 import { scroller } from "./dom.js";
@@ -148,16 +148,21 @@ let seq = 0;
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
  *   ctx?: (() => object) | null,
  *   showInText?: { can(record: object): boolean, go(record: object): void } | null,
- *   notebookInNewTab?: boolean }} options
+ *   notebookInNewTab?: boolean, inPanel?: boolean,
+ *   emptyAction?: { label: string, run: () => void, when?: (p: object | null) => boolean } | null }} options
  *   `visible` says whether the tab can be seen, so a hidden one isn't drawn;
  *   `afterRender` lets the panel bring its foot up to date. `ctx` and
  *   `showInText` are what the change notice's card needs (and `ctx`, “Add
  *   these 12 to a collection…”). `notebookInNewTab` (/desk) opens the “My
- *   Notebook” link beside the page.
+ *   Notebook” link beside the page. `inPanel` is the Notebook panel's list of
+ *   the chapter in view (`follow` names it), headed "This chapter" with the
+ *   whole notebook's count as a link; `emptyAction` is the one button under
+ *   the line a chapter holding nothing shows ("Show me how"), where `when`
+ *   allows it.
  * @returns {{ el: HTMLElement, render: (opts?: { focusIndex?: number | null }) => Promise<void>,
  *   follow: (passage: object) => void, destroy: () => void }}
  */
-export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null, notebookInNewTab = false, readLines = readChapterLines }) {
+export function createMineTab({ store, storeError, scope: pageScope = null, addAction = null, inReadView, visible, afterRender = () => {}, onEdit = null, goHere = null, ctx = null, showInText = null, notebookInNewTab = false, inPanel = false, emptyAction = null, readLines = readChapterLines }) {
   const n = ++seq;
   // Which colour the list is narrowed to (null: everything), and the label
   // (an id; null: everything). Each tab's own, so two My Notes panes on /desk
@@ -177,7 +182,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const el = document.createElement("div");
   el.className = "desk-mine";
   el.innerHTML = `
-    ${pageScope ? `<div class="desk-seg desk-mine__scope" role="radiogroup" aria-label="Which of my notes">
+    ${inPanel ? `<div class="desk-mine__head">
+      <h3 class="desk-mine__title" id="deskMineTitle${n}">This chapter<span aria-hidden="true"> · </span><span class="sr-only">, </span><span class="desk-mine__chapter"></span></h3>
+      <a class="kit-inline desk-mine__all" href="/notebook/" hidden></a>
+    </div>` : ""}
+    ${pageScope && !inPanel ? `<div class="desk-seg desk-mine__scope" role="radiogroup" aria-label="Which of my notes">
       <label class="desk-seg__option">
         <input type="radio" class="desk-seg__input" name="desk-mine-scope" value="chapter" checked />
         <span class="desk-seg__text"></span>
@@ -208,33 +217,29 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     <p class="desk-mine__here" hidden></p>
     <ul class="desk-list"></ul>
     <p class="desk-panel__empty" hidden></p>
+    ${emptyAction ? `<button type="button" class="kit-btn kit-btn--tinted desk-mine__how" hidden></button>` : ""}
     <section class="desk-mine__pins" aria-labelledby="deskMinePinsTitle${n}" hidden>
       <h3 class="desk-mine__pins-title" id="deskMinePinsTitle${n}">Pinned footnotes</h3>
       <ul class="desk-list desk-mine__pin-list"></ul>
     </section>`;
-  if (pageScope) el.querySelector(".desk-seg__text").textContent = pageScope.label;
-  // The passage /desk's LIT pane is at (`follow`); null elsewhere.
+  if (pageScope && !inPanel) el.querySelector(".desk-seg__text").textContent = pageScope.label;
+  // The passage /desk's LIT pane is at, or the chapter in view beside the
+  // panel (`follow`); null elsewhere.
   let following = null;
-  // Continue reading (continue-reading.js) sits above everything else, whatever
-  // the scope, unless it names what is on screen (FU4-2): /desk's LIT pane's
-  // chapter, Read View's book, or this chapter.
-  const continued = continueSection({
-    here: () => {
-      if (following) return following;
-      if (!inReadView) return pageChapter();
-      const book = readBook();
-      return book ? { bookKey: book } : null;
-    },
-  });
-  el.prepend(continued);
+  const chapterName = el.querySelector(".desk-mine__chapter");
+  const allLink = el.querySelector(".desk-mine__all");
+  const howButton = el.querySelector(".desk-mine__how");
+  if (howButton) {
+    howButton.textContent = emptyAction.label;
+    howButton.addEventListener("click", () => emptyAction.run());
+  }
   const addButton = el.querySelector(".desk-mine__add");
   if (addButton) {
     addButton.textContent = addAction.label;
     addButton.addEventListener("click", () => addAction.run(addButton));
   }
 
-  // The tab's own list, not Continue reading's (also a .desk-list, and first
-  // in the tree now that it is prepended): each drew into the other's list.
+  // The tab's own list, not the pins' (also a .desk-list).
   const list = el.querySelector(":scope > .desk-list");
   const empty = el.querySelector(".desk-panel__empty");
   const pinBox = el.querySelector(".desk-mine__pins");
@@ -252,6 +257,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   const addThese = linksLine.querySelector("button");
   const linksGap = linksLine.querySelector("span");
   const notebookLink = linksLine.querySelector("a");
+  // The panel's link to the notebook page is in its head ("All 128 in the Notebook").
+  if (inPanel) notebookLink.hidden = true;
   if (notebookInNewTab) {
     notebookLink.target = "_blank";
     notebookLink.rel = "noopener noreferrer";
@@ -345,12 +352,21 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
    */
   function follow(p) {
     following = p ?? null;
-    continued.refresh();
     // The pane's "This chapter" is the leading LIT pane's: a new chapter
     // there redraws the list (E119). The first call only notes it.
     const key = following?.bookKey ? `${following.bookKey} ${following.chapter ?? ""}` : "";
     const moved = key !== followKey;
     followKey = key;
+    // Beside a chapter the list is the chapter in view's, so only a new
+    // chapter changes it, and it starts again at its top.
+    if (inPanel) {
+      drawHead();
+      if (!moved) return;
+      const box = list.isConnected ? scroller(el) : null;
+      if (box) box.scrollTop = 0;
+      render();
+      return;
+    }
     if (moved && pageScope?.dynamic && scope === "chapter") {
       render();
       return;
@@ -373,6 +389,11 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
    * read, and say so when nothing in the list is.
    */
   function markHere() {
+    // The panel's list is one chapter's already.
+    if (inPanel) {
+      hereLine.hidden = true;
+      return;
+    }
     for (const row of list.querySelectorAll('[aria-current="location"]')) row.removeAttribute("aria-current");
     const hit = following?.bookKey ? followTarget(shown, following) : null;
     if (hit?.here) rowOf(hit.record.id)?.setAttribute("aria-current", "location");
@@ -462,6 +483,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
       colors.hidden = true;
       labelRow.hidden = true;
       changed.hidden = true;
+      if (allLink) allLink.hidden = true;
+      if (howButton) howButton.hidden = true;
       empty.hidden = false;
       empty.textContent =
         "This browser isn’t letting the site keep a notebook. Private windows sometimes don’t. Open the site in a regular window to keep notes.";
@@ -482,7 +505,8 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     const marks = listable(everything);
     const kept = marks.filter((r) => r.kind !== "footnotePin");
     const allPins = marks.filter((r) => r.kind === "footnotePin");
-    continued.refresh();
+    // The panel's head counts the whole notebook, as its link leads there.
+    if (inPanel) drawHead(listable(withoutSheets(liveRecords(everyRecord))).length);
 
     // The colours this list holds. A choice of colour that has left it (the
     // last of its highlights deleted, or the list changed to another scope)
@@ -543,6 +567,12 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
             : scope === "chapter"
               ? typeof pageScope.empty === "function" ? pageScope.empty(following) : pageScope.empty
               : "Nothing kept yet. On a chapter, select a verse number and choose “Add a note,” “Add bookmark,” or “Highlight.”";
+    // "Show me how" (NX-13): only under the chapter's own empty line, never
+    // under a search or a filter that matched nothing.
+    if (howButton) {
+      howButton.hidden =
+        empty.hidden || narrowed || scope !== "chapter" || (emptyAction.when ? !emptyAction.when(following) : false);
+    }
     if (speak) {
       speak = false;
       tell(countLine.hidden ? (empty.hidden ? "" : empty.textContent) : countLine.textContent);
@@ -666,8 +696,21 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
     addable = ctx && (query.trim() || labelFilter) ? matched.filter((r) => ITEM_KINDS.includes(r.kind)).map((r) => r.id) : [];
     addThese.hidden = addable.length === 0;
     if (addable.length) addThese.textContent = `Add ${addable.length === 1 ? "this one" : `these ${addable.length}`} to a collection…`;
-    linksGap.hidden = addThese.hidden;
-    linksLine.hidden = false;
+    linksGap.hidden = addThese.hidden || notebookLink.hidden;
+    linksLine.hidden = inPanel && addThese.hidden;
+  }
+
+  /**
+   * The panel's head: "This chapter · John 4," and "All 128 in the Notebook"
+   * once the notebook holds anything (`total`, the last count when not given).
+   */
+  let lastTotal = 0;
+  function drawHead(total = lastTotal) {
+    if (!inPanel) return;
+    lastTotal = total;
+    chapterName.textContent = following?.label ?? pageScope?.label ?? "";
+    allLink.hidden = !store || total === 0;
+    allLink.textContent = total === 1 ? "1 in the Notebook" : `All ${total} in the Notebook`;
   }
 
   // A chapter's heading among the rows. Not a list item to a screen reader
@@ -1096,7 +1139,6 @@ export function createMineTab({ store, storeError, scope: pageScope = null, addA
   function destroy() {
     document.removeEventListener(SETTINGS_EVENT, markCut);
     window.clearTimeout(queryTimer);
-    continued.destroy();
   }
 
   /**

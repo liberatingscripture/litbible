@@ -37,7 +37,6 @@ const FILLED = [
   ".desk-offer__go",
   ".desk-rich-link__button--primary",
   ".desk-undo__choice--primary",
-  ".desk-backup-notice__go",
   ".desk-backup__import",
   ".desk-gather__btn--primary:not(.desk-gather__go)", // /search's chooser: New sheet
 ];
@@ -46,7 +45,6 @@ const TINTED = [
   ".desk-mine__label", // label chips
   ".desk-greek__show-sources",
   ".desk-sheet__chip", // a sheet's blank chips
-  ".desk-home-card__choose",
   ".desk-search__btn--primary", // the Search pane's strip: Add to sheet, New sheet
   ".desk-gather__go", // /search's head rows: one to a group, and a page shows several
   '.desk-swatch[data-choice="all"]', // the color filters' "All", a chip with words
@@ -65,8 +63,6 @@ const PLAIN = [
   ".desk-np__more",
   ".desk-mine__add",
   ".desk-editor__cancel",
-  ".desk-panel__reset",
-  ".desk-panel__print-button",
   ".desk-greek__goto",
   ".desk-greek__back",
   ".desk-greek__retry",
@@ -81,7 +77,7 @@ const PLAIN = [
   ".desk-ws__menu-actions button",
   ".desk-rich-link__button:not(.desk-rich-link__button--primary)",
   ".desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)", // /search's Cancel and Undo
-  ".desk-tab", // the minimized Notebook
+  ".desk-tab", // the minimized Notebook (its panel's controls carry the kit's classes)
   ".desk-sync__again", // the sync's Reconnect
   ".desk-circle", // a margin note's glyph
 ];
@@ -96,9 +92,9 @@ const DANGER = [
 // A command, a template, a sheet to add to, a print: each a list row.
 const ROW = [".desk-cmds__row", ".desk-command", ".desk-sheet__from-item", ".desk-gather__sheet", ".desk-print-menu__choices > :is(a, button)"];
 // A row of choices, each a tab: the chosen one underlined and heavier.
-const TAB = ['.desk-panel__tabs [role="tab"]', ".desk-seg__option", ".desk-greek__choice", ".desk-search__choice", ".desk-ws__shape", ".desk-editor__marker"];
+const TAB = [".desk-seg__option", ".desk-greek__choice", ".desk-search__choice", ".desk-ws__shape", ".desk-editor__marker"];
 // A press inside a line of words.
-const INLINE = [".desk-search__pick-clear", ".desk-gather__btn--quiet", ".desk-home__tour", ".desk-home__backup"];
+const INLINE = [".desk-search__pick-clear", ".desk-gather__btn--quiet"];
 
 test("every button in the desk's inventory takes one level of the kit", () => {
   takes("filled", FILLED);

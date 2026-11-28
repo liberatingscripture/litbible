@@ -50,7 +50,7 @@ const NAMES = { romans: "Romans", galatians: "Galatians" };
 const labelOf = (h) => `${NAMES[h.book]} ${h.chapter}:${h.verse}`;
 // A row as search.js's appendGreekRows draws it.
 const greekRow = (h) =>
-  `<li class="result greek-row"><div class="greek-hit"><a class="greek-ref" href="/${h.book}-${h.chapter}/?greek=${h.verse}.${h.t}#v${h.verse}">${labelOf(h)}</a><div class="result-excerpt greek-text" lang="grc">πίστεως</div><div class="greek-parse" hidden></div></div></li>`;
+  `<li class="result greek-row"><div class="greek-hit"><a class="greek-ref" href="/desk/?place=${h.book}-${h.chapter}:${h.verse}&greek=${h.verse}.${h.t}">${labelOf(h)}</a><div class="result-excerpt greek-text" lang="grc">πίστεως</div><div class="greek-parse" hidden></div></div></li>`;
 // What search.js's announceGreek sends.
 const detailFor = (query, hits, greekWord = "πίστις") => ({
   query,

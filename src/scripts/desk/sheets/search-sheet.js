@@ -88,9 +88,11 @@ const chapterKey = (r) => `${r.bookKey} ${r.chapter}`;
 // search-style.js; all of desk.css until LG8-10).
 const ensureStyles = addSearchStyle;
 
-/** A verse result's address: "/john-3#v16", or a Greek one's "/john-3/?greek=16.7#v16", is John 3:16. */
+/** A verse result's address: "/john-3#v16", or a Greek one's "/desk/?place=john-3:16&greek=16.7", is John 3:16. */
 function refOfLink(href) {
-  const m = /^\/?([0-9]?[a-z]+)-(\d+)\/?(?:\?[^#]*)?#v(\d+)$/i.exec(String(href ?? ""));
+  const text = String(href ?? "");
+  const greek = /^\/desk\/?\?place=([0-9]?[a-z]+)-(\d+):(\d+)&greek=\d+\.\d+$/i.exec(text);
+  const m = greek ?? /^\/?([0-9]?[a-z]+)-(\d+)\/?(?:\?[^#]*)?#v(\d+)$/i.exec(text);
   return m ? { bookKey: m[1].toLowerCase(), chapter: Number(m[2]), verse: Number(m[3]) } : null;
 }
 

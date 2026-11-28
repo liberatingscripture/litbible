@@ -632,14 +632,18 @@ const chs = Object.values(FIRST_PAINT.ch).flatMap((c) =>
   Object.values(FIRST_PAINT.scale).flatMap((s) => [16, 20].map((root) => c * s * FIRST_PAINT.body * root)),
 );
 
-test("firstPaint stamps the notebook expanded exactly where placeInMargin keeps it in the margin", () => {
+// BS-15 (Featherboa's Phase 5): the open notebook keeps its room, so firstPaint
+// stamps expanded in every window, including where it floats (once BA25).
+test("BS-15: firstPaint stamps the open notebook expanded in every window, and places it where placeInMargin does", () => {
   for (const ch of chs) {
     const width = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
     for (let viewport = 600; viewport <= 1800; viewport += 3) {
       const at = placeInMargin({ ...centred(viewport, width), keepLeft: KEEP_LEFT });
       const fp = firstPaint({ viewport, ch });
-      assert.equal(fp.expanded, !at.over, `${ch} ${viewport}`);
+      assert.equal(fp.expanded, true, `${ch} ${viewport}`);
       assert.equal(fp.widths, null);
+      // Where the margin can't hold it, the column stays centered, unmoved.
+      if (at.over) assert.equal(fp.shift, 0, `${ch} ${viewport}`);
     }
   }
 });
@@ -660,9 +664,9 @@ test("E137: firstPaint's move is the one placeInMargin makes, for every font, si
       const fp = firstPaint({ viewport, ch });
       const where = `${ch} ${viewport}`;
       if (at.over) {
-        // It floats and folds: no move is stamped, since the folded tab's own
-        // (placeFloating) is another, smaller one, made by the first stage.
-        assert.deepEqual(fp, { expanded: false, widths: null, shift: 0, center: null }, where);
+        // It floats: still stamped expanded (BS-15), but no move, since the
+        // tab's own (placeFloating) is another, smaller one, made by the first stage.
+        assert.deepEqual(fp, { expanded: true, widths: null, shift: 0, center: null }, where);
         continue;
       }
       assert.equal(fp.shift, at.shift, where);
@@ -678,7 +682,7 @@ test("E137: firstPaint's move is the one placeInMargin makes, for every font, si
 
 test("E137: the moves at a 1024px, an 1100px and a 1280px window, in Source Sans 3 and OpenDyslexic, at Medium and Extra large", () => {
   const px = (font, size) => FIRST_PAINT.ch[font] * FIRST_PAINT.scale[size] * FIRST_PAINT.body * 16;
-  // Each window less a 15px scrollbar. null: the notebook floats and folds.
+  // Each window less a 15px scrollbar. null: the notebook floats (BS-15: still stamped expanded, unmoved).
   const cases = [
     ["Source Sans 3, Medium", px("", ""), [85, 47, 0]],
     ["Source Sans 3, Extra large", px("", "xl"), [null, 118, 28]],
@@ -690,8 +694,9 @@ test("E137: the moves at a 1024px, an 1100px and a 1280px window, in Source Sans
       const fp = firstPaint({ viewport, ch });
       const where = `${name} ${viewport}`;
       if (moves[i] === null) {
-        assert.equal(fp.expanded, false, where);
+        assert.equal(fp.expanded, true, where);
         assert.equal(fp.shift, 0, where);
+        assert.equal(fp.center, null, where);
         return;
       }
       assert.equal(fp.expanded, true, where);
@@ -728,10 +733,13 @@ test("E137: the reader's widths move nothing, and say where the column's center 
 });
 
 // 897px until E81, when the column began keeping KEEP_LEFT (38px) on its left.
-test("firstPaint: the default font and size float the notebook below about 898px", () => {
+test("BS-15: the default font and size float the notebook below about 898px, and it is stamped expanded either side", () => {
   const ch = FIRST_PAINT.ch[""] * FIRST_PAINT.body * 16;
-  assert.equal(firstPaint({ viewport: 897, ch }).expanded, false);
-  assert.equal(firstPaint({ viewport: 898, ch }).expanded, true);
+  const below = firstPaint({ viewport: 897, ch });
+  assert.deepEqual(below, { expanded: true, widths: null, shift: 0, center: null });
+  const at = firstPaint({ viewport: 898, ch });
+  assert.equal(at.expanded, true);
+  assert.ok(at.shift > 0, "from 898px the margin holds it, with the column moved");
 });
 
 // E81 (BVJ, 2026-11-10): the left margin never gets too narrow for a

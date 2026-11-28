@@ -60,45 +60,63 @@
   outline: none;
 }
 
+/* The head: the title, which is the Notebook's menu (BS-25 to BS-31,
+   notebook-menu.js), its stage, and the button that minimizes it. Both
+   buttons are the kit's; only where they sit is here. The menu and the Print
+   window hang from the head, over the notes. */
 .desk-panel__head {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 12px 10px 16px;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2) var(--space-2);
 }
 
-/* The name and its badge share what the two buttons leave. The panel's words
-   follow the Display tray's text size (E109), so the row can ask for more
-   than a narrow panel has, sooner still in OpenDyslexic. Then the badge
+/* The title and its badge share what the minimize button leaves. The panel's
+   words follow the Display tray's text size (E109), so the row can ask for
+   more than a narrow panel has, sooner still in OpenDyslexic. Then the badge
    wraps to a second line, which the row's height clips: it goes whole, the
-   name stays where it was (and is cut short only if it alone can't fit), and
-   the two buttons never leave the panel. The row is the buttons' height. */
+   title stays where it was (and is cut short only if it alone can't fit), and
+   the minimize button never leaves the panel. The row is the buttons'
+   height. Its clip leaves room around them for the focus ring (2px, 2px off
+   the control, global.css), which it would otherwise cut to a sliver beside
+   the badge, and the margin gives that room back, so nothing moves; the
+   badge's second line starts past the clip, so it still goes whole. */
 .desk-panel__name {
+  --ring-room: calc(var(--focus-width, 2px) + var(--focus-offset, 2px));
   display: flex;
   flex: 1 1 0;
   flex-wrap: wrap;
   align-items: center;
   align-content: flex-start;
-  gap: 0 8px;
+  gap: var(--space-2);
   min-width: 0;
-  height: 36px;
+  height: calc(var(--target) + 2 * var(--ring-room));
+  margin: calc(-1 * var(--ring-room));
+  padding: var(--ring-room);
   overflow: hidden;
 }
 
+/* The heading holds the menu's button, so it takes the button's type. */
 .desk-panel__title {
   min-width: 0;
   max-width: 100%;
   margin: 0;
+  font: inherit;
+}
+
+.desk-panel__title-button {
+  max-width: 100%;
+}
+
+.desk-panel__title-text {
+  min-width: 0;
   overflow: hidden;
-  font-size: calc(1.0625rem * var(--desk-ui, 1));
-  font-weight: 700;
-  line-height: 36px;
-  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .desk-panel__badge {
-  padding: 2px 8px;
+  padding: 2px var(--space-2);
   border: 1px solid rgba(var(--ink-rgb), 0.3);
   border-radius: var(--radius-press);
   color: rgba(var(--ink-rgb), var(--text-2-alpha));
@@ -108,9 +126,57 @@
   text-transform: uppercase;
 }
 
-/* » minimizes the notebook to its tab at the window's edge, in the margin
-   and floating alike (BVJ, 2026-10-09). It has no close (BVJ, 2026-10-29). */
-.desk-panel__collapse,
+/* The title's menu (notebook-menu.js): the kit's menu, a float of kit rows
+   as the header's menus are, hanging from the title over the notes, which
+   stay beneath it (BS-31). Print…'s window takes the same place and look, the
+   panel's width, since it holds a passage field. Each scrolls inside itself
+   where the panel is short. */
+.desk-panel__menu,
+.desk-panel__print {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--space-3) + var(--target) + var(--space-1));
+  left: var(--space-2);
+  box-sizing: border-box;
+  max-width: calc(100% - 2 * var(--space-2));
+  max-height: calc(100% - var(--space-3) - var(--target) - var(--space-1) - var(--space-2));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-1);
+  border: 1px solid var(--color-float-edge);
+  border-radius: var(--radius-float);
+  background: var(--color-float);
+  box-shadow: var(--shadow-float);
+  animation: desk-panel-menu-in var(--dur-quick) var(--ease);
+}
+
+.desk-panel__menu {
+  min-width: min(15rem, calc(100% - 2 * var(--space-2)));
+}
+
+.desk-panel__print {
+  right: var(--space-2);
+  padding: var(--space-3);
+}
+
+.desk-panel__menu[hidden],
+.desk-panel__print[hidden] {
+  display: none;
+}
+
+@keyframes desk-panel-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.desk-panel__menu-sep {
+  margin: var(--space-1) var(--space-2);
+  border-top: 1px solid var(--color-hairline);
+}
+
+/* The undo bar's close, the size of the kit's icon alone. */
 .desk-undo__close {
   display: inline-flex;
   align-items: center;
@@ -120,42 +186,13 @@
   cursor: pointer;
 }
 
-/* The link to /desk, icon only (the panel is narrow), right of the title and
-   badge (BVJ, 2026-10-29), the header's Study Desk button in small. */
-.desk-panel__desk {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 36px;
-  height: 36px;
-  margin-left: auto;
-  text-decoration: none;
-}
-
 /* ── Tabs ── */
 
+/* The kit's tabs (Notes, Footnotes, This verse); only the row's place is
+   here. A narrow panel, or larger words, wraps them to a second row rather
+   than clip one. */
 .desk-panel__tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 2px;
-  padding: 0 8px;
-  border-bottom: 1px solid rgba(var(--ink-rgb), 0.12);
-}
-
-.desk-panel__tabs [role="tab"] {
-  margin-bottom: -1px;
-  padding: 8px;
-  white-space: nowrap;
-  line-height: inherit;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  cursor: pointer;
-}
-
-/* OpenDyslexic is far wider than Inter (NB-3): the row wraps to a second line
-   rather than clip a tab, and the labels keep their size. */
-html[data-font="dyslexic"] .desk-panel__tabs [role="tab"] {
-  padding-inline: 6px;
+  margin: 0 var(--space-1);
 }
 
 /* ── The list ── */
@@ -165,7 +202,7 @@ html[data-font="dyslexic"] .desk-panel__tabs [role="tab"] {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 4px 12px 12px;
+  padding: var(--space-1) var(--space-3) var(--space-3);
 }
 
 /* Each tab has its own body; only the showing tab's is displayed. */
@@ -266,51 +303,6 @@ a.desk-item__ref:hover {
 .desk-panel__empty {
   margin: 14px 4px;
   color: rgba(var(--ink-rgb), var(--text-3-alpha));
-}
-
-/* ── The Settings tab (what was My Notes' foot) ── */
-
-.desk-panel__settings-tab {
-  padding: 10px 16px 14px;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-}
-
-.desk-panel__settings-tab p {
-  margin: 0;
-}
-
-/* Three small headings give the tab an order (E75): Show, Keep and print,
-   Help, each group a little apart from the next. */
-.desk-panel__group + .desk-panel__group {
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.1);
-}
-
-.desk-panel__group-title {
-  margin: 0 0 8px;
-  /* A small label in the controls' face (Atkinson), though a heading. */
-  font-family: var(--font-control);
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  font-weight: 600;
-}
-
-.desk-panel__group .desk-panel__print {
-  margin: 0 0 10px;
-}
-
-/* One link style across the tab (E75; they were underlined and not, bold and
-   not): the text green, underlined, at the tab's weight. */
-.desk-panel__settings-tab :is(.desk-panel__page a, .desk-panel__commands .greek-cmd-link, .desk-home__links a, .desk-home__links .desk-home__tour, .desk-home__safari a, .desk-home__account a) {
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.desk-panel__group--help .desk-home__links {
-  margin-top: 6px !important;
 }
 
 /* ── The undo bar ──────────────────────────────────────────────── */
@@ -574,15 +566,7 @@ html:has(.desk-undo__bar:not([hidden])) {
   }
 }
 
-/* ── Settings at the foot: My notes, and their lettering ─────── */
-
-.desk-panel__settings {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
-  margin-bottom: 8px;
-}
+/* ── A setting's checkbox, and a row of choices ─────────────── */
 
 .desk-setting {
   display: inline-flex;
@@ -591,10 +575,6 @@ html:has(.desk-undo__bar:not([hidden])) {
   margin-bottom: 8px;
   color: var(--text);
   cursor: pointer;
-}
-
-.desk-panel__settings .desk-setting {
-  margin-bottom: 0;
 }
 
 .desk-setting__input {
@@ -903,8 +883,10 @@ html:has(.desk-undo__bar:not([hidden])) {
 
 /* src/scripts/desk/notes-margin.js places each note, in document
    coordinates, beside its first word (STUDY-DESK.md, "Decisions",
-   2026-10-07). Playpen Sans by default, Inter on "Plain"; the reader's own
-   font choice wins anyway, through global.css's html[data-font] rule. */
+   2026-10-07). The notes follow the reader's Display face (--font-text, which
+   html[data-font] overrides) at the Margin size (DI-17). The Playpen Sans
+   faces below stay only for the Sheets (desk-sheet-view.css), until the phase
+   that moves them. */
 @font-face {
   font-family: "Playpen Sans";
   font-style: normal;
@@ -940,22 +922,6 @@ html:has(.desk-undo__bar:not([hidden])) {
   height: 0;
   /* Above the page, below the shared floating panels (1100). */
   z-index: 800;
-  --desk-note-font: "Playpen Sans", var(--font-text);
-  /* Playpen at 500, a little firmer than its regular (BVJ, 2026-10-07, to
-     try on the preview). Inter on "Plain", and a reader's own font, keep
-     their normal weight. */
-  --desk-note-weight: 500;
-}
-
-html[data-font] .desk-notes,
-html[data-font] .desk-note-pop {
-  --desk-note-weight: 400;
-}
-
-html[data-desk-note-font="plain"] .desk-notes,
-html[data-desk-note-font="plain"] .desk-note-pop {
-  --desk-note-font: var(--font-text);
-  --desk-note-weight: 400;
 }
 
 .desk-notes[hidden] {
@@ -969,10 +935,10 @@ html[data-desk-note-font="plain"] .desk-note-pop {
   padding: 3px 6px;
   border-radius: var(--radius-press);
   color: var(--text);
-  font-family: var(--desk-note-font);
-  font-weight: var(--desk-note-weight, 400);
-  /* 16px at the default text size, up from 15 (BVJ, 2026-10-13). */
-  font-size: calc(1rem * var(--reading-scale, 1));
+  font-family: var(--font-text);
+  font-weight: 400;
+  /* The Margin size: 16px at the default text size. */
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
@@ -1345,8 +1311,9 @@ a.desk-verse__mention-ref:hover {
   grid-template-columns: 18px 1fr;
   gap: 4px 8px;
   width: min(300px, calc(100vw - 32px));
-  font-family: var(--desk-note-font, "Playpen Sans", var(--font-text));
-  font-weight: var(--desk-note-weight, 500);
+  font-family: var(--font-text);
+  font-weight: 400;
+  font-size: calc(var(--size-margin) * var(--reading-scale, 1));
   line-height: calc(1.5 + var(--desk-leading, 0));
 }
 
@@ -1973,31 +1940,12 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   }
 }
 
-/* The Settings tab's small plain button, the kit's, as Edit is: "Ask this
-   browser to keep it" beside the line saying the browser may clear the
-   notebook. ("Reset widths" was one until Featherboa's Phase 4 gave each
-   line its own.) */
-.desk-panel__reset {
-  padding: 5px 10px;
-  line-height: inherit;
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  cursor: pointer;
-}
-
-.desk-panel__reset[hidden] {
-  display: none;
-}
-
 /* A button the desk has made busy (focus-keep.js: aria-disabled, so focus
-   stays) looks it: Undo, and "Ask this browser to keep it" (NB6-10). The
-   panel's own busy buttons keep their own looks above. "Ask this browser to
-   keep it" (and Reset widths, the same class) is a plain button, whose
-   unavailable look is the kit's; it takes only the cursor here. */
-.desk-undo__undo[aria-disabled="true"] {
-  cursor: progress;
-}
-
-.desk-panel__reset[aria-disabled="true"] {
+   stays) looks it: Undo, and "Ask this browser to keep it" on the notebook
+   page and All settings (export-import.js; NB6-10), whose unavailable look is
+   the kit's; each takes only the cursor here. */
+.desk-undo__undo[aria-disabled="true"],
+.desk-backup__keep[aria-disabled="true"] {
   cursor: progress;
 }
 
@@ -2695,91 +2643,79 @@ ol.footnotes[data-desk-fn-pills] {
   font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
-/* ── 1d: first use (the first-time choice, the foot, the tour) ── */
+/* ── 1d: first use (Start here, the foot line, the tours) ── */
 
 /* src/scripts/desk/first-use.js and tour.js. Tokens only, so every colour
    follows the theme; focus rings are the site's global :focus-visible. */
 
-.desk-home-card {
-  margin: 10px 0 6px;
-  padding: 12px 14px;
-  border: 1px solid rgba(var(--ink-rgb), 0.18);
-  border-radius: var(--radius-float);
-  background: rgba(var(--ink-rgb), 0.04);
-  color: var(--text);
+/* "Start here: Take the tour" (NX-19, NX-20): the Notebook's first line,
+   under its title, until the tour is taken or the reader knows their way
+   around. Its button is the view's one filled button; space, then the
+   tabs' hairline, set it apart. */
+.desk-start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: 0 var(--space-3) var(--space-2);
 }
 
-.desk-home-card[hidden] {
+.desk-start[hidden] {
   display: none;
 }
 
-.desk-home-card__title {
-  margin: 0 0 6px;
-  font-family: var(--font-display);
-  font-size: calc(0.9375rem * var(--desk-ui, 1));
-  font-weight: 500;
-  line-height: 1.3;
+.desk-start__lead {
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  font-weight: 600;
+  line-height: var(--leading-label);
 }
 
-.desk-home-card__title:focus {
-  outline: none;
-}
-
-.desk-home-card__lead,
-.desk-home-card__note,
-.desk-home-card__more,
-.desk-home-card__safari {
-  margin: 0 0 8px;
+/* The foot line (NX-07, NX-16, NB-34; first-use.js): one line under every
+   tab saying where the notebook is kept, "Back up…" beside it, and when a
+   backup is due, the last one's age. Its words change; its place never
+   does. A hairline sets it off the list. */
+.desk-panel__foot {
+  flex: none;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+  color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.8125rem * var(--desk-ui, 1));
   line-height: calc(1.45 + var(--desk-leading, 0));
 }
 
-.desk-home-card__note {
-  margin: 4px 0 0;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
+.desk-panel__foot[hidden],
+.desk-panel__backup[hidden],
+.desk-panel__sync[hidden] {
+  display: none;
 }
 
-.desk-home-card__safari {
-  padding: 8px 10px;
-  border-left: 3px solid var(--green-text);
-  background: rgba(var(--ink-rgb), 0.05);
+.desk-panel__foot-line {
+  margin: 0;
 }
 
-.desk-home-card__more {
-  margin-bottom: 0;
+/* In a browser that syncs, the sync's status line takes the same place
+   (sync/status-line.js draws into the slot), and the line's own words go
+   once it has. */
+.desk-panel__foot:has([data-desk-sync-slot]:not([hidden])) .desk-panel__foot-line {
+  display: none;
 }
 
-.desk-home-card__remind {
-  margin: 0 0 8px;
+/* Opening slides the Notebook 8px in from its edge as it fades in, at the
+   Settled speed ("Motion": panels, MO-03; panel.js adds the class when the
+   reader opens or expands it, never on a page that starts with it showing).
+   Only the panel moves, never scripture. Minimizing is at once. */
+.desk-panel--opening {
+  animation: desk-panel-in var(--dur-settled) var(--ease);
 }
 
-.desk-home-card__remind .desk-home-card__note {
-  margin-left: 24px;
+@keyframes desk-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
 }
 
-.desk-home-card__done {
-  margin-top: 10px;
-}
-
-/* Where accounts are open, the card asks (step 4j): two answers, each its
-   words and then its control, a hairline between them. Keeping it here is a
-   button; the account is a link to the account pages. */
-.desk-home-card__option {
-  padding: 10px 0;
-  border-top: 1px solid rgba(var(--ink-rgb), 0.12);
-}
-
-.desk-home-card__option:first-of-type {
-  padding-top: 2px;
-  border-top: 0;
-}
-
-.desk-home-card__account {
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  font-weight: 600;
-}
-
-.desk-home-card__choose,
 .desk-tour__next,
 .desk-tour__back {
   padding: 6px 12px;
@@ -2790,41 +2726,20 @@ ol.footnotes[data-desk-fn-pills] {
 }
 
 .desk-tour__skip,
-.desk-home__tour,
 .desk-sheet__tour {
   padding: 4px 6px;
   line-height: inherit;
   /* One rule for two places: the Sheets tour link follows /sheets' scale,
-     the Notebook's own tour link the panel's. */
+     the tour card's own link the desk's. */
   font-size: calc(0.8125rem * var(--sheet-ui, var(--desk-ui, 1)));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
 }
 
-.desk-home__link,
-.desk-home-card a,
 .desk-tour a {
   color: var(--green-text);
   text-underline-offset: 2px;
-}
-
-/* The panel's foot: where the notebook is kept. */
-.desk-home__safari,
-.desk-home__account {
-  margin-top: 6px !important;
-}
-
-.desk-home__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2px 14px;
-  margin-top: 8px !important;
-}
-
-.desk-home__links .desk-home__tour {
-  padding-left: 0;
 }
 
 /* The tour offer, a float-window.js window beside the Notebook. The generic
@@ -2968,13 +2883,40 @@ ol.footnotes[data-desk-fn-pills] {
 
 /* ── 1d: the notebook page, labels, back up and merge a backup ── */
 
-/* The panel's foot: the way to the notebook page. */
-.desk-panel__page {
-  margin-bottom: 6px;
+/* The Notebook's Notes (tab-mine.js in the panel): "This chapter · John 4"
+   over the list, and the whole notebook's count as a link beside it. The
+   size is the row's, so the link (the kit's inline) takes it from here. */
+.desk-mine__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--space-3);
+  margin: var(--space-2) var(--space-1) var(--space-1);
+  font-size: calc(0.8125rem * var(--desk-ui, 1));
 }
 
-.desk-panel__page a {
-  color: var(--green-text);
+.desk-mine__title {
+  margin: 0;
+  /* A small label in the controls' face (Atkinson), though a heading. */
+  font-family: var(--font-control);
+  color: rgba(var(--ink-rgb), var(--text-3-alpha));
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.desk-mine__chapter {
+  color: var(--text);
+}
+
+/* "Show me how" (NX-08, NX-13), under the line a chapter with nothing kept
+   shows: the tour. */
+.desk-mine__how {
+  margin: 0 var(--space-1) var(--space-3);
+}
+
+.desk-mine__how[hidden] {
+  display: none;
 }
 
 /* My Notes: the search and "Show" above the list (what "What I've kept" had,
@@ -3463,6 +3405,25 @@ ol.footnotes[data-desk-fn-pills] {
 .desk-backup__last {
   margin: 0;
   font-weight: 600;
+}
+
+/* What the Notebook's Settings tab said about keeping (DI-17): Safari's seven
+   days, a browser that may clear the notebook (with "Ask this browser to keep
+   it"), and the line to an account. */
+.desk-backup__safari,
+.desk-backup__persist,
+.desk-backup__account {
+  margin: 0 0 0.75rem;
+}
+
+.desk-backup__safari[hidden],
+.desk-backup__persist[hidden],
+.desk-backup__account[hidden] {
+  display: none;
+}
+
+.desk-backup__keep {
+  margin-left: var(--space-1);
 }
 
 .desk-backup__file {
@@ -4415,6 +4376,7 @@ html:has(.desk-greek__split--dragging) {
   line-height: calc(1.55 + var(--desk-leading, 0));
 }
 
+/* A word of the verse's Greek: a link into Study at that word (ST-61). */
 .desk-verse__gw {
   margin: 0;
   padding: 0 1px;
@@ -4423,6 +4385,7 @@ html:has(.desk-greek__split--dragging) {
   background: transparent;
   color: inherit;
   font: inherit;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -4960,18 +4923,6 @@ html[data-desk-workspace] .desk-page__notice {
   color: rgba(var(--ink-rgb), var(--text-2-alpha));
   font-size: calc(0.75rem * var(--desk-ui, 1));
   line-height: calc(1.4 + var(--desk-leading, 0));
-}
-
-/* In the Notebook's Settings tab the menu opens in place under the button. */
-.desk-panel__print-menu {
-  margin-top: 8px;
-  padding: 10px;
-  border: 1px solid rgba(var(--ink-rgb), 0.18);
-  border-radius: var(--radius-float);
-}
-
-.desk-panel__print-menu[hidden] {
-  display: none;
 }
 
 .desk-ws__menu-actions button {
@@ -8111,27 +8062,6 @@ p.desk-sheet__flag {
 
 /* ── M6: Print with my notes ─────────────────────────────────── */
 
-/* The button and its line, at the foot of My Notes beside the switches: a
-   plain button, the kit's, as Edit and Reset widths are. */
-.desk-panel__print {
-  flex: 1 1 100%;
-  margin-top: 2px;
-}
-
-.desk-panel__print-button {
-  padding: 5px 10px;
-  line-height: inherit;
-  font-size: calc(0.8125rem * var(--desk-ui, 1));
-  cursor: pointer;
-}
-
-.desk-panel__print .desk-panel__print-hint {
-  margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), var(--text-2-alpha));
-  font-size: calc(0.75rem * var(--desk-ui, 1));
-  line-height: calc(1.4 + var(--desk-leading, 0));
-}
-
 /* What src/scripts/desk/print-notes.js adds for one print: an <aside> after
    each block that has notes, and a closing list for notes with no block. They
    exist only on paper, so the screen never shows them or moves for them, and
@@ -8192,8 +8122,6 @@ mark.desk-print-mark {
     border-left: 0.5pt solid #888;
     font-size: calc(9.5pt * var(--reading-scale, 1));
     line-height: 1.35;
-    --desk-note-font: "Playpen Sans", var(--font-text);
-    --desk-note-weight: 500;
   }
 
   html[data-desk-print="notes"] .desk-print-strays {
@@ -8203,34 +8131,21 @@ mark.desk-print-mark {
     border-top: 0.5pt solid #888;
     font-size: calc(9.5pt * var(--reading-scale, 1));
     line-height: 1.35;
-    --desk-note-font: "Playpen Sans", var(--font-text);
-    --desk-note-weight: 500;
   }
 
-  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-notes,
-  html[data-desk-print="notes"][data-desk-note-font="plain"] .desk-print-strays {
-    --desk-note-font: var(--font-text);
-    --desk-note-weight: 400;
-  }
-
-  html[data-desk-print="notes"][data-font] .desk-print-notes,
-  html[data-desk-print="notes"][data-font] .desk-print-strays {
-    --desk-note-weight: 400;
-  }
-
-  /* The notes' own face, unless the reader chose an accessibility font,
+  /* The text face, unless the reader chose an accessibility font,
      which prints as chosen (print.css sets the page's serif by the same
      test, with !important, so this needs it and more specificity). */
   html[data-desk-print="notes"]:not([data-font]) .desk-print-notes,
   html[data-desk-print="notes"]:not([data-font]) .desk-print-notes *,
   html[data-desk-print="notes"]:not([data-font]) .desk-print-strays,
   html[data-desk-print="notes"]:not([data-font]) .desk-print-strays * {
-    font-family: var(--desk-note-font) !important;
+    font-family: var(--font-text) !important;
   }
 
   html[data-desk-print="notes"] .desk-print-notes,
   html[data-desk-print="notes"] .desk-print-strays {
-    font-weight: var(--desk-note-weight, 400);
+    font-weight: 400;
   }
 
   html[data-desk-print="notes"] .desk-print-note {
@@ -9047,100 +8962,3 @@ mark.desk-print-mark {
   cursor: default;
 }
 
-/* The dot that says a backup is due (reminder.js sets data-desk-due): on the
-   Notebook's tab and buttons it is desk-tab.css's; here, the Settings tab,
-   /desk's title and its My Notebook line. Opening the Notebook never clears
-   it, since the notice is in Settings. In forced colors, Highlight. */
-.desk-panel__tabs [data-tab][data-desk-due],
-.desk-title__button[data-desk-due],
-.desk-title__item[data-desk-due],
-[data-desk-notebook-item][data-desk-due] {
-  position: relative;
-}
-
-.desk-panel__tabs [data-tab][data-desk-due]::after,
-.desk-title__button[data-desk-due]::after,
-.desk-title__item[data-desk-due]::after,
-[data-desk-notebook-item][data-desk-due]::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-press);
-  background: var(--green-text);
-}
-
-@media (forced-colors: active) {
-  .desk-panel__tabs [data-tab][data-desk-due]::after,
-  .desk-title__button[data-desk-due]::after,
-  .desk-title__item[data-desk-due]::after,
-  [data-desk-notebook-item][data-desk-due]::after {
-    forced-color-adjust: none;
-    background: Highlight;
-  }
-}
-
-/* The Settings tab's notice (E113, mock B): a tinted group at the top of
-   "Keep and print" while a backup is due and not put off for a week. */
-.desk-backup-notice {
-  --notice-bg: #e4f1e7;
-  margin: 0 0 12px;
-  padding: 10px 12px 11px;
-  border: 1px solid var(--green-text);
-  border-left-width: 4px;
-  border-radius: var(--radius-float);
-  background: var(--notice-bg);
-  color: var(--text);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .desk-backup-notice {
-    --notice-bg: #21342a;
-  }
-}
-
-:root[data-theme="dark"] .desk-backup-notice {
-  --notice-bg: #21342a;
-}
-
-.desk-backup-notice[hidden] {
-  display: none;
-}
-
-.desk-backup-notice__title {
-  margin: 0 0 4px;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.desk-backup-notice__text {
-  margin: 0 0 8px;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  line-height: calc(1.45 + var(--desk-leading, 0));
-}
-
-.desk-backup-notice__go {
-  display: inline-block;
-  margin: 0 0 8px;
-  padding: 7px 14px;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-  line-height: 1.3;
-  cursor: pointer;
-}
-
-.desk-backup-notice .desk-home__remind {
-  margin: 0;
-}
-
-/* The plain line's quiet "Back up now". */
-.desk-home__backup {
-  padding: 0;
-  font-size: inherit;
-  line-height: inherit;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}

@@ -365,19 +365,20 @@ export function widestMeasure({ viewport, parentLeft, ch, pad, width, keepLeft =
 
 // Layout.astro's pre-paint script stamps <html data-desk-expanded> (the 48
 // measure on Chapter View chapters) and the reader's kept widths, so a page
-// opening with the notebook expanded doesn't reflow. Stamped where the
-// window can't hold them, the first placement undid them: in a window too
-// narrow for the margin the notebook floats, folds by itself
-// (nextCollapsed), and the column reflowed from 48 to 52 on every chapter
-// (BA25); and widths kept in a wider window opened the column off center
-// until widths.js gave way (BA30). So the script works out, before anything
-// is laid out, what the first placement will decide: firstPaint below,
-// which it repeats, since it can't import (test/desk-prepaint.test.js holds
-// the two together and this to the placements it predicts).
+// opening with the notebook open doesn't reflow. Since Featherboa's Phase 5
+// the open notebook keeps its room minimized as well as expanded (BS-15:
+// opening and closing the panel moves no scripture; margin.js), so the
+// measure is stamped wherever the notebook opens, in any window, and folding
+// it by itself where it floats no longer reflows the column (once BA25).
+// Widths kept in a wider window opened the column off center until widths.js
+// gave way (BA30). So the script works out, before anything is laid out,
+// what the first placement will decide: firstPaint below, which it repeats,
+// since it can't import (test/desk-prepaint.test.js holds the two together
+// and this to the placements it predicts).
 //
 // It stamps the column's move left the same way (E137). In a window whose
 // margin is too narrow for the notebook (under about 1217px at the default
-// font and size), a chapter opening with it expanded painted with the column
+// font and size), a chapter opening with it open painted with the column
 // centered and moved it only when the desk's code arrived, a moment later on
 // every chapter (BVJ, 2026-11-17: the pages "shift back and forth"). So
 // firstPaint also says how far placeInMargin will move the column (`shift`),
@@ -439,8 +440,8 @@ export const MOVE_PROP = "--desk-move";
 
 /**
  * What the first placement will make of a Chapter View page opening with the
- * notebook expanded: whether it stays expanded (`expanded`; it folds where
- * the margin can't hold it even with the column moved), the widths to
+ * notebook open, expanded or minimized: the 48 measure (`expanded`, always,
+ * since the open notebook keeps its room; BS-15), the widths to
  * draw the page with (`widths`: the kept ones, given way as placeWithWidths
  * gives them, or null where they don't fit and the ordinary placement takes
  * over), how far left the column will be moved (`shift`, in px: what
@@ -472,9 +473,11 @@ export function firstPaint({ viewport, ch, kept = null, range = DEFAULT_RANGE })
   }
   // placeInMargin's test, with the column centered and free to move left to
   // the margin it keeps (keepLeft): the panel's room on the right plus the
-  // rest of the column's left margin must hold MIN_WIDTH.
+  // rest of the column's left margin must hold MIN_WIDTH. Where it can't, the
+  // notebook floats and the column is painted centered; the few pixels the
+  // tab at the window's edge may need come with the first placement, as before.
   const column = FIRST_PAINT.measure * ch + FIRST_PAINT.pad;
-  if (viewport - EDGE - GAP - keepLeft - column < MIN_WIDTH) return { expanded: false, widths: null, shift: 0, center: null };
+  if (viewport - EDGE - GAP - keepLeft - column < MIN_WIDTH) return { expanded: true, widths: null, shift: 0, center: null };
   // And its move: what MIN_WIDTH lacks of the room right of the centered
   // column, which the test above says the left margin can give.
   const shift = Math.round(Math.max(0, MIN_WIDTH + EDGE + GAP + (column - viewport) / 2));

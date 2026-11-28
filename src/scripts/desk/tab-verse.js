@@ -92,13 +92,16 @@ const { prev: ICON_PREV, next: ICON_NEXT } = chevronIcons(18);
  *   goHere?: { can(record: object): boolean, go(record: object): void } | null,
  *   ctx?: (() => object) | null,
  *   showInText?: { can(record: object): boolean, go(record: object): void } | null,
- *   greek?: { open(verse: number, t: number): void } | null,
+ *   greek?: { open?(verse: number, t: number): void, href?(verse: number, t: number): string } | null,
  *   source?: { textBox: Element | null, footnoteBody: (id: string) => Element | null,
  *     anchorText: () => object } | null,
  *   startVerse?: number | null, idSuffix?: string, onVerse?: ((verse: number) => void) | null,
  *   showPassage?: ((passage: object) => unknown) | null }} options
  *   `ctx` and `showInText` are what the change notice's card needs; `greek`
- *   opens the Greek tab at a word. On /desk the chapter isn't the page's:
+ *   is where a word of the verse's Greek leads: beside a chapter a link into
+ *   Study at the verse, with its Greek pane at the word (`href`; Featherboa's
+ *   Phase 5, ST-62: Greek leaves the Notebook), on /desk the Greek pane there
+ *   (`open`). On /desk the chapter isn't the page's:
  *   `source` reads it from the chapter's fetched Chapter View page
  *   (chapter-page.js), `startVerse` is where it opens, and `idSuffix` keeps
  *   two panes' ids apart. `onVerse` hears the verse Previous or Next steps to,
@@ -141,7 +144,7 @@ export function createVerseTab({
       <ol class="desk-verse__fn-list"></ol>
     </section>
     <section class="desk-verse__section desk-verse__notes" aria-labelledby="deskVerseMineTitle${idSuffix}">
-      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}" tabindex="-1">My Notes</h4>
+      <h4 class="desk-verse__subhead" id="deskVerseMineTitle${idSuffix}" tabindex="-1">Notes</h4>
       <ul class="desk-verse__mine"></ul>
       <p class="desk-verse__empty" hidden>No notes of yours on this verse.</p>
       <button type="button" class="desk-pin desk-pin--glyph desk-verse__add" aria-label="Add a note on this verse">${glyph("note", "desk-verse__add-glyph")}<span class="desk-pin__word" aria-hidden="true">Note</span></button>
@@ -394,7 +397,8 @@ export function createVerseTab({
 
   /**
    * The verse's Greek after its text: SBL's words, signs as printed, each word
-   * a button that opens the Greek tab there. One word is a tab stop and the
+   * a link into Study at the word (beside a chapter) or a button that opens
+   * the Greek pane there (on /desk). One word is a tab stop and the
    * arrow keys step through, as in the Greek tab. A verse the SBLGNT has no
    * words for says so in this section ("The SBLGNT has no Matthew 17:21.",
    * E157), each text naming what it lacks; left out only when the files
@@ -423,12 +427,16 @@ export function createVerseTab({
     const nodes = [];
     words.forEach(({ w }, k) => {
       if (w[W.pre]) nodes.push(document.createTextNode(w[W.pre]));
-      const b = document.createElement("button");
-      b.type = "button";
+      const href = greek.href?.(v, w[W.t]) ?? null;
+      const b = document.createElement(href ? "a" : "button");
+      if (href) b.href = href;
+      else {
+        b.type = "button";
+        b.addEventListener("click", () => greek.open?.(v, w[W.t]));
+      }
       b.className = "desk-verse__gw";
       b.tabIndex = k === 0 ? 0 : -1;
       b.textContent = w[W.text];
-      b.addEventListener("click", () => greek.open(v, w[W.t]));
       nodes.push(b);
       if (w[W.post]) nodes.push(document.createTextNode(w[W.post]));
     });

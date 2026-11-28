@@ -2240,10 +2240,12 @@ body:not(:has(.scripture-layout--scripture .scripture-main)) button[data-desk-to
    2026-10-08; STUDY-DESK.md, "Decisions"). Read View, intros, articles and
    the glossary stay at 52: none of them gets those tabs. 52 is the release's
    reading width (C9), not room for the panel, so intros, articles and the
-   glossary keep it with no panel (E124). Only the expanded notebook does
-   this (BVJ, 2026-10-14): minimized, floating or closed, the column keeps 52.
+   glossary keep it with no panel (E124). The open notebook does this
+   whether it is expanded, minimized or floating, so opening and closing the
+   panel moves no scripture (Featherboa's Phase 5, BS-15; until then only the
+   expanded one did, BVJ 2026-10-14); closed, the column keeps 52.
    data-desk-expanded is stamped before first paint (Layout.astro), so a page
-   opening with the notebook expanded never reflows; expanding and folding it keep
+   opening with the notebook open never reflows; opening and closing it keep
    the reader's line (margin.js). */
 html[data-desk] {
   --reading-measure: 52;
@@ -2253,7 +2255,7 @@ html[data-desk][data-desk-expanded]:has(.scripture-layout--scripture .scripture-
 }
 
 /* Widths the reader dragged (BVJ, 2026-10-08; src/scripts/desk/widths.js),
-   on Chapter View chapters with the notebook expanded: the LIT's measure, and the
+   on Chapter View chapters with the notebook open: the LIT's measure, and the
    notebook's width, which sets where the column ends (the notebook sits 16px
    from the window's edge and the column 24px before it: EDGE and GAP in
    src/lib/desk-margin.mjs). Layout.astro stamps both before first paint
@@ -2267,7 +2269,7 @@ html[data-desk][data-desk-expanded][data-desk-widths] .scripture-layout--scriptu
 }
 
 /* The column's move left, before the desk's code has loaded (E137). Where
-   the margin is too narrow for the expanded notebook the column moves left
+   the margin is too narrow for the notebook the column moves left
    to make its room (placeInMargin, src/lib/desk-margin.mjs), by a translate
    margin.js puts on the page's move elements. That came a moment after
    first paint, so every chapter painted centered and then moved. Layout.astro

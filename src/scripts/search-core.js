@@ -1514,21 +1514,3 @@ export function showModeFor(select, q) {
     delete select.dataset.ownMode;
   }
 }
-
-/** A Greek result's link, plus whether it is for the chapter already on screen. */
-export function greekHitIsHere(hit) {
-  const here = parseScripturePath(window.location.pathname);
-  return Boolean(here && here.bookKey === hit.book && Number(here.chapter) === hit.chapter);
-}
-
-/**
- * Follow a Greek result for the chapter on screen without reloading: asks
- * the Notebook (desk/greek-link.js) to show the word, and returns true when
- * it did, so the caller can keep its link from loading.
- */
-export function showGreekHere(hit) {
-  if (!greekHitIsHere(hit)) return false;
-  const ev = new CustomEvent("lit:greek-word", { cancelable: true, detail: { verse: hit.verse, t: hit.t } });
-  document.dispatchEvent(ev);
-  return ev.defaultPrevented;
-}

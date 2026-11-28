@@ -143,13 +143,12 @@ load the desk, so that file imports only light modules, `undo-bar.js`,
 `page-kind.js`, and `widths.js` with its two small imports), and one read of the notebook's `chapter` index
 (`peekNotebook`, `src/lib/desk-first-stage.mjs`, which never creates the
 database). The shell, `desk.css` and the rest come when the Notebook starts
-expanded, a bookmark follows, the address carries `greek`, `desk-tour` or
-`print`, this page has records to draw, or the reader reaches for the
+expanded, a bookmark follows, the address carries `desk-tour` or `print`,
+this page has records to draw, or the reader reaches for the
 Notebook (the tab, a Notebook button, the skip link, a verse number, a
 footnote letter or a selection), or the Footnotes list nears the window
-(its Pin buttons are the shell's, E80); `lit:panel-actions`, `lit:footnote-actions`,
-`lit:desk-command` and `lit:greek-word` arriving first are held and sent
-again, and a menu still open gets its rows late, moved as `showPanel` would
+(its Pin buttons are the shell's, E80); `lit:panel-actions`, `lit:footnote-actions`
+and `lit:desk-command` arriving first are held and sent again, and a menu still open gets its rows late, moved as `showPanel` would
 place it. The shell's `handOver` removes the first stage's tab in the same
 task as the panel draws its own, so nothing moves. **A new startup listener
 in the shell needs the same**: held in `first-stage.js`, or a reason to load.
@@ -234,21 +233,24 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `desk-margin.mjs`'s `floatWidth`): the right edge stays put, the width
      is kept for the visit (`lit-desk-float-width`, in /privacy) and
      "Reset widths" forgets it.
-     **In the margin the reader can minimize it to the same tab** (»;
-     BVJ, 2026-10-09); minimized is remembered (`lit-desk-min`).
+     **In the margin the reader can minimize it to the same tab**
+     ("Minimize the Notebook"; BVJ, 2026-10-09), remembered in `lit-desk-min`.
      **It starts open and minimized** (BVJ, 2026-10-13): `lit-desk-panel`
      is "closed" only once the reader closes it, and `lit-desk-min` is "0"
      only once they restore it, so an absent key means the default. All
      settings lets the reader fix the start instead (`lit-desk-start`),
      and `src/lib/desk-start.mjs` is the one rule, which Layout.astro's
      pre-paint script repeats.
-     **Only the expanded notebook makes room** (BVJ, 2026-10-14): narrowing
-     the column (rule 4), the dragged widths and the column's move left happen
-     only while it is expanded; otherwise the column keeps 52 and moves only
-     as far as the tab needs (`placeFloating`). `<html data-desk-expanded>` is
-     the switch, owned by `desk/margin.js` (`setExpanded`, inside
-     `keepReadingPlace`) and stamped before paint when it starts expanded;
-     `data-desk-panel` still means open-or-minimized.
+     **The open notebook keeps its room, minimized or expanded** (BS-15,
+     Featherboa's Phase 5: opening and minimizing it move no scripture,
+     reversing BVJ's "only the expanded notebook makes room" of 2026-10-14):
+     the 48 measure (rule 4), the dragged widths and the column's move left
+     hold while it is open, the minimized tab at the window's edge; floating,
+     the column moves only as far as the tab needs (`placeFloating`).
+     `<html data-desk-expanded>` is that switch, owned by `desk/margin.js`
+     (`setExpanded`, inside `keepReadingPlace`) and stamped before paint
+     whenever it opens; `data-desk-panel` means open-or-minimized, and
+     `data-desk-shown` (`panel.js`) that the panel itself shows (rule 7).
      **It appears only on the pages `READING_SURFACES`
      (`src/scripts/desk-frame.js`) lists**: a chapter's page. Intros, articles and the glossary wait in `ALL_SURFACES`, marked
      `prose`, behind `PROSE_NOTES` (E124, BVJ 2026-11-12: the panel did
@@ -278,28 +280,27 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `search` and `change` as well as `input`, since the browser's own clear
      sends no `input` (LV3-1, NB3-6).
   4. **While the preview is on, the reading measure is 52**, the width BVJ
-     picked for the desk's release, **and 48 on Chapter View chapters while the
-     notebook is expanded** (BVJ, 2026-10-08; 2026-10-14), to leave the panel room for the
-     Greek tab without moving the column. Read View, intros,
-     articles and the glossary stay at 52, since none gets that tab. The switch is
+     picked for the desk's release, **and 48 on a chapter's page while the
+     notebook is open** (BVJ, 2026-10-08; BS-15), the room once kept for the
+     Greek tab, which has left the panel (queue: 52 throughout). Intros,
+     articles and the glossary stay at 52. The switch is
      `html[data-desk-expanded]`, which Layout.astro's pre-paint script stamps
-     so a page opening with the notebook expanded never reflows, and which
-     margin.js sets and clears inside `keepReadingPlace`. **It stamps it, and
-     the dragged widths below, only where the window holds them** (BA25,
-     BA30): the script repeats `firstPaint` (`desk-margin.mjs`), which works
+     so a page opening with the notebook open never reflows, and which
+     margin.js sets and clears inside `keepReadingPlace`. **It stamps the
+     dragged widths below only where the window holds them** (BA30): the
+     script repeats `firstPaint` (`desk-margin.mjs`), which works
      out the column's width from the reader's font and text size
      (`FIRST_PAINT`, held to global.css and ScriptureLayout.astro by
      `test/desk-margin.test.js`) and the window less its scrollbar. Too
-     narrow, the notebook floats and folds; widths kept in a wider window are
-     given way as `placeWithWidths` gives them, or left off. A change to the
-     column's CSS, or to the placement rules, needs `firstPaint` to follow.
+     narrow, the notebook floats and folds, keeping the 48 (once BA25);
+     widths kept in a wider window are given way as `placeWithWidths` gives
+     them, or left off. A change to the column's CSS, or to the placement
+     rules, needs `firstPaint` to follow.
      **It stamps the column's move too** (E137): `firstPaint`'s `shift` goes on
      `<html>` as `--desk-move` (a `translate` that global.css draws on the
      chapter's `move` list), with `--desk-bar-center`, so the page paints
      once, in place. margin.js takes it over as the rail is made
-     (`takeOverMove`), and `standDown()` removes it. Chapter View only.
-     Read View's toolbar takes a fixed
-     floor (725px; 895px in OpenDyslexic) because it outgrows the column.
+     (`takeOverMove`), and `standDown()` removes it. A chapter's page only.
      **On Chapter View the reader can drag the widths** of their notes'
      margin, the LIT and the notebook (`desk/widths.js`, rules in
      `desk-margin.mjs`): kept in `sessionStorage` for the visit, stamped
@@ -373,12 +374,14 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      their first word (`src/lib/desk-notes.mjs` holds the rules,
      `notes-margin.js` draws), and the words a note hangs on are lit with
      the CSS Custom Highlight API. Copy text, the handout and the desk's
-     anchor reader all read the verses off the page. Their face is Playpen
-     Sans (`desk.css`; see `src/styles/CLAUDE.md`), or
-     the text face (Source Sans 3) on "Plain"; a reader's Atkinson or OpenDyslexic choice wins through
-     `html[data-font]`. Featherboa drops Playpen Sans and "Plain": the notes
-     take the Display face, on a sunshine tint (`SITE-FEATHERBOA.md`, "The
-     reading page"); until it is built, this holds. Bookmarks show in the same `<aside>` as a red mark
+     anchor reader all read the verses off the page. Their face is the
+     reader's Display face at the Margin size (`--font-text`, which
+     `html[data-font]` overrides): the lettering choice and
+     `lit-desk-note-font` went in Featherboa's Phase 5 (DI-17). **While the
+     Notebook panel shows, its Notes are the chapter's notes and the margin
+     draws none** (BS-15; `html[data-desk-shown]`, `notesInMargin` in
+     `notes-margin.js`); bookmarks and highlights stay, and minimizing the
+     panel brings the notes back. Bookmarks show in the same `<aside>` as a red mark
      (gold if they stay put; see "Bookmarks, and Continue reading"), with their
      own switch (`data-desk-bookmarks`).
      **A stack of notes on one line shows five** (GF8b-6, BVJ, 2026-11-10):
@@ -390,8 +393,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      it folds it.
      **Bookmarks are the one piece of marginalia Read View shows**
      (`desk/read-marks.js`; BVJ, 2026-10-08): notes stay a Chapter View tool.
-     The notes' settings (`data-desk-notes`, `data-desk-note-font`) have no
-     pre-paint script. Turning "Your marks" off (M1, key H; the tray and All
+     The notes' setting (`data-desk-notes`) has no pre-paint script. Turning "Your marks" off (M1, key H; the tray and All
      settings, `desk-marks.mjs`) saves, turns off and puts back "Notes in the
      margin", "Bookmarks" and both views' highlights (`note-settings.js`). With "Notes in the margin" off, a footnote's
      popover lists none of the reader's notes either (`desk.css`, BA17),
@@ -448,27 +450,39 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      `test/desk-footnotes.test.js` holds the page's text of every published
      footnote equal to the JSON's, so a new render-time transform of
      footnote HTML that adds visible text will fail there.
-  10. **The Notebook panel has tabs, one module each** (Featherboa makes
-     them Notes, Footnotes, This verse (Greek goes to Study), and moves Settings into a
-     "Notebook ▾" title menu and Display: `SITE-FEATHERBOA.md`, "Beside
-     scripture"; until it is built, this holds): "My Notes"
-     (`desk/tab-mine.js`) everywhere, and "This verse" (`desk/tab-verse.js`)
-     and "Greek" (`desk/tab-greek.js`; `public/greek/CLAUDE.md`, rule 14) on Chapter View chapters, and
-     Greek on draft chapters too (BVJ, 2026-10-13; `greekChapter()` in
-     `desk/page.js`, which reads `data-draft-book`/`data-draft-chapter`, never
-     the last-read attributes), from the `TABS` table in `desk/panel.js`. **This verse and Greek load on first draw** (`lazyTab` in `panel.js`, LG-10): a new tab on a heavy module goes the same way, and a call made to it before it arrives (a verse, a word) is held, not lost. (No Versions tab, and no API.bible:
-     deferred indefinitely, BVJ 2026-10-11.) **Settings is the last tab, on every page**
-     (BVJ, 2026-10-29), in three groups under small headings (E75): View (the
-     notes' lettering and "All settings"), Keep and print (Print…, the notebook page, "My sheets" and "My collections",
-     where the notebook is kept), and Help (Notebook actions, the tour, help,
-     feedback), with one link style; panel.js puts each module's part under
-     its heading. **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
-     "Close the Notebook" command, Escape and a Notebook button (the place
-     line's, Read View's) minimize it. (`close()` stays for the tour's restore and a reader's saved "Closed"
-     start; "Your marks" off and H fold it to its tab and turning them on
-     opens it again, NB-1; BVJ, 2026-11-03.) **Where the Study Desk button is** (BVJ, 2026-10-30,
-     changed 2026-11-06, E50): a link to /desk, never a toggle (the panel
-     wires `button[data-desk-toggle]` only). **Every page's header has Study** (from 1100px; its Scripture
+  10. **The Notebook panel has tabs, one module each** (Featherboa's Phase
+     5; `SITE-FEATHERBOA.md`, "The Notebook panel"), from the `TABS` table
+     in `desk/panel.js`: Notes (`desk/tab-mine.js`), Footnotes
+     (`desk/tab-footnotes.js`, over `footnotes-view.js`) and This verse
+     (`desk/tab-verse.js`) on a chapter's page, Notes alone on a draft's
+     (`greekChapter()` in `desk/page.js`, which reads
+     `data-draft-book`/`data-draft-chapter`, never the last-read
+     attributes). **Notes and Footnotes list the chapter in view**, which
+     follows `lit:read-on` as the page reads on ("This chapter · John 4,"
+     "All 12 in the Notebook"); This verse keeps to the page's own chapter,
+     its Greek words links into Study at the word (`greekWordHref`), since
+     Greek left the panel (`public/greek/CLAUDE.md`, rule 14). With the
+     page's footnote list out of the flow, a pinned footnote's link shows its
+     note in Footnotes (`setFootnoteHome`, `pins.js`). **This verse
+     loads on first draw** (`lazyTab`, LG-10): a new tab on a heavy module
+     goes the same way, and a call made before it arrives (a verse, Go
+     deeper's chapter) is held, not lost. (No Versions tab, and no
+     API.bible: deferred indefinitely, BVJ 2026-10-11.) **The title is the
+     Notebook's menu**, "Notebook ▾" (`desk/notebook-menu.js`; BS-25 to
+     BS-31): Print… (on a chapter's page), the whole notebook,
+     Notebook actions, Take the tour, Help, and Feedback, the kit's rows in a
+     float over the notes, with the arrows, Home, End, and Escape. **There is
+     no Settings tab** (DI-17): its switches are the Display tray's and All
+     settings', its lines about keeping the backup section's (`mountBackup`,
+     `export-import.js`), and where the notebook is kept is the foot line
+     (rule 13). **The Notebook has no Close** (BVJ, 2026-10-29): no ×, no
+     "Close the Notebook" command; Escape and the place line's Notebook
+     minimize it. (`close()` stays for the tour's restore and a reader's
+     saved "Closed" start; "Your marks" off and H fold it to its tab and
+     turning them on opens it again, NB-1; BVJ, 2026-11-03.) **A way into
+     Study is a link to /desk, never a toggle** (BVJ, 2026-10-30, E50; the
+     panel wires `button[data-desk-toggle]` only), and the panel's head has
+     none since Phase 5. **Every page's header has Study** (from 1100px; its Scripture
      row is /desk; `src/components/CLAUDE.md`). **A chapter's or an
      introduction's place line has "Study John 3"** (`a[data-study-place]`,
      `PlaceLine.astro`; ST-15). Its `?place=` is the chapter being read
@@ -482,13 +496,12 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      Notebook," capitalized wherever a control or a sentence names the panel
      ("Minimize the Notebook," "Show in Notebook"); lowercase "notebook" means
      what the reader has kept ("Back up my notebook," "Search my
-     notebook") or the feature as a whole. "My Notes" is every label and
-     heading for the reader's notes, This verse's subhead too (Audit 8); the
-     margin's switch and its region are "Notes in the margin." **The
-     /notebook page is "My Notebook"**
-     wherever it is named (E70, BVJ 2026-11-10). Featherboa drops "My"
-     (`SITE-FEATHERBOA.md`, "Controls": "Notebook" and "Notes"); until it
-     is built, the names here hold.
+     notebook") or the feature as a whole. The reader's notes are "Notes" in
+     the panel, its tab and This verse's subhead (Featherboa drops "My":
+     `SITE-FEATHERBOA.md`, "Controls"); /desk's pane keeps "My Notes" and
+     the /notebook page "My Notebook" (E70) until Phase 9
+     (`test/featherboa-labels.test.js`). The margin's switch and its region
+     are "Notes in the margin."
      **Words used here** (Audit 2, CP-11): "Study Desk" is the feature
      (Featherboa: "Study"; never "the notebook preview"), and a reader works "in the Study Desk," never
      "on" it (BVJ, 2026-11-11, E105; "on the Study Desk page" is the page,
@@ -552,7 +565,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
      **A bar whose Undo is not on Ctrl+Z** (a layout change writes no history
      entry; E131) passes `{ keyless: true }`: it names no key and stays until
      closed, pressed or replaced. A tour starting closes it and the
-     reminder's bar without answering (`hideStandingBar`; BVJ, 2026-11-13).
+     sync's notices without answering (`hideStandingBar`; BVJ, 2026-11-13).
      **A listener may ask for only the kinds it draws** (BA107):
      `store.subscribe(fn, { kinds })` or `{ except }`, so a bookmark that moves
      as the reader reads (written with `{ kinds: [MOVE_KIND] }`, which tells
@@ -624,7 +637,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        reported in `planImport`'s `warnings`, never skipped whole (DI3-4), so
        an older copy can't bring the record back.
        `META.lastExport` (`store.getMeta/setMeta`) is what the
-       "Last backed up" line and the reminder read. "Backup" is the noun, "back up" the verb, "merge a backup" opens one.
+       "Last backed up" lines read, the Notebook's foot line among them. "Backup" is the noun, "back up" the verb, "merge a backup" opens one.
      - **The trash can be restored from** (E12; BVJ, 2026-11-02): a Trash section
        on the notebook page (`desk/trash-list.js`; `planRestore` and
        `planRestoreAll` in `desk-notebook.mjs`), each row the ordinary
@@ -691,9 +704,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        **At most six bookmarks move at once**, checked in the same
        `store.change` as the write (BA102). **"Continue reading" is the one
        place that isn't a bookmark**: `lit_last_read` (last-read.js), never a
-       record, shown by `continue-reading.js` above My Notes' list and first on
-       the notebook page, and left out of My Notes while it names what is on
-       screen (`continueIsHere`; FU4-2). **The C25 rule**: following a moving
+       record, shown by `continue-reading.js` first on the notebook page (the
+       Notes lists dropped it in Phase 5: NX-12's picker row is the way back),
+       and left out while it names what is on screen (`continueIsHere`;
+       FU4-2). **The C25 rule**: following a moving
        bookmark's link sets `sessionStorage['lit-desk-follow']`, and while the
        reader stays in that book in that tab the bookmark follows them (no undo
        entry, as `bookmarkMove`); a page outside the book clears it.
@@ -779,52 +793,37 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        are plain links. It has three ways in, each a quiet "Notebook actions"
        link (not "prompts", which reads as AI or reflection questions; BVJ
        2026-11-06): the tray's footer row (`SearchBar.astro`), a button in
-       /search's field's row with the desk on (SE-23), and the Notebook's Settings tab
-       (`panel.js`). The tray and /search call `openCommands` on
+       /search's field's row with the desk on (SE-23), and the Notebook's title
+       menu (`notebook-menu.js`). The tray and /search call `openCommands` on
        `notebook-search.js` through `loadDeskSearch()`, never importing desk
        code (`test/desk-commands-window.test.js` holds it).
-     - **First use** (`desk-first-use.mjs`, `desk/first-use.js`,
-       `desk/tour.js`): the "Your notebook is kept in this browser" card, a
-       statement with a reminder checkbox and "Got it" (BVJ, 2026-11-07,
-       FU4-1; `localStorage['lit-desk-home']`). **Where accounts are open it
-       asks instead** (step 4j, BVJ 2026-11-25): "Where should your notebook
-       be kept?", with "Keep it in this browser" (the stored answer) and a
-       link, "Set up an account"; no account is plainly a choice. Its words
-       are `CARD_WORDS` in `desk-first-use.mjs`. Featherboa makes it
-       Study's empty state (`SITE-FEATHERBOA.md`, "First visit, signing
-       in, and sync"); until it is built, this holds. **A browser that syncs sees
-       neither form and isn't nudged**, and every sentence about where the
-       notebook is kept has a form for it (the tour's `kept` step's `linked`
-       body, `savedLine`'s `linked`, `notebookIntro`, `backupLede`;
-       `test/desk-first-use-linked.test.js`), so a new such sentence needs
-       one too. Then the foot's Safari
-       line, and the tour (`lit-desk-tour`, which also holds the offer's
-       markers: `later:<date>` and `never`). **The card is pointed to, never
-       opened onto the reader** (E74, BVJ 2026-11-10): the first record a visit
-       writes while it is unanswered puts a dot on the Notebook's tab and
-       toggles (`data-desk-nudge`, cleared once the Notebook is open) and offers
-       “Open the Notebook” in the undo bar, unless the bar holds another
-       undo. Opening it unasked re-wrapped the text under the popover.
-       **The backup reminder** (E113; rules `desk-reminder.mjs`, bar and dots `reminder.js`,
-       notice `first-use.js`): on chapters, Read View and /desk only, it is due 7 days after
-       the last backup (or the oldest record, with none). Its bar names no key and
-       stays; dots are `data-desk-due`, apart from E74's. The put-off is
-       `lit-desk-remind`. Stage one loads `reminder.js` only for a reader who
-       asked for reminders, reads the notebook with `peekReminder`, never
-       imports `desk-first-use.mjs`, and adds `desk.css` only for the bar.
-       **The tour is offered in a
-       window beside the Notebook** (BVJ, 2026-10-14), the first time it is
-       expanded with the home question answered: Take the tour now, Remind
-       me later (also the ×, Escape, closing or minimizing the Notebook,
-       and leaving the page; back on a later day), or Don't show this again.
-       Featherboa replaces the window with a "Start here" line, a line in
-       the first use's undo bar, and the front door, and moves the backup
-       reminder into the Notebook's foot line (`SITE-FEATHERBOA.md`,
-       "Nothing interrupts the reader"); until it is built, this holds.
-       The window is `src/scripts/float-window.js`, which stays open through
-       clicks elsewhere and never takes `lit-panel.js`'s one slot. The privacy
-       page names these keys and the notebook's storage: keep it in step if a
-       key or what is stored changes. **The tour's steps act, and leave nothing behind** (BVJ,
+     - **First use, and nothing that speaks first** (Featherboa's Phase 5;
+       `SITE-FEATHERBOA.md`, "Nothing interrupts the reader"; rules in
+       `desk-first-use.mjs` and `desk-reminder.mjs`, drawn by
+       `desk/first-use.js`). **"Start here: Take the tour"** heads the
+       Notebook, beside "I know my way around" (`withNever`), until the tour
+       is taken or declined (`startHereShown`; NX-19, NX-20). **The foot line**
+       (`createFootLine`; NX-07, NX-16, NB-34) says where the notebook is
+       kept ("Kept in this browser only." and "Back up…" to the notebook
+       page's backup, or `KEPT_LINKED`) and, once a backup is due (E113: 7
+       days after the last, or the oldest record), how long ago the last was
+       (`footLine`); in a browser that syncs, the sync's status line takes
+       its place (`data-desk-sync-slot`). It changes its words, never its
+       place. **The first mark a reader makes** adds "New here? Take the
+       tour" to the line the action brings (`replyAtFirstUse`, `addToBar`;
+       NX-21) while Start here stands, and **Notes' empty state is one
+       sentence and "Show me how"** (NX-08, NX-13). They replace the card that
+       asked where the notebook is kept (D6, FU4-1, step 4j's question), E74's
+       dot on the tab, the reminder's checkbox, bar and dots, and the tour's
+       floating offer: nothing writes `lit-desk-home` or `lit-desk-remind`,
+       though /privacy names them until BVJ rewords it (queue). **A browser
+       that syncs is never told it keeps the notebook alone**: every sentence
+       about where it is kept has a `linked` form (the tour's `kept` step,
+       `savedLine`, `notebookIntro`, `backupLede`, the foot line;
+       `test/desk-first-use-linked.test.js`), so a new one needs one too.
+       The privacy page names the tours' keys (`lit-desk-tour` holds the
+       steps seen and `never`) and the notebook's storage: keep it in step
+       if a key or what is stored changes. **The tour's steps act, and leave nothing behind** (BVJ,
        2026-10-13): they open real menus, the note editor (in an example mode
        that can't save), the panel's tabs and the search tray, and end by
        undoing all of it (`panel.js`'s `snapshot`/`restore`). **It opens and
@@ -835,9 +834,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        new step that changes anything must undo it the same way (`later` in
        `tour.js`), and must never write a record. It won't start over a note
        editor holding unsaved words (`editorHolds`, BA37).
-       **Where the browser keeps no notebook** (`store` null), first use
-       shows no card, makes no offer and keeps only the foot's links, the
-       tour leaves out the `notebook` steps of `TOUR_STEPS` (`canKeep`), and
+       **Where the browser keeps no notebook** (`store` null), the foot line
+       says nothing and Notes says why, the tour leaves out the `notebook` steps of `TOUR_STEPS` (`canKeep`), and
        the shell stamps `html[data-desk-no-notebook]`, which the search box's
        command context reads as `keeps` (BA34).
      - **Three tours** (E24, E63; BVJ, 2026-11-02, 2026-11-09): the notebook
@@ -845,7 +843,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        (`desk/desk-tour.js`) and the **Sheets tour** (`sheets/sheet-tour.js`,
        its rules in `sheets/CLAUDE.md`) run on /desk, and the Sheets tour on
        /sheets too (its page host is in `sheets/sheet-page.js`). Each has
-       **its own steps, seen list and offer**: `TOUR_STEPS`/`lit-desk-tour`,
+       **its own steps and seen list** (the two on /desk an offer too): `TOUR_STEPS`/`lit-desk-tour`,
        `DESK_TOUR_STEPS`/`lit-desk-page-tour` and
        `SHEET_TOUR_STEPS`/`lit-desk-sheet-tour` (`desk-first-use.mjs`;
        `parseTourState`, `tourOffer` and `planTour` take the step list), so
@@ -991,10 +989,8 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        Phase 4): arriving presses the Reading row, undo bar too
        (`readingArrival`). desk-page.js saves either as the last layout,
        strips both. The place line's "Study John 3" carries the chapter
-       (`ScriptureLayout.astro`'s `deskPlaceHref`), as do the header's Study
-       menu's Scripture row (`deskHref`) and the Notebook panel's header
-       link, which reads `a[data-study-place]` (BVJ, 2026-11-10: all three
-       alike). A new link into /desk at a passage uses `place`, never the
+       (`ScriptureLayout.astro`'s `deskPlaceHref`), as does the header's Study
+       menu's Scripture row (`deskHref`; BVJ, 2026-11-10: alike). A new link into /desk at a passage uses `place`, never the
        stored layout.
      - **Read View retired** in Featherboa's Phase 4 (E8; "Launching", 11).
      - **A pane's body comes from `desk/desk-panes.js`**, which mounts the
@@ -1298,7 +1294,7 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        5. **Larger words must never push a control out of a fixed width.**
           The panel is 280 to 440px whatever the size, so its header's name
           and badge share one clipped row (`.desk-panel__name`): the badge
-          wraps out of sight whole, and the Study Desk link and the
+          wraps out of sight whole, and the title's menu and the
           minimize button stay. Its tabs wrap to more rows, and a `.desk-seg`
           pill stacks its choices. The 280 by 160 pane floor is unchanged
           (a 286px pane's bar shortens the passage field and the My Notes
@@ -1411,11 +1407,10 @@ one only for what happy-dom can't do (layout, a real IME) or a CSS rule.
        minute), so a link from a chat or a shared sheet only opens the chapter. A
        new way to ask for such a print must leave the mark. **This page's own chapter prints in
        place**, with no new tab. /desk's is "Print…" in the command row (E68);
-       the Notebook's is one "Print…" button at the foot of the Settings tab
-       (`panel.js`'s `printBox`), opening the menu in place under it. **In Read
-       View the menu has no picker** and prints the book on the page in place
-       (the plain choice reads "The book"). The host owns the button, Escape
-       and focus; the menu's `onChoose` closes it.
+       the Notebook's is "Print…" in its title menu, which opens the menu in
+       a window under the title, its picker at the chapter in view
+       (`notebook-menu.js`). The host owns the button, Escape and focus; the
+       menu's `onChoose` closes it.
      - **Printing with room to write (N9) is M6's blank sibling**: the
        choice right after it in the Print menu, and the command
        `print-with-room`. `desk/print-room.js` only stamps

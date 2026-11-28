@@ -145,8 +145,8 @@ here hold.
   "Collections" group of rows linking to their pages, never rows of the record
   list or in its count, drawn even when no record matches (then first, over
   "Nothing else matches."). `/collections/` is "Collections" in header C's
-  Study group and "My collections" in the Notebook's Settings tab, beside
-  "My sheets." **Not /desk's title menu** (BVJ, 2026-11-19, E180:
+  Study group (the Notebook's Settings tab, which also linked it, went in
+  Featherboa's Phase 5; BS-24). **Not /desk's title menu** (BVJ, 2026-11-19, E180:
   "Or if it does, sheets should too"): a Collections pane's header opens
   `/collections/` in a new tab, as a Sheets pane's opens `/sheets/` (`page`
   on the kind in `KINDS`, read by `kindPage`).

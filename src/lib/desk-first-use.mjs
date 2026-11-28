@@ -1,84 +1,42 @@
 // src/lib/desk-first-use.mjs
 //
-// The rules behind the notebook's first use (STUDY-DESK.md, phase 1d): the
-// first-time choice of where the notebook lives (D6), the reminder to back up
-// (its rules are in desk-reminder.mjs, re-exported here) and the plain line
-// for Safari (C18), and the tour (D8). Pure: no DOM,
-// no storage, and the clock is always handed in, so every rule here is tested
-// with a fixed `now` (test/desk-first-use.test.js). The code that draws the
-// cards and the foot is src/scripts/desk/first-use.js, and the tour's is
-// src/scripts/desk/tour.js.
+// The rules behind the notebook's first use (STUDY-DESK.md, phase 1d): when
+// the backup is due and what the Notebook's foot line says (desk-reminder.mjs,
+// re-exported here), the plain line for Safari (C18), the tour (D8), and
+// "Start here," the line that heads the Notebook until the tour is taken.
+// Pure: no DOM, no storage, and the clock is always handed in, so every rule
+// here is tested with a fixed `now` (test/desk-first-use.test.js). The code
+// that draws the line and the foot is src/scripts/desk/first-use.js, and the
+// tour's is src/scripts/desk/tour.js.
 //
-// The choice's answers are still two, and both keep the notebook in this
-// browser, with or without a reminder to back up now and then: an account is
-// not an answer stored here but a way out to the account pages, and a browser
-// whose notebook syncs never sees the card (step 4j, BVJ 2026-11-25). Its
-// words are CARD_WORDS, in two forms: while accounts are closed, and where
-// they are open.
+// Featherboa's Phase 5 took away what used to speak first ("Nothing
+// interrupts the reader," SITE-FEATHERBOA.md): the card that asked where the
+// notebook is kept (D6), the reminder's checkbox and bar (E113), and the tour's
+// floating offer. Where the notebook is kept is the foot line's first state,
+// and the tour waits behind "Start here" and the empty state's "Show me how."
 
 import { MAX_PANES } from "./desk-layout.mjs";
 import { numberWord } from "./desk-wording.mjs";
 
 export * from "./desk-reminder.mjs";
 
-/** Where the notebook lives. No choice yet behaves as "browser" and shows the card. */
-export const HOMES = ["browser", "browser-remind"];
-
 export const BACKUP_HREF = "/notebook/#backup";
 export const HELP_HREF = "/desk/help/";
 export const WAYS_HREF = "/desk/help/#ways-to-keep";
 export const CONTACT_HREF = "/contact/";
-/** Where the first-time card's "Set up an account" goes. */
+/** The account pages. */
 export const ACCOUNT_HREF = "/account/";
 
 /**
- * The Settings tab's one quiet line to the account pages, in the backup group
- * (UX9b-4; BVJ, 2026-11-26). The whole sentence is the link.
+ * The one quiet line to the account pages, in the backup group (UX9b-4; BVJ,
+ * 2026-11-26): the Notebook's Settings tab until Featherboa's Phase 5 took the
+ * tab away, and since then the notebook page's "Back up your notebook"
+ * (export-import.js). The whole sentence is the link.
  */
 export const ACCOUNT_LINE = "Keep it in step across your devices with an account.";
 
 /** Whether that line shows: accounts are open in this browser, and it doesn't sync yet. */
 export const accountLineShown = (accountsOpen, linked) => Boolean(accountsOpen) && !linked;
-
-/**
- * The first-time card's words (D6; step 4j, BVJ 2026-11-25). `closed` is the
- * statement it has been since BVJ's 2026-11-07 call (Audit 4, FU4-1), while
- * accounts are closed; `open` is the choice, where they are open
- * (html[data-account="open"]), and it keeps BVJ's rule that no account at
- * all is plainly an option. In both, keeping the notebook in this browser is
- * the answer the card stores; "Set up an account" is a link. A browser that
- * syncs never shows the card, so neither form has to be true there.
- */
-export const CARD_WORDS = Object.freeze({
-  closed: Object.freeze({
-    title: "Your notebook is kept in this browser",
-    lead: "It stays in this browser, and nothing is sent anywhere. If the browser’s data for this site is cleared, the notebook is gone unless you have backed it up.",
-    more: "An account that keeps it in step across your devices is coming. You won’t need one.",
-    done: "Got it",
-  }),
-  open: Object.freeze({
-    title: "Where should your notebook be kept?",
-    keepLead: "It stays in this browser, and nothing is sent anywhere. If the browser’s data for this site is cleared, it is gone unless you have backed it up.",
-    keep: "Keep it in this browser",
-    accountLead: "Your notebook stays in this browser and syncs across your devices, locked with a key we never have.",
-    account: "Set up an account",
-    more: "You don’t need an account, and you can stop using one at any time.",
-  }),
-  remind: "Remind me to back up my notebook",
-  remindNote: "The Notebook reminds you when it has been a week since your last backup.",
-  ways: "Ways to keep your notebook",
-});
-
-/**
- * What the bar says the first time a visit writes something while the card is
- * unanswered (panel.js's nudge, E74). It never shows in a browser that syncs.
- * @param {boolean} accountsOpen whether accounts are open in this browser
- */
-export function nudgeLine(accountsOpen) {
-  return accountsOpen
-    ? "Your notebook is kept in this browser. Choose where to keep it."
-    : "Your notebook is kept in this browser. See how to back it up.";
-}
 
 /**
  * Which stage the Study Desk is in, as a reader is told (STUDY-DESK.md, Phase
@@ -91,7 +49,7 @@ export const DESK_STAGE = "preview";
 /** The contact form, opened about the Study Desk (it starts the message for the sender). */
 export const FEEDBACK_HREF = `${CONTACT_HREF}?about=study-desk`;
 
-/** The invitation's words, the same in the Notebook's Settings tab, the title menu and the help page. */
+/** The invitation's words, the same in /desk's title menu and the help page. */
 export const FEEDBACK_LABEL = `Send feedback on the ${DESK_STAGE}`;
 
 /** The start of the notebook tour from a chapter page: `?desk-tour` starts it after load. */
@@ -117,11 +75,6 @@ export const TOUR_KEY = "lit-desk-tour";
 export const DESK_TOUR_KEY = "lit-desk-page-tour";
 /** The Sheets tour's own list (E63), the same shape again, one for both pages it runs on. */
 export const SHEET_TOUR_KEY = "lit-desk-sheet-tour";
-
-/** A stored choice, or null when there isn't a valid one. */
-export function readHome(value) {
-  return HOMES.includes(value) ? value : null;
-}
 
 /* ── Safari (C18) ─────────────────────────────────────────────────── */
 
@@ -237,9 +190,9 @@ export const TOUR_STEPS = [
     title: "The Notebook",
     body: {
       study:
-        "“My Notes” lists what you’ve kept in this chapter, or everything. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, and selecting that tab brings it back.",
+        "“Notes” lists what you’ve kept in the chapter you’re reading, with a link to everything in the Notebook. Select one to go to it. The title, “Notebook,” opens a menu of the rest: printing, Notebook actions, this tour, and help. “Minimize the Notebook,” at its top right, folds it to a tab at the window’s edge, and selecting that tab brings it back.",
       default:
-        "This lists what you’ve kept. Select one to go to it. » minimizes the Notebook to a tab at the window’s edge, and selecting that tab brings it back.",
+        "This lists what you’ve kept. Select one to go to it. “Minimize the Notebook,” at its top right, folds it to a tab at the window’s edge, and selecting that tab brings it back.",
     },
   },
   {
@@ -250,7 +203,7 @@ export const TOUR_STEPS = [
     title: "“This verse”",
     body: {
       default:
-        "Everything on one verse: its footnotes, your notes, the collections it’s in, and its Greek. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
+        "Everything on one verse: its footnotes, your notes, the collections it’s in, and its Greek, whose words open in Study. While the Notebook is open, opening a verse’s menu moves this tab to that verse.",
     },
   },
   {
@@ -262,18 +215,21 @@ export const TOUR_STEPS = [
     title: "Pin a footnote",
     body: {
       default:
-        "Select a footnote letter, then the thumbtack button, “Pin footnote” (it fills in once pinned), to keep that footnote in “My Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
+        "Select a footnote letter, then the thumbtack button, “Pin footnote” (it fills in once pinned), to keep that footnote in “Notes,” under “Pinned footnotes,” where it stays in reach as you read.",
     },
   },
   {
-    id: "greek",
+    // In the place of "greek" (since 1h), which left the Notebook for Study
+    // in Featherboa's Phase 5 (ST-61): a reader who saw that step is not
+    // offered this one as new, since nothing offers new steps any more.
+    id: "footnotes",
     part: 1,
     views: ["study"],
     since: "1h",
-    title: "“Greek”",
+    title: "“Footnotes”",
     body: {
       default:
-        "The chapter in the SBL Greek New Testament, at the verse you’re reading. Select a word for its parsing and its dictionary entry. Select its form, its dictionary form, or its Strong’s number there to see where else it occurs.",
+        "Every footnote in the chapter you’re reading, each one whole, so you can read them beside the text. A footnote letter still opens its own footnote beside its line.",
     },
   },
   {
@@ -305,14 +261,14 @@ export const TOUR_STEPS = [
     views: ["study", "read", "prose"],
     since: "1d",
     notebook: true,
-    title: "My Notebook, and where it’s kept",
+    title: "The whole notebook, and where it’s kept",
     body: {
       default:
-        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser, and nothing is sent anywhere. The Settings tab says when you last backed it up.",
+        "“Whole notebook,” in the menu under the Notebook’s title, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser, and nothing is sent anywhere. The line at the Notebook’s foot says so, and says when a backup is due.",
       // In a browser that syncs, "nothing is sent anywhere" is false (step
       // 4g's list; these words are step 4j's, BVJ 2026-11-25).
       linked:
-        "“My Notebook,” in the Settings tab, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser and synced with your account, locked with a key we never have. The Settings tab says whether it is in sync, and when you last backed it up to a file.",
+        "“Whole notebook,” in the menu under the Notebook’s title, shows everything you’ve kept in one place, where you can sort it with labels, gather it into collections, and back up your notebook or merge a backup into it. Your notebook is kept in this browser and synced with your account, locked with a key we never have. The line at the Notebook’s foot says whether it is in sync.",
     },
   },
 ];
@@ -392,6 +348,34 @@ export function withLater(list, day) {
 export function withNever(list) {
   return union(withoutLater(list), [NEVER]);
 }
+
+/**
+ * "Start here" (Featherboa, NX-19 and NX-20): the line that heads the Notebook
+ * until the tour is taken, its button the view's one filled button, and
+ * "I know my way around" beside it. It keeps its place across visits and asks
+ * nothing to be dismissed. Taken means any step seen (a tour begun and left
+ * counts: the reader has met it), and "I know my way around" writes the
+ * "never" marker (`withNever`), the one the old offer's "Don't show this
+ * again" wrote, so a reader who said that then doesn't see it either. Once
+ * gone, the tour stays in the title menu and on the help page.
+ */
+export function startHereShown(raw, steps = TOUR_STEPS) {
+  const { seen, never } = parseTourState(raw, steps);
+  return !never && seen.length === 0;
+}
+
+/** Its words: the lead, the tour's button, and the way past it. */
+export const START_HERE = Object.freeze({
+  lead: "Start here:",
+  take: "Take the tour",
+  skip: "I know my way around",
+});
+
+/** The empty state's button (NX-08, NX-17): the tour, as "Start here" takes it. */
+export const SHOW_ME_HOW = "Show me how";
+
+/** What the first highlight, note, or bookmark adds to its line (NX-21). */
+export const NEW_HERE = "New here? Take the tour";
 
 /**
  * Whether to offer the tour now, and what:

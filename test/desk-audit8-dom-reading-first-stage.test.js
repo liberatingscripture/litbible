@@ -1,6 +1,6 @@
-// The first stage when the shell stands down (Audit 8, NB8-9): a Greek result
-// the search box handed over, held for a shell that never comes, is followed as
-// the box's own link would have been.
+// The first stage when the shell stands down (Audit 8, NB8-9). A Greek word is
+// no longer the reading page's (Featherboa, ST-61: its link goes to Study), so
+// a `lit:greek-word` event is neither taken nor held here.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -35,14 +35,16 @@ const greekWord = (detail) => {
   return e;
 };
 
-test("NB8-9: a Greek result held for a shell that stands down is followed as a link to the verse", async () => {
+test("ST-61: a Greek word is left alone: not taken, so a search result's link is followed, and no shell loads for it", async () => {
   page();
   const sent = spyOnNavigation();
-  await start({ importShell: async () => ({ startShell: async () => null }) });
+  let loads = 0;
+  await start({ importShell: async () => { loads += 1; return { startShell: async () => null }; } });
   const e = greekWord({ verse: 16, t: 7 });
-  assert.equal(e.defaultPrevented, true, "the first stage took the result");
+  assert.equal(e.defaultPrevented, false, "nothing took the result");
   await settle(50);
-  assert.deepEqual(sent, ["/john-3/?greek=16.7#v16"]);
+  assert.equal(loads, 0, "no shell was asked for");
+  assert.deepEqual(sent, []);
 });
 
 test("NB8-9: any other held event is not turned into a navigation", async () => {

@@ -69,7 +69,8 @@ test("the shell loads at once only when the Notebook starts expanded, a bookmark
   assert.equal(loadAtOnce({ start: { open: false, minimized: true }, session: session(), params: params() }), null);
   assert.equal(loadAtOnce({ start: { open: true, minimized: false }, session: session(), params: params() }), "expanded");
   assert.equal(loadAtOnce({ start: min, session: session('{"id":"r1"}'), params: params() }), "following");
-  assert.equal(loadAtOnce({ start: min, session: session(), params: params("greek=16.7") }), "param:greek");
+  // A Greek word is /desk's (ST-61), not a reason to load a reading page's shell.
+  assert.equal(loadAtOnce({ start: min, session: session(), params: params("greek=16.7") }), null);
   assert.equal(loadAtOnce({ start: min, session: session(), params: params("desk-tour") }), "param:desk-tour");
   assert.equal(loadAtOnce({ start: min, session: session(), params: params("print=notes") }), "param:print");
   // Closed and expanded can't both be: closed waits like minimized.

@@ -57,6 +57,19 @@ let current = new Map();
 /** "john 3" -> how many reads of that chapter have begun, so an older one can tell it has been overtaken. */
 const reads = new Map();
 
+/**
+ * Where a footnote is shown when the page's own list can't show it: the
+ * Notebook's Footnotes tab, where the list is out of the reading flow (the
+ * Read page with the Notebook, reading-page.css's WB-18; WB-20). `(id) =>
+ * boolean`, set by the shell once the panel is up (setFootnoteHome).
+ */
+let footnoteHome = null;
+
+/** Name where `revealFootnote` shows a footnote the page's list has out of sight. */
+export function setFootnoteHome(fn) {
+  footnoteHome = typeof fn === "function" ? fn : null;
+}
+
 const keyOf = (where) => `${where.bookKey} ${where.chapter}`;
 const whereOf = (button) => ({ bookKey: button.dataset.deskPinBook, chapter: Number(button.dataset.deskPinChapter) });
 
@@ -236,6 +249,10 @@ export function canRevealFootnote(record) {
 export function revealFootnote(record) {
   const li = footnoteOf(record);
   if (!li) return false;
+  // Out of sight (the list leaves the flow where the Notebook runs), the note
+  // is shown in the Notebook's Footnotes tab; scrolling to it there showed
+  // nothing and moved nothing.
+  if (!li.getClientRects().length && footnoteHome?.(li.id)) return true;
   try {
     if (window.location.hash !== `#${li.id}`) history.pushState(null, "", `#${li.id}`);
   } catch (_) {}

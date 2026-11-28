@@ -1,4 +1,4 @@
-// A chapter opening with the Notebook expanded paints once, in place (E137).
+// A chapter opening with the Notebook open (minimized or expanded, BS-15) paints once, in place (E137).
 // BVJ, 2026-11-17, clicking from chapter to chapter in a window about 1120px
 // wide: each page loaded "without the notebook and then a second later adds
 // the notebook," the text shifting back and forth. Where the margin is too
@@ -115,20 +115,26 @@ test("E137: the rail takes over the move the page was painted with, and the colu
   rail.destroy();
 });
 
-test("E137: minimizing and hiding the Notebook put the column back", () => {
+test("BS-15: minimizing the Notebook leaves the column where it is; hiding it puts the column back", () => {
   viewport = 1009;
   const { column, panel, tab } = page();
   prePaint();
   const rail = createRail(panel, tab);
   rail.show();
   assert.equal(column.style.translate, "-85px 0");
-  // Folded to its tab, the column is the 52 column, centered: the tab needs no room here.
+  // Minimized to its tab, the notebook keeps its room (BS-15: opening and
+  // minimizing move no scripture): still the 48 column, still moved.
   rail.collapse();
-  assert.equal(root.hasAttribute("data-desk-expanded"), false);
-  assert.equal(column.style.translate, "");
-  rail.expand();
+  assert.equal(root.hasAttribute("data-desk-expanded"), true);
   assert.equal(column.style.translate, "-85px 0");
+  rail.expand();
+  assert.equal(root.hasAttribute("data-desk-expanded"), true);
+  assert.equal(column.style.translate, "-85px 0");
+  rail.collapse();
+  assert.equal(column.style.translate, "-85px 0");
+  // Only closing it gives the room back.
   rail.hide();
+  assert.equal(root.hasAttribute("data-desk-expanded"), false);
   assert.equal(column.style.translate, "");
   assert.equal(root.style.getPropertyValue("--desk-bar-center"), "");
   assert.equal(root.style.getPropertyValue(MOVE_PROP), "");

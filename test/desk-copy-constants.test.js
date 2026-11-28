@@ -44,10 +44,11 @@ test("the help page reads the trash's days from TRASH_DAYS (CP3-6)", () => {
   assert.doesNotMatch(src, /\b\d+ days\b/, "no typed number of days");
 });
 
-test("the backup reminder's \"a week\" is REMIND_AFTER_DAYS", () => {
+test("the backup's \"a week\" is REMIND_AFTER_DAYS", () => {
   assert.equal(REMIND_AFTER_DAYS, 7);
-  // The first-time card's words live with its rules (CARD_WORDS, step 4j).
-  assert.match(read("src/lib/desk-first-use.mjs"), /been a week since your last backup/);
+  // The first-time card that said so went in Featherboa's Phase 5; the help
+  // page says when the Notebook's foot line calls a backup due.
+  assert.match(read("src/pages/desk/help.astro"), /A week after your last\s+backup, or, if you have never made one, a week after your\s+oldest note or mark/);
 });
 
 test("the Greek command line's \"Up to four words\" is MAX_TERMS", () => {

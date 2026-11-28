@@ -27,7 +27,6 @@ export const LATER = new Map([
   ["src/lib/desk-first-stage.mjs", 13], // first visit, the tours, and help
   ["src/lib/desk-first-use.mjs", 13], // first visit, the tours, and help
   ["src/lib/desk-layout.mjs", 9], // Study's frame
-  ["src/lib/desk-reminder.mjs", 9], // Study's frame: "on a Scripture page" (ST-10)
   ["src/lib/desk-lit-marks.mjs", 10], // the Notebook
   ["src/lib/desk-notes.mjs", 10], // the Notebook
   ["src/lib/desk-print-part.mjs", 11], // Sheets
@@ -67,7 +66,6 @@ export const LATER = new Map([
   ["src/scripts/desk/desk-tour.js", 13], // first visit, the tours, and help
   ["src/scripts/desk/export-import.js", 10], // the Notebook
   ["src/scripts/desk/first-stage.js", 13], // first visit, the tours, and help
-  ["src/scripts/desk/first-use.js", 13], // first visit, the tours, and help
   ["src/scripts/desk/history.js", 9], // Study's frame
   ["src/scripts/desk/kept-list.js", 10], // the Notebook
   ["src/scripts/desk/labels-ui.js", 10], // the Notebook
@@ -83,7 +81,6 @@ export const LATER = new Map([
   ["src/scripts/desk/print-menu.js", 9], // Study's frame
   ["src/scripts/desk/prose-actions.js", 9], // Study's frame
   ["src/scripts/desk/read-marks.js", 10], // the Notebook
-  ["src/scripts/desk/reminder.js", 9], // Study's frame
   ["src/scripts/desk/search-pane.js", 9], // Study's search pane
   ["src/scripts/desk/sheets/add-bar.js", 11], // Sheets
   ["src/scripts/desk/sheets/commercial-confirm.js", 11], // Sheets

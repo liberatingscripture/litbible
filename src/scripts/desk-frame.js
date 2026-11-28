@@ -119,9 +119,10 @@ export function readingSurface(doc = document) {
   return READING_SURFACES.find((s) => doc.querySelector(s.column[0])) ?? null;
 }
 
-// What Layout.astro's pre-paint script and src/scripts/desk/margin.js put on
+// What Layout.astro's pre-paint script, src/scripts/desk/margin.js and
+// src/scripts/desk/panel.js (data-desk-shown, the panel expanded) put on
 // <html> for the Notebook.
-const DESK_ATTRS = ["data-desk", "data-desk-panel", "data-desk-expanded", "data-desk-widths", "data-desk-no-notebook"];
+const DESK_ATTRS = ["data-desk", "data-desk-panel", "data-desk-expanded", "data-desk-shown", "data-desk-widths", "data-desk-no-notebook"];
 // --desk-move is MOVE_PROP in src/lib/desk-margin.mjs, written out because
 // this file imports no desk module; test/desk-frame.test.js holds the two.
 const DESK_PROPS = ["--desk-measure", "--desk-width", "--desk-dock-width", "--desk-bar-center", "--desk-move"];

@@ -11,32 +11,47 @@
 // It starts open and minimized (BVJ, 2026-10-13), and a reader who closes
 // it is remembered in localStorage['lit-desk-panel'] ("closed", or "open"
 // once they open it again), so the next page opens the same way, unless the
-// reader chose a start of their own on the notebook page
-// (src/lib/desk-start.mjs). Where the margin is wide enough, which it is on most
-// computers, nothing moves when it appears.
+// reader chose a start of their own on All settings (src/lib/desk-start.mjs).
+// Where the margin is wide enough, which it is on most computers, nothing
+// moves when it appears.
 //
 // The reader can minimize it to a tab at the window's edge and restore it
 // (BVJ, 2026-10-09), the same tab a window too narrow for it uses: there
 // (margin.js says when) it floats, and the reader can collapse and expand it
-// the same way (BVJ, 2026-10-07). It collapses by itself whenever it starts floating without
-// the reader asking to see it, so it never lands on the text unasked. The
-// Notebook buttons then expand it, and Escape collapses it.
+// the same way (BVJ, 2026-10-07). It collapses by itself whenever it starts
+// floating without the reader asking to see it, so it never lands on the text
+// unasked. The Notebook buttons then expand it, and Escape collapses it. The
+// column keeps the open notebook's measure whether it is expanded or
+// minimized, so opening and minimizing it move no scripture (BS-15).
 //
-// Tabs (BVJ, 2026-10-08; "Decisions", the Greek tab, items 1 and 12): "My
-// Notes" (tab-mine.js) everywhere, on Chapter View chapters "This verse"
-// (tab-verse.js), and "Greek" (tab-greek.js, phase 1f), which reads the
-// SBLGNT with the dictionary beside it, on Chapter View chapters and on draft
-// chapters too (BVJ, 2026-10-13), where there is no LIT text to go with it. A Versions tab is deferred
-// indefinitely (BVJ, 2026-10-11). A surface with one tab
-// shows no tab row. The tab last chosen is remembered in
-// localStorage['lit-desk-tab'] and used wherever the page has it.
-//
-// The last tab, Settings (BVJ, 2026-10-29), holds what used to be the foot of
-// My Notes. Its switches went to the Display tray's "Your marks" and to All
-// settings (/settings) in Featherboa's Phase 4, so what is left until Phase 5
-// takes the tab away is the notes' lettering (Handwriting / Plain), a link to
-// All settings, the Print menu, the tour and help links, and where the
-// notebook is kept.
+// Featherboa's Phase 5 (SITE-FEATHERBOA.md, "The Notebook panel" and "Nothing
+// interrupts the reader") made it this:
+//   - Three tabs (BS-13, ST-61): Notes (tab-mine.js), the chapter in
+//     view's notes, highlights, bookmarks, and pinned footnotes, under "This
+//     chapter" and a link to the whole notebook; Footnotes (tab-footnotes.js),
+//     the chapter in view's footnotes, each whole; and This verse
+//     (tab-verse.js), everything about one verse of the page's own chapter,
+//     whose Greek words lead into Study at that word. Greek left the panel for
+//     Study. A draft chapter's page has Notes alone. The chapter in view
+//     follows the reader as the page reads on into the chapters around it
+//     (`lit:read-on`, read-on.js). The tab last chosen is remembered in
+//     localStorage['lit-desk-tab'] and used wherever the page has it.
+//   - The panel takes the margin's column (BS-15): while it is shown
+//     (expanded, not folded to its tab) <html data-desk-shown> says so, and
+//     the margin leaves the notes to its Notes list (notes-margin.js);
+//     minimizing it brings them back.
+//   - Its title is a menu, "Notebook ▾" (notebook-menu.js; BS-25 to BS-31):
+//     Print…, the whole notebook, Notebook actions, Take the tour, Help, and
+//     Feedback. The Settings tab is gone and nothing in it is lost (DI-17):
+//     its switches are the Display tray's and All settings', where the
+//     notebook is kept is the foot line, and the rest is the title menu.
+//   - "Start here: Take the tour" heads it until the tour is taken or the
+//     reader says they know their way around (NX-19, NX-20), and its foot
+//     line says where the notebook is kept and when a backup is due (BS-23,
+//     NX-07, NX-16; first-use.js). Nothing opens by itself or asks to be
+//     dismissed: the card that asked where the notebook is kept, its dot on
+//     the tab, the backup reminder's bar and dots, and the tour's floating
+//     offer are gone.
 //
 // The Notebook has no way to close from its own controls (BVJ, 2026-10-29): it
 // only minimizes to its tab, and Escape minimizes too.
@@ -44,37 +59,28 @@
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { currentPanel } from "../lit-panel.js";
 import { createRail } from "./margin.js";
-import { HIDE_EVENT, panelLettering } from "./note-settings.js";
-import { SETTINGS_HREF } from "../../lib/display-tray.mjs";
-import { greekChapter, pageChapter, readBook } from "./page.js";
-import { createPrintMenu } from "./print-menu.js";
+import { HIDE_EVENT } from "./note-settings.js";
+import { chapterOnPage, greekChapter, pageChapter } from "./page.js";
 import { printPlain } from "./print-link.js";
-import { NO_CHAPTER_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
+import { NO_CHAPTER_KINDS, QUIET_KINDS, forChapter } from "../../lib/desk-store-core.mjs";
 import { proseRecords, prosePage } from "./note-sources.js";
-import { accountsOpen, createFirstUse } from "./first-use.js";
-import { paintDots } from "./reminder.js";
+import { createFootLine, createStartHere, replyAtFirstUse, requestTour } from "./first-use.js";
 import { createMineTab } from "./tab-mine.js";
+import { createFootnotesTab } from "./tab-footnotes.js";
 import { notebookTab } from "./notebook-tab.js";
+import { createNotebookMenu } from "./notebook-menu.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
-import { deskPlaceHref } from "../../lib/desk-passage.mjs";
-import { DESK_STAGE, nudgeLine } from "../../lib/desk-first-use.mjs";
-import { SLOT_EVENT } from "../../lib/desk-sync-link.mjs";
+import { DESK_STAGE, SHOW_ME_HOW } from "../../lib/desk-first-use.mjs";
+import { greekWordHref } from "../../lib/greek-detect.mjs";
+import { icon } from "../../lib/icons.mjs";
 import { escapeHtml } from "./dom.js";
-import { busy, isBusy } from "./focus-keep.js";
 import { setTip } from "../tip.js";
-import { barShowing, showUndo } from "./undo-bar.js";
 
 const TAB_KEY = "lit-desk-tab";
 
-// The desk lamp, as on the header's Study Desk button.
-const ICON_DESK = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M4 21h9M8.5 21V8a4 4 0 0 1 4-4h2" /><path d="M14.5 4h3l2.5 6h-8z" /><path d="M16 13.5v2" /></svg>`;
-
-// Toward the window's edge, where the collapsed tab waits.
-const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  <path d="M6 6l6 6-6 6M13 6l6 6-6 6" /></svg>`;
+// How long the foot line waits after the notebook changes before reading it
+// again, so a run of writes reads it once.
+const FOOT_DELAY_MS = 400;
 
 /**
  * Build the panel and wire every button[data-desk-toggle] on the page to it.
@@ -90,36 +96,40 @@ const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="non
  *   printRoom?: { can(): boolean, print(): Promise<void> } | null }} options
  *   `printNotes` is "Print with my notes" (print-notes.js, M6) and `printRoom`
  *   "Print with room to write" (print-room.js, N9, which needs no notebook);
- *   the foot's "Print…" opens the shared Print menu (print-menu.js, E16) on a
- *   Chapter View chapter and in Read View.
+ *   the title menu's "Print…" opens the shared Print menu (print-menu.js, E16)
+ *   on a chapter's page that can print.
  *   `store` is null when this browser can't keep a notebook. `ctx` and
  *   `showInText` are what a change notice's card needs (change-notice.js):
  *   what a write is stamped with, and a way to take the reader to the mark on
- *   the page. `onEdit` opens
- *   a note in the editor, and `onAddNote` a new one; `goHere` takes the reader to a record on this page
- *   without leaving it, where it can (`can`). Elsewhere a record's links go to
- *   its verse in the view the reader is in: Read View from Read View (BVJ,
- *   2026-10-08), Chapter View from anywhere else.
- * @returns {{ open: (from?: Element) => void, close: () => void,
+ *   the page. `onEdit` opens a note in the editor, and `onAddNote` a new one;
+ *   `goHere` takes the reader to a record on this page without leaving it,
+ *   where it can (`can`). Elsewhere a record's links go to its verse on its
+ *   chapter's page.
+ * @returns {{ open: (from?: Element | null, opts?: { focus?: boolean, remember?: boolean }) => void,
+ *   close: () => void,
  *   showTab: (id: string, opts?: { focus?: boolean, remember?: boolean }) => boolean,
- *   showVerse: ((verse: number) => void) | null }}
- *   `showVerse` opens the panel on "This verse" at a verse; null where the
- *   page has no such tab. `el`, `isOpen` and `showTab` are for the tour.
+ *   showVerse: ((verse: number, opts?: { notes?: boolean }) => void) | null,
+ *   showChapter: ((bookKey: string, chapter: number) => void) | null,
+ *   showFootnote: ((id: string) => boolean) | null,
+ *   el: HTMLElement, isOpen: () => boolean,
+ *   snapshot: () => object, restore: (s: object) => void }}
+ *   `showVerse` opens the panel on "This verse" at a verse, and `showChapter`
+ *   at "This chapter" (the reading page's Go deeper); null where the page has
+ *   no such tab. `el`, `isOpen`, `showTab`, `snapshot` and `restore` are for
+ *   the tour.
  */
 export function createPanel({ store, storeError, onEdit = null, onAddNote = null, goHere = null, ctx = null, showInText = null, printNotes = null, printRoom = null }) {
   const root = document.documentElement;
   const here = pageChapter();
-  const greekHere = here ?? greekChapter();
+  // A draft chapter's page, which has no LIT text yet: its chapter, for Notes.
+  const draftHere = here ? null : greekChapter();
+  // The page's own chapter as the Notebook names it (page.js).
+  const own = here
+    ? chapterOnPage(here.bookKey, here.chapter)
+    : draftHere
+      ? chapterOnPage(draftHere.bookKey, draftHere.chapter)
+      : null;
   const toggles = Array.from(document.querySelectorAll("button[data-desk-toggle]"));
-  const inReadView = Boolean(document.querySelector("[data-rm-root]"));
-
-  // The header's Study Desk link goes where the place line's "Study John 3"
-  // does: the page's chapter in the LIT pane (on an introduction, its
-  // chapter 1). That link's own address is the one source, so the two never
-  // disagree; a page without it (Read View, say) uses its chapter.
-  const deskHref =
-    document.querySelector("a[data-study-place]")?.getAttribute("href") ??
-    (here ? deskPlaceHref(here) : "/desk/");
 
   const panel = document.createElement("aside");
   panel.id = "deskPanel";
@@ -133,18 +143,35 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   const visible = () => !panel.hidden;
 
-  // What My Notes starts on: this chapter's records, or the notes on this
-  // article or the glossary (N11); everything elsewhere. With N11 out of
-  // version 1 prosePage() is null, so an article and the glossary list
-  // everything too, notes already kept on them included.
-  const prose = here ? null : prosePage();
-  const mineScope = here
+  /* ── The chapter in view ─────────────────────────────────────────── */
+
+  // What Notes and Footnotes list: the page's own chapter until the page
+  // reads on, then whichever chapter the reader is in (read-on.js says so as
+  // they move). A reload lands on the page's own chapter, since the address
+  // follows the chapter in view.
+  let inView = own;
+
+  /* ── Tabs ───────────────────────────────────────────────────────── */
+
+  // What Notes lists: beside a chapter, the chapter in view's records; on an
+  // article or the glossary, the notes on this page (N11); everything
+  // elsewhere. With N11 out of version 1 prosePage() is null, so an article
+  // and the glossary list everything, notes already kept on them included,
+  // and no panel shows there (E124).
+  const prose = own ? null : prosePage();
+  const emptyLine = (p) =>
+    p?.draft
+      ? `${p.label} ${p.plural ? "are" : "is"} still being translated.`
+      : `No notes on ${p?.label ?? own?.label ?? ""} yet. Select a verse number or any words, then choose Note, Highlight, or Bookmark.`;
+  const mineScope = own
     ? {
-        label: here.label,
-        empty: inReadView
-          ? `Nothing kept for ${here.label} yet. Select some words, then choose “Add bookmark” or “Highlight.”`
-          : `Nothing kept for ${here.label} yet. Select a verse number, then choose “Add a note,” “Add bookmark,” or “Highlight.”`,
-        load: async (st) => forChapter(await st.byChapter(here.bookKey, here.chapter), here.bookKey, here.chapter),
+        label: own.label,
+        dynamic: true,
+        empty: (p) => emptyLine(p ?? inView),
+        load: async (st, p) => {
+          const at = p ?? inView;
+          return at && !at.draft ? forChapter(await st.byChapter(at.bookKey, at.chapter), at.bookKey, at.chapter) : [];
+        },
       }
     : prose
       ? {
@@ -154,61 +181,12 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
         }
       : null;
 
-  // The first-time choice (a card above My Notes), the foot's account of where
-  // the notebook is kept, and the tour's offer (first-use.js). `reveal` shows
-  // the panel the first time the reader writes something with no answer yet.
-  const firstUse = createFirstUse({
-    store,
-    reveal: () => nudgePanel(),
-    panelEl: () => panel,
-    panelShown: () => shown(),
-  });
-
-  // The Settings tab's content (BVJ, 2026-10-29): the settings, print buttons
-  // and links that were the foot of My Notes. "My sheets" sits beside the
-  // notebook page (S12, part 2), since My Notes lists no sheets. Three small
-  // headings give it an order (E75, 2026-11-10): what the page shows, keeping
-  // and printing the notebook, and help. The switches come from
-  // note-settings.js, the keeping lines and the help links from first-use.js;
-  // each is put under its heading here, and a group left empty is taken off.
-  const settingsEl = document.createElement("div");
-  settingsEl.className = "desk-panel__settings-tab";
-  settingsEl.innerHTML = `
-    <section class="desk-panel__group desk-panel__group--show" aria-labelledby="deskSettingsShow">
-      <h3 class="desk-panel__group-title" id="deskSettingsShow">View</h3>
-      <div class="desk-panel__settings-slot"></div>
-      <p class="desk-panel__page"><a href="${SETTINGS_HREF}">All settings</a></p>
-    </section>
-    <section class="desk-panel__group" aria-labelledby="deskSettingsKeep">
-      <h3 class="desk-panel__group-title" id="deskSettingsKeep">Keep and print</h3>
-      <div class="desk-panel__print-slot"></div>
-      <p class="desk-panel__page"><a href="/notebook/">My Notebook</a> · <a href="/sheets/">My sheets</a> · <a href="/collections/">My collections</a></p>
-      <p class="desk-panel__kept"></p>
-      <p class="desk-panel__persist" hidden></p>
-      <div data-desk-sync-slot hidden></div>
-    </section>
-    <section class="desk-panel__group desk-panel__group--help" aria-labelledby="deskSettingsHelp">
-      <h3 class="desk-panel__group-title" id="deskSettingsHelp">Help</h3>
-      <p class="desk-panel__page desk-panel__commands"><button type="button" class="greek-cmd-link" aria-haspopup="dialog">Notebook actions</button></p>
-    </section>`;
-
-  // E31: a line on this tab for the commands the search box understands. It
-  // opens the Commands window (commands-window.js, through the search module
-  // that lists them), left of the Notebook; the Greek's "Search commands" is a
-  // separate window by BVJ's choice (2026-11-06), so no search field is needed.
-  const commandsBtn = settingsEl.querySelector(".desk-panel__commands button");
-  commandsBtn.addEventListener("click", () => {
-    import("./notebook-search.js")
-      .then((m) => m.openCommands({ anchor: commandsBtn, beside: panel, opener: commandsBtn }))
-      .catch((err) => console.error("Study Desk: the commands couldn't load", err));
-  });
-
   // The tabs this page has, in order. Each tab module returns its element
   // and a render(); a tab is drawn only while it is the one showing.
   const TABS = [
     {
       id: "mine",
-      label: "My Notes",
+      label: "Notes",
       make: () =>
         createMineTab({
           store,
@@ -221,11 +199,14 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
               onAddNote({ [t.type]: t.id, targetTitle: t.title }, trigger);
             },
           } : null,
-          inReadView,
+          inReadView: false,
+          inPanel: Boolean(own),
+          // "Show me how" (NX-13): the tour, under the line a chapter with
+          // nothing kept shows; a draft has nothing to mark yet.
+          emptyAction: own ? { label: SHOW_ME_HOW, run: () => requestTour(), when: (p) => !(p ?? inView)?.draft } : null,
           // Drawn only while expanded: a minimized Notebook would rebuild its list on every
           // change, a bookmark's moves every two seconds included (NB8-3).
           visible: () => shown() && activeTab === "mine",
-          afterRender: () => { renderPersistence(); firstUse.refresh({ shown: true }); },
           onEdit,
           goHere,
           ctx,
@@ -234,6 +215,11 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     },
     ...(here
       ? [
+          {
+            id: "footnotes",
+            label: "Footnotes",
+            make: () => createFootnotesTab({ store, place: () => inView, visible: () => shown() && activeTab === "footnotes" }),
+          },
           {
             id: "verse",
             label: "This verse",
@@ -250,53 +236,40 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
                 goHere,
                 ctx,
                 showInText,
-                greek: { open: openGreekWord },
+                // A word of the verse's Greek opens Study at the verse, its
+                // Greek pane at that word (ST-62; Greek left the Notebook, BS-13).
+                greek: { href: (verse, t) => greekWordHref({ book: here.bookKey, chapter: here.chapter, verse, t }) },
               }),
           },
         ]
       : []),
-    ...(greekHere
-      ? [
-          {
-            id: "greek",
-            label: "Greek",
-            make: () =>
-              lazyTab(() => import("./tab-greek.js").then((m) => m.createGreekTab), {}, {
-                here: greekHere,
-                visible: () => visible() && activeTab === "greek",
-                openVerse: (verse) => showVerse(verse),
-                // A note from the Greek (4k) hangs on the LIT's verses, so a
-                // draft chapter, which has none yet, takes none, and says so
-                // where a notebook is kept (E232).
-                onAddNote: here ? onAddNote : null,
-                noteUnavailable: !here && onAddNote ? "draft" : null,
-              }),
-          },
-        ]
-      : []),
-    {
-      id: "settings",
-      label: "Settings",
-      make: () => ({ el: settingsEl, render() {}, setVerse() {}, focusHeading() {}, async selectWord() {} }),
-    },
   ];
   const withRow = TABS.length > 1;
 
+  const stage = `${DESK_STAGE.charAt(0).toUpperCase()}${DESK_STAGE.slice(1)}`;
   panel.innerHTML = `
     <div class="desk-panel__head">
       <div class="desk-panel__name">
-        <h2 class="desk-panel__title" id="deskPanelTitle">Notebook</h2>
-        <span class="desk-panel__badge">${DESK_STAGE.charAt(0).toUpperCase()}${DESK_STAGE.slice(1)}</span>
+        <h2 class="desk-panel__title" id="deskPanelTitle"><button type="button" class="kit-btn kit-btn--plain desk-panel__title-button"
+          aria-haspopup="menu" aria-expanded="false" aria-controls="deskPanelMenu"><span class="desk-panel__title-text">Notebook</span>${icon("down", { size: 16 })}</button></h2>
+        <span class="desk-panel__badge">${stage}</span>
       </div>
-      <a class="desk-panel__desk" href="${escapeHtml(deskHref)}" aria-label="Open the Study Desk">${ICON_DESK}</a>
-      <button type="button" class="desk-panel__collapse" aria-label="Minimize the Notebook">${ICON_COLLAPSE}</button>
+      <button type="button" class="kit-icon desk-panel__collapse" aria-label="Minimize the Notebook">${icon("forward")}</button>
     </div>
-    ${withRow ? `<div class="desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(
+    ${withRow ? `<div class="kit-tabs desk-panel__tabs" role="tablist" aria-label="Notebook">${TABS.map(
       (t) =>
-        `<button type="button" role="tab" id="deskTab-${t.id}" data-tab="${t.id}" aria-controls="deskTabpanel-${t.id}"
+        `<button type="button" class="kit-tab" role="tab" id="deskTab-${t.id}" data-tab="${t.id}" aria-controls="deskTabpanel-${t.id}"
            aria-selected="false" tabindex="-1">${escapeHtml(t.label)}</button>`,
     ).join("")}</div>` : ""}
     `;
+  const titleButton = panel.querySelector(".desk-panel__title-button");
+  const collapseButton = panel.querySelector(".desk-panel__collapse");
+
+  // "Start here" heads the Notebook, under its title, until the tour is taken
+  // (NX-19, NX-20); "I know my way around" takes it away and gives focus to
+  // the title, whose menu holds the tour from then on.
+  const startHere = createStartHere({ afterSkip: () => titleButton.focus({ preventScroll: true }) });
+  panel.querySelector(".desk-panel__head").after(startHere.el);
 
   // One body per tab, each its own tabpanel, so a tab keeps its place (the
   // verse This verse shows, how far the list is scrolled) while another is
@@ -315,14 +288,11 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     tabs.set(t.id, { ...t, body, view: null });
   }
 
-  tabs.get("mine").body.prepend(firstUse.card);
-  settingsEl.querySelector(".desk-panel__kept").replaceWith(firstUse.foot);
-  // The backup reminder's notice leads the "Keep and print" group (E113).
-  settingsEl.querySelector("#deskSettingsKeep").after(firstUse.notice);
-  // The tour, help and feedback links go under Help (E75); the foot keeps the
-  // lines about where the notebook is kept.
-  const footLinks = firstUse.foot.querySelector(".desk-home__links");
-  if (footLinks) settingsEl.querySelector(".desk-panel__group--help").append(footLinks);
+  // The foot line, under every tab: where the notebook is kept, "Back up…",
+  // and when a backup is due, the last one's age (BS-23, NX-16); in a browser
+  // that syncs, the sync's own status line in the same place (NX-15).
+  const foot = createFootLine({ store });
+  panel.append(foot.el);
 
   let activeTab = TABS[0].id;
   try {
@@ -360,7 +330,33 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     if (state.collapsed && panel.contains(document.activeElement)) tab.focus({ preventScroll: true });
   });
 
-  const persistLine = settingsEl.querySelector(".desk-panel__persist");
+  // The title menu (notebook-menu.js), hanging from the title over the notes.
+  // Print… opens the shared Print menu on a chapter's page that can print:
+  // its picker starts at the chapter in view, which prints here when it is
+  // the page's own, and any other chapter opens its page in a new tab, ready
+  // to print (a plain print of this page prints the chapter in view, and the
+  // Study Desk's own prints the page's chapter, read-on.js).
+  const ownPrint = here ? { bookKey: here.bookKey, chapter: here.chapter } : null;
+  const inViewIsOwn = () => Boolean(here && inView && inView.bookKey === here.bookKey && inView.chapter === here.chapter);
+  const menu = createNotebookMenu({
+    button: titleButton,
+    host: panel,
+    print: here && printRoom?.can()
+      ? {
+          start: () => (inView && !inView.draft && !inView.failed ? { bookKey: inView.bookKey, chapter: inView.chapter } : ownPrint),
+          here: () => (inViewIsOwn() ? ownPrint : null),
+          notebook: Boolean(store),
+          inPlace: {
+            plain: printPlain,
+            notes: () => printNotes?.print(),
+            room: () => printRoom.print(),
+          },
+        }
+      : null,
+    onTour: () => requestTour(),
+    beside: panel,
+  });
+
   const tabButtons = Array.from(panel.querySelectorAll('[role="tab"]'));
   let lastToggle = null;
 
@@ -369,25 +365,41 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   // Expanded means the reader can see it: open, and not folded to its tab.
   const shown = () => !panel.hidden && !rail.state().collapsed;
 
+  // Notes names the chapter in view from the start. Here, not where the tabs
+  // are built: following draws the list when it shows, which asks `shown`,
+  // and that needs the rail.
+  if (own) tabs.get("mine").view.follow?.(inView);
+
   function syncToggles() {
-    for (const t of toggles) t.setAttribute("aria-expanded", String(shown()));
-    // The first-write mark (E74) goes once the reader has the panel open.
-    if (shown()) setNudge(false);
-    // The tour offer opens beside it the first time it is shown, and closes
-    // with it.
-    firstUse.panelChanged();
+    const on = shown();
+    for (const t of toggles) t.setAttribute("aria-expanded", String(on));
+    // While it shows, the notes are its Notes list, not beside their lines
+    // (BS-15; notes-margin.js reads this).
+    root.toggleAttribute("data-desk-shown", on);
+    if (!on) {
+      menu.close({ focus: false });
+      menu.closePrint({ focus: false });
+    }
   }
 
-  // On Chapter View chapters the column narrows from 52 to 48 while the panel
-  // is expanded (global.css; BVJ, 2026-10-08), which reflows the text. The
-  // rail owns that switch (data-desk-expanded, margin.js) and keeps the line
-  // being read where it was, in both directions.
+  // Opening fades the panel in at the Settled speed ("Motion": panels);
+  // minimizing is at once. Only when the reader opens it, never on a page
+  // that starts with it showing.
+  function fadeIn() {
+    panel.classList.add("desk-panel--opening");
+  }
+  panel.addEventListener("animationend", () => panel.classList.remove("desk-panel--opening"));
+
+  // The column keeps the open notebook's measure, minimized or expanded
+  // (global.css; BS-15). The rail owns that switch (data-desk-expanded,
+  // margin.js) and keeps the line being read where it was.
   // `remember: false` (the tour) opens it on this page alone, writing neither
   // key, so a tour cut short leaves nothing behind (BA33).
   function open(from, { focus = true, remember = true } = {}) {
     lastToggle = from ?? lastToggle;
     keepReadingPlace(() => root.setAttribute("data-desk-panel", "open"));
     panel.hidden = false;
+    fadeIn();
     rail.show({ expand: true, remember });
     if (remember) {
       try { localStorage.setItem(OPEN_KEY, "open"); } catch (_) {}
@@ -410,45 +422,8 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     back?.focus({ preventScroll: true });
   }
 
-  /** Show the panel without taking focus, and folded to its tab where it would float over the text. */
-  /**
-   * The first record a visit writes while "kept in this browser" is
-   * unanswered (first-use.js). The Notebook used to open itself here, so the
-   * card was met, and opening it narrowed the column under the reader's press
-   * (E74; BVJ, 2026-11-10). Now its tab and toggles carry a mark until the
-   * panel is opened, and the bar offers to open it, unless the bar is showing
-   * something of the record's own (an Undo), which it never replaces.
-   */
-  function nudgePanel() {
-    if (shown()) return;
-    setNudge(true);
-    setTimeout(() => {
-      if (shown() || barShowing()) return;
-      // It opens on My Notes, where the card is, whatever tab was last open.
-      showUndo(nudgeLine(accountsOpen()), () => {
-        selectTab("mine", { remember: false });
-        if (panel.hidden) open(null);
-        else expand();
-      }, { label: "Open the Notebook" });
-    }, 600);
-  }
-
-  /** The mark on the tab and the Notebook buttons (E74), and what it says to a screen reader. */
-  function setNudge(on) {
-    for (const t of [tab, ...toggles]) {
-      if (on) {
-        t.setAttribute("data-desk-nudge", "");
-        t.setAttribute("aria-description", "New: where your notebook is kept");
-      } else if (t.hasAttribute("data-desk-nudge")) {
-        t.removeAttribute("data-desk-nudge");
-        t.removeAttribute("aria-description");
-      }
-    }
-    // The backup dot's own description (reminder.js) comes back if one is due.
-    paintDots();
-  }
-
   function expand() {
+    fadeIn();
     rail.expand();
     panel.focus({ preventScroll: true });
   }
@@ -474,20 +449,19 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     e.stopPropagation();
     expand();
   });
-  // Glyphs with no words: the shared tooltip, on hover and on keyboard focus (E72).
-  setTip(panel.querySelector(".desk-panel__desk"), "Open the Study Desk");
-  setTip(panel.querySelector(".desk-panel__collapse"), "Minimize the Notebook");
-  panel.querySelector(".desk-panel__collapse").addEventListener("click", collapse);
+  // A glyph with no words: the shared tooltip, on hover and on keyboard focus (E72).
+  setTip(collapseButton, "Minimize the Notebook");
+  collapseButton.addEventListener("click", collapse);
 
   // Escape minimizes the panel when focus is in it and nothing floating is open
   // over it; a floating panel (lit-panel.js) or the Display tray takes its own
-  // Escape first. A floating window (float-window.js: the tour offer, the
-  // Greek commands) wears the panels' class but not their slot, and takes
-  // Escape only from inside itself, so it doesn't count here (BA24).
-  // Floating, it collapses instead, the way a floating window
+  // Escape first, and so do the title menu and its Print window. A floating
+  // window (float-window.js: the Notebook actions) wears the panels' class but
+  // not their slot, and takes Escape only from inside itself, so it doesn't
+  // count here (BA24). Floating, it collapses instead, the way a floating window
   // gets out of the way: the text comes back and the notebook stays a tab
-  // away. Stopped here, so Chapter View's Escape fallback (clearing a selected
-  // verse) doesn't run as well.
+  // away. Stopped here, so the reading page's Escape fallback (clearing a
+  // selected verse) doesn't run as well.
   panel.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (currentPanel()) return;
@@ -521,13 +495,6 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
       if (on && focus) b.focus();
     }
     for (const [tid, t] of tabs) t.body.hidden = tid !== id;
-    if (id === "settings") {
-      renderPersistence();
-      // The synced notebook's status line lives here in a browser linked to an
-      // account (sync/status-line.js, which no other browser loads); everywhere
-      // else the slot stays empty and hidden, and nothing hears this.
-      document.dispatchEvent(new CustomEvent(SLOT_EVENT));
-    }
     if (remember) {
       try { localStorage.setItem(TAB_KEY, id); } catch (_) {}
     }
@@ -552,126 +519,6 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     // once when it expands (NB8-3).
     if (!shown()) return;
     tabs.get(activeTab).view.render();
-  }
-
-  async function renderPersistence() {
-    const persisted = await store?.persisted();
-    if (persisted === false) {
-      persistLine.hidden = false;
-      persistLine.textContent = "Your browser may clear this notebook to free up space. ";
-      // A browser that asks the reader (Firefox) takes a dismissal as final, so
-      // this is the way to ask again (DI-5). Chrome answers on its own, by use.
-      if (store?.askToKeep && navigator.storage?.persist) {
-        const ask = document.createElement("button");
-        ask.type = "button";
-        ask.className = "desk-panel__reset";
-        ask.textContent = "Ask this browser to keep it";
-        ask.addEventListener("click", async () => {
-          // aria-disabled, not disabled (NB3-8): a focused button that is
-          // disabled loses focus in some browsers.
-          if (isBusy(ask)) return;
-          busy(ask);
-          const granted = await store.askToKeep();
-          await renderPersistence();
-          if (granted === false && !persistLine.hidden) {
-            persistLine.append(" Your browser said no this time. Backing up your notebook is the safe way.");
-          }
-          // The line was rebuilt, so this button is gone, and focus with it
-          // unless it has moved on: to the button that asks again, or, with
-          // nothing left to ask, to the Settings tab it was reached from.
-          const a = document.activeElement;
-          if (!ask.isConnected && (!a || a === document.body)) {
-            const next = persistLine.hidden ? null : persistLine.querySelector("button");
-            (next ?? tabButtons.find((b) => b.dataset.tab === "settings"))?.focus({ preventScroll: true });
-          }
-        });
-        persistLine.append(ask);
-      }
-    } else {
-      persistLine.hidden = true;
-    }
-  }
-
-  /* ── Settings at the foot ───────────────────────────────────────── */
-
-  // The tab's switches went to the Display tray's "Your marks" and to All
-  // settings (SITE-FEATHERBOA.md, "Display"; BS-22), which the first group
-  // links to, and "Reset widths" to each line's own menu (DI-25). What stays
-  // until Phase 5 removes the tab is the notes' lettering, where notes are
-  // drawn: a chapter, and an article or the glossary under N11 (off in
-  // version 1).
-  const slot = settingsEl.querySelector(".desk-panel__settings-slot");
-  const printSlot = settingsEl.querySelector(".desk-panel__print-slot");
-  if (here || prose) slot.replaceWith(panelLettering());
-  else slot.remove();
-  if (here || inReadView) printSlot.replaceWith(...printBox());
-  printSlot.remove(); // still there where nothing printed into it
-
-  /**
-   * One "Print…" button and the line that says what it does (the line is the
-   * button's description, so it is spoken with it). It opens the shared Print
-   * menu (print-menu.js; E16) in place below it: the plain chapter, "With my
-   * notes" (M6) and "With room to write" (N9), for any chapter on a Chapter View
-   * page (this page's own prints here, another opens a new tab) and for the
-   * book in Read View. Left out where this page can't print. "With my notes"
-   * is left out of the menu where the browser keeps no notebook.
-   */
-  function printBox() {
-    if (!printRoom?.can()) return [];
-    const book = inReadView ? readBook() : null;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "desk-panel__print-button";
-    button.textContent = "Print…";
-    // A disclosure, not a menu: it opens a passage field and three prints, so it
-    // says only whether it is open, and what it opens (XA8-11).
-    button.setAttribute("aria-expanded", "false");
-    button.setAttribute("aria-controls", "deskPrintMenuPanel");
-    button.setAttribute("aria-describedby", "deskPrintHint");
-    const hint = document.createElement("p");
-    hint.className = "desk-panel__print-hint";
-    hint.id = "deskPrintHint";
-    hint.textContent = book
-      ? "This book on paper, plainly, with my notes beside the text, or with room to write."
-      : "A chapter on paper, plainly, with my notes beside the text, or with room to write.";
-    const region = document.createElement("div");
-    region.id = "deskPrintMenuPanel";
-    region.className = "desk-panel__print-menu";
-    region.hidden = true;
-    const menu = createPrintMenu({
-      id: "panel",
-      start: () => (here ? { bookKey: here.bookKey, chapter: here.chapter } : null),
-      notebook: Boolean(store),
-      here: book ? null : here,
-      book,
-      inPlace: {
-        plain: printPlain,
-        notes: () => printNotes?.print(),
-        room: () => printRoom.print(),
-      },
-      onChoose: () => close(),
-    });
-    region.append(menu.el);
-    function open() {
-      menu.open();
-      region.hidden = false;
-      button.setAttribute("aria-expanded", "true");
-      menu.focusTarget().focus?.();
-    }
-    function close({ focus = true } = {}) {
-      if (region.hidden) return;
-      region.hidden = true;
-      button.setAttribute("aria-expanded", "false");
-      if (focus) button.focus();
-    }
-    button.addEventListener("click", () => (region.hidden ? open() : close()));
-    region.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") { e.stopPropagation(); close(); }
-    });
-    const box = document.createElement("div");
-    box.className = "desk-panel__print";
-    box.append(button, hint, region);
-    return [box];
   }
 
   // M1 hides everything of the reader's at once, for sharing a screen, and
@@ -699,12 +546,42 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   // Another tab's change, or this tab's own: either way the list is redrawn
   // from the database, so every tab shows the same notebook. Not a place or a
-  // sheet: My Notes lists neither, and a sheet autosaves every few hundred
+  // sheet: Notes lists neither, and a sheet autosaves every few hundred
   // milliseconds in another tab (NB8-1). A bookmark moving is heard (NB8-3).
   store?.subscribe(() => render(), { except: NO_CHAPTER_KINDS });
-  // My Notes' What's new line reads the notebook's meta, which the notebook
-  // page moves on when it is looked at, in any tab (BA96).
-  store?.onMeta?.(() => render());
+  // Notes' What's new line reads the notebook's meta, which the notebook
+  // page moves on when it is looked at, in any tab (BA96); the foot line
+  // reads the last backup's time there.
+  store?.onMeta?.(() => {
+    render();
+    refreshFoot();
+  });
+  // The foot line: whether the notebook holds anything, and since when. A
+  // place and a bookmark's moves change neither, and a sheet or a collection
+  // is left to the next time the window takes focus (createFootLine), since a
+  // sheet in another tab autosaves every few hundred milliseconds (NB8-1).
+  let footTimer = 0;
+  function refreshFoot() {
+    clearTimeout(footTimer);
+    footTimer = setTimeout(() => foot.refresh(), FOOT_DELAY_MS);
+  }
+  store?.subscribe(refreshFoot, { except: [...NO_CHAPTER_KINDS, ...QUIET_KINDS] });
+
+  // The chapter in view, as the reader moves through the chapters the page
+  // has read on into (read-on.js): Notes and Footnotes follow it. A chapter
+  // that failed and then loaded on "Try again" is read again.
+  document.addEventListener("lit:read-on", (e) => {
+    const d = e.detail;
+    if (!own || !d?.book || !d.chapter) return;
+    const chapter = Number(d.chapter);
+    if (d.type === "loaded" && !(inView?.bookKey === d.book && inView.chapter === chapter)) return;
+    if (d.type !== "place" && d.type !== "loaded") return;
+    const at = chapterOnPage(d.book, chapter);
+    if (!at) return;
+    inView = at;
+    tabs.get("mine").view.follow?.(inView);
+    if (activeTab === "footnotes") render();
+  });
 
   // Another tab opening or closing the panel doesn't move this one: each tab
   // keeps its own layout until the next page load.
@@ -715,8 +592,12 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   }
   selectTab(activeTab, { remember: false });
   syncToggles();
-  // The backup reminder's dot, on the tab, the toggles and the Settings tab (E113).
-  paintDots();
+  // The sync's status line draws into the foot's slot in a browser that
+  // syncs (sync/status-line.js); everywhere else nothing hears this.
+  foot.showSlot();
+  // The first highlight, note, or bookmark offers the tour in the line its
+  // action brings (NX-21).
+  replyAtFirstUse({ store });
 
   /**
    * Open the panel on "This verse" at `verse`, and put focus on its heading,
@@ -727,11 +608,31 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     const verseTab = tabs.get("verse");
     if (!verseTab) return;
     if (panel.hidden) open(null, { focus: false });
-    else if (rail.state().collapsed) rail.expand();
+    else if (rail.state().collapsed) {
+      fadeIn();
+      rail.expand();
+    }
     verseTab.view.setVerse(verse);
     selectTab("verse");
     if (notes) verseTab.view.showNotes?.();
     else verseTab.view.focusHeading();
+  }
+
+  /**
+   * Open the panel on Footnotes at one of the chapter in view's notes, by its
+   * id on the page: a pinned footnote's link, where the page's list is out of
+   * the flow (pins.js, WB-18). False where the tab doesn't hold it.
+   */
+  function showFootnote(id) {
+    const fnTab = tabs.get("footnotes");
+    if (!fnTab) return false;
+    if (panel.hidden) open(null, { focus: false });
+    else if (rail.state().collapsed) {
+      fadeIn();
+      rail.expand();
+    }
+    selectTab("footnotes");
+    return Boolean(fnTab.view.showNote?.(id));
   }
 
   /**
@@ -742,19 +643,12 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     const verseTab = tabs.get("verse");
     if (!verseTab || !bookKey || !chapter) return;
     if (panel.hidden) open(null, { focus: false });
-    else if (rail.state().collapsed) rail.expand();
+    else if (rail.state().collapsed) {
+      fadeIn();
+      rail.expand();
+    }
     selectTab("verse");
     verseTab.view.showChapter?.(bookKey, chapter);
-  }
-
-  /**
-   * Open the Greek tab with a word selected and focused (a word in This
-   * verse's Greek). The tour passes `focus: false, remember: false`.
-   */
-  async function openGreekWord(verse, t, { focus = true, remember = true } = {}) {
-    const greekTab = tabs.get("greek");
-    if (!greekTab || !showTab("greek", { focus, remember })) return;
-    await greekTab.view.selectWord(verse, t, { focus });
   }
 
   /* ── The tour's snapshot ─────────────────────────────────────────── */
@@ -799,7 +693,10 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   function showTab(id, { focus = true, remember = true } = {}) {
     if (!tabs.has(id)) return false;
     if (panel.hidden) open(null, { focus: false, remember });
-    else if (rail.state().collapsed) rail.expand({ remember });
+    else if (rail.state().collapsed) {
+      fadeIn();
+      rail.expand({ remember });
+    }
     selectTab(id, { focus, remember });
     return true;
   }
@@ -831,8 +728,7 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     showTab,
     showVerse: tabs.has("verse") ? showVerse : null,
     showChapter: tabs.has("verse") ? showChapter : null,
-    // A Greek search result (greek-link.js): the Greek tab, at that word.
-    showGreekWord: tabs.has("greek") ? openGreekWord : null,
+    showFootnote: tabs.has("footnotes") ? showFootnote : null,
     // What the tour (tour.js) needs.
     el: panel,
     isOpen: shown,
@@ -842,18 +738,13 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 }
 
 /**
- * A tab that failed to build (BA29): a line saying so where its content would
- * be, and every call the panel makes on a tab's view answered with nothing.
- */
-/**
  * A tab whose module comes only when the tab is first drawn (Audit 2, LG-10):
- * the Notebook starts minimized, so a reader who never opens This verse or
- * Greek never downloads them, the Greek tab's libraries included. It stands in
- * for the real view with the same few methods and holds a call made before
- * the module arrives (a verse to show, a word to select) until it does.
- * `listensForVerse` repeats This verse's own rule, that a verse menu opened
- * while the Notebook is open moves the tab to that verse, for the time before
- * the tab exists.
+ * the Notebook starts minimized, so a reader who never opens This verse never
+ * downloads it. It stands in for the real view with the same few methods and
+ * holds a call made before the module arrives (a verse to show) until it
+ * does. `listensForVerse` repeats This verse's own rule, that a verse menu
+ * opened while the Notebook is open moves the tab to that verse, for the time
+ * before the tab exists.
  */
 function lazyTab(load, { listensForVerse } = {}, options) {
   const el = document.createElement("div");
@@ -915,10 +806,6 @@ function lazyTab(load, { listensForVerse } = {}, options) {
       const v = await ready();
       return v?.showChapter?.(...args);
     },
-    async selectWord(...args) {
-      const v = await ready();
-      return v?.selectWord(...args);
-    },
     destroy: () => {
       document.removeEventListener("lit:panel-actions", onActions);
       real?.destroy?.();
@@ -926,10 +813,13 @@ function lazyTab(load, { listensForVerse } = {}, options) {
   };
 }
 
+/**
+ * A tab that failed to build (BA29): a line saying so where its content would
+ * be, and every call the panel makes on a tab's view answered with nothing.
+ */
 function brokenTab() {
   const el = document.createElement("p");
   el.className = "desk-panel__empty";
   el.textContent = "This tab couldn’t load. Reloading the page may bring it back.";
-  return { el, render() {}, setVerse() {}, focusHeading() {}, async selectWord() {} };
+  return { el, render() {}, setVerse() {}, focusHeading() {} };
 }
-

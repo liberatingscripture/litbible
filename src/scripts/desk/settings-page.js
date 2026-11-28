@@ -412,7 +412,8 @@ async function start() {
     backup.dataset.settingsSection = "backup";
     backup.setAttribute("aria-labelledby", "deskBackupTitle");
     root.append(backup);
-    mountBackup(backup, { store, ctx, linked });
+    // Its line to an account is left out: the Account section below has one.
+    mountBackup(backup, { store, ctx, linked, account: false });
   }
 
   if (document.documentElement.dataset.account === "open") {

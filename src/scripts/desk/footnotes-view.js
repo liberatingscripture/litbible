@@ -1,7 +1,8 @@
 // src/scripts/desk/footnotes-view.js
 //
 // The Footnotes pane's body on /desk (STUDY-DESK.md, D9; X11, "Footnotes in
-// the margin": a footnotes pane following the LIT pane; "Order of work", 3e).
+// the margin": a footnotes pane following the LIT pane; "Order of work", 3e),
+// and the Notebook panel's Footnotes tab beside a chapter (tab-footnotes.js).
 // The chapter's footnotes in the page's order, each with its letter, the verse
 // it hangs on and its note, copied from the built Chapter View page so it reads
 // exactly as it does there, links included (a footnote's scripture references
@@ -16,7 +17,8 @@
 // page.
 //
 // createFootnotesView({ idSuffix, onVerse, store, showPassage }) → { el, show(source, verse) },
-// where source is what loadChapterPage resolves to (chapter-page.js).
+// where source is what loadChapterPage resolves to (chapter-page.js), or the
+// page's own chapter as page.js's chapterFootnotes reads it.
 
 import { passageLabel } from "../../lib/desk-passage.mjs";
 import { routeFootnoteLinks } from "./footnote-links.js";
@@ -57,9 +59,11 @@ export function createFootnotesView({ idSuffix = "", onVerse = null, store = nul
     } else {
       const list = document.createElement("ol");
       list.className = "desk-fns__list";
-      for (const { id, label: letter, verse } of source.footnotes) {
+      for (const { id, pinId, label: letter, verse } of source.footnotes) {
         const li = document.createElement("li");
         li.className = "desk-fns__item";
+        // The note's id on the page, so a pin's link can find it here (tab-footnotes.js).
+        li.dataset.fn = id;
         const letterEl = document.createElement("span");
         letterEl.className = "desk-fns__label";
         letterEl.textContent = letter;
@@ -83,8 +87,10 @@ export function createFootnotesView({ idSuffix = "", onVerse = null, store = nul
           routeFootnoteLinks(clone, showPassage);
           li.append(clone);
         }
-        // Pin, as under the note in the Footnotes list.
-        const pin = store ? pinButton(id, letter, { bookKey: source.bookKey, chapter: source.chapter }) : null;
+        // Pin, as under the note in the Footnotes list. A pin names the note
+        // by its id on its chapter's own page (`pinId`), which a chapter the
+        // reading page reads on into carries with a prefix.
+        const pin = store ? pinButton(pinId ?? id, letter, { bookKey: source.bookKey, chapter: source.chapter }) : null;
         if (pin) li.append(pin);
         list.append(li);
         items.push({ li, verse });
