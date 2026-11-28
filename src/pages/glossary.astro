@@ -8,6 +8,7 @@ import { linkGlossaryCrossRefs } from "../lib/glossary-crossrefs.mjs";
 import { normalizeLabel } from "../../scripts/lib/glossary-feed-core.mjs";
 import { gatedOccurrences } from "../lib/alignment-gate.mjs";
 import { compareGlossaryLabels, glossarySortKey } from "../lib/glossary-sort.mjs";
+import { GLOSSARY_LEMMAS, lemmaWords } from "../../scripts/lib/glossary-lemmas.mjs";
 import "../styles/pages/glossary.css";
 
 // `draft: true` entries stay in the collection (build-alignment.mjs seeds off
@@ -172,18 +173,24 @@ const entries = await Promise.all(
   }))
 );
 
-// Each menu dropdown is sorted by its own key.
-const menuData = {
-  traditional: Object.fromEntries(
-    byTraditional.map((e) => [
-      e.data.menuTraditional ?? e.data.traditional,
-      `/glossary/#${e.data.id}`,
-    ])
-  ),
-  lit: Object.fromEntries(
-    byLit.map((e) => [e.data.litMenu, `/glossary/#${e.data.id}`])
-  ),
+/**
+ * The entry's Greek word, as the alignment's lemma map spells it (GL-18): the
+ * lemma whose line there carries the entry's own transliteration, so "pistis"
+ * shows as "πίστις". No entry gains a field, and the map is checked against the
+ * text and against each entry's `greek` (test/term-words.test.js). An entry
+ * the map can't match shows its transliteration alone.
+ */
+const greekOf = (id: string, translit: string): string | null => {
+  try {
+    const words = lemmaWords(id);
+    const lemmas = (GLOSSARY_LEMMAS as Record<string, string[]>)[id] ?? [];
+    const at = words.findIndex(([, tr]) => tr.toLowerCase() === translit.toLowerCase());
+    return at >= 0 ? lemmas[at] : null;
+  } catch {
+    return null;
+  }
 };
+
 ---
 
 <Layout
@@ -217,9 +224,11 @@ const menuData = {
     })} />
   </Fragment>
   <div class="glossary-page">
-    {/* PAGE HEADER (white background) */}
+    {/* The page's opening: BVJ's words, in the reading column. The line under
+        the header ("Learn / Glossary ▾ / trust"; GlossaryLine.astro) holds the
+        list of entries and the order switch. */}
     <section class="glossary-hero" aria-labelledby="glossary-title">
-      <div class="wrap">
+      <div class="gloss-col">
         <h1 id="glossary-title" class="glossary-title">Glossary</h1>
 
         <p data-pagefind-ignore>
@@ -244,678 +253,301 @@ const menuData = {
           change based on context).
         </p>
         <p data-pagefind-ignore>
-          Feel free to <a class="inline-link" href="/contact">contact me here</a>{" "}
+          Feel free to <a class="kit-inline" href="/contact">contact me here</a>{" "}
           if you think I’ve missed any important ones!
         </p>
+      </div>
+    </section>
 
-        {/* Sort toggle (inline, not sticky) */}
-        <div class="glossary-sort-toggle" data-pagefind-ignore>
-          <span class="sort-by-label">Sort by</span>
-          <div class="category-toggle" role="group" aria-label="Sort order by">
-            <span class="toggle-label is-active" id="cat-lit">LIT Bible Translation</span>
-            <button
-              class="toggle-switch"
-              id="category-toggle"
-              type="button"
-              role="switch"
-              aria-checked="false"
-              aria-labelledby="cat-lit cat-trad"
-            ></button>
-            <span class="toggle-label" id="cat-trad">Traditional Translation</span>
-          </div>
-        </div>
+    {/* ENTRIES BLOCK */}
+    {/* Layout puts data-pagefind-ignore on <body> for this page (since
+         it doesn't pass the `index` prop). The data-pagefind-body below
+         opts this section back INTO the Pagefind index — removing either
+         attribute breaks glossary search. */}
+    <section
+      class="glossary-entries"
+      data-pagefind-body
+      data-pagefind-filter="type:glossary"
+    >
+      {/* Index-only surface: just enough for search. aria-hidden, since
+           a screen reader otherwise announces "Glossary glossary
+           Translation glossary…" before the first entry. */}
+      <div class="sr-only" aria-hidden="true">
+        <span data-pagefind-meta="title">Glossary</span>
+        <span data-pagefind-meta="type">glossary</span>
+        <span data-pagefind-meta="description">
+          Translation glossary for key terms in the LIT.
+        </span>
+      </div>
 
-        {/* Sticky jump dropdown */}
-        <div class="glossary-toc" data-pagefind-ignore>
-          <div class="glossary-toc__inner">
-            <label class="sr-only" for="word-select">Jump to an entry</label>
-            <select id="word-select" aria-label="Jump to an entry" disabled>
-              <option value="">Jump to an entry</option>
-            </select>
-            <button
-              id="back-to-top"
-              type="button"
-              aria-label="Back to top"
-              class="back-to-top"
-            ><Icon name="up" /></button>
-          </div>
-        </div>
+      <div class="entries-panel">
+        <div class="gloss-col entries-wrap">
+          {entries.map(({ data, Content, bodyHtml }) => {
+            const litParts = data.lit.split(" / ");
+            const greek = greekOf(data.id, data.greek);
+            const forms = occurrencesByTerm[data.id];
+            const total = totalOccurrences(data.id);
+            return (
+              <article
+                class="entry"
+                data-entry={data.id}
+                data-sort-lit={glossarySortKey(data.litMenu)}
+                data-sort-traditional={glossarySortKey(data.menuTraditional ?? data.traditional)}
+              >
+                <header class="entry-head">
+                  {/* The pair is the headline (GL-11 to GL-17): the traditional
+                      word, lighter and gray, beside the LIT's, in full weight.
+                      No arrow, no strike-through. Each LIT option is its own
+                      .lit-part, so a long gloss drops each onto its own line
+                      on a phone. */}
+                  <h2 class="entry-title" id={data.id}>
+                    {/* Index-only: search tokens for this entry. Hidden
+                        from screen readers too, which otherwise read them
+                        ahead of the heading's own words. */}
+                    <span class="sr-only" aria-hidden="true">{data.srOnly}</span>
 
-        {/* Menu data (generated at build time from glossary collection) */}
-        <script
-          id="glossary-menu-data"
-          type="application/json"
-          set:html={JSON.stringify(menuData)}
-        ></script>
-
-        {/* Menu JS — reads from embedded JSON so new entries are automatic */}
-        <script type="module">
-          document.addEventListener("DOMContentLoaded", () => {
-            const glossary = JSON.parse(
-              document.getElementById("glossary-menu-data").textContent
-            );
-
-            const toggle = document.getElementById("category-toggle");
-            const labelLit = document.getElementById("cat-lit");
-            const labelTrad = document.getElementById("cat-trad");
-            const wordSelect = document.getElementById("word-select");
-
-            if (!toggle || !wordSelect) return;
-
-            const populateWords = (category) => {
-              wordSelect.innerHTML = '<option value="">Jump to an entry</option>';
-              wordSelect.disabled = true;
-              if (category && glossary[category]) {
-                const words = glossary[category];
-                for (const word in words) {
-                  const option = document.createElement("option");
-                  option.value = words[word];
-                  option.textContent = word;
-                  wordSelect.appendChild(option);
-                }
-                wordSelect.disabled = false;
-              }
-            };
-
-            const reorderEntries = (category) => {
-              const wrap = document.querySelector(".entries-wrap");
-              if (!wrap) return;
-              const entryEls = Array.from(wrap.querySelectorAll(":scope > .entry"));
-              // data-sort-* hold the labels without a leading article
-              // (glossarySortKey), so a plain compare files "The Adversary" under A.
-              const key = category === "traditional" ? "sortTraditional" : "sortLit";
-              entryEls.sort((a, b) => a.dataset[key].localeCompare(b.dataset[key]));
-              entryEls.forEach((e) => wrap.appendChild(e));
-              window.dispatchEvent(new CustomEvent("glossary-reordered"));
-            };
-
-            const setCategory = (isTraditional) => {
-              toggle.setAttribute("aria-checked", isTraditional ? "true" : "false");
-              labelLit.classList.toggle("is-active", !isTraditional);
-              labelTrad.classList.toggle("is-active", isTraditional);
-              populateWords(isTraditional ? "traditional" : "lit");
-              reorderEntries(isTraditional ? "traditional" : "lit");
-            };
-
-            setCategory(false);
-
-            toggle.addEventListener("click", () => {
-              setCategory(toggle.getAttribute("aria-checked") !== "true");
-            });
-
-            labelLit.addEventListener("click", () => setCategory(false));
-            labelTrad.addEventListener("click", () => setCategory(true));
-
-            wordSelect.addEventListener("change", () => {
-              const url = wordSelect.value;
-              if (!url) return;
-              window.location.href = url;
-            });
-
-            const backToTop = document.getElementById("back-to-top");
-            if (backToTop) {
-              const toggle = document.querySelector(".glossary-sort-toggle");
-              const updateVisibility = () => {
-                const scrolled = toggle
-                  ? window.scrollY > toggle.getBoundingClientRect().bottom + window.scrollY
-                  : window.scrollY > 200;
-                backToTop.classList.toggle("is-visible", scrolled);
-              };
-              window.addEventListener("scroll", updateVisibility, { passive: true });
-              updateVisibility();
-              backToTop.addEventListener("click", () => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              });
-            }
-          });
-        </script>
-
-        {/* ENTRIES BLOCK */}
-        {/* Layout puts data-pagefind-ignore on <body> for this page (since
-             it doesn't pass the `index` prop). The data-pagefind-body below
-             opts this section back INTO the Pagefind index — removing either
-             attribute breaks glossary search. */}
-        <section
-          class="glossary-entries"
-          data-pagefind-body
-          data-pagefind-filter="type:glossary"
-        >
-          {/* Index-only surface: just enough for search. aria-hidden, since
-               a screen reader otherwise announces "Glossary glossary
-               Translation glossary…" before the first entry. */}
-          <div class="sr-only" aria-hidden="true">
-            <span data-pagefind-meta="title">Glossary</span>
-            <span data-pagefind-meta="type">glossary</span>
-            <span data-pagefind-meta="description">
-              Translation glossary for key terms in the LIT.
-            </span>
-          </div>
-
-          {/* Full-bleed notch block */}
-          <div class="entries-top" aria-hidden="true" data-pagefind-ignore>
-          </div>
-
-          {/* Cream panel starts here */}
-          <div class="entries-panel">
-            <div class="wrap entries-wrap">
-              {entries.map(({ data, Content, bodyHtml }) => {
-                const litParts = data.lit.split(" / ");
-                return (
-                  <article
-                    class="entry"
-                    data-entry={data.id}
-                    data-animate="underline"
-                    data-sort-lit={glossarySortKey(data.litMenu)}
-                    data-sort-traditional={glossarySortKey(data.menuTraditional ?? data.traditional)}
-                  >
-                    <header class="entry-head">
-                      <h2 class="entry-title" id={data.id}>
-                        {/* Index-only: search tokens for this entry. Hidden
-                            from screen readers too, which otherwise read them
-                            ahead of the heading's own words. */}
-                        <span class="sr-only" aria-hidden="true">{data.srOnly}</span>
-
-                        <span class="entries-strike">
-                          <strong>{data.traditional}</strong>
+                    <span class="pair">
+                      <span class="pair__side pair__side--traditional">
+                        <span class="pair__label" data-pagefind-ignore>Traditionally</span>
+                        {/* .entries-strike is a hook the Study Desk's scripts
+                            find the entry's word by; nothing draws it. */}
+                        <span class="pair__word entries-strike"><strong>{data.traditional}</strong></span>
+                      </span>
+                      <span class="pair__side pair__side--lit">
+                        <span class="pair__label" data-pagefind-ignore>In the LIT</span>
+                        {/* The LIT word IS Pagefind-indexed */}
+                        <span class="pair__word">
+                          {litParts.map((part, i) => (
+                            <>
+                              {i > 0 && (
+                                <span class="lit-sep">
+                                  <span class="pf-slash-space"> </span>/<span class="pf-slash-space"> </span>
+                                </span>
+                              )}
+                              <span class="lit-part">{part}</span>
+                            </>
+                          ))}
                         </span>
+                        {/* Optional parenthetical note, under the word; not indexed */}
+                        {data.note && <span class="pair__note" data-pagefind-ignore>{data.note}</span>}
+                      </span>
+                    </span>
+                  </h2>
 
-                        <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                  {/* A link to this entry, outside the heading so it stays
+                      out of the heading's name. Without JS it is an ordinary
+                      link; glossary-entry-links.js makes a click copy it. Its
+                      words show (copy is not one of the icons that may stand
+                      alone, Icon.astro), so it needs no tooltip, and its name
+                      starts with them. */}
+                  <a
+                    class="kit-btn kit-btn--plain entry-link"
+                    href={`#${data.id}`}
+                    data-entry-link
+                    data-term={data.traditional}
+                    aria-label={`Copy link to the ${data.traditional} entry`}
+                    data-pagefind-ignore
+                  >
+                    <Icon name="copy" class="icon entry-link__copy" /><Icon name="check" class="icon entry-link__check" />Copy link
+                  </a>
+                </header>
 
-                        {/* Greek transliteration is NOT Pagefind-indexed */}
-                        <em data-pagefind-ignore>{data.greek}</em>
+                {/* The Greek, from the alignment's lemma map, beside its
+                    transliteration (GL-18): "πίστις pistis". Not indexed. */}
+                <p class="entry-greek" data-pagefind-ignore>
+                  {greek && <span class="entry-greek__word" lang="grc">{greek}</span>}
+                  <span class="entry-greek__translit">{data.greek}</span>
+                </p>
 
-                        <span class="sep" data-pagefind-ignore>&nbsp;–&nbsp;</span>
+                {/* Definition body is NOT Pagefind-indexed */}
+                <div class="entry-body" data-pagefind-ignore>
+                  {bodyHtml != null ? <Fragment set:html={bodyHtml} /> : <Content />}
+                </div>
 
-                        {/* LIT word IS Pagefind-indexed.
-
-                            Each option gets its OWN .entries-underline span, so
-                            the ink scribble is drawn and revealed per option
-                            rather than as one stroke running through the slash.
-                            It also lets a long gloss (eleos: "loving
-                            faithfulness / committed compassion") drop each
-                            option onto its own line on a phone — see the
-                            .lit-part rules in pages/glossary.css. */}
-                        {litParts.map((part, i) => (
-                          <>
-                            {i > 0 && (
-                              <span class="lit-sep">
-                                <span class="pf-slash-space"> </span>/<span class="pf-slash-space"> </span>
+                {/* Where the rendering actually appears (GL-20 to GL-23): in
+                    the margin where there is one, under the entry where there
+                    is none. Today's numbers: the total and each rendering with
+                    its count. "Every place" opens the full list below; it is
+                    a link to that list, which its own address shows without
+                    JavaScript. */}
+                {forms && (
+                  <aside class="entry-occ" aria-labelledby={`occ-${data.id}`} data-pagefind-ignore>
+                    <h3 class="entry-occ__title" id={`occ-${data.id}`}>Where it appears</h3>
+                    {/* The term's total across every rendering: the sum of the
+                        per-rendering counts below, so it cannot disagree with
+                        them. */}
+                    <p class="entry-occ__total">{
+                      total === 1 ? "1 occurrence" : `${total.toLocaleString("en-US")} occurrences`
+                    }</p>
+                    <ul class="entry-occ__forms">
+                      {forms.map((form) => (
+                        <li>
+                          <span class="occ-form">{form.label}</span>
+                          <span class="occ-count">
+                            <span class="occ-nw">{form.count} {form.count === 1 ? "time" : "times"}</span>
+                            {" in "}
+                            <span class="occ-nw">{form.books} {form.books === 1 ? "book" : "books"}</span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <a
+                      class="kit-btn kit-btn--plain entry-occ__all"
+                      href={`#places-${data.id}`}
+                      data-occ-all
+                    ><span class="entry-occ__all-label">Every place</span><Icon name="forward" /></a>
+                  </aside>
+                )}
+                {forms && (
+                  <div class="entry-places" id={`places-${data.id}`} data-pagefind-ignore>
+                    <h3 class="entry-places__title">Every place</h3>
+                    {forms.map((form) => (
+                      <details class="occ">
+                        <summary class="kit-row occ-summary">
+                          <Icon name="forward" class="icon occ-summary__mark" />
+                          <span class="occ-summary__text">
+                            <span class="occ-form">{form.label}</span>
+                            {/* Each quantity is glued to its noun (.occ-nw).
+                                Only say "across N verses" when it differs
+                                from the occurrence count. */}
+                            <span class="occ-count">
+                              <span class="occ-nw">
+                                {form.count} {form.count === 1 ? "time" : "times"}
                               </span>
-                            )}
-                            <span class="entries-underline lit-part">{part}</span>
-                          </>
-                        ))}
-
-                        {/* Optional parenthetical note — not indexed */}
-                        {data.note && (
-                          <span data-pagefind-ignore> {data.note}</span>
-                        )}
-                      </h2>
-
-                      {/* A link to this entry, outside the heading so it stays
-                          out of the heading's name. Without JS it is an ordinary
-                          link; glossary-entry-links.js makes a click copy it. */}
-                      <a
-                        class="entry-link"
-                        href={`#${data.id}`}
-                        data-entry-link
-                        data-term={data.traditional}
-                        aria-label={`Link to the ${data.traditional} entry`}
-                        title="Link to this entry"
-                        data-pagefind-ignore
-                      >
-                        {/* A copy icon (two sheets) with a chain on the front
-                            sheet, which a check replaces once copied. A chain
-                            alone reads as a link that goes somewhere. */}
-                        <svg class="entry-link__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                          <path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2" />
-                          <rect x="8" y="8" width="14" height="14" rx="2" />
-                          <g class="entry-link__chain" transform="translate(15 15) scale(0.45) translate(-12 -12)">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                          </g>
-                          <path class="entry-link__check" d="M11.5 15.2l2.4 2.4 4.6-4.8" />
-                        </svg>
-                      </a>
-                    </header>
-
-                    {/* Definition body is NOT Pagefind-indexed */}
-                    <div class="entry-body" data-pagefind-ignore>
-                      {bodyHtml != null ? <Fragment set:html={bodyHtml} /> : <Content />}
-                    </div>
-
-                    {/* Where the rendering actually appears. Plain
-                        <details> so the list works with JS disabled. */}
-                    {occurrencesByTerm[data.id] && (
-                      <div class="entry-occurrences" data-pagefind-ignore>
-                        <details class="occ-group">
-                          <summary class="occ-title">
-                            <h3>Where it appears</h3>
-                            {/* The term's total across every rendering — the
-                                sum of the per-rendering counts below, so it
-                                cannot disagree with them. Rendering COUNT is
-                                left out: the rows are few enough to take in
-                                at a glance, and the total is the number a
-                                reader is actually after. */}
-                            <span class="occ-title-count">{
-                              totalOccurrences(data.id) === 1
-                                ? "1 occurrence"
-                                : `${totalOccurrences(data.id).toLocaleString("en-US")} occurrences`
-                            }</span>
-                          </summary>
-                        {occurrencesByTerm[data.id].map((form) => (
-                          <details class="occ">
-                            <summary class="occ-summary">
-                              <span class="occ-form">{form.label}</span>
-                              {/* Each quantity is glued to its noun — see
-                                  .occ-nw. Only say "across N verses" when it
-                                  differs from the occurrence count, or the
-                                  list length and the headline disagree with
-                                  no explanation. */}
-                              <span class="occ-count">
-                                <span class="occ-nw">
-                                  {form.count} {form.count === 1 ? "time" : "times"}
-                                </span>
-                                {form.verses !== form.count && (
-                                  <>
-                                    {" across "}
-                                    <span class="occ-nw">{form.verses} verses</span>
-                                  </>
-                                )}
-                                {" in "}
-                                <span class="occ-nw">
-                                  {form.books} {form.books === 1 ? "book" : "books"}
-                                </span>
+                              {form.verses !== form.count && (
+                                <>
+                                  {" across "}
+                                  <span class="occ-nw">{form.verses} verses</span>
+                                </>
+                              )}
+                              {" in "}
+                              <span class="occ-nw">
+                                {form.books} {form.books === 1 ? "book" : "books"}
                               </span>
-                            </summary>
-                            <ul
-                              class="occ-list"
-                              data-occ-cap={form.refs.length > OCC_STEP_NARROW ? "" : undefined}
-                              data-occ-narrow={form.refs.length > OCC_STEP_NARROW ? String(OCC_STEP_NARROW) : undefined}
-                              data-occ-wide={form.refs.length > OCC_STEP_NARROW ? String(OCC_STEP_WIDE) : undefined}
-                              data-occ-breakpoint={form.refs.length > OCC_STEP_NARROW ? String(OCC_BREAKPOINT) : undefined}
-                            >
-                              {form.refs.map((ref) => (
-                                <li>
-                                  <a class="sref" href={`/${ref.bookKey}-${ref.chapter}/#v${ref.verse}`}>
-                                    {bookKeyToLabel(ref.bookKey)} {ref.chapter}:{ref.verse}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </details>
-                        ))}
-                        </details>
-                      </div>
-                    )}
-                  </article>
-                );
-              })}
-
-              <script type="module" data-pagefind-ignore>
-                // --- occurrence lists: reveal long ref lists in batches ---
-                // Every link is server-rendered, so this only ever HIDES. With
-                // JS off the full list is already on the page, which is why the
-                // button is injected here rather than authored in the markup.
-                for (const list of document.querySelectorAll(".occ-list[data-occ-cap]")) {
-                  const narrow = Number(list.dataset.occNarrow) || 25;
-                  const wide = Number(list.dataset.occWide) || 50;
-                  const mq = window.matchMedia(
-                    `(min-width: ${Number(list.dataset.occBreakpoint) || 900}px)`,
-                  );
-                  // Read per use, not captured once: a rotate or resize then
-                  // sizes the NEXT batch correctly without resetting what the
-                  // reader has already revealed.
-                  const step = () => (mq.matches ? wide : narrow);
-
-                  const items = Array.from(list.children);
-                  if (items.length <= step()) continue;
-
-                  const button = document.createElement("button");
-                  button.type = "button";
-                  button.className = "occ-more";
-
-                  let shown = step();
-                  const render = () => {
-                    items.forEach((li, i) => {
-                      li.hidden = i >= shown;
-                    });
-                    const left = items.length - shown;
-                    if (left <= 0) {
-                      button.remove();
-                      return;
-                    }
-                    button.textContent =
-                      left <= step() ? `Show last ${left}` : `Show ${step()} more`;
-                    // Count is in the accessible name too — "Show 50 more"
-                    // alone doesn't say more of what, out of context.
-                    button.setAttribute(
-                      "aria-label",
-                      `${button.textContent} of ${items.length} verses`,
-                    );
-                  };
-
-                  // Crossing the breakpoint mid-read changes the batch size, so
-                  // relabel the button. Never re-hides what is already shown.
-                  mq.addEventListener("change", () => {
-                    if (button.isConnected) render();
-                  });
-
-                  button.addEventListener("click", () => {
-                    const firstNew = items[shown];
-                    shown = Math.min(shown + step(), items.length);
-                    render();
-                    // Keep the reader's place: focus the first newly revealed
-                    // link rather than letting focus die with the button.
-                    if (firstNew) firstNew.querySelector("a")?.focus();
-                  });
-
-                  render();
-                  list.after(button);
-                }
-
-                // --- intersection observer: adds .is-visible and triggers redraw ---
-                const entries = Array.from(
-                  document.querySelectorAll(".glossary-page .entry"),
-                );
-
-                const io = new IntersectionObserver(
-                  (items) => {
-                    for (const item of items) {
-                      if (item.isIntersecting) {
-                        item.target.classList.add("is-visible");
-                        revealInkInEntry(item.target);
-                        io.unobserve(item.target);
-                      }
-                    }
-                  },
-                  { threshold: 0.25 },
-                );
-
-                entries.forEach((e) => io.observe(e));
-
-                // --- ink drawing helpers ---
-                function mulberry32(seed) {
-                  return function () {
-                    let t = (seed += 0x6d2b79f5);
-                    t = Math.imul(t ^ (t >>> 15), t | 1);
-                    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-                  };
-                }
-
-                function hashString(str) {
-                  let h = 2166136261;
-                  for (let i = 0; i < str.length; i++) {
-                    h ^= str.charCodeAt(i);
-                    h = Math.imul(h, 16777619);
-                  }
-                  return h >>> 0;
-                }
-
-                /* Where the glyphs actually sit inside a line box, which is
-                   NOT a fixed fraction of it: OpenDyslexic reports a line box
-                   half again taller than its own ink, so a stroke placed at
-                   0.92 of the box lands on the NEXT line rather than under
-                   this one. Canvas gives both the font's metric box (from
-                   which the baseline follows by the half-leading rule) and the
-                   ink extent of this particular text. Cached per font+text —
-                   measureText is called once per distinct heading, not once
-                   per redraw. */
-                const inkMetricsCache = new Map();
-                let inkMeasureCtx = null;
-
-                function inkMetrics(span) {
-                  const cs = getComputedStyle(span);
-                  const fs = parseFloat(cs.fontSize) || 16;
-                  const font = `${cs.fontStyle} ${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
-                  const text = (span.textContent || "").trim() || "Mx";
-                  const key = `${font}|${text}`;
-
-                  let m = inkMetricsCache.get(key);
-                  if (m) return m;
-
-                  inkMeasureCtx =
-                    inkMeasureCtx ||
-                    document.createElement("canvas").getContext("2d");
-                  inkMeasureCtx.font = font;
-                  const tm = inkMeasureCtx.measureText(text);
-
-                  const num = (v, fallback) =>
-                    typeof v === "number" && isFinite(v) ? v : fallback;
-
-                  m = {
-                    fs,
-                    fontAscent: num(tm.fontBoundingBoxAscent, fs * 0.8),
-                    fontDescent: num(tm.fontBoundingBoxDescent, fs * 0.2),
-                    inkAscent: num(tm.actualBoundingBoxAscent, fs * 0.7),
-                    inkDescent: num(tm.actualBoundingBoxDescent, fs * 0.16),
-                  };
-                  inkMetricsCache.set(key, m);
-                  return m;
-                }
-
-                function makeScribblePath({ w, h, kind, seed, metrics }) {
-                  const rand = mulberry32(seed);
-
-                  const padX = Math.max(2, w * 0.02);
-                  const x0 = padX;
-                  const x1 = w - padX;
-
-                  const fs = metrics.fs;
-                  // Half-leading: the metric box is centred in the line box.
-                  const baseline =
-                    (h - (metrics.fontAscent + metrics.fontDescent)) / 2 +
-                    metrics.fontAscent;
-
-                  const yStrike = baseline - metrics.inkAscent * 0.42;
-                  const yUnderline = baseline + metrics.inkDescent + fs * 0.06;
-                  const baseY = kind === "strike" ? yStrike : yUnderline;
-
-                  const amp =
-                    kind === "strike"
-                      ? Math.max(1.5, fs * 0.09)
-                      : Math.max(1.2, fs * 0.06);
-
-                  const points = [];
-                  const steps = 6;
-
-                  for (let i = 0; i <= steps; i++) {
-                    const t = i / steps;
-                    const x = x0 + (x1 - x0) * t;
-
-                    const wobble = (rand() - 0.5) * 2 * amp;
-                    const drift = Math.sin(t * Math.PI * 2) * (amp * 0.35);
-                    const y = baseY + wobble * 0.55 + drift;
-
-                    points.push({ x, y });
-                  }
-
-                  let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
-                  for (let i = 1; i < points.length - 1; i++) {
-                    const cx = points[i].x;
-                    const cy = points[i].y;
-                    const nx = (points[i].x + points[i + 1].x) / 2;
-                    const ny = (points[i].y + points[i + 1].y) / 2;
-                    d += ` Q ${cx.toFixed(2)} ${cy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
-                  }
-                  const last = points[points.length - 1];
-                  d += ` T ${last.x.toFixed(2)} ${last.y.toFixed(2)}`;
-                  return d;
-                }
-
-                /* One rect per visual LINE of the span's text.
-
-                   getClientRects() on the span itself gives one rect per line
-                   only while the span is inline; a .lit-part is a flex item,
-                   which CSS blockifies, so it always reports a single box —
-                   an option that wrapped (a long gloss in OpenDyslexic on a
-                   narrow phone) would get one underline under its last line
-                   and none under the first. A Range over the contents reports
-                   the line boxes regardless, and hugs the text rather than the
-                   box, so the scribble stops at the last word. */
-                function lineRects(span) {
-                  const range = document.createRange();
-                  range.selectNodeContents(span);
-
-                  const raw = Array.from(range.getClientRects()).filter(
-                    (r) => r.width > 1 && r.height > 1,
-                  );
-                  range.detach?.();
-
-                  if (!raw.length) {
-                    return Array.from(span.getClientRects()).filter(
-                      (r) => r.width > 1 && r.height > 1,
-                    );
-                  }
-
-                  // A line can be reported as several rects (one per text node
-                  // or nested element). Union them so each line draws once.
-                  const lines = [];
-                  raw.forEach((r) => {
-                    const hit = lines.find(
-                      (l) => Math.abs(l.top - r.top) <= Math.min(l.height, r.height) / 2,
-                    );
-                    if (!hit) {
-                      lines.push({ top: r.top, left: r.left, right: r.right, height: r.height });
-                      return;
-                    }
-                    hit.top = Math.min(hit.top, r.top);
-                    hit.left = Math.min(hit.left, r.left);
-                    hit.right = Math.max(hit.right, r.right);
-                    hit.height = Math.max(hit.height, r.height);
-                  });
-
-                  return lines.map((l) => ({
-                    top: l.top,
-                    left: l.left,
-                    width: l.right - l.left,
-                    height: l.height,
-                  }));
-                }
-
-                function clearInk(titleEl) {
-                  titleEl
-                    .querySelectorAll(":scope > .ink-svg")
-                    .forEach((n) => n.remove());
-                }
-
-                /* `order` staggers the reveal when a title carries more than
-                   one span of this kind — a multi-option gloss draws each
-                   option's underline in turn rather than all at once. A
-                   single-span title passes 0 and is unchanged. */
-                function drawInkForSpan(span, kind) {
-                  const title = span.closest(".entry-title");
-                  if (!title) return;
-
-                  const titleRect = title.getBoundingClientRect();
-                  const rects = lineRects(span);
-
-                  const seedBase = hashString(
-                    (span.textContent || "").trim() + "|" + kind,
-                  );
-                  const metrics = inkMetrics(span);
-
-                  rects.forEach((r, idx) => {
-                    const left = r.left - titleRect.left;
-                    const top = r.top - titleRect.top;
-                    const w = r.width;
-                    const h = r.height;
-
-                    const svg = document.createElementNS(
-                      "http://www.w3.org/2000/svg",
-                      "svg",
-                    );
-                    svg.classList.add("ink-svg");
-                    svg.setAttribute("aria-hidden", "true");
-                    svg.setAttribute("focusable", "false");
-
-                    svg.style.left = `${left}px`;
-                    svg.style.top = `${top}px`;
-                    svg.style.width = `${w}px`;
-                    svg.style.height = `${h}px`;
-
-                    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-                    svg.setAttribute("preserveAspectRatio", "none");
-
-                    const path = document.createElementNS(
-                      "http://www.w3.org/2000/svg",
-                      "path",
-                    );
-                    const seed = seedBase + idx * 101;
-
-                    path.setAttribute(
-                      "d",
-                      makeScribblePath({ w, h, kind, seed, metrics }),
-                    );
-                    path.setAttribute("fill", "none");
-                    path.setAttribute("stroke", "var(--lit-green)");
-                    path.setAttribute("stroke-linecap", "round");
-                    path.setAttribute("stroke-linejoin", "round");
-
-                    const strokeW =
-                      kind === "strike"
-                        ? Math.max(1.9, metrics.fs * 0.085)
-                        : Math.max(1.8, metrics.fs * 0.075);
-
-                    path.setAttribute("stroke-width", strokeW.toFixed(2));
-
-
-                    svg.appendChild(path);
-                    title.appendChild(svg);
-                  });
-                }
-
-                function redrawAllInk() {
-                  const titles = Array.from(
-                    document.querySelectorAll(".glossary-page .entry-title"),
-                  );
-                  titles.forEach((title) => {
-                    clearInk(title);
-                    title
-                      .querySelectorAll(".entries-strike")
-                      .forEach((s) => drawInkForSpan(s, "strike"));
-                    title
-                      .querySelectorAll(".entries-underline")
-                      .forEach((s) => drawInkForSpan(s, "underline"));
-                  });
-
-                  // reveal immediately for already-visible entries (above fold)
-                  entries.forEach((entry) => {
-                    if (entry.classList.contains("is-visible"))
-                      revealInkInEntry(entry);
-                  });
-                }
-
-                function revealInkInEntry(entryEl) {
-                  entryEl.querySelectorAll(".ink-svg path").forEach((p) => {
-                    p.style.strokeDashoffset = "0";
-                  });
-                }
-
-                let raf = 0;
-                function scheduleRedraw() {
-                  cancelAnimationFrame(raf);
-                  raf = requestAnimationFrame(redrawAllInk);
-                }
-
-                window.addEventListener("DOMContentLoaded", () => {
-                  redrawAllInk();
-                  window.addEventListener("resize", scheduleRedraw);
-                  window.addEventListener("glossary-reordered", scheduleRedraw);
-                  if (document.fonts && document.fonts.ready) {
-                    document.fonts.ready.then(() => scheduleRedraw());
-                  }
-                });
-              </script>
-            </div>
-          </div>
-        </section>
+                            </span>
+                          </span>
+                        </summary>
+                        <ul
+                          class="occ-list"
+                          data-occ-cap={form.refs.length > OCC_STEP_NARROW ? "" : undefined}
+                          data-occ-narrow={form.refs.length > OCC_STEP_NARROW ? String(OCC_STEP_NARROW) : undefined}
+                          data-occ-wide={form.refs.length > OCC_STEP_NARROW ? String(OCC_STEP_WIDE) : undefined}
+                          data-occ-breakpoint={form.refs.length > OCC_STEP_NARROW ? String(OCC_BREAKPOINT) : undefined}
+                        >
+                          {form.refs.map((ref) => (
+                            <li>
+                              <a class="sref" href={`/${ref.bookKey}-${ref.chapter}/#v${ref.verse}`}>
+                                {bookKeyToLabel(ref.bookKey)} {ref.chapter}:{ref.verse}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    ))}
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   </div>
+
+  {/* Back to top: shown by the line's script once the first entry has
+      scrolled away; with no script it never shows (the line's list reaches
+      every entry). */}
+  <div class="gloss-top" data-gloss-top data-pagefind-ignore>
+    <button type="button" class="kit-btn kit-btn--plain"><Icon name="up" />Back to top</button>
+  </div>
+
+  <script type="module" data-pagefind-ignore>
+    // --- "Every place": open the full list under the entry ---
+    // Without this the link goes to the list's own address, which shows it
+    // (:target). With it, a press toggles the list in place.
+    for (const link of document.querySelectorAll("[data-occ-all]")) {
+      const places = document.getElementById(link.getAttribute("href").slice(1));
+      const label = link.querySelector(".entry-occ__all-label");
+      if (!places || !label) continue;
+      link.setAttribute("role", "button");
+      link.setAttribute("aria-expanded", "false");
+      link.setAttribute("aria-controls", places.id);
+      const toggle = () => {
+        const open = places.toggleAttribute("data-open");
+        link.setAttribute("aria-expanded", String(open));
+        label.textContent = open ? "Hide places" : "Every place";
+      };
+      link.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        toggle();
+      });
+      // A button answers Space as well as Enter; a link only Enter.
+      link.addEventListener("keydown", (event) => {
+        if (event.key !== " ") return;
+        event.preventDefault();
+        toggle();
+      });
+    }
+
+    // --- occurrence lists: reveal long ref lists in batches ---
+    // Every link is server-rendered, so this only ever HIDES. With JS off the
+    // full list is already on the page, which is why the button is injected
+    // here rather than authored in the markup. A batch is a wide step from
+    // 900px and a narrow one under it (OCC_STEP_*, in the frontmatter).
+    for (const list of document.querySelectorAll(".occ-list[data-occ-cap]")) {
+      const narrow = Number(list.dataset.occNarrow) || 25;
+      const wide = Number(list.dataset.occWide) || 50;
+      const mq = window.matchMedia(
+        `(min-width: ${Number(list.dataset.occBreakpoint) || 900}px)`,
+      );
+      // Read per use, not captured once: a rotate or resize then sizes the
+      // NEXT batch correctly without resetting what the reader has revealed.
+      const step = () => (mq.matches ? wide : narrow);
+
+      const items = Array.from(list.children);
+      if (items.length <= step()) continue;
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "kit-btn kit-btn--plain occ-more";
+
+      let shown = step();
+      const render = () => {
+        items.forEach((li, i) => {
+          li.hidden = i >= shown;
+        });
+        const left = items.length - shown;
+        if (left <= 0) {
+          button.remove();
+          return;
+        }
+        button.textContent = left <= step() ? `Show last ${left}` : `Show ${step()} more`;
+        // Count is in the accessible name too: "Show 50 more" alone doesn't
+        // say more of what, out of context.
+        button.setAttribute("aria-label", `${button.textContent} of ${items.length} verses`);
+      };
+
+      mq.addEventListener("change", () => {
+        if (button.isConnected) render();
+      });
+
+      button.addEventListener("click", () => {
+        const firstNew = items[shown];
+        shown = Math.min(shown + step(), items.length);
+        render();
+        // Keep the reader's place: focus the first newly revealed link rather
+        // than letting focus die with the button.
+        if (firstNew) firstNew.querySelector("a")?.focus();
+      });
+
+      render();
+      list.after(button);
+    }
+  </script>
+
   {/* Scripture reference previews, the entries' copy-link buttons, and the
-      selection panel (Copy entry text, Copy entry link); all progressive
+      selection panel (Copy entry text, Copy entry link): progressive
       enhancement */}
   <script>
     import "../scripts/ref-preview.js";

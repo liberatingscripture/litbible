@@ -141,9 +141,17 @@
   color: #ff8a7d;
 }
 
-/* CTA button: the kit draws it (filled); the form's row sizes it. */
-.btn--cta {
+/* The button is the kit's (filled); the form's row sizes it. */
+.subscribe-strip__go {
   white-space: nowrap;
+}
+
+/* The field takes its column's width and may shrink with it: at its own
+   width (twenty characters) it ran past a 320px phone's edge in OpenDyslexic,
+   on the live site too. */
+.subscribe-strip__form .kit-field {
+  width: 100%;
+  min-width: 0;
 }
 
 /* =========================
@@ -407,119 +415,4 @@
 /* Keep tray links consistent with site */
 .articles-hero-search .searchbar__tray a {
   color: var(--green-text);
-}
-
-/* =========================================================
-   Single article page
-   ========================================================= */
-
-.article {
-  background: var(--page-bg);
-  color: var(--text);
-  padding: 18px var(--gutter) 86px;
-}
-
-.article__search {
-  width: min(var(--content-max), calc(100% - (var(--gutter) * 2)));
-  margin-inline: auto;
-  margin-bottom: 16px;
-}
-
-.article__card {
-  width: min(var(--content-max), calc(100% - (var(--gutter) * 2)));
-  margin-inline: auto;
-
-  background: var(--surface-raised);
-  border-radius: var(--radius-float);
-  border: 1px solid var(--color-hairline);
-  overflow: hidden;
-
-  padding: 18px;
-}
-
-@media (min-width: 900px) {
-  .article__card {
-    padding: 26px;
-  }
-}
-
-.article__back {
-  display: inline-block;
-  margin-bottom: 10px;
-
-  color: var(--green-text);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.article__hero {
-  margin: 8px 0 18px;
-  border-radius: var(--radius-float);
-  overflow: hidden;
-  background: var(--page-bg);
-}
-
-.article__hero-img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.article__header {
-  display: grid;
-  gap: 10px;
-}
-
-.article__date {
-  opacity: 0.75;
-  /* Follows the Display tray's text size and line spacing through
-     --reading-scale / --reading-leading-extra (see src/styles/CLAUDE.md). */
-  font-size: calc(0.95rem * var(--reading-scale, 1));
-}
-
-.article__title {
-  margin: 0;
-  color: var(--text-strong);
-  line-height: 1.05;
-  font-size: calc(clamp(2rem, 3.6vw, 3rem) * var(--heading-scale, 1));
-}
-
-.article__dek {
-  margin: 0;
-  opacity: 0.9;
-  max-width: calc(70 * var(--ch));
-  font-size: calc(1.05rem * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-}
-
-.article__rule {
-  margin: 18px 0;
-  border: 0;
-  height: 1px;
-  background: rgba(var(--ink-rgb), 0.12);
-}
-
-/* Markdown body defaults. The body is a reading surface: it takes the reader's
-   text size and line spacing (Display tray). Its width is set by the card
-   around it, which the article page sizes to the shared reading measure (see
-   --article-width there). */
-.article__body {
-  font-size: calc(1em * var(--reading-scale, 1));
-  line-height: calc(1.6 + var(--reading-leading-extra, 0));
-}
-
-.article__body :is(p, ul, ol) {
-  line-height: calc(1.7 + var(--reading-leading-extra, 0));
-}
-
-.article__body :is(h2, h3) {
-  color: var(--text-strong);
-  line-height: 1.2;
-  margin-top: 1.6em;
-}
-
-.article__body a {
-  color: var(--green-text);
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }

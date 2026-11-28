@@ -1,0 +1,75 @@
+---
+// The line under the header on /glossary (SITE-FEATHERBOA.md, "The glossary
+// and articles" and "The line under the header"; GL-04 to GL-06, GL-09,
+// HD-16): "Learn / Glossary ▾ / trust", the third part naming the entry in
+// view while the reader scrolls, and ‹ › stepping from entry to entry.
+// "Glossary ▾" lists the entries, with the order switch (by the LIT word or
+// by the traditional word) at its top, in place of the old jump list.
+//
+// Without JavaScript the list is a native disclosure: it still reaches every
+// entry (the LIT order), and the line names the page. The switch, the entry's
+// name, and ‹ › are in the markup hidden, and src/scripts/glossary-line.js
+// shows them. PlaceLine.astro draws this for the glossary alone.
+import { getCollection } from "astro:content";
+import Icon from "./Icon.astro";
+import { compareGlossaryLabels } from "../lib/glossary-sort.mjs";
+
+const entries = (await getCollection("glossary")).filter((e) => !e.data.draft);
+const byLit = [...entries].sort((a, b) => compareGlossaryLabels(a.data.litMenu, b.data.litMenu));
+const byTraditional = [...entries].sort((a, b) =>
+  compareGlossaryLabels(a.data.menuTraditional ?? a.data.traditional, b.data.menuTraditional ?? b.data.traditional),
+);
+// What the line calls an entry in view: its LIT word ("trust"), as the
+// entry's own headline says it.
+const nameOf = (e: (typeof entries)[number]) => e.data.lit.split(" / ")[0];
+---
+
+<div class="place-line place-line--glossary" data-place-line data-gloss-line data-pagefind-ignore>
+  <div class="place-line__inner">
+    <div class="place-line__trail">
+      <span class="place-line__place">Learn</span><span class="sr-only">, </span><span
+        class="place-line__sep"
+        aria-hidden="true">/</span>
+      <details class="gloss-menu" data-gloss-menu>
+        <summary class="kit-btn kit-btn--plain gloss-menu__button">
+          <span class="place-line__page">Glossary</span><Icon name="down" />
+        </summary>
+        <div class="gloss-menu__panel">
+          <div class="gloss-menu__order" data-gloss-order hidden>
+            <span class="gloss-menu__order-label" id="gloss-order-label">Order by</span>
+            <div class="kit-choices" role="group" aria-labelledby="gloss-order-label">
+              <button class="kit-tab" type="button" data-order="lit" aria-pressed="true">LIT word</button>
+              <button class="kit-tab" type="button" data-order="traditional" aria-pressed="false">Traditional word</button>
+            </div>
+          </div>
+          <ul class="gloss-menu__list" data-gloss-list="lit" aria-label="Entries by the LIT word">
+            {byLit.map((e) => (
+              <li><a class="kit-row" href={`#${e.data.id}`} data-gloss-target={e.data.id}>{e.data.litMenu}</a></li>
+            ))}
+          </ul>
+          <ul class="gloss-menu__list" data-gloss-list="traditional" aria-label="Entries by the traditional word" hidden>
+            {byTraditional.map((e) => (
+              <li><a class="kit-row" href={`#${e.data.id}`} data-gloss-target={e.data.id}>{e.data.menuTraditional ?? e.data.traditional}</a></li>
+            ))}
+          </ul>
+        </div>
+      </details>
+      <span class="place-line__sep" aria-hidden="true" data-gloss-sep hidden>/</span>
+      <span class="place-line__page" data-gloss-current hidden></span>
+    </div>
+    <nav class="place-line__turn" aria-label="Entries" data-gloss-turn hidden>
+      <button class="kit-icon" type="button" aria-label="Previous entry" data-gloss-step="-1"><Icon name="back" /></button>
+      <button class="kit-icon" type="button" aria-label="Next entry" data-gloss-step="1"><Icon name="forward" /></button>
+    </nav>
+    {/* Entry names for the line, so the script needn't read them off the page */}
+    <script
+      type="application/json"
+      data-gloss-names
+      set:html={JSON.stringify(Object.fromEntries(entries.map((e) => [e.data.id, nameOf(e)])))}
+    />
+  </div>
+</div>
+
+<script>
+  import "../scripts/glossary-line.js";
+</script>

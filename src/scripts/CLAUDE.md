@@ -38,7 +38,9 @@ From the root's project tree.
                      #   verse-image, which draws and
                      #   hands on "Share image…"; panel-flyout, the one
                      #   flyout row the panels share; glossary-entry-links, the
-                     #   copy-link buttons on /glossary; glossary-selection,
+                     #   copy-link buttons on /glossary; glossary-line, its line under
+                     #   the header (the entry in view, ‹ ›, the order switch,
+                     #   Back to top); glossary-selection,
                      #   its selection panel; panel-pieces, what every
                      #   panel is built from; keep-reading-place,
                      #   which holds the reader's line through a reflow;
@@ -250,9 +252,11 @@ panel in miniature, built from `panel-pieces.js` with the same settling,
 placement, word snapping and never-take-focus rules, clamped to one entry's
 definition. It sends `lit:panel-actions` (`view: "glossary"`), so the Study
 Desk adds its "My Notebook" row to it as it does in scripture. The entry's
-copy-link button says what it does twice over: hover text ("Copy link to this
-entry") and a copy icon with a chain on its front sheet (owner, 2026-10-09).
-A bare chain reads as a link that goes somewhere.
+copy-link button says what it does in words, "Copy link," beside the copy
+icon (Featherboa's GL-10: copy is not one of the icons that may stand
+alone, `Icon.astro`), so it has no tooltip; it was a copy icon with a chain
+on its front sheet and hover text (owner, 2026-10-09), since a bare chain
+reads as a link that goes somewhere.
 
 **Opened by a finger, both use the chip layout** (`.lit-panel--chips`): tinted
 buttons side by side in rows (`panelRow`), the three copies in one and

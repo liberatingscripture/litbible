@@ -24,6 +24,7 @@
 // reading: the passage, on a chapter or an introduction ({ book, chapter,
 // studyHref }; ScriptureLayout.astro), which makes it the place line.
 import Icon from "./Icon.astro";
+import GlossaryLine from "./GlossaryLine.astro";
 import SearchBar from "./SearchBar.astro";
 import { bookKeyToLabel } from "../data/books.js";
 import { navFor } from "../lib/chapter-nav-data.mjs";
@@ -94,6 +95,8 @@ const studyName = intro ? `Study ${bookName}` : `Study ${bookName} ${reading?.ch
       </div>
     </div>
   </div>
+) : where.place === "learn" && where.row === "glossary" ? (
+  <GlossaryLine />
 ) : (
   <div class="place-line">
     <div class="place-line__inner">

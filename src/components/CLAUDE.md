@@ -85,6 +85,9 @@ introduction on a phone has the phone's two bars instead
 - **The line under the header** (`PlaceLine.astro`; HD-14, HD-22) is on
   every page but Home and Study's own pages. On a chapter or an
   introduction it is the place line (`readingLine`; `src/layouts/CLAUDE.md`).
+  On /glossary it is `GlossaryLine.astro` ("Learn / Glossary ▾ / trust": a
+  native `<details>` list of the entries with the order switch, the entry in
+  view, and ‹ ›; `src/scripts/glossary-line.js`), sticky under the header.
   Elsewhere it names the place and the page ("Learn / Glossary"), or the page alone for a page in
   no place, the place a link up when the page is inside a row ("Learn /
   Articles" over an article). Its right end takes one or two of the page's

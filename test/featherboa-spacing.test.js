@@ -31,6 +31,8 @@ const NEW = [
   "src/styles/pages/account.css",
   "src/styles/pages/contact.css",
   "src/styles/pages/courses.css",
+  "src/styles/pages/article.css",
+  "src/styles/pages/glossary.css",
   "src/styles/pages/liberating-scripture-collective.css",
   "src/styles/pages/privacy.css",
   "src/styles/pages/release-notes.css",

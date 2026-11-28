@@ -126,13 +126,16 @@ test("the preview's own pages follow only behind the gate", () => {
   );
 });
 
-test("the desk look of the glossary scales its entries once", () => {
-  // The entries' .wrap sits inside the hero's, and both match the rule that
-  // scales the column; without the inner reset the entries took it twice.
+test("the glossary scales its entries once", () => {
+  // The scale is on the page's one element, and the columns inside it take it
+  // by inheritance (they once nested two scaled wraps, and the entries took
+  // the size twice).
   const glossary = rules(css("styles/pages/glossary.css"));
-  const outer = glossary.find(([s]) => s === "html[data-desk] .glossary-page .wrap");
-  assert.match(outer[1], /font-size:\s*calc\(1em \* var\(--reading-scale, 1\)\);/);
-  const inner = glossary.find(([s]) => s === "html[data-desk] .glossary-page .wrap .wrap");
-  assert.ok(inner, "the nested wrap has its own rule");
-  assert.match(inner[1], /font-size:\s*1em;/);
+  const page = glossary.find(([s]) => s === ".glossary-page");
+  assert.match(page[1], /font-size:\s*calc\(var\(--size-text\) \* var\(--reading-scale, 1\)\);/);
+  for (const [selector, body] of glossary) {
+    if (/gloss-col|entries-wrap/.test(selector)) {
+      assert.doesNotMatch(body, /--reading-scale/, `${selector} must not scale again`);
+    }
+  }
 });

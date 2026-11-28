@@ -116,9 +116,11 @@
      rather than 700px, the phone title's scale, the magnifier moving into
      the menu sheet under 380px and "Menu"'s icon leaving under 430px, and
      the phone bar's edges and gaps given up under 375px, its Previous,
-     Search, and Next showing their icons alone under 360px), and
+     Search, and Next showing their icons alone under 360px),
      `picker.css` (the passage picker's book cells, and its panel at 60rem
-     rather than 50rem). Prefer
+     rather than 50rem), and `pages/glossary.css` (an entry's title follows
+     the window's width, since "acknowledgement" outgrew a 320px phone's
+     column). Prefer
      **buying back space over shrinking type** — an accessibility font is the
      last thing that should be made smaller. The header keeps the menu button
      until 900px rather than compressing the places; the hero scroll's
@@ -249,15 +251,16 @@
      rules are in `src/scripts/desk/sheets/CLAUDE.md` and
      `src/scripts/desk/CLAUDE.md`; a size added to `desk.css` in rem
      multiplies by one of them, and a block of text there adds
-     `--desk-leading` to its line height. The public glossary scales its own
-     large type; the desk's look of it restates the type in em of one scaled
-     column (the end of `pages/glossary.css`).
+     `--desk-leading` to its line height. The public glossary and an article take the reading
+     size on one column (`pages/glossary.css`, `pages/article.css`), as the
+     Read page does.
   2. **Size goes on the same element as the column's width**, so the width
      (in `--ch`, an em fraction) grows with the text and a line keeps its
      length in characters. Putting the size on the paragraphs instead would
-     shorten the line at every step up. The article page is the one
-     exception: its width is on the card and its size on the body inside, so
-     `--article-width` multiplies by `--reading-scale` itself.
+     shorten the line at every step up. An article's
+     column (`.article__card`, `pages/article.css`) has the width and
+     the body inside it the size, so the column's `--reading-width` is the
+     text face's own at that size.
   3. **Read View used to keep its own three settings** (`lit_rm_fontSize`,
      `lit_rm_lineHeight`, `lit_rm_markers`). The pre-paint script still reads
      them as fallbacks and the tray deletes each on change, the same
@@ -494,8 +497,7 @@
   added, use LSC's measured values: on ink, `--green` (4.58:1); on
   `--green-deep`, the paper (6.3:1; plain green there is 1.89:1).
   Fixed-green surfaces checked and left unpinned, because nothing focusable
-  sits on them directly: home `.hero`, the chat bubbles, and the glossary
-  `.toggle-switch` (a control, not a surface). **Phase 1 moved the other
+  sits on them directly: home `.hero` and the chat bubbles. **Phase 1 moved the other
   green bands to the page or a tint** (the articles header and hero,
   `/courses`' updates, `/read`'s license band, the podcast page's section)
   and took their pins away with them: a pin left on a themed surface fails
