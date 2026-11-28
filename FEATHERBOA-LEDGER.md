@@ -166,7 +166,11 @@ event and `pageTextBox` (`desk/page.js`).
   to its chapter's section until the sheet (WB-23); Print, Show in
   Notebook, the Greek tab, printing with notes, and the tour still serve
   the page's own chapter (WB-14); verse numbers and footnote letters join
-  the kit's inline list (queue Q16).
+  the kit's inline list (queue Q16). In OpenDyslexic at Extra large a
+  320px phone's chapter is still 343px wide: Go deeper's term links
+  ("Acknowledgment" alone is wider than its column) and a footnote letter
+  run past the window. Check again once Go deeper and the letters are
+  redrawn, at 320 and 375.
 - **Checkpoint A's fixes**, done early: the 404 page's
   `resolveMistypedPath` sent a mistyped `/read/<book>` to Read View's
   address, two hops from its chapter; it now lands on the chapter's page,
@@ -175,7 +179,11 @@ event and `pageTextBox` (`desk/page.js`).
   `makeReadReferenceHref`, `makeReadBookHref`, and Study's Reading link
   `makeDeskReadingHref`) are gone. The book introduction's BreadcrumbList,
   which gave the book's level as `/read/<book>/`, points at `/<book>-1/`
-  as the chapter page's does (2be9767b).
+  as the chapter page's does (2be9767b). The source-text notice's "Source
+  text and license" wraps inside its column: as the kit's button it kept
+  one line, which in OpenDyslexic on a 320px phone made every chapter and
+  introduction 331px wide and pushed the phone bar's Next past the window
+  (b2925a9f).
 - **Phase 9 (Study's frame)**: Study still has a Read View branch in seven
   files, keyed on `[data-rm-root]`, which no page draws now, so none runs:
   `desk/first-stage.js`, `highlights.js`, `page-kind.js`, `panel.js` (its
