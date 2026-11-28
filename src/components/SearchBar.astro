@@ -70,9 +70,10 @@ const glossaryTerms = Object.fromEntries(
       hidden>Build a search…</button
     >
 
-    {/* Phone submit button: the kit's tinted icon, search being one of the
-        five that may stand alone. */}
-    <button class="kit-icon kit-btn--tinted searchbar__submit" type="submit" aria-label="Search">
+    {/* Phone submit button: the kit's icon alone, search being one of the
+        five that may stand alone. The kit draws an icon alone plain (no box
+        until pointed at), so it takes no other level. */}
+    <button class="kit-icon searchbar__submit" type="submit" aria-label="Search">
       <Icon name="search" />
     </button>
   </form>
