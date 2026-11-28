@@ -1343,7 +1343,12 @@ Entered by the run:
   verses. Other choice: whenever the Glossary tab has a hit. Cost: an
   entry that only uses the word in its prose is named, as Phase 6 first
   built it (“Faith → trust / faithfulness is in the glossary →” for
-  “trusting”). Recommendation: keep.
+  “trusting”). Recommendation: keep. 24408884's line read the entry from
+  a result's address and never showed, since Pagefind indexes /glossary as
+  one page and names its entries only as sub-results; a475a2f3 finds them
+  in the term map SearchBar embeds, shows the line in the tray too (which
+  had named any matching entry's title after the chapters line), and
+  after “No results for “pistis.”” when nothing else matched.
 - **Q82. The Notebook tab is not an address** (SE-23, BP-03). The URL's
   `mode` names the other tabs; the Notebook's is page state, since
   `search-core.js` and its hidden `#searchbar-mode` select have no
