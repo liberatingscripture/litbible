@@ -52,6 +52,14 @@ html[data-font="dyslexic"] .picker {
   width: 100%;
 }
 
+/* Beside "Close picker," the browser's own clear × would be a second ×
+   a few pixels away, one clearing and one closing; Escape empties the
+   field first (Q57). On /read the picker has no close, and keeps it (Q74). */
+.picker:not(.picker--full) .picker__field::-webkit-search-cancel-button {
+  appearance: none;
+  display: none;
+}
+
 /* What the field offers, while it holds words: one row each. */
 .picker__offers {
   display: flex;
