@@ -263,6 +263,34 @@ choices are buttons, so click them.
   “Get the app” lost its padding (36c00d4b). Compare each name in
   `kit.css`'s lists with its size on `main` where it still draws.
 
+### Phase 9, part one: what the model leaves
+
+Study's model (7ed9170a) is `src/lib/desk-study.mjs`, pure, with
+`test/desk-study.test.js`; nothing imports it yet. Its rows (SD-15 to
+SD-18, SD-20, SD-29 to SD-38, SD-58 to SD-63, SZ-22, ST-08, ST-24, ST-26,
+ST-28, ST-33, ST-53, ST-65, ST-68, RP-41 to RP-43, CT-13) stay open until a
+reader can see them, each checked when 9b to 9d draw it. Queue Q110 to Q117.
+
+- **9b (Scripture's panes of tabs)**: read and write the key with
+  `readState` and `writeState` (the same `lit-desk-layout`), then delete
+  `desk-layout.mjs` and its test; `MAX_PANES` becomes 3 in
+  `test/desk-copy-constants.test.js`. The model parses a Greek word's
+  arrival (`&greek=16.7`) itself: make it Phase 5's one parser. A tab
+  keeps only the fields `checkTab` lists, so anything else a tab must
+  keep (a Search tab's query) needs a line there. Which control a
+  following tab shows, "Pin to this passage," the "Follow reading" switch,
+  or both, is 9b's: the model holds one state (`pin`). A saved count wider
+  than the window isn't forced down by the model: draw the largest count
+  that fits, keeping the saved one. A LIT tab opened with no passage has
+  none (`passageOf` is null): open it at the followed passage.
+- **9c (the frame)**: the room the panes share, with the sidebar open or
+  folded, is the page's arithmetic, passed in as `available`;
+  `parseAddress` takes the Study page's path as data (`studyPath`, "/desk"
+  until the rename).
+- **9d (the places)**: `/sheets` and `/collections` with no `?id=` name no
+  place (`parseAddress` gives `list`), so what they open is 9d's; reading
+  `location` into `parseAddress` and `arrive` is too.
+
 ### Where the record is unclear
 
 Found while writing and checking this ledger. Each is settled when its phase
@@ -312,7 +340,9 @@ run's best reading, entered in the plan's queue with what was done.
   sits beside "Pin to this passage" in a following tab's More. Whether Search
   opened from the Trash, which has no pane beside it, moves the reader into
   Scripture's place. Whether the sidebar foot's status line (AC-16, needed
-  by SD-45) is built here or in Phase 13.
+  by SD-45) is built here or in Phase 13. The model (7ed9170a) reads two:
+  the switch and the pin are one state, the controls 9b's; and Search from
+  the Trash opens in Scripture, as “The places” says.
 - **Phase 10, the Notebook place.** Where Print… sits once it moves there.
 - **Phase 11, Sheets.** The leader's paper label: E95's paper said "Leader
   copy"; the record says the paper "keeps the other half" but quotes

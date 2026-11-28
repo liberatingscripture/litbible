@@ -1596,6 +1596,52 @@ Entered by the run:
   for the keys (a test holds /privacy to them). Recommendation: approve
   the three; reword the sentence to “with the “Delete in bulk” buttons on
   All settings”; call it not a material change, so the date stays.
+- **Q110. A pane hidden beside a place keeps its tabs** (SD-33, ST-24).
+  The Notebook, a sheet, and a collection have “Panes 1 2.” Going to one
+  hides the pane beside rather than emptying it, so going back to two
+  returns its tabs. Meanwhile: kept, hidden (7ed9170a). Other choice:
+  close them. Cost: none. Recommendation: keep, since “changing the count
+  keeps everything.”
+- **Q111. Where a new reader's green underline starts** (SD-37). A new
+  reader's two panes are the LIT and, beside it, Notes, Footnotes, This
+  verse, and Greek. The underline, where something new opens, starts on
+  the pane beside, so the header's search opens next to the text, not over
+  it. Meanwhile: beside. Other choice: on the LIT's pane, as today's
+  active pane is. Cost: none. Recommendation: beside.
+- **Q112. Opening what is already open leaves the underline** (SD-30).
+  Opening something open in another pane brings its tab forward there; the
+  green underline stays where it was, and only a click on a tab moves it.
+  Meanwhile: that. Other choice: the underline goes with every tab
+  brought forward. Cost: none. Recommendation: as built, so opening from
+  the sidebar doesn't move where the next thing opens.
+- **Q113. A saved layout's sheet and collection panes** (SD-63). Sheets
+  and collections are places now, so a pane that held one isn't carried
+  over, and the sheet opens as it first does. The preview's few readers
+  lose only which sheet sat in a pane. Meanwhile: dropped. Other choice:
+  start that sheet's place from the pane. Cost: a little code.
+  Recommendation: drop.
+- **Q114. A Reading layout's hidden marks stay hidden** (RP-41, SD-63). A
+  layout saved with the Reading layout on had turned its LIT pane's marks
+  off for reading. It reopens with them still off in that tab, so no
+  notes or highlights reappear unasked. Meanwhile: that. Other choice: the
+  marks come back, since the Reading layout is gone. Cost: none.
+  Recommendation: keep them off.
+- **Q115. One LIT tab per chapter when opening a passage** (SD-30).
+  Opening a passage in a chapter a LIT tab already shows brings that tab
+  forward at the verse; another chapter adds a tab, and so does choosing
+  to open a second (to compare). Meanwhile: that. Other choice: one per
+  passage, so Romans 8:1 and 8:28 are two tabs. Cost: none.
+  Recommendation: per chapter.
+- **Q116. Widths are kept as shares of the room** (SD-36). Each pane count
+  keeps its widths as fractions, so a dragged width keeps its share when
+  the window changes; the pane beside a sheet keeps its pixels (320 at
+  first). Meanwhile: that. Other choice: pixels, which drift as the window
+  changes. Cost: none. Recommendation: as built.
+- **Q117. Twenty sheets and twenty collections keep their panes** (ST-26).
+  Each place keeps its own panes, and the saved layout keeps the 20
+  sheets and the 20 collections opened most recently, so it can't grow
+  without end; an older one opens as it first did. Meanwhile: 20 each.
+  Other choice: another number. Cost: none. Recommendation: 20.
 
 ## Questions answered before the run
 
@@ -1701,7 +1747,7 @@ with its last commit when done; never delete a line.
   2e2bd8df)
 - [ ] Phase 8: Off the screen (the verse image built ahead, 60952c32)
 - [ ] Checkpoint A: the public site
-- [ ] Phase 9: Study's frame
+- [ ] Phase 9: Study's frame (the model, 7ed9170a)
 - [ ] Phase 10: The Notebook place
 - [ ] Phase 11: Sheets, collections, and shared sheets
 - [ ] Phase 12: The Greek in Study
