@@ -50,7 +50,7 @@ const NAMES = { romans: "Romans", galatians: "Galatians" };
 const labelOf = (h) => `${NAMES[h.book]} ${h.chapter}:${h.verse}`;
 // A row as search.js's appendGreekRows draws it.
 const greekRow = (h) =>
-  `<li class="result greek-row"><div class="greek-card"><a class="greek-ref" href="/${h.book}-${h.chapter}/?greek=${h.verse}.${h.t}#v${h.verse}">${labelOf(h)}</a><div class="result-excerpt greek-text" lang="grc">πίστεως</div><div class="greek-parse" hidden></div></div></li>`;
+  `<li class="result greek-row"><div class="greek-hit"><a class="greek-ref" href="/${h.book}-${h.chapter}/?greek=${h.verse}.${h.t}#v${h.verse}">${labelOf(h)}</a><div class="result-excerpt greek-text" lang="grc">πίστεως</div><div class="greek-parse" hidden></div></div></li>`;
 // What search.js's announceGreek sends.
 const detailFor = (query, hits, greekWord = "πίστις") => ({
   query,
@@ -133,7 +133,7 @@ test("E165: the Greek group gets the keyword results' head row, and every row a 
   for (const li of rows) {
     const box = li.querySelector(":scope > input.desk-gather__tick");
     assert.ok(box, "every row has a box");
-    same(box.nextElementSibling, li.querySelector(".greek-card"), "before the card");
+    same(box.nextElementSibling, li.querySelector(".greek-hit"), "before the row");
     assert.ok(li.classList.contains("desk-gather__row-item"));
   }
   assert.equal(rows[0].querySelector(".desk-gather__tick").getAttribute("aria-label"), "Include Romans 3:22 in the sheet");

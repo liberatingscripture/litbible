@@ -350,7 +350,7 @@
   gap: 10px;
 }
 
-.desk-gather__row-item > :is(.result-link, .greek-card) {
+.desk-gather__row-item > :is(.result-link, .greek-hit) {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -371,8 +371,7 @@
 /* A checked result: the head row's green rule, and a firmer edge. The
    page's own card rules (search.astro) are scoped, so these name the page
    to stand level with them, and come later. */
-.search-page .desk-gather__row-item--picked > .result-link,
-.search-page .desk-gather__row-item--picked > .greek-card {
+.search-page .desk-gather__row-item--picked > .result-link {
   border-color: rgba(var(--ink-rgb), 0.24);
   box-shadow: inset 3px 0 0 var(--green-text);
 }
@@ -381,7 +380,7 @@
    as an edge. The buttons' edges there, a disabled one's GrayText included,
    are the kit's. */
 @media (forced-colors: active) {
-  .search-page .desk-gather__row-item--picked > :is(.result-link, .greek-card) {
+  .search-page .desk-gather__row-item--picked > .result-link {
     border-color: Highlight;
   }
 }

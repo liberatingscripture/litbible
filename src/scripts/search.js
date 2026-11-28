@@ -688,8 +688,10 @@ function appendGreekRows(from, to, token) {
     const li = document.createElement("li");
     li.className = "result greek-row";
 
+    // A row like every other result (SE-13), never a card: "greek-card" is
+    // the builder's word card in the "Build a search" window.
     const card = document.createElement("div");
-    card.className = "greek-card";
+    card.className = "greek-hit";
 
     const ref = document.createElement("a");
     ref.className = "greek-ref";
