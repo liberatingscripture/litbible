@@ -86,8 +86,12 @@ export function resultsCount(n) {
  *   onPick: (id: string) => void, idPrefix?: string }} options
  *   `counts[id]` of null or undefined draws the tab with no number (the Greek's,
  *   which is searched only when it is chosen).
+ *   `unavailable` lists tab ids drawn unavailable (a Greek query, searched in
+ *   the Greek alone; Q77): each keeps its place, its name, and its stop in the
+ *   arrow keys, has no count, does nothing when pressed, and is described by
+ *   the element `reasonId` names, which says why.
  */
-export function renderTabs(host, { tabs, counts, active, onPick, idPrefix = "tab" }) {
+export function renderTabs(host, { tabs, counts, active, onPick, idPrefix = "tab", unavailable = [], reasonId = "" }) {
   const doc = host.ownerDocument;
   host.replaceChildren();
   host.setAttribute("role", "tablist");
@@ -104,7 +108,11 @@ export function renderTabs(host, { tabs, counts, active, onPick, idPrefix = "tab
     b.setAttribute("aria-selected", on ? "true" : "false");
     b.tabIndex = on ? 0 : -1;
     b.append(tab.label);
-    if (typeof n === "number") {
+    const off = unavailable.includes(tab.id) && !on;
+    if (off) {
+      b.setAttribute("aria-disabled", "true");
+      if (reasonId) b.setAttribute("aria-describedby", reasonId);
+    } else if (typeof n === "number") {
       const count = doc.createElement("span");
       count.className = "search-tab__count";
       count.textContent = n.toLocaleString("en-US");
@@ -113,7 +121,7 @@ export function renderTabs(host, { tabs, counts, active, onPick, idPrefix = "tab
       b.setAttribute("aria-label", `${tab.label}, ${n === 0 ? "no results" : resultsCount(n)}`);
       if (n === 0) b.classList.add("kit-tab--none");
     }
-    b.addEventListener("click", () => onPick(tab.id));
+    if (!off) b.addEventListener("click", () => onPick(tab.id));
     buttons.push(b);
     host.append(b);
   }

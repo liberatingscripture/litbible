@@ -180,3 +180,42 @@ test("the count at the field's end", () => {
   assert.equal(rows.resultsCount(1), "1 result");
   assert.equal(rows.resultsCount(1200), "1,200 results");
 });
+
+test("an unavailable tab keeps its place and name, has no count, does nothing, and is described by the reason (Q77)", () => {
+  const h = host();
+  const picked = [];
+  rows.renderTabs(h, {
+    tabs: rows.visibleTabs({ desk: true, greek: true }),
+    counts: { keyword: 5, subject: 2 },
+    active: "greek",
+    onPick: (id) => picked.push(id),
+    unavailable: ["keyword", "subject", "glossary", "article", "intro", "notebook"],
+    reasonId: "why",
+  });
+  const tabs = [...h.querySelectorAll("[role=tab]")];
+  assert.equal(tabs.length, 7);
+  const off = tabs.slice(0, 6);
+  assert.equal(off.every((t) => t.getAttribute("aria-disabled") === "true"), true);
+  assert.equal(off.every((t) => t.getAttribute("aria-describedby") === "why"), true);
+  assert.equal(off.every((t) => t.querySelector(".search-tab__count") === null), true);
+  assert.equal(off.every((t) => t.getAttribute("aria-label") === null), true);
+  assert.equal(tabs[0].textContent, "Scripture");
+  const greek = tabs[6];
+  assert.equal(greek.getAttribute("aria-disabled"), null);
+  assert.equal(greek.getAttribute("aria-describedby"), null);
+  off.forEach((t) => t.click());
+  greek.click();
+  assert.deepEqual(picked, ["greek"]);
+  // The arrow keys still pass through them, so the row keeps its shape.
+  greek.focus();
+  h.dispatchEvent(new window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+  assert.equal(tabs[0].tabIndex, 0);
+  h.dispatchEvent(new window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+  assert.equal(tabs[1].tabIndex, 0);
+});
+
+test("with nothing unavailable no tab is disabled", () => {
+  const h = host();
+  rows.renderTabs(h, { tabs: rows.visibleTabs(), counts: { keyword: 1 }, active: "keyword", onPick() {} });
+  assert.equal([...h.querySelectorAll("[role=tab]")].some((t) => t.hasAttribute("aria-disabled")), false);
+});

@@ -583,8 +583,14 @@ License page of their own, forwarding /read's old anchors:
     the row's right end the book menu, the sort (Relevance, Bible order; book
     headings only in Bible order), and with the preview Select, on a line of
     their own when the tabs leave no room (queue Q76: seven tabs don't fit
-    one row of the column). On a phone the tabs scroll sideways and the
-    menus take the row under them. **The URL's `mode` is the tab**; the hidden `#searchbar-mode`
+    one row of the column). **On a query that can only be Greek**
+    (`isGreekQuery`: Greek letters, a Strong's number, or a search command,
+    searched in the Greek alone) **every other tab is drawn unavailable**
+    (`aria-disabled`, no count, no press, still in the arrow keys,
+    `aria-describedby` the reason under the row; queue Q77). An English
+    query under the chosen Greek tab keeps them, so the reader can leave
+    it, and the reason goes with the next English query. On a phone the
+    tabs scroll sideways and the menus take the row under them. **The URL's `mode` is the tab**; the hidden `#searchbar-mode`
     select stays the state holder, so `search-core.js` is unchanged, and
     every kind is searched so every tab has a count. The Notebook tab is
     client-only state, not an address. **The rows are one module,

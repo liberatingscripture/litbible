@@ -24,6 +24,7 @@ export const SEARCH_PAGE_HTML = `
         <select id="search-sort"><option value="relevance">Relevance</option><option value="order">Bible order</option></select>
       </div>
     </div>
+    <p class="search-status" id="search-tabs-reason" hidden></p>
     <p class="search-status" id="search-status"></p>
     <div class="search-ref" id="search-ref" data-search-ref hidden></div>
     ${["notebook", "glossary", "subject", "intros", "articles"]

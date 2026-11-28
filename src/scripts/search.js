@@ -81,6 +81,7 @@ const $ = (sel, root = document) => root.querySelector(sel);
 
 const statusEl = $("#search-status");
 const tabsEl = $("#search-tabs");
+const tabsReasonEl = $("#search-tabs-reason");
 const toolsEl = $("#search-tools");
 const sortSelect = $("#search-sort");
 const linesEl = $("#search-lines");
@@ -259,14 +260,27 @@ if (filtersEl && toolsEl) toolsEl.prepend(filtersEl);
 let notebookTab = false;
 let refocusTab = false;
 
-function drawTabs(counts, active) {
+// A query that can only be Greek (isGreekQuery: Greek letters, a Strong's
+// number, or a search command) is searched in the Greek alone, so the other
+// tabs are drawn unavailable with the reason under the row (queue Q77). An
+// English query under the chosen Greek tab is not one: its tabs stay.
+const GREEK_ONLY_REASON = "Greek letters, Strong’s numbers, and search commands are searched in the Greek only.";
+
+function drawTabs(counts, active, { greekOnly = false } = {}) {
   if (!tabsEl) return;
+  const tabs = visibleTabs({ desk: deskEnabled(), greek: greekSearchEnabled() });
   renderTabs(tabsEl, {
-    tabs: visibleTabs({ desk: deskEnabled(), greek: greekSearchEnabled() }),
+    tabs,
     counts,
     active,
     onPick: pickTab,
+    unavailable: greekOnly ? tabs.map((t) => t.id).filter((id) => id !== "greek") : [],
+    reasonId: "search-tabs-reason",
   });
+  if (tabsReasonEl) {
+    tabsReasonEl.textContent = greekOnly ? GREEK_ONLY_REASON : "";
+    tabsReasonEl.hidden = !greekOnly;
+  }
   if (refocusTab) {
     refocusTab = false;
     tabsEl.querySelector('[aria-selected="true"]')?.focus();
@@ -279,6 +293,8 @@ function setCount(n) {
 }
 
 function pickTab(id) {
+  // On a Greek query only the Greek is available (Q77); the row doesn't call this for the rest.
+  if (id !== "greek" && lastSearchCache?.greekQuery) return;
   refocusTab = true;
   if (id === "notebook") {
     notebookTab = true;
@@ -893,7 +909,7 @@ function renderGreekCommands() {
   const token = ++greekSeq;
   const stale = () => token !== greekSeq;
   setRefBanner("", false);
-  drawTabs({}, "greek");
+  drawTabs({}, "greek", { greekOnly: lastSearchCache.greekQuery });
   setCount(greek.hits?.length ?? null);
   groupGreek.hidden = false;
   greekExactEl.hidden = true;
@@ -970,7 +986,7 @@ function renderGreekOnly() {
   showGreekNotebook();
   const token = ++greekSeq;
   setRefBanner("", false);
-  drawTabs({}, "greek");
+  drawTabs({}, "greek", { greekOnly: lastSearchCache.greekQuery });
   writeGreekStatus();
   setCount(greek?.total ?? null);
   if (!greek || !greek.lemmas.length) {
@@ -1471,7 +1487,9 @@ async function runFullSearch() {
       loadVerseIndex(base),
       deskApi ? deskApi.search(q, { bookKey: book }).catch(() => null) : null,
     ]);
-    lastSearchCache = { greekOnly: true, displayQ, greek, verseIndex, notebook, deskApi };
+    // greekQuery: the query itself can only be Greek, so the other tabs are
+    // unavailable (Q77); an English query under the Greek tab can still leave it.
+    lastSearchCache = { greekOnly: true, greekQuery: isGreekQuery(q), displayQ, greek, verseIndex, notebook, deskApi };
     renderFromCache();
     return;
   }
