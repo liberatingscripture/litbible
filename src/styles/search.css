@@ -416,10 +416,6 @@
   color: rgba(var(--color-text-rgb), var(--text-2-alpha));
 }
 
-.search-line--glossary {
-  margin-top: 0;
-}
-
 /* ---------- /search ---------- */
 
 /* The column is SearchLayout's .scripture-main, which also takes the reader's

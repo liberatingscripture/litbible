@@ -155,6 +155,22 @@ test("the glossary line names an entry's own word, as the entry writes it (SE-21
   assert.equal(rows.glossaryLineTerm("", faith), null);
 });
 
+test("the glossary line's entries come from the term map, in its order, with their places", () => {
+  const terms = {
+    "demon-demon": { traditional: "Demon", lit: "demon", greek: "daimonion" },
+    "faith-trust": { traditional: "Faith", lit: "trust / faithfulness", greek: "pistis" },
+    "hope-trust": { traditional: "Hope", lit: "expectant trust", greek: "elpis" },
+  };
+  assert.deepEqual(rows.glossaryLineEntries("trust", terms), [
+    { id: "faith-trust", term: "Trust", href: "/glossary/#faith-trust" },
+  ]);
+  assert.deepEqual(rows.glossaryLineEntries("Demon", terms).map((e) => e.term), ["Demon"]);
+  assert.equal(rows.glossaryLineEntries("pistis", terms, "/base")[0].href, "/base/glossary/#faith-trust");
+  // A word only in an entry's prose, or in one of its phrases, names nothing.
+  assert.deepEqual(rows.glossaryLineEntries("expectant", terms), []);
+  assert.deepEqual(rows.glossaryLineEntries("trust", null), []);
+});
+
 test("See all results keeps the tab and the book", () => {
   assert.equal(rows.seeAllHref("/search", { q: "light" }), "/search/?q=light");
   assert.equal(rows.seeAllHref("/search/", { q: "light love", mode: "subject", book: "john" }), "/search/?q=light+love&mode=subject&book=john");

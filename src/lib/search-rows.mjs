@@ -275,6 +275,28 @@ export function glossaryLineTerm(query, entry) {
 }
 
 /**
+ * The entries a glossary line names, in the term map's order: each whose own
+ * word is what was typed (glossaryLineTerm), with the address of its place on
+ * /glossary. Read from the map SearchBar embeds in every page ({ id:
+ * { traditional, lit, greek } }), never from search results: Pagefind indexes
+ * /glossary as one page and names its entries only as sub-results, so a
+ * result's own address never says which entry it is.
+ *
+ * @param {string} query what the reader typed
+ * @param {Record<string, { traditional?: string, lit?: string, greek?: string }> | null | undefined} terms
+ * @param {string} [basePath] the site's base, "/" by default
+ * @returns {{ id: string, term: string, href: string }[]}
+ */
+export function glossaryLineEntries(query, terms, basePath = "/") {
+  const out = [];
+  for (const [id, entry] of Object.entries(terms || {})) {
+    const term = glossaryLineTerm(query, entry);
+    if (term) out.push({ id, term, href: `${basePath.replace(/\/?$/, "/")}glossary/#${encodeURIComponent(id)}` });
+  }
+  return out;
+}
+
+/**
  * Over the verses, one line for a glossary term that matched (SE-21): "Trust is
  * in the glossary →," a link to the entry. With more than one match the others
  * wait in the tab: "Trust and 2 more are in the glossary →."

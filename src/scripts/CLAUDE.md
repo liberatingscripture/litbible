@@ -585,8 +585,16 @@ License page of their own, forwarding /read's old anchors:
     `src/lib/search-rows.mjs`**, shared with the tray (tested once in
     `test/search-rows.test.js`): reading rows with the matched word bold and
     underlined in green, the reference answer first ("Go to John 3:16," then
-    with the preview "Study John 3:16" at `/desk/?place=john-3:16`), the
-    chapters line and glossary line over the verses. The tray shows the same
+    with the preview "Study John 3:16" at `/desk/?place=john-3:16`), then
+    over the verses the glossary line and the chapters line. **The glossary
+    line is only for an entry whose own word was typed** (its traditional
+    word, a LIT word, or its transliteration: “Trust is in the glossary →”),
+    and it is found in the term map SearchBar embeds in every page
+    (`glossaryLineEntries`), never in Pagefind's results: Pagefind indexes
+    /glossary as one page at `/glossary/` and names its entries only as
+    sub-results, so a result's own address never says which entry it is
+    (`test/search-page-lines.test.js`). When nothing else matched it
+    follows “No results for …”. The tray shows the same
     rows and "See all results →" opens /search on the same tab. A new search
     surface takes its rows from that module. **"Build a search…"** is one
     quiet link in the field's row on the Greek tab only; it opens the

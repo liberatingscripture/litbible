@@ -59,7 +59,8 @@ import {
   studyHrefFor,
   chaptersLineHtml,
   glossaryLineHtml,
-  glossaryLineTerm,
+  glossaryLineEntries,
+  seeAllHref,
 } from "../lib/search-rows.mjs";
 import { hasGreek } from "../lib/greek-detect.mjs";
 
@@ -1193,6 +1194,13 @@ function renderFromCache() {
       }
     }
 
+    // The glossary still answers when nothing else does (SE-21): “pistis”
+    // finds no verse, but it is an entry's own word.
+    const named = glossaryLineEntries(displayQ, glossaryTermsFromDom(), base);
+    if (named.length) {
+      statusEl.innerHTML = `${statusEl.innerHTML} ${glossaryLineHtml({ term: named[0].term, href: named[0].href, count: named.length })}`;
+    }
+
     if (cachedTopicsList) {
       const suggestions = fuzzyTopicSuggestions(
         normalizePhrase(displayQ),
@@ -1259,25 +1267,18 @@ function renderFromCache() {
     else empty(keywordEl, "the Scripture");
     // Over the verses, the glossary line, since the glossary still answers
     // first, then the chapters line (SE-21, SE-20). The glossary's is only
-    // for an entry whose own word is what was typed (glossaryLineTerm).
+    // for an entry whose own word is what was typed (glossaryLineEntries).
     if (page === 1 && linesEl) {
       const bits = [];
-      if (counts.glossary) {
-        const terms = glossaryTermsFromDom() ?? {};
-        const named = glossaryMatches
-          .map((g) => {
-            const id = decodeURIComponent(String(g.d?.url || "").split("#")[1] || "");
-            const term = glossaryLineTerm(displayQ, terms[id]);
-            return term ? { term, href: g.d.url } : null;
-          })
-          .filter(Boolean);
-        if (named.length) {
-          bits.push(`<p class="search-line">${glossaryLineHtml({ term: named[0].term, href: named[0].href, count: named.length })}</p>`);
-        }
+      const named = glossaryLineEntries(displayQ, glossaryTermsFromDom(), base);
+      if (named.length) {
+        bits.push(`<p class="search-line">${glossaryLineHtml({ term: named[0].term, href: named[0].href, count: named.length })}</p>`);
       }
       if (counts.subject) {
         const first = prettyTitleFromUrl(subjectMatches[0].url, subjectMatches[0].meta?.title || "Result");
-        bits.push(`<p class="search-line">${chaptersLineHtml({ first, count: counts.subject, query: displayQ })}</p>`);
+        // A real address, so the link opens in a new tab too (SE-32).
+        const href = seeAllHref(window.location.pathname, { q: displayQ, mode: "subject", book: readState().book });
+        bits.push(`<p class="search-line">${chaptersLineHtml({ first, count: counts.subject, query: displayQ, href })}</p>`);
       }
       linesEl.innerHTML = bits.join("");
       linesEl.querySelector("[data-line-tab]")?.addEventListener("click", (e) => {

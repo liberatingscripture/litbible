@@ -22,6 +22,7 @@ import {
   parseScripturePath,
   scriptureResultTitle,
   glossaryTermFromResult,
+  glossaryTermsFromDom,
   enrichSearchResult,
   topicsIndexSubjectItem,
   bucketSearchResults,
@@ -58,6 +59,7 @@ import {
   titleRowHtml,
   chaptersLineHtml,
   glossaryLineHtml,
+  glossaryLineEntries,
   seeAllHref,
 } from "../lib/search-rows.mjs";
 
@@ -454,6 +456,19 @@ const _initSearchbars = async () => {
         items.length ? `<div class="searchbar__group"><div class="searchbar__group-title">${title}</div>${titleRows(items)}</div>` : "";
       let out = "";
 
+      // The glossary still answers first (SE-21), as on /search: one line for
+      // an entry whose own word is what was typed, never one that only uses
+      // the word in its prose. With the Glossary type picked, its matches are
+      // listed whole instead, below.
+      const named =
+        activeMode === "all" ? glossaryLineEntries(q, glossaryTermsFromDom(), base) : [];
+      if (named.length) {
+        out += `<p class="search-line">${glossaryLineHtml({
+          term: named[0].term,
+          href: named[0].href,
+          count: named.length,
+        })}</p>`;
+      }
       if (show("subject") && counts.subject) {
         out +=
           activeMode === "subject"
@@ -465,16 +480,7 @@ const _initSearchbars = async () => {
                 href: fullSearchHref(q, bookKey, "subject"),
               })}</p>`;
       }
-      if (show("glossary") && counts.glossary) {
-        out +=
-          activeMode === "glossary"
-            ? group("Glossary", glossary)
-            : `<p class="search-line search-line--glossary">${glossaryLineHtml({
-                term: glossary[0].title,
-                href: glossary[0].href,
-                count: counts.glossary,
-              })}</p>`;
-      }
+      if (activeMode === "glossary" && counts.glossary) out += group("Glossary", glossary);
       if (show("keyword") && keyword.length) {
         out += `<ol class="search-rows">${keyword.map((v) => verseRowHtml(v)).join("")}</ol>`;
       }
