@@ -40,6 +40,7 @@ const ALLOWLIST = new Map([
   ["dyslexic-font", "display setting: the older dyslexic font switch, read and cleared on the way to lit-font (prose on /privacy)"],
   ["lit-size", "display setting: text size (prose on /privacy)"],
   ["lit-leading", "display setting: line spacing (prose on /privacy)"],
+  ["lit-justify", "display setting: Justify (prose on /privacy, justification)"],
   ["lit-verse-numbers", "display setting: verse numbers in Chapter View (prose on /privacy, what the page shows)"],
   ["lit-read-numbers", "display setting: Read View's verse numbers, read as the chapter page's fallback since Read View retired and cleared once its switch is set (prose on /privacy, what the page shows)"],
   ["lit-fn-letters", "display setting: footnote letters (prose on /privacy, what the page shows)"],

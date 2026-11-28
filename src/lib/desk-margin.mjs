@@ -195,10 +195,57 @@ export function nextCollapsed({ floating, wasFloating, collapsed, opening, minim
 // the visit. What is kept is the LIT's measure, in the site's character unit
 // (--ch), and the notebook's width in px; the notes' margin takes what's left.
 // The notebook then sits at the window's edge, EDGE from it, with the
-// column GAP before it. The recommended details: the LIT stays between 36
-// and 72, the notebook at least MIN_WIDTH.
-export const MIN_MEASURE = 36;
-export const MAX_MEASURE = 72;
+// column GAP before it, and is at least MIN_WIDTH.
+//
+// The LIT drags only within 45 to 75 characters a line (Featherboa, "Sizes,
+// space, and the measure"; SZ-17, DI-24), counted in the face's average
+// character (--char), so its range in --ch is each face's own
+// (measureRange). It was 36 to 72 in every face until Featherboa's Phase 4.
+
+/** --ch, the face's "0", in em, by data-font (tokens.css; "" is Source Sans 3). */
+export const CH = { "": 0.497, dyslexic: 0.5, atkinson: 0.648 };
+/** --char, the face's average character, in em, by data-font (tokens.css). */
+export const CHAR = { "": 0.4164, dyslexic: 0.7364, atkinson: 0.4433 };
+/** The characters a line the LIT can be dragged to, fewest and most. */
+export const LINE_CHARS = { min: 45, max: 75 };
+/** The measure a Chapter View chapter opens with, the notebook expanded (global.css). */
+export const OPEN_MEASURE = 48;
+
+/**
+ * The narrowest and widest the reader can drag the LIT, in --ch, in a face
+ * (its data-font, "" for the default): 45 and 75 of its characters, to the
+ * tenth inside them. Where the measure a chapter opens with lies outside
+ * that, the range reaches it, so the first drag never jumps the column:
+ * OpenDyslexic's characters are so wide that 48 is about 33 of them, so its
+ * narrowest stays 48 and only its widest is 75 characters.
+ *
+ * @param {string} [face]
+ * @returns {{ min: number, max: number }}
+ */
+export function measureRange(face = "") {
+  const per = (CHAR[face] ?? CHAR[""]) / (CH[face] ?? CH[""]); // --ch to a character
+  const min = Math.ceil(LINE_CHARS.min * per * 10 - 1e-9) / 10;
+  const max = Math.floor(LINE_CHARS.max * per * 10 + 1e-9) / 10;
+  return { min: Math.min(OPEN_MEASURE, min), max: Math.max(OPEN_MEASURE, max) };
+}
+
+/** Each face's range, for the pre-paint script, which can't import (FIRST_PAINT). */
+export const MEASURE_RANGES = Object.fromEntries(Object.keys(CH).map((face) => [face, measureRange(face)]));
+/** The range in the default face, Source Sans 3: 37.8 to 62.8. */
+export const MIN_MEASURE = MEASURE_RANGES[""].min;
+export const MAX_MEASURE = MEASURE_RANGES[""].max;
+const DEFAULT_RANGE = MEASURE_RANGES[""];
+
+/**
+ * How many of the face's characters a line holds at a measure in --ch: what
+ * the text's line reads out (widths.js).
+ *
+ * @param {number} measure
+ * @param {string} [face]
+ */
+export function measureChars(measure, face = "") {
+  return (measure * (CH[face] ?? CH[""])) / (CHAR[face] ?? CHAR[""]);
+}
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
@@ -206,10 +253,12 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
  * Where everything goes with the reader's widths, in a window of this size.
  * A window too narrow for them gives way in order (the recommended
  * details): the notes' margin first (it is only what's left), then the
- * notebook down to MIN_WIDTH, then the LIT down to MIN_MEASURE. Past that
+ * notebook down to MIN_WIDTH, then the LIT down to its narrowest. Past that
  * the widths don't fit at all (`over`), and the page goes back to the
  * ordinary placement, floating notebook and all. Nothing here changes what
- * is kept: a wider window brings the reader's widths back.
+ * is kept: a wider window brings the reader's widths back, and so does the
+ * face a measure was kept in, since a measure outside this face's range is
+ * held to it here.
  *
  * @param {object} m
  * @param {number} m.viewport the width the page lays out in (clientWidth)
@@ -222,11 +271,13 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
  * @param {number} m.width the notebook's width the reader kept
  * @param {number} [m.keepLeft] the margin the column keeps on its left
  *   (KEEP_LEFT), which the widths never take
+ * @param {{ min: number, max: number }} [m.range] the LIT's range in the
+ *   reader's face (measureRange); the default face's when not given
  * @returns {{ over: boolean, measure: number, width: number, panelLeft: number,
  *   columnLeft: number, columnRight: number }}
  */
-export function placeWithWidths({ viewport, parentLeft, ch, pad, measure, width, keepLeft = 0 }) {
-  let m = clamp(measure, MIN_MEASURE, MAX_MEASURE);
+export function placeWithWidths({ viewport, parentLeft, ch, pad, measure, width, keepLeft = 0, range = DEFAULT_RANGE }) {
+  let m = clamp(measure, range.min, range.max);
   let w = Math.max(MIN_WIDTH, width);
   const room = viewport - EDGE - GAP - parentLeft - keepLeft; // for the column and the notebook
   let short = m * ch + pad + w - room;
@@ -236,7 +287,7 @@ export function placeWithWidths({ viewport, parentLeft, ch, pad, measure, width,
     short -= give;
   }
   if (short > 0) {
-    const give = Math.min(short, (m - MIN_MEASURE) * ch);
+    const give = Math.min(short, (m - range.min) * ch);
     m -= give / ch;
     short -= give;
   }
@@ -274,37 +325,40 @@ export function widthsFromLayout({ viewport, measure, panelLeft }) {
  * those two, so only the LIT's measure changes (the notebook, and so the
  * column's right edge, stay put). Dragging right (dx > 0) narrows the LIT.
  * `maxMeasure` is the widest the LIT can get before the notes' margin is
- * gone.
+ * gone, and `range` the face's (placeWithWidths).
  *
- * @param {{ measure: number, dx: number, ch: number, maxMeasure?: number }} m
+ * @param {{ measure: number, dx: number, ch: number, range?: { min: number, max: number },
+ *   maxMeasure?: number }} m
  */
-export function dragTextEdge({ measure, dx, ch, maxMeasure = MAX_MEASURE }) {
-  return round(clamp(measure - dx / ch, MIN_MEASURE, Math.max(MIN_MEASURE, Math.min(MAX_MEASURE, maxMeasure))));
+export function dragTextEdge({ measure, dx, ch, range = DEFAULT_RANGE, maxMeasure = range.max }) {
+  return round(clamp(measure - dx / ch, range.min, Math.max(range.min, Math.min(range.max, maxMeasure))));
 }
 
 /**
  * The handle between the LIT and the notebook: it trades width between those
  * two, so the column's left edge stays put. Dragging right (dx > 0) narrows
- * the notebook and widens the LIT by the same amount.
+ * the notebook and widens the LIT by the same amount, within the face's
+ * `range` (placeWithWidths).
  *
- * @param {{ measure: number, width: number, dx: number, ch: number }} m
+ * @param {{ measure: number, width: number, dx: number, ch: number,
+ *   range?: { min: number, max: number } }} m
  */
-export function dragNotebookEdge({ measure, width, dx, ch }) {
-  const lo = -(measure - MIN_MEASURE) * ch; // the LIT can narrow this far
-  const hi = Math.min(width - MIN_WIDTH, (MAX_MEASURE - measure) * ch);
+export function dragNotebookEdge({ measure, width, dx, ch, range = DEFAULT_RANGE }) {
+  const lo = -(measure - range.min) * ch; // the LIT can narrow this far
+  const hi = Math.min(width - MIN_WIDTH, (range.max - measure) * ch);
   const d = clamp(dx, Math.min(0, lo), Math.max(0, hi));
   return { measure: round(measure + d / ch), width: Math.round(width - d) };
 }
 
 /**
  * The widest the LIT's measure can be, with this notebook, before the notes'
- * margin is down to `keepLeft`.
+ * margin is down to `keepLeft`, and never past the face's `range`.
  *
  * @param {{ viewport: number, parentLeft: number, ch: number, pad: number, width: number,
- *   keepLeft?: number }} m
+ *   keepLeft?: number, range?: { min: number, max: number } }} m
  */
-export function widestMeasure({ viewport, parentLeft, ch, pad, width, keepLeft = 0 }) {
-  return round(Math.min(MAX_MEASURE, (viewport - EDGE - GAP - parentLeft - keepLeft - width - pad) / ch));
+export function widestMeasure({ viewport, parentLeft, ch, pad, width, keepLeft = 0, range = DEFAULT_RANGE }) {
+  return round(Math.min(range.max, (viewport - EDGE - GAP - parentLeft - keepLeft - width - pad) / ch));
 }
 
 /* ── Before first paint ─────────────────────────────────────────────── */
@@ -337,11 +391,13 @@ export function widestMeasure({ viewport, parentLeft, ch, pad, width, keepLeft =
 // before the page has a scrollbar, so a classic scrollbar leaves a band of
 // about 16px where it still guesses wrong.
 export const FIRST_PAINT = {
-  measure: 48, // Chapter View's measure with the notebook expanded (global.css)
+  measure: OPEN_MEASURE, // Chapter View's measure with the notebook expanded (global.css)
   pad: 32, // .scripture-main's side padding (ScriptureLayout.astro)
   body: 1.33, // the column's font size at Medium, in rem (tokens.css, --size-scripture)
   // --ch in em, by data-font (tokens.css; "" is Source Sans 3, the default)
-  ch: { "": 0.497, dyslexic: 0.5, atkinson: 0.648 },
+  ch: CH,
+  // The range a kept measure is held to, by data-font (measureRange)
+  range: MEASURE_RANGES,
   // --reading-scale, by data-size (global.css; "" is Medium)
   scale: { "": 1, sm: 16 / 18, lg: 20 / 18, xl: 23 / 18 },
   // KEEP_LEFT below: the margin the column keeps on its left. PIN_MARGIN
@@ -398,13 +454,16 @@ export const MOVE_PROP = "--desk-move";
  * @param {number} m.viewport the window's width
  * @param {number} m.ch px per measure unit at the column's size
  * @param {{ measure: number, width: number } | null} [m.kept] the widths the
- *   reader kept this visit, already checked for range
+ *   reader kept this visit, already checked to be numbers and the width at
+ *   least MIN_WIDTH; a measure outside `range` is held to it
+ * @param {{ min: number, max: number }} [m.range] the LIT's range in the
+ *   reader's face (FIRST_PAINT.range); the default face's when not given
  * @returns {{ expanded: boolean, widths: { measure: number, width: number } | null,
  *   shift: number, center: number | null }}
  */
-export function firstPaint({ viewport, ch, kept = null }) {
+export function firstPaint({ viewport, ch, kept = null, range = DEFAULT_RANGE }) {
   const keepLeft = FIRST_PAINT.keepLeft;
-  const lay = kept ? placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, keepLeft, ...kept }) : null;
+  const lay = kept ? placeWithWidths({ viewport, parentLeft: 0, ch, pad: FIRST_PAINT.pad, keepLeft, range, ...kept }) : null;
   if (lay && !lay.over) {
     // The column ends GAP before the notebook (global.css's margin-right),
     // written out in the pre-paint script's order so the two agree exactly.

@@ -447,6 +447,31 @@ test("a chapter loaded above keeps the reader's line where it was, and only a sc
   assert.equal(location.pathname, "/john-3/", "John 3 is the chapter at the reading line");
 });
 
+test("at the page's top a key a control has used asks for nothing above, and the same key on the page does", async () => {
+  open("john", 4);
+  await settle();
+  await scrollTo(0);
+  // A row of choices that takes Home and the arrows itself, as the Display
+  // tray's do (display-tray.js): the page doesn't scroll, so nothing loads.
+  const row = document.createElement("div");
+  row.setAttribute("role", "radiogroup");
+  const choice = document.createElement("button");
+  choice.setAttribute("role", "radio");
+  row.append(choice);
+  document.body.append(row);
+  row.addEventListener("keydown", (e) => e.preventDefault());
+  for (const key of ["Home", "ArrowUp", "PageUp"]) {
+    choice.dispatchEvent(new window.KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+  }
+  for (let i = 0; i < 5; i++) await settle();
+  assert.equal(document.querySelectorAll(".read-on--before > *").length, 0, "nothing loaded above");
+  assert.ok(!fetched.includes("/john-3/"), "John 3 wasn't fetched");
+
+  // The same key with nothing to take it scrolls the page up, so it asks.
+  document.body.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Home", bubbles: true, cancelable: true }));
+  await until(() => loaded(3), "John 3 to load above");
+});
+
 /** A phone's page: a chapter loaded above draws the page's own title, and the reader's line holds. */
 async function phoneAbove({ banner }) {
   phoneTitle = true;

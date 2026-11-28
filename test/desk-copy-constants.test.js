@@ -22,13 +22,20 @@ const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 
 const WORDS = { 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven" };
 
-test("the notebook page builds the trash's days from TRASH_DAYS (CP3-7)", () => {
-  const src = read("src/scripts/desk/notebook-page.js");
-  assert.match(src, /import \{ TRASH_DAYS \} from "\.\.\/\.\.\/lib\/desk-records\.mjs"/);
-  const code = src.split("\n").filter((line) => !line.trimStart().startsWith("//")).join("\n");
-  assert.doesNotMatch(code, /\b\d+ days\b/, "no typed number of days in the code");
-  assert.ok(src.match(/\$\{TRASH_DAYS\} days/g).length >= 4, "every trash sentence reads TRASH_DAYS");
-});
+// The Trash's lines stay on My Notebook; Delete in bulk's moved to All
+// settings in Featherboa's Phase 4 (its lede and "Empty the trash now").
+for (const [page, file, least] of [
+  ["the notebook page", "src/scripts/desk/notebook-page.js", 2],
+  ["All settings", "src/scripts/desk/settings-page.js", 2],
+]) {
+  test(`${page} builds the trash's days from TRASH_DAYS (CP3-7)`, () => {
+    const src = read(file);
+    assert.match(src, /import \{ TRASH_DAYS \} from "\.\.\/\.\.\/lib\/desk-records\.mjs"/);
+    const code = src.split("\n").filter((line) => !line.trimStart().startsWith("//")).join("\n");
+    assert.doesNotMatch(code, /\b\d+ days\b/, "no typed number of days in the code");
+    assert.ok(src.match(/\$\{TRASH_DAYS\} days/g).length >= least, "every trash sentence reads TRASH_DAYS");
+  });
+}
 
 test("the help page reads the trash's days from TRASH_DAYS (CP3-6)", () => {
   const src = read("src/pages/desk/help.astro");

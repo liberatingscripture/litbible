@@ -85,6 +85,6 @@ export function initFootnotePills(list) {
   if (window.ResizeObserver) new ResizeObserver(schedule).observe(list);
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
+    attributeFilter: ["data-size", "data-leading", "data-justify", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
   });
 }

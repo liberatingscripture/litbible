@@ -821,7 +821,7 @@ export function createNotesMargin({ store, source, onEdit, ctx = null, showInTex
   source.watch?.(load);
   new MutationObserver(schedule).observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ["data-size", "data-leading", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
+    attributeFilter: ["data-size", "data-leading", "data-justify", "data-font", "data-vn", "data-fn", "data-desk-panel", "data-desk-expanded"],
   });
   load();
 

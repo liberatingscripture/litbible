@@ -1973,9 +1973,10 @@ html:has(.desk-gutter--dragging, .desk-panel__edge--dragging) {
   }
 }
 
-/* "Reset widths", shown only while the reader has set widths, in the panel's
-   settings row: a plain button, the kit's, as Edit is. The Display tray's copy,
-   .font-tray__reset, is styled in desk-tab.css, which stage one loads. */
+/* The Settings tab's small plain button, the kit's, as Edit is: "Ask this
+   browser to keep it" beside the line saying the browser may clear the
+   notebook. ("Reset widths" was one until Featherboa's Phase 4 gave each
+   line its own.) */
 .desk-panel__reset {
   padding: 5px 10px;
   line-height: inherit;
@@ -3200,34 +3201,6 @@ ol.footnotes[data-desk-fn-pills] {
   color: var(--green-text);
 }
 
-/* How the Notebook panel starts (notebook-page.js, mountStartChoice). */
-.desk-np__start {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 20px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.desk-np__start legend {
-  width: 100%;
-  margin-bottom: 6px;
-  padding: 0;
-}
-
-.desk-np__start-option {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.desk-np__note {
-  margin-top: 8px;
-  font-size: calc(0.875rem * var(--desk-ui, 1));
-}
-
 .desk-np__section {
   margin: 0 0 2.5rem;
 }
@@ -3410,7 +3383,7 @@ ol.footnotes[data-desk-fn-pills] {
 
 .desk-np__new-label button,
 .desk-np__rename button,
-.desk-np__ask button:not(.desk-np__danger-button),
+.desk-np__ask button,
 .desk-backup__save,
 .desk-backup__file-button,
 .desk-backup__actions button {
@@ -3530,27 +3503,8 @@ ol.footnotes[data-desk-fn-pills] {
   gap: 8px;
 }
 
-/* Delete in bulk, and the trash. Fixed fills with white text, so they read the same in both themes. */
-.desk-np__danger {
-  margin: 0 0 1.5rem;
-  max-width: calc(60 * var(--ch));
-}
-
-.desk-np__danger p {
-  margin: 0 0 0.75rem;
-}
-
-.desk-np__danger-button {
-  padding: 7px 14px;
-  font-size: inherit;
-  line-height: inherit;
-  cursor: pointer;
-}
-
-.desk-np__danger-button:disabled {
-  cursor: default;
-}
-
+/* A question asked in a label's row before it goes (D13, step 5); Delete in
+   bulk asked the same way here until it moved to All settings (Phase 4). */
 .desk-np__ask {
   display: flex;
   flex-wrap: wrap;
@@ -3565,10 +3519,6 @@ ol.footnotes[data-desk-fn-pills] {
   flex: 1 1 100%;
   margin: 0;
   font-weight: 600;
-}
-
-.desk-np__none {
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
 }
 
 @media print {
@@ -6005,27 +5955,30 @@ html.desk-ws--moving * {
   line-height: calc(1.75 + var(--reading-leading-extra, 0));
 }
 
-/* Reading (the layout chosen as Reading, not any one LIT pane, E107;
-   desk-page.js stamps data-desk-reading) sets the
-   prose as a page of a book: justified, with the browser's own hyphenation
-   keeping the word spaces even (E106; BVJ, 2026-11-11). Three limits:
+/* The Display tray's Justify (html[data-justify], stamped before paint, off
+   by default; RP-36 to RP-39) sets every LIT pane's prose as a page of a
+   book, as it does the Read page's (reading-page.css): justified, with the
+   browser's own hyphenation keeping the word spaces even. It was the Reading
+   layout's alone (E106, E107; BVJ, 2026-11-11), which no longer justifies
+   by itself: Featherboa makes it the switch everywhere (RP-44). Three
+   limits:
    - Poetry keeps its lines: a blockquote's paragraphs are left alone.
    - The default font only. Atkinson and OpenDyslexic readers keep the ragged
      edge and whole words, since uneven gaps and split words are what those
      faces are chosen to avoid (src/styles/CLAUDE.md, the reader font).
-   - Only where a line holds about 45 characters or more: 22em of Inter at
-     the reading size, which the column itself measures as a query container,
+   - Only where a line holds about 45 characters or more: 22em at the
+     reading size, which the column itself measures as a query container,
      so the Display tray's text size is counted. Shorter lines justify badly.
    A word needs 6 letters to break, 3 on each side of the hyphen; Safari reads
    the two prefixed limits. The hyphens are drawn, never in the text, so
    copying, notes, highlights and search read the words whole. */
 @supports (container-type: inline-size) {
-  .desk-ws[data-desk-reading] .desk-lit__text {
+  html[data-justify] .desk-lit__text {
     container: deskLitText / inline-size;
   }
 
   @container deskLitText (min-width: 22em) {
-    html:not([data-font]) .desk-ws[data-desk-reading] .desk-lit .chapter-paragraphs p:not(blockquote p) {
+    html[data-justify]:not([data-font]) .desk-lit .chapter-paragraphs p:not(blockquote p) {
       text-align: justify;
       hyphens: auto;
       hyphenate-limit-chars: 6 3 3;

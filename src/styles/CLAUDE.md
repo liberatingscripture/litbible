@@ -74,10 +74,10 @@
   `tokens.css` and `global.css` and mirrored in a few page stylesheets and
   components; `test/featherboa-css-rules.test.js` fails on a rule written
   only once, on one whose two halves differ, and on a bare media query. The header "Aa" tray (`SiteHeader.astro`, heading
-  **"Display"**, the one panel for every reader setting; see "The Display
+  **"Display"**, the one panel for how the page reads; see "The Display
   tray," below) holds Theme: a 3-state control
-  (**System / Light / Dark**) persisted in `localStorage['lit-theme']`
-  (`light`/`dark`; **key absent = System**). `Layout.astro` stamps `data-theme`
+  (**Auto / Light / Dark**, Auto being the old System) persisted in `localStorage['lit-theme']`
+  (`light`/`dark`; **key absent = Auto**). `Layout.astro` stamps `data-theme`
   on `<html>` in a pre-paint `is:inline` script (beside the font one) and
   mirrors `documentElement.style.colorScheme`, so there's no flash; its inline
   `criticalCSS` carries the same guarded pair so a forced theme wins the first
@@ -92,8 +92,9 @@
 ## The Display tray
 
 - **The reader font is a Display tray setting too, and works the same way.**
-  A 3-state radio list (**Default / Atkinson Hyperlegible / OpenDyslexic**,
-  each option set in the font it selects so the list previews itself) writes
+  The tray's Text group, three list rows (**Default / Atkinson /
+  OpenDyslexic**, each a `role="radio"` and named in the font it selects so
+  the list previews itself), writes
   `data-font` on `<html>` (`dyslexic` | `atkinson`; **attribute absent =
   default fonts**) and persists to `localStorage['lit-font']`, with a pre-paint
   `is:inline` script in `Layout.astro` to avoid a flash. Two audiences, not one:
@@ -105,14 +106,16 @@
      OpenDyslexic before the three-way control shipped aren't reset. The tray
      deletes that key on any font change. Don't drop the fallback.
   2. Each `html[data-font=…]` rule overrides `font-family` on `*` with
-     `!important`, so **the tray's own preview labels carry `!important` too** —
-     otherwise the list renders entirely in the active font and previews
-     nothing.
+     `!important`, so **the tray's own preview labels carry `!important` too**,
+     and a `.font-tray__faces` prefix, since the override's (0,1,1) beats a
+     lone class even then; otherwise the list renders entirely in the active
+     font and previews nothing.
   3. The width compensations are scoped to `[data-font="dyslexic"]` **only**.
      OpenDyslexic is far wider than Source Sans 3; Atkinson is not, and must not
      inherit them. They live in `home.css` (hero titles, the hero scroll's
      safe interior, the question CTA), `global.css` (the reader panels'
-     chip buttons' side padding), `header.css` (the full header from 900px
+     chip buttons' side padding, and the Display tray, 360px rather than
+     300px), `header.css` (the full header from 900px
      rather than 700px, the phone title's scale, the magnifier moving into
      the menu sheet under 380px and "Menu"'s icon leaving under 430px, and
      the phone bar's edges and gaps given up under 375px, its Previous,
@@ -161,26 +164,35 @@
   in two columns, a third for Study only with `html[data-desk]` from 1100px.
   It replaced the menu overlay (a side tray on a computer from BVJ's call
   of 2026-11-04, full screen on a touch screen).
-- **Text size, line spacing, verse numbers, footnote letters and key terms
-  are the rest of the Display tray**, and follow the font's pattern exactly:
-  an attribute on `<html>` stamped before first paint by `Layout.astro`,
-  absent for the default, mirrored to one `localStorage` key each
-  (`data-size` sm | lg | xl in `lit-size`; `data-leading` roomy in
-  `lit-leading`; `data-vn` off in `lit-verse-numbers`, Read View's keys
-  its fallbacks (rule 6); `data-fn` off in
-  `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
-  switch, which a chapter's page alone shows; with the desk preview on, the tray's
-  Show group also gains the desk's own switches, "My highlights" among them,
-  injected by `desk/note-settings.js` and sharing the Notebook panel's stored
-  setting). (Featherboa keeps text, size as four steps, line spacing with
-  Justify under it, theme, and a "View" group whose desk switches merge into
-  one "Your marks," and moves the rest, the Keyboard switch and "Reset
-  widths" among them, out of the tray: `SITE-FEATHERBOA.md`, "Display";
-  its verse-numbers switch becomes "Verse and chapter numbers," and it
-  already hides the chapters' headings, rule 6; until it is built, this
-  holds.) There is **one panel**: every "Aa" (a `data-font-toggle`, the
-  header's two) opens this same tray, which opens upward when there is no
-  room below. Six rules:
+- **Text size, line spacing, Justify, the theme, verse numbers, footnote
+  letters and key terms are the rest of the Display tray**, and follow the
+  font's pattern exactly: an attribute on `<html>` stamped before first paint
+  by `Layout.astro`, absent for the default, mirrored to one `localStorage`
+  key each (`data-size` sm | lg | xl in `lit-size`; `data-leading` roomy in
+  `lit-leading`; `data-justify` on in `lit-justify`; `data-vn` off in
+  `lit-verse-numbers`, Read View's keys its fallbacks (rule 6); `data-fn`
+  off in `lit-fn-letters`; `data-terms` off in `lit-terms`, the term lens's
+  switch). `TRAY_SETTINGS` in `src/lib/display-tray.mjs`, which draws the
+  tray (`src/scripts/display-tray.js` runs it), lists each with the older
+  keys a change removes. **What it holds** (Featherboa's Phase 4;
+  `SITE-FEATHERBOA.md`, "Display"): Text, Size (four steps, dots between a
+  small and a large A), Line spacing, Justify, Theme ("Auto," "Light,"
+  "Dark"), and on a chapter's page View ("Verse and chapter numbers,"
+  "Footnote letters," "Key terms," and with the Study preview "Your
+  marks," which `desk/note-settings.js` adds), then "All settings →" at
+  its foot (`/settings`, every reader's: the Keyboard switch, Your marks'
+  finer choices, the Notebook's start and Delete in bulk). Every control is
+  the kit's: a face a `kit-row`, a row of choices a `kit-choices` of
+  `kit-tab`s (`role="radio"` in a `role="radiogroup"`, one Tab stop, the
+  arrows, Home and End inside), a switch a `kit-switch`. "Show the
+  Notebook" and "Reset widths" are gone; each draggable line's menu keeps
+  its own reset (`src/scripts/desk/CLAUDE.md`, rule 4). **Justify shows
+  where the LIT text is** (a chapter, /desk) and justifies and hyphenates
+  the prose (`reading-page.css`, and /desk's LIT panes in `desk.css`),
+  leaving poetry alone, the two accessibility faces ragged, and a line
+  under about 45 characters (22em) ragged. There is **one panel**: every
+  "Aa" (a `data-font-toggle`, the header's two) opens this same tray, which
+  opens upward when there is no room below. Six rules:
   1. **They reach every page of running text, and what a thing is decides
      how far** (BVJ, 2026-11-12, for preference and for accessibility; before
      then only the scripture pages and article bodies followed). Three scales, each a custom property on
@@ -278,7 +290,7 @@
      the same way (rule 6).
   5. **Scripture pages pass `scriptureControls`** down through the layouts:
      `"study"` from a chapter page with text. Other
-     pages don't show the "Show" group at all, /desk included: each LIT
+     pages don't show the "View" group at all, /desk included: each LIT
      pane there has its own four switches on its bar (`desk/lit-show.js`,
      E108), which mark up that pane alone. **These three attributes on
      `<html>` are the chapter page's and never reach a LIT pane**: the rules
@@ -310,7 +322,13 @@
   reading line and scrolls it back (`keepReadingPlace`, in
   `src/scripts/keep-reading-place.js`, which the Study Desk's panel uses
   too), and lets that one scroll through without closing itself
-  (`isHoldingPlace`).
+  (`isHoldingPlace`), nor the one that holds the line when a chapter comes
+  in above (`read-on.js`, announced first by `lit:read-on`): a smaller size
+  near a chapter's top brings one, since the hold's scroll up reads as the
+  reader nearing the top. A change of face reflows twice, with the attribute and
+  again as the face's files arrive, so its hold puts the line back each time
+  until the fonts have loaded (the `fonts` option), unless the reader
+  scrolls or presses a key meanwhile.
 
 ## Text columns and `--ch`
 
@@ -327,8 +345,9 @@
   `calc(72 * var(--ch))` (still reads as "72 characters"). Beside it,
   **`--char`** is the face's average character, spaces included (measured
   over John 1), the unit a line's length in characters is counted in.
-  `FIRST_PAINT` in `src/lib/desk-margin.mjs` restates the three `--ch` values,
-  and `test/desk-margin.test.js` holds them together. Two shared widths:
+  `CH` and `CHAR` in `src/lib/desk-margin.mjs` restate the three faces' `--ch`
+  and `--char` values (`FIRST_PAINT.ch` is `CH`), and `test/desk-margin.test.js`
+  holds them together. Two shared widths:
   **`--reading-width`** for long-form reading (Chapter View, intros, Read
   View, article bodies), the text column itself, so a surface with side
   padding adds it on top. Featherboa's column ("Sizes, space, and the
@@ -337,7 +356,11 @@
   it. **With the Study Desk on, it is still `--reading-measure` (60) × `--ch`**
   (`html[data-desk]` in `global.css`), because the desk's measures, its drag,
   and its pre-paint placement count in `--ch`, until the reading page takes
-  the desk's margin (Phases 4 and 5). The article card is sized from it as
+  the desk's margin (Phases 4 and 5). The drag is held to 45 to 75 of the
+  face's characters all the same (`measureRange`, `desk-margin.mjs`; SZ-17):
+  37.8 to 62.8 `--ch` in Source Sans 3, 30.8 to 51.3 in Atkinson, and 48 to
+  110.4 in OpenDyslexic, whose characters are so wide that the 48 a chapter
+  opens with is about 33 of them, so its narrowest stays 48 (queue). The article card is sized from it as
   well (`--article-width` on the article page), so the card's edges follow
   the text. The other width is **`--content-width`** (72 × `--ch`) for the
   pages around it (/search, About, courses, commitments; /read is the
@@ -414,9 +437,9 @@
   is a row that fills a scrolling list or menu edge to edge, whose ring is
   drawn 2px inside it (`outline-offset: -2px`) because an outside one is
   clipped. `test/featherboa-kit.test.js` ("focus is the one ring") holds
-  every `:focus` rule to this. The rings that use `--text` on purpose (the
-  Display tray's options, whose selected segments are green) are named in
-  its `OWN_RINGS`. Don't kill a ring
+  every `:focus` rule to this, and its `OWN_RINGS` names any ring drawn in
+  another color on purpose: none since the Display tray's controls became
+  the kit's (Featherboa's Phase 4). Don't kill a ring
   with `outline: none` on `:focus-visible` either: `/support`,
   `/liberating-scripture-collective`, the about TOC, and the launch
   popover's close button all did, which left keyboard users a 1px lift or

@@ -35,7 +35,7 @@ export const COMMANDS_MORE = "More appear when you are reading a chapter.";
 /** The open window: { win, anchor, beside, opener, refresh, runCommand, stop }, or null. */
 let current = null;
 
-// What the list says depends on the page ("Hide my marks" or "Show my marks",
+// What the list says depends on the page ("Hide your marks" or "Show your marks",
 // "Open the Notebook" only while it is closed), and the window stays open while
 // the reader changes either, so it is drawn again then (GF8a-7).
 const SETTINGS_EVENT = "desk:settings";

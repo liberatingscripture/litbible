@@ -22,7 +22,7 @@ import { readFileSync } from "node:fs";
 import { APP_PLATFORM_UA, isAppPlatform } from "../src/lib/app-platform.mjs";
 import { isAppPlatform as gateIsAppPlatform } from "../src/scripts/announcement-gate.js";
 import {
-  EDGE, FIRST_PAINT, GAP, KEEP_LEFT, MAX_MEASURE, MIN_MEASURE, MIN_WIDTH, MOVE_PROP, firstPaint, placeInMargin,
+  EDGE, FIRST_PAINT, GAP, KEEP_LEFT, MIN_WIDTH, MOVE_PROP, firstPaint, measureRange, placeInMargin,
 } from "../src/lib/desk-margin.mjs";
 import { READING_SURFACES, hasPanel } from "../src/scripts/desk-frame.js";
 import { SWITCH_KEY, SWITCH_PARAM, SWITCH_VALUES } from "../src/lib/desk-account-words.mjs";
@@ -30,7 +30,7 @@ import { SWITCH_KEY, SWITCH_PARAM, SWITCH_VALUES } from "../src/lib/desk-account
 const layout = readFileSync(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
 const match = /define:vars=\{\{ appUa: APP_PLATFORM_UA\.source, appUaFlags: APP_PLATFORM_UA\.flags, deskFit, deskPanel, deskChapter \}\}>([\s\S]*?)<\/script>/.exec(layout);
 // What Layout.astro hands the script.
-const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH, minMeasure: MIN_MEASURE, maxMeasure: MAX_MEASURE };
+const deskFit = { ...FIRST_PAINT, edge: EDGE, gap: GAP, minWidth: MIN_WIDTH };
 
 const UA = {
   iphone: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
@@ -205,16 +205,19 @@ test("an open notebook is stamped before paint; only an expanded one is marked a
   assert.deepEqual(chosenMin.attrs, { "data-desk": "on", "data-desk-panel": "open" });
   const phone = run({ ua: UA.iphone, touch: 5, stored: { "lit-desk-preview": "on", "lit-desk-panel": "open" } });
   assert.deepEqual(phone.attrs, {});
-  // "Show the Notebook" off (the Display tray) beats every start choice.
-  for (const start of ["min", "open", "left"]) {
-    const hidden = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": start, "lit-desk-min": "0" } });
-    assert.deepEqual(hidden.attrs, { "data-desk": "on", "data-desk-show": "off" }, start);
+  // "Show the Notebook" left the Display tray (DI-16): a stored "off" is read
+  // as shown, and nothing stamps data-desk-show any more.
+  for (const start of ["min", "left"]) {
+    const shown = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": start } });
+    assert.deepEqual(shown.attrs, { "data-desk": "on", "data-desk-panel": "open" }, start);
   }
+  const shownClosed = run({ stored: { "lit-desk-preview": "on", "lit-desk-show": "off", "lit-desk-start": "closed" } });
+  assert.deepEqual(shownClosed.attrs, { "data-desk": "on" });
 });
 
 // E124 (BVJ, 2026-11-12): book introductions, articles and the glossary have no
 // Notebook panel in version 1, so nothing of the panel is stamped there: no
-// open panel, no expanded one, no dragged widths, no "Show the Notebook" off.
+// open panel, no expanded one, no dragged widths.
 test("a page without the Notebook panel gets data-desk alone, whatever the reader kept (E124)", () => {
   const states = [
     {},
@@ -296,19 +299,37 @@ test("a dragged width is not applied while the notebook is closed", () => {
   assert.deepEqual(r.props, {});
 });
 
-test("a dragged width outside its range, or not a number, sets nothing", () => {
+test("a dragged width under MIN_WIDTH, or not a number, sets nothing", () => {
   const stored = { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-min": "0" };
   const cases = [
-    { "lit-desk-measure": "30", "lit-desk-width": "360" },
-    { "lit-desk-measure": "80", "lit-desk-width": "360" },
     { "lit-desk-measure": "50", "lit-desk-width": "200" },
     { "lit-desk-measure": "wide", "lit-desk-width": "360" },
     { "lit-desk-measure": "50", "lit-desk-width": "tall" },
+    { "lit-desk-measure": "Infinity", "lit-desk-width": "360" },
+    { "lit-desk-measure": "50", "lit-desk-width": "Infinity" },
   ];
   for (const session of cases) {
     const r = run({ stored, session });
     assert.deepEqual(r.attrs, { "data-desk": "on", "data-desk-panel": "open", "data-desk-expanded": "" }, JSON.stringify(session));
     assert.deepEqual(r.props, {}, JSON.stringify(session));
+  }
+});
+
+// SZ-17: the text drags only within 45 to 75 of the face's characters, so a
+// measure kept in one face can be outside another's range once the reader
+// changes the face. widths.js holds it to the range (placeWithWidths), and so
+// does the script, or the page would paint one column and then draw another.
+test("a measure outside the face's range is held to it, as widths.js holds it", () => {
+  const stored = { "lit-desk-preview": "on", "lit-desk-panel": "open", "lit-desk-min": "0" };
+  for (const [font, kept, held] of [["", 30, 37.8], ["", 80, 62.8], ["atkinson", 60, 51.3], ["dyslexic", 40, 48]]) {
+    const html = font ? { "data-font": font } : {};
+    const session = { "lit-desk-measure": String(kept), "lit-desk-width": "360" };
+    const r = run({ stored, session, html, viewport: 1800 });
+    const at = JSON.stringify({ font, kept });
+    assert.equal(r.props["--desk-measure"], String(held), at);
+    assert.equal(r.attrs["data-desk-widths"], "", at);
+    const want = firstPaint({ viewport: 1800, ch: chPx({ font }), kept: { measure: kept, width: 360 }, range: measureRange(font) });
+    assert.deepEqual(r.props, stamps(want), at);
   }
 });
 
@@ -467,17 +488,23 @@ test("widths kept in a wider window are given way as widths.js gives them, or le
 });
 
 test("the script decides as firstPaint does, for every font, size and window", () => {
-  const keptCases = [null, { measure: 48, width: 300 }, { measure: 60, width: 440 }, { measure: 72, width: 600 }, { measure: 36, width: 280 }];
+  // Each face's range has its ends among these (SZ-17): 30.8 to 51.3 in
+  // Atkinson, 37.8 to 62.8 by default, 48 to 110.4 in OpenDyslexic.
+  const keptCases = [
+    null, { measure: 48, width: 300 }, { measure: 60, width: 440 }, { measure: 72, width: 600 }, { measure: 36, width: 280 },
+    { measure: 110, width: 320 },
+  ];
   for (const font of Object.keys(FIRST_PAINT.ch)) {
     for (const size of Object.keys(FIRST_PAINT.scale)) {
       for (const rootPx of [16, 20]) {
         const html = { ...(font ? { "data-font": font } : {}), ...(size ? { "data-size": size } : {}) };
         const ch = chPx({ font, size, rootPx });
+        const range = measureRange(font);
         for (const kept of keptCases) {
           const session = kept ? { "lit-desk-measure": String(kept.measure), "lit-desk-width": String(kept.width) } : {};
           for (let viewport = 600; viewport <= 1800; viewport += 7) {
             const r = run({ stored: expandedStart, session, viewport, html, rootPx });
-            const want = firstPaint({ viewport, ch, kept });
+            const want = firstPaint({ viewport, ch, kept, range });
             const at = JSON.stringify({ font, size, rootPx, kept, viewport });
             assert.equal("data-desk-expanded" in r.attrs, want.expanded, at);
             assert.equal("data-desk-widths" in r.attrs, Boolean(want.widths), at);
@@ -572,7 +599,7 @@ test("E137: every font, size and window gets the move placeInMargin makes", () =
   }
 });
 
-test("E137: nothing is stamped for a minimized, closed or hidden Notebook, or with the desk off", () => {
+test("E137: nothing is stamped for a minimized or closed Notebook, or with the desk off", () => {
   // 1009px: where an expanded notebook moves the column 85px.
   const moved = run({ stored: expandedStart, viewport: 1009 });
   assert.equal(moved.props[MOVE_PROP], "-85px 0");
@@ -582,7 +609,6 @@ test("E137: nothing is stamped for a minimized, closed or hidden Notebook, or wi
     { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-start": "min" },
     { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-panel": "closed" },
     { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-start": "closed" },
-    { "lit-desk-preview": "on", "lit-desk-min": "0", "lit-desk-show": "off" },
     { "lit-desk-min": "0" }, // the desk off
   ];
   for (const stored of states) {

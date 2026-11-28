@@ -176,7 +176,8 @@ without the switch. The announcement popover stays off all three
     “Accounts are being tested…” opening “An account,” the first-time
     card's closed form (`CARD_WORDS.closed`, which says an account “is
     coming”), and both pages' effective dates. **The card's open form
-    reads the same stamp** (`accountsOpen()` in `first-use.js`), so
+    reads the same stamp** (`accountsOpen()` in `first-use.js`), and so
+    does All settings' Account section (`desk/settings-page.js`), so
     whatever replaces the switch must still stamp `data-account="open"`
     for every reader, or that function must change with it.
 12. **Split by the key, and a phone gets the basics** (BVJ, the same day).

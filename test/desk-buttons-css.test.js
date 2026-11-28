@@ -82,7 +82,6 @@ const PLAIN = [
   ".desk-rich-link__button:not(.desk-rich-link__button--primary)",
   ".desk-gather__btn:not(.desk-gather__btn--primary, .desk-gather__btn--quiet)", // /search's Cancel and Undo
   ".desk-tab", // the minimized Notebook
-  ".font-tray__reset", // the Display tray's Reset widths
   ".desk-sync__again", // the sync's Reconnect
   ".desk-circle", // a margin note's glyph
 ];
@@ -92,7 +91,6 @@ const DANGER = [
   ".desk-notice__delete", // the change notice's Delete
   ".desk-editor__delete", // the note editor's Delete
   ".desk-editor__discard",
-  ".desk-np__danger-button",
   '.desk-sheet__btn[data-focus-key^="delete"]',
 ];
 // A command, a template, a sheet to add to, a print: each a list row.
@@ -153,7 +151,7 @@ test("no desk rule paints a control's edge, fill or shadow, a modifier's include
   // used is the kit test's to catch.
   const classes = new Set(
     Object.values(allNames(kit)).flat()
-      .flatMap((n) => [...subjectOf(n).matchAll(/\.(desk-[\w-]+|account__[\w-]+|font-tray__reset)/g)].map((m) => m[1])),
+      .flatMap((n) => [...subjectOf(n).matchAll(/\.(desk-[\w-]+|account__[\w-]+)/g)].map((m) => m[1])),
   );
   const base = (c) => c.replace(/--[\w-]+$/, "");
   const found = [];

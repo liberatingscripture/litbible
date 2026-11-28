@@ -166,6 +166,8 @@ const NO_PLACE = deepFreeze({
   "/unsubscribe": { name: "Unsubscribe" },
   "/colophon": { name: "How this site is made" },
   "/whats-new": { name: "What’s new" },
+  // All settings, reached from the Display tray's foot (DI-19, BP-19).
+  "/settings": { name: "Settings" },
 });
 
 /** Pages inside a place's row: the row they belong to, which the line names

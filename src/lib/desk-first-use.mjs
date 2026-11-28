@@ -282,10 +282,10 @@ export const TOUR_STEPS = [
     views: ["study", "read", "prose"],
     since: "1h",
     notebook: true,
-    title: "Undo, and Hide my marks",
+    title: "Undo, and Your marks",
     body: {
       default:
-        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Y redoes it (⌘Z and ⇧⌘Z on a Mac). “Hide my marks,” or the H key, clears your notes, highlights, and bookmarks from the page and brings them back.",
+        "Ctrl+Z undoes your last change to the notebook, and Ctrl+Y redoes it (⌘Z and ⇧⌘Z on a Mac). Turning off “Your marks” in Display (the “Aa” button), or pressing H, clears your notes, highlights, and bookmarks from the page; turning it on brings them back.",
     },
   },
   {

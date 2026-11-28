@@ -39,6 +39,8 @@ const NEW = [
   "src/styles/pages/support.css",
   "src/styles/pages/translation-commitments.css",
   "src/styles/pages/unsubscribe.css",
+  // All settings (Phase 4, part three).
+  "src/styles/pages/settings.css",
 ];
 
 const SPACING = /^(margin|padding)(-(top|right|bottom|left|block|inline)(-(start|end))?)?$|^(gap|row-gap|column-gap)$/;

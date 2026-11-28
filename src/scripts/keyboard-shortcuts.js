@@ -9,12 +9,13 @@
 //              chapter's page, the start of the chapter before or after the
 //              one being read, loaded first: read-on.js), or on /desk the
 //              pane being read (the leading LIT pane)
-//   h          hide or show my marks, where the Study Desk is on (M1)
+//   h          hide or show your marks ("Your marks"), where Study is on (M1)
 //
-// On by default, with a "Keyboard shortcuts" box in the Display tray to turn
-// them off (localStorage["lit-shortcuts"] = "off"; absent = on). The off
-// switch is required, not a nicety: single-key shortcuts fire when a
-// speech-recognition user dictates a word (WCAG 2.1.4).
+// On by default, with a "Keyboard shortcuts" switch on All settings
+// (/settings, settings-page.js; the Display tray's box until Featherboa's
+// Phase 4) to turn them off (localStorage["lit-shortcuts"] = "off"; absent =
+// on). The off switch is required, not a nicety: single-key shortcuts fire
+// when a speech-recognition user dictates a word (WCAG 2.1.4).
 //
 // They never act while the reader is typing or working a control that uses
 // these keys itself (a radio group, a menu, a grid, an open dialog), and
@@ -128,7 +129,8 @@ function goToChapter(step) {
   return false;
 }
 
-// The Study Desk's "Hide my marks" (M1), only where the desk is on: the desk
+// Study's "Your marks" (M1, "Hide my marks" until Featherboa's Phase 4),
+// only where the desk is on: the desk
 // itself listens for the event, so with the preview off the key does nothing.
 function toggleDeskHide() {
   if (!document.documentElement.hasAttribute("data-desk")) return false;

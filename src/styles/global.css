@@ -383,25 +383,35 @@ body.bg-green .skip-link {
    ========================================================= */
 
 /* =========================================================
-   The Display tray (the header's Aa, or Read View's toolbar Aa)
+   The Display tray ("Aa"; SITE-FEATHERBOA.md, "Display")
+   Drawn by src/lib/display-tray.mjs and run by src/scripts/display-tray.js.
+   Every control in it is the kit's (a face is a list row; a size, a
+   spacing, and a theme a row of choices; Justify and View's settings
+   switches), so this says only where each sits. A control's text starts
+   12px in from the tray's 8px edge, as the legends' does.
    ========================================================= */
 
-
-
-/* ----- Tray panel ----- */
 .font-tray {
   position: fixed;
   z-index: 2000;
-  min-width: 230px;
+  box-sizing: border-box;
+  width: 300px;
+  max-width: calc(100vw - var(--space-4));
+  padding: var(--space-2);
   background: var(--color-float);
   border: 1px solid var(--color-float-edge);
   border-radius: var(--radius-float);
   box-shadow: var(--shadow-float);
-  padding: 16px;
   /* The script caps max-height to the room on the side it opens toward;
      past that the tray scrolls rather than running off the screen. */
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+/* OpenDyslexic's words are about half again as wide (src/styles/CLAUDE.md,
+   "The Display tray," rule 3: room bought back, never type made smaller). */
+html[data-font="dyslexic"] .font-tray {
+  width: 360px;
 }
 
 .font-tray[hidden] { display: none; }
@@ -410,230 +420,138 @@ body.bg-green .skip-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: var(--space-2);
+  padding-left: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .font-tray__heading {
-  font-size: 0.9375rem;
-  font-weight: 700;
   margin: 0;
-  color: var(--text);
-  line-height: 1.2;
-}
-
-.font-tray__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  cursor: pointer;
-  appearance: none;
-}
-.font-tray__close:focus:not(:focus-visible) { outline: none; }
-
-/* ----- Setting rows (both controls are fieldsets) ----- */
-.font-tray__row {
-  display: block;
-  border: 0;
-  margin: 0;
-  padding: 0;
-  min-width: 0;
-  cursor: default; /* only the individual options are clickable */
+  font-family: var(--font-display);
+  font-size: var(--size-subhead);
+  font-weight: 500;
+  line-height: var(--leading-subhead);
 }
 
 .font-tray__row + .font-tray__row {
-  margin-top: 14px;
+  margin-top: var(--space-3);
+}
+
+/* Justify sits directly under Line spacing, since it is about how the
+   lines sit (RP-36). */
+.font-tray__row + .font-tray__row--switch {
+  margin-top: var(--space-1);
 }
 
 .font-tray__legend {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text);
-  padding: 0;
-  margin: 0 0 8px;
-  line-height: 1.2;
+  margin: 0 0 var(--space-1);
+  padding: 0 var(--space-3);
+  color: var(--color-text-2);
+  font-family: var(--font-control);
+  font-size: var(--size-label);
+  font-weight: 700;
+  line-height: var(--leading-label);
 }
 
-/* ----- Font list -----
-   A stacked radio list rather than a segmented control like Theme below:
-   each option is named by its font and set in it, so the list previews
-   itself, and font names are too long to crowd into segments. Those
-   previews are the only reason the two accessibility fonts get fetched on
-   tray open (the tray is display:none until then, so a default page load
-   still downloads neither). */
-.font-tray__fonts {
+/* Text: the three faces as list rows, each named in the face it chooses.
+   Those previews are the only reason the two accessibility faces' files
+   load when the tray opens (it is display: none until then, so a page that
+   never opens it downloads neither). */
+.font-tray__faces {
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 
-.font-tray__font-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 9px;
-  cursor: pointer;
-}
-
-.font-tray__font-input {
-  flex-shrink: 0;
-  width: 17px;
-  height: 17px;
-  margin: 0;
-  /* Its color is the kit's (:root's accent-color, the press green by day
-     and by night). */
-  cursor: pointer;
-}
-
-.font-tray__font-input:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
-}
-
-.font-tray__font-label {
-  min-width: 0;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.25;
-}
-
-/* Each preview must out-specify the site-wide `html[data-font=…] *` override,
-   which is itself !important — otherwise every label renders in whichever font
-   is currently active and the list stops previewing anything. !important alone
-   does NOT do it: that override scores (0,1,1), so a lone class at (0,1,0)
-   loses. The redundant-looking .font-tray__fonts prefix is what wins it, at
-   (0,2,0). Keep both parts of every selector below. */
-.font-tray__fonts .font-tray__font-label--default {
+/* Each preview must out-specify the site-wide `html[data-font=…] *`
+   override, which is itself !important, or every name draws in the face
+   now chosen and the list previews nothing. !important alone doesn't do it:
+   the override scores (0,1,1), so a lone class (0,1,0) loses, and the
+   .font-tray__faces prefix wins it at (0,2,0). Keep both parts of each. */
+.font-tray__faces .font-tray__face-name--default {
   font-family: var(--font-text) !important;
 }
 
-.font-tray__fonts .font-tray__font-label--dyslexic {
-  font-family: 'OpenDyslexic', sans-serif !important;
-}
-
-.font-tray__fonts .font-tray__font-label--atkinson {
+.font-tray__faces .font-tray__face-name--atkinson {
   font-family: 'Atkinson Hyperlegible Next Variable', sans-serif !important;
 }
 
-/* ----- Show: verse numbers / footnote letters (scripture pages only) -----
-   Two independent on/off settings, so checkboxes, styled like the font rows. */
-.font-tray__checks {
+.font-tray__faces .font-tray__face-name--dyslexic {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+/* Size: a small A, four dots, and a large A (DI-03). Each dot is a choice
+   36px square (the kit's target, its 12px sides around a 12px dot), and
+   the chosen one is filled as well as underlined, so it never rests on
+   color alone. */
+.font-tray__size {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+}
+
+.font-tray__size-a {
+  flex: none;
+  color: var(--color-text-2);
+  font-family: var(--font-text);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.font-tray__size-a--small {
+  font-size: var(--size-small-label);
+}
+
+.font-tray__size-a--large {
+  font-size: var(--size-subhead);
+}
+
+.font-tray__dots {
+  flex: 1;
+  justify-content: space-between;
+}
+
+.font-tray__dot-mark {
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-round);
+}
+
+.font-tray__dot[aria-checked="true"] .font-tray__dot-mark {
+  background: currentColor;
+}
+
+/* A background draws nothing in forced colors (src/styles/CLAUDE.md,
+   "Forced colors"), so the chosen dot is filled in a system color. */
+@media (forced-colors: active) {
+  .font-tray__dot[aria-checked="true"] .font-tray__dot-mark {
+    forced-color-adjust: none;
+    background: ButtonText;
+    border-color: ButtonText;
+  }
+}
+
+/* Justify and View's settings: switches, one under another. */
+.font-tray__row--switch,
+.font-tray__switches {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  padding: 0 var(--space-3);
 }
 
-.font-tray__check {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 9px;
-  cursor: pointer;
+/* "All settings →" under a hairline. */
+.font-tray__foot {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-1) 0;
+  border-top: 1px solid var(--color-hairline);
 }
 
-.font-tray__check-input {
-  flex-shrink: 0;
-  width: 17px;
-  height: 17px;
-  margin: 0;
-  cursor: pointer;
-}
-
-.font-tray__check-input:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
-}
-
-.font-tray__check-label {
-  font-size: 0.9375rem;
-  color: var(--text);
-  line-height: 1.25;
-}
-
-/* ----- Keyboard: the shortcuts switch and the keys it covers (audit U4) -----
-   The list is indented to the label's text (padding + box + gap). Hidden on
-   a small touch screen, where there is no keyboard to speak of. */
-.font-tray__keys {
-  list-style: none;
-  margin: 2px 0 0;
-  padding: 0 9px 2px 36px;
-  display: grid;
-  gap: 4px;
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  color: var(--text);
-}
-
-.font-tray__keys kbd {
-  display: inline-block;
-  min-width: 1.7em;
-  padding: 0 0.35em;
-  border: 1px solid rgba(var(--ink-rgb), 0.35);
-  border-radius: var(--radius-press);
-  font: inherit;
-  font-weight: 600;
-  text-align: center;
-}
-
-@media (max-width: 640px) and (pointer: coarse) {
-  .font-tray__row--keys {
-    display: none;
-  }
-}
-
-/* ----- Segmented controls (theme, text size, line spacing) ----- */
-.font-tray__seg {
-  display: flex;
-  gap: var(--space-1);
-}
-
-.font-tray__seg-option {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-.font-tray__seg-input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.font-tray__seg-text {
-  font-size: 0.875rem;
-}
-
-/* A row of choices (the kit's tab): the chosen one is underlined and
-   heavier, never a green fill. The ring is --text, which contrasts with
-   the tray in both themes. */
-.font-tray__seg-input:focus-visible + .font-tray__seg-text {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
-  border-radius: var(--radius-press);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .font-tray__font-option,
-  .font-tray__check,
-  .font-tray__seg-text,
-  .font-tray__seg-option {
-    transition: none;
-  }
+/* A link in the kit's look keeps no underline when pointed at. */
+.font-tray__all:is(:hover, :focus) {
+  text-decoration: none;
 }
 
 /* =========================================================
@@ -1282,7 +1200,7 @@ html[data-vn="off"] .chapter-paragraphs:not([data-own-marks]) sup.vn:not(:focus-
 
 /* The term lens (term-lens.js): a quiet dotted underline under each key term
    in Chapter View. Not a link or a control, so it takes no colour of its own
-   and never prints. The Display tray's "Key terms" box turns it off. */
+   and never prints. The Display tray's "Key terms" switch turns it off. */
 .chapter-paragraphs .term {
   text-decoration: underline dotted;
   text-decoration-thickness: 1px;
@@ -2300,7 +2218,6 @@ button.greek-cmd {
    !important because each button sits under a more specific display rule of
    its own (Read View's toolbar buttons). */
 html:not([data-desk]) [data-desk-toggle],
-html[data-desk-show="off"] button[data-desk-toggle],
 .site-header--desk [data-desk-toggle] {
   display: none !important;
 }

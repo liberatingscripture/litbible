@@ -67,7 +67,8 @@ here hold.
   1.55 set back to inherit, so the page's words are /sheets' at every tray
   size (E188). Gated like /sheets: `desk-gate.js` `[data-collections-page]`,
   noindex, out of the sitemap, `SUPPRESSED_PATHS`, the two gate tests'
-  markers. The notebook page has "Delete all collections" in Delete in bulk.
+  markers. All settings (`/settings`) has "Delete all collections" in Delete
+  in bulk, the notebook page's until Featherboa's Phase 4.
   Tests: `test/desk-collections-page*.test.js`.
 - **Step 3, Add to collection ▸** (verse menu and selection panel):
   `collection-add.js` (`createCollectionAdd`), wired into `actions.js` right
@@ -362,8 +363,8 @@ Test: `test/desk-collections-pane.test.js`; the layout rules are in
   drops out. Erasing one outright is a plain deletion and leaves its
   collections alone, and an erase that trims one keeps what is left. The apps
   don't do this.
-- **Bulk deletes stay apart**: "Delete all notes and marks" and "Delete all
-  sheets" take no collection; `planDeleteCollections` does.
+- **Bulk deletes stay apart**: "Delete all notes, highlights, and bookmarks"
+  and "Delete all sheets" take no collection; `planDeleteCollections` does.
 - **Never a row** of My Notes or My Notebook, nor counted there; a
   collection's change wakes no view of marks (`NO_CHAPTER_KINDS`).
 - **Markdown lists collections for people and never reads them back**, like

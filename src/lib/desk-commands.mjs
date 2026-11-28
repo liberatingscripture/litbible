@@ -15,7 +15,7 @@
 // ones that open the notebook's own pages work anywhere.
 //
 // A query reaches a command when each of its words begins one of the
-// command's words ("hide" finds "Hide my marks"; "back" finds "Back up
+// command's words ("hide" finds "Hide your marks"; "back" finds "Back up
 // my notebook" through its keyword "backup"). A query that starts with ">"
 // asks for commands alone: ">" lists them all, and what follows narrows them.
 
@@ -24,8 +24,8 @@ import { searchTokens } from "./desk-search.mjs";
 /**
  * Where the box is, as far as commands care:
  * { surface: a reading surface (the desk's panel exists), study: a Chapter View
- *   chapter, panelOpen: the Notebook panel is open, hidden: "Hide my marks"
- *   is on }.
+ *   chapter, panelOpen: the Notebook panel is open, hidden: "Your marks"
+ *   is off, src/lib/desk-marks.mjs }.
  */
 
 /** @type {readonly { id: string, name: (ctx: object) => string, keywords: string[], needs: "surface" | "study" | "greek" | "print" | null, href?: string, show?: (ctx: object) => boolean, hint?: string }[]} */
@@ -61,7 +61,7 @@ export const COMMANDS = Object.freeze([
   },
   {
     id: "hide-notes",
-    name: (ctx) => (ctx.hidden ? "Show my marks" : "Hide my marks"),
+    name: (ctx) => (ctx.hidden ? "Show your marks" : "Hide your marks"),
     keywords: ["hide", "show", "notes", "highlights", "bookmarks", "private", "screen"],
     needs: "surface",
     hint: "On this page",

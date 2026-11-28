@@ -32,10 +32,11 @@
 // localStorage['lit-desk-tab'] and used wherever the page has it.
 //
 // The last tab, Settings (BVJ, 2026-10-29), holds what used to be the foot of
-// My Notes: the "Notes in the margin", Handwriting / Plain, "My bookmarks" and
-// "Hide my marks" switches (the same settings as the Display tray's), "Reset
-// widths" while the reader has dragged any, the Print menu, the tour and
-// help links, and where the notebook is kept.
+// My Notes. Its switches went to the Display tray's "Your marks" and to All
+// settings (/settings) in Featherboa's Phase 4, so what is left until Phase 5
+// takes the tab away is the notes' lettering (Handwriting / Plain), a link to
+// All settings, the Print menu, the tour and help links, and where the
+// notebook is kept.
 //
 // The Notebook has no way to close from its own controls (BVJ, 2026-10-29): it
 // only minimizes to its tab, and Escape minimizes too.
@@ -43,7 +44,8 @@
 import { keepReadingPlace } from "../keep-reading-place.js";
 import { currentPanel } from "../lit-panel.js";
 import { createRail } from "./margin.js";
-import { HIDE_EVENT, SETTINGS_EVENT, panelNoteControls } from "./note-settings.js";
+import { HIDE_EVENT, panelLettering } from "./note-settings.js";
+import { SETTINGS_HREF } from "../../lib/display-tray.mjs";
 import { greekChapter, pageChapter, readBook } from "./page.js";
 import { createPrintMenu } from "./print-menu.js";
 import { printPlain } from "./print-link.js";
@@ -53,7 +55,6 @@ import { accountsOpen, createFirstUse } from "./first-use.js";
 import { paintDots } from "./reminder.js";
 import { createMineTab } from "./tab-mine.js";
 import { notebookTab } from "./notebook-tab.js";
-import { resetWidthsButton } from "./widths.js";
 import { MIN_KEY, OPEN_KEY, startState } from "../../lib/desk-start.mjs";
 import { deskPlaceHref } from "../../lib/desk-passage.mjs";
 import { DESK_STAGE, nudgeLine } from "../../lib/desk-first-use.mjs";
@@ -174,8 +175,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   settingsEl.className = "desk-panel__settings-tab";
   settingsEl.innerHTML = `
     <section class="desk-panel__group desk-panel__group--show" aria-labelledby="deskSettingsShow">
-      <h3 class="desk-panel__group-title" id="deskSettingsShow">Show</h3>
+      <h3 class="desk-panel__group-title" id="deskSettingsShow">View</h3>
       <div class="desk-panel__settings-slot"></div>
+      <p class="desk-panel__page"><a href="${SETTINGS_HREF}">All settings</a></p>
     </section>
     <section class="desk-panel__group" aria-labelledby="deskSettingsKeep">
       <h3 class="desk-panel__group-title" id="deskSettingsKeep">Keep and print</h3>
@@ -408,27 +410,6 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
     back?.focus({ preventScroll: true });
   }
 
-  // "Show the Notebook" in the Display tray (BVJ, 2026-11-04). Off hides the panel and
-  // its tab as `close` does but writes none of the reader's keys, so turning it back
-  // on brings the Notebook back as they left it (startState).
-  document.addEventListener(SETTINGS_EVENT, (e) => {
-    if (e.detail?.name !== "show") return;
-    if (e.detail.value === "off") {
-      if (panel.hidden) return;
-      keepReadingPlace(() => root.removeAttribute("data-desk-panel"));
-      panel.hidden = true;
-      rail.hide();
-      syncToggles();
-      return;
-    }
-    if (!panel.hidden) return;
-    let st = { open: true, minimized: true };
-    try { st = startState((k) => localStorage.getItem(k)); } catch (_) {}
-    if (!st.open) return;
-    open(null, { focus: false, remember: false });
-    if (st.minimized || rail.state().floating) rail.collapse();
-  });
-
   /** Show the panel without taking focus, and folded to its tab where it would float over the text. */
   /**
    * The first record a visit writes while "kept in this browser" is
@@ -613,30 +594,18 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
 
   /* ── Settings at the foot ───────────────────────────────────────── */
 
-  // The margin's switches only mean something where the margin is: all of
-  // them on a Chapter View chapter, "My bookmarks" alone in Read View, and the
-  // notes' two on an article or the glossary (N11, off in version 1, so
-  // none there). "Hide my marks" (M1)
-  // goes with any of them.
+  // The tab's switches went to the Display tray's "Your marks" and to All
+  // settings (SITE-FEATHERBOA.md, "Display"; BS-22), which the first group
+  // links to, and "Reset widths" to each line's own menu (DI-25). What stays
+  // until Phase 5 removes the tab is the notes' lettering, where notes are
+  // drawn: a chapter, and an article or the glossary under N11 (off in
+  // version 1).
   const slot = settingsEl.querySelector(".desk-panel__settings-slot");
   const printSlot = settingsEl.querySelector(".desk-panel__print-slot");
-  if (here) {
-    const controls = panelNoteControls();
-    // The widths the reader dragged, Chapter View's alone (widths.js).
-    controls.append(resetWidthsButton("desk-panel__reset"));
-    slot.replaceWith(controls);
-    printSlot.replaceWith(...printBox());
-  }
-  else if (inReadView) {
-    slot.replaceWith(panelNoteControls({ notes: false }));
-    printSlot.replaceWith(...printBox());
-  }
-  else if (prose) slot.replaceWith(panelNoteControls({ bookmarks: false }));
+  if (here || prose) slot.replaceWith(panelLettering());
   else slot.remove();
+  if (here || inReadView) printSlot.replaceWith(...printBox());
   printSlot.remove(); // still there where nothing printed into it
-  // A page with no switches has no "Show" group (E75).
-  const showGroup = settingsEl.querySelector(".desk-panel__group--show");
-  if (showGroup.children.length < 2) showGroup.remove();
 
   /**
    * One "Print…" button and the line that says what it does (the line is the
@@ -841,8 +810,9 @@ export function createPanel({ store, storeError, onEdit = null, onAddNote = null
   const skipToNotebook = document.createElement("a");
   skipToNotebook.href = "#deskPanel";
   skipToNotebook.className = "skip-link";
-  // desk.css takes it out of the tab order while "Show the Notebook" is off
-  // (NB3-10), since activating it would open a panel the reader switched off.
+  // Marked as the desk's own, so no reader of the page's text counts it
+  // (desk-prose-anchor.mjs). "Show the Notebook," which hid it (NB3-10), is
+  // gone since Featherboa's Phase 4.
   skipToNotebook.setAttribute("data-desk-skip", "");
   skipToNotebook.textContent = "Skip to the Notebook";
   skipToNotebook.addEventListener("click", (e) => {

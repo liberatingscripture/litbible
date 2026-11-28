@@ -1,7 +1,7 @@
 // src/scripts/keep-reading-place.js
 //
 // Keep the reader's place through a change that reflows the page. The
-// Display tray's text size, spacing and numbers settings reflow it, and so
+// Display tray's face, text size, spacing, Justify and numbers settings reflow it, and so
 // does opening or closing the Study Desk's docked panel, which narrows the
 // page. Either would carry a reader's place away (on a chapter's page that
 // has read on, several chapters' worth).
@@ -57,11 +57,8 @@ function lineAt(overlay) {
   return range;
 }
 
-/** Run `change`, then scroll the line that was at the reading line back to it. */
-export function keepReadingPlace(change, { overlay = null } = {}) {
-  const line = lineAt(overlay);
-  const before = line?.getClientRects()[0]?.top;
-  change();
+// Scroll `line` back to where it was (`before`, its top in the window).
+function putBack(line, before) {
   const after = line?.getClientRects()[0]?.top;
   if (before === undefined || after === undefined) return;
   const delta = after - before;
@@ -69,4 +66,49 @@ export function keepReadingPlace(change, { overlay = null } = {}) {
   holding = true;
   window.scrollBy({ top: delta, behavior: "instant" });
   requestAnimationFrame(() => requestAnimationFrame(() => { holding = false; }));
+}
+
+const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+// The newest hold that waits for fonts; an older one stands down.
+let waiting = 0;
+
+/**
+ * Run `change`, then scroll the line that was at the reading line back to it.
+ *
+ * `fonts` is for a change of face (the Display tray's Text): the text reflows
+ * twice, once with the attribute and again when the face's files arrive, so
+ * the line is put back at once and again each time the fonts named (CSS
+ * `font` strings) and then every font the page now asks for have loaded. A
+ * reader who scrolls, presses a key, or touches the page outside `overlay`
+ * in the meantime has taken the page back, and is left alone; so is a hold
+ * a newer one has replaced.
+ */
+export function keepReadingPlace(change, { overlay = null, fonts = null } = {}) {
+  const line = lineAt(overlay);
+  const before = line?.getClientRects()[0]?.top;
+  change();
+  putBack(line, before);
+  if (!fonts?.length || before === undefined || !document.fonts) return;
+  const mine = ++waiting;
+  let taken = false;
+  const take = (e) => {
+    if (!(overlay && e.target instanceof Node && overlay.contains(e.target))) taken = true;
+  };
+  const events = ["wheel", "touchmove", "keydown", "pointerdown"];
+  for (const type of events) window.addEventListener(type, take, { capture: true, passive: true });
+  const stillMine = () => mine === waiting && !taken;
+  (async () => {
+    try { await Promise.all(fonts.map((font) => document.fonts.load(font))); } catch (_) {}
+    // A face's other files (its bold, its italic) can follow the first.
+    for (let i = 0; i < 4; i += 1) {
+      await frame();
+      if (!stillMine()) return;
+      putBack(line, before);
+      if (document.fonts.status === "loaded") return;
+      try { await document.fonts.ready; } catch (_) {}
+    }
+  })().finally(() => {
+    for (const type of events) window.removeEventListener(type, take, { capture: true });
+  });
 }

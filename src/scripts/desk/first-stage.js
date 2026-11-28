@@ -3,10 +3,10 @@
 // The Study Desk on a reading page, stage one (Audit 3, LG3-2; BVJ,
 // 2026-11-07, decision 3: load the desk lazily). desk-gate.js loads this on a
 // page with a reading column. It draws the minimized Notebook's tab (and its
-// stylesheet, desk-tab.css, alone), puts the Notebook's switches in the
-// Display tray (note-settings.js, which the shell finds already started, so
-// the tray, the H key and "Show the Notebook" need no shell; BVJ, 2026-11-07),
-// and takes a look at the notebook; the rest of the desk, the shell and
+// stylesheet, desk-tab.css, alone), puts "Your marks" in the Display tray
+// (note-settings.js, which the shell finds already started, so the tray and
+// the H key need no shell; BVJ, 2026-11-07), and takes a look at the
+// notebook; the rest of the desk, the shell and
 // desk.css, comes only when there is something to draw on this page or the
 // reader reaches for it. The rules are src/lib/desk-first-stage.mjs.
 //
@@ -18,8 +18,7 @@
 //     while N11 is off), or can't say, or another tab writes to it;
 //   - the reader presses the tab, a Notebook button (the place line's or
 //     Read View's) or "Skip to the Notebook" (which the Notebook then opens
-//     for, so no press is lost),
-//     or turns "Show the Notebook" on where the Notebook starts expanded;
+//     for, so no press is lost);
 //   - the reader starts toward a menu the desk adds to: a verse number or a
 //     footnote letter pressed or focused, or words selected (a head start);
 //   - the chapter's Footnotes list comes within a screen of the window,
@@ -41,7 +40,7 @@ import { peekLinked } from "../../lib/desk-sync-link.mjs";
 import { createRail } from "./margin.js";
 import { fitGlossaryTitles } from "./glossary-titles.js";
 import { addTabStyle, notebookTab } from "./notebook-tab.js";
-import { SETTINGS_EVENT, initNoteSettings } from "./note-settings.js";
+import { initNoteSettings } from "./note-settings.js";
 
 const root = document.documentElement;
 const readLocal = (k) => {
@@ -151,21 +150,13 @@ async function drawAndWait({ where, state, importShell, leave }) {
   const tab = notebookTab();
   const rail = createRail(stub, tab, () => {}, { widths: false });
   leave.rail = rail;
-  let railShown = false;
-  const showRail = (on) => {
-    if (on === railShown) return;
-    railShown = on;
-    if (on) rail.show();
-    else rail.hide();
-  };
-  showRail(state.open);
+  if (state.open) rail.show();
 
   // A way in for a keyboard reader, as panel.js adds (NB-4).
   const skip = document.createElement("a");
   skip.href = "#deskPanel";
   skip.className = "skip-link";
-  // So desk-tab.css hides it while "Show the Notebook" is off, as panel.js's
-  // link is hidden (NB3-10; NB6-1), and the page-text readers pass it over.
+  // So the page-text readers pass it over, as panel.js's link is marked.
   skip.setAttribute("data-desk-skip", "");
   skip.textContent = "Skip to the Notebook";
   const firstSkip = document.querySelector("a.skip-link");
@@ -342,25 +333,6 @@ async function drawAndWait({ where, state, importShell, leave }) {
   // A Greek result for this chapter: taken now, so the search box keeps its
   // link from loading, and shown by greek-link.js once it is here.
   hold("lit:greek-word", { ifHere: greekHere, take: true });
-
-  // "Show the Notebook" (the Display tray's, or another tab's through
-  // note-settings.js), as panel.js follows it: off hides the tab and writes
-  // none of the reader's panel keys; on brings the Notebook back as they left
-  // it, which needs the shell only where it was left expanded.
-  on(document, SETTINGS_EVENT, (e) => {
-    if (e.detail?.name !== "show") return;
-    if (e.detail.value === "off") {
-      root.removeAttribute("data-desk-panel");
-      showRail(false);
-      return;
-    }
-    let st = { open: true, minimized: true };
-    try { st = startState(readLocal); } catch (_) {}
-    if (!st.open) return;
-    root.setAttribute("data-desk-panel", "open");
-    showRail(true);
-    if (!st.minimized) want();
-  });
 
   /* ── The look at the notebook ────────────────────────────────────── */
 

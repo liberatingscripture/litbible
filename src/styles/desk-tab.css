@@ -62,37 +62,18 @@
   letter-spacing: 0.02em;
 }
 
-/* "Skip to the Notebook" has nothing to skip to while the Display tray's
-   "Show the Notebook" is off (NB3-10); display: none also takes it out of the
-   tab order. Here, not in desk.css, so stage one's link (Audit 6, NB6-1)
-   is hidden before the shell loads. No colors, so both themes alike. */
-html[data-desk-show="off"] .skip-link[data-desk-skip] {
-  display: none;
-}
-
 /* The Display tray's additions, added by note-settings.js in stage one (the
-   tray's own styles are in global.css). The one line under the Show group's
-   boxes, muted like the tray's list of keys. */
+   tray's own styles are in global.css): the line under a View switch (the
+   numbers' and "Your marks"), set in from the edge as far as the switch's
+   words, past its 36px track and the kit's gap. The third ink is a token, so
+   both themes alike. */
 .font-tray__hint {
-  margin: 6px 0 0;
-  color: rgba(var(--ink-rgb), var(--text-3-alpha));
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-
-/* "Reset widths" in the tray, shown only while the reader has set widths: a
-   plain button, the kit's, as the Notebook's Edit is (.desk-panel__reset). */
-.font-tray__reset {
-  align-self: flex-start;
-  margin-top: 8px;
-  padding: 5px 10px;
-  font-size: 0.8125rem;
-  line-height: inherit;
-  cursor: pointer;
-}
-
-.font-tray__reset[hidden] {
-  display: none;
+  margin: 0 0 var(--space-1);
+  padding-left: calc(36px + var(--space-3));
+  color: var(--color-text-3);
+  font-family: var(--font-control);
+  font-size: var(--size-small-label);
+  line-height: var(--leading-small-label);
 }
 
 /* The rail doesn't print (BA145): it is appended to <body>, outside what

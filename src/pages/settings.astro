@@ -1,0 +1,79 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/pages/settings.css";
+
+/**
+ * All settings (/settings; SITE-FEATHERBOA.md, "All settings"; DI-19 to
+ * DI-21, NB-24 to NB-29): what the Display tray ("Aa") doesn't hold, on one
+ * page every reader reaches from the tray's foot. Every reader gets the
+ * keyboard shortcuts' switch (DI-20: required, WCAG 2.1.4), wired by
+ * src/scripts/settings-page.js. Study's parts (the finer mark choices,
+ * backup, the account link, how the Notebook panel starts, and Delete in
+ * bulk last) are drawn into [data-settings-page] by
+ * src/scripts/desk/settings-page.js, which desk-gate.js imports only where
+ * Study is on. noindex, out of the sitemap (astro.config.mjs) and out of
+ * Pagefind (Layout's default); the line under the header names it
+ * "Settings" in no place (src/lib/places.mjs).
+ */
+---
+
+<Layout
+  title="All settings | Liberation and Inclusion Translation"
+  description="Your settings for the LIT Bible site, kept in this browser: keyboard shortcuts, and the rest of what Display (“Aa”) doesn’t hold."
+  robotsNoindex={true}
+>
+  <div class="settings-page">
+    <div class="settings-page__inner">
+      <h1 class="settings-page__title">All settings</h1>
+      <p class="settings-page__lede">
+        What changes how a page reads (the text, its size and spacing, the theme,
+        and what shows on the page) is in Display, the “Aa” button at the top
+        of the page. The rest is here. Each setting is kept in this
+        browser alone.
+      </p>
+
+      <section class="settings-page__section" id="keyboard" aria-labelledby="settingsKeysTitle">
+        <h2 class="settings-page__h2" id="settingsKeysTitle">Keyboard</h2>
+        <div class="settings-page__switches" data-settings-keys hidden>
+          <button
+            type="button"
+            class="kit-switch"
+            role="switch"
+            aria-checked="true"
+            aria-describedby="settingsKeysHint settingsKeysList"
+            data-settings-switch="shortcuts"
+          >Keyboard shortcuts</button>
+          <p class="settings-page__hint" id="settingsKeysHint">
+            One key each, and never while you’re typing. If speech recognition
+            or a stray key press sets them off, turn them off here.
+          </p>
+          <ul class="settings-page__keys" id="settingsKeysList">
+            <li><kbd>/</kbd> Search</li>
+            <li><kbd>g</kbd> Choose passage</li>
+            <li><kbd>←</kbd> <kbd>→</kbd> or <kbd>[</kbd> <kbd>]</kbd> Previous or next chapter</li>
+            <li class="settings-page__desk-key"><kbd>h</kbd> Hide or show your marks</li>
+          </ul>
+        </div>
+        <noscript>
+          <p class="settings-page__note">Keyboard shortcuts need JavaScript, which is off in this browser.</p>
+        </noscript>
+      </section>
+
+      <div class="settings-page__desk" data-settings-page>
+        <!-- With Study on, a line says its settings are loading until
+             desk/settings-page.js replaces it; if that code fails, the gate's
+             standDown() takes the stamp off and the line goes (BA153). -->
+        <p class="settings-page__loading">Loading Study’s settings…</p>
+        <!-- The help page links to Study's sections by these ids. The sections
+             are drawn by script, so the ids stand here empty until then, and
+             without Study; desk/settings-page.js clears this place, draws each
+             section under its own id, and goes to the one the address names. -->
+        <span id="marks" hidden></span><span id="backup" hidden></span><span id="panel" hidden></span><span id="delete-in-bulk" hidden></span>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import "../scripts/settings-page.js";
+</script>

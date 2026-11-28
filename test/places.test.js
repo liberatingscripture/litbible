@@ -131,6 +131,7 @@ const PAGES = {
   "unsubscribe.astro": { path: "/unsubscribe", place: null, name: "Unsubscribe" },
   "colophon.astro": { path: "/colophon", place: null, name: "How this site is made" },
   "whats-new.astro": { path: "/whats-new", place: null, name: "What’s new" },
+  "settings.astro": { path: "/settings", place: null, name: "Settings" },
 };
 
 function pageFiles(dir = "src/pages", base = "") {

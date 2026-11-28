@@ -328,9 +328,10 @@ export function createTour({ panel, canKeep = true, store = null }) {
 
     async undo() {
       closePanel();
-      panel.showTab("settings", { focus: false, remember: false });
-      const hide = panel.el.querySelector('input[data-desk-hide-check]')?.closest("label");
-      return { el: panel.el, side: "left", marks: visible(hide) ? [hide] : [] };
+      // "Your marks" is the Display tray's since Featherboa's Phase 4, so the
+      // step marks the "Aa" button that opens it, the one showing.
+      const aa = [...document.querySelectorAll("button[data-font-toggle]")].find(visible);
+      return { el: panel.el, side: "left", marks: aa ? [aa] : [] };
     },
 
     async search(live) {

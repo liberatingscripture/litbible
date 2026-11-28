@@ -344,11 +344,10 @@ test("a checkbox's, a radio's, and a range's color is the kit's alone", () => {
 // --focus-ring, 2px off the control). A rule that draws a ring of its own on
 // focus keeps that width, color, and offset, or draws it 2px inside a row
 // that fills a scrolling list or menu edge to edge, where an outside ring is
-// clipped. The rings drawn in --text on purpose are named, with why.
+// clipped. A ring drawn otherwise on purpose is named here, with why (none
+// since the Display tray took the kit's controls in Phase 4).
 const OWN_RINGS = [
-  { file: "src/styles/global.css", selector: ".font-tray__font-input:focus-visible", why: "the Display tray's chosen options are green, so its ring is --text" },
-  { file: "src/styles/global.css", selector: ".font-tray__check-input:focus-visible", why: "the Display tray's chosen options are green, so its ring is --text" },
-  { file: "src/styles/global.css", selector: ".font-tray__seg-input:focus-visible + .font-tray__seg-text", why: "the Display tray's chosen options are green, so its ring is --text" },
+  // { file, selector, why }
 ];
 const RING_WIDTH = /^(2px|var\(--focus-width(, ?2px)?\))$/;
 const RING_COLOR = /^var\(--focus-ring(, ?#[0-9a-f]{3,6})?\)$/i;

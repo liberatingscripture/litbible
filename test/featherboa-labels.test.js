@@ -73,7 +73,6 @@ export const LATER = new Map([
   ["src/scripts/desk/labels-ui.js", 10], // the Notebook
   ["src/scripts/desk/lit-pane.js", 9], // Study's frame
   ["src/scripts/desk/note-editor.js", 10], // the Notebook
-  ["src/scripts/desk/note-settings.js", 4], // the Display tray's View group
   ["src/scripts/desk/notebook-page.js", 10], // the Notebook
   ["src/scripts/desk/notebook-search.js", 10], // the Notebook
   ["src/scripts/desk/notes-margin.js", 10], // the Notebook

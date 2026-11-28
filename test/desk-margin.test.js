@@ -17,6 +17,7 @@ import {
   dragFloatEdge, dragNotebookEdge, dragTextEdge, firstPaint, floatBounds, floatWidth, nextCollapsed, panelHeight, placeFloating, placeInMargin,
   placeWithWidths, widestMeasure, widthsFromLayout,
   KEEP_LEFT, TEXT_HANDLE,
+  CHAR, LINE_CHARS, MEASURE_RANGES, OPEN_MEASURE, measureChars, measureRange,
 } from "../src/lib/desk-margin.mjs";
 import { PILL_OFFSET, PIN_MARGIN } from "../src/lib/desk-footnote-pills.mjs";
 
@@ -212,9 +213,49 @@ function near(actual, expected, tolerance = TOL, message) {
   );
 }
 
-test("the measure limits are 36 and 72", () => {
-  assert.equal(MIN_MEASURE, 36);
-  assert.equal(MAX_MEASURE, 72);
+// Featherboa ("Sizes, space, and the measure"; SZ-17, DI-24): the text
+// drags only within 45 to 75 characters a line, in the reader's face. It was
+// 36 to 72 --ch in every face until Phase 4.
+test("the measure limits are 45 and 75 of the face's characters, to the tenth inside them", () => {
+  assert.deepEqual(LINE_CHARS, { min: 45, max: 75 });
+  assert.deepEqual(measureRange(), { min: 37.8, max: 62.8 });
+  assert.deepEqual(measureRange("atkinson"), { min: 30.8, max: 51.3 });
+  assert.equal(MIN_MEASURE, 37.8, "the default face's");
+  assert.equal(MAX_MEASURE, 62.8);
+  for (const face of ["", "atkinson"]) {
+    const { min, max } = measureRange(face);
+    assert.ok(measureChars(min, face) >= 45 && measureChars(min - 0.1, face) < 45, `${face || "default"}: narrowest`);
+    assert.ok(measureChars(max, face) <= 75 && measureChars(max + 0.1, face) > 75, `${face || "default"}: widest`);
+  }
+  // A face it doesn't know is measured as the default.
+  assert.deepEqual(measureRange("serif"), measureRange());
+});
+
+test("OpenDyslexic's narrowest is the 48 a chapter opens with, since 45 of its characters are wider", () => {
+  // 48 is about 33 of its characters: a range starting at 45 would make the
+  // first drag jump the column out to 66 --ch.
+  assert.equal(OPEN_MEASURE, FIRST_PAINT.measure);
+  assert.ok(measureChars(OPEN_MEASURE, "dyslexic") < 45);
+  assert.deepEqual(measureRange("dyslexic"), { min: OPEN_MEASURE, max: 110.4 });
+  assert.ok(measureChars(110.4, "dyslexic") <= 75 && measureChars(110.5, "dyslexic") > 75);
+  // In every face the range holds the 48, so no drag starts outside it.
+  for (const face of Object.keys(FIRST_PAINT.ch)) {
+    const { min, max } = measureRange(face);
+    assert.ok(min <= OPEN_MEASURE && OPEN_MEASURE <= max, face);
+  }
+});
+
+test("the pre-paint script is handed every face's range", () => {
+  assert.deepEqual(Object.keys(MEASURE_RANGES), Object.keys(FIRST_PAINT.ch));
+  assert.deepEqual(Object.keys(CHAR), Object.keys(FIRST_PAINT.ch));
+  for (const face of Object.keys(FIRST_PAINT.ch)) assert.deepEqual(FIRST_PAINT.range[face], measureRange(face), face);
+});
+
+test("a measure reads as the face's characters: 48 is 57 in Source Sans 3, 70 in Atkinson, 33 in OpenDyslexic", () => {
+  assert.equal(Math.round(measureChars(48)), 57);
+  assert.equal(Math.round(measureChars(48, "atkinson")), 70);
+  assert.equal(Math.round(measureChars(48, "dyslexic")), 33);
+  near(measureChars(48, "atkinson"), (48 * FIRST_PAINT.ch.atkinson) / CHAR.atkinson);
 });
 
 test("with room to spare, the notebook sits EDGE from the window's edge at the kept width and the column ends GAP before it", () => {
@@ -296,8 +337,9 @@ test("once the notebook is at MIN_WIDTH, the LIT's measure narrows, and the colu
   near(at.columnLeft, 0, ROUNDING);
   assert.equal(at.columnRight, at.panelLeft - GAP);
 
-  // At 761px the LIT is just at its narrowest.
-  const edge = withWidths(761, 48, 380);
+  // At 781px the LIT is just at its narrowest: 37.8 x 11.355 + 32 + 280
+  // leaves 0.2px over, under the half pixel that would be over.
+  const edge = withWidths(781, 48, 380);
   assert.equal(edge.over, false);
   assert.equal(edge.measure, MIN_MEASURE);
   assert.equal(edge.width, MIN_WIDTH);
@@ -318,14 +360,14 @@ test("the LIT never narrows below MIN_MEASURE, and past that the widths no longe
 });
 
 test("a shortfall under half a pixel is not over", () => {
-  // ch 10 and pad 30 keep the sums round: 36 x 10 + 30 + 280 = 670px, and
-  // EDGE + GAP = 40, so a 710px window fits it exactly.
+  // ch 10 and pad 30 keep the sums round: 37.8 x 10 + 30 + 280 = 688px, and
+  // EDGE + GAP = 40, so a 728px window fits it exactly.
   const fits = (viewport) => placeWithWidths({
     viewport, parentLeft: 0, ch: 10, pad: 30, measure: MIN_MEASURE, width: MIN_WIDTH,
   });
-  assert.equal(fits(710).over, false);
-  assert.equal(fits(709.6).over, false, "0.4px short");
-  assert.equal(fits(709.4).over, true, "0.6px short");
+  assert.equal(fits(728).over, false);
+  assert.equal(fits(727.6).over, false, "0.4px short");
+  assert.equal(fits(727.4).over, true, "0.6px short");
 });
 
 test("as the window narrows, things give way in order: margin, then notebook, then LIT, then over", () => {
@@ -379,7 +421,7 @@ test("parentLeft is the furthest left the column goes", () => {
   near(less.columnLeft, 40, ROUNDING);
 });
 
-test("a kept measure outside 36 to 72 is clamped", () => {
+test("a kept measure outside its face's range is clamped", () => {
   const tooWide = withWidths(2600, 100, 320);
   assert.equal(tooWide.measure, MAX_MEASURE);
   near(tooWide.columnRight - tooWide.columnLeft, columnBox(MAX_MEASURE));
@@ -389,8 +431,33 @@ test("a kept measure outside 36 to 72 is clamped", () => {
   near(tooNarrow.columnRight - tooNarrow.columnLeft, columnBox(MIN_MEASURE));
 
   // The limits themselves are allowed.
-  assert.equal(withWidths(2600, 36, 320).measure, 36);
-  assert.equal(withWidths(2600, 72, 320).measure, 72);
+  assert.equal(withWidths(2600, MIN_MEASURE, 320).measure, MIN_MEASURE);
+  assert.equal(withWidths(2600, MAX_MEASURE, 320).measure, MAX_MEASURE);
+});
+
+test("a measure kept in one face is held to another's range, and comes back in its own", () => {
+  // 60 is 72 characters in Source Sans 3 but 88 in Atkinson, whose widest is
+  // 51.3; 40 is 27 of OpenDyslexic's, whose narrowest is 48.
+  const at = (measure, face) =>
+    placeWithWidths({ viewport: 2600, parentLeft: 0, ch: CH, pad: PAD, measure, width: 320, range: measureRange(face) });
+  assert.equal(at(60, "atkinson").measure, 51.3);
+  assert.equal(at(40, "dyslexic").measure, 48);
+  assert.equal(at(60, "").measure, 60);
+  assert.equal(at(40, "").measure, 40);
+  assert.equal(at(100, "dyslexic").measure, 100, "OpenDyslexic's 75 characters reach 110.4");
+});
+
+test("the drags keep to the face's range", () => {
+  const atkinson = measureRange("atkinson");
+  const dyslexic = measureRange("dyslexic");
+  assert.equal(dragTextEdge({ measure: 48, dx: -1000, ch: CH, range: atkinson }), 51.3);
+  assert.equal(dragTextEdge({ measure: 48, dx: 1000, ch: CH, range: atkinson }), 30.8);
+  assert.equal(dragTextEdge({ measure: 48, dx: 1000, ch: CH, range: dyslexic }), 48);
+  assert.equal(dragTextEdge({ measure: 48, dx: -1000, ch: CH, range: dyslexic, maxMeasure: 90 }), 90);
+  assert.equal(dragNotebookEdge({ measure: 48, width: 900, dx: 2000, ch: CH, range: atkinson }).measure, 51.3);
+  assert.equal(dragNotebookEdge({ measure: 48, width: 380, dx: -1000, ch: CH, range: dyslexic }).measure, 48);
+  assert.equal(widestMeasure({ viewport: 2600, parentLeft: 0, ch: CH, pad: PAD, width: 280, range: atkinson }), 51.3);
+  assert.equal(widestMeasure({ viewport: 2600, parentLeft: 0, ch: CH, pad: PAD, width: 280, range: dyslexic }), 110.4);
 });
 
 test("a kept width under MIN_WIDTH is clamped to it", () => {
@@ -504,9 +571,9 @@ test("dragNotebookEdge: the notebook stops at MIN_WIDTH", () => {
 });
 
 test("dragNotebookEdge: the LIT stops at MAX_MEASURE", () => {
-  const at = dragNotebookEdge({ measure: 70, width: 500, dx: 1000, ch: CH });
+  const at = dragNotebookEdge({ measure: 60, width: 500, dx: 1000, ch: CH });
   assert.equal(at.measure, MAX_MEASURE);
-  assert.equal(at.width, Math.round(500 - 2 * CH));
+  assert.equal(at.width, Math.round(500 - (MAX_MEASURE - 60) * CH));
   assert.ok(at.width > MIN_WIDTH, "the notebook still has width to spare when the LIT is the limit");
 
   const already = dragNotebookEdge({ measure: MAX_MEASURE, width: 400, dx: 50, ch: CH });
@@ -705,7 +772,7 @@ test("E81: the reader's widths leave keepLeft beside the column", () => {
       if (!lay.over) assert.ok(lay.columnLeft >= KEEP_LEFT - 1, JSON.stringify({ viewport, kept, lay }));
       // The text's line can't be dragged wider than that either.
       const widest = widestMeasure({ ...m, width: lay.width });
-      const dragged = placeWithWidths({ ...m, measure: Math.max(36, widest), width: lay.width });
+      const dragged = placeWithWidths({ ...m, measure: Math.max(MIN_MEASURE, widest), width: lay.width });
       if (!dragged.over) assert.ok(dragged.columnLeft >= KEEP_LEFT - 1, JSON.stringify({ viewport, kept, dragged }));
     }
   }
@@ -750,6 +817,14 @@ test("FIRST_PAINT matches tokens.css, global.css and ScriptureLayout.astro", () 
   for (const font of ["dyslexic", "atkinson"]) {
     const re = new RegExp(String.raw`html\[data-font="${font}"\]\s*\{\s*--ch:\s*([\d.]+)em`);
     assert.equal(Number(num(re, tokens)[1]), FIRST_PAINT.ch[font], `${font}'s --ch${fix}`);
+  }
+  // --char, the unit of the 45 to 75 characters the text drags within
+  // (measureRange), the same way.
+  const fixChar = "; update CHAR in src/lib/desk-margin.mjs";
+  assert.equal(Number(num(/:root\s*\{[^}]*?--char:\s*([\d.]+)em/, tokens).at(1)), CHAR[""], `Source Sans 3's --char${fixChar}`);
+  for (const font of ["dyslexic", "atkinson"]) {
+    const re = new RegExp(String.raw`html\[data-font="${font}"\]\s*\{\s*--ch:\s*[\d.]+em;\s*--char:\s*([\d.]+)em`);
+    assert.equal(Number(num(re, tokens)[1]), CHAR[font], `${font}'s --char${fixChar}`);
   }
   for (const size of ["sm", "lg", "xl"]) {
     const re = new RegExp(String.raw`html\[data-size="${size}"\]\s*\{\s*--reading-scale:\s*calc\((\d+)\s*/\s*(\d+)\)`);

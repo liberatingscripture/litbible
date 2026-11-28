@@ -70,7 +70,7 @@ async function run(source, globals) {
 
 // The glossary is no page of the desk's, but with the desk on it keeps the
 // desk's reading column, whose headings' fit the gate loads (E124).
-const MARKERS = { notebook: "[data-notebook-page]", desk: "[data-desk-page]", sheet: "[data-sheet-page]", glossary: ".glossary-entries", collections: "[data-collections-page]" };
+const MARKERS = { notebook: "[data-notebook-page]", desk: "[data-desk-page]", sheet: "[data-sheet-page]", glossary: ".glossary-entries", collections: "[data-collections-page]", settings: "[data-settings-page]" };
 const gate = instrument(gateSource, [['import { readingSurface, standDown } from "./desk-frame.js";', "const { readingSurface, standDown } = globalThis.__gateFrame;"]]);
 
 /** Load desk-gate.js on a page with this data-desk value, reading surface, and marker; returns what it did. */
@@ -120,6 +120,8 @@ for (const [marker, module, also = []] of [
   ["sheet", "./desk/sheets/sheet-page.js", ["./desk/boot.js"]],
   // The collections page (D13) is the desk's own page: no panel, its own module.
   ["collections", "./desk/collections/collection-page.js"],
+  // All settings (DI-19): every reader's part is the page's own; Study's part is this.
+  ["settings", "./desk/settings-page.js"],
   // The glossary has no Notebook panel while N11 is off (E124): its headings' fit alone.
   ["glossary", "./desk/glossary-titles.js"],
 ]) {

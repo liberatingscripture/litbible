@@ -495,7 +495,9 @@ export function startReadingOn(root) {
 
   // At the page's top a scroll up moves nothing, so no scroll event says the
   // reader wants the chapter before: the wheel, a finger drawn down, and the
-  // keys that scroll up say it instead.
+  // keys that scroll up say it instead. A key a control has already used
+  // scrolls nothing and says nothing (the Display tray's rows of choices take
+  // Home and the arrows themselves, display-tray.js).
   const atTop = () => window.scrollY < window.innerHeight * ABOVE;
   const wantAbove = () => {
     if (atTop()) load(-1);
@@ -512,7 +514,7 @@ export function startReadingOn(root) {
     if (touchY != null && y != null && y - touchY > 12) wantAbove();
   }, { passive: true });
   window.addEventListener("keydown", (e) => {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
     if (!["ArrowUp", "PageUp", "Home"].includes(e.key) && !(e.key === " " && e.shiftKey)) return;
     const t = e.target;
     if (t instanceof Element && t.closest("input, textarea, select, [contenteditable], [role=listbox], [role=menu], [role=grid], dialog")) return;

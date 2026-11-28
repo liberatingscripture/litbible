@@ -39,7 +39,9 @@ introduction on a phone has the phone's two bars instead
   Learn, and About. The full header holds from 700px, from 900px in
   OpenDyslexic (an estimate from the places' widths, not yet measured). Its
   right end is the magnifier, Aa, and the account's entry
-  (`src/scripts/desk/account/CLAUDE.md`, rule 17). Narrower, "Menu" (the
+  (`src/scripts/desk/account/CLAUDE.md`, rule 17). Aa opens the Display tray
+  (`src/styles/CLAUDE.md`), whose foot opens All settings (`/settings`, a
+  page in no place named "Settings"). Narrower, "Menu" (the
   kit's plain button, its icon and its word; the word alone under 400px,
   430px in OpenDyslexic, measured)
   takes the places' room.
@@ -192,8 +194,9 @@ Featherboa is built, this section holds as written.
      anchor `#john-8-p9`, a Read View verse `#john-3-v16`);
   3. never on `/apps`, its own CTA destination, or `/privacy`, which people
      open to read terms rather than to be pitched to, nor on `/notebook`,
-     `/desk/help`, or the account pages (`/account`, `/account/connect`,
-     `/delete-account`), opened mid-task (E73; `SUPPRESSED_PATHS`);
+     `/desk/help`, All settings (`/settings`), or the account pages
+     (`/account`, `/account/connect`, `/delete-account`), opened mid-task
+     (E73; `SUPPRESSED_PATHS`);
   4. **never over scripture**: a Chapter View chapter or intro, or Read View
      (owner, 2026-09-28). A reader who chose a passage came to read it. An
      announcement can opt out with `{ overScripture: true }`.

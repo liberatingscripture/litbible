@@ -8,7 +8,7 @@ const ids = (q, ctx) => matchCommands(q, ctx).map((c) => c.id);
 
 test("a word that begins a command's word finds it", () => {
   assert.deepEqual(ids("hide", chapter), ["hide-notes"]);
-  assert.deepEqual(ids("Hide my", chapter), ["hide-notes"]);
+  assert.deepEqual(ids("Hide your", chapter), ["hide-notes"]);
   assert.deepEqual(ids("tou", chapter), ["tour"]);
   assert.deepEqual(ids("backup", page), ["notebook-backup"], "through its keyword");
   assert.deepEqual(ids("zzz", chapter), []);
@@ -39,9 +39,9 @@ test("the Notebook can be opened but has no close command (it only minimizes)", 
   assert.deepEqual(panel({ ...chapter, panelOpen: true }), []);
 });
 
-test("hide my marks turns into show my marks while they are hidden", () => {
-  assert.equal(matchCommands("hide", chapter)[0].name, "Hide my marks");
-  assert.equal(matchCommands("show my", { ...chapter, hidden: true }).find((c) => c.id === "hide-notes").name, "Show my marks");
+test("hide your marks turns into show your marks while they are hidden (the Display tray's “Your marks” off)", () => {
+  assert.equal(matchCommands("hide", chapter)[0].name, "Hide your marks");
+  assert.equal(matchCommands("show your", { ...chapter, hidden: true }).find((c) => c.id === "hide-notes").name, "Show your marks");
 });
 
 test("a query starting with > asks for commands, and what follows narrows them", () => {

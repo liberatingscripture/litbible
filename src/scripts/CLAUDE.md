@@ -35,6 +35,10 @@ From the root's project tree.
                      #   keyboard-shortcuts; print-radios, which sets every
                      #   radio button back after the print dialog (Edge
                      #   clears them all; see "Printing and handouts");
+                     #   display-tray, the Display tray ("Aa"; its markup is
+                     #   src/lib/display-tray.mjs); settings-page, All
+                     #   settings' keyboard switch (/settings; Study's part
+                     #   is desk/settings-page.js);
                      #   verse-image, which draws and
                      #   hands on "Share image…"; panel-flyout, the one
                      #   flyout row the panels share; glossary-entry-links, the
@@ -431,7 +435,8 @@ License page of their own, forwarding /read's old anchors:
 - **Edge clears every native radio after the print dialog closes** (E216),
   about 100 ms after `afterprint`, with no event and no script behind it, so
   a Print or Ctrl+P left the Sheets toolbar's Version and Paper choices and
-  the Display tray's settings with no dot showing. `print-radios.js`
+  the Display tray's settings (native radios until Featherboa's Phase 4)
+  with no dot showing. `print-radios.js`
   (imported by `SiteHeader.astro`, so on every page) holds the radios checked
   at `beforeprint` and sets them back for three seconds after `afterprint`,
   only where nothing in their group is checked. **A new radio group needs
@@ -667,7 +672,9 @@ License page of their own, forwarding /read's old anchors:
   WB-01 to WB-12, WB-29). With JavaScript the next chapter loads below once
   the last one's end is within 2.5 windows, and the one before loads above
   only on a scroll up near the page's top (a wheel or a drag up, ↑, Page Up,
-  Home, Shift+Space), so a link to a verse never sets the page moving. Each
+  Home, Shift+Space; not a key a control has used, as the Display tray's
+  choices use Home and the arrows), so a link to a verse never sets the page
+  moving. Each
   chapter is fetched from its own built page and parsed, never run: its
   text, Go deeper and footnotes, every id prefixed (`john-4-v16`), in an
   `article.read-on__chapter`. **`article.chapter` is the page's own
@@ -711,14 +718,15 @@ License page of their own, forwarding /read's old anchors:
   passage bar's arrow of the pane holding focus, else the leading LIT pane).
   On a chapter's page they go to the start of the neighboring chapter,
   loading it first (read-on.js answers the line's arrows).
-  `h` is the Study Desk's "Hide my marks" and does nothing unless
+  `h` is Study's "Your marks" (it hides or shows them) and does nothing unless
   `html[data-desk]` is set; it only sends `lit:desk-hide`, so the desk's code
   stays out of this file.
-  They are on by default, with a Keyboard switch in the Display tray
-  (`localStorage['lit-shortcuts'] = 'off'`; no attribute on `<html>`, since
-  nothing renders differently; Featherboa moves it to an All settings page
-  every reader can reach from the tray, `SITE-FEATHERBOA.md`, "Display,"
-  and until it is built it stays in the tray). **The switch is required, not a nicety**:
+  They are on by default, with a "Keyboard shortcuts" switch on All settings
+  (`/settings`, `src/scripts/settings-page.js`; every reader reaches it from
+  the Display tray's foot, and it was the tray's own until Featherboa's
+  Phase 4), which writes `localStorage['lit-shortcuts'] = 'off'` (no
+  attribute on `<html>`, since nothing renders differently) and tells the
+  page (`lit:shortcuts-changed`). **The switch is required, not a nicety**:
   single-key shortcuts fire when a speech-recognition user dictates a word
   (WCAG 2.1.4). They stand down while the reader is typing or working a control
   that owns those keys (a radio group, a menu, a grid, a dialog, the passage

@@ -144,6 +144,40 @@ html[data-vn="off"] .scripture-layout--scripture .chapter-head:focus-within {
   box-shadow: var(--shadow-float);
 }
 
+/* ---------- Justify (RP-36 to RP-39) ----------
+   The Display tray's Justify (html[data-justify], stamped before paint, off
+   by default) sets the prose as a page of a book: justified, with the
+   browser's own hyphenation keeping the word spaces even (E106's rule, and
+   Study's LIT panes take the same one, desk.css). Three limits:
+   - Poetry keeps its lines: a blockquote's paragraphs are left alone.
+   - The default face only. Atkinson and OpenDyslexic readers keep the
+     ragged edge and whole words, since uneven gaps and split words are what
+     those faces are chosen to avoid (src/styles/CLAUDE.md, the reader font).
+   - Only where a line holds about 45 characters or more: 22em at the
+     reading size, which each chapter's text measures as a query container,
+     so the text size is counted. Shorter lines justify badly, so a phone
+     keeps the ragged edge.
+   The container is drawn only with the switch on, since it contains its
+   text's layout and style. A word needs 6 letters to break, 3 on each side
+   of the hyphen; Safari reads the two prefixed limits. The hyphens are
+   drawn, never in the text, so copying, notes, highlights, and search read
+   the words whole. */
+@supports (container-type: inline-size) {
+  html[data-justify] .scripture-layout--scripture .chapter-paragraphs {
+    container: readText / inline-size;
+  }
+
+  @container readText (min-width: 22em) {
+    html[data-justify]:not([data-font]) .scripture-layout--scripture .chapter-paragraphs p:not(blockquote p) {
+      text-align: justify;
+      hyphens: auto;
+      hyphenate-limit-chars: 6 3 3;
+      -webkit-hyphenate-limit-before: 3;
+      -webkit-hyphenate-limit-after: 3;
+    }
+  }
+}
+
 /* ---------- Where the Notebook panel runs (WB-18) ----------
    A computer with the Study preview on, from 1100px, where the place line
    shows the Notebook: the chapters' Go deeper and footnote lists leave the
@@ -153,7 +187,7 @@ html[data-vn="off"] .scripture-layout--scripture .chapter-head:focus-within {
    chapter's page. Everywhere else they stay in the flow until Phase 5 gives
    phones and tablets their sheet. */
 @media screen and (min-width: 1100px) {
-  html[data-desk]:not([data-desk-show="off"]) .scripture-layout--scripture :is(.go-deeper, .footnotes-wrap) {
+  html[data-desk] .scripture-layout--scripture :is(.go-deeper, .footnotes-wrap) {
     display: none;
   }
 }

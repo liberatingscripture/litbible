@@ -88,6 +88,8 @@ export default defineConfig({
         if (slug === 'sheets' || slug.startsWith('sheets/')) return false;
         // The collections page (noindex, a preview, and only the reader's own collections)
         if (slug === 'collections' || slug.startsWith('collections/')) return false;
+        // All settings (noindex, the reader's own settings, like Study's pages)
+        if (slug === 'settings') return false;
         // Read View's old addresses, which forward to the chapters' pages (noindex)
         if (slug.startsWith('read/')) return false;
         return !noindexSlugs.has(slug) && !draftIntroSlugs.has(slug);

@@ -1,0 +1,196 @@
+/* =========================================================
+   All settings (/settings; SITE-FEATHERBOA.md, "All settings"): the
+   keyboard shortcuts for every reader, then Study's settings where Study is
+   on (drawn by src/scripts/desk/settings-page.js), in the reading column.
+   Featherboa's tokens, on the spacing scale, following the Display tray's
+   text size and spacing like the What's New page. Controls are the kit's,
+   so nothing here sizes one; the colors are tokens, which change with the
+   theme in both of night's selectors (tokens.css).
+   ========================================================= */
+
+.settings-page {
+  background-color: var(--color-page);
+  /* Follows the Display tray's text size (src/styles/CLAUDE.md). */
+  font-size: calc(1em * var(--reading-scale, 1));
+  padding-block: var(--space-8);
+  padding-inline: var(--space-5);
+}
+
+/* With Study on, the backup section is the desk's (desk.css), whose sizes
+   multiply by --desk-ui and whose running text adds --desk-leading, as on
+   My Notebook (E110). */
+html[data-desk] .settings-page {
+  --desk-ui: var(--reading-scale, 1);
+  --desk-leading: var(--reading-leading-extra, 0);
+}
+
+.settings-page__inner {
+  max-width: calc(65 * var(--ch));
+  margin: 0 auto;
+  line-height: calc(var(--leading-text) + var(--reading-leading-extra, 0));
+  overflow-wrap: break-word;
+}
+
+.settings-page__title {
+  font-family: var(--font-display);
+  font-size: calc(var(--size-title) * var(--heading-scale, 1));
+  line-height: var(--leading-title);
+  margin: 0 0 var(--space-4);
+}
+
+.settings-page__lede {
+  margin: 0 0 var(--space-7);
+}
+
+.settings-page__section {
+  margin: 0 0 var(--space-7);
+  /* A linked section (#backup, #delete-in-bulk) scrolls clear of the sticky header. */
+  scroll-margin-top: var(--space-9);
+}
+
+/* The backup section's headings are export-import.js's (desk-np__h2 and
+   __h3, shared with My Notebook), so they take the page's here. */
+.settings-page__h2,
+.settings-page .desk-np__h2 {
+  font-family: var(--font-display);
+  font-size: calc(var(--size-heading) * var(--reading-scale, 1));
+  line-height: var(--leading-heading);
+  font-weight: 500;
+  margin: 0 0 var(--space-3);
+}
+
+.settings-page__h3,
+.settings-page .desk-np__h3 {
+  font-family: var(--font-display);
+  font-size: calc(var(--size-subhead) * var(--reading-scale, 1));
+  line-height: var(--leading-subhead);
+  font-weight: 500;
+  margin: var(--space-5) 0 var(--space-2);
+}
+
+.settings-page__section p {
+  margin: 0 0 var(--space-3);
+}
+
+/* A column of kit switches, each with its line under it. */
+.settings-page__switches {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.settings-page__switches[hidden] {
+  display: none;
+}
+
+/* Under a switch, its words line up with the switch's label: the track's
+   36px and the switch's gap of 12 (kit.css) are the scale's 48. */
+.settings-page .settings-page__hint {
+  margin: 0 0 var(--space-2);
+  padding-left: var(--space-7);
+  color: var(--color-text-2);
+  font-size: 0.875em;
+}
+
+/* "Your marks"' finer choices sit under it, as its parts. */
+.settings-page__finer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding-left: var(--space-7);
+}
+
+.settings-page__keys {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0 0 0 var(--space-7);
+  list-style: none;
+  font-size: 0.875em;
+}
+
+.settings-page__keys kbd {
+  display: inline-block;
+  min-width: 1.7em;
+  padding: 0 var(--space-1);
+  border: 1px solid rgba(var(--color-text-rgb), 0.35);
+  border-radius: var(--radius-press);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* H hides and shows the reader's marks only where Study is on
+   (keyboard-shortcuts.js), so it is listed only there. */
+.settings-page__desk-key {
+  display: none;
+}
+
+html[data-desk] .settings-page__desk-key {
+  display: block;
+}
+
+/* Shown while Study's code loads, when the pre-paint script has stamped it
+   on (BA153). If that code fails, the gate's standDown() takes the stamp off
+   and the line goes. */
+.settings-page__loading {
+  display: none;
+}
+
+html[data-desk="on"] .settings-page__loading {
+  display: block;
+}
+
+.settings-page .settings-page__note {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-2);
+  font-size: 0.875em;
+}
+
+.settings-page .settings-page__label {
+  margin: 0 0 var(--space-2);
+}
+
+/* Delete in bulk: each choice its heading, what it takes, and a red button
+   (the kit's danger: red words, never filled; NB-27) that asks again in its
+   place. */
+.settings-page__danger {
+  margin: 0 0 var(--space-5);
+}
+
+.settings-page__ask {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-float);
+}
+
+.settings-page .settings-page__ask-text {
+  margin: 0;
+  font-weight: 600;
+}
+
+.settings-page__ask-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.settings-page .settings-page__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.settings-page__error[hidden] {
+  display: none;
+}
+
+.settings-page .settings-page__none {
+  margin: 0;
+  color: var(--color-text-2);
+}

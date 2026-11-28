@@ -78,9 +78,10 @@ test("a second Save while the first is in flight is ignored (NB3-13)", () => {
   assert.match(src, /async function save\(\) \{\s*if \(saving\) return;\s*saving = true;/);
 });
 
-test("the skip link is out of the tab order when the Notebook is off, and the menu makes every skip link inert (NB3-10)", () => {
+test("the skip link is the desk's own, and the menu makes every skip link inert (NB3-10)", () => {
+  // "Show the Notebook," which took it out of the tab order, is gone since
+  // Featherboa's Phase 4; the attribute keeps the page-text readers off it.
   assert.match(read(`${dir}panel.js`), /setAttribute\("data-desk-skip", ""\)/);
-  assert.match(read("src/styles/desk-tab.css"), /html\[data-desk-show="off"\] \.skip-link\[data-desk-skip\]\s*\{\s*display: none;/);
   // The menu is a modal <dialog>, so everything outside it, every skip link
   // included, is inert while it is open.
   assert.match(read("src/components/MenuSheet.astro"), /<dialog class="menu-sheet" id="menuSheet"/);
