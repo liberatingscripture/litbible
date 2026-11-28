@@ -1339,6 +1339,11 @@ Entered by the run:
   search the English too, for every tab's count. Cost: the first, a reason
   under the row; the second, an English search that finds little, run
   every time. Recommendation: the first, with the Checkpoint A fixes.
+  Done ahead of Checkpoint A (20e0fa36): the first. A search command
+  counts as Greek too, and an English query under the chosen Greek tab is
+  not one, so its tabs stay and the reader can leave the Greek. The
+  reason, drafted for BVJ: “Greek letters, Strong’s numbers, and search
+  commands are searched in the Greek only.”
 - **Q78. Study's Search pane waits for Phase 9** (SD-42, GK-37, GK-38,
   GK-44). The record gives Study's Search tab /search's tabs and rows and
   the one “Build a search…” link; that pane is part of Study's frame,
@@ -1603,7 +1608,8 @@ with its last commit when done; never delete a line.
   View's retirement, 9b7c10ed, with d1160921)
 - [ ] Phase 5: Beside scripture
 - [x] Phase 6: Search (f1a6b2af; review fixes 24408884, d30c03c5,
-  563f837b, e896463b, a475a2f3, 3dcc8475, bf05dafb)
+  563f837b, e896463b, a475a2f3, 3dcc8475, bf05dafb; Q77's unavailable
+  tabs, 20e0fa36)
 - [ ] Phase 7: Learn, the front door, and every other page (built ahead:
   the colophon, b8fcd43b; What's New, 1253bf85; the pages no decision
   draws, bae1d1cb, and the account pages, cf6f21c8; the glossary,
