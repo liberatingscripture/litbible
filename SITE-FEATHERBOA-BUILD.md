@@ -163,7 +163,8 @@ an earlier one.
   `?desk=on` once on that address, as on the live site.
 - **Checkpoint A** comes after Phase 8, when the public site is done: an
   audit and the queue to BVJ. The run keeps going into Phase 9 while BVJ
-  answers.
+  answers (BVJ, 2026-11-27: “keep going through Checkpoint A and
+  beyond”): the queue is sent as a file, and the run doesn't wait for it.
 - **Checkpoint B** comes after Phase 14: the final audit, the queue, and
   the launch list.
 - **The launch is BVJ's merge, and it launches both** (BVJ, 2026-11-27:
