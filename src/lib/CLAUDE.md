@@ -124,7 +124,10 @@
                      #   settings (desk-marks); the Greek tab's helpers
                      #   (desk-greek) and a note started from its words
                      #   (desk-note-from-greek); /desk's panes and their
-                     #   layouts (desk-layout), the passages they show
+                     #   layouts (desk-layout, which Phase 9b retires for
+                     #   desk-study: Study's places, panes, and tabs, the
+                     #   saved state under the same key, and the old
+                     #   tree's migration), the passages they show
                      #   (desk-passage), the search pane's rules
                      #   (desk-search-pane), and what each LIT pane's text
                      #   shows (desk-lit-marks; its corpus and text are
